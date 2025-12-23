@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Caudalimetro.change_diameter
+NodeClass: Variable
+BrowseName: 1:change_diameter
+DisplayName: en|change_diameter
+Description: en|change_diameter
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

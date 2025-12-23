@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/preview/deployed_devices/fleet/device.d.ts
+NodeClass: Variable
+BrowseName: 1:device.d.ts
+DisplayName: en|device.d.ts
+Description: en|device.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.MENUSCRIPTS.Custom_Hist
+NodeClass: Variable
+BrowseName: 1:Custom_Hist
+DisplayName: en|Custom_Hist
+Description: en|Custom_Hist
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

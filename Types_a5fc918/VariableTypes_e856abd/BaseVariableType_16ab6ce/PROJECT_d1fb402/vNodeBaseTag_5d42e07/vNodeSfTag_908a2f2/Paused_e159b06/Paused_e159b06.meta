@@ -1,0 +1,10 @@
+NodeId: ns=1;s=VariableTypes.PROJECT.1087.Paused
+NodeClass: Variable
+BrowseName: 1:Paused
+DisplayName: en|Paused
+Description: en|Paused
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition PropertyType

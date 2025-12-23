@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.006.Jardines_Sur.AvFlordeNaranjo_PrivDeDalia04
+NodeClass: Object
+BrowseName: 1:006.Jardines_Sur.AvFlordeNaranjo_PrivDeDalia04
+DisplayName: en|006.Jardines_Sur.AvFlordeNaranjo_PrivDeDalia04
+Description: en|006.Jardines_Sur.AvFlordeNaranjo_PrivDeDalia04
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.presion_min_max

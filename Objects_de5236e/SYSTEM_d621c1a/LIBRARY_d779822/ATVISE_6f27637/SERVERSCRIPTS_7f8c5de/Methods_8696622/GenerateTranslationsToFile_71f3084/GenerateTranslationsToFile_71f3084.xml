@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="context" type="number" trigger="false" relative="false" value="0"/>
+  <parameter name="file" type="string" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/** atvise server wrapper for UA method "AGENT.GENERATOR.METHODS.generateTranslationFile"
+
+This script is a standard atvise resource and must not be modified.
+
+Example:
+
+var result = call("Methods.GenerateTranslationsToFile", {
+	context: 0,
+	file: "C:/myfiles/mytranslations.xml"
+});
+
+if (result.error)
+	console.log(result.errorstring);
+else
+	console.log(result.result);
+
+
+Input:
+param context {number},{optional} The type of translation to be returned. 0 = all (default), 1 = atvise specific, 2 = project specific.
+
+Output:
+return {Object} A result object is returned with the following properties:
+- Object.error {number},{optional} Returns the error code of the call in case of an error. If no error occurred, it is
+  undefined.
+- Object.errorstring {string},{optional} Returns the error string of the call in case of an error. If no error occurred,
+  it is undefined.
+- Object.result {object},{optional} Returns the result of the call if no error occurred. It has the following
+  properties:
+	- result.success {boolean} If true then translations were successfully exported. false if an error occurred.
+*/
+
+var methodCall = Ua.findNode("AGENT.GENERATOR.METHODS.generateTranslationFile").result;
+
+var response = methodCall.call({
+	object: "AGENT.GENERATOR.METHODS",
+	input: [
+		{ type: Ua.DataType.INT32, value: context }
+	]
+});
+
+var result = {};
+
+if (response.error) {
+	result.error = response.error;
+	result.errorstring = Ua.Status(result).toString();
+
+	if (response.argumentError) {
+		var parameterNames = ["context"];
+
+		for (var i = 0; i < response.argumentError.length; ++i)
+			if (response.argumentError[i]) {
+				result.errorstring += ", " + parameterNames[i] + ":" + Ua.Status(response.argumentError[i]).toString();
+			}
+	}
+} else if (!new FileSystem().createFile(file, { overwrite: true })) {
+	result.error = Ua.Status.BADINVALIDARGUMENT;
+	result.errorstring = Ua.Status(result.error).toString() + ", file:BadInvalidArgument:" + file;
+} else {
+	const translations = response.result;
+	result.result = { success: true };
+
+	if (translations.length > 0) {
+		var stream = new OutputFileStream(file, "utf8");
+		stream.write(translations[0]);
+		stream.close();
+	}
+}
+
+return result;]]></code>
+</script>

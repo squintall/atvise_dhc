@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the alarm comment object display
+ * ----------------------------------------
+ * This script supports the display handling the possibility to acknowledge or confirm alarms and entering comments.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var action = webMI.query["action"];
+var addressesAndIds = null;
+	if (webMI.query["addressesAndIds"]) addressesAndIds = JSON.parse(webMI.query["addressesAndIds"]);
+var comment;
+var tableController;
+var tableID = webMI.query["tableID"];
+
+
+/**
+ * Prepare some UI settings
+ */
+var alarmid_text, condition_address_text;
+if (addressesAndIds && addressesAndIds.length == 1 && addressesAndIds[0].address.indexOf(",") == -1) {
+	alarmid_text = addressesAndIds[0].AlarmId.replace(/AGENT.OBJECTS./g, "");
+	condition_address_text = addressesAndIds[0].address.replace(/AGENT.OBJECTS./g, "");
+} else {
+	alarmid_text = "T{multiple selection}";
+	condition_address_text = "T{multiple selection}";
+}
+
+
+/**
+ * UI SETUP SECTION
+ */
+if(webMI.query["bgColor"]) webMI.gfx.setFill("background", webMI.query["bgColor"]);
+webMI.gfx.setFill("alarm_id_label", webMI.query["fontColor"]);
+webMI.gfx.setFill("alarm_id", webMI.query["fontColor"]);
+webMI.gfx.setFill("condition_address_label", webMI.query["fontColor"]);
+webMI.gfx.setFill("condition_address", webMI.query["fontColor"]);
+webMI.gfx.setFill("comment_label", webMI.query["fontColor"]);
+webMI.gfx.setText("alarm_id", alarmid_text);
+webMI.gfx.setText("condition_address", condition_address_text);
+webMI.gfx.setText("button", webMI.query["action"]);
+
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.table.waitReady(tableID, "controller", function () {
+	tableController = webMI.table.request(tableID, "controller");
+
+	webMI.trigger.connect("valuechanged", function (e) {
+		webMI.gfx.setVisible("error", false);
+		comment = e.value;
+	}, "comment");
+
+	webMI.trigger.connect("clicked", function (e) {
+		onButtonClick();
+	}, "button");
+
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * Execute on button click due trigger event
+ */
+function onButtonClick() {
+	if (comment == "") {
+		webMI.gfx.setVisible("error", true);
+		webMI.gfx.setText("error", "T{Error}: T{Please enter a comment}!");
+	} else {
+		if (action == "acknowledge") {
+			Acknowledge(addressesAndIds, comment);
+		}
+		if (action == "confirm") {
+			Confirm(addressesAndIds, comment);
+		}
+	}
+}
+
+/**
+ * Acknowledge
+ * @param addressesAndIds
+ * @param comment
+ * @constructor
+ */
+function Acknowledge(addressesAndIds, comment) {
+	var buffer = [];
+
+	for (var i = 0; i < addressesAndIds.length; i++) {
+		buffer.push(addressesAndIds[i]);
+		webMI.data.call("AlarmAcknowledge", {"address": addressesAndIds[i].AlarmId, "comment": comment}, function (e) {
+			if (typeof e.result[0].errorstring != "undefined") {
+				tableController.setMessage("T{Error}: " + e.result[0].errorstring + " [T{Confirm}: " + buffer[0].AlarmId + "]");
+				buffer.shift();
+			} else {
+				delete tableController.allAcknowledgeable[buffer[0].AlarmId];
+				buffer.shift();
+			}
+		});
+	}
+
+	setTimeout(function () {
+		webMI.display.closeWindow()
+	}, 50);
+}
+
+
+/**
+ * Confirm
+ * @param addressesAndIds
+ * @param comment
+ * @constructor
+ */
+function Confirm(addressesAndIds, comment) {
+	var buffer = [];
+
+	for (var i = 0; i < addressesAndIds.length; i++) {
+		buffer.push(addressesAndIds[i]);
+		webMI.data.call("AlarmConfirm", {"address": addressesAndIds[i].AlarmId, "comment": comment}, function (e) {
+			if (typeof e.result[0].errorstring != "undefined") {
+				tableController.setMessage("T{Error}: " + e.result[0].errorstring + " [T{Confirm}: " + buffer[0].AlarmId + "]");
+				buffer.shift();
+			} else {
+				delete tableController.allConfirmable[buffer[0].AlarmId];
+				buffer.shift();
+			}
+		});
+	}
+
+	setTimeout(function () {
+		webMI.display.closeWindow()
+	}, 50);
+}
+
+]]></code>
+</script>

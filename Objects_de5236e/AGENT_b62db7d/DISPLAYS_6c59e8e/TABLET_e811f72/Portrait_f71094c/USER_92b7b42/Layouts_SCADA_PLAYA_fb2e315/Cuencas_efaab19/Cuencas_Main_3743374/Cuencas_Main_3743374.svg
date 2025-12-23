@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="900" version="1.2" width="800" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <svg atv:refpx="640" atv:refpy="447.49" height="600" id="id_0" transform="matrix(1.6,0,0,1.475,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="3.39">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Cuencas.Cuenca_SAASTUNHA"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="Cuenca_SHA"/>
+ </svg>
+ <svg atv:refpx="1600" atv:refpy="667.495" height="600" id="id_1" transform="matrix(0.8,0,0,0.7417,0,0)" width="800" x="1600" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="600">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Cuencas.Cuenca_P_AVENTURAS"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="Cuenca_PTOAV"/>
+ </svg>
+ <svg atv:refpx="1600" atv:refpy="227.495" height="600" id="id_3" transform="matrix(0.8,0,0,0.7417,0,0)" width="800" x="1600" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="6.742">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Cuencas.Cuenca_GONZALO"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="Cuenca_GZL"/>
+ </svg>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.script_circuitos.circuitArray" atv:name="circuitArray" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+
+
+
+]]></script>
+</svg>

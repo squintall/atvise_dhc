@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="530" version="1.2" width="1200" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_2" x1="0" x2="0" y1="0" y2="1.07843">
+   <stop offset="0" stop-color="#75899f"/>
+   <stop offset="0.7117903930131004" stop-color="#293646"/>
+  </linearGradient>
+ </defs>
+ <desc>Used by highcharts configuration dialog.</desc>
+ <title>Configuration - Save/Load</title>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.dialogs.message_dialog" desc="display for message" group="Subdisplay" name="display_message" valuetype="display"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security: load configuration" name="load_right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security: load configuration" name="load_activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security: load configuration" name="load_activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security: save configuration" name="save_right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security: save configuration" name="save_activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security: save configuration" name="save_activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="change compression" group="Security: save configuration" name="save_changecompression" valuetype="bool"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <svg atv:refpx="600" atv:refpy="220" height="30" id="btn_save" width="80" x="560" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.button" y="205">
+  <atv:argument name="label" value="T{Save}"/>
+  <atv:argument name="tabIndex" value="22"/>
+  <atv:argument name="right" prefix="save_right"/>
+  <atv:argument name="activeNode" prefix="save_activeNode"/>
+  <atv:argument name="activeValue" prefix="save_activeValue"/>
+ </svg>
+ <svg atv:refpx="600" atv:refpy="475" height="30" id="btn_delete" width="80" x="560" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.button" y="340">
+  <atv:argument name="label" value="T{Delete}"/>
+  <atv:argument name="tabIndex" value="26"/>
+  <atv:argument name="right" prefix="save_right"/>
+  <atv:argument name="activeNode" prefix="save_activeNode"/>
+  <atv:argument name="activeValue" prefix="save_activeValue"/>
+ </svg>
+ <svg atv:refpx="600" atv:refpy="323" height="30" id="btn_load" width="80" x="560" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.button" y="305">
+  <atv:argument name="label" value="T{Load}"/>
+  <atv:argument name="tabIndex" value="25"/>
+  <atv:argument name="right" prefix="load_right"/>
+  <atv:argument name="activeNode" prefix="load_activeNode"/>
+  <atv:argument name="activeValue" prefix="load_activeValue"/>
+ </svg>
+ <svg atv:refpx="820" atv:refpy="125" height="30" id="json_download" transform="matrix(2,0,0,1,0,0)" width="80" x="370" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.button" y="113">
+  <atv:argument name="label" value="T{Download configuration}"/>
+  <atv:argument name="tabIndex" value="51"/>
+  <atv:argument name="right" prefix="save_right"/>
+  <atv:argument name="activeNode" prefix="save_activeNode"/>
+  <atv:argument name="activeValue" prefix="save_activeValue"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.5,0,0,1,0,0)" width="152"/>
+  <atv:overwrite id="button_label" transform="matrix(0.5,0,0,1,0,0)" x="80"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5,0,0,1,0,0)" x="70"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.5,0,0,1,0,0)" width="152"/>
+  <atv:overwrite id="id_2" transform="matrix(0.5,0,0,1,0,0)" width="154.5"/>
+  <atv:overwrite id="id_0" transform="matrix(0.5,0,0,1,0,0)" width="159.5"/>
+ </svg>
+ <text atv:refpx="283.264" atv:refpy="31.5" fill="#000000" font-family="Arial" font-size="12" font-weight="bold" id="id_5" text-anchor="start" x="204.5" y="36">T{Save / Load configuration}:</text>
+ <text atv:refpx="792.029" atv:refpy="31.5" fill="#000000" font-family="Arial" font-size="12" font-weight="bold" id="id_6" text-anchor="start" x="704.5" y="36">T{Export / Import configuration}:</text>
+ <line atv:refpx="680" atv:refpy="265" id="id_7" stroke="#000000" stroke-width="0.5" x1="680" x2="680" y1="20" y2="510"/>
+ <text atv:refpx="289" atv:refpy="181.5" fill="#000000" font-family="Arial" font-size="12" id="id_8" text-anchor="start" x="209.5" y="186">T{Save current configuration?}:</text>
+ <svg atv:refpx="437.496" atv:refpy="220" height="30" id="save_name" transform="matrix(1.4687,0,0,1,0,0)" width="160" x="217.879" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.in_out_value" y="205">
+  <atv:argument name="validation" value="String"/>
+  <atv:argument name="tabIndex" value="21"/>
+  <atv:argument name="right" prefix="save_right"/>
+  <atv:argument name="activeNode" prefix="load_activeNode"/>
+  <atv:argument name="activeValue" prefix="load_activeValue" value=""/>
+  <atv:overwrite id="id_0" transform="matrix(0.6809,0,0,1,0,0)" width="234.492"/>
+  <atv:overwrite id="input_label" transform="matrix(0.6809,0,0,1,0,0)" x="226.492"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.6809,0,0,1,0,0)" width="227.992"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.6809,0,0,1,0,0)" width="226.992"/>
+  <atv:overwrite id="id_2" transform="matrix(0.6809,0,0,1,0,0)" width="229.492"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.6809,0,0,1,0,0)" width="234.492"/>
+ </svg>
+ <text atv:refpx="280" atv:refpy="220.5" fill="#000000" font-family="Arial" font-size="12" id="id_10" text-anchor="end" x="305.5" y="225">T{Name}:</text>
+ <text atv:refpx="346.5" atv:refpy="281.5" fill="#000000" font-family="Arial" font-size="12" id="id_11" text-anchor="start" x="209.5" y="286">T{Load or delete existing configuration from node}:</text>
+ <text atv:refpx="796" atv:refpy="89.5" fill="#000000" font-family="Arial" font-size="12" id="id_12" text-anchor="start" x="704.5" y="94">T{Export configuration as json-file}:</text>
+ <text atv:refpx="793" atv:refpy="181.5" fill="#000000" font-family="Arial" font-size="12" id="id_13" text-anchor="start" x="704.5" y="186">T{Import configuration file (.json)}:</text>
+ <text atv:refpx="440" atv:refpy="391.5" fill="#000000" font-family="Arial" font-size="12" id="id_15" text-anchor="middle" x="440" y="396">T{Attention: Unsaved changes will be lost!}</text>
+ <svg atv:refpx="380" atv:refpy="430" height="30" id="btn_refresh" transform="matrix(1.5,0,0,0.6667,0,0)" width="80" x="213.333" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.button" y="510">
+  <atv:argument name="label" value="T{Refresh list}"/>
+  <atv:argument name="tabIndex" value="24"/>
+  <atv:argument name="right" prefix="load_right"/>
+  <atv:argument name="activeNode" prefix="load_activeNode"/>
+  <atv:argument name="activeValue" prefix="load_activeValue"/>
+  <atv:overwrite height="12" id="button_stroke" transform="matrix(0.6667,0,0,1.5,0,0)" width="112"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6667,0,0,1.5,0,0)" x="60" y="14.5"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6667,0,0,1.5,0,0)" x="50" y="0"/>
+  <atv:overwrite height="12" id="button_bg" transform="matrix(0.6667,0,0,1.5,0,0)" width="112"/>
+  <atv:overwrite height="14.5" id="id_2" transform="matrix(0.6667,0,0,1.5,0,0)" width="114.5"/>
+  <atv:overwrite height="19.5" id="id_0" transform="matrix(0.6667,0,0,1.5,0,0)" width="119.5"/>
+ </svg>
+ <text atv:refpx="931.5" atv:refpy="246.5" fill="#000000" font-family="Arial" font-size="12" id="id_17" text-anchor="start" x="744.5" y="251">(T{After the import you need to load the configuration on the left side})</text>
+ <rect atv:refpx="86.25" atv:refpy="35" fill="url(#linear_2)" height="530" id="filters_bg" rx="0" ry="0" stroke="#000000" stroke-width="0" width="180" x="0" y="0"/>
+ <svg atv:refpx="437.491" atv:refpy="320" height="30" id="cbb_configs" transform="matrix(1.4688,0,0,1,0,0)" width="160" x="217.872" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.combobox" y="305">
+  <atv:argument name="itemsCount" value="10"/>
+  <atv:argument name="tabIndex" value="23"/>
+  <atv:overwrite id="id_3" transform="matrix(0.6809,0,0,1,0,0)" x="209.75"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6809,0,0,1,0,0)" x="208.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6809,0,0,1,0,0)" x="208.5"/>
+  <atv:overwrite id="id_5" transform="matrix(0.6809,0,0,1,0,0)" x="207.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.6809,0,0,1,0,0)" width="202"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.6809,0,0,1,0,0)" x="200.5"/>
+  <atv:overwrite id="combobox_bg" transform="matrix(0.6809,0,0,1,0,0)" width="201"/>
+  <atv:overwrite id="id_2" transform="matrix(0.6809,0,0,1,0,0)" width="203"/>
+  <atv:overwrite id="combobox_stroke" transform="matrix(0.6809,0,0,1,0,0)" width="234.5"/>
+ </svg>
+ <foreignObject height="40" id="id_1" width="405" x="743" y="206">
+  <div id="highchartsLoadSaveFileInput" style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml">
+   <input id="fileInput" style="font-family:Arial,Helvetica;font-size:12px;" type="file"/>
+  </div>
+ </foreignObject>
+ <svg atv:refpx="479.975" atv:refpy="135" height="30" id="picker_config_address" transform="matrix(1.9999,0,0,1,0,0)" width="160" x="160.005" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.picker_address" y="115">
+  <atv:overwrite id="id_1" transform="matrix(0.5,0,0,1,0,0)" x="294.74"/>
+  <atv:argument name="itemsCount" value="15"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.5,0,0,1,0,0)" x="293.484"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5,0,0,1,0,0)" x="294.734"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.5,0,0,1,0,0)" x="293.484"/>
+  <atv:overwrite id="id_5" transform="matrix(0.5,0,0,1,0,0)" x="292.484"/>
+  <atv:overwrite id="input_label" transform="matrix(0.5,0,0,1,0,0)" x="285.984"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.5,0,0,1,0,0)" width="285.984"/>
+  <atv:overwrite id="addresspicker_bg" transform="matrix(0.5,0,0,1,0,0)" width="285.984"/>
+  <atv:overwrite id="id_2" transform="matrix(0.5,0,0,1,0,0)" width="287.984"/>
+  <atv:overwrite id="addresspicker_stroke" transform="matrix(0.5,0,0,1,0,0)" width="319.484"/>
+ </svg>
+ <text atv:refpx="270.5" atv:refpy="91.5" fill="#000000" font-family="Arial" font-size="12" id="id_9" text-anchor="start" x="209.5" y="96">T{Configuration node}:</text>
+ <text atv:refpx="286.5" atv:refpy="440.5" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_4" text-anchor="start" x="209.5" y="445">T{Create new configuration}:</text>
+ <svg atv:refpx="605" atv:refpy="498" height="30" id="btn_create" width="80" x="560" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.button" y="459">
+  <atv:argument name="label" value="T{Create}"/>
+  <atv:argument name="tabIndex" value="31"/>
+  <atv:argument name="right" prefix="save_right"/>
+  <atv:argument name="activeNode" prefix="save_activeNode"/>
+  <atv:argument name="activeValue" prefix="save_activeValue"/>
+ </svg>
+ <svg atv:refpx="442.496" atv:refpy="498" height="30" id="new_name" transform="matrix(1.4687,0,0,1,0,0)" width="160" x="217.878" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.in_out_value" y="459">
+  <atv:argument name="validation" value="String"/>
+  <atv:argument name="tabIndex" value="30"/>
+  <atv:argument name="right" prefix="save_right"/>
+  <atv:argument name="activeNode" prefix="load_activeNode"/>
+  <atv:argument name="activeValue" prefix="load_activeValue" value=""/>
+  <atv:overwrite id="id_1" transform="matrix(0.6809,0,0,1,0,0)" width="226.992"/>
+  <atv:overwrite d="M10.033,5C10.033,5 3.42,5 3.404,8.57C3.368,15.474 70.979,15.71 117.354,15.71C163.728,15.71 231.221,15.442 231.3,8.57C231.341,5 224.674,5 224.674,5C224.674,5 10.033,5 10.033,5" id="id_6" transform="matrix(0.6809,0,0,1,0,0)"/>
+  <atv:overwrite id="id_0" transform="matrix(0.6809,0,0,1,0,0)" width="234.492"/>
+  <atv:overwrite id="input_label" transform="matrix(0.6809,0,0,1,0,0)" x="226.492"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.6809,0,0,1,0,0)" width="227.992"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.6809,0,0,1,0,0)" width="226.992"/>
+  <atv:overwrite id="id_2" transform="matrix(0.6809,0,0,1,0,0)" width="229.492"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.6809,0,0,1,0,0)" width="234.492"/>
+ </svg>
+ <text atv:refpx="280" atv:refpy="474.5" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_18" text-anchor="end" x="305.5" y="479">T{Name}:</text>
+ <text atv:refpx="45.5" atv:refpy="31.5" fill="#575757" font-family="Arial" font-size="12" font-weight="bold" id="id_19" text-anchor="start" x="14.5" y="36">T{Settings}:</text>
+ <text atv:refpx="45.5" atv:refpy="31.5" fill="#575757" font-family="Arial" font-size="12" font-weight="bold" id="id_19" text-anchor="start" x="14.5" y="36">T{Settings}:
+  </text>
+ <svg atv:refpx="90" atv:refpy="90" height="30" id="check_compression" width="160" x="14" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.checkbox" y="71">
+  <atv:argument name="label" value="T{Compression}"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="tabIndex" value="1"/>
+ </svg>
+ <svg atv:refpx="480" atv:refpy="149" height="30" id="picker_config_file" transform="matrix(2,0,0,1,0,0)" width="160" x="160" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.in_out_value" y="115">
+  <atv:argument name="tabIndex" value="10"/>
+  <atv:argument name="validation" value="String"/>
+  <atv:overwrite id="id_1" transform="matrix(0.5,0,0,1,0,0)" width="318"/>
+  <atv:overwrite id="id_0" transform="matrix(0.5,0,0,1,0,0)" width="320"/>
+  <atv:overwrite id="input_label" transform="matrix(0.5,0,0,1,0,0)" x="311.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.5,0,0,1,0,0)" width="313"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.5,0,0,1,0,0)" width="312"/>
+  <atv:overwrite id="id_2" transform="matrix(0.5,0,0,1,0,0)" width="314.5"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.5,0,0,1,0,0)" width="319.5"/>
+ </svg>
+ <text atv:refpx="48.5" atv:refpy="51.5" fill="#575757" font-family="Arial" font-size="12" id="text_method" text-anchor="start" x="14.5" y="56">T{Save in}: -</text>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.highcharts.opt_save_load" atv:name="opt_save_load" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

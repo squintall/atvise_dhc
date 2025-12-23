@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/dayjs/locale/ar-kw.js
+NodeClass: Variable
+BrowseName: 1:ar-kw.js
+DisplayName: en|ar-kw.js
+Description: en|ar-kw.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

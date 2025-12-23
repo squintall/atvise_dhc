@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png"></icon>
+	<visible>0</visible>
+	<title>Consistency Handler</title>
+	<description>Handles consistent read and write.</description>
+  </metadata>
+  <code><![CDATA[const accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+if (typeof this.data === "undefined") {
+	this.data = { groups: {}, storage: [] };
+
+	webMI.trigger.connect("com.atvise.switchedlanguage", function () {
+		data.groups = {};
+		data.storage = [];
+	});
+}
+
+var data = this.data;
+
+function register(group, address, update) {
+	if (!data.groups[group]) data.groups[group] = [];
+
+	data.groups[group].push({ address: address, update: update });
+}
+
+function set(group, address, value) {
+	if (data.groups[group]) {
+		for (var i = 0; i < data.groups[group].length; i++) {
+			if (data.groups[group][i].address == address) data.groups[group][i].value = value;
+		}
+	}
+}
+
+function read(group) {
+	var addresses = [];
+	var entries = [];
+
+	for (var i in data.groups) {
+		if (i == group || !group) {
+			for (var j = 0; j < data.groups[i].length; j++) {
+				addresses.push(data.groups[i][j].address);
+				entries.push(data.groups[i][j]);
+			}
+		}
+	}
+
+	if (accessControlManager) {
+		let rights = addresses.map(() => {
+			return "read";
+		});
+
+		accessControlManager.getRightsDict(addresses, rights, (response) => {
+			let readableAddresses = addresses.filter((address) => {
+				return response[address].read;
+			});
+
+			let readableEntries = entries.filter((entry) => {
+				return response[entry.address].read;
+			});
+
+			webMI.data.read(readableAddresses, function (e) {
+				for (var i = 0; i < readableEntries.length; i++) {
+					readableEntries[i].value = e[i].value;
+					readableEntries[i].update(e[i].value);
+				}
+			});
+		});
+	} else {
+		webMI.data.read(addresses, function (e) {
+			for (var i = 0; i < entries.length; i++) {
+				entries[i].value = e[i].value;
+				entries[i].update(e[i].value);
+			}
+		});
+	}
+}
+
+function write(group) {
+	if (data.groups[group]) {
+		var addresses = [];
+		var values = [];
+
+		for (var i = 0; i < data.groups[group].length; i++) {
+			addresses.push(data.groups[group][i].address);
+			values.push(data.groups[group][i].value);
+		}
+
+		if (accessControlManager) {
+			let rights = addresses.map(() => {
+				return "write";
+			});
+
+			accessControlManager.getRightsDict(addresses, rights, (response) => {
+				const writableAddresses = [];
+				const valuesToWrite = [];
+
+				addresses.forEach((address, index) => {
+					if (response[address].write) {
+						writableAddresses.push(address);
+						valuesToWrite.push(values[index]);
+					}
+				});
+
+				webMI.data.write(writableAddresses, valuesToWrite);
+			});
+		} else {
+			webMI.data.write(addresses, values);
+		}
+	}
+}
+
+function renew() {
+	data.groups = {};
+	data.storage = [];
+}
+
+function push() {
+	data.storage.push(data.groups);
+}
+
+function pop() {
+	data.groups = data.storage.pop();
+}
+
+return {
+	register: register,
+	set: set,
+	read: read,
+	write: write,
+	renew: renew,
+	push: push,
+	pop: pop
+};
+]]></code>
+</script>

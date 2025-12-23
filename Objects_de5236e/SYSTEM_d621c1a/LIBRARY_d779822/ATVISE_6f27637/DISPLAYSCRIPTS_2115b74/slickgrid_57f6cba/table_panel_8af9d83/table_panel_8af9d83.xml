@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the table panel object display
+ * ----------------------------------------
+ * This script supports the display handling data in tabular form. In addition to the setting of the
+ * Table parameters also require the configuration in the higher-level display.
+ *
+ * This script requires jQuery > 1.7 and is currently shipped with jQuery > 3.3.x
+ * To avoid compatibility issues, the included jQuery version is only used if none already existing version is detected.
+ * Therefore, make sure that in this case a jQuery version > 1.7.x is used!
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var allowDirectInput = webMI.query["responsive"] == "true";
+var displayTimeouts = [];
+var eventlist = {};
+var gridUID = null;
+var responsive = webMI.query["responsive"] == "true";
+var slickStyler;
+var tableID = webMI.query["tableID"];
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var translation = {
+	language: "T{}",
+	title_export: "T{Export}",
+	title_command: "T{Filter}",
+	title_picker: "T{Columns}",
+
+	export_csv: "T{All rows with displayed columns}",
+	export_csv_wh: "T{All rows with all columns}",
+	export_csv_m: "T{Marked rows with displayed columns}",
+	export_csv_mwh: "T{Marked rows with all columns}",
+
+	export_option_timestamp: "T{Export time as timestamp}",
+	export_option_milliseconds: "T{Precision in milliseconds}",
+
+	filter_show_hide: "T{Show or hide filter}",
+	filter_clear: "T{Reset filter}",
+	sort_clear: "T{Reset sorting}",
+
+	tooltip_marks: "T{Set/Cancel marks}", // Markierung setzen/aufheben
+	tooltip_details: "T{Details show/hide}", // Details anzeigen/ausblenden
+}
+var useSVGKeyboard = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Configuration", {
+	action: "existsIndexParameter",
+	parameterName: "useSVGKeyboard"
+});
+
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+
+	/**
+	 * Scaling correction for external event listener
+	 */
+	var elementForScaleEvents = document.getElementById("slick_table_panel_" + tableID);
+	var scaleType = webMI.getConfig("frame.scaletype");
+	if (scaleType == "zoom") {
+		webMI.gfx.setScaledEvents(
+			elementForScaleEvents.parentElement.parentElement,
+			false,
+			false,
+			elementForScaleEvents.parentElement
+		);
+	}
+
+	/**
+	 * load resources
+	 */
+	webMI.table.loadResources(function () {
+
+		/* special for ie11 */
+		function iconInnerHTML(icon, iconClass, dimensions) {
+			var newIcon = icon;
+			newIcon.setAttribute("visibility", "visible");
+			newIcon.setAttribute("viewbox", "0 0 " + icon.getAttribute("width") + " " + icon.getAttribute("height"));
+			if (dimensions) {
+				newIcon.setAttribute("width", dimensions.width);
+				newIcon.setAttribute("height", dimensions.height);
+			}
+			for (var ic in iconClass) {
+				webMI.rootWindow.jQuery(newIcon).addClass(iconClass[ic]);
+			}
+			return webMI.rootWindow.jQuery('<div>').append(webMI.rootWindow.jQuery(newIcon).clone()).html(); // webMI.rootWindow.jQuery(newIcon).outerHTML;
+		}
+
+		/**
+		 * Declaration of some ICONS
+		 * @type {HTMLElement | null}
+		 */
+		var dimensions = {
+			width: 16,
+			height: 16,
+		}
+		var iconAction = iconInnerHTML(document.getElementById("iconAction"), ["iconAction", "table-icon"], dimensions);
+		var iconSelector = iconInnerHTML(document.getElementById("iconSelector"), ["iconSelector", "table-icon"], dimensions);
+		var iconBurger = iconInnerHTML(document.getElementById("iconBurger"), ["iconBurger", "table-icon"], dimensions);
+		var iconMessage = iconInnerHTML(document.getElementById("iconMessage"), [], {width: 80, height: 20,});
+
+		/**
+		 * prepare config
+		 */
+		webMI.table.waitReady(tableID, "config", function () {
+
+			/**
+			 * get the query parameter (builder settings)
+			 * @type {Array}
+			 */
+			var heightMultiplicator = (webMI.getClientInfo() && responsive) ? webMI.getClientInfo().deviceScaling.table.rowheight : 1;
+			var fontMultiplicator = (webMI.getClientInfo() && responsive) ? (webMI.getClientInfo().deviceScaling.table.fontsize ? webMI.getClientInfo().deviceScaling.table.fontsize : 1) : 1;
+
+			var settings = [];
+			settings.header_height = webMI.query["header_height"] * heightMultiplicator;
+			settings.header_text_size = webMI.query["header_text_size"] * fontMultiplicator;
+			settings.header_text_horizontal = webMI.query["header_text_horizontal"];
+			settings.header_text_vertical = webMI.query["header_text_vertical"];
+			settings.row_height = webMI.query["row_height"] * heightMultiplicator;
+			settings.row_text_size = webMI.query["row_text_size"] * fontMultiplicator;
+			settings.detail_text_size = webMI.query["detail_text_size"] * fontMultiplicator;
+			settings.footer_text_size = webMI.query["footer_text_size"] * fontMultiplicator;
+			settings.font_family = webMI.query["font_family"];
+			settings.theme_class = webMI.query["theme_class"];
+			settings.paging = webMI.query["paging"];
+			settings.filterBar = webMI.query["filterBar"];
+			settings.filterRegExp = webMI.query["filterRegExp"];
+			settings.filterLength = webMI.query["filterLength"];
+			settings.filterDelay = webMI.query["filterDelay"];
+			settings.filterCaseSensitive = webMI.query["filterCaseSensitive"];
+			settings.filterStar = webMI.query["filterStar"];
+			settings.linebreak = webMI.query["linebreak"];
+			settings.multiselect = webMI.query["multiselect"];
+			settings.multicellselect = webMI.query["multicellselect"];
+			settings.columnReorder = webMI.query["columnReorder"];
+			settings.showMenu = webMI.query["showMenu"];
+			settings.showMenuWidth = webMI.query["showMenuWidth"];
+			settings.showMenuHeight = webMI.query["showMenuHeight"];
+			settings.showMenuPicker = webMI.query["showMenuPicker"];
+			settings.showMenuFilter = webMI.query["showMenuFilter"];
+			settings.showMenuExport = webMI.query["showMenuExport"];
+			settings.showMode = webMI.query["showMode"];
+			settings.icons = [];
+			settings.icons.selector = typeof iconSelector == "undefined" ? false : iconSelector;
+			settings.icons.action = typeof iconAction == "undefined" ? false : iconAction;
+			settings.icons.burger = typeof iconBurger == "undefined" ? false : iconBurger;
+			settings.notification = document.getElementById("notification_area").getAttribute("id");
+			settings.translation = translation;
+
+			/**
+			 * add colors from global table color config
+			 */
+			for (var key in webMI.query["globalColorConfig"]) {
+				var value = webMI.query["globalColorConfig"][key];
+				if (typeof value.color != "undefined")
+					settings[key] = value.color;
+			}
+
+			/**
+			 * check for optional styling parameter, set in the parent display
+			 * if found, add or overwrite current settings
+			 */
+			var styling = webMI.table.request(tableID, "styling");
+			for (var key in styling) {
+				var value = styling[key];
+				if (typeof value != "undefined")
+					settings[key] = value;
+			}
+
+			/**
+			 * get fallback settings from global configurations
+			 * @type {Array}
+			 */
+			var fallback = [];
+			fallback.globalBorderColor = webMI.query["globalBorderColor"];
+			fallback.globalFillColor = webMI.query["globalFillColor"];
+			fallback.globalFontColor = webMI.query["globalFontColor"];
+			fallback.globalSymbolColor = webMI.query["globalSymbolColor"];
+			fallback.globalInactiveColor = webMI.query["globalInactiveColor"];
+
+			/**
+			 * get the configuration for mode, request and optionals from parent
+			 * and pass it to the slickConfigurator to build a valid config
+			 */
+			var parentConfig = webMI.table.request(tableID, "config");
+			var slickConfigurator = new webMI.rootWindow.SlickConfigurator(parentConfig, settings, fallback);
+			var config = slickConfigurator.getConfig();
+
+			/**
+			 * get own container id
+			 */
+			if (!config["containerID"]) {
+				config["containerID"] = document.getElementById("slick_table_panel_" + tableID).getAttribute("id");
+			}
+
+			/**
+			 * register all for other components
+			 */
+			webMI.table.register(tableID, "ControllerConfig", config);
+			webMI.table.setReady(tableID, "ControllerConfig");
+
+			/**
+			 * Prepare Data- and tableController
+			 * @type {config}
+			 */
+			var dataController = new webMI.rootWindow.DataController();
+			var tableController = new webMI.rootWindow.SlickController(dataController, config);
+			webMI.table.register(tableID, "controller", tableController);
+
+			/**
+			 * Generate CSS
+			 */
+			slickStyler = new webMI.rootWindow.SlickStyler();
+			tableController.init(function () {
+				if (slickStyler)
+					slickStyler.generate(config["containerID"], config.style);
+
+				try {
+					webMI.table.setReady(tableID, "controller");
+				} catch (ex) {
+				}
+			});
+
+			/**
+			 * Add some dialogs to the tableController
+			 * @type {Array}
+			 */
+			var dialogs = (new webMI.rootWindow.SlickDialogs()).getDialogs();
+			tableController.dialogs = [];
+			tableController.dialogs.continuation = [];
+			tableController.dialogs.continuation.search = function () {
+				return _openDialog(dialogs.continuation.search("T{}"))
+			};
+			tableController.dialogs.continuation.filter = function () {
+				return _openDialog(dialogs.continuation.filter("T{}"))
+			};
+
+			tableController.dialogs.sorting = [];
+			tableController.dialogs.sorting.running = function () {
+				return _openDialog(dialogs.sorting.running("T{}"))
+			};
+
+			tableController.dialogs.triggered = [];
+			tableController.dialogs.triggered.search = function () {
+				return _openDialog(dialogs.triggered.search("T{}"))
+			};
+			tableController.dialogs.triggered.filter = function () {
+				return _openDialog(dialogs.triggered.filter("T{}"))
+			};
+
+			/**
+			 * Add message icon to notification_area and configure listener
+			 */
+			webMI.rootWindow.jQuery("#" + settings.notification).append(webMI.rootWindow.jQuery(iconMessage).clone()).html();
+			webMI.addEvent("notification_area", "click", function (e) {
+				tableController.notification.handleEvent(e, null);
+			});
+
+			/**
+			 * Hide show notification button
+			 */
+			var panel = [];
+			panel.element = document.getElementById("slick_table_panel_" + tableID);
+			panel.width = panel.element.offsetWidth;
+
+			var noteButton = [];
+			noteButton.element = document.getElementById("id_notification");
+			noteButton.top = noteButton.element.style.top;
+
+			noteButton.icon = [];
+			noteButton.icon.id = document.getElementById("iconMessage").id;
+			noteButton.icon.container = noteButton.element.querySelector("#" + noteButton.icon.id);
+
+			if (noteButton.icon.container) {
+				noteButton.icon.width = noteButton.icon.container.width.baseVal.value;
+				noteButton.icon.height = noteButton.icon.container.height.baseVal.value;
+			} else {
+				noteButton.icon.width = 0;
+				noteButton.icon.height = 0;
+			}
+
+			tableController.hideNotificatonButton = function () {
+				noteButton.element.style.top = "-100px";
+				noteButton.element.style.display = "none";
+			}
+
+			tableController.showNotificatonButton = function () {
+				noteButton.element.style.top = noteButton.top;
+				var nbWidth = noteButton.icon.width; // noteButton.element.style.width.replace("px", "");
+				var nbLeft = noteButton.element.style.left.replace("px", "");
+				var nbHeight = noteButton.icon.height;
+
+				if (nbLeft > (panel.width - nbWidth - 25)) {
+					nbLeft = panel.width - nbWidth - 25;
+					noteButton.element.style.left = nbLeft + "px";
+				}
+				if (nbWidth < 80) {
+					nbWidth = 80;
+					noteButton.element.style.width = nbWidth + "px";
+				}
+				noteButton.element.style.display = "block";
+
+				/* correction for parent */
+				var noteArea = document.getElementById("notification_area");
+
+				var header = [];
+				header.container = [];
+				header.container.content = document.getElementById("slick_table_panel_" + tableID);
+				header.container.top = parseInt(header.container.content.parentElement.parentElement.style.top.replace("px", ""), 10);
+				header.container.left = parseInt(header.container.content.parentElement.parentElement.style.left.replace("px", ""), 10);
+				header.container.height = parseInt(header.container.content.parentElement.parentElement.style.height.replace("px", ""), 10);
+
+				header.column = [];
+				header.column.content = header.container.content.getElementsByClassName("slick-header-columns")[0];
+				header.column.width = parseInt(header.column.content.style.width.replace("px", ""), 10);
+				header.column.left = parseInt(header.column.content.style.left.replace("px", ""), 10);
+				header.column.height = header.column.content.offsetHeight;
+				header.offset = header.container.left + header.column.left + header.column.width;
+
+				noteArea.parentElement.parentElement.style.top = (header.container.top + (header.column.height - nbHeight + 4) / 2) + "px";
+				noteArea.parentElement.parentElement.style.height = (header.column.height + 1) + "px";
+				noteArea.parentElement.parentElement.style.left = (header.offset - nbWidth - 25) + "px";
+				noteArea.parentElement.parentElement.style.width = nbWidth + "px";
+
+				// noteArea.style.top = (header.container.top + (header.column.height - nbHeight) / 2) + "px";
+				noteArea.style.height = nbHeight + "px";
+				noteArea.style.left = (header.offset - nbWidth - 25) + "px";
+				noteArea.style.width = nbWidth + "px";
+			}
+
+			tableController.hideNotificatonButton();
+
+
+			/**
+			 * Add some trigger for trigger mode
+			 */
+			webMI.trigger.connect("triggerStopRequests", function (e) {
+				e.value.close();
+				tableController.triggerStopRequests();
+			});
+			webMI.trigger.connect("triggerForceRequests", function (e) {
+				e.value.close();
+				tableController.triggerForceRequests();
+			});
+
+
+			/**
+			 * Start the requests with delay due to ac handlings!
+			 */
+			setTimeout(function () {
+				tableController.startDataRequest(parentConfig.options ? parentConfig.options : {});
+			}, 250);
+
+
+			/**
+			 * A small fix for the UI due to asynchronous sizing in conjunction with transformations
+			 */
+			tableController.resizeTable = function () {
+				displayPanelResizeTimeout = setTimeout(function () {
+					tableController.resize({});
+				}, 250);
+				displayTimeouts.push(displayPanelResizeTimeout);
+			}
+			webMI.rootWindow.addEventListener('resize', tableController.resizeTable);
+
+			/**
+			 * Additional call for pop up necessary
+			 */
+			displayPanelResizeTimeout = setTimeout(function () {
+				tableController.resize({});
+			}, 1000);
+			displayTimeouts.push(displayPanelResizeTimeout);
+
+			/**
+			 * Add input event listener for html input fields
+			 */
+			setTimeout(function () {
+				gridUID = tableController.getGridUID();
+
+				webMI.trigger.connect("com.atvise.table.input." + gridUID, function (args) {
+					var cell = args.value.cell;
+					var item = args.value.item;
+					var target = args.value.target;
+					var commit = false;
+
+					if(target.type == "text" && (useSVGKeyboard || !allowDirectInput)) {
+						openKeyboard(cell, item, target);
+					} else {
+						tabHandler.setAcceptKeys(false);
+
+						if (!eventlist[item.id]) {
+							if (cell.onChange)
+								webMI.addEvent(target, "change", change);
+							eventlist[item.id] = target;
+
+							webMI.addEvent(target, "blur", blur);
+							webMI.addEvent(target, "keydown", keydown);
+						}
+					}
+
+					/**
+					 * React on input changes without confirmations (e.g. Enter)
+					 * @param e
+					 */
+					function change(e) {
+						if(e.target.type == "checkbox") {
+							if (cell.onChange) {
+								cell.onChange(item, e.target.checked ? e.target.value : "");
+							}
+						}
+
+						if(e.target.type == "text") {
+							if (cell.onChange) {
+								if (commit) {
+									commit = false;
+									return;
+								}
+
+								cell.onChange(item, e.target.value);
+							}
+						}
+
+						e.currentTarget.blur();
+					}
+
+					/**
+					 * Leave input fields
+					 * @param e
+					 */
+					function blur() {
+						tabHandler.setAcceptKeys(true);
+					}
+
+					/**
+					 * Listen on user input and react on enter and escape
+					 * @param e
+					 */
+					function keydown(e) {
+						if (e.keyCode == 13) {
+							commit = true;
+							if(e.target.type == "text") {
+								cell.onChange(item, e.target.value);
+								item.value = e.target.value;
+							}
+							e.currentTarget.blur();
+						}
+
+						if (e.keyCode == 27) {
+							commit = true;
+							if(e.target.type == "text") {
+								e.target.value = item.value;
+							}
+							e.currentTarget.blur();
+						}
+
+						e.stopPropagation();
+					}
+
+					/**
+					 * Open SVG keyboard
+					 * @param cell
+					 * @param item
+					 * @param target
+					 */
+					function openKeyboard(cell, item, target) {
+
+						function getDisplayParameters() {
+							var communicationID = new Date().getTime().toString();
+							webMI.trigger.connect(communicationID, function (e) {
+								if (cell.onChange) {
+									if (target.type == "checkbox") {
+										cell.onChange(item, target.checked ? e.value : null);
+										target.checked = !target.checked;
+									} else {
+										cell.onChange(item, e.value);
+										target.value = e.value;
+									}
+								}
+								commit = true;
+							});
+
+							return { trigger: communicationID };
+						}
+
+						var size = typeof inputMode != "undefined" && inputMode == "Number" ? {
+							w: 378,
+							h: 328
+						} : {w: 700, h: 300};
+
+						if (typeof inputMode != "undefined" && inputMode == "Number") keyboard = number_keyboard;
+
+						var keyboardParam = getDisplayParameters();
+						webMI.display.openWindow({
+							display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.keyboard.keyboard",
+							extern: false,
+							height: size.h,
+							menubar: false,
+							modal: true,
+							movable: true,
+							resizable: false,
+							scrollbars: false,
+							status: false,
+							title: "T{Keyboard}",
+							toolbar: false,
+							width: size.w,
+							query: keyboardParam
+						});
+					}
+				});
+			}, 500);
+
+			/**
+			 * cleanup @ unload
+			 */
+			webMI.addOnunload(
+				function () {
+					/* remove events */
+					webMI.rootWindow.removeEventListener('resize', tableController.resizeTable);
+					for (var key in eventlist)
+						eventlist[key].outerHTML = eventlist[key].outerHTML;
+
+					/* remove functions */
+					tableController.hideNotificatonButton();
+					tableController.showNotificatonButton = undefined;
+					tableController.hideNotificatonButton = undefined;
+					tableController.dialogs = undefined;
+					tableController.resizeTable = undefined;
+
+					slickConfigurator = undefined;
+
+					try {
+						slickStyler.unload();
+						slickStyler = undefined;
+					} catch (ex) {
+						/* already unset */
+					}
+
+					tableController.destroy();
+					for (var to in displayTimeouts) {
+						if (displayTimeouts[to] != null) {
+							clearTimeout(displayTimeouts[to]);
+						}
+					}
+				}
+			);
+
+		});
+	});
+});
+
+
+/**
+ * simple open dialogs
+ * @param parameter
+ * @returns {Promise<WindowClient> | *}
+ * @private
+ */
+function _openDialog(parameter) {
+	var w = 400;
+	var h = 250;
+	var id = webMI.display.openWindow(
+		{
+			display: parameter.display, // "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog",
+			height: h, width: w,
+			modal: true,
+			resizable: false,
+			movable: true,
+			scrollbars: false,
+			menubar: false,
+			status: false,
+			toolbar: false,
+			query: {
+				headline: parameter.headline,
+				msg1: parameter.msg1 + " " + parameter.msg2,
+				btn1: parameter.btn1,
+				btn2: parameter.btn2,
+				action_btn2: parameter.action_btn2
+			}
+		});
+	return id;
+}
+]]></code>
+</script>

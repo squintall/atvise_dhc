@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEQAACxEBf2RfkQAABStJREFUWIXtl0uMHcUVhr9Tp7rvc+YOYyeysY1t7AC2USQHFpDABmEJIRbANruss/A2K7IhQmLBIrtIWbJBCClSdolwrCxQHkZgRwRh4bGNZcNgz/O++lFVWXTfnr5z70AQEmw4UqlPVbXO/9ep/1RXww/2PZtMnPO/PvL0kfsbj1kDHjAGjBrUFH5kADXYsq9avmPA+6I5wGeQZB7vIUk8ISDra9n6n/+avnXp0p3hbgJ24jz/7NJrx3/y3M+9GxGCAyiewREIxTN4IBCCm3onBE86vkuaDhAxACRJShxb8jxna9uzcnPjo0uX+OeeBPA+Hw1WcPkMyT3MV14U38e1lXt8+J8hPz3T4uatjMgKjYawvuF4/GybXk/NvCgVAROZ0GwdwuXb1eRkxbtt97gxMceOLiECDz18kmbzU+5bUrIskGaBffuWGY3W5i5jJwMifHb9XZIERKqh6ilS7HcBKDNz1lqOHV1m2L/N4UP78T6n04nwPidJ+nQ60exKpggEsFawdgJggICIKZpRRAzGKMZE5bgtfYtIMY9o6StGG2TpGvnWDT7+76j/lQSCCzQ6bYxG5NmYO3eG2EgwRjACYkBVyqqQsgKkyoypyBi8z/E+IwRPnge2+56XXl78zcsv9m44T7xyM1l5/Y0bfwDyioAL0Gzux8ZL3F29wiOnH+OBE+cJIS+az0rf4UNaqj+H4PA+rSojhBzvxgz7V0nGnyOi/OjgAgcOXP1ls32IdLzKkSO3s9ff4G1gtZYBh417RPESjUaLZPwFm+vvkedb1I4LhDlilul5G/W4ePEvXL4y4twzC/zt732OH43Z2PoMq8JTv1jYngTdyQCg2sSYFiJCo3mARusQmnVLhoFQKz1CoF6KIUw05jGmwZNPnOWhEx9x4pFf0W7/kaMPnuPu5xdYXDpN7kfAB9MayDMQ00C1RRR1SJO7XP7XKzNqL1qhhWL/LVIK05i4EKCxRPF+Dh5+ms31f3P85PPk2RYHDr9Amtwj2bw9K8I8p1RuG6NFoMXFHjbqlmqPCwBtlJlqFK3mi4mLpygyIVM2ENR2GA+vM9hemSWQ5WAkQm0Xo02Cz+gsnMRGizsEtFUCFX1EMVIAIYIwAaMsRwNIjYjFaGtKPrUMBBDF2i7GxOQuobN4Cmt75RZMr6YArQNMg+2QqGVAW/hoGamdyjUCDhFFbRfVFnm2Rdz4Mca0KI7d6eCVv7tfJySKIBURY1pYn1KvqikNBDwixVDwGdb2ilTXVjMLNgskmLlbotom+JTg3HwC3o3wPsW5EVm2VWWjjDAn7SVYNTchYqo9nxBGDEbbeJ/g8/58AhBKtTfIsgRrF1DtEnAIWgs2nYHJt6B4wewC1ioTYmK89knmEQjetzfuvU+WbXJv9TLOgWoXGy0VR+5eAivTXQeazE9Z7QKTjedswdqm+9N7//gyVV31/b63p091fqa221DbJQRXBp6/t3OBfFoBFiL2SHA4NyBzO1/misBvf7fyKvBq2W298+aZj0XsA2p7RbCvBAq1S4qvHdth6vJiJODdiCSdQ2CXiUvLr10B842AJuRmo4IPKfn46wnoOAvi3JDgU7wbEZjsYQm0x3Xt6yz4nPG8MtxtuaNS7s659U0BZbpnYlTbZP9HBkgT373+yWtE8fK0+r+NiTIe3iTLwkKnA4PB3gQGV6+lv79158KjVo1fXlKaLRCjqIJK8WOy0xQ1oLY4LVwA5wLOOdIMnCtaf+jY3vJmbSO/Nhgw/5r8g33X9j/4B2D0YFvZRAAAAABJRU5ErkJggkVORK5CYII=</icon>
+	<visible>1</visible>
+	<title>Open PopUp</title>
+	<description>Opens a Popup by various mouse events.</description>
+  </metadata>
+  <parameter name="PopUp" description="PopUp to be displayed" valuetype="display" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="onEvent" description="event triggering the PopUp" valuetype="enum" defaultvalue="click" config="click;dblclick;mousedown;mouseup;mouseover;mousemove;mouseout" behavior="optional" group=""/>
+  <parameter name="width" description="width of the PopUp" valuetype="number" defaultvalue="300" config="" behavior="optional" group=""/>
+  <parameter name="height" description="height of the PopUp" valuetype="number" defaultvalue="400" config="" behavior="optional" group=""/>
+  <parameter name="extern" description="opens PopUp in external window or not" valuetype="bool" defaultvalue="false" config="" behavior="optional" group=""/>
+  <parameter name="menubar" description="enables/disables menubar" valuetype="bool" defaultvalue="false" config="" behavior="optional" group=""/>
+  <parameter name="moveable" description="PopUp will be moveable or not" valuetype="bool" defaultvalue="true" config="" behavior="optional" group=""/>
+  <parameter name="resizeable" description="PopUp will be resizeable or not" valuetype="bool" defaultvalue="false" config="" behavior="optional" group=""/>
+  <parameter name="scrollbars" description="enables/disable scrollbars" valuetype="bool" defaultvalue="false" config="" behavior="optional" group=""/>
+  <parameter name="status" description="enables/disable statusbar" valuetype="bool" defaultvalue="false" config="" behavior="optional" group=""/>
+  <parameter name="title" description="title of the PopUp" valuetype="string" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="toolbar" description="enables/disables Toolbar" valuetype="bool" defaultvalue="false" config="" behavior="optional" group=""/>
+  <parameter name="modal" description="opens PopUp modal or not" valuetype="bool" defaultvalue="true" config="" behavior="optional" group=""/>
+  <parameter name="passParameters" description="pass through all parameters" valuetype="bool" defaultvalue="true" config="" behavior="optional" group=""/>
+  <code><![CDATA[// This Quick Dynamic opens a display as popup depending on one of the events defined by "onEvent".
+// Parameters:
+//	PopUp:		display which will be opened as popup
+//	onEvent:	the event triggering this Quick Dynamic, which is one of the following:
+//		click:		mouse click
+//		dblclick:	double click of mouse button
+//		mousedown:	press down the mouse button
+//		mouseup:	release the mouse button
+//		muuseover:	move the mouse cursor over the applied graphical element
+//		mousemove:	move the mouse anywhere over the applied graphical element
+//		mouseout:	move the mouse cursor out of the applied graphical element
+//	width:		width of the popup (in pixels)
+//	height:		height of the popup (in pixels)
+//	extern:		if true, popup will be opened in external browser window
+//	menubar:	if true, menubar will be displayed
+//	moveable:	if true, popup will be moveable
+//	resizeable:	if true, popup will be resizeable
+//	scrollbars:	if true, popup will have scrollbars
+//	status:		if true, status bar will be displayed
+//	title:		specifies the title of the popup
+//	toolbar:	if true, toolbar will be displayed
+//  modal:		if true, popup will be open of type modal, i.e. always in foreground
+
+webMI.addEvent(base.id, base.onEvent, function() {
+	var width = parseFloat(base.width);
+	var height = parseFloat(base.height);
+	var extern = base.extern==="true";
+	var	menubar = base.menubar==="true";
+	var moveable = base.moveable==="true";
+	var resizeable = base.resizeable==="true";
+	var scrollbars = base.scrollbars==="true";
+	var status = base.status==="true";
+	var toolbar = base.toolbar==="true";
+	var modal = base.modal==="true";
+	var passParameters = base.passParameters==="true";
+	var popup = {display:base.PopUp,extern:extern,height:height,menubar:menubar,modal:modal,movable:moveable,resizable:resizeable,scrollbars:scrollbars,status:status,title:base.title,toolbar:toolbar,width:width};
+
+	if(passParameters)
+		popup.query = webMI.query;
+
+	webMI.display.openWindow(popup);
+});]]></code>
+</script>

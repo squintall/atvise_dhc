@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Grafica_Circuito_Intermedio
+NodeClass: Variable
+BrowseName: 1:Grafica_Circuito_Intermedio
+DisplayName: en|Grafica_Circuito_Intermedio
+Description: en|Grafica_Circuito_Intermedio
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

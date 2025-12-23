@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.aggregate
+NodeClass: Variable
+BrowseName: 1:aggregate
+DisplayName: en|aggregate
+Description: en|aggregate
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

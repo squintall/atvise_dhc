@@ -1,0 +1,9 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Scrubber.Sensor1.sts.Estatus
+NodeClass: Object
+BrowseName: 1:Estatus
+DisplayName: en|Estatus
+Description: en|Estatus
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConditionControl.Discrete
+Reference: forward HasComponent ns=1;s=AGENT.ALARMING.Categories.Warning

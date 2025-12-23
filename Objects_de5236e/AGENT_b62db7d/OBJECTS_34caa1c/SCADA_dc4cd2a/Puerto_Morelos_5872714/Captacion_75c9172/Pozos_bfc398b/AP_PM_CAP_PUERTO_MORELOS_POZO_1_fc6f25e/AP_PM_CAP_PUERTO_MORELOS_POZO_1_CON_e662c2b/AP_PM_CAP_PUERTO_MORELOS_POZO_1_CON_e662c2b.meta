@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Captacion.Pozos.AP_PM_CAP_PUERTO_MORELOS_POZO_1.AP_PM_CAP_PUERTO_MORELOS_POZO_1_CON
+NodeClass: Variable
+BrowseName: 1:AP_PM_CAP_PUERTO_MORELOS_POZO_1_CON
+DisplayName: en|AP_PM_CAP_PUERTO_MORELOS_POZO_1_CON
+Description: en|AP_PM_CAP_PUERTO_MORELOS_POZO_1_CON
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

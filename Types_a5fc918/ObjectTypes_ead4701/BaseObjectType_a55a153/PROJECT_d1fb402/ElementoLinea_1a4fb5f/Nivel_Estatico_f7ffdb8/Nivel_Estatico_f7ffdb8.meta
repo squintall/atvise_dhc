@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Nivel_Estatico
+NodeClass: Variable
+BrowseName: 1:Nivel_Estatico
+DisplayName: en|Nivel_Estatico
+Description: en|Nivel_Estatico
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="Parameters" type="http" trigger="false" relative="false" value=""/>
+  <code><![CDATA[function fetchDataPGSQL() {
+    var o = new ODBCClient();
+    o.source = "DSN=PostgreSQL;UID=vnode;PWD=vnode"; // Configura tu DSN, usuario y contraseña
+    
+    try {
+        if (!o.open()) {
+            return { error: "No se pudo conectar a la base de datos." };
+        }
+
+        // Consulta a la base de datos con límite de 100 registros
+        var query = "SELECT id, fecha_hora, portillo_l1, portillo_l2, portillo_l3, portillo_l4 FROM public.portillo LIMIT 100";
+        var result = o.query(query);
+
+        if (!result || result.length === 0) {
+            throw new Error("No se obtuvieron datos.");
+        }
+
+        // Formatea los resultados como un JSON para el frontend
+        var formattedResult = result.map(row => ({
+            id: row[0],
+            fecha_hora: row[1],
+            portillo_l1: row[2],
+            portillo_l2: row[3],
+            portillo_l3: row[4],
+            portillo_l4: row[5]
+        }));
+
+        o.close(); // Asegúrate de cerrar la conexión después de completar la operación
+        
+        // Retorna los datos formateados
+        return { result: formattedResult };
+    } catch (error) {
+        o.close();
+        console.error("Error al obtener los datos:", error.message);
+        return { error: error.message };
+    }
+}
+]]></code>
+</script>

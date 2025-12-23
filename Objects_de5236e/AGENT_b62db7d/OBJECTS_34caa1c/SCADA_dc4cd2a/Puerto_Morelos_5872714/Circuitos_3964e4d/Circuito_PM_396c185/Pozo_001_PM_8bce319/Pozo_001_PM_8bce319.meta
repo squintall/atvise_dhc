@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Pozo_001_PM
+NodeClass: Object
+BrowseName: 1:Pozo_001_PM
+DisplayName: en|Pozo_001_PM
+Description: en|Pozo_001_PM
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.ElementoPozo
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Control
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Monitoreo IT
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.conectividad

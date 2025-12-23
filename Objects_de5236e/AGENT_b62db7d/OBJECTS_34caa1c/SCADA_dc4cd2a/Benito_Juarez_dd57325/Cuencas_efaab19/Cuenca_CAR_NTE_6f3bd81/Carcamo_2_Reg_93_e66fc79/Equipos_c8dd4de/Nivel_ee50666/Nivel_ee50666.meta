@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_2_Reg_93.Equipos.Nivel
+NodeClass: Object
+BrowseName: 1:Nivel
+DisplayName: en|Nivel
+Description: en|Nivel
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

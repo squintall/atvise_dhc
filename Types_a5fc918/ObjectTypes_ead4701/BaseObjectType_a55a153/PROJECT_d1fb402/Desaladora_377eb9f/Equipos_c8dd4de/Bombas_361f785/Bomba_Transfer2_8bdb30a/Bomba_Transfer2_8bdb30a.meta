@@ -1,0 +1,12 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Desaladora.Equipos.Bombas.Bomba_Transfer2
+NodeClass: Object
+BrowseName: 1:Bomba_Transfer2
+DisplayName: en|Bomba_Transfer2
+Description: en|Bomba_Transfer2
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Asignar_LR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Indicador_Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.button

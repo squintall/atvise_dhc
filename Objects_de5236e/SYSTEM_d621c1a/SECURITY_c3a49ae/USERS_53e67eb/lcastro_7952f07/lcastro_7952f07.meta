@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.lcastro
+NodeClass: Object
+BrowseName: 1:lcastro
+DisplayName: en|lcastro
+Description: en|lcastro
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

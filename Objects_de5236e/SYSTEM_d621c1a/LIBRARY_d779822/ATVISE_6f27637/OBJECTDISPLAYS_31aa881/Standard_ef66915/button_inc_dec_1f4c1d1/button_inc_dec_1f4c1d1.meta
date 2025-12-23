@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.button_inc_dec
+NodeClass: Variable
+BrowseName: 1:button_inc_dec
+DisplayName: en|button_inc_dec
+Description: en|button_inc_dec
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

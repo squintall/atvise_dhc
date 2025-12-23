@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.BrowseDataArchives
+NodeClass: Variable
+BrowseName: 1:BrowseDataArchives
+DisplayName: en|BrowseDataArchives
+Description: en|BrowseDataArchives
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

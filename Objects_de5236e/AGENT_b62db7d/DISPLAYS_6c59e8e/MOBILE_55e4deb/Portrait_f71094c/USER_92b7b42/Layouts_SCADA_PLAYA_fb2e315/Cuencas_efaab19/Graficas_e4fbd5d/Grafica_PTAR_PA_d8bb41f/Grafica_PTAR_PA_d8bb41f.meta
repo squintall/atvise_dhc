@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA_PLAYA.Cuencas.Graficas.Grafica_PTAR_PA
+NodeClass: Variable
+BrowseName: 1:Grafica_PTAR_PA
+DisplayName: en|Grafica_PTAR_PA
+Description: en|Grafica_PTAR_PA
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

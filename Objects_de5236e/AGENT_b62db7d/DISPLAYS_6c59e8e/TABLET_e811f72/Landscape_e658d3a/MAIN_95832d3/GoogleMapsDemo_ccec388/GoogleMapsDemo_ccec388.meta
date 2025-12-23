@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Landscape.MAIN.GoogleMapsDemo
+NodeClass: Variable
+BrowseName: 1:GoogleMapsDemo
+DisplayName: en|GoogleMapsDemo
+Description: en|GoogleMapsDemo
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

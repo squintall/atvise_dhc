@@ -1,0 +1,908 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/* ===================================================================
+UTILS / GLOBAL - MÓDULO EQUIPOS (AtvISE) - ACTUALIZADO v2
+VERSIÓN: 3 CORRIENTES EN UN SOLO RIEL (eje Y compartido)
+CAMBIO: Sin labels de nombres en rieles (solo unidades)
+=================================================================== */
+
+if (typeof EquiposGlobals === 'undefined') { var EquiposGlobals = {}; }
+if (!EquiposGlobals.UTILS) { EquiposGlobals.UTILS = {}; }
+
+var XHTML_NS = 'http://www.w3.org/1999/xhtml';
+
+EquiposGlobals.UTILS.x = function x(doc, tag) {
+  var d = doc || document;
+  try { return d.createElementNS(XHTML_NS, tag); }
+  catch (_) { return d.createElement(tag); }
+};
+
+EquiposGlobals.UTILS.setStyles = function setStyles(el, styles) {
+  if (!el || !styles) return;
+  for (var k in styles) {
+    if (Object.prototype.hasOwnProperty.call(styles, k)) { el.style[k] = styles[k]; }
+  }
+};
+
+EquiposGlobals.UTILS.clear = function clear(el) {
+  if (!el) return;
+  while (el.firstChild) { el.removeChild(el.firstChild); }
+};
+
+/* ===================================================================
+HELPERS COMPARTIDOS
+=================================================================== */
+
+EquiposGlobals.UTILS._trimZeros = function(s) {
+  return s.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+};
+
+EquiposGlobals.UTILS._abbreviateNumber = function(n) {
+  var a = Math.abs(n);
+  if (a >= 1e6) return EquiposGlobals.UTILS._trimZeros((n / 1e6).toFixed(1)) + 'M';
+  if (a >= 1e3) return EquiposGlobals.UTILS._trimZeros((n / 1e3).toFixed(1)) + 'K';
+  return EquiposGlobals.UTILS._trimZeros(String(n));
+};
+
+EquiposGlobals.UTILS._abbreviateInteger = function(n) {
+  var s = n < 0 ? -1 : 1;
+  var a = Math.abs(n);
+  if (a >= 1e6) return String(Math.round(s * a / 1e6)) + 'M';
+  if (a >= 1e3) return String(Math.round(s * a / 1e3)) + 'K';
+  return String(Math.round(n));
+};
+
+EquiposGlobals.UTILS._calculateRange = function(arr, key) {
+  if (!arr || !arr.length) return null;
+
+  var mn = Infinity, mx = -Infinity;
+  for (var i = 0; i < arr.length; i++) {
+    var v = arr[i].v;
+    if (v < mn) mn = v;
+    if (v > mx) mx = v;
+  }
+
+  if (key === 'sts') {
+    mn = 0; mx = 2;
+  } else if (key === 'freq') {
+    mn = 0; mx = 60;
+  } else if (key === 'fp') {
+    mn = 0; mx = 1;
+  } else {
+    if (mn === mx) {
+      mn = (mn === 0 ? 0 : mn - 1);
+      mx = (mx === 0 ? 1 : mx + 1);
+    }
+    var range = mx - mn;
+    var head = range > 0 ? range * 0.10 : (Math.abs(mx) * 0.10 || 1);
+    mx = mx + head;
+    mn = Math.min(0, mn);
+  }
+
+  return {mn: mn, mx: mx};
+};
+
+EquiposGlobals.UTILS._createYMapper = function(range, plotY0, plotH) {
+  var den = (range.mx - range.mn) || 1;
+  return function(v) {
+    return plotY0 + (1 - ((v - range.mn) / den)) * plotH;
+  };
+};
+
+EquiposGlobals.UTILS._createXMapper = function(tmin, tmax, plotX0, plotW) {
+  return function(ts) {
+    return plotX0 + ((ts - tmin) / (tmax - tmin)) * plotW;
+  };
+};
+
+EquiposGlobals.UTILS._formatTime = function(ts) {
+  try {
+    var d = new Date(ts);
+    var hh = String(d.getHours()).padStart(2, '0');
+    var mm = String(d.getMinutes()).padStart(2, '0');
+    return hh + ':' + mm;
+  } catch (_) {
+    return String(ts);
+  }
+};
+
+/* ===================================================================
+CONFIGURACIÓN DE SERIES - CAMBIO: cur1, cur2, cur3 en UN SOLO RIEL
+=================================================================== */
+
+EquiposGlobals.UTILS.SERIES_CONFIG = {
+  sts: {
+    name: 'Estatus',
+    unit: '',
+    color: '#616161',
+    side: 'right',
+    display: true,
+    labels: { 0: 'OFF', 1: 'ON', 2: '' }
+  },
+  freq: {
+    name: 'Frecuencia',
+    unit: 'Hz',
+    color: '#1e88e5',
+    side: 'left',
+    display: true,
+    labels: null,
+    rielGroup: null
+  },
+  cur1: {
+    name: 'Corriente L1',
+    unit: 'A',
+    color: '#6a1b9a',
+    side: 'left',
+    display: true,
+    labels: null,
+    rielGroup: 'corrientes'
+  },
+  cur2: {
+    name: 'Corriente L2',
+    unit: 'A',
+    color: '#7b1fa2',
+    side: 'left',
+    display: true,
+    labels: null,
+    rielGroup: 'corrientes'
+  },
+  cur3: {
+    name: 'Corriente L3',
+    unit: 'A',
+    color: '#8e24aa',
+    side: 'left',
+    display: true,
+    labels: null,
+    rielGroup: 'corrientes'
+  },
+  fp: {
+    name: 'Factor de Potencia',
+    unit: 'FP',
+    color: '#2e7d32',
+    side: 'left',
+    display: true,
+    labels: null,
+    rielGroup: null
+  },
+  volt: {
+    name: 'Voltaje',
+    unit: 'V',
+    color: '#0ea5e9',
+    side: 'left',
+    display: false,
+    labels: null,
+    rielGroup: null
+  }
+};
+
+/* ===================================================================
+CHART INIT
+=================================================================== */
+
+EquiposGlobals.UTILS.chartInit = function(self) {
+  self._chart = {
+    series: { sts: [], freq: [], cur1: [], cur2: [], cur3: [], fp: [], volt: [] },
+    mode: 'cur',
+    visible: { sts: true, freq: true, cur1: true, cur2: true, cur3: true, fp: true, volt: false },
+    max: 100,
+    tmin: 0,
+    tmax: 0,
+    windowMs: 20 * 60 * 1000,
+    _geom: null,
+    _ymap: null
+  };
+
+  self._debugPlotBox = (typeof self._debugPlotBox === 'boolean') ? self._debugPlotBox : false;
+
+  if (typeof self._loadAllHistoric === 'function') {
+    self._loadAllHistoric(1 / 3);
+  }
+};
+
+/* ===================================================================
+CHART DRAW - SUBFUNCIONES
+=================================================================== */
+
+EquiposGlobals.UTILS._chartShowLegend = function(self) {
+  try {
+    var missNames = [];
+    var mapLabel = {
+      cur1: 'corriente L1',
+      cur2: 'corriente L2',
+      cur3: 'corriente L3',
+      volt: 'voltaje',
+      fp: 'factor de potencia',
+      freq: 'frecuencia',
+      sts: 'estatus'
+    };
+
+    ['cur1', 'cur2', 'cur3', 'volt', 'fp', 'freq', 'sts'].forEach(function(k) {
+      var a = self._chart.series[k];
+      if (!a || a.length < 2) missNames.push(mapLabel[k]);
+    });
+
+    if (self.elements && self.elements.chartLegend) {
+      if (missNames.length) {
+        self.elements.chartLegend.textContent = 'sin datos de: ' + missNames.join(', ');
+        self.elements.chartLegend.style.display = '';
+      } else {
+        self.elements.chartLegend.textContent = '';
+        self.elements.chartLegend.style.display = 'none';
+      }
+    }
+  } catch (_) {}
+};
+
+EquiposGlobals.UTILS._getSeriesConfig = function(side) {
+  var config = EquiposGlobals.UTILS.SERIES_CONFIG;
+  var result = [];
+  for (var key in config) {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      var cfg = config[key];
+      if (cfg.side === side && cfg.display) {
+        result.push(key);
+      }
+    }
+  }
+  return result;
+};
+
+EquiposGlobals.UTILS._getSeriesByRielGroup = function(side) {
+  var config = EquiposGlobals.UTILS.SERIES_CONFIG;
+  var groups = {};
+  
+  for (var key in config) {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      var cfg = config[key];
+      if (cfg.side === side && cfg.display) {
+        var groupKey = cfg.rielGroup || key;
+        if (!groups[groupKey]) groups[groupKey] = [];
+        groups[groupKey].push(key);
+      }
+    }
+  }
+  return groups;
+};
+
+EquiposGlobals.UTILS._chartCalculateDimensions = function(self, w, h, ctx) {
+  var pad = { t: 8, r: 46, b: 18, l: 8 };
+
+  var leftKeys = EquiposGlobals.UTILS._getSeriesConfig('left').filter(function(k) {
+    var a = self._chart.series[k];
+    return a && a.length >= 1;
+  });
+
+  var rightKeys = EquiposGlobals.UTILS._getSeriesConfig('right').filter(function(k) {
+    var a = self._chart.series[k];
+    return a && a.length >= 1;
+  });
+
+  var leftGroups = EquiposGlobals.UTILS._getSeriesByRielGroup('left');
+  var maxGapNeed = 10;
+  var maxRailGapNeed = 16;
+  var numLeftRiels = 0;
+
+  for (var g in leftGroups) {
+    if (Object.prototype.hasOwnProperty.call(leftGroups, g)) {
+      numLeftRiels++;
+      var keys = leftGroups[g];
+      
+      keys.forEach(function(key) {
+        var rr = EquiposGlobals.UTILS._calculateRange(self._chart.series[key], key);
+        if (!rr) return;
+
+        var cfg = EquiposGlobals.UTILS.SERIES_CONFIG[key];
+        var unit = cfg.unit;
+        var tTop = EquiposGlobals.UTILS._abbreviateInteger(rr.mx);
+        var tBot = EquiposGlobals.UTILS._abbreviateInteger(rr.mn);
+
+        var wTop = ctx.measureText(tTop).width;
+        var wMid = ctx.measureText(unit).width;
+        var wBot = ctx.measureText(tBot).width;
+        var wMax = Math.max(wTop, wMid, wBot);
+
+        var gap = Math.max(4, Math.min(18, Math.ceil(wMax * 0.03) + 4));
+        if (gap > maxGapNeed) maxGapNeed = gap;
+
+        var railGap = Math.max(16, Math.min(80, Math.ceil(wMax * 0.9) + 10));
+        if (railGap > maxRailGapNeed) maxRailGapNeed = railGap;
+      });
+    }
+  }
+
+  rightKeys.forEach(function(key) {
+    var rr = EquiposGlobals.UTILS._calculateRange(self._chart.series[key], key);
+    if (!rr) return;
+
+    var cfg = EquiposGlobals.UTILS.SERIES_CONFIG[key];
+    var maxLabel = '';
+    if (cfg.labels) {
+      for (var val in cfg.labels) {
+        if (cfg.labels[val].length > maxLabel.length) {
+          maxLabel = cfg.labels[val];
+        }
+      }
+    }
+
+    var wLabel = ctx.measureText(maxLabel).width;
+    var railGap = Math.max(16, Math.min(80, Math.ceil(wLabel * 0.9) + 10));
+    if (railGap > maxRailGapNeed) maxRailGapNeed = railGap;
+  });
+
+  var laneW = Math.max(0, numLeftRiels * maxRailGapNeed + maxGapNeed + 4);
+  var plotX0 = pad.l + laneW;
+  var plotY0 = pad.t;
+  var plotW = Math.max(2, w - plotX0 - pad.r);
+  var plotH = Math.max(2, h - pad.t - pad.b);
+
+  return {
+    pad: pad,
+    leftKeys: leftKeys,
+    rightKeys: rightKeys,
+    leftGroups: leftGroups,
+    numLeftRiels: numLeftRiels,
+    maxGapNeed: maxGapNeed,
+    maxRailGapNeed: maxRailGapNeed,
+    laneW: laneW,
+    plotX0: plotX0,
+    plotY0: plotY0,
+    plotW: plotW,
+    plotH: plotH,
+    w: w,
+    h: h
+  };
+};
+
+EquiposGlobals.UTILS._chartCalculateRanges = function(self, leftKeys, rightKeys) {
+  var rEarly = {};
+
+  leftKeys.forEach(function(key) {
+    rEarly[key] = EquiposGlobals.UTILS._calculateRange(self._chart.series[key], key);
+  });
+
+  rightKeys.forEach(function(key) {
+    rEarly[key] = EquiposGlobals.UTILS._calculateRange(self._chart.series[key], key);
+  });
+
+  return rEarly;
+};
+
+EquiposGlobals.UTILS._chartDrawFrame = function(ctx, geom) {
+  ctx.strokeStyle = '#e5e7eb';
+  ctx.lineWidth = 1;
+  ctx.lineCap = 'round';
+  ctx.strokeRect(geom.plotX0 + 0.5, geom.plotY0 + 0.5, geom.plotW - 1, geom.plotH - 1);
+};
+
+EquiposGlobals.UTILS._chartDrawGrid = function(ctx, geom, tmin, tmax) {
+  var fr = [0.25, 0.50, 0.75];
+
+  ctx.save();
+  ctx.setLineDash([3, 3]);
+  ctx.strokeStyle = '#eceff4';
+
+  fr.forEach(function(f) {
+    var xg = geom.plotX0 + Math.round(f * geom.plotW) + 0.5;
+    ctx.beginPath();
+    ctx.moveTo(xg, geom.plotY0 + 1);
+    ctx.lineTo(xg, geom.plotY0 + geom.plotH - 1);
+    ctx.stroke();
+  });
+
+  ctx.restore();
+
+  ctx.font = '10px Arial';
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+
+  fr.forEach(function(f) {
+    var xx = geom.plotX0 + f * geom.plotW;
+    var tt = tmin + f * (tmax - tmin);
+
+    ctx.beginPath();
+    ctx.moveTo(xx + 0.5, geom.plotY0 + geom.plotH);
+    ctx.lineTo(xx + 0.5, geom.plotY0 + geom.plotH + 6);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.stroke();
+
+    ctx.fillText(EquiposGlobals.UTILS._formatTime(tt), xx, geom.h - 2);
+  });
+};
+
+EquiposGlobals.UTILS._chartDrawSeries = function(ctx, self, geom, tmin, tmax, rEarly, yMappers) {
+  var config = EquiposGlobals.UTILS.SERIES_CONFIG;
+  var xMapper = EquiposGlobals.UTILS._createXMapper(tmin, tmax, geom.plotX0, geom.plotW);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(geom.plotX0 + 1, geom.plotY0 + 1, Math.max(0, geom.plotW - 2), Math.max(0, geom.plotH - 2));
+  ctx.clip();
+
+  var keys = ['sts', 'freq', 'cur1', 'cur2', 'cur3', 'fp', 'volt'];
+
+  keys.forEach(function(key) {
+    var arr = self._chart.series[key];
+    var yF = yMappers[key];
+    var cfg = config[key];
+
+    if (!arr || !yF || arr.length < 1) return;
+    if (self._chart.visible && self._chart.visible[key] === false) return;
+    if (!cfg.display) return;
+
+    var pts = [];
+
+    if (key === 'sts') {
+      var first = arr[0], last = arr[arr.length - 1];
+      if (first.t > tmin) pts.push({t: tmin, v: first.v});
+
+      for (var i = 0; i < arr.length; i++) {
+        pts.push(arr[i]);
+        if (i < arr.length - 1) pts.push({t: arr[i + 1].t, v: arr[i].v});
+      }
+
+      if (last.t < tmax) pts.push({t: tmax, v: last.v});
+    } else {
+      pts = arr.slice();
+      if (pts.length && pts[0].t > tmin) pts.unshift({t: tmin, v: pts[0].v});
+      if (pts.length && pts[pts.length - 1].t < tmax) pts.push({t: tmax, v: pts[pts.length - 1].v});
+    }
+
+    if (pts.length < 2) return;
+
+    ctx.beginPath();
+    for (var j = 0; j < pts.length; j++) {
+      var x = xMapper(pts[j].t);
+      var y = yF(pts[j].v);
+      j === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+
+    ctx.strokeStyle = cfg.color;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  ctx.restore();
+};
+
+/**
+* CAMBIO ACTUALIZADO: Dibujar rieles IZQUIERDA por grupo
+* SIN mostrar nombres de las mediciones (solo unidades)
+* Mantiene la leyenda SOLO para el grupo de corrientes
+*/
+EquiposGlobals.UTILS._chartDrawRails = function(ctx, self, geom, rEarly) {
+  var config = EquiposGlobals.UTILS.SERIES_CONFIG;
+  var xPos = geom.plotX0;
+  var laneGap = geom.maxRailGapNeed;
+
+  ctx.font = '10px Arial';
+
+  var rielIdx = 0;
+  for (var groupKey in geom.leftGroups) {
+    if (!Object.prototype.hasOwnProperty.call(geom.leftGroups, groupKey)) continue;
+    
+    var keys = geom.leftGroups[groupKey];
+    var rr = rEarly[keys[0]];
+    if (!rr) continue;
+
+    var xRail = xPos - (geom.numLeftRiels - rielIdx - 1) * laneGap - geom.maxGapNeed - 4;
+
+    // Dibujar riel principal
+    ctx.lineWidth = 3;
+    
+    if (keys.length > 1) {
+      ctx.strokeStyle = config[keys[0]].color;
+    } else {
+      ctx.strokeStyle = config[keys[0]].color;
+    }
+    
+    ctx.beginPath();
+    ctx.moveTo(xRail + 0.5, geom.plotY0);
+    ctx.lineTo(xRail + 0.5, geom.plotY0 + geom.plotH);
+    ctx.stroke();
+
+    var unit = config[keys[0]].unit;
+    var tTop = EquiposGlobals.UTILS._abbreviateInteger(rr.mx);
+    var tBot = EquiposGlobals.UTILS._abbreviateInteger(rr.mn);
+
+    var wTop = ctx.measureText(tTop).width;
+    var wMid = ctx.measureText(unit).width;
+    var wBot = ctx.measureText(tBot).width;
+    var wMax = Math.max(wTop, wMid, wBot);
+
+    var gap = Math.max(4, Math.min(18, Math.ceil(wMax * 0.18) + 4));
+
+    ctx.fillStyle = ctx.strokeStyle;
+
+    // CAMBIO: Solo mostrar valores numericos (tTop, unit, tBot)
+    // NO mostrar nombres como "Corriente L1", "Corriente L2", etc.
+
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'top';
+    ctx.fillText(tTop, xRail - gap, geom.plotY0 + 1);
+
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(unit, xRail - gap, geom.plotY0 + geom.plotH / 2);
+
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(tBot, xRail - gap, geom.plotY0 + geom.plotH - 1);
+
+    // Si es grupo de corrientes, mostrar leyenda COMPACTA (solo colores, sin nombres)
+    // CAMBIO: Leyenda deshabilitada - solo se ve en hover
+    // if (keys.length > 1) {
+    //   ... leyenda deshabilitada ...
+    // }
+
+    rielIdx++;
+  }
+};
+
+EquiposGlobals.UTILS._chartDrawRightRails = function(ctx, geom, rEarly, yMappers) {
+  var config = EquiposGlobals.UTILS.SERIES_CONFIG;
+
+  geom.rightKeys.forEach(function(key, idx) {
+    var rr = rEarly[key];
+    if (!rr) return;
+
+    var yF = yMappers[key];
+    if (!yF) return;
+
+    var cfg = config[key];
+
+    var xRight = geom.plotX0 + geom.plotW + 4 + (idx * 50);
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#94a3b8';
+    ctx.beginPath();
+    ctx.moveTo(xRight, geom.plotY0);
+    ctx.lineTo(xRight, geom.plotY0 + geom.plotH);
+    ctx.stroke();
+
+    ctx.strokeStyle = cfg.color;
+    ctx.fillStyle = cfg.color;
+    ctx.lineWidth = 1.5;
+    ctx.font = '10px Arial';
+
+    if (cfg.labels) {
+      var values = Object.keys(cfg.labels);
+      values.forEach(function(vStr) {
+        var v = Number(vStr);
+        var label = cfg.labels[vStr];
+        if (!label) return;
+
+        var py = yF(v);
+        ctx.beginPath();
+        ctx.moveTo(xRight, py + 0.5);
+        ctx.lineTo(xRight + 8, py + 0.5);
+        ctx.stroke();
+
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, xRight + 10, py);
+      });
+    }
+
+    ctx.fillText(cfg.name, xRight + 10, geom.plotY0 + 10);
+  });
+};
+
+EquiposGlobals.UTILS._chartPositionOverlay = function(self, geom) {
+  try {
+    var ov = self.elements && self.elements.chartOverlay;
+    var base = self.elements && self.elements.chartCanvas;
+
+    if (!ov || !base) return;
+
+    var left = (base.offsetLeft || 0) + geom.plotX0;
+    var top = (base.offsetTop || 0) + geom.plotY0;
+
+    ov.style.left = left + 'px';
+    ov.style.top = top + 'px';
+    ov.style.right = '';
+    ov.style.width = Math.max(0, geom.plotW) + 'px';
+    ov.style.height = Math.max(0, geom.plotH) + 'px';
+    ov.width = Math.max(0, geom.plotW);
+    ov.height = Math.max(0, geom.plotH);
+
+    if (self._debugPlotBox) {
+      ov.style.outline = '1px dashed rgba(239,68,68,0.8)';
+      ov.style.outlineOffset = '0px';
+    } else {
+      ov.style.outline = '';
+    }
+  } catch (_) {}
+};
+
+/**
+* FUNCIÓN PRINCIPAL: Dibujar gráfica
+*/
+EquiposGlobals.UTILS.chartDraw = function(self) {
+  var c = self.elements.chartCanvas;
+  if (!c) return;
+
+  var ctx = c.getContext('2d');
+  if (!ctx) return;
+
+  if (!self._chart || self._chart.ready !== true) return;
+
+  var w = c.clientWidth || c.width;
+  var h = c.clientHeight || c.height;
+
+  var tmin = self._chart.tmin;
+  var tmax = self._chart.tmax;
+
+  if (!tmax || tmax <= tmin) return;
+
+  EquiposGlobals.UTILS._chartShowLegend(self);
+
+  var geom = EquiposGlobals.UTILS._chartCalculateDimensions(self, w, h, ctx);
+
+  var rEarly = EquiposGlobals.UTILS._chartCalculateRanges(self, geom.leftKeys, geom.rightKeys);
+
+  var yF = {};
+  ['sts', 'freq', 'cur1', 'cur2', 'cur3', 'fp', 'volt'].forEach(function(key) {
+    yF[key] = rEarly[key] ? EquiposGlobals.UTILS._createYMapper(rEarly[key], geom.plotY0, geom.plotH) : null;
+  });
+
+  ctx.clearRect(0, 0, w, h);
+
+  EquiposGlobals.UTILS._chartDrawFrame(ctx, geom);
+  EquiposGlobals.UTILS._chartDrawGrid(ctx, geom, tmin, tmax);
+  EquiposGlobals.UTILS._chartDrawSeries(ctx, self, geom, tmin, tmax, rEarly, yF);
+  EquiposGlobals.UTILS._chartDrawRails(ctx, self, geom, rEarly);
+  EquiposGlobals.UTILS._chartDrawRightRails(ctx, geom, rEarly, yF);
+
+  self._chart._geom = geom;
+  self._chart._ymap = yF;
+
+  EquiposGlobals.UTILS._chartPositionOverlay(self, geom);
+};
+
+/* ===================================================================
+CHART HOVER
+=================================================================== */
+
+EquiposGlobals.UTILS.attachChartHover = function(self) {
+  var c = self.elements.chartCanvas;
+  var ov = self.elements.chartOverlay;
+  var tip = self.elements.chartTip;
+  if (!c || !ov) return;
+  var ctx = ov.getContext('2d');
+
+  function clear() { ctx.clearRect(0, 0, ov.width, ov.height); if (tip) tip.style.display = 'none'; }
+  ov.addEventListener('mouseleave', clear);
+
+  ov.addEventListener('mousemove', function(ev) {
+    if (!self._chart || !self._chart.tmax || self._chart.tmax <= self._chart.tmin) { clear(); return; }
+    var g = self._chart._geom, ymap = self._chart._ymap;
+    if (!g || !ymap) { clear(); return; }
+
+    var cw = ov.clientWidth || ov.width;
+    var ch = ov.clientHeight || ov.height;
+    if (ov.width !== cw) ov.width = cw;
+    if (ov.height !== ch) ov.height = ch;
+
+    var rect = ov.getBoundingClientRect();
+    var rw = rect.width, rh = rect.height;
+    var x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+
+    var plotL = g.plotX0;
+    var plotT = g.plotY0;
+
+    if (x < 0 || x > rw || y < 0 || y > rh) { clear(); return; }
+    var xVis = Math.min(Math.max(x, 0), Math.max(1, rw));
+    var yVis = Math.min(Math.max(y, 0), Math.max(1, rh));
+    var xLocal = (xVis / Math.max(1, rw)) * cw;
+    var yLocal = (yVis / Math.max(1, rh)) * ch;
+    var xC = plotL + (xLocal / Math.max(1, cw)) * g.plotW;
+
+    var t = self._chart.tmin + ((xC - plotL) / (g.plotW || 1)) * (self._chart.tmax - self._chart.tmin);
+
+    ctx.clearRect(0, 0, ov.width, ov.height);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(1, 1, Math.max(0, g.plotW - 2), Math.max(0, g.plotH - 2));
+    ctx.clip();
+
+    ctx.beginPath();
+    ctx.moveTo(xLocal + 0.5, 1);
+    ctx.lineTo(xLocal + 0.5, g.plotH - 1);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#64748b';
+    ctx.stroke();
+
+    var keys = ['sts', 'freq', 'cur1', 'cur2', 'cur3', 'fp', 'volt'];
+    var lines = [];
+
+    keys.forEach(function(key) {
+      var arr = self._chart.series[key], yF = ymap[key];
+      if (self._chart && self._chart.visible && self._chart.visible[key] === false) return;
+      if (!arr || arr.length < 2 || !yF) return;
+
+      var lo = 0, hi = arr.length - 1, idx = 0;
+      if (t <= arr[0].t) idx = 0;
+      else if (t >= arr[hi].t) idx = hi;
+      else {
+        while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (arr[mid].t < t) lo = mid; else hi = mid; }
+        if (key === 'sts') idx = lo; else idx = (t - arr[lo].t <= arr[hi].t - t) ? lo : hi;
+      }
+
+      var val = arr[idx].v;
+      var ny = yF(val) - plotT;
+
+      ctx.beginPath();
+      ctx.arc(xLocal, ny, 3.2, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      var cfg = EquiposGlobals.UTILS.SERIES_CONFIG[key];
+      ctx.strokeStyle = cfg.color;
+      ctx.lineWidth = 1;
+      ctx.fill();
+      ctx.stroke();
+
+      var label = cfg.name + ': ' + (
+        key === 'sts' ? (val ? 'ON' : 'OFF') :
+        key === 'freq' ? (val.toFixed(1) + ' ' + cfg.unit) :
+        key === 'cur1' ? (val.toFixed(1) + ' ' + cfg.unit) :
+        key === 'cur2' ? (val.toFixed(1) + ' ' + cfg.unit) :
+        key === 'cur3' ? (val.toFixed(1) + ' ' + cfg.unit) :
+        key === 'volt' ? (Math.round(val) + ' ' + cfg.unit) :
+        key === 'fp' ? (val.toFixed(2)) : val
+      );
+      lines.push('<span style="color:' + cfg.color + '">●</span> ' + label);
+    });
+
+    ctx.restore();
+
+    if (tip) {
+      function fmt(ts) { try { var d = new Date(ts); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); } catch (_) { return String(ts); } }
+      var valsHtml = lines.length ? ('<div style="margin-top:4px;opacity:.95">' + lines.join('<br>') + '</div>') : '';
+      tip.innerHTML = '<div style="opacity:.95;font-weight:600">' + fmt(t) + '</div>' + valsHtml;
+      tip.style.background = 'rgba(15,23,42,0.55)';
+      tip.style.display = 'block';
+
+      var tw = tip.offsetWidth, th = tip.offsetHeight;
+      var tx = xLocal - tw / 2;
+      var ty = yLocal - th - 10;
+      if (ty < 2) ty = Math.min(yLocal + 10, g.plotH - th - 2);
+      if (tx < 2) tx = 2;
+      if (tx + tw > g.plotW - 2) tx = g.plotW - tw - 2;
+
+      var baseL = (ov && ov.offsetLeft) || 0;
+      var baseT = (ov && ov.offsetTop) || 0;
+      tip.style.left = (baseL + tx) + 'px';
+      tip.style.top = (baseT + ty) + 'px';
+    }
+  });
+};
+
+/* ===================================================================
+SPARKLINES
+=================================================================== */
+
+EquiposGlobals.UTILS.mkSparkRow = function(self, sig) {
+  var doc = self.doc;
+  var xh = EquiposGlobals.UTILS.x;
+  var setS = EquiposGlobals.UTILS.setStyles;
+
+  var row = xh(doc, 'div');
+  setS(row, {display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 2px'});
+
+  var cb = xh(doc, 'input');
+  cb.type = 'checkbox';
+  cb.checked = true;
+
+  var lbl = xh(doc, 'span');
+  lbl.textContent = sig.label;
+  setS(lbl, {fontSize: '12px'});
+
+  row.appendChild(cb);
+  row.appendChild(lbl);
+
+  self.elements.sparkWrap.appendChild(row);
+
+  self.spark.byKey[sig.key] = {
+    enabled: true,
+    buf: [],
+    canvas: null,
+    type: sig.type,
+    row: row,
+    checkbox: cb
+  };
+
+  function mapSeries(k) {
+    return k === '.status' ? 'sts' :
+           k === '.current' ? 'cur1' :
+           k === '.current2' ? 'cur2' :
+           k === '.current3' ? 'cur3' :
+           k === '.freq' ? 'freq' :
+           k === '.FP' ? 'fp' :
+           k === '.voltage' ? 'volt' : null;
+  }
+
+  cb.addEventListener('change', function() {
+    var sk = mapSeries(sig.key);
+    if (!self._chart.visible) {
+      self._chart.visible = {sts: true, freq: true, cur1: true, cur2: true, cur3: true, fp: true, volt: false};
+    }
+    if (sk) self._chart.visible[sk] = !!cb.checked;
+
+    if (typeof self._drawAll === 'function') self._drawAll();
+    if (typeof self._chartDraw === 'function') self._chartDraw();
+  });
+};
+
+EquiposGlobals.UTILS.drawSparkOne = function(self, info) {
+  var canv = info.canvas;
+  if (!canv) return;
+  var ctx = canv.getContext('2d');
+  if (!ctx) return;
+  ctx.clearRect(0, 0, canv.width, canv.height);
+  if (!self.spark.enabled || !info.enabled) return;
+  var data = info.buf;
+  if (!data || data.length < 2) return;
+  var w = canv.width, h = canv.height, n = data.length, min = +Infinity, max = -Infinity;
+  for (var i = 0; i < n; i++) {
+    var val = data[i];
+    if (typeof val === 'number' && !isNaN(val)) { if (val < min) min = val; if (val > max) max = val; }
+  }
+  if (!isFinite(min) || !isFinite(max)) return;
+  if (min === max) { if (info.type === 'bool') { min = 0; max = 1; } else { min -= 1; max += 1; } }
+  var dx = w / (n - 1);
+  ctx.beginPath();
+  for (var j = 0; j < n; j++) {
+    var v = data[j];
+    if (typeof v !== 'number' || isNaN(v)) continue;
+    var y = h - ((v - min) / (max - min)) * (h - 2) - 1;
+    var xpx = j * dx;
+    if (j === 0) ctx.moveTo(xpx, y); else ctx.lineTo(xpx, y);
+  }
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = '#111';
+  ctx.stroke();
+};
+
+EquiposGlobals.UTILS.drawSparkAll = function(self) {
+  for (var k in self.spark.byKey)
+    if (Object.prototype.hasOwnProperty.call(self.spark.byKey, k))
+      self._drawOne(self.spark.byKey[k]);
+};
+
+EquiposGlobals.UTILS.enableSparks = function(self, on) {
+  self.spark.enabled = !!on;
+  if (self.spark.enabled) {
+    self.elements.sparkWrap.style.display = '';
+    self.elements.root.style.height = '280px';
+    self.host.style.height = '280px';
+    if (!self.spark._inited) {
+      self.spark._inited = true;
+      var SIGS = [
+        { key: '.status', label: 'sts', type: 'bool' },
+        { key: '.current', label: 'L1', type: 'num' },
+        { key: '.current2', label: 'L2', type: 'num' },
+        { key: '.current3', label: 'L3', type: 'num' },
+        { key: '.freq', label: 'freq', type: 'num' },
+        { key: '.FP', label: 'FP', type: 'num' },
+        { key: '.voltage', label: 'voltage', type: 'num' }
+      ];
+      for (var si = 0; si < SIGS.length; si++) self._mkSparkRow(SIGS[si]);
+      for (var sk = 0; sk < SIGS.length; sk++) self._subSig(SIGS[sk].key);
+    }
+  } else {
+    self.elements.sparkWrap.style.display = 'none';
+    self.elements.root.style.height = '240px';
+    self.host.style.height = '240px';
+  }
+  self._drawAll();
+};
+
+/* ===================================================================
+FIN UTILS.js - SIN LABELS EN RIELES, SOLO UNIDADES Y HOVER
+=================================================================== */
+]]></code>
+</script>

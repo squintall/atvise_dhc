@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AR.AR_BJ_CAR_OTOCH.Bombas.Variador_2.required_hours
+NodeClass: Variable
+BrowseName: 1:required_hours
+DisplayName: en|required_hours
+Description: en|required_hours
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

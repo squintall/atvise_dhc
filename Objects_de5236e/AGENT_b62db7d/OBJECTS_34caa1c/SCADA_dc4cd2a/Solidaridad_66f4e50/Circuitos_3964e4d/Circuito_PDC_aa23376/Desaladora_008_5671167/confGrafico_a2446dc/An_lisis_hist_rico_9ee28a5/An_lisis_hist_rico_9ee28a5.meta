@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Desaladora_008.confGrafico.Análisis histórico
+NodeClass: Variable
+BrowseName: 1:Análisis histórico
+DisplayName: en|Análisis histórico
+Description: en|Análisis histórico
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

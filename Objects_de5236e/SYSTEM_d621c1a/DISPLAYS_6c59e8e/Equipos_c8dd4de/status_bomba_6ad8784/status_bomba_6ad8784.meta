@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Equipos.status_bomba
+NodeClass: Variable
+BrowseName: 1:status_bomba
+DisplayName: en|status_bomba
+Description: en|status_bomba
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

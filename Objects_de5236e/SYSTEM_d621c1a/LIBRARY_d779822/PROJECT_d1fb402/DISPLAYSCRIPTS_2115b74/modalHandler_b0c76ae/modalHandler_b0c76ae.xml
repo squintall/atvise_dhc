@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[(function () {
+  // ===== Root y utilidades =====
+  var ROOT = (window.webMI && webMI.rootWindow) ? webMI.rootWindow : window;
+  var WM = ROOT.webMI || window.webMI || {};
+  var dpr = ROOT.devicePixelRatio || 1;
+
+  // Registro global y logger
+  var REG = ROOT.__modalRegistry || (ROOT.__modalRegistry = new Map());
+  var DEBUG = false;
+  function log(){ if(DEBUG) { try{ console.log.apply(console, arguments);}catch(_){}}}
+  function setDebug(v){ DEBUG = !!v; log("[MODAL] debug =", DEBUG); }
+
+  // Paleta por defecto
+  var PALETTE = ["#2563eb", "#16a34a", "#dc2626", "#7c3aed", "#ea580c", "#0891b2", "#64748b"];
+
+  function closeByKey(key, reason){
+    var m = REG.get(key);
+    if (!m) return;
+    try { if (m.onBeforeClose) m.onBeforeClose(); } catch(_){}
+    try {
+      // desuscribir
+      if (Array.isArray(m.__subs)) m.__subs.forEach(function(id){ try{ WM.data.unsubscribe(id);}catch(_){}} );
+      // limpiar timers
+      if (Array.isArray(m.__timers)) m.__timers.forEach(function(t){ try{ clearInterval(t);}catch(_){}} );
+      if (m.__raf) ROOT.cancelAnimationFrame(m.__raf);
+    } catch(_){}
+    // quitar overlay
+    try { m.overlay.parentNode && m.overlay.parentNode.removeChild(m.overlay); } catch(_){}
+    REG.delete(key);
+    log("[MODAL] ← cerrando", { id: m.id, reason: reason || "api" });
+    try { if (m.onClose) m.onClose({ id: m.id, reason: reason || "api" }); } catch(_){}
+  }
+
+  function closeAll(){
+    Array.from(REG.keys()).forEach(function(k){ closeByKey(k, "closeAll"); });
+  }
+
+  function toggle(key, opts){
+    if (REG.has(key)) { closeByKey(key, "toggle"); return; }
+    open(opts || { key });
+  }
+
+  // ===== Base: crear overlay/panel =====
+  function openBase(opts){
+    var o = opts || {};
+    var key = o.key || ("modal_" + Math.random().toString(36).slice(2));
+    // si ya existe, cerramos y reabrimos
+    if (REG.has(key)) closeByKey(key, "reopen");
+
+    var W = Math.min(o.width  || 1100, Math.floor(ROOT.innerWidth  * 0.96));
+    var H = Math.min(o.height ||  640, Math.floor(ROOT.innerHeight * 0.92));
+    var title = (o.title || "").toString().replace(/^T\{|\}$/g,'');
+
+    var rootDoc = ROOT.document;
+    var overlay = rootDoc.createElement("div");
+    overlay.style.cssText = "position:fixed;inset:0;z-index:2147483000;background:rgba(15,23,42,.35);display:flex;align-items:center;justify-content:center;";
+    var panel = rootDoc.createElement("div");
+    panel.style.cssText = "background:#fff;border-radius:12px;box-shadow:0 24px 72px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;width:"+W+"px;height:"+H+"px;";
+    var header = rootDoc.createElement("div");
+    header.style.cssText = "height:42px;display:flex;align-items:center;gap:8px;justify-content:space-between;padding:0 12px;border-bottom:1px solid #e5e7eb;background:#fff;";
+    var titleEl = rootDoc.createElement("span");
+    titleEl.textContent = title || "Modal";
+    titleEl.style.cssText = "font:600 13px Arial;color:#111;";
+    var rightBox = rootDoc.createElement("div");
+    rightBox.style.cssText = "display:flex;gap:8px;align-items:center;";
+    var btnClose = rootDoc.createElement("button");
+    btnClose.textContent = "Cerrar";
+    btnClose.style.cssText = "padding:4px 10px;border:1px solid #cbd5e1;background:#fff;border-radius:6px;cursor:pointer;";
+    rightBox.appendChild(btnClose);
+    header.appendChild(titleEl); header.appendChild(rightBox);
+
+    var body = rootDoc.createElement("div");
+    body.style.cssText = "flex:1;min-height:0;padding:8px;overflow:auto;";
+
+    panel.appendChild(header);
+    panel.appendChild(body);
+    overlay.appendChild(panel);
+    rootDoc.body.appendChild(overlay);
+
+    function onEsc(ev){ if (ev.key === "Escape") closeByKey(key, "esc"); }
+    function onClickOverlay(ev){ if (ev.target === overlay) closeByKey(key, "backdrop"); }
+
+    overlay.addEventListener("click", onClickOverlay);
+    rootDoc.addEventListener("keydown", onEsc);
+    btnClose.addEventListener("click", function(){ closeByKey(key, "button"); });
+
+    var id = key + "_" + Math.random().toString(36).slice(2, 8);
+    var model = {
+      id, key, overlay, panel, header, body,
+      onClose: o.onClose, onBeforeClose: o.onBeforeClose,
+      __subs: [], __timers: [],
+      close: function(reason){ closeByKey(key, reason || "api"); }
+    };
+    // al cerrar, quitar listeners
+    model.onBeforeClose = function(){
+      try { overlay.removeEventListener("click", onClickOverlay); } catch(_){}
+      try { rootDoc.removeEventListener("keydown", onEsc); } catch(_){}
+    };
+
+    REG.set(key, model);
+    log("[MODAL] open", id, {title:o.title, display:o.display});
+    if (o.onOpen) try { o.onOpen(id); } catch(_){}
+    return model;
+  }
+
+  // ===== Canvas utils (sparkline) =====
+  function setCanvasSize(canvas, w, h){
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    canvas.width = Math.max(1, Math.floor(w * dpr));
+    canvas.height = Math.max(1, Math.floor(h * dpr));
+  }
+
+  function drawSparkline(ctx, seriesList, opts){
+    var cw = ctx.canvas.width, ch = ctx.canvas.height;
+    ctx.clearRect(0,0,cw,ch);
+    if (!seriesList.length) return;
+
+    // calcular min/max global (ignora null/undefined)
+    var min = +Infinity, max = -Infinity;
+    seriesList.forEach(function(s){
+      for (var i=0;i<s.data.length;i++){
+        var v = s.data[i];
+        if (v == null || isNaN(v)) continue;
+        if (v < min) min = v;
+        if (v > max) max = v;
+      }
+    });
+    if (!isFinite(min) || !isFinite(max)) {
+      // texto “esperando datos…”
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.fillStyle = "#6b7280";
+      ctx.font = "12px Arial";
+      ctx.fillText("Esperando datos…", 8, 16);
+      ctx.restore();
+      return;
+    }
+    if (min === max) { min -= 1; max += 1; } // evitar división por cero
+    var px = function(i, len){ return Math.round((i / (len-1)) * (cw-2)) + 1; };
+    var py = function(v){ return Math.round((1 - (v - min)/(max-min)) * (ch-2)) + 1; };
+
+    // líneas
+    seriesList.forEach(function(s, idx){
+      var data = s.data;
+      var color = s.color || PALETTE[idx % PALETTE.length];
+      ctx.beginPath();
+      for (var i=0;i<data.length;i++){
+        var v = data[i]; if (v == null || isNaN(v)) continue;
+        var x = px(i, data.length), y = py(v);
+        if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.lineWidth = Math.round((opts.lineWidth || 1.5) * dpr);
+      ctx.strokeStyle = color;
+      ctx.stroke();
+    });
+
+    // min/max labels (opcionales)
+    if (opts.showRange) {
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.fillStyle = "#6b7280";
+      ctx.font = "11px Arial";
+      ctx.fillText("min: " + min.toFixed(2), 8, 12);
+      ctx.fillText("max: " + max.toFixed(2), 8, 24);
+      ctx.restore();
+    }
+  }
+
+  // ===== Abrir sparkline (overlay o rows) =====
+  function openSparkline(cfg){
+    var c = cfg || {};
+    var key = c.key || ("spark_" + Math.random().toString(36).slice(2));
+    var m = openBase({
+      key: key,
+      title: c.title || "Sparkline",
+      width: c.width || 1000,
+      height: c.height || 520
+    });
+
+    var series = (c.series || []).map(function(s, idx){
+      return {
+        label: s.label || ("S"+(idx+1)),
+        address: s.address,
+        color: s.color || PALETTE[idx % PALETTE.length],
+        data: new Array(Math.max(10, c.buffer || 180)).fill(null)
+      };
+    });
+    var mode = c.mode || "overlay"; // "overlay" (todas en un canvas) o "rows" (una por canvas)
+    var body = m.body;
+
+    // Encabezado/leyenda
+    var legend = ROOT.document.createElement("div");
+    legend.style.cssText = "display:flex;flex-wrap:wrap;gap:10px;padding:4px 2px 8px 2px;border-bottom:1px solid #eee;margin-bottom:6px;";
+    series.forEach(function(s){
+      var pill = ROOT.document.createElement("div");
+      pill.style.cssText = "display:flex;align-items:center;gap:6px;font:12px Arial;color:#111;";
+      var dot = ROOT.document.createElement("span");
+      dot.style.cssText = "width:10px;height:10px;border-radius:50%;background:"+(s.color)+";";
+      var txt = ROOT.document.createElement("span");
+      txt.textContent = s.label;
+      pill.appendChild(dot); pill.appendChild(txt);
+      legend.appendChild(pill);
+    });
+    body.appendChild(legend);
+
+    var canvases = [];
+    var ctxs = [];
+
+    if (mode === "overlay") {
+      var cv = ROOT.document.createElement("canvas");
+      cv.style.cssText = "display:block;width:100%;height:" + ((c.canvasHeight || 260)) + "px;border:1px solid #eee;border-radius:8px;";
+      body.appendChild(cv);
+      canvases.push(cv);
+      ctxs.push(cv.getContext("2d"));
+      setCanvasSize(cv, cv.clientWidth, (c.canvasHeight || 260));
+    } else { // rows
+      series.forEach(function(s){
+        var row = ROOT.document.createElement("div");
+        row.style.cssText = "margin:6px 0 12px 0;";
+        var lbl = ROOT.document.createElement("div");
+        lbl.textContent = s.label;
+        lbl.style.cssText = "font:600 12px Arial;color:#0f172a;margin:2px 0 6px 2px;";
+        var cv = ROOT.document.createElement("canvas");
+        cv.style.cssText = "display:block;width:100%;height:" + ((c.canvasHeightRow || 120)) + "px;border:1px solid #eee;border-radius:8px;";
+        row.appendChild(lbl); row.appendChild(cv);
+        body.appendChild(row);
+        canvases.push(cv);
+        ctxs.push(cv.getContext("2d"));
+        setCanvasSize(cv, cv.clientWidth, (c.canvasHeightRow || 120));
+      });
+    }
+
+    // Reflow on resize
+    var onResize = function(){
+      if (mode === "overlay"){
+        setCanvasSize(canvases[0], canvases[0].clientWidth, (c.canvasHeight || 260));
+      } else {
+        canvases.forEach(function(cv){
+          setCanvasSize(cv, cv.clientWidth, (c.canvasHeightRow || 120));
+        });
+      }
+      requestRender();
+    };
+    ROOT.addEventListener("resize", onResize);
+
+    // Subscripción a tags o "random" para pruebas
+    var timers = [];
+    var subs = [];
+    series.forEach(function(s){
+      if (!s.address || s.address === "random") {
+        // demo aleatoria
+        var base = 100 + Math.random()*20, val = base;
+        var t = setInterval(function(){
+          val += (Math.random()-0.5) * (c.jitter || 2);
+          pushPoint(s, val, Date.now());
+        }, c.period || 500);
+        timers.push(t);
+      } else if (WM.data && WM.data.subscribe) {
+        try {
+          var id = WM.data.subscribe(s.address, function(e){
+            var v = (e && typeof e.value !== "undefined") ? e.value : null;
+            var ts = (e && (e.timestamp || e.valueservertimestamp)) || Date.now();
+            pushPoint(s, v, ts);
+          });
+          subs.push(id);
+        } catch(err){
+          log("[MODAL] ⚠ no se pudo subscribir:", s.address, err);
+        }
+      }
+    });
+
+    function pushPoint(s, v /*, ts */){
+      // ring buffer
+      s.data.push(typeof v === "number" ? v : null);
+      if (s.data.length > (c.buffer || 180)) s.data.shift();
+      requestRender();
+    }
+
+    var rafPending = false;
+    function requestRender(){
+      if (rafPending) return;
+      rafPending = true;
+      m.__raf = ROOT.requestAnimationFrame(function(){
+        rafPending = false;
+        if (mode === "overlay") {
+          drawSparkline(ctxs[0], series, { lineWidth: c.lineWidth || 1.6, showRange: !!c.showRange });
+        } else {
+          // una serie por canvas
+          series.forEach(function(s, idx){
+            drawSparkline(ctxs[idx], [s], { lineWidth: c.lineWidth || 1.6, showRange: !!c.showRange });
+          });
+        }
+      });
+    }
+
+    // Guardar para cleanup
+    m.__subs = subs;
+    m.__timers = timers;
+    m.onBeforeClose = (function(old){
+      return function(){
+        try { ROOT.removeEventListener("resize", onResize);}catch(_){}
+        if (old) try { old(); } catch(_){}
+      };
+    })(m.onBeforeClose);
+
+    return m;
+  }
+
+  // ===== Helpers públicos y wire de botones =====
+  function attachSparklineButton(btnId, cfg){
+    function hook(){
+      var btn = ROOT.document.getElementById(btnId);
+      if (!btn) return setTimeout(hook, 200);
+      btn.onclick = function(ev){
+        if (ev){ ev.preventDefault(); ev.stopPropagation(); if (ev.stopImmediatePropagation) ev.stopImmediatePropagation();}
+        toggle(cfg.key || ("btn_"+btnId), function(){
+          // si existe, cierra; si no, abre
+        });
+        // si no estaba abierto, abrir:
+        if (!REG.get(cfg.key)) openSparkline(cfg);
+      };
+      log("[MODAL] botón enganchado", btnId);
+    }
+    hook();
+  }
+
+  // API pública
+  ROOT.modal = Object.assign(ROOT.modal || {}, {
+    setDebug, closeByKey, closeAll, toggle,
+    openSparkline, attachSparklineButton
+  });
+
+  // atajo para probar
+  ROOT.modal.testSparkline = function(){
+    setDebug(true);
+    openSparkline({
+      key: "demo_spark",
+      title: "Demo Sparkline (random)",
+      mode: "overlay",
+      width: 900, height: 420,
+      buffer: 150, period: 400, jitter: 1.5, showRange: true,
+      series: [
+        { label: "A", address: "random" },
+        { label: "B", address: "random" },
+        { label: "C", address: "random" }
+      ]
+    });
+  };
+
+})();
+]]></code>
+</script>

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/timer/dhtmlxscheduler_glossy.css
+NodeClass: Variable
+BrowseName: 1:dhtmlxscheduler_glossy.css
+DisplayName: en|dhtmlxscheduler_glossy.css
+Description: en|dhtmlxscheduler_glossy.css
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Css
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Css.Compress

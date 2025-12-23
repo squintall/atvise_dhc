@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * DECLARATION SECTION
+ */
+var username = "", colid;
+var closeOnSave = false;
+var keyboard = webMI.query["keyboard"];
+var trigger_username = "com.atvise.user.username";
+
+
+/**
+ * ONLOAD/ONUNLOAD SECTION
+ */
+webMI.addOnload(function(){
+	webMI.gfx.setText("error_message", "");
+});
+
+webMI.addOnunload(function(){
+	if(!closeOnSave){
+		webMI.trigger.fire("new_user", "");
+	}
+});
+
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect("clicked", function (e) {
+    webMI.gfx.setText("error_message", "");
+    
+	if (typeof username != "undefined" && username != "") {
+
+		webMI.data.call("UserManagement", { "mode": "New", "username": username }, function (e) {
+			if (e.error) {
+				webMI.gfx.setFill("error_message", "#FF0000");
+				webMI.gfx.setText("error_message", "T{Error}: T{" + e.error + "}");
+			} else {
+				webMI.trigger.fire("new_user", { "username": username });
+				closeOnSave = true;
+				webMI.display.closeWindow();
+			}
+
+		});
+	} else {
+		webMI.gfx.setFill("error_message", "#FF0000");
+		webMI.gfx.setText("error_message", "T{Error}: T{Please enter username!}");
+	}
+}, "save_button");
+
+webMI.trigger.connect("clicked", function (e) {
+        webMI.display.closeWindow();
+        webMI.trigger.fire("new_user", "");
+}, "cancel_button");
+
+webMI.trigger.connect("valuechanged", function (e) {
+    webMI.gfx.setText("error_message", "");
+    username = e.value;
+}, "username_input");
+
+webMI.trigger.connect(trigger_username, function (e) {
+    webMI.gfx.setText("error_message", "");
+    username = e.value;
+    webMI.trigger.fire("setValue", e.value, "username_input");
+});
+
+
+webMI.trigger.connect("clicked", function (e) {
+    webMI.query.trigger = trigger_username;
+    webMI.query.password = "No";
+    webMI.query.value = username;
+    webMI.display.openWindow({
+        display: keyboard,
+        extern: false,
+        height: 300,
+        menubar: false,
+        modal: true,
+        movable: true,
+        resizable: false,
+        scrollbars: false,
+        status: false,
+        title: "T{Keyboard}",
+        toolbar: false,
+        width: 700,
+        query: webMI.query
+    });
+}, "username_keyboard");
+]]></code>
+</script>

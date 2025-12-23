@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.Equipos.Bombas.Bomba_3.hours
+NodeClass: Variable
+BrowseName: 1:hours
+DisplayName: en|hours
+Description: en|hours
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

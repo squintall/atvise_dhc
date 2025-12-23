@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="1080" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="2" width="2"/>
+ </metadata>
+ <svg atv:refpx="889.96" atv:refpy="580.042" height="600" id="content" transform="matrix(2.225,0,0,1.6533,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="50.806">
+  <atv:argument name="frameName" value="content"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="display" value="AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI"/>
+ </svg>
+ <svg atv:refpx="1775.146" atv:refpy="49.973" height="52" id="layout_time" width="203" x="1709" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.time" y="0"/>
+ <svg atv:refpx="1758" atv:refpy="59" height="30" id="layout_date" width="203" x="1708" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.date" y="42"/>
+ <text atv:refpx="481.058" atv:refpy="50" fill="#050a4b" font-family="Arial" font-size="18" id="id_2" transform="matrix(2.9999,0,0,3,-760.0012,0)" x="384.512" y="21.5">Mon. TI</text>
+ <svg atv:refpx="1802.696" atv:refpy="1035.878" height="300" id="id_0" transform="matrix(0.68,0,0,0.2667,0,0)" width="200" x="2620.588" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.navigation" y="3734.533">
+  <atv:overwrite id="navigation_description" transform="matrix(1.2903,0,0,0.3429,0,0)"/>
+  <atv:argument name="navPanelAlign" value="bottom"/>
+  <atv:overwrite id="navigation_1_description" transform="matrix(1.25,0,0,0.3371,0,0)"/>
+  <atv:argument name="navContainerID" value="navigation_3"/>
+  <atv:argument name="navItemCount" value="0"/>
+  <atv:argument name="navAnimateFactor" value="2"/>
+  <atv:argument name="navPanelBorderColor" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="navItemBorderColor" value="SYSTEM.GLOBALS.#20dbd8"/>
+  <atv:argument name="navItemBorderRadius" value="10"/>
+  <atv:argument name="navItemWidthSteady" value="150"/>
+  <atv:argument name="navItemIndentationActive" value="80"/>
+  <atv:argument name="navFontSize" value="18"/>
+  <atv:overwrite id="navigation_2_description" transform="matrix(0.2022,0,0,2.727,0,0)"/>
+  <atv:argument name="navHomeText" value=""/>
+  <atv:argument name="navItemBackgroundActive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color2"/>
+  <atv:argument name="navArrowBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navHomeBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navItemBackgroundInactive" value="SYSTEM.GLOBALS.Colors.Negro"/>
+  <atv:argument name="navItemBackgroundHover" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color3"/>
+  <atv:argument name="navFontColorHover" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorInactive" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorActive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color5"/>
+  <atv:argument name="navHomeColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navArrowActive" value="false"/>
+  <atv:argument name="navItemPadding" value="15"/>
+  <atv:argument name="navItemBorderWidth" value="0"/>
+  <atv:argument name="navHomeDisplay" value="AGENT.DISPLAYS.USER.Layouts_DHC.IT_Main"/>
+  <atv:overwrite id="navigation_3_description" transform="matrix(1.4706,0,0,3.7495,0,0)"/>
+ </svg>
+ <svg atv:refpx="1115" atv:refpy="44.5" height="65" id="id_16" width="230" x="1000" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_view_log" y="12">
+  <atv:argument name="right" value="SYSTEM.SECURITY.RIGHTS.USER.Log"/>
+ </svg>
+ <svg atv:refpx="1852" atv:refpy="921.5" height="30" id="id_1" transform="matrix(1.7,0,0,1.4333,0,0)" width="80" x="1049.412" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="627.922">
+  <atv:argument name="label" value="T{Semáforo}"/>
+  <atv:argument name="fontSize" value="20"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:overwrite height="40.999" id="id_6" transform="matrix(0.5882,0,0,0.6977,0,0)" width="134"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5882,0,0,0.6977,0,0)" x="68" y="32.999"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.5882,0,0,0.6977,0,0)" x="68.5" y="17.999"/>
+  <atv:overwrite id="button_label" transform="matrix(0.5882,0,0,0.6977,0,0)" x="68.5" y="25.999"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.3529,0,0,0.4186,0,0)" x="103.167" y="37.124"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.3529,0,0,0.4186,0,0)" x="103.167" y="15.791"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5882,0,0,0.6977,0,0)" x="58" y="11.499"/>
+  <atv:overwrite height="38.999" id="button_stroke" transform="matrix(0.5882,0,0,0.6977,0,0)" width="132"/>
+  <atv:overwrite height="40.999" id="button_bg" transform="matrix(0.5882,0,0,0.6977,0,0)" width="134"/>
+  <atv:overwrite height="42.999" id="outer_frame" transform="matrix(0.5882,0,0,0.6977,0,0)" width="136"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[/* ======================= Auto-rotación en iframe 'content' ======================= */
+var FRAME = "content";
+// Duraciones solicitadas:
+// - Cuando es turno de Pantalla_TI: 2 minutos
+// - Para el resto: 30 segundos
+var TARGET_DISPLAY = "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI";
+var DELAY_TI_MS = 2 * 60 * 1000;      // 2 minutos
+var DELAY_OTHER_MS = 30 * 1000;       // 30 segundos
+
+var ROTATION = ["AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI","SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_ISLA.Main_IM"
+  /*"SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Circuitos.Circuitos_Main",
+  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
+  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuencas_Main",
+  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
+  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_ISLA.Main_IM",
+  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
+  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Main_PUERTO_AVENTURAS",
+  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
+  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Main_Cuenca_PTAR_Saastun_Ha",
+  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
+  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Main_Circuito_CAP_INTERMEDIO",
+  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
+  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PUERTO.Main_PUERTO_MORELOS",
+  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI"*/
+];
+
+var _rotIdx = 0;
+var _rotTimer = null;  // setTimeout handler
+var _started = false;
+
+function openInFrame(displayPath){
+  if (typeof displayPath !== "string" || !displayPath) {
+    console.warn("[rotate] path inválido:", displayPath);
+    return;
+  }
+  try {
+    // Firma correcta: openDisplay(url, parameters, iframeName)
+    console.log("[rotate] openDisplay ->", displayPath, "frame:", FRAME);
+    webMI.display.openDisplay(displayPath, webMI.query, FRAME);
+  } catch (e) {
+    console.warn("[rotate] openDisplay falló, fallback openWindow:", e);
+    try {
+      webMI.display.openWindow({
+        display: displayPath, extern: false, resizable: true, modal: false, query: webMI.query,
+        width: 1280, height: 720, menubar: false, toolbar: false, status: false, scrollbars: true
+      });
+    } catch (e2) {
+      console.warn("[rotate] openWindow también falló:", e2);
+    }
+  }
+}
+
+function goNext(){
+  if (!ROTATION.length) return;
+  var path = ROTATION[_rotIdx % ROTATION.length];
+  _rotIdx++;
+  openInFrame(path);
+  // Programar la siguiente rotación según el display mostrado
+  try { if (_rotTimer) clearTimeout(_rotTimer); } catch (_) {}
+  var delay = (path === TARGET_DISPLAY) ? DELAY_TI_MS : DELAY_OTHER_MS;
+  _rotTimer = setTimeout(goNext, delay);
+}
+
+function startAutoRotate(){
+  goNext(); // primera carga y el propio goNext programa el siguiente salto
+}
+function stopAutoRotate(){
+  if (_rotTimer){ clearTimeout(_rotTimer); _rotTimer = null; }
+}
+var FACTOR = 1.5
+var ALTO = 430*FACTOR;
+var ANCHO = 980*FACTOR;
+/* --- Botón "Semáforo" intacto --- */
+webMI.addEvent("id_1", "click", function(){
+  webMI.display.openWindow({
+    display:"AGENT.DISPLAYS.USER.Layouts_DHC.color_code",
+    extern:false,height:ALTO,menubar:false,modal:true,movable:true,resizable:true,
+    scrollbars:false,status:false,title:"T{Código de colores}",toolbar:false,width:ANCHO,
+    query:webMI.query
+  });
+});
+
+/* --- Arranque (pequeño delay para que el frame 'content' quede listo) --- */
+webMI.addOnload(function(){
+  if (_started) return;
+  _started = true;
+  // Pequeño delay inicial para respetar la pantalla actual antes de iniciar la rotación.
+  // Si la pantalla inicial es distinta a Pantalla_TI, serán 30s; si es Pantalla_TI, 2min.
+  // Ajusta esta línea si deseas otro comportamiento (por ejemplo, inicio inmediato).
+  setTimeout(startAutoRotate, DELAY_OTHER_MS);
+});
+]]></script>
+ <g atv:refpx="797.604" atv:refpy="43" id="id_19" transform="matrix(1,0,0,1,-80.0618,-0.0004)">
+  <image atv:refpx="794.046" atv:refpy="46" height="131" id="id_17" transform="matrix(0.5344,0,0,0.5344,0,0)" width="352" x="1309.997" xlink:href="../../Icons/Logo DHC.png" y="20.586"/>
+  <image atv:refpx="981.168" atv:refpy="40" height="613" id="id_18" transform="matrix(0.1142,0,0,0.1142,0,0)" width="1299" x="7942.731" xlink:href="../../Icons/Logo Aguakan.png" y="43.786"/>
+ </g>
+</svg>

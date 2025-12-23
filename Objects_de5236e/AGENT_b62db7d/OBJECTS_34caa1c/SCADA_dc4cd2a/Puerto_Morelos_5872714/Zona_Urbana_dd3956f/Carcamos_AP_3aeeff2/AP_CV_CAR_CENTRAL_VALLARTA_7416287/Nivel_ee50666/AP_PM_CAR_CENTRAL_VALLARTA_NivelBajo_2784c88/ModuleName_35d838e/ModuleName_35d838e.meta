@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Zona_Urbana.Carcamos_AP.AP_CV_CAR_CENTRAL_VALLARTA.Nivel.AP_PM_CAR_CENTRAL_VALLARTA_NivelBajo.ModuleName
+NodeClass: Variable
+BrowseName: 1:ModuleName
+DisplayName: en|Source module name
+Description: en|ModuleName
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.ModuleName.RelMirrorInputOutput

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[const { certificate_description, fileType1, fileType2, file1Label, file2Label, fileNameLabel } = webMI.query;
+
+// File element arrays
+const group_file1 = ["file1_background", "file1_btn_file", "file1_fo_file_field", "file1_label"];
+const group_file2 = ["file2_background", "file2_btn_file", "file2_fo_file_field", "file2_label"];
+const group_filename = ["label_saved_as", "saved_as_filename"];
+const BUTTON_FILE_1 = "file1_btn_file";
+const BUTTON_FILE_2 = "file2_btn_file";
+const BUTTON_UPLOAD = "btn_upload";
+const BUTTON_CANCEL = "btn_cancel";
+const ELLIPSIS = "...";
+
+const files = {};
+
+function hideElements(group) {
+	group.forEach((element) => {
+		document.getElementById(element).style.opacity = 0.5;
+	});
+}
+
+function showElements(group) {
+	group.forEach((element) => {
+		document.getElementById(element).style.opacity = 1;
+	});
+}
+
+function validateRequiredFields() {
+	const missingFields = [];
+
+	if (!files.file1) {
+		missingFields.push(file1Label);
+	}
+
+	if (fileType2 && !files.file2) {
+		missingFields.push(file2Label);
+	}
+
+	if (fileNameLabel && !files.sharedName) {
+		missingFields.push("Filename");
+	}
+
+	return missingFields.length > 0 ? missingFields : true;
+}
+
+function showErrorMessage(missingFields) {
+	const errorMessage = `Required: ${missingFields.join(", ")}!`;
+	webMI.gfx.setText("error_message", errorMessage);
+	webMI.gfx.setVisible("error_message", true);
+}
+
+function clearErrorMessage() {
+	webMI.gfx.setText("error_message", "");
+	webMI.gfx.setVisible("error_message", false);
+}
+
+webMI.addOnload(() => {
+	webMI.addEvent(BUTTON_FILE_1, "click", () => triggerFileInput(fileInput1));
+	if (fileType2 === "") {
+		showElements(group_file1);
+		hideElements(group_file2);
+		webMI.trigger.fire("com.atvise.setActive", false, "file2_btn_file");
+	} else {
+		showElements(group_file1);
+		showElements(group_file2);
+		webMI.addEvent(BUTTON_FILE_2, "click", () => triggerFileInput(fileInput2));
+	}
+
+	if (fileNameLabel === "") {
+		hideElements(group_filename);
+		webMI.trigger.fire("com.atvise.setActive", false, "in_out_filename");
+	} else {
+		showElements(group_filename);
+	}
+
+	const fileInput1 = webMI.rootWindow.document.getElementById("fileInput1");
+	const fileInput2 = webMI.rootWindow.document.getElementById("fileInput2");
+
+	if (!fileInput1 || !fileInput2) {
+		console.error("File inputs not found");
+		return;
+	}
+
+	const triggerFileInput = (fileInput) => {
+		fileInput.click();
+	};
+
+	const handleFileSelectionChange = (fileInput, labelId, fileKey, hook) => {
+		fileInput.addEventListener("change", (event) => {
+			files[fileKey] = event.target.files[0];
+			const selectedFileLabel = webMI.rootWindow.document.getElementById(labelId);
+			selectedFileLabel.textContent = files[fileKey].name;
+
+			if (selectedFileLabel.scrollWidth > selectedFileLabel.offsetWidth) {
+				let text = selectedFileLabel.innerHTML;
+
+				while (selectedFileLabel.scrollWidth > selectedFileLabel.offsetWidth) {
+					const midIndex = Math.floor(text.length / 2);
+					text = `${text.slice(0, midIndex)}${ELLIPSIS}${text.slice(midIndex + 1)}`;
+					selectedFileLabel.innerHTML = text;
+					text = text.slice(0, midIndex) + text.slice(midIndex + ELLIPSIS.length);
+				}
+			}
+
+			// Optional hook function
+			if (hook && typeof hook === "function") {
+				setTimeout(() => {
+					hook(fileInput, labelId);
+				});
+			}
+		});
+	};
+
+	handleFileSelectionChange(fileInput1, "selectedFile1", "file1", updateFilename);
+	handleFileSelectionChange(fileInput2, "selectedFile2", "file2", showSavedAs);
+
+	webMI.addEvent(BUTTON_UPLOAD, "click", () => {
+		const validationResult = validateRequiredFields();
+		if (validationResult === true) {
+			clearErrorMessage();
+			webMI.trigger.fire("com.atvise.upload_certificate", files);
+			this.close();
+		} else {
+			showErrorMessage(validationResult);
+		}
+	});
+
+	function updateFilename(fileInput) {
+		if (Object.prototype.toString.call(fileInput.files) === "[object FileList]" && fileInput.files.length > 0) {
+			files.sharedName = removeFileExtension(fileInput.files[0].name);
+			webMI.trigger.fire("setValue", files.sharedName, "in_out_filename");
+			truncateSvgText(files.sharedName + ".pem", document.getElementById("saved_as_filename"), 380);
+		}
+		showSavedAs();
+	}
+
+	function showSavedAs() {
+		if (files.file1 && files.file2) {
+			group_filename.forEach((element) => {
+				webMI.gfx.setVisible(element, null);
+			});
+		}
+	}
+
+	webMI.trigger.connect(
+		"clicked",
+		function () {
+			webMI.display.closeWindow();
+		},
+		BUTTON_CANCEL
+	);
+});
+
+// Utility function to remove file extension
+function removeFileExtension(filename) {
+	return filename.substring(0, filename.lastIndexOf(".")) || filename;
+}
+
+function truncateSvgText(text, svgTextElement, maxWidth) {
+	let visibility = svgTextElement.getAttribute("visibility");
+	svgTextElement.setAttribute("visibility", null);
+	svgTextElement.textContent = text;
+
+	if (svgTextElement.getComputedTextLength() <= maxWidth) {
+		// Text fits within maxWidth, no truncation needed
+		return;
+	}
+
+	// Add ellipsis and truncate iteratively
+	let truncatedText = text;
+
+	while (svgTextElement.getComputedTextLength() > maxWidth && truncatedText.length > 0) {
+		const midIndex = Math.floor(truncatedText.length / 2);
+		truncatedText = `${truncatedText.slice(0, midIndex)}${ELLIPSIS}${truncatedText.slice(midIndex + 1)}`;
+		svgTextElement.textContent = truncatedText;
+		truncatedText = truncatedText.slice(0, midIndex) + truncatedText.slice(midIndex + ELLIPSIS.length);
+	}
+
+	svgTextElement.setAttribute("visibility", visibility);
+}
+]]></code>
+</script>

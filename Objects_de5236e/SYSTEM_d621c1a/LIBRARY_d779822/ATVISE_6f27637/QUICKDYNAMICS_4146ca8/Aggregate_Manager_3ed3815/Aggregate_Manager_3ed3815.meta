@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Aggregate Manager
+NodeClass: Variable
+BrowseName: 1:Aggregate Manager
+DisplayName: en|Aggregate Manager
+Description: en|Aggregate Manager
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.nivelEnCuenca
+NodeClass: Variable
+BrowseName: 1:nivelEnCuenca
+DisplayName: en|nivelEnCuenca
+Description: en|nivelEnCuenca
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

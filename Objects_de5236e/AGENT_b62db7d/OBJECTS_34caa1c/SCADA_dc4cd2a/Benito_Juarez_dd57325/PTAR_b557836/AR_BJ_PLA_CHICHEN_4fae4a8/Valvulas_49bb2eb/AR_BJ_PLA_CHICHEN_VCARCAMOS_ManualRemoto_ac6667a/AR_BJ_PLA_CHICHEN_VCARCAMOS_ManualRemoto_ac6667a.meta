@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.PTAR.AR_BJ_PLA_CHICHEN.Valvulas.AR_BJ_PLA_CHICHEN_VCARCAMOS_ManualRemoto
+NodeClass: Variable
+BrowseName: 1:AR_BJ_PLA_CHICHEN_VCARCAMOS_ManualRemoto
+DisplayName: en|AR_BJ_PLA_CHICHEN_VCARCAMOS_ManualRemoto
+Description: en|AR_BJ_PLA_CHICHEN_VCARCAMOS_ManualRemoto
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

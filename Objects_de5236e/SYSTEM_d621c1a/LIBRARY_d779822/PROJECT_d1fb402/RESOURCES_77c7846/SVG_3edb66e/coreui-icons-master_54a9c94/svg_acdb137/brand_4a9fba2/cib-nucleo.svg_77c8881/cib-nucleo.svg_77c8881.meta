@@ -1,0 +1,11 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/SVG/coreui-icons-master/svg/brand/cib-nucleo.svg
+NodeClass: Variable
+BrowseName: 1:cib-nucleo.svg
+DisplayName: en|cib-nucleo.svg
+Description: en|cib-nucleo.svg
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Svg
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Compress
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Translate

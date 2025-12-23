@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.shelveTime
+NodeClass: Variable
+BrowseName: 1:shelveTime
+DisplayName: en|shelveTime
+Description: en|shelveTime
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

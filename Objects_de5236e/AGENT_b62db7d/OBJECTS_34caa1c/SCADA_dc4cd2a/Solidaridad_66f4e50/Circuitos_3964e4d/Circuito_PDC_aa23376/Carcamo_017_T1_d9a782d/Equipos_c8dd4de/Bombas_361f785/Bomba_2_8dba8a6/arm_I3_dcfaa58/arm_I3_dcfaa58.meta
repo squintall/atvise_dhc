@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_017_T1.Equipos.Bombas.Bomba_2.arm_I3
+NodeClass: Variable
+BrowseName: 1:arm_I3
+DisplayName: en|arm_I3
+Description: en|arm_I3
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.arm_I3.DeadbandRel
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.arm_I3.SuppressFlicker
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

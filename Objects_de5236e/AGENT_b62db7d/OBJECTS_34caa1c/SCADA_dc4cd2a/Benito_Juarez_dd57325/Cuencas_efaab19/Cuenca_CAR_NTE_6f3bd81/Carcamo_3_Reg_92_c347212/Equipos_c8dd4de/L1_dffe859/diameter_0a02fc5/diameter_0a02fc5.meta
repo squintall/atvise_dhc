@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_3_Reg_92.Equipos.L1.diameter
+NodeClass: Variable
+BrowseName: 1:diameter
+DisplayName: en|diameter
+Description: en|diameter
+DataType: Int16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Bomba.fault.Falla
+NodeClass: Object
+BrowseName: 1:Falla
+DisplayName: en|Falla
+Description: en|Falla
+EventNotifier: 0
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

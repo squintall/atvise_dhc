@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.projectObjectDisplays.Alarmlist.Columns.Suppresed
+NodeClass: Variable
+BrowseName: 1:Suppresed
+DisplayName: en|Suppresed
+Description: en|Suppresed
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

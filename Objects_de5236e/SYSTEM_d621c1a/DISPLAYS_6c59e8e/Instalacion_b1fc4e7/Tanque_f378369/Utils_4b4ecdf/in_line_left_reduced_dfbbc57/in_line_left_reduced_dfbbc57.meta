@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Tanque.Utils.in_line_left_reduced
+NodeClass: Variable
+BrowseName: 1:in_line_left_reduced
+DisplayName: en|in_line_left_reduced
+Description: en|in_line_left_reduced
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

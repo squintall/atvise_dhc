@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="430" version="1.2" width="770" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<defs/>
+	<title>Access Control Log Dialog</title>
+	<desc>Default-dialog for access control log messages</desc>
+	<metadata>
+    <atv:parameter behavior="mandatory" defaultvalue="atvise_access_log" desc="table ID" name="tableID" valuetype="string"/>
+		<atv:parameter behavior="optional" config="Arial;Courier;Tahoma;Verdana" defaultvalue="Arial" desc="font family" group="Font" name="font_family" valuetype="enum"/>
+		<atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" group="Font" name="globalFontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+    <atv:parameter behavior="optional" defaultvalue="42" desc="table header height" group="Table" name="header_height" valuetype="number"/>
+    <atv:parameter behavior="optional" defaultvalue="32" desc="table row height" group="Table" name="row_height" valuetype="number"/>
+    <atv:parameter behavior="optional" defaultvalue="17" desc="table header font size" group="Table" name="header_text_size" valuetype="number"/>
+    <atv:parameter behavior="optional" defaultvalue="15" desc="table row font size" group="Table" name="row_text_size" valuetype="number"/>
+		<atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Appearance" name="globalFillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+		<atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvBorderColor" desc="border color" group="Appearance" name="globalBorderColor" valuetype="global"/>
+		<atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="symbol color" group="Appearance" name="globalSymbolColor" substitute="$SYMBOLCOLOR$" valuetype="global"/>
+		<atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.Tables.ColorConfig" desc="table colors" group="Appearance" name="globalColorConfig" valuetype="global"/>
+		<atv:parameter behavior="optional" defaultvalue="atviseTheme" desc="custom theme" group="Appearance" name="theme_class" valuetype="string"/>
+		<atv:parameter behavior="optional" defaultvalue="250000" desc="data limitation" group="Options" name="truncate" valuetype="number"/>
+		<atv:parameter behavior="optional" defaultvalue="true" desc="paging" group="Options" name="paging" valuetype="bool"/>
+		<atv:parameter behavior="optional" defaultvalue="false" desc="cell linebreak" group="Options" name="linebreak" valuetype="bool"/>
+		<atv:parameter behavior="optional" defaultvalue="true" desc="columns reorderable" group="Options" name="columnReorder" valuetype="bool"/>
+		<atv:parameter behavior="optional" defaultvalue="true" desc="multiselect on cell click" group="Options" name="multicellselect" valuetype="bool"/>
+		<atv:parameter behavior="optional" defaultvalue="true" desc="show menu" group="Menu options" name="showMenu" valuetype="bool"/>
+		<atv:parameter behavior="optional" defaultvalue="T{Export CSV}" desc="custom menu title" group="Menu options" name="showMenuCustomTitle" valuetype="string"/>
+		<atv:parameter behavior="optional" defaultvalue="true" desc="show picker menu" group="Menu options" name="showMenuPicker" valuetype="bool"/>
+		<atv:parameter behavior="optional" defaultvalue="T{Columns}" desc="picker menu title" group="Menu options" name="showMenuPickerTitle" valuetype="string"/>
+		<atv:parameter behavior="optional" defaultvalue="300" desc="menu height" group="Menu options" name="menuHeight" valuetype="number"/>
+		<atv:parameter behavior="optional" defaultvalue="250" desc="menu width" group="Menu options" name="menuWidth" valuetype="number"/>
+		<atv:parameter behavior="optional" config="default;popup" defaultvalue="popup" desc="mode" name="mode" valuetype="enum"/>
+		<atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+		<atv:snapconfig enabled="true" height="2" width="2"/>
+	</metadata>
+  <svg atv:refpx="385.032" atv:refpy="214.982" height="640" id="atvise_access_log_table" transform="matrix(1.2031,0,0,0.6719,0,0)" width="640" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.slickgrid.table" y="0">
+    <atv:argument name="tableID" prefix="tableID"/>
+		<atv:argument name="multiselect" value="false"/>
+    <atv:argument name="header_height" prefix="header_height"/>
+    <atv:argument name="header_text_size" prefix="header_text_size"/>
+    <atv:argument name="row_height" prefix="row_height"/>
+    <atv:argument name="row_text_size" prefix="row_text_size"/>
+    <atv:argument name="filterBar" value="false"/>
+    <atv:argument name="paging" value="false"/>
+    <atv:argument name="showMode" value="false"/>
+    <atv:argument name="header_text_horizontal" value="center"/>
+	</svg>
+	<script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.hmi.accesscontrol" atv:name="accesscontrol" atv:type="text/ecmascript"/>
+	<script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

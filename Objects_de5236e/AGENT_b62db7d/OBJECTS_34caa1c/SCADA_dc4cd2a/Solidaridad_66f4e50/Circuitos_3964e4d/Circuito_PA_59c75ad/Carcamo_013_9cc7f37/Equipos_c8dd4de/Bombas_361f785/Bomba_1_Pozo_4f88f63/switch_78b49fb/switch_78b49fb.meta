@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_013.Equipos.Bombas.Bomba_1_Pozo.switch
+NodeClass: Variable
+BrowseName: 1:switch
+DisplayName: en|switch
+Description: en|switch
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

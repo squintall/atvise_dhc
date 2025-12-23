@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Scrubber.Sensor1.Alarm
+NodeClass: Variable
+BrowseName: 1:Alarm
+DisplayName: en|Alarm
+Description: en|Alarm
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

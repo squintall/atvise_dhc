@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element fav input object display
+ * ----------------------------------------
+ * This script supports the display showing favorites for known users (logged in).
+ */
+
+
+/**
+ * PARAMETER SECTION
+ */
+var displayAddress = decodeURIComponent(webMI.query["displayAddress"]);
+var id = webMI.query["id"];
+var isLoggedIn = webMI.query["isLoggedIn"];
+var query = webMI.query["query"];
+
+/**
+ * DECLARATION SECTION
+ */
+var addressArray = displayAddress.split(".");
+var addressLength = 6;
+var fav_name;
+
+
+/**
+ * UI SETUP SECTION
+ */
+var addressLine = addressArray.pop();
+var addressPath = addressArray.length > addressLength ? addressArray.slice(addressLength).join(".") + "." : addressArray.join(".");
+
+webMI.gfx.setFill("background", webMI.query["fillColor"]);
+webMI.gfx.setFill("display_address_label", webMI.query["fontColor"]);
+webMI.gfx.setFill("display_address_1", webMI.query["fontColor"]);
+webMI.gfx.setFill("display_address_2", webMI.query["fontColor"]);
+webMI.gfx.setFill("fav_name_label", webMI.query["fontColor"]);
+webMI.gfx.setText("display_address_1", addressLine);
+webMI.gfx.setText("display_address_2", addressPath);
+
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+	webMI.trigger.fire("setValue", displayAddress.replace("AGENT.OBJECTS.", "").replace("AGENT.DISPLAYS.", "").replace("SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.", ""), "fav_name");
+	// This code line can be uncommented again, if it's effect is liked (re-discuss!) and issue AT-D-11590 is fixed
+	// webMI.trigger.fire("com.atvise.switchToInputMode", "fav_name");
+	if (isLoggedIn == "false") {
+		webMI.gfx.setText("error", "T{Warning}: T{Not logged in. Favorites data will be overwritten at login!}");
+		webMI.gfx.setVisible("error", true);
+	}
+});
+
+
+/**
+ * FUNCTION SECTION
+ */
+function onButtonClick() {
+	if (fav_name == "") {
+		webMI.gfx.setText("error", "T{Error}: T{Please enter a favorite name!}");
+		webMI.gfx.setVisible("error", true);
+	} else {
+		webMI.trigger.fire("com.atvise.favorites.add", true, {
+			favName: fav_name,
+			displayAddress: displayAddress,
+			id: id,
+			query: query
+		});
+		webMI.display.closeWindow();
+	}
+}
+
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect("valuechanged", function (e) {
+	webMI.gfx.setVisible("error", false);
+	fav_name = e.value;
+}, "fav_name");
+
+webMI.trigger.connect("clicked", function (e) {
+	onButtonClick();
+}, "button");
+]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Solidaridad.trendSOL
+NodeClass: Variable
+BrowseName: 1:trendSOL
+DisplayName: en|trendSOL
+Description: en|trendSOL
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

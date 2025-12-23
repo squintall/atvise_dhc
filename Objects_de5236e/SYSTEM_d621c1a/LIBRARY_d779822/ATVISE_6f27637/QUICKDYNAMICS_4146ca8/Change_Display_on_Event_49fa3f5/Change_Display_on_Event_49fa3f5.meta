@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Change Display on Event
+NodeClass: Variable
+BrowseName: 1:Change Display on Event
+DisplayName: en|Change Display on Event
+Description: en|Change Display on Event
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

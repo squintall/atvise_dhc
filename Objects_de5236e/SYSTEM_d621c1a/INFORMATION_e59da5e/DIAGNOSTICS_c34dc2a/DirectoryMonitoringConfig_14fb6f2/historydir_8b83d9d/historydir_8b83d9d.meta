@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.historydir
+NodeClass: Object
+BrowseName: 1:historydir
+DisplayName: en|historydir
+Description: en|historydir
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Tanques_Captacion
+NodeClass: Variable
+BrowseName: 1:Tanques_Captacion
+DisplayName: en|Tanques_Captacion
+Description: en|Tanques_Captacion
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.MailManagement.MailManager
+NodeClass: Variable
+BrowseName: 1:MailManager
+DisplayName: en|MailManager
+Description: en|MailManager
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

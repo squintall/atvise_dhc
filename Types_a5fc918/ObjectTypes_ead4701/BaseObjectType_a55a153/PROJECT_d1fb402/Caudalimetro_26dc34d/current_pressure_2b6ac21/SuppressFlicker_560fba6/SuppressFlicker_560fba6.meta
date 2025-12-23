@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Caudalimetro.current_pressure.SuppressFlicker
+NodeClass: Variable
+BrowseName: 1:SuppressFlicker
+DisplayName: en|SuppressFlicker
+Description: en|SuppressFlicker
+DataType: Int32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Smoothing.SuppressFlicker

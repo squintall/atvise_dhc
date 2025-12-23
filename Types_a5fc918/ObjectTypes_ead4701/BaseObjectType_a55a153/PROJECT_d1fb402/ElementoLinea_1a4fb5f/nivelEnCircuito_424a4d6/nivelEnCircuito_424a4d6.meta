@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.nivelEnCircuito
+NodeClass: Variable
+BrowseName: 1:nivelEnCircuito
+DisplayName: en|nivelEnCircuito
+Description: en|nivelEnCircuito
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

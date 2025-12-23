@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Captacion.Carcamos.AP_SOL_CAR_INTERMEDIO.L30.Caudalimetro.L_30.current_flow.MirrorInputOutput
+NodeClass: Variable
+BrowseName: 1:MirrorInputOutput
+DisplayName: en|MirrorInputOutput
+Description: en|MirrorInputOutput
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.InputOutput

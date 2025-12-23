@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the 'label' object display
+ * -----------------------------------
+ * This element shows a defined text within a HTML container (foreignObject).
+ */
+
+/**
+ * Trigger for performance measurement
+ */
+const displayId = document.getElementById("label_text").id;
+webMI.trigger.fire("com.atvise.performance.drawn", displayId);
+
+/**
+ * DECLARATION SECTION
+ */
+
+/* set values for portal */
+var label_text = document.getElementById("label_text");
+webMI.gfx.setText(label_text, webMI.query["text"]);
+label_text.style.fontFamily = webMI.query["font-family"];
+label_text.style.fontWeight = webMI.query["font-weight"];
+label_text.style.fontSize = webMI.query["font-size"]+"px";
+label_text.style.color = webMI.query["color"];
+label_text.style.textAlign = webMI.query["horizontal-align"];
+label_text.style.verticalAlign = webMI.query["vertical-align"];
+
+/**
+ * FUNCTIONS
+ */
+ 
+function setText(value) {
+	webMI.gfx.setText(label_text, value);
+	webMI.trigger.fire("valuechanged", value == null ? "" : value, "");
+}
+
+/**
+ * switch to active layout
+ */
+function setActiveLayout() {
+	label_text.style.color = webMI.query["color"];
+}
+
+/**
+ * switch to inactive layout
+ */
+function setInactiveLayout() {
+	label_text.style.color = webMI.query["colorInactive"];
+}
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect("setValue", function (e) {
+	setText(e.value);
+});
+
+/* this trigger is depricated and primary for redu status changes */
+webMI.trigger.connect("com.atvise.labelMessageChanged", function(e) {
+	setText(e.value);
+});
+
+webMI.trigger.connect("com.atvise.setActive", function (e) {
+	if (e.value === true) {
+		setActiveLayout();
+	} else {
+		setInactiveLayout();
+	}
+});
+
+webMI.trigger.fire("com.atvise.performance.interactive", displayId);]]></code>
+</script>

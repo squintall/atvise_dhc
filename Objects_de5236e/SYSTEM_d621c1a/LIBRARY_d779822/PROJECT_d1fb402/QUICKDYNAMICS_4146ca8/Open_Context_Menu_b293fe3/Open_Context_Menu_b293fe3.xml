@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAO7SURBVFiFxVdfaFtVGP/dP6ktDUlubWmXm2sUH3S7NSuCtA+6ZTBJoCrFLp10D2awwZ72UhEEQYWBbmgnXRm+yCRjTwpOcTR3bK21MtIWtxWS2pXNJm2TVplrkqUlNefm+JDeJKtpk6239vdyD7/zfff73e873z3nMJIkUmwj5uaizGbz7HYGrwS8Niin9HEgiqKTZTFUie2OZ2DHBeRLIIqicysvikajPwOA3d74bDaLlscWUGnNSmGXhdyPRtEgSVZv84v03vQ9eia9WtmS0qUEQm3uQ0RR+jDLOt5680DGV6lvPgN/jDwEVIASChC69kRhXDQHsjZWc+MsyU4YA4DBwPPp9OrJ36b3dL66O9T86+9PtZYTUMjAEwbP82vw+XxVyWT82xt3uHcAOlyxgC0FJ4UX2mwSLl68VN3U9Mw4x2XfrbgEozc5UDUXECoFVQFkscYV+NyzwFOVgqXUCKwCwNMAIMsyenreqz93ru/7cHjx5YoEdL9fW07shtjTlHke+Au1tcZ8LjyeLoyM/CKzLP/V8PDwiY18demCyUV+ohTf19dfZTBwx9ra2o5s6CxJItVrR3S7XUt0HRKJBHU6961YrdaSP6dt/xWbTCb095+vkSTbdbvdbvnfBQDaouypa2ysD6yf02Uv4HkSjkT+DG9m4/F0IRQKvWA0mr4bHBw6pPGMTvX/ZG4u+rHb7VoaGPD/J83F6Ox8myST8Q+uXRv6HNCxBKIoOltbWzcNDgAXLnzDV1fXfNTe3v4aAP26QBRFZ2/vF+uboCSCwSDdu/elh3a73bIjBxJZlnH69BmjIFhCfHnz7YHL5cbk5KRVpy7gbxNCNrUJhUK4elXB4OD1FCEqWV5O8QD+1uVERAg5UIpXFD9cLjcAwGw2wefzxZaW4nIkEonn4z5p0HI4e7YXx48fg6L4AeS2aYvFLKy30+1eoJUwmUzi6FEvicfjP6gqPXXlyk+jLpe7CgD273fWJJM/dkcikfOan24ZcDgc3kQiAadzXzoWW/BOTd05FYvFbo+Njac0G4+nCw0N9d3FfroJWFlZSfv9A/cfPFjcPTs7G+I45pbNtqtDEOpuaGWQZRmp1HJzsZ9uXRAOT33GMMynhPDPcZx2L2A7gsGJrxVFeUNbjAcPvm5WVXokEAhcekTAVroAgJDJcBaWZS6zLOwFmnbMzy94x8ZGEwDMiuLHzMxMJpP55zCARwVsBdlspoNl8SXDwFzMMwxjBgCDoepmS4vjFUGoG797d7pvfn7hsmbzLz2Z8UeLK6nHAAAAAElFTkSuQmCC</icon>
+    <visible>1</visible>
+    <title>Open Context Menu (extended)</title>
+    <description>Opens a context menu at the specified position.</description>
+  </metadata>
+  <parameter behavior="mandatory" desc="x coordinate" name="x" valuetype="number"/>
+  <parameter behavior="mandatory" desc="y coordinate" name="y" valuetype="number"/>
+  <parameter behavior="optional" desc="first entry key" name="key1" valuetype="string"/>
+  <parameter behavior="optional" desc="first entry value" name="value1" valuetype="string"/>
+  <parameter behavior="optional" desc="second entry key" name="key2" valuetype="string"/>
+  <parameter behavior="optional" desc="second entry value" name="value2" valuetype="string"/>
+  <parameter behavior="optional" desc="third entry key" name="key3" valuetype="string"/>
+  <parameter behavior="optional" desc="third entry value" name="value3" valuetype="string"/>
+  <parameter behavior="optional" desc="fourth entry key" name="key4" valuetype="string"/>
+  <parameter behavior="optional" desc="fourth entry value" name="value4" valuetype="string"/>
+  <parameter behavior="optional" desc="fifth entry key" name="key5" valuetype="string"/>
+  <parameter behavior="optional" desc="fifth entry value" name="value5" valuetype="string"/>
+  <parameter behavior="optional" desc="trigger name" name="trigger" valuetype="string"/>
+  <parameter behavior="optional" desc="output node" name="outputNode" valuetype="address"/>
+  <parameter behavior="mandatory" config="click;dblclick;mousedown;mouseup;mouseover;mousemove;mouseout;immediately" defaultvalue="click" desc="event triggering the change" name="onEvent" valuetype="enum"/>
+  <parameter behavior="optional" defaultvalue="0" desc="maximum displayed items (0 = all)" name="itemsCount" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="12" desc="font size" name="fontSize" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="180" desc="minimum width of the PopUp" name="minWidth" valuetype="number"/>
+  <code><![CDATA[function styleDefaults() { 
+	return {
+		fontFamily: "Arial", 
+		fontSize: base.fontSize, 
+		fontFill: "#FFFFFF",
+		width: parseInt(base.minWidth,10), 
+		fill: "#000000", 
+		stroke: "#E3D700",
+		strokeWidth: 0, 
+		hoverFill: "#3f434a",
+		closeTime: 0 
+	}
+};
+
+function getFn(val) {wen
+	return function() {
+		if (base.trigger != undefined) {
+			webMI.trigger.fire(base.trigger, val);
+		}
+		if (base.outputNode != "") {
+			webMI.data.write(base.outputNode, val);
+		}
+		if(webMI.getConfig("frame.scaletype") !== undefined){
+			var p = webMI.gfx.createPoint(base.x,base.y).matrixTransform(webMI.gfx.getScreenCTM(true));
+		}else{
+			var p = webMI.gfx.createPoint(base.x,base.y).matrixTransform(webMI.gfx.getScreenCTM());
+		}
+		webMI.display.showPopup(p.x, p.y, null);
+	};
+}
+function closeContextMenu(){
+	webMI.display.showPopup(0, 0, null);
+}
+function openContextMenu(){
+	if (!base.active || base.active()) {
+		if(webMI.getConfig("frame.scaletype") !== undefined){
+			var p = webMI.gfx.createPoint(base.x,base.y).matrixTransform(webMI.gfx.getScreenCTM(true));
+		}else{
+			var p = webMI.gfx.createPoint(base.x,base.y).matrixTransform(webMI.gfx.getScreenCTM());
+		}
+		if (base.menuObj && typeof base.menuObj == "function"){ //showPopup in callback
+			base.menuObj(function(tempObj){
+				tempObj.style = styleDefaults();
+				tempObj.itemsCount = base.itemsCount;
+				webMI.display.showPopup(p.x, p.y, tempObj);
+			});
+		}
+		else {
+			webMI.display.showPopup(p.x, p.y, tempObj);
+		}
+	}
+}
+
+var tempObj = {};
+if (base.menuObj != undefined && typeof base.menuObj == "object") {
+	tempObj = base.menuObj;
+	tempObj.style = styleDefaults();
+	tempObj.itemsCount = base.itemsCount;
+} else if (base.menuObj != undefined && typeof base.menuObj == "function") {
+
+} else {
+	tempObj = { style: styleDefaults(), itemsCount: base.itemsCount };
+	var texts = [base.key1, base.key2, base.key3, base.key4, base.key5];
+	var textvals = [base.value1, base.value2, base.value3, base.value4, base.value5];
+	for (var i=0; i<5; i++) {
+		if (texts[i] != undefined && textvals[i] != undefined) {
+			tempObj[i] = { text: texts[i], value: getFn(textvals[i]) };
+		}
+	}
+}
+if (base.onEvent == "immediately" && base.id != ""){
+	openContextMenu();
+} else if (base.onEvent == "immediately" && base.id == ""){
+	closeContextMenu();
+} else {
+	webMI.addEvent(base.id, base.onEvent,openContextMenu);
+}
+webMI.addOnunload(closeContextMenu);]]></code>
+</script>

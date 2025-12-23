@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Indicador_TI
+NodeClass: Variable
+BrowseName: 1:Indicador_TI
+DisplayName: en|Indicador_TI
+Description: en|Indicador_TI
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var gAccessControlManager;
+var valueData = {
+	value1: webMI.query.value1,
+	value2: webMI.query.value2
+};
+
+if (webMI.getAccessControlSupport()) {
+	gAccessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback success
+ * @param callback fail
+ */
+function handleAccessControlResponse(compareRights, successCallback, failCallback) {
+	if (!gAccessControlManager) {
+		successCallback();
+		return;
+	}
+	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+	
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		// do the checks
+		var allRights = true;
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights = allRights && response[compareRights[c].node][compareRights[c].right];
+			} else {
+				allRights = false;
+				break;
+			}
+		}
+		
+		if (allRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+webMI.addOnload(function(e) {
+	webMI.gfx.setVisible("id_0", webMI.query.useSecondValue === "true");
+	webMI.gfx.setVisible("txtValue2", webMI.query.useSecondValue === "true");
+	webMI.gfx.setVisible("txtValue1_blinking_frame", false);
+	webMI.gfx.setStroke("txtValue1_blinking_frame", "#ff0000");
+	setTimeout(function(e) {
+		webMI.trigger.fire("setValue", webMI.query.value1, "txtValue1");
+		webMI.trigger.fire("setValue", webMI.query.value2, "txtValue2");
+	}, 500);
+});
+
+webMI.trigger.connect("valuechanged", function(e) {
+	if (e.value != webMI.query.value1) {
+		handleAccessControlResponse([
+			{ node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", right: "execute" },
+			{ node: webMI.query.configNode + (webMI.query.mode == "recipes" ? "." + webMI.query.templateName : ""), right: "engineer" }
+		], function() {
+			if (webMI.query.mode == "templates") {
+				webMI.data.call("GetRecipeData", {
+					"mode": "RecipeTemplates",
+					"configNode": webMI.query.configNode,
+					"logMessages": false
+				}, function(templates){
+					webMI.gfx.setVisible("txtValue1_blinking_frame", e.value in templates);
+					webMI.trigger.fire("com.atvise.setActive", !(e.value in templates), "btn_ok");
+					
+					if (!(e.value in templates)) {
+						valueData.value1 = e.value;
+						webMI.gfx.setText("lblMessages", "");
+					} else {
+						webMI.gfx.setText("lblMessages", "T{Template with same name already exists}.");
+					}
+				});
+			} else if (webMI.query.mode == "recipes") {
+				webMI.data.call("GetRecipeData", {
+					"mode": "recipeDataByName",
+					"configNode": webMI.query.configNode,
+					"templateName": webMI.query.templateName,
+					"recipeName": e.value,
+					"logMessages": false
+				}, function(recipeData){
+					var gRecipeNameValid = "error" in recipeData && recipeData.error == 1;
+					webMI.gfx.setVisible("txtValue1_blinking_frame", !gRecipeNameValid);
+					webMI.trigger.fire("com.atvise.setActive", gRecipeNameValid, "btn_ok");
+					
+					if (gRecipeNameValid) {
+						valueData.value1 = e.value;
+						webMI.gfx.setText("lblMessages", "");
+					} else {
+						webMI.gfx.setText("lblMessages", "T{Recipe with same name already exists}.");
+					}
+				});
+			}
+		}, function() {
+			webMI.gfx.setVisible("txtValue1_blinking_frame", true);
+		});
+	} else {
+		webMI.gfx.setVisible("txtValue1_blinking_frame", false);
+		valueData.value1 = e.value;
+		webMI.gfx.setText("lblMessages", "");
+		webMI.trigger.fire("com.atvise.setActive", true, "btn_ok");
+	}
+}, "txtValue1");
+
+webMI.trigger.connect("valuechanged", function(e) {
+	valueData.value2 = e.value;
+}, "txtValue2");
+
+webMI.trigger.connect("clicked", function(e){
+	webMI.trigger.fire(webMI.query.triggerName, valueData);
+	webMI.display.closeWindow();
+}, "btn_ok");
+
+webMI.trigger.connect("clicked", function(e){
+	webMI.display.closeWindow();
+}, "btn_cancel");]]></code>
+</script>

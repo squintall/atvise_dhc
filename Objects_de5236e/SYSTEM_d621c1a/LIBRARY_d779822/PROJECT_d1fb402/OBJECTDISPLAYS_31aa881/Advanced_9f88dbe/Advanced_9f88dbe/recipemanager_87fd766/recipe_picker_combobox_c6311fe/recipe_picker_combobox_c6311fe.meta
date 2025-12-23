@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.Advanced.recipemanager.recipe_picker_combobox
+NodeClass: Variable
+BrowseName: 1:recipe_picker_combobox
+DisplayName: en|recipe_picker_combobox
+Description: en|recipe_picker_combobox
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

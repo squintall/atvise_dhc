@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/SVG/coreui-icons-master/js/free/cil-camera.js
+NodeClass: Variable
+BrowseName: 1:cil-camera.js
+DisplayName: en|cil-camera.js
+Description: en|cil-camera.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

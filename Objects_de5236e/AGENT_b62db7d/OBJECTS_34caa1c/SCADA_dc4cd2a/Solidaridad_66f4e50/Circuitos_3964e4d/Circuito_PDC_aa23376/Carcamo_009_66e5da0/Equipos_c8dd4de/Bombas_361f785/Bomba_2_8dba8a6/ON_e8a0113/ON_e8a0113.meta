@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_009.Equipos.Bombas.Bomba_2.ON
+NodeClass: Variable
+BrowseName: 1:ON
+DisplayName: en|ON
+Description: en|ON
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

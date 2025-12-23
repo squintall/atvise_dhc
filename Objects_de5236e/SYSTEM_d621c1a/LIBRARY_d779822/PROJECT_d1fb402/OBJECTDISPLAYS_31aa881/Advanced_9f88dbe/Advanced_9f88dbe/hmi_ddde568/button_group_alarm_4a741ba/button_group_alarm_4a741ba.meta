@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.Advanced.hmi.button_group_alarm
+NodeClass: Variable
+BrowseName: 1:button_group_alarm
+DisplayName: en|button_group_alarm
+Description: en|button_group_alarm
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

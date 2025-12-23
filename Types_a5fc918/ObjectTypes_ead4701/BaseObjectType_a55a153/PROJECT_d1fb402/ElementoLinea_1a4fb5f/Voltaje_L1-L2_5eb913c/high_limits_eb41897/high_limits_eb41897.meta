@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Voltaje_L1-L2.high_limits
+NodeClass: Object
+BrowseName: 1:high_limits
+DisplayName: en|high_limits
+Description: en|high_limits
+EventNotifier: 0
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg atv:contentheight="590" atv:contentwidth="1024" height="710" version="1.2" width="1024" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <title>Landscape tablet</title>
+ <desc>1024 x 710</desc>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="" name="Parent" valuetype="address"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="10" width="10"/>
+ </metadata>
+ <svg atv:refpx="512" atv:refpy="355.046" height="600" id="content_iframe" transform="matrix(1.28,0,0,0.9833,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.hmi.iframe" y="61.015">
+  <atv:argument name="display" value="AGENT.DISPLAYS.TABLET.Landscape.Main"/>
+  <atv:argument name="frameName" value="content"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:overwrite id="label2" transform="matrix(0.625,0,0,0.9231,0,0)" x="415.5" y="414.11"/>
+  <atv:overwrite id="label" transform="matrix(0.625,0,0,0.9231,0,0)" x="549" y="344.5"/>
+ </svg>
+ <svg atv:refpx="900" atv:refpy="355.004" height="300" id="layout_navi" transform="matrix(1.2,0,0,1.9333,0,0)" width="200" x="650" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.navigation" y="33.62">
+  <atv:argument name="navHomeDisplay" value="AGENT.DISPLAYS.TABLET.Landscape.Main"/>
+  <atv:argument name="navVisible" value="false"/>
+  <atv:argument name="navAnimateType" value="slide-right"/>
+  <atv:argument name="navCustomEntry" value="AGENT.DISPLAYS.TABLET.Landscape"/>
+  <atv:overwrite id="navigation_1_description" transform="matrix(0.8333,0,0,0.5172,0,0)"/>
+  <atv:argument name="navContainerID" value="menu_container"/>
+ </svg>
+ <g atv:refpx="71.48" atv:refpy="28.671" id="logo_clickarea" transform="matrix(0.6667,0,0,0.6667,0,1)">
+  <svg atv:refpx="50" atv:refpy="50" height="80" id="layout_logo" transform="matrix(0.75,0,0,0.75,0,0)" width="80" x="40.665" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.atvise_logo" y="16"/>
+  <svg atv:refpx="146.069" atv:refpy="44.728" height="12.99" id="layout_logo_r" transform="matrix(2.3446,0,0,2.3446,0,0)" width="48.94" x="34.844" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.atvise_R" y="10.237"/>
+  <rect atv:refpx="212.5" atv:refpy="75" fill="#000000" fill-opacity="0.0001" height="60" id="id_18" stroke="none" stroke-width="0" width="60" x="33.499" y="10.5"/>
+  <rect atv:refpx="212.5" atv:refpy="75" fill="#000000" fill-opacity="0.0001" height="30" id="id_19" stroke="none" stroke-width="0" width="125" x="75.999" y="24.494"/>
+ </g>
+ <g atv:refpx="512" atv:refpy="27.667" id="navbar-center" transform="matrix(1,0,0,1,24.1612,0)">
+  <svg atv:refpx="366.006" atv:refpy="28.667" height="65" id="box_language" transform="matrix(0.6667,0,0,0.6667,0,0)" width="357" x="370.481" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.box_language" y="8.999">
+   <atv:argument name="font_size" value="22"/>
+   <atv:argument name="contextMenuStyle" value="{&quot;itemHeight&quot;:30,&quot;itemFill&quot;: &quot;#eeeeee&quot;,&quot;itemPadding&quot;:7,&quot;itemMargin&quot;:3,&quot;itemBorderRadius&quot;:3,&quot;itemBorder&quot;:&quot;1px #d7d7d7 solid&quot;, &quot;fill&quot;:0, &quot;strokeWidth&quot;:0,&quot;width&quot;:232,&quot;x&quot;:-1,&quot;y&quot;:77,&quot;textAlign&quot;: &quot;center&quot;}"/>
+   <atv:argument name="context_menu_font_size" value="21"/>
+  </svg>
+  <svg atv:refpx="609.339" atv:refpy="28.667" height="65" id="box_user" transform="matrix(0.6667,0,0,0.6667,0,0)" width="358" x="734.963" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.box_user" y="8.999">
+   <atv:argument name="font_size" value="22"/>
+   <atv:argument name="x" value="25"/>
+   <atv:argument name="popup_width" value="999"/>
+   <atv:argument name="popup_height" value="550"/>
+  </svg>
+ </g>
+ <svg atv:refpx="972.67" atv:refpy="28.667" height="65" id="redu_info" transform="matrix(0.6667,0,0,0.6667,0,0)" width="185" x="1366.432" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.redu_info" y="8.999"/>
+ <rect atv:refpx="512" atv:refpy="59.666" fill="$FONTCOLOR$" height="3.333" id="id_25" stroke="none" stroke-width="0" width="1024" x="0" y="55.667"/>
+ <svg atv:refpx="921.5" atv:refpy="10" height="52" id="layout_time" width="203" x="815" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.time" y="-9">
+  <atv:argument name="font_size" value="25"/>
+ </svg>
+ <svg atv:refpx="922.5" atv:refpy="44" height="30" id="layout_date" width="203" x="815" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.date" y="26">
+  <atv:argument name="font_size" value="12"/>
+ </svg>
+ <svg atv:refpx="244.383" atv:refpy="731.137" height="43" id="button1" width="154" x="165" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_custom_small" y="660">
+  <atv:argument name="target1" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist"/>
+  <atv:argument name="symbol1" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.alarm"/>
+  <atv:argument name="contextmenu1" value="SYSTEM.GLOBALS.atvObjectDisplays.CustomButtonsMenu.LayoutButtonAlarmsSmall"/>
+  <atv:argument name="symbolScaling1" value="200"/>
+ </svg>
+ <svg atv:refpx="396.302" atv:refpy="736.137" height="43" id="button2" width="154" x="324" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_custom_small" y="660">
+  <atv:overwrite id="custom_button" transform="matrix(2.9503,0,0,2.8477,0,0)" x="-0.682" y="-1.48"/>
+  <atv:argument name="target1" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.historylist_small"/>
+  <atv:argument name="symbol1" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.history"/>
+ </svg>
+ <svg atv:refpx="555.269" atv:refpy="736.137" height="43" id="button3" width="154" x="483" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_custom_small" y="660">
+  <atv:argument name="target1" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.main_display_small"/>
+  <atv:argument name="symbol1" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.chart"/>
+  <atv:argument name="target1_configName" value="Overview"/>
+  <atv:argument name="symbolScaling1" value="120"/>
+ </svg>
+ <svg atv:refpx="718.243" atv:refpy="731.137" height="43" id="button4" width="154" x="642" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_custom_small" y="660"/>
+ <svg atv:refpx="83.006" atv:refpy="733.135" height="43" id="button_favorites" width="154" x="6" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_favorites_small" y="660">
+  <atv:argument name="symbolScaling" value="100"/>
+ </svg>
+ <rect atv:refpx="512" atv:refpy="708.667" fill="$FONTCOLOR$" height="3.333" id="line_bottom" stroke="none" stroke-width="0" width="1024" x="0" y="651"/>
+ <svg atv:refpx="950.085" atv:refpy="737.271" height="43" id="button_alarmlog" width="154" x="864" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_alarmlog_small" y="660">
+  <atv:overwrite id="context_menu_sign" transform="matrix(1,0,0,1,0,0)" x="2" y="0"/>
+  <atv:argument name="x" value="857"/>
+  <atv:argument name="y" value="646"/>
+ </svg>
+ <svg atv:refpx="-221.846" atv:refpy="387.692" height="30" id="button_navigation" transform="matrix(0.925,0,0,1.4333,0,0)" width="80" x="1016.216" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="460.476">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.table.burger"/>
+  <atv:argument name="visibilitySymbol" value="inherit"/>
+  <atv:argument name="visibilityLabel" value="hidden"/>
+  <atv:argument name="borderColor" value="SYSTEM.GLOBALS.atvBorderColor2"/>
+  <atv:overwrite height="40.999" id="id_6" transform="matrix(1.0811,0,0,0.6977,0,0)" width="72"/>
+  <atv:overwrite id="button_label_2" transform="matrix(1.0811,0,0,0.6977,0,0)" x="37" y="32.999"/>
+  <atv:overwrite id="button_label_1" transform="matrix(1.0811,0,0,0.6977,0,0)" x="37" y="18"/>
+  <atv:overwrite id="button_label" transform="matrix(1.0811,0,0,0.6977,0,0)" x="37" y="26"/>
+  <atv:overwrite id="button_symbol" transform="matrix(1.0811,0,0,0.6977,0,0)" x="27" y="11.5"/>
+  <atv:overwrite height="38.999" id="button_stroke" transform="matrix(1.0811,0,0,0.6977,0,0)" width="70"/>
+  <atv:overwrite height="40.999" id="button_bg" transform="matrix(1.0811,0,0,0.6977,0,0)" width="72"/>
+  <atv:overwrite height="42.999" id="outer_frame" transform="matrix(1.0811,0,0,0.6977,0,0)" width="74"/>
+ </svg>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.layouts.Advanced" atv:name="Advanced" atv:type="text/ecmascript"><![CDATA[]]></script>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[]]></script>
+</svg>

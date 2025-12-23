@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Circuito.Energia
+NodeClass: Variable
+BrowseName: 1:Energia
+DisplayName: en|Energia
+Description: en|Energia
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

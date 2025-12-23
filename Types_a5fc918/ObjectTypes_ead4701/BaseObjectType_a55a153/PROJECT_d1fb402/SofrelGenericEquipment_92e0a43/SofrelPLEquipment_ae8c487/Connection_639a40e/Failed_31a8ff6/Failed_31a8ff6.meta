@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.1013.Connection.Failed
+NodeClass: Variable
+BrowseName: 1:Failed
+DisplayName: en|Failed
+Description: en|Failed
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseDataVariableType

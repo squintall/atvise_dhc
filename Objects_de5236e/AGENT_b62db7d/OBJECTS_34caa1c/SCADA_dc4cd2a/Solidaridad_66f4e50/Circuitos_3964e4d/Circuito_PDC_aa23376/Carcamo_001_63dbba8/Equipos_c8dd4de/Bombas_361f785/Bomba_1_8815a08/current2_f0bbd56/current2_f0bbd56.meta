@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_001.Equipos.Bombas.Bomba_1.current2
+NodeClass: Variable
+BrowseName: 1:current2
+DisplayName: en|current2
+Description: en|current2
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.current2.SuppressFlicker
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

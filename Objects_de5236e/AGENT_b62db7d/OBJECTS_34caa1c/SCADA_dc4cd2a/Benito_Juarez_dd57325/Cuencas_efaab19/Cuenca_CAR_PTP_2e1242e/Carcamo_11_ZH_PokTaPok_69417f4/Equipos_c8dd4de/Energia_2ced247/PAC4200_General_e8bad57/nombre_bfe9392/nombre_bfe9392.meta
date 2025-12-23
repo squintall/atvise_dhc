@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_11_ZH_PokTaPok.Equipos.Energia.PAC4200_General.nombre
+NodeClass: Variable
+BrowseName: 1:nombre
+DisplayName: en|nombre
+Description: en|nombre
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the 'label' object display
+ * -----------------------------------
+ * This element shows a defined text within a HTML container (foreignObject).
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+/* set values for portal */
+var label_text = document.getElementById("label_text");
+webMI.gfx.setText(label_text, webMI.query["text"]);
+label_text.style.fontFamily = webMI.query["font-family"];
+label_text.style.fontWeight = webMI.query["font-weight"];
+label_text.style.fontSize = webMI.query["font-size"]+"px";
+label_text.style.color = webMI.query["color"];
+label_text.style.textAlign = webMI.query["horizontal-align"];
+label_text.style.verticalAlign = webMI.query["vertical-align"];
+
+/**
+ * TRIGGER SECTION
+ */
+
+/* this is primary for redu status changes */
+webMI.trigger.connect("com.atvise.labelMessageChanged", function(e) {
+	webMI.gfx.setText(label_text, e.value);
+});]]></code>
+</script>

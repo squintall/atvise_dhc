@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Caudalimetros.L_20.current_flow.FlujoAnormal.Cero.prevention_script
+NodeClass: Variable
+BrowseName: 1:prevention_script
+DisplayName: en|prevention_script
+Description: en|prevention_script
+DataType: NodeId
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

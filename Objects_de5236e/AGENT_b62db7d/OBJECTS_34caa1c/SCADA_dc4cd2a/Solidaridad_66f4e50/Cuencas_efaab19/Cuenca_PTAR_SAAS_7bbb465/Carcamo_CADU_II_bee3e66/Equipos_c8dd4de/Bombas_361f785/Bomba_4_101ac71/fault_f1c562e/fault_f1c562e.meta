@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_CADU_II.Equipos.Bombas.Bomba_4.fault
+NodeClass: Variable
+BrowseName: 1:fault
+DisplayName: en|fault
+Description: en|Carcamo_CADU_II | Equipo Bomba_4
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.fault.Falla

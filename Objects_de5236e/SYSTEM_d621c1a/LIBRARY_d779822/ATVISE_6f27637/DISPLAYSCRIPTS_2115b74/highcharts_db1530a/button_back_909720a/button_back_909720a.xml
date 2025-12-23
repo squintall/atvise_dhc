@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts button back object display
+ * ----------------------------------------
+ * This script supports the display steps back on the x-axis
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var activeAxis = webMI.query["xAxisIndex"];
+var chart;
+var historyLoading = { start: null, ready: null };
+var chartname = webMI.query.chartname;
+var stepPercent = webMI.query["stepPercent"];
+var yAxesBoundaries = [];
+var lockButton = false;
+
+/* deactivate all buttons before config is ready */
+setButtonsActivationState(false);
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+	checkChart();
+});
+
+webMI.addOnunload(function () {
+	if (chart && chart.chart) {
+		chart.chart.onHistoryLoadingUnregister(historyLoading.start);
+		chart.chart.onHistoryReadyUnregister(historyLoading.end);
+	}
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * check if chart is ready
+ */
+function checkChart() {
+	chart = webMI.trendFactory.getTrendByName(chartname);
+
+	if (!chart) {
+		setTimeout(function () {
+			checkChart();
+		}, 250);
+		return;
+	}
+
+	setButtonsActivationState(true);
+
+	historyLoading.start = chart.chart.onHistoryLoadingRegister(function disable() {
+		lockButton = true;
+		setButtonsActivationState(false);
+	});
+
+	historyLoading.end = chart.chart.onHistoryReadyRegister(function enable() {
+		setTimeout(
+			function () {
+				try {
+					lockButton = false;
+					setButtonsActivationState(true);
+				} catch (ex) {
+					// console.error("chart already invalidated");
+				}
+			},
+			chart.chart._setZoomed ? 1000 : 1000
+		);
+	});
+}
+
+/**
+ * set activation state of buttons
+ * @param value
+ */
+function setButtonsActivationState(value) {
+	webMI.trigger.fire("com.atvise.setActive", value && !lockButton ? true : false, "btn_back");
+}
+
+/**
+ * TRIGGER SECTION
+ */
+
+/**
+ * button click trigger
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		if (!chart || lockButton) return;
+
+		lockButton = true;
+
+		var extremes = chart.chart.xAxis[activeAxis].getExtremes();
+		var difference = ((extremes.max - extremes.min) * stepPercent) / 100;
+		chart.chart.xAxis[activeAxis].setExtremes(extremes.min - difference, extremes.max - difference);
+		chart.chart.xAxis[activeAxis].options.min = extremes.min - difference;
+		chart.chart.xAxis[activeAxis].options.max = extremes.max - difference;
+
+		// Store boundaries of y-axes because HC will lose them after paging
+		if (chart.chart)
+			chart.chart.yAxis.forEach((yAxis, index) => {
+				if (!yAxesBoundaries[index]) {
+					yAxesBoundaries[index] = {};
+				}
+
+				if (Array.isArray(chart.chart._isAutoscale) && chart.chart._isAutoscale[index].min !== false) {
+					yAxesBoundaries[index].min = yAxis.min;
+				}
+
+				if (Array.isArray(chart.chart._isAutoscale) && chart.chart._isAutoscale[index].max !== false) {
+					yAxesBoundaries[index].max = yAxis.max;
+				}
+			});
+
+		if (chart.control.isLiveModeRunning()) chart.control.stopLiveMode();
+
+		if (typeof chart.chart._configUpdates !== "function") {
+			/* Zoom activity and settings cannot be reliably determined at this point. */
+			/* In addition, the zoom must also be reset at this point due to the lack of time information. */
+			/* This limitation is caused by the highcharts itself, */
+			/* as the zooming is handled internally without providing any necessary API interfaces for manipulations. */
+			try {
+				chart.chart.zoomOut();
+				chart.chart.resetZoomButton.destroy();
+				chart.chart.resetZoomButton.hide();
+			} catch (ex) {
+				// do nothing
+			}
+		}
+
+		var oldMode = chart.chart.options.atviseOptions.mode;
+		chart.control.setMode("history");
+		chart.control.updated(function () {
+			// Restore boundaries of y-axes after HC has messed them up
+			chart.chart.yAxis.forEach((yAxis, index) => {
+				yAxis.setExtremes(yAxesBoundaries[index].min, yAxesBoundaries[index].max);
+			});
+
+			chart.control.setMode(oldMode);
+			chart.control.updated(function () {
+				setButtonsActivationState(true);
+			});
+		});
+	},
+	"btn_back"
+);
+
+/**
+ * general activation trigger
+ */
+webMI.trigger.connect("com.atvise.setActive", function (e) {
+	if (!chart) return;
+
+	setButtonsActivationState(e.value);
+});
+]]></code>
+</script>

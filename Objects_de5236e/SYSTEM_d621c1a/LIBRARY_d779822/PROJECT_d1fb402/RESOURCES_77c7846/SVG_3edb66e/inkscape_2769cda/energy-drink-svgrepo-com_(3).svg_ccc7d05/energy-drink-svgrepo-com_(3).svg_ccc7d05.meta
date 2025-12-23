@@ -1,0 +1,11 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/SVG/inkscape/energy-drink-svgrepo-com (3).svg
+NodeClass: Variable
+BrowseName: 1:energy-drink-svgrepo-com (3).svg
+DisplayName: en|energy-drink-svgrepo-com (3).svg
+Description: en|energy-drink-svgrepo-com (3).svg
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Svg
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Compress
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Translate

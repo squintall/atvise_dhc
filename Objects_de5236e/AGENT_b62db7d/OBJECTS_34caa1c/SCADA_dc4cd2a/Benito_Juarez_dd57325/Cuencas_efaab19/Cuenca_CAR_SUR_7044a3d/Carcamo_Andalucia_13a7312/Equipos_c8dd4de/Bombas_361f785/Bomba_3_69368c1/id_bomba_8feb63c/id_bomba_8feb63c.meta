@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Andalucia.Equipos.Bombas.Bomba_3.id_bomba
+NodeClass: Variable
+BrowseName: 1:id_bomba
+DisplayName: en|id_bomba
+Description: en|id_bomba
+DataType: Int32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

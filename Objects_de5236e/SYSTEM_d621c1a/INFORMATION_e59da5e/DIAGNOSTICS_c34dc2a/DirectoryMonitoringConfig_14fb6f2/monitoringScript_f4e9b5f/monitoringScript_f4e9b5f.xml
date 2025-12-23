@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><script><info>by geiv</info><parameter name="mytimer" type="timer" trigger="true" relative="false" value="" starttime="00:00:00" repeat="00:01:00"/><parameter name="active" type="node" trigger="false" relative="false" value="ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.active"/><parameter name="interval" type="node" trigger="true" relative="false" value="ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.interval"/><parameter name="threshold_historydir_critical" type="node" trigger="true" relative="false" value="ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.historydir.threshold_critical"/><parameter name="threshold_historydir_warning" type="node" trigger="true" relative="false" value="ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.historydir.threshold_warning"/><parameter name="threshold_swapin_critical" type="node" trigger="true" relative="false" value="ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.swapin.threshold_critical"/><parameter name="threshold_swapin_warning" type="node" trigger="true" relative="false" value="ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.swapin.threshold_warning"/><parameter name="threshold_backup_critical" type="node" trigger="true" relative="false" value="ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.backup.threshold_critical"/><parameter name="threshold_backup_warning" type="node" trigger="true" relative="false" value="ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.backup.threshold_warning"/><parameter name="threshold_restore_critical" type="node" trigger="true" relative="false" value="ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.restore.threshold_critical"/><parameter name="threshold_restore_warning" type="node" trigger="true" relative="false" value="ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.restore.threshold_warning"/><code><![CDATA[var configNodeAddr = "SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig";
+
+if (interval && interval.trigger) {
+   var nodeAddress = configNodeAddr + ".monitoringScript";
+	var node = Ua.findNode(nodeAddress);
+	var scriptXML = new XMLDoc(node.result.value, "string");
+	var repeatAsString = null;
+
+	if (interval.value < 1440 && interval.value > 0) {
+		var h = new String(Math.floor(interval.value / 60));
+		var m = new String(interval.value % 60);
+		repeatAsString = (h.length == 1 ? "0" : "") + h + ":" + (m.length == 1 ? "0" : "") + m + ":00";
+	}
+
+	for (var param = scriptXML.root.first("parameter"); param; param = param.next("parameter")) {
+		if (param.attribute("name") == "mytimer") {
+			param.setattribute("repeat", repeatAsString);
+			break;
+		}
+	}
+
+	node.result.assign({ value: scriptXML });	// use try/catch to write custom message into server log, if script is opened in atvise builder
+
+	return;
+}
+
+if (active === null || !active.value) {
+	return;
+}
+
+var fileOperations = call("Utilities.FileOperations");
+var dirTypes = fileOperations.getDirectories();
+var fs = new FileSystem();
+
+dirTypes.forEach(function(dir) {
+	if ("error" in dir && dir.error != 0) {
+		return;
+	}
+
+	var used = 100 - fs.freeSpace(dir.path) / fs.capacity(dir.path) * 100;
+
+	// exising method for used space
+	if (dir.type == "historydir") {
+		var usedPercParentAddress = "SYSTEM.INFORMATION.DIAGNOSTICS.DISK";
+		var usedPercParent = Ua.findNode(usedPercParentAddress);
+		var usedPercParentExist = Ua.Status(usedPercParent) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!usedPercParentExist) {
+			Ua.createNode("SYSTEM.INFORMATION.DIAGNOSTICS.DISK", {
+				nodeClass: Ua.NodeClass["OBJECT"],
+				parent: usedPercParentAddress.substr(0, usedPercParentAddress.lastIndexOf(".")),
+				typeDefinition: Ua.ObjectType.FOLDERTYPE
+			});
+
+			var usedPercParent = Ua.findNode(usedPercParentAddress);
+		}
+
+		var usedPercAddress = usedPercParentAddress + ".atviseHistoryDriveUsedPercent";
+		var usedPerc = Ua.findNode(usedPercAddress);
+		var usedPercExist = Ua.Status(usedPerc) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!usedPercExist) {
+			Ua.createNode(usedPercAddress, {
+				nodeClass: Ua.NodeClass["VARIABLE"],
+				parent: usedPercParentAddress,
+				typeDefinition: "i=68",
+				dataType: Ua.DataType["FLOAT"],
+				value: 0.0
+			});
+
+			var usedPerc = Ua.findNode(usedPercAddress);
+		}
+
+		usedPerc.result.value = used;
+	}
+
+	[ "warning", "critical" ].forEach(function(limit) {
+
+		var nodeThreshold = Ua.findNode(configNodeAddr + "." + dir.type + ".threshold_" + limit);
+		var nodeThresholdExist = Ua.Status(nodeThreshold) != Ua.Status.BADNODEIDUNKNOWN;
+
+		var nodeExceeded = Ua.findNode(configNodeAddr + "." + dir.type + ".exceeded_" + limit);
+		var nodeExceededExist = Ua.Status(nodeExceeded) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (Ua.Status(nodeThreshold).good != true || Ua.Status(nodeExceeded).good != true) {
+			return;
+		}
+
+		nodeExceeded.result.value = used >= nodeThreshold.result.value;
+	});
+});]]></code></script>

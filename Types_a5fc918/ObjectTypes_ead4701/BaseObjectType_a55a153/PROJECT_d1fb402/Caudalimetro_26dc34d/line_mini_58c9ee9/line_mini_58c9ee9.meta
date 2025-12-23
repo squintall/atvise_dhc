@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_mini
+NodeClass: Variable
+BrowseName: 1:line_mini
+DisplayName: en|line_mini
+Description: en|line_mini
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

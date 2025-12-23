@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/SVG/coreui-icons-master/js/brand/cib-last-fm.js
+NodeClass: Variable
+BrowseName: 1:cib-last-fm.js
+DisplayName: en|cib-last-fm.js
+Description: en|cib-last-fm.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

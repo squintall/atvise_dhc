@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Zona_Urbana.Carcamos_AP.AP_CV_CAR_CENTRAL_VALLARTA.Carcamo.Bomba_Carcamo.freq
+NodeClass: Variable
+BrowseName: 1:freq
+DisplayName: en|freq
+Description: en|freq
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

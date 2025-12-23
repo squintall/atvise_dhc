@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Caudalimetros.L_20.current_flow.FlujoAnormal.Cero.upper_limit_deadband
+NodeClass: Variable
+BrowseName: 1:upper_limit_deadband
+DisplayName: en|upper_limit_deadband
+Description: en|upper_limit_deadband
+DataType: BaseDataType
+ValueRank: -1
+AccessLevel: 103
+ValueType: i=0
+Reference: forward HasTypeDefinition BaseVariableType

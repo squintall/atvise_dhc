@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Punta_Sam.nivelEnCircuitoForaneo
+NodeClass: Variable
+BrowseName: 1:nivelEnCircuitoForaneo
+DisplayName: en|nivelEnCircuitoForaneo
+Description: en|nivelEnCircuitoForaneo
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

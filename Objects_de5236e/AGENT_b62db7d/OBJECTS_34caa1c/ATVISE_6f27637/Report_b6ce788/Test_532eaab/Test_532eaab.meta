@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Report.Test
+NodeClass: Variable
+BrowseName: 1:Test
+DisplayName: en|Test
+Description: en|Test
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

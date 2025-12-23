@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg xmlns:atv="http://webmi.atvise.com/2007/svgext" version="1.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="640" height="640">
+ <defs/>
+ <desc>HTML based table with footer</desc>
+ <title>Table</title>
+ <metadata>
+  <!-- ... mandatorys ... -->
+  <!-- ... font ... -->
+  <!-- ... options ... -->
+  <!-- menu -->
+  <!-- footer -->
+  <!-- ... ende options ... -->
+  <atv:parameter behavior="mandatory" name="tableID" desc="table ID" valuetype="string" defaultvalue="atvise_table_1"/>
+  <atv:parameter behavior="optional" group="" name="header_height" desc="table header height" valuetype="number" defaultvalue="30"/>
+  <atv:parameter behavior="optional" group="" name="header_text_size" desc="table header font size" valuetype="number" defaultvalue="14"/>
+  <atv:parameter behavior="optional" group="" name="header_text_horizontal" desc="table header cell align horizontal" valuetype="enum" config="center; inherit" defaultvalue="inherit"/>
+  <atv:parameter behavior="optional" group="" name="header_text_vertical" desc="table header cell align vertical" valuetype="enum" config="center; inherit" defaultvalue="center"/>
+  <atv:parameter behavior="optional" group="" name="row_height" desc="table row height" valuetype="number" defaultvalue="20"/>
+  <atv:parameter behavior="optional" group="" name="row_text_size" desc="table row font size" valuetype="number" defaultvalue="12"/>
+  <atv:parameter behavior="optional" group="" name="detail_text_size" desc="table detail font size" valuetype="number" defaultvalue="12"/>
+  <atv:parameter behavior="mandatory" group="" name="footer_text_size" desc="table footer font size" valuetype="number" defaultvalue="12"/>
+  <atv:parameter behavior="optional" group="Appearance" name="font_family" desc="font family" valuetype="enum" config="Arial;Courier;Tahoma;Verdana" defaultvalue="Arial"/>
+  <atv:parameter behavior="optional" group="Appearance" name="globalBorderColor" desc="global border colors" valuetype="global" defaultvalue="SYSTEM.GLOBALS.atvBorderColor"/>
+  <atv:parameter behavior="optional" group="Appearance" name="globalFillColor" desc="global fill colors" valuetype="global" defaultvalue="SYSTEM.GLOBALS.atvFillColor"/>
+  <atv:parameter behavior="optional" group="Appearance" name="globalFontColor" desc="global font colors" valuetype="global" defaultvalue="SYSTEM.GLOBALS.atvFontColor"/>
+  <atv:parameter behavior="optional" group="Appearance" name="globalSymbolColor" desc="global symbol colors" valuetype="global" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor"/>
+  <atv:parameter behavior="optional" group="Appearance" name="globalInactiveColor" desc="global inactive colors" valuetype="global" defaultvalue="SYSTEM.GLOBALS.atvInactiveColor"/>
+  <atv:parameter behavior="optional" group="Appearance" name="globalColorConfig" desc="global table colors" valuetype="global" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.Tables.ColorConfig"/>
+  <atv:parameter behavior="optional" group="Appearance" name="theme_class" desc="custom theme" valuetype="string" defaultvalue="atviseTheme"/>
+  <atv:parameter behavior="optional" group="Options" name="columnReorder" desc="columns reorderable" valuetype="bool" defaultvalue="true"/>
+  <atv:parameter behavior="optional" group="Options" name="paging" desc="paging" valuetype="bool" defaultvalue="true"/>
+  <atv:parameter behavior="optional" group="Options" name="filterBar" desc="filter bar enabled" valuetype="bool" defaultvalue="true"/>
+  <atv:parameter behavior="optional" group="Options" name="filterRegExp" desc="filter regular expressions" valuetype="bool" defaultvalue="false"/>
+  <atv:parameter behavior="optional" group="Options" name="filterStar" desc="filter use placeholder" valuetype="bool" defaultvalue="false"/>
+  <atv:parameter behavior="optional" group="Options" name="filterCaseSensitive" desc="filter case sensitive" valuetype="bool" defaultvalue="false"/>
+  <atv:parameter behavior="optional" group="Options" name="filterLength" desc="filter minimum length" valuetype="number" defaultvalue="1"/>
+  <atv:parameter behavior="optional" group="Options" name="filterDelay" desc="filter delay [ms]" valuetype="number" defaultvalue="1000"/>
+  <atv:parameter behavior="optional" group="Options" name="showMode" desc="show runtime mode" valuetype="bool" defaultvalue="true"/>
+  <atv:parameter behavior="optional" group="Options" name="multiselect" desc="multiselect" valuetype="bool" defaultvalue="true"/>
+  <atv:parameter behavior="optional" group="Options" name="multicellselect" desc="multiselect on cell click" valuetype="bool" defaultvalue="false"/>
+  <atv:parameter behavior="optional" group="Options" name="linebreak" desc="cell linebreak" valuetype="bool" defaultvalue="false"/>
+  <atv:parameter behavior="optional" group="Options" name="allowDirectInput" desc="allow direct input" valuetype="bool" defaultvalue="true"/>
+  <atv:parameter behavior="optional" group="Menu options" name="showMenu" desc="show menu" valuetype="bool" defaultvalue="true"/>
+  <atv:parameter behavior="optional" group="Menu options" name="showMenuWidth" desc="menu width" valuetype="number" defaultvalue="250"/>
+  <atv:parameter behavior="optional" group="Menu options" name="showMenuHeight" desc="menu height" valuetype="number" defaultvalue="300"/>
+  <atv:parameter behavior="optional" group="Menu options" name="showMenuPicker" desc="show picker menu" valuetype="bool" defaultvalue="true"/>
+  <atv:parameter behavior="optional" group="Menu options" name="showMenuFilter" desc="show filter menu" valuetype="bool" defaultvalue="true" substitute=""/>
+  <atv:parameter behavior="optional" group="Menu options" name="showMenuExport" desc="show export menu" valuetype="bool" defaultvalue="false"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_first_page" desc="symbol first page" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-fast-backward&quot;/>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_previous_page" desc="symbol previous page" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-step-backward&quot;/>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_pause_page" desc="symbol pause" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-pause&quot;>&lt;/i>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_stop_page" desc="symbol stop page" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-stop&quot;/>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_next_page" desc="symbol next page" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-step-forward&quot;/>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_last_page" desc="symbol last page" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-fast-forward&quot;/>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_load_page" desc="symbol load page" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-download&quot;/>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_search_page" desc="symbol search" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-search&quot;/>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_truncate_icon" desc="symbol truncate" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-ban&quot;>&lt;/i>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_triggered_icon" desc="symbol triggered" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-angle-double-down&quot;>&lt;/i>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_continue_icon" desc="symbol continue" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-cog fa-spin&quot;>&lt;/i>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_live_icon" desc="symbol live" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-sync fa-spin&quot;>&lt;/i>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_done_icon" desc="symbol done" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-check&quot;>&lt;/i>"/>
+  <atv:parameter behavior="optional" group="Footer options" name="fas_manually_icon" desc="symbol manually" valuetype="string" defaultvalue="&lt;i class=&quot;fas fa-download&quot;>&lt;/i>"/>
+  <atv:gridconfig gridstyle="lines" width="20" height="20" enabled="false"/>
+  <atv:snapconfig width="10" height="10" enabled="false"/>
+ </metadata>
+ <svg xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.slickgrid.table_panel" transform="matrix(1,0,0,1.0586,0,0)" y="1.584" atv:refpx="320.831" id="id_1" width="640" height="580" x="0.839" atv:refpy="308.705">
+  <atv:argument name="tableID" prefix="tableID"/>
+  <atv:argument name="header_height" prefix="header_height"/>
+  <atv:argument name="header_text_size" prefix="header_text_size"/>
+  <atv:argument name="row_height" prefix="row_height"/>
+  <atv:argument name="row_text_size" prefix="row_text_size"/>
+  <atv:argument name="header_text_horizontal" prefix="header_text_horizontal"/>
+  <atv:argument name="header_text_vertical" prefix="header_text_vertical"/>
+  <atv:argument name="detail_text_size" prefix="detail_text_size"/>
+  <atv:argument name="footer_text_size" prefix="footer_text_size"/>
+  <atv:argument name="font_family" prefix="font_family"/>
+  <atv:argument name="globalBorderColor" prefix="globalBorderColor"/>
+  <atv:argument name="theme_class" prefix="theme_class"/>
+  <atv:argument name="globalFillColor" prefix="globalFillColor"/>
+  <atv:argument name="globalFontColor" prefix="globalFontColor"/>
+  <atv:argument name="globalSymbolColor" prefix="globalSymbolColor"/>
+  <atv:argument name="globalSymbolColor" prefix="globalInactiveColor"/>
+  <atv:argument name="globalColorConfig" prefix="globalColorConfig"/>
+  <atv:argument name="columnReorder" prefix="columnReorder"/>
+  <atv:argument name="paging" prefix="paging"/>
+  <atv:argument name="filterBar" prefix="filterBar"/>
+  <atv:argument name="filterRegExp" prefix="filterRegExp"/>
+  <atv:argument name="filterStar" prefix="filterStar"/>
+  <atv:argument name="filterCaseSensitive" prefix="filterCaseSensitive"/>
+  <atv:argument name="filterLength" prefix="filterLength"/>
+  <atv:argument name="filterDelay" prefix="filterDelay"/>
+  <atv:argument name="linebreak" prefix="linebreak"/>
+  <atv:argument name="multiselect" prefix="multiselect"/>
+  <atv:argument name="multicellselect" prefix="multicellselect"/>
+  <atv:argument name="showMenu" prefix="showMenu"/>
+  <atv:argument name="showMenuWidth" prefix="showMenuWidth"/>
+  <atv:argument name="showMenuHeight" prefix="showMenuHeight"/>
+  <atv:argument name="showMenuPicker" prefix="showMenuPicker"/>
+  <atv:argument name="showMenuFilter" prefix="showMenuFilter"/>
+  <atv:argument name="showMenuExport" prefix="showMenuExport"/>
+  <atv:argument name="allowDirectInput" prefix="allowDirectInput"/>
+  <atv:overwrite transform="matrix(1,0,0,0.9446,0,0)" id="id_1" height="613.988"/>
+ </svg>
+ <svg xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.slickgrid.table_footer" y="615" atv:refpx="320" id="id_2" width="640" height="25" x="0" atv:refpy="627.5">
+  <atv:argument name="tableID" prefix="tableID"/>
+  <atv:argument name="fas_first_page" prefix="fas_first_page"/>
+  <atv:argument name="fas_previous_page" prefix="fas_previous_page"/>
+  <atv:argument name="fas_pause_page" prefix="fas_pause_page"/>
+  <atv:argument name="fas_stop_page" prefix="fas_stop_page"/>
+  <atv:argument name="fas_next_page" prefix="fas_next_page"/>
+  <atv:argument name="fas_last_page" prefix="fas_last_page"/>
+  <atv:argument name="fas_load_page" prefix="fas_load_page"/>
+  <atv:argument name="fas_search_page" prefix="fas_search_page"/>
+  <atv:argument name="fas_truncate_icon" prefix="fas_truncate_icon"/>
+  <atv:argument name="fas_triggered_icon" prefix="fas_triggered_icon"/>
+  <atv:argument name="fas_continue_icon" prefix="fas_continue_icon"/>
+  <atv:argument name="fas_live_icon" prefix="fas_live_icon"/>
+  <atv:argument name="fas_done_icon" prefix="fas_done_icon"/>
+  <atv:argument name="fas_manually_icon" prefix="fas_manually_icon"/>
+ </svg>
+</svg>

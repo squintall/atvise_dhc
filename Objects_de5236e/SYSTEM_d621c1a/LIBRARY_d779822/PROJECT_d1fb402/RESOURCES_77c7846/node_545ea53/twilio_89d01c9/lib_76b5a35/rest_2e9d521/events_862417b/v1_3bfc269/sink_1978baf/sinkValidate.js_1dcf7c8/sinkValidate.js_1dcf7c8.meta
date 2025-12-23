@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/events/v1/sink/sinkValidate.js
+NodeClass: Variable
+BrowseName: 1:sinkValidate.js
+DisplayName: en|sinkValidate.js
+Description: en|sinkValidate.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Circuito.Equipos
+NodeClass: Variable
+BrowseName: 1:Equipos
+DisplayName: en|Equipos
+Description: en|Equipos
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

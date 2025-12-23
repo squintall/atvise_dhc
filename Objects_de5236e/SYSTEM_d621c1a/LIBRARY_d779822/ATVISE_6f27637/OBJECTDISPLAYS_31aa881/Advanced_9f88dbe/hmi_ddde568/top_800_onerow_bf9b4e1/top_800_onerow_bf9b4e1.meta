@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.top_800_onerow
+NodeClass: Variable
+BrowseName: 1:top_800_onerow
+DisplayName: en|top_800_onerow
+Description: en|top_800_onerow
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

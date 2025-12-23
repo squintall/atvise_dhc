@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Test.PokTaPok_Equipo_02.test
+NodeClass: Variable
+BrowseName: 1:test
+DisplayName: en|test
+Description: en|test
+DataType: Byte
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

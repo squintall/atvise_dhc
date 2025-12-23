@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the iframe object display
+ * ----------------------------------
+ * The iframe container is a control that can be used in two ways:
+ * - simple: Define a display or any web URL that will be displayed.
+ * - advanced: Iframe that is used as a navigation frame (the zoom and open display buttons can be used to interact with the iframe).
+ * The advanced mode is activated with the display parameter "add navigation frame functionality".
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = webMI.query["base"];
+var url = webMI.query["url"];
+var display = webMI.query["display"];
+var frameName = webMI.query["frameName"];
+if (frameName == "content" && webMI.rootWindow.contentDisplay == null)
+	webMI.rootWindow.contentDisplay = display;
+if (webMI.rootWindow.currentContentDisplay && webMI.rootWindow.currentContentDisplay != null && display == webMI.rootWindow.contentDisplay)
+	display = webMI.rootWindow.currentContentDisplay;
+var isNavigationFrame = webMI.query["isNavigationFrame"] == "true";
+var isDefault = webMI.query["isDefault"];
+var message_dialog_small = webMI.query["message_dialog_small"];
+var targetUrl = url;
+targetUrl = (targetUrl != undefined) ? targetUrl : webMI.display.createURL(display, {"base": base});
+var defaultFrameName = "";
+var firstCCDExceeded = true;
+var myFrame = document.getElementById("myframe");
+myFrame.setAttribute("framename",frameName);
+var myLoadingscreen = null;
+var myExcldFrame = null;
+var urlPrefix = "";
+var urlPostfix = "";
+var currentActiveFrame = myFrame;
+var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var pointerEventsOn = window.PointerEvent !== undefined;
+var mousedownpos1 = null;
+var mousedownpos2 = null;
+var mousedownpospan = null;
+var olddisplaystyle = null;
+var isMobileTouchDevice = /Mobile|iP(hone|od|ad)|Android|BlackBerry|IEMobile|Kindle|NetFront|Silk-Accelerated|(hpw|web)OS|Fennec|Minimo|Opera M(obi|ini)|Blazer|Dolfin|Dolphin|Skyfire|Zune/.test(navigator.userAgent);
+var zoomAreaDiv = document.getElementById("zoomareadiv");
+var zoomBoxDiv = document.getElementById("zoomboxdiv");
+var zoomBoxParent = null;
+var myIframe = document.getElementById(frameName);
+var myIframeDiv = document.getElementById("iframediv");
+var iframegroup = document.getElementById("iframegroup");
+var is_OSX = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? true : false;
+var zoomArea = document.getElementById("zoomarea");
+var adjustmentParameters = null;
+var preloadGroup = document.getElementById("preload_group");
+var preloaded = false;
+var excludePreloaded = [];
+var includePreloaded = [];
+var preloadedFrames = {};
+var runOnce = true;
+var changingFrameBuffer = {};
+var changingFrameDelay = true;
+var resumeCallbackObjects = [];
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (webMI.display.isVML())
+	myFrame.style.position = "absolute";
+
+webMI.addOnload(function() {
+	zoomAreaDiv.style.display = "none";
+	if (isNavigationFrame) {
+		if (zoomAreaDiv != null && zoomBoxDiv != null) {
+			adjustmentParameters = getAdjustmentParameters();
+			zoomBoxParent = zoomBoxDiv.parentNode;
+			zoomAreaDiv.style.zIndex = "100";
+			zoomBoxDiv.style.zIndex = "100";
+			zoomBoxDiv.style.display = "none";
+			zoomBoxDiv.style.border =  Math.round(1/adjustmentParameters.frameScaleFactor) + "px solid black";
+			zoomBoxDiv.style["box-sizing"] = "border-box";
+			zoomAreaDiv.style.cursor = "crosshair";
+
+			webMI.addEvent(zoomArea, "mousedown", zoomMouseDown);
+			webMI.addEvent(zoomArea, "mousemove", zoomMouseMove);
+			webMI.addEvent(zoomArea, "mouseup", zoomMouseUp);
+			webMI.addEvent(zoomBoxDiv, "mousedown", zoomMouseDown);
+			webMI.addEvent(zoomBoxDiv, "mousemove", zoomMouseMove);
+			webMI.addEvent(zoomBoxDiv, "mouseup", zoomMouseUp);
+		}
+
+		webMI.keys.addDownListener(function() {
+			if (!mousedownpos1 && !olddisplaystyle) {
+				mousedownpospan = null;
+				olddisplaystyle = "block";
+				zoomAreaDiv.style.display = "block";
+				zoomAreaDiv.style.cursor = "move";
+			}
+		}, 18);
+
+		webMI.keys.addUpListener(function() {
+			if (olddisplaystyle) {
+				zoomAreaDiv.style.cursor = "crosshair";
+				zoomAreaDiv.style.display = "none";
+				olddisplaystyle = null;
+			}
+		}, 18);
+
+		//see AT-D-2112
+		webMI.addOnfocus(function(e) {
+			mousedownpos1 = null;
+			mousedownpos2 = null;
+			updateZoomBox();
+			zoomAreaDiv.style.display = "none";
+		});
+
+		addNavigationTriggers();
+
+	}
+	webMI.gfx.setVisible("stroke", false);
+	webMI.gfx.setVisible("label", false);
+	webMI.gfx.setVisible("label2", false);
+
+	webMI.trigger.fire("com.atvise.display_structure", function(e, preload, excludePreload, includePreload, loadingscreen, firstConnect) {
+		if (e != null) {
+			var displayConfig = e;
+			urlPrefix = "/"+displayConfig["prefix"];
+			urlPostfix = displayConfig["postfix"];
+			preloaded = preload;
+
+			if (preloaded) {
+				webMI.trigger.connect("register.preload.resume", function(e) {
+					resumeCallbackObjects.push(e.value);
+				});
+			}
+
+			excludePreloaded = excludePreload;
+			includePreloaded = includePreload;
+			var defaultPage = (firstConnect.defaultUrl == "")?webMI.display.createURL(displayConfig["default"]):firstConnect.defaultUrl;
+			var firstFire = firstConnect.value && isDefault == "true";
+			if (firstFire) {
+				firstConnect.value = false;
+				firstConnect.defaultFrameName = frameName;
+				defaultFrameName = frameName;
+				webMI.display.setOpenUrlHandler(function(url,frame) {
+					frame = (typeof frame != "string" || frame==null)?firstConnect.defaultFrameName:frame;
+					var iframe = tabHandler.getIFrame(frame);
+					function change() {
+						iframe = tabHandler.getIFrame(frame);
+						function changeDisplay(){
+							if (iframe == null) iframe = tabHandler.getIFrame(firstConnect.defaultFrameName);
+							if (iframe != null){
+								if (frame != firstConnect.defaultFrameName){
+									changeFrame_(url,iframe)
+								} else {
+									(iframe!=null) && changeFrame(url,iframe);
+								}
+							}
+						}
+						
+						if (tabHandler.areAllIFrameLoaded() || iframe.src == ""){
+							changeDisplay();
+						} else {
+							tabHandler.addAfterIFrameLoad(changeDisplay,frame);
+						}					
+					
+					}
+					
+					if (changingFrameDelay || !iframe || !iframe.src) {
+						setTimeout(function(){
+							changingFrameDelay = false;
+							change();
+						},10);
+					} else {
+						change();
+					}
+				});
+				webMI.addEvent(webMI.data, "clientvariableschange", function(e) {
+					if ("CCDexceeded" in e && e["CCDexceeded"]){
+						if (firstCCDExceeded){
+							showMessageDialog("T{CCD exceeded!}", "");
+							firstCCDExceeded = false;
+						} else console.warn("CCD exceeded!");
+					}
+				});
+			}
+			if (firstFire && (preload || (!preload && includePreloaded.length > 0))) {
+				var displays = [];
+				var urls = [];
+				var ucount1 = 0, ucount2 = 0;
+				function allLoadedCallback(frame){
+					if (runOnce){
+						runOnce = false;
+						changeFrame(targetUrl);
+						loadingscreen.parentNode.removeChild(myLoadingscreen);
+					} else {
+						frame && frameName == firstConnect.defaultFrameName && tabHandler.getFocused(frame.contentWindow.document);
+					}
+				}
+				function extractMenu(menu,prefix,allSub) {
+					var NORMAL = 0; var ALL_BELOW = 1; var NONE_BELOW = 2;
+					allSub = allSub||NORMAL;
+					for (var i in menu) {
+						var menuItem = menu[i];
+						var menuItemName = (menuItem.identifier)?menuItem.identifier:prefix+"."+menuItem.name;
+						if (menuItem.sub) {
+							if (allSub == ALL_BELOW || isInArray(includePreloaded,menuItemName)){
+								extractMenu(menuItem.sub,menuItemName,ALL_BELOW);
+							} else if (allSub == NONE_BELOW || isInArray(excludePreloaded,menuItemName)){
+								extractMenu(menuItem.sub,menuItemName,NONE_BELOW);
+							} else {
+								extractMenu(menuItem.sub,menuItemName,allSub);
+							}
+						}
+						if (menuItem.display && allSub == ALL_BELOW){
+							includePreloaded[includePreloaded.length] = menuItem.display;
+							displays.push(menuItem.display);
+						} else if (menuItem.url && allSub == ALL_BELOW){
+							includePreloaded[includePreloaded.length] = menuItem.url;
+							urls.push(menuItem.url);
+						} else if (menuItem.display && allSub == NONE_BELOW){
+							excludePreloaded[excludePreloaded.length] = menuItem.display;
+						} else if (menuItem.url && allSub == NONE_BELOW){
+							excludePreloaded[excludePreloaded.length] = menuItem.url;
+						} else if (menuItem.display && preload && (excludePreloaded.length == 0 || !isInArray(excludePreloaded,menuItemName,menuItem.display))) {
+							displays.push(menuItem.display);
+						} else if (menuItem.display && !preload && isInArray(includePreloaded,menuItemName,menuItem.display)) {
+							displays.push(menuItem.display);
+						} else if (menuItem.url  && (excludePreloaded.length == 0 || !isInArray(excludePreloaded,menuItem.url))) {
+							urls.push(menuItem.url);
+						} else if (menuItem.url  && !preload && isInArray(includePreloaded,menuItem.url)) {
+							urls.push(menuItem.url);
+						}
+					}
+				};
+				function addFrame(frameArray, isDisplay) {
+					var url = frameArray.pop();
+					if (url != undefined) {
+						url = isDisplay ? webMI.display.createURL(url) : url;
+						if (url == targetUrl || url == defaultPage) {
+							addFrame(frameArray, isDisplay);
+						} else {
+							var preloadedFrame = createIFrame(url);
+							preloadedFrames[url] = preloadedFrame;
+							tabHandler.pushIFrame("",preloadedFrame);
+							setLoadingScreenMessage(url,++ucount1,ucount2);
+							attachLoadEvent(preloadedFrame,
+								function(){
+									addFrame(frameArray, isDisplay);
+									preloadedFrame.contentWindow.webMI && preloadedFrame.contentWindow.webMI.data.pause();},
+								allLoadedCallback);
+							webMI.gfx.addForeignObject({x:0, y:0, width:800, height:600, childNodes: [preloadedFrame]}, iframegroup);
+						}
+					}
+				};
+				extractMenu(displayConfig.menu,"AGENT.DISPLAYS");
+				ucount2 = displays.length+urls.length;
+				if (includePreloaded.length == 0 && ucount2>0) ucount2--;
+				else ucount2++
+				createLoadingScreen(loadingscreen);
+				preloadedFrames[targetUrl] = myFrame;
+				tabHandler.pushIFrame(frameName,myFrame);
+				setLoadingScreenMessage(targetUrl,++ucount1,ucount2)
+				if (displays != undefined) {
+					addFrame(displays, true);
+				}
+				if (urls != undefined) {
+					addFrame(urls, false);
+				}
+				attachLoadEvent(myFrame,null,function(){allLoadedCallback(myFrame)});
+				webMI.frame.setSrc(myFrame, targetUrl);
+				myExcldFrame = createIFrame();
+				preloadedFrames["exclude"] = myExcldFrame;
+				tabHandler.pushIFrame("",myExcldFrame);
+				tabHandler.setIFrameLoaded(myExcldFrame,true);
+				(webMI.gfx.addForeignObject({x:0, y:0, width:800, height:600, childNodes: [myExcldFrame]}, iframegroup)).style.display = "none";
+			} else {
+				tabHandler.pushIFrame(frameName,myFrame);
+				changeFrame_(targetUrl,myFrame);
+			}
+		}
+	});
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+function isInArray(arr,elem,replace){
+	for (var iA=0;iA<arr.length;iA++){
+		if ((typeof elem == "string") && (elem == arr[iA] || elem == urlPrefix+arr[iA]+urlPostfix)) {
+			if (replace && elem != replace){ arr[iA] = replace;}
+			return true;
+		} else if ((typeof elem == "object") && arr[iA] == elem){
+			return true;
+		}
+	}
+	return false;
+};
+
+function createLoadingScreen(loadingscreen){
+	myLoadingscreen = webMI.dom.createElement("http://www.w3.org/1999/xhtml", "div");
+	myLoadingscreen.style.fontFamily = "Arial";
+	myLoadingscreen.style.overflow = "hidden";
+	myLoadingscreen.style.position = "absolute";
+	myLoadingscreen.style.left = "0";
+	myLoadingscreen.style.top = "0";
+	myLoadingscreen.style.height = "100%";
+	myLoadingscreen.style.width = "100%";
+	myLoadingscreen.style.zIndex = "999";
+	myLoadingscreen.style.backgroundColor = "#cccccc";
+	myLoadingscreen.style.cursor = "wait";
+	loadingscreen.parentNode.appendChild(myLoadingscreen);
+};
+
+function setLoadingScreenMessage(urlString,c1,c2){
+	var msg = "Loading "+urlString.substring(urlString.lastIndexOf('/')+1)+" ("+c1+"/"+c2+")";
+	myLoadingscreen.innerHTML = "<div style='position:absolute;top:300px;width:100%;text-align:center'>"+msg+"</div>";
+};
+
+function createIFrame(url){
+	var frame = webMI.dom.createElement("http://www.w3.org/1999/xhtml", "iframe");
+	frame.frameBorder = "0";
+	frame.scrolling = "no";
+	frame.style.width = "100%";
+	frame.style.height = "100%";
+	if (url) webMI.frame.setSrc(frame, url);
+	return frame;
+};
+
+function attachLoadEvent(frame, additional, callback){
+	tabHandler.cleanIFrames();
+	if (!tabHandler.hasIFrameEvent(frame)){
+		webMI.addEvent(frame, "load", function(e) {
+			if (additional!=null) additional();
+			addOnLoadFrame(frame);
+			addOnLoadAllFrame(frame,callback);
+		});
+		tabHandler.setIFrameHasEvent(frame);
+	}
+};
+
+function showMessageDialog(headline, message) {
+	webMI.display.openWindow({
+		display: message_dialog_small,
+		height:160,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: headline,
+			message: message,
+			button: "T{OK}",
+		}
+	});
+}
+
+function addOnLoadFrame(frame){
+	tabHandler.setIFrameLoaded(frame,true);
+	//prevent accessing external websites
+	if (webMI.isExternalHost(frame.src,location)) {
+		return;
+	}
+	var src = decodeURIComponent(frame.src);
+	var content;
+	var query = "";
+	if (frame.src.lastIndexOf("?") != -1) {
+		content = frame.src.substring(frame.src.lastIndexOf("/") + 1, frame.src.lastIndexOf("?"));
+		query = frame.src.substring(frame.src.lastIndexOf("?") + 1);
+	} else {
+		content = frame.src.substring(frame.src.lastIndexOf("/") + 1);
+	}
+	webMI.trigger.fire("com.atvise.iframe.onloadFrame", {name: frameName , content: content, query: query});
+	tabHandler.registerDisplay(frame.contentWindow.document);
+	var contentWin;
+	if ((contentWin = frame.contentWindow) && contentWin.webMI){
+		contentWin.webMI.addOnfocus(function(){
+			if (contentWin != null)
+				tabHandler.getFocused(contentWin.document);
+		});
+		contentWin.webMI.addOnunload(function(){
+			try {contentWin} catch(err){return;}
+			if (contentWin != null){
+				tabHandler.removeDoc(contentWin.document);
+				tabHandler.removeCallback(frame);
+			}
+		});
+	}
+	var element = frame.contentDocument ? frame.contentDocument : contentWin.document;
+	webMI.addEvent(element, ["click","keypress","touchstart"], function(e) {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", {"action":"restartTimer"});
+	});
+	webMI.addEvent(element, pointerEventsOn ? "pointerdown" : "touchstart", function(e) {
+		if(!pointerEventsOn || e.pointerType == "touch"){
+			webMI.display.showPopup(0, 0, null);
+		}
+	});
+	consistencyHandler.read();
+};
+
+function addOnLoadAllFrame(frame,callback){
+	//prevent accessing external websites
+	if(webMI.isExternalHost(frame.src,location)){
+		return;
+	}
+	if (!tabHandler.areAllIFrameLoaded()) {if (frame && frameName==defaultFrameName){tabHandler.addAfterIFrameLoad(callback,frame);} return;};
+	/* Timeout is a workaround for Chrome > 50 crashes if preloading is activated */
+	setTimeout(function() {
+		try{
+			tabHandler.beforeFirstUse(frame.contentWindow.document,false,callback);
+			tabHandler.runAfterIFrameLoad();
+		} catch(ex) {}
+	}, 10);
+};
+
+/*
+ * calculate scale factor for frame
+ */
+function getAdjustmentParameters() {
+	var zoomAreaHeight = parseFloat(zoomAreaDiv.style.height);
+	var par = {
+				frameScaleFactor:0,
+				frameOffsetX:0,
+				frameOffsetY:0,
+				zoomBoxOffsetX:0,
+				zoomBoxOffsetY:0
+	};
+	par.frameScaleFactor = webMI.gfx.getAbsoluteScaleFactor(true, myFrame);
+	par.frameOffsetX = webMI.gfx.getAbsoluteOffset("left",true, myFrame);
+	par.frameOffsetY = webMI.gfx.getAbsoluteOffset("top",true, myFrame);
+	par.zoomBoxOffsetX = parseFloat(zoomAreaDiv.style.left);
+	par.zoomBoxOffsetY = parseFloat(zoomAreaDiv.style.top);
+	return par;
+}
+
+function getCurrentScaleFactorForFrame(myFrame) {
+	var frameContentWindow = myFrame.contentWindow,
+		frameWebMI = frameContentWindow.webMI,
+		factor = 1;
+
+	if(frameWebMI){
+		factor = frameWebMI.display.getCurrentScaleFactor();
+	}
+
+	return factor;
+}
+
+function zoomMouseDown(e) {
+	adjustmentParameters = getAdjustmentParameters();
+	if(!e)
+		e = window.event;
+
+	if (e.preventDefault)
+		e.preventDefault();
+
+	var clientX = e.clientX;
+	var clientY = e.clientY;
+	if(e.atviseCustomEvent){
+		clientX = e.atviseOriginalEvent.clientX;
+		clientY = e.atviseOriginalEvent.clientY;
+	}
+
+	if (olddisplaystyle != null) {
+		var webMImyIframe = currentActiveFrame.contentWindow.webMI;
+		var viewBox = webMImyIframe.display.getViewBox();
+		mousedownpospan = {x: clientX, y: clientY, viewBoxX: viewBox[0], viewBoxY: viewBox[1]};
+		zoomAreaDiv.style.cursor = "move";
+	} else {
+		if(!mousedownpos1){
+			mousedownpos1 = {x:clientX-adjustmentParameters.frameOffsetX,y:clientY-adjustmentParameters.frameOffsetY};
+			mousedownpos2 = mousedownpos1;
+		}else{
+			mousedownpos2 = {x:clientX-adjustmentParameters.frameOffsetX,y:clientY-adjustmentParameters.frameOffsetY};
+			if(isMobileTouchDevice){
+				updateZoomBox();
+				updateViewBox();
+			}
+		}
+
+		updateZoomBox();
+	}
+
+}
+
+function zoomMouseMove(e) {
+
+	if(!e)
+		e = window.event;
+
+	if (e.preventDefault)
+		e.preventDefault();
+
+	var clientX = e.clientX;
+	var clientY = e.clientY;
+	if(e.atviseCustomEvent){
+		clientX = e.atviseOriginalEvent.clientX;
+		clientY = e.atviseOriginalEvent.clientY;
+	}
+
+	if (mousedownpospan) {
+		var webMImyIframe = currentActiveFrame.contentWindow.webMI;
+		var viewBox = webMImyIframe.display.getViewBox();
+		var zoomFactor = 1/getCurrentScaleFactorForFrame(currentActiveFrame);
+		var viewBoxX = mousedownpospan.viewBoxX + (((mousedownpospan.x - clientX)*(1/adjustmentParameters.frameScaleFactor)) * zoomFactor);
+		var viewBoxY = mousedownpospan.viewBoxY + (((mousedownpospan.y - clientY)*(1/adjustmentParameters.frameScaleFactor)) * zoomFactor);
+		webMImyIframe.display.setViewBox(viewBoxX, viewBoxY, viewBox[2], viewBox[3]);
+	} else if(!isMobileTouchDevice) {
+		mousedownpos2 = {x:clientX-adjustmentParameters.frameOffsetX,y:clientY-adjustmentParameters.frameOffsetY};
+		updateZoomBox();
+	}
+
+}
+
+
+function zoomMouseUp(e) {
+	if(!e)
+		e = window.event;
+
+	if (mousedownpospan) {
+		mousedownpospan = null;
+		zoomAreaDiv.style.cursor = "move";
+	} else if (mousedownpos1 && mousedownpos2 && mousedownpos1.x != mousedownpos2.x && mousedownpos1.y != mousedownpos2.y && !isMobileTouchDevice) {
+		updateViewBox();
+		webMI.trigger.fire("com.atvise.zoomRect_" + frameName + "_Up");
+	}
+}
+
+
+function updateViewBox(){
+	var webMImyIframe = currentActiveFrame.contentWindow.webMI;
+	var displayArea = {
+			x: parseFloat(myIframeDiv.style.left),
+			y: parseFloat(myIframeDiv.style.top),
+			w: parseFloat(myIframeDiv.style.width),
+			h: parseFloat(myIframeDiv.style.height)
+		};
+	var zoomBox = {
+			x: parseFloat(zoomBoxDiv.style.left) - displayArea.x,
+			y: parseFloat(zoomBoxDiv.style.top) - displayArea.y,
+			w: parseFloat(zoomBoxDiv.style.width),
+			h: parseFloat(zoomBoxDiv.style.height)
+	};
+
+	var svgCTM = webMImyIframe.gfx.getScreenCTM(false); //parameter "false" means to consider the frameScaleFactors for scaleType "zoom"
+	var zoomBoxTopLeft = webMImyIframe.gfx.createPoint(zoomBox.x,zoomBox.y).matrixTransform(svgCTM.inverse());
+	var zoomBoxBottomRight = webMImyIframe.gfx.createPoint(zoomBox.x + zoomBox.w,zoomBox.y + zoomBox.h).matrixTransform(svgCTM.inverse());
+	var viewBox = new Array(4);
+
+	viewBox[0] = zoomBoxTopLeft.x;
+	viewBox[1] = zoomBoxTopLeft.y;
+	viewBox[2] = Math.abs(zoomBoxBottomRight.x - zoomBoxTopLeft.x);
+	viewBox[3] = Math.abs(zoomBoxBottomRight.y - zoomBoxTopLeft.y);
+	webMImyIframe.display.setViewBox(viewBox[0], viewBox[1], viewBox[2], viewBox[3]);
+
+	mousedownpos1 = null;
+	mousedownpos2 = null;
+	updateZoomBox();
+	zoomAreaDiv.style.display = "none";
+}
+
+function updateZoomBox() {
+
+	if(mousedownpos1 != null && mousedownpos2 != null) {
+		var w = Math.abs(mousedownpos1.x - mousedownpos2.x)*(1/adjustmentParameters.frameScaleFactor);
+		var h = Math.abs(mousedownpos1.y - mousedownpos2.y)*(1/adjustmentParameters.frameScaleFactor);
+
+		zoomBoxDiv.style.display = "block";
+		zoomBoxDiv.style.top = Math.round((mousedownpos1.y < mousedownpos2.y ? mousedownpos1.y : mousedownpos2.y)*(1/adjustmentParameters.frameScaleFactor) + adjustmentParameters.zoomBoxOffsetY) + "px";
+		zoomBoxDiv.style.left = Math.round((mousedownpos1.x < mousedownpos2.x ? mousedownpos1.x : mousedownpos2.x)*(1/adjustmentParameters.frameScaleFactor) + adjustmentParameters.zoomBoxOffsetX) + "px";
+		zoomBoxDiv.style.height = Math.round(h) + "px";
+		zoomBoxDiv.style.width = Math.round(w) + "px";
+	} else
+		zoomBoxDiv.style.display = "none";
+}
+
+function changeFrame_(url,frame){
+	changingFrameBuffer[frame.id] = {"frame": frame, "url": url};
+	firstCCDExceeded = true;
+	consistencyHandler.renew();
+	tabHandler.changeDisplay();
+	frame.style.display = "";
+
+	var urlPrefix = webMI.frame.getURLPrefix();
+	var contentDisplay = webMI.rootWindow.contentDisplay;
+
+	if (webMI.getAccessControlSupport() && frame.attributes.framename && frame.attributes.framename.nodeValue == defaultFrameName && contentDisplay && url.indexOf(urlPrefix) == 0) {
+		var display = url.replace(urlPrefix, "")
+		if (display.indexOf('?') > 0) display = display.slice(0, display.indexOf('?'));
+		display = decodeURIComponent(display);
+
+		webMI.data.getRights([display, contentDisplay], "read", function(e) {
+			if (e[0].value == false && e[1].value == true) {
+				console.warn("Permission error for display '" + display + "'. Redirected to default content display.");
+				changeFrame_(webMI.frame.createURL(contentDisplay), frame);
+			}
+		})
+	}
+
+	var cf = function(frame, url) {
+		if (webMI.getAccessControlSupport()) {
+			var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+			if (accessControlManager && accessControlManager.getConfiguration("updateCacheOnDisplayChange"))
+				accessControlManager.clearRightsStorage(null, false);
+		}
+
+		webMI.frame.setSrc(frame, url);
+		attachLoadEvent(frame, null, function(){tabHandler.getFocused(frame.contentWindow.document)});	
+	}
+
+	setTimeout(function(){
+		for(var frameId in changingFrameBuffer) {			
+			//Fix timeout problem
+			if (is_OSX || navigator.userAgent.indexOf("Opera") > -1) {
+				changingFrameBuffer[frameId].frame.src = null;
+			}
+			cf(changingFrameBuffer[frameId].frame, changingFrameBuffer[frameId].url);
+		}
+		changingFrameBuffer = {};
+	}, 100);
+}
+
+function changeFrame(url, frame) {
+	var pureUrl = (url.indexOf("?")>-1)?url.substring(0,url.indexOf("?")):url;
+	for (var i in preloadedFrames) {
+			//pause nested iframes
+			var childNodes = preloadedFrames[i].parentNode.childNodes;
+			var m, n;
+			for (m = 0; m < childNodes.length; m++) {
+				if (typeof(childNodes[m].querySelectorAll) === "function") {
+					var iframes = childNodes[m].querySelectorAll("IFRAME");
+					for (n = 0; n < iframes.length; n++)
+						iframes[n].contentWindow && iframes[n].contentWindow.webMI && iframes[n].contentWindow.webMI.data.pause();
+				}
+			}
+
+			preloadedFrames[i].contentWindow.webMI && preloadedFrames[i].contentWindow.webMI.data.pause();
+			preloadedFrames[i].parentNode.style.display = "none";
+	}
+	if (!preloaded && includePreloaded.length == 0 ) {
+		myFrame.parentNode.style.display = "";
+		changeFrame_(url, frame||myFrame);
+	} else if ( (!preloaded && !isInArray(includePreloaded,pureUrl)) || (preloaded && isInArray(excludePreloaded,pureUrl)) ) {
+		myExcldFrame.parentNode.style.display = "";
+		currentActiveFrame = myExcldFrame;
+		myIframeDiv = myExcldFrame.parentNode;
+		changeFrame_(url, myExcldFrame);
+	} else {
+		var find = false;
+		tabHandler.blurFocused();
+		for (var i in preloadedFrames) {
+			if (i == url || i == url.substring(0,url.indexOf("?")) ) {
+				find = true;
+				firstCCDExceeded = true;
+				preloadedFrames[i].parentNode.style.display = "";
+				var contentDocument = preloadedFrames[i].contentWindow.document;
+				for (var j = 0; j < resumeCallbackObjects.length; ++j) {
+					if (contentDocument == resumeCallbackObjects[j].document)
+						resumeCallbackObjects[j].callback();
+				}
+
+				//resume nested iframes
+				var childNodes = preloadedFrames[i].parentNode.childNodes;
+				var m, n;
+				for (m = 0; m < childNodes.length; m++) {
+					if (typeof(childNodes[m].querySelectorAll) === "function") {
+						var iframes = childNodes[m].querySelectorAll("IFRAME");
+						for (n = 0; n < iframes.length; n++) {
+							var contentDocument = iframes[n].contentWindow.document;
+							for (var j = 0; j < resumeCallbackObjects.length; ++j) {
+								if (contentDocument == resumeCallbackObjects[j].document)
+									resumeCallbackObjects[j].callback();
+							}
+							iframes[n].contentWindow && iframes[n].contentWindow.webMI && iframes[n].contentWindow.webMI.data.resume();
+						}
+					}
+				}
+
+				preloadedFrames[i].contentWindow.webMI && preloadedFrames[i].contentWindow.webMI.data.resume();
+				currentActiveFrame = preloadedFrames[i];
+				myIframeDiv = preloadedFrames[i].parentNode;
+				tabHandler.getFocused(preloadedFrames[i].contentWindow.document);
+			}
+		}
+		if (!find){ // alarmlist, historylist
+			if (myExcldFrame == null ) myExcldFrame = frame||myFrame;
+			myExcldFrame.parentNode.style.display = "";
+			currentActiveFrame = myExcldFrame;
+			myIframeDiv = myExcldFrame.parentNode;
+			changeFrame_(url, myExcldFrame);
+		}
+	}
+}
+
+function addNavigationTriggers() {
+	webMI.trigger.connect("changeDisplay_" + frameName, function(e) {
+		var url = e.value;
+		var query;
+
+		if (typeof e.value == "object") {
+			url = e.value.url;
+			query = e.value.query;
+		} else {
+			var indexOfQuestionMark = url.indexOf("?", 1);
+			if (indexOfQuestionMark > 0) {
+				query = url.substring(indexOfQuestionMark + 1);
+				url = url.substring(0, indexOfQuestionMark);
+			}
+		}
+
+		if (url != undefined)
+			webMI.display.openUrl(webMI.display.createURL(url), query, frameName);
+	});
+
+	var zoomFactor = 0.1;
+	// 0...x, 1...y, 2...w, 3...h
+	webMI.trigger.connect("com.atvise.zoomIn_" + frameName, function(e) {
+		var webMImyIframe = currentActiveFrame.contentWindow.webMI;
+		var viewBox = webMImyIframe.display.getViewBox();
+		viewBox[3] /= 1+zoomFactor;
+		viewBox[2] /= 1+zoomFactor;
+		viewBox[0] += viewBox[2] * zoomFactor / 2;
+		viewBox[1] += viewBox[3] * zoomFactor / 2;
+		webMImyIframe.display.setViewBox(viewBox[0], viewBox[1], viewBox[2], viewBox[3]);
+	});
+	webMI.trigger.connect("com.atvise.zoomOut_" + frameName, function(e) {
+		var webMImyIframe = currentActiveFrame.contentWindow.webMI;
+		var viewBox = webMImyIframe.display.getViewBox();
+		viewBox[0] -= viewBox[2] * zoomFactor / 2;
+		viewBox[1] -= viewBox[3] * zoomFactor / 2;
+		viewBox[3] *= 1+zoomFactor;
+		viewBox[2] *= 1+zoomFactor;
+		webMImyIframe.display.setViewBox(viewBox[0], viewBox[1], viewBox[2], viewBox[3]);
+	});
+	webMI.trigger.connect("com.atvise.zoom11_" + frameName, function(e) {
+		var webMImyIframe = currentActiveFrame.contentWindow.webMI;
+		var viewBox = webMImyIframe.display.getInitialViewBox();
+		webMImyIframe.display.setViewBox(viewBox[0], viewBox[1], viewBox[2], viewBox[3]);
+	});
+	webMI.trigger.connect("com.atvise.zoomRect_" + frameName, function(e) {
+		mousedownpospan = null;
+		zoomAreaDiv.style.display = "block";
+	});
+	webMI.trigger.connect("com.atvise.getDefaultDisplay_" + frameName, function(e) {
+		e.value(display,url);
+	});
+}
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect("getSource_" + frameName, function(e) {
+	var content_webMI
+	try {
+		content_webMI = currentActiveFrame.contentWindow.webMI;
+	} catch (ex) {}
+
+	var src = currentActiveFrame.src;
+	if (currentActiveFrame.src.indexOf("/") > -1) {
+		var parts = currentActiveFrame.src.split("/");
+		src = parts[parts.length-1];
+	}
+	if (src.indexOf("?") > -1) {
+		src = src.substring(0, src.indexOf("?"));
+	}
+	e.value(src, content_webMI);
+});]]></code>
+</script>

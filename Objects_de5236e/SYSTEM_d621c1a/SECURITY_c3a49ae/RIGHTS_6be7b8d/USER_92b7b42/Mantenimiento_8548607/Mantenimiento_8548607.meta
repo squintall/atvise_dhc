@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.RIGHTS.USER.Mantenimiento
+NodeClass: Object
+BrowseName: 1:Mantenimiento
+DisplayName: en|Mantenimiento
+Description: en|Mantenimiento
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

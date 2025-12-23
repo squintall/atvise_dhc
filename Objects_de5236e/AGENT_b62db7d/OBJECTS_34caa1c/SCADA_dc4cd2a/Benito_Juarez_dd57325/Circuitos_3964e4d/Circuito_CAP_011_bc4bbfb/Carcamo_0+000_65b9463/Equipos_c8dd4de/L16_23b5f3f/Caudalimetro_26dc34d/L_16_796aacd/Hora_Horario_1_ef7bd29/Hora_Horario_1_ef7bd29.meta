@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_0+000.Equipos.L16.Caudalimetro.L_16.Hora_Horario_1
+NodeClass: Variable
+BrowseName: 1:Hora_Horario_1
+DisplayName: en|Hora_Horario_1
+Description: en|Hora_Horario_1
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

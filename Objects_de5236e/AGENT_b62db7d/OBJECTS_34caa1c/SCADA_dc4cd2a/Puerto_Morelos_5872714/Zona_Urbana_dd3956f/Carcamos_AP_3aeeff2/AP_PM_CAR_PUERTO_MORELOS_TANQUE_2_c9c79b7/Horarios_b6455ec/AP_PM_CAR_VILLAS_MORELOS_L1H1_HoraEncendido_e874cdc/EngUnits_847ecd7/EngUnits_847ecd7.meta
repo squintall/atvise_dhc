@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Zona_Urbana.Carcamos_AP.AP_PM_CAR_PUERTO_MORELOS_TANQUE_2.Horarios.AP_PM_CAR_VILLAS_MORELOS_L1H1_HoraEncendido.EngUnits
+NodeClass: Variable
+BrowseName: 1:EngUnits
+DisplayName: en|Engineering units
+Description: en|EngUnits
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.EngUnits.RelMirrorInputOutput

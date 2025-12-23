@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/Alarm_sounds/mixkit-scanning-sci-fi-alarm-905.wav
+NodeClass: Variable
+BrowseName: 1:mixkit-scanning-sci-fi-alarm-905.wav
+DisplayName: en|mixkit-scanning-sci-fi-alarm-905.wav
+Description: en|mixkit-scanning-sci-fi-alarm-905.wav
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Wave

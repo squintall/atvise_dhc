@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.MailDeleteConfiguration
+NodeClass: Variable
+BrowseName: 1:MailDeleteConfiguration
+DisplayName: en|MailDeleteConfiguration
+Description: en|MailDeleteConfiguration
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

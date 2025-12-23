@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_005.Equipos.Bombas.Bomba_3.man_auto
+NodeClass: Variable
+BrowseName: 1:man_auto
+DisplayName: en|man_auto
+Description: en|man_auto
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

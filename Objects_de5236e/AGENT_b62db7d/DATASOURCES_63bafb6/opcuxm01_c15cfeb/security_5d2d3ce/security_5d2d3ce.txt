@@ -1,0 +1,17 @@
+{
+    "security": {
+        "policy": "Basic256Sha256",
+        "mode": "SignAndEncrypt",
+        "certificate": "",
+        "privateKey": "",
+        "validate": false,
+        "autotrust": true
+    },
+    "identity": {
+        "type": "Username",
+        "username": "admin",
+        "password": "a7e4H9hydyrnE5FybhNIzbBuIyg6lbyQG6KmoGCeM7DGxdkqqlfzAbsLvlwvpNLDibnOtkuycomzj=J=",
+        "certificate": "",
+        "privateKey": ""
+    }
+}

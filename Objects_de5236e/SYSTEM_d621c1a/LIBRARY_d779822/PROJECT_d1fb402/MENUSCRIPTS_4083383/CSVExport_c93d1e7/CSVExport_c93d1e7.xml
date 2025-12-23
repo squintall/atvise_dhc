@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="nodes" type="array" trigger="false" relative="false" value=""/>
+  <parameter name="output" type="stream" trigger="false" relative="false" value=""/>
+  <parameter name="value" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="description" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="history" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="mirroring" type="boolean" trigger="false" relative="false" value="true"/>
+  <code><![CDATA[/*
+	CsvExport
+
+	How the script works:
+
+		1) Select the nodes (e.g. folders) whose content you want to export. If you want to export the whole address space, right click on OBJECTS
+		2) Choose Node Actions->Atvise->CsvExport
+		3) In the appearing dialog select which areas you want to export (value, description, history, mirroring)
+		4) If the screen reaches an error, it will abort the operation and print the error message in log
+		4) If a file selection dialog appears, that means the script was successful
+		5) Enter a desired filename for the file in which the information will be stored
+*/
+
+call("Csv.Export")(nodes, output, value, description, history, mirroring);]]></code>
+</script>

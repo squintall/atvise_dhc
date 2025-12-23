@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.dialogs.user_editor
+NodeClass: Variable
+BrowseName: 1:user_editor
+DisplayName: en|user_editor
+Description: en|user_editor
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

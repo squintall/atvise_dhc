@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.Advanced.hmi.historylist
+NodeClass: Variable
+BrowseName: 1:historylist
+DisplayName: en|historylist
+Description: en|historylist
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

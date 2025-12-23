@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/studio/v2/flow/execution/executionStep/executionStepContext.js
+NodeClass: Variable
+BrowseName: 1:executionStepContext.js
+DisplayName: en|executionStepContext.js
+Description: en|executionStepContext.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

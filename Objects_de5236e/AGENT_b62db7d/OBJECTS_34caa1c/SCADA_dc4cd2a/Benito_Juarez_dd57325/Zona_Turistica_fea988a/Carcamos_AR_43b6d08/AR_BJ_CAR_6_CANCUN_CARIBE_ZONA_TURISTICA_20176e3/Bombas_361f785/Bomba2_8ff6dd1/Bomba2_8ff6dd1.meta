@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Turistica.Carcamos_AR.AR_BJ_CAR_6_CANCUN_CARIBE_ZONA_TURISTICA.Bombas.Bomba2
+NodeClass: Object
+BrowseName: 1:Bomba2
+DisplayName: en|Bomba2
+Description: en|Bomba2
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.button

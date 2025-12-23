@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts opt general object display
+ * ----------------------------------------
+ * This script supports the display to show and edit general options of the chart configuration.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var chart = webMI.trendFactory.getTrendByName(webMI.query.chartname);
+var configHandler = new webMI.rootWindow.ConfigHandler();
+var highcharts = chart.chart.renderTo.ownerDocument.defaultView["Highcharts"];
+var modeNames = {
+	live: "T{live only}",
+	history: "T{archive only}",
+	mixed: "T{mixed}"
+};
+var perfNames = {
+	default: "T{Default (SVG)}",
+	downsampled: "T{Downsampled (SVG)}"
+};
+var inputDefaults = {
+	chart_alignTicks: true,
+	chartTheme: "",
+	exporting_enabled: true,
+	"global_useUTC-true": "T{UTC}",
+	"global_useUTC-false": "T{local}",
+	title_text: "",
+	tooltip_enabled: true,
+	source: "atvise",
+	sourceOptions: "{}",
+	exporting_csv_dateFormat: "%Y-%m-%d %H:%M:%S"
+};
+var triggerEnabled = false;
+var updateEnabled = true;
+
+/* If WebGL is available, add boost option to performance combobox */
+if (webgl_supported()) {
+	perfNames.boost = "T{Boost (WebGL)}";
+}
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+	// get datasources an fill box
+	var sources = chart.control.getRegisteredSources();
+	for (var i = 0; i < sources.length; i++)
+		webMI.trigger.fire("addItem", { text: sources[i], value: sources[i] }, "source");
+	webMI.trigger.fire("setSelectedItem", chart.chart.options.atviseOptions.source, "source");
+
+	const perfModeEntries = [];
+	for (let perfName in perfNames) {
+		perfModeEntries.push({ text: perfNames[perfName], value: perfName });
+	}
+	webMI.trigger.fire("setItems", perfModeEntries, "performance");
+
+	readOptions();
+
+	var updateCb = chart.control.registerOnUpdatedCallback(function () {
+		if (!updateEnabled) return;
+
+		readOptions();
+	});
+
+	webMI.addOnunload(function () {
+		if (chart && chart.control) chart.control.unregisterOnUpdatedCallback(updateCb);
+	});
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * Read options
+ */
+function readOptions() {
+	triggerEnabled = false;
+
+	var mode = chart.chart.options.atviseOptions.defaultMode
+		? chart.chart.options.atviseOptions.defaultMode
+		: chart.chart.options.atviseOptions.mode;
+	var boostSeriesThreshold = chart.chart.options.boost.seriesThreshold || 50;
+	var boostPointThreshold = chart.chart.options.plotOptions.series.boostThreshold || 5000;
+	chart.chart.setSamplingFactor(chart.chart.options.atviseOptions.downsamplingFactor);
+
+	updatePerformanceVisibilities();
+
+	webMI.trigger.fire("setValue", boostPointThreshold, "boostThresholdPoints");
+	webMI.trigger.fire("setValue", boostSeriesThreshold, "boostThresholdSeries");
+
+	if ((!chart.chart.title || typeof chart.chart.title.textStr == "undefined") && inputDefaults["title_text"] != "")
+		setOptions("title_text", inputDefaults["title_text"]);
+
+	if (chart.chart.title && chart.chart.title.textStr)
+		webMI.trigger.fire("setValue", chart.chart.title.textStr, "title_text");
+
+	var marker1 = chart.control.isMeasuringCursor1Visible();
+	var marker2 = chart.control.isMeasuringCursor2Visible();
+	webMI.trigger.fire("setChecked", marker1, "marker1");
+	webMI.trigger.fire("setChecked", marker2, "marker2");
+	webMI.trigger.fire("setChecked", chart.chart.tooltip.options.enabled, "tooltip_enabled");
+
+	if (chart.chart.options.exporting && typeof chart.chart.options.exporting.enabled == "undefined")
+		webMI.trigger.fire("setChecked", inputDefaults["exporting_enabled"], "exporting_enabled");
+	else if (!chart.chart.options.exporting) webMI.trigger.fire("setChecked", false, "exporting_enabled");
+	else webMI.trigger.fire("setChecked", chart.chart.options.exporting.enabled, "exporting_enabled");
+
+	if (chart.chart.options.chart.alignTicks) {
+		webMI.trigger.fire("setChecked", true, "chart_alignTicks");
+	} else {
+		webMI.trigger.fire("setChecked", false, "chart_alignTicks");
+	}
+
+	if (typeof chart.chart.options.exporting.csv.dateFormat === "undefined") {
+		webMI.trigger.fire("setValue", inputDefaults["exporting_csv_dateFormat"], "exporting_csv_dateFormat");
+	} else {
+		webMI.trigger.fire("setValue", chart.chart.options.exporting.csv.dateFormat, "exporting_csv_dateFormat");
+	}
+
+	webMI.trigger.fire(
+		"setValue",
+		Math.round((1 / chart.chart.options.atviseOptions.liveModeFrameRate) * 1000),
+		"interval"
+	);
+
+	webMI.trigger.fire("setSelectedItem", chart.chart.options.atviseOptions.source, "source");
+
+	webMI.trigger.fire("setValue", chart.chart.getSamplingFactor(), "samplingFactorPicker");
+	let performanceSetting;
+	if (chart.chart.options.boost.enabled) {
+		performanceSetting = "boost";
+	} else if (chart.chart.options.atviseOptions.disableDownSampling) {
+		performanceSetting = "default";
+	} else {
+		performanceSetting = "downsampled";
+	}
+	webMI.trigger.fire("setSelectedItem", perfNames[performanceSetting], "performance");
+
+	if (!chart.chart.options.atviseOptions.sourceOptions)
+		chart.chart.options.atviseOptions.sourceOptions = inputDefaults["sourceOptions"];
+
+	isVaildJson(chart.chart.options.atviseOptions.sourceOptions);
+	webMI.trigger.fire("setValue", chart.chart.options.atviseOptions.sourceOptions, "sourceOptions");
+
+	webMI.trigger.fire("setSelectedItem", modeNames[mode], "modePicker");
+	var options = highcharts.getOptions();
+	webMI.trigger.fire("radioClicked_global_useUTC", { name: inputDefaults["global_useUTC-" + options.global.useUTC] });
+	webMI.trigger.fire("setChecked", !chart.chart.options.atviseOptions.disableDownSampling, "downsampling");
+
+	/* wait for trigger fired */
+	setTimeout(function waitForTrigger() {
+		triggerEnabled = true;
+	}, 500);
+}
+
+/**
+ * Write options
+ * @param key
+ * @param value
+ */
+function setOptions(key, value) {
+	if (value == "true") value = true;
+	else if (value == "false") value = false;
+
+	var optionsObj = configHandler.createConfigObject(key, value);
+
+	/** UPDATE y-axis on alignTicks changes **/
+	if (key == "chart_alignTicks") {
+		var axisObj = {};
+
+		if (value == true || value == "true") {
+			axisObj["startOnTick"] = true;
+			axisObj["endOnTick"] = true;
+			axisObj["tickInterval"] = null;
+			axisObj["minorTickInterval"] = null;
+		} else {
+			axisObj["startOnTick"] = false;
+			axisObj["endOnTick"] = false;
+			axisObj["tickInterval"] = 10;
+			axisObj["minorTickInterval"] = 0;
+		}
+
+		for (var index in chart.chart.yAxis) {
+			chart.chart.yAxis[index].update(axisObj);
+		}
+	}
+
+	chart.chart.update(optionsObj);
+	updateEnabled = false;
+	chart.control.updated(function () {
+		updateEnabled = true;
+	});
+}
+
+function changeMode(mode) {
+	if (!triggerEnabled) return;
+
+	chart.chart.options.atviseOptions.defaultMode = mode;
+	chart.chart.options.atviseOptions.mode = mode;
+
+	updateEnabled = false;
+	chart.control.updated(function () {
+		updateEnabled = true;
+		if (chart.control.isLiveModeRunning()) chart.control.stopLiveMode();
+		chart.control.startLiveMode();
+	});
+}
+
+function processInput(key, value) {
+	if (typeof key == "undefined" || typeof value == "undefined") return;
+
+	if (!triggerEnabled) return;
+
+	setOptions(key, value);
+}
+
+function isVaildJson(probJson) {
+	if (probJson && typeof probJson.indexOf === "function" && probJson.indexOf("{") === 0) {
+		try {
+			JSON.parse(probJson);
+		} catch (e) {
+			webMI.gfx.setText("sourceOptionsValid", "T{INVALID JSON}");
+			webMI.gfx.setFill("sourceOptionsValid", "#ff0000");
+			return false;
+		}
+	}
+	webMI.gfx.setText("sourceOptionsValid", "T{OK}");
+	webMI.gfx.setFill("sourceOptionsValid", webMI.query["fontColor"]);
+	return true;
+}
+
+function webgl_supported() {
+	try {
+		var canvas = webMI.rootWindow.document.createElement("canvas");
+		return !!window.WebGLRenderingContext && (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
+	} catch (e) {
+		return false;
+	}
+}
+
+/**
+ * TRIGGER SECTION
+ * TODO: Triggers for chartthemes
+ */
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		processInput("title_text", e.value);
+	},
+	"title_text"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		if (e.value == "true") chart.control.showMeasuringCursor1();
+		else chart.control.hideMeasuringCursor1();
+	},
+	"marker1"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		if (e.value == "true") chart.control.showMeasuringCursor2();
+		else chart.control.hideMeasuringCursor2();
+	},
+	"marker2"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		var value = e.value == "true" ? true : false;
+		chart.chart.tooltip.update({ enabled: value });
+
+		//Set tooltip options for each configured series
+		var i = 0;
+		while (typeof chart.chart.series[i] != "undefined") {
+			chart.chart.series[i].update({ tooltip: { enabled: value } });
+			i++;
+		}
+
+		updateEnabled = false;
+		chart.control.updated(function () {
+			updateEnabled = true;
+		});
+	},
+	"tooltip_enabled"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		processInput("exporting_enabled", e.value);
+	},
+	"exporting_enabled"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		processInput("exporting_csv_dateFormat", e.value);
+	},
+	"exporting_csv_dateFormat"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		processInput("chart_alignTicks", e.value);
+	},
+	"chart_alignTicks"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		chart.chart.options.atviseOptions.liveModeFrameRate = 1000 / e.value;
+
+		if (chart.control.isLiveModeRunning()) {
+			chart.control.stopLiveMode(function () {
+				chart.control.startLiveMode();
+			});
+		}
+
+		updateEnabled = false;
+		chart.control.updated(function () {
+			updateEnabled = true;
+		});
+	},
+	"interval"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		chart.chart.options.atviseOptions.source = e.value;
+		updateEnabled = false;
+		chart.control.updated(function () {
+			updateEnabled = true;
+		});
+	},
+	"source"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		if (isVaildJson(e.value)) {
+			chart.chart.options.atviseOptions.sourceOptions = e.value;
+			updateEnabled = false;
+			chart.control.updated(function () {
+				updateEnabled = true;
+			});
+		}
+	},
+	"sourceOptions"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function () {
+		if (!triggerEnabled) return;
+
+		highcharts.setOptions({ global: { useUTC: true } });
+	},
+	"global_useUTC-true"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function () {
+		if (!triggerEnabled) return;
+
+		highcharts.setOptions({ global: { useUTC: false } });
+	},
+	"global_useUTC-false"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		chart.chart.options.atviseOptions.disableDownSampling = e.value == "false" ? true : false;
+		updateEnabled = false;
+		chart.control.updated(function () {
+			updateEnabled = true;
+		});
+	},
+	"downsampling"
+);
+
+function updatePerformanceVisibilities() {
+	let downsamplingEnabled = !chart.chart.options.atviseOptions.disableDownSampling;
+	let boostEnabled = chart.chart.options.boost.enabled;
+
+	/**
+	 * It's generally recommended to remove the visibility-attribute instead
+	 * of setting it to false, in order to ensure that the visibility of
+	 * elements higher up is inherited.
+	 */
+	webMI.gfx.setVisible("boostThresholdGroup", boostEnabled ? null : false);
+	webMI.gfx.setVisible("samplingThresholdGroup", downsamplingEnabled ? null : false);
+}
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		const performanceMode = e.value;
+		let downsamplingEnabled;
+		let boostEnabled;
+
+		if (performanceMode === "default") {
+			downsamplingEnabled = false;
+			boostEnabled = false;
+		} else if (performanceMode === "boost") {
+			downsamplingEnabled = false;
+			boostEnabled = true;
+		} else if (performanceMode === "downsampled") {
+			downsamplingEnabled = true;
+			boostEnabled = false;
+		} else {
+			throw new Error(`Performance mode "${performanceMode}" not supported`);
+		}
+
+		if (chart.control.isLiveModeRunning()) {
+			chart.control.stopLiveMode(function () {
+				chart.control.startLiveMode();
+			});
+		}
+
+		if (boostEnabled) {
+			chart.chart.options.atviseOptions.disableDownSampling = !downsamplingEnabled;
+			chart.chart.options.boost.enabled = boostEnabled;
+		} else {
+			chart.chart.options.boost.enabled = boostEnabled;
+			chart.chart.options.atviseOptions.disableDownSampling = !downsamplingEnabled;
+		}
+
+		updateEnabled = false;
+		chart.control.updated(function () {
+			updatePerformanceVisibilities();
+			updateEnabled = true;
+		});
+	},
+	"performance"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		let newBoostThreshold = e.value >= 0 ? e.value : 0;
+
+		chart.chart.update({ plotOptions: { series: { boostThreshold: newBoostThreshold } } });
+
+		updateEnabled = false;
+		chart.control.updated(function () {
+			updateEnabled = true;
+		});
+	},
+	"boostThresholdPoints"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		let newSeriesThreshold = e.value >= 0 ? e.value : 0;
+
+		chart.chart.update({ boost: { seriesThreshold: newSeriesThreshold } });
+
+		updateEnabled = false;
+		chart.control.updated(function () {
+			updateEnabled = true;
+		});
+	},
+	"boostThresholdSeries"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		const samplingFactor = e.value;
+
+		chart.chart.setSamplingFactor(samplingFactor);
+
+		if (chart.control.isLiveModeRunning()) {
+			chart.control.stopLiveMode(function () {
+				chart.control.startLiveMode();
+			});
+		}
+
+		updateEnabled = false;
+		chart.control.updated(function () {
+			updateEnabled = true;
+		});
+	},
+	"samplingFactorPicker"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!triggerEnabled) return;
+
+		changeMode(e.value);
+	},
+	"modePicker"
+);
+
+this.window.addEventListener("keydown", (e) => {
+	if (e.key === "Escape") webMI.trigger.fire("com.atvise.highCharts.closeTrendConfigurator");
+});
+
+this.window.focus();
+]]></code>
+</script>

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.1012.General.SerialNumber
+NodeClass: Variable
+BrowseName: 1:SerialNumber
+DisplayName: en|SerialNumber
+Description: en|SerialNumber
+DataType: UInt64
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseDataVariableType

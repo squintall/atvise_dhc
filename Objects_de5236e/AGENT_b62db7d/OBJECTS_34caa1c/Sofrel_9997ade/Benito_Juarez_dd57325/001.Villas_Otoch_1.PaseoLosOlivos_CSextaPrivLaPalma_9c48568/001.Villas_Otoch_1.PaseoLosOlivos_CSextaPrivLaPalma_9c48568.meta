@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.001.Villas_Otoch_1.PaseoLosOlivos_CSextaPrivLaPalma
+NodeClass: Object
+BrowseName: 1:001.Villas_Otoch_1.PaseoLosOlivos_CSextaPrivLaPalma
+DisplayName: en|001.Villas_Otoch_1.PaseoLosOlivos_CSextaPrivLaPalma
+Description: en|001.Villas_Otoch_1.PaseoLosOlivos_CSextaPrivLaPalma
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.presion_min_max

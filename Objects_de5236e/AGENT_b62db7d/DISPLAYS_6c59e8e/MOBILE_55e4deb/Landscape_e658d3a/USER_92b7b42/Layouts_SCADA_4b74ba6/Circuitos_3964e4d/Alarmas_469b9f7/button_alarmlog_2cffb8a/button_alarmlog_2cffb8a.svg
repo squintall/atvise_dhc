@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="397" version="1.2" width="920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Opens the alarmlog as table.</desc>
+ <title>Button Alarmlog</title>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist_log" desc="display for alarmlog" name="alarmDisplay" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="#ff0000" desc="color for alarms" group="" name="alarm_color" valuetype="string"/>
+  <atv:parameter behavior="optional" config="small;large" defaultvalue="small" desc="size" group="Button" name="buttonSize" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="18" desc="font size" group="Button" name="fontSize" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" group="Button" name="fontColor" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor2" desc="font color active" group="Button" name="fontColorActive" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Button" name="fillColor" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor2" desc="fill color active" group="Button" name="fillColorActive" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="symbol color" group="Button" name="symbolColor" substitute="$SYMBOLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor2" desc="symbol color active" group="Button" name="symbolColorActive" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="focus stroke color" group="Appearance" name="focusStrokeColor" valuetype="color"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" desc="necessary right" group="Button" name="right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Button" name="activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Button" name="activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="772" desc="popup width" group="PopUp" name="width" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="430" desc="popup height" group="PopUp" name="height" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="1672" desc="popup position x" group="PopUp" name="x" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="984" desc="popup position y" group="PopUp" name="y" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="1" desc="popup anchor x" group="PopUp" name="anchorX" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="1" desc="popup anchor y" group="PopUp" name="anchorY" valuetype="number"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <svg atv:bindtl="0.5,0.5" atv:bindtr="0.5,0.5" atv:refpx="114.999" atv:refpy="32.5" height="30" id="button_alarmlog_2" transform="matrix(2.875,0,0,2.1667,0,0)" width="80" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="0">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.enabled"/>
+  <atv:argument name="label" value="T{Alarmlog}"/>
+  <atv:argument name="borderColor" value="SYSTEM.GLOBALS.atvBorderColor2"/>
+  <atv:argument name="right" prefix="right"/>
+  <atv:argument name="activeNode" prefix="activeNode"/>
+  <atv:argument name="activeValue" prefix="activeValue"/>
+  <atv:argument name="fontSize" prefix="fontSize"/>
+  <atv:argument name="fontSize2" prefix="fontSize"/>
+  <atv:argument name="focusStrokeColor" prefix="focusStrokeColor"/>
+  <atv:argument name="fontColor" prefix="fontColor"/>
+  <atv:argument name="fillColor" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color3"/>
+  <atv:argument name="fillColorInactive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color3"/>
+  <atv:overwrite height="63" id="id_6" transform="matrix(0.3478,0,0,0.4615,0,0)" width="228"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.3478,0,0,0.4615,0,0)" x="115" y="44"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.3478,0,0,0.4615,0,0)" x="115" y="29"/>
+  <atv:overwrite id="button_label" transform="matrix(0.3478,0,0,0.4615,0,0)" x="115" y="37"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.3478,0,0,0.4615,0,0)" x="105" y="22.5"/>
+  <atv:overwrite height="61" id="button_stroke" transform="matrix(0.3478,0,0,0.4615,0,0)" width="226"/>
+  <atv:overwrite height="63" id="button_bg" transform="matrix(0.3478,0,0,0.4615,0,0)" width="228"/>
+  <atv:overwrite height="65" id="outer_frame" transform="matrix(0.3478,0,0,0.4615,0,0)" width="230"/>
+ </svg>
+ <svg atv:bindtl="0,0" atv:bindtr="1,1" atv:refpx="55.5" atv:refpy="32.5" height="30" id="button_alarmlog_1" transform="matrix(1.3875,0,0,2.1667,0,0)" width="80" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="0">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.enabled"/>
+  <atv:argument name="label" value="T{Alarmlog}"/>
+  <atv:argument name="borderColor" value="SYSTEM.GLOBALS.atvBorderColor2"/>
+  <atv:argument name="right" prefix="right"/>
+  <atv:argument name="activeNode" prefix="activeNode"/>
+  <atv:argument name="activeValue" prefix="activeValue"/>
+  <atv:argument name="fontSize" prefix="fontSize"/>
+  <atv:argument name="fontSize2" prefix="fontSize"/>
+  <atv:argument name="focusStrokeColor" prefix="focusStrokeColor"/>
+  <atv:argument name="fontColor" prefix="fontColor"/>
+  <atv:overwrite height="63" id="id_6" transform="matrix(0.7207,0,0,0.4615,0,0)" width="109"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.7207,0,0,0.4615,0,0)" x="55.5" y="44"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.7207,0,0,0.4615,0,0)" x="55.5" y="29"/>
+  <atv:overwrite id="button_label" transform="matrix(0.7207,0,0,0.4615,0,0)" x="55.5" y="37"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.7207,0,0,0.4615,0,0)" x="45.5" y="22.5"/>
+  <atv:overwrite height="61" id="button_stroke" transform="matrix(0.7207,0,0,0.4615,0,0)" width="107"/>
+  <atv:overwrite height="63" id="button_bg" transform="matrix(0.7207,0,0,0.4615,0,0)" width="109"/>
+  <atv:overwrite height="65" id="outer_frame" transform="matrix(0.7207,0,0,0.4615,0,0)" width="111"/>
+ </svg>
+ <polyline atv:refpx="12.001" atv:refpy="12.836" fill="$SYMBOLCOLOR$" id="context_menu_sign" points="3,2.998 3,20.998 21,2.998 3,2.998" stroke="$SYMBOLCOLOR$" stroke-linejoin="round" stroke-width="1"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.layoutelements.button_alarmlog" atv:name="button_alarmlog" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

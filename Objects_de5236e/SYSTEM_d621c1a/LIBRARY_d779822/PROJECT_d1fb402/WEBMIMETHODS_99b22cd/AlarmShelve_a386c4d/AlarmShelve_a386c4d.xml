@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <parameter name="user" type="session.user" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var node = Ua.findNode("AGENT.REDUNDANCY.status");
+var exist = Ua.Status(node) != Ua.Status.BADNODEIDUNKNOWN;
+var value = exist ? node.result.value : false;
+
+if (exist && value == "Passive") {
+	return {
+		error: -2,
+		errorstring: "Server is passive."
+	}
+}
+
+if (request.postvalues["time"]) return {
+	"result": alarming.shelve(request.postvalues["address"], {
+		user: user,
+		time: parseInt(request.postvalues["time"])
+	})
+};
+else return {
+	"result": alarming.shelve(request.postvalues["address"], {
+		user: user
+	})
+};]]></code>
+</script>

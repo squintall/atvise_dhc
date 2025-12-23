@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.accesscontrol_log
+NodeClass: Variable
+BrowseName: 1:accesscontrol_log
+DisplayName: en|accesscontrol_log
+Description: en|accesscontrol_log
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

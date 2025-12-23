@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/sneat-1.0.0.zip
+NodeClass: Variable
+BrowseName: 1:sneat-1.0.0.zip
+DisplayName: en|sneat-1.0.0.zip
+Description: en|sneat-1.0.0.zip
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

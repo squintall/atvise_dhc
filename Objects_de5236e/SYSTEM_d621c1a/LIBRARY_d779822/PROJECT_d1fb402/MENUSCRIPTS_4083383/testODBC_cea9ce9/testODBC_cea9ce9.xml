@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="" type="interval" trigger="true" relative="false" value=""/>
+  <code><![CDATA[function testDatabaseConnection() {
+    var odbcClient = new ODBCClient();
+    
+    // Configura la cadena de conexión
+    odbcClient.source = "DSN=PostgreSQL;UID=vnode;PWD=vnode;";
+    
+    try {
+        if (odbcClient.open()) {
+            console.log("Conexión a la base de datos establecida con éxito.");
+            
+            // Define la consulta SQL
+            var queryString = `
+                SELECT id, nombre, edad, email, fecha_registro, lugar
+                FROM public.pruebas
+                LIMIT 100;`;
+
+            // Ejecuta la consulta
+            odbcClient.query(queryString, {
+                onData: function(rowIndex, row) {
+                    console.log("Fila " + (rowIndex + 1) + ": ", row);
+                },
+                onHead: function(columns) {
+                    console.log("Columnas: ", columns);
+                },
+                onReady: function(numRows, msg) {
+                    console.log("Consulta completada. Total de filas obtenidas: " + numRows);
+                },
+                onError: function(msg) {
+                    console.error("Error en la consulta: ", msg);
+                }
+            });
+
+            // Cierra la conexión
+            odbcClient.close();
+        } else {
+            console.error("No se pudo conectar a la base de datos.");
+        }
+    } catch (e) {
+        console.error("Error al intentar conectar a la base de datos: ", e.message);
+    }
+}
+
+// Llama a la función para probar la conexión y consulta
+testDatabaseConnection();]]></code>
+</script>

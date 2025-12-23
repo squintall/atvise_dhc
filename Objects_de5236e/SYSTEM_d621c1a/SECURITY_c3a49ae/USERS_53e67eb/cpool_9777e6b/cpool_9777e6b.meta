@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.cpool
+NodeClass: Object
+BrowseName: 1:cpool
+DisplayName: en|cpool
+Description: en|cpool
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

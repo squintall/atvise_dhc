@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_DHC.Energy
+NodeClass: Variable
+BrowseName: 1:Energy
+DisplayName: en|Energy
+Description: en|Energy
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

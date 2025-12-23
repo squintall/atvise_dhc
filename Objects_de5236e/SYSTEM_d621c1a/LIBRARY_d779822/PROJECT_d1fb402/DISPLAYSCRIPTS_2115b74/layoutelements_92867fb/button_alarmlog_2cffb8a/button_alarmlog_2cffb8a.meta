@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.layoutelements.button_alarmlog
+NodeClass: Variable
+BrowseName: 1:button_alarmlog
+DisplayName: en|button_alarmlog
+Description: en|button_alarmlog
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

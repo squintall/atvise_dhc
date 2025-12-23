@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Grafica_Circuito_Intermedio.Nivel_INT
+NodeClass: Variable
+BrowseName: 1:Nivel_INT
+DisplayName: en|Nivel_INT
+Description: en|Nivel_INT
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

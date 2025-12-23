@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_El_Table.connectivity.CON
+NodeClass: Variable
+BrowseName: 1:CON
+DisplayName: en|CON
+Description: en|CON
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

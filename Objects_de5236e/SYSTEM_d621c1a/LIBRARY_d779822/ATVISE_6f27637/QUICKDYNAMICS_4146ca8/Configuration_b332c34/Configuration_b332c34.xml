@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png"/>
+	<visible>0</visible>
+	<title>Configuration</title>
+	<description>For internal usage only.</description>
+  </metadata>
+  <parameter behavior="optional" desc="performed action" name="action" valuetype="string"/>
+  <parameter behavior="optional" desc="index parameters" name="indexParameters" valuetype="string"/>
+  <parameter behavior="optional" desc="index parameter name" name="parameterName" valuetype="string"/>
+  <code><![CDATA[
+if (base.action == "init") {
+	this.indexParameters = base.indexParameters;
+}
+
+if (base.action == "existsIndexParameter" && base.parameterName != "" && typeof(this.indexParameters) != "undefined") {
+	return this.indexParameters[base.parameterName];
+} else {
+	return null;
+}
+]]></code>
+</script>

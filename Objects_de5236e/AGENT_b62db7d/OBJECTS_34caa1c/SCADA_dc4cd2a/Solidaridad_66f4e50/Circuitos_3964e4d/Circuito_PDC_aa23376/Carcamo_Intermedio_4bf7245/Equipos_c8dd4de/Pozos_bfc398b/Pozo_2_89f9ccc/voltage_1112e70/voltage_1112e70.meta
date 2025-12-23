@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Pozos.Pozo_2.voltage
+NodeClass: Variable
+BrowseName: 1:voltage
+DisplayName: en|voltage
+Description: en|voltage
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

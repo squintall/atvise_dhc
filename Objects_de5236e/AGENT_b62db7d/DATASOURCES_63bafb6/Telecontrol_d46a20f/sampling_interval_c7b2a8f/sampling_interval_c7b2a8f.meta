@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.sampling_interval
+NodeClass: Variable
+BrowseName: 1:sampling_interval
+DisplayName: en|sampling_interval
+Description: en|sampling_interval
+DataType: Int32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

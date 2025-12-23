@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.GROUPS.Monitoreo_Red.private
+NodeClass: Variable
+BrowseName: 1:private
+DisplayName: en|private
+Description: en|private
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

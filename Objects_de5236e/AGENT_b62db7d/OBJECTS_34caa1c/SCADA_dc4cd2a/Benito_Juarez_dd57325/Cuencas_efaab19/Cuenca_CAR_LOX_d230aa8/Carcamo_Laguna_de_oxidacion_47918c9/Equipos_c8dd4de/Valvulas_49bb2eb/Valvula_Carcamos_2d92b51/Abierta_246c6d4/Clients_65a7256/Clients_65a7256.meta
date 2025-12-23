@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Laguna_de_oxidacion.Equipos.Valvulas.Valvula_Carcamos.Abierta.Clients
+NodeClass: Variable
+BrowseName: 1:Clients
+DisplayName: en|Clients
+Description: en|Clients
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Clients.RelMirrorInputOutput

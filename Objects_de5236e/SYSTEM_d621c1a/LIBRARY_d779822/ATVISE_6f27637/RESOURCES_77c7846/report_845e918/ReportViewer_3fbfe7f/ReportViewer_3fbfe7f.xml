@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="h" type="http" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* 
+ * Report wrapper for reading saved report files of a configuration.
+ *
+ * HTTP post parameters:
+ *   configuration {string}: Name of the configuration.
+ *   report {string}: Optional full path of the configuration report to be opened. 
+ *                    When not specified, a list of reports is returned.
+ *
+ * Examples:
+ *   webMI.data.customRequest("GET", "report/ReportViewer?configuration=MyConfigurationDemo", function(list) {})
+ *   webMI.data.customRequest("GET", "report/ReportViewer?configuration=MyConfigurationDemo&report=report_1970-01-01.pdf", "responseType=arraybuffer", function(e) {
+ *     var blob = new Blob([e], { type: 'application/pdf' });
+ *   })
+ */
+
+var databaseDir = server.database.directory;
+var configuration = h.request.postvalues["configuration"];
+var report = h.request.postvalues["report"];
+
+/**
+ * Generic functions
+ */
+function _replaceDatabaseDir(dir) {
+	if (!dir) return "";
+
+	return dir.replace("./", databaseDir).replace(".\\", databaseDir);
+}
+
+function _replaceDatePlaceholders(string, fill) {
+	string = string.replace("{YYYY}", fill ? "****" : "*");
+	string = string.replace("{YY}", fill ? "**" : "*");
+	string = string.replace("{MM}", fill ? "**" : "*");
+	string = string.replace("{DD}", fill ? "**" : "*");
+	string = string.replace("{hh}", fill ? "**" : "*");
+	string = string.replace("{mm}", fill ? "**" : "*");
+	string = string.replace("{ss}", fill ? "**" : "*");
+	return string;
+}
+
+function _filterFile(name, file) {
+	var parts = _replaceDatePlaceholders(file, false).split("*");
+
+	for (var i in parts) {
+		if (name.indexOf(parts[i]) == -1) {
+			return false;
+		}
+	}
+
+	if (name.length != _replaceDatePlaceholders(file, true).length) return false;
+
+	return true;
+}
+
+/**
+ * Get working dir and file pattern
+ */
+var cfg, dir, file;
+
+cfg = call("Report.ConfigurationHandler", { action: "read", configuration: configuration });
+if (cfg === false) {
+	return { error: -1, errorstring: "Report: Couldn't load configuration with name '" + configuration + "'" };
+}
+
+cfg.pdfReport = _replaceDatabaseDir(cfg.pdfReport);
+
+if (cfg.pdfReport.indexOf("\\") > -1) dir = cfg.pdfReport.substring(0, cfg.pdfReport.lastIndexOf("\\") + 1);
+else if (cfg.pdfReport.indexOf("/") > -1) dir = cfg.pdfReport.substring(0, cfg.pdfReport.lastIndexOf("/") + 1);
+else return { error: -1, errorstring: "Report: Couldn't get working directory report browsing." };
+
+if (cfg.pdfReport.indexOf(dir) == 0) file = cfg.pdfReport.replace(dir, "");
+else return { error: -1, errorstring: "Report: Couldn't get file pattern for report browsing." };
+
+/**
+ * Return value
+ */
+if (report) {
+	/**
+	 * Return specified report for the configuration
+	 */
+	if (_filterFile(report.replace(dir, ""), file)) {
+		var ifs = new InputFileStream(report, "binary");
+		ifs.open();
+		var content = ifs.read();
+		ifs.close();
+
+		if (content === "") {
+			h.response.write(
+				JSON.stringify({
+					error: -1,
+					errorstring: "Report: Couldn't find report file with name '" + report.replace(dir, "") + "'"
+				})
+			);
+		} else {
+			h.response.setHeader("Content-Type", "application/pdf");
+			h.response.write(content, "binary");
+		}
+	} else {
+		h.response.write(JSON.stringify({ error: -1, errorstring: "Report: Couldn't get report file for configuration." }));
+	}
+} else {
+	/**
+	 * List reports for the specified configuration from the file system
+	 */
+	var list;
+	var filtered = [];
+	var fs = new FileSystem();
+
+	list = fs.listDirectory(dir);
+	for (var i in list) {
+		if (_filterFile(list[i].name, file)) filtered.push(list[i]);
+	}
+
+	filtered = filtered.reverse();
+
+	h.response.write(JSON.stringify({ result: filtered }));
+}
+]]></code>
+</script>

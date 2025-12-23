@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the clickarea object display
+ * -------------------------------------
+ * This control can be used as an overlay element which reacts on clicks.
+ * In addition, the following triggers are fired:
+ * - valuechanged: on MouseClick
+ * - valuechangedMouseUp: on MouseUp
+ * - valuechangedMouseDown: on MouseDown
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = (webMI.query["base"] == undefined) ? "" : webMI.query["base"];
+var newValue = webMI.query["value"];
+var fillColorInactive = webMI.query["fillColorInactive"];
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var tabIndex = (webMI.query["tabIndex"] == undefined) ? "" : webMI.query["tabIndex"];
+var tooltip = (webMI.query["tooltip"] == undefined) ? "" : webMI.query["tooltip"];
+var onMouseDownValue = webMI.query["onMouseDownValue"];
+var onMouseDownNode = (webMI.query["onMouseDownNode"] == undefined) ? "" : webMI.query["onMouseDownNode"];
+var onMouseUpValue = webMI.query["onMouseUpValue"];
+var onMouseUpNode = (webMI.query["onMouseUpNode"] == undefined) ? "" : webMI.query["onMouseUpNode"];
+var strokeNormal = "none";
+var right = (webMI.query["right"] == undefined) ? "" : webMI.query["right"];
+var active = false;
+var activeValue = (webMI.query["activeValue"] == undefined) ? "" :webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var isActivationNodeSet = activeNode != "" && String(activeValue) != "";
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+}
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (webMI.query.displayAcNotification === "true") {
+	var notifierConfig = {
+		id: document.getElementById("button_clickarea").id,
+		rights: [
+			{ nodeId: webMI.query["base"], rights: "write" },
+			{ nodeId: webMI.query["onMouseDownNode"], rights: "read" },
+			{ nodeId: webMI.query["onMouseUpNode"], rights: "write" },
+			{ nodeId: webMI.query["activeNode"], rights: "read" },
+			{ nodeId: webMI.query["activeValue"], rights: "read" }
+		],
+		menuLayout: menuLayout
+	};
+}
+
+var rightsHandlingProperties = {
+	right: right,
+	checkBaseNodeWriteRight: true,
+	isActivationNodeSet: isActivationNodeSet,
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	setActiveTrigger: false,
+	handleStatus: false
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+webMI.gfx.setStroke("button_clickarea","");
+
+if (newValue == "true") {
+	newValue = true;
+} else if (newValue == "false") {
+	newValue = false;
+} else {
+	try {
+		var temp = parseFloat(newValue);
+		if (!isNaN(temp)) {
+			newValue = temp;
+		}
+	} catch(e) {}
+}
+
+webMI.addOnload(function() {
+	var doc = document.getElementById("button_clickarea").ownerDocument;
+	tabHandler.register(tabIndex,keyHandler,doc);
+});
+
+if (tooltip != ""){
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {"auto":"true", "id":"button_clickarea", "text":tooltip});
+}
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setActiveLayout() {
+	webMI.gfx.setFillOpacity("button_clickarea", 0);
+}
+
+function setInactiveLayout() {
+	webMI.gfx.setFillOpacity("button_clickarea", 100);
+	webMI.gfx.setFill("button_clickarea", fillColorInactive);
+}
+
+function focusTH(){
+	if (active) {
+		webMI.gfx.setVisible("button_stroke_focus", null);
+	}
+}
+
+function blurTH(){
+	if (active) {
+		webMI.gfx.setVisible("button_stroke_focus", false);
+	}
+}
+
+function applyTH(){
+	if (active) {
+		if (base != "") {
+			webMI.data.write(base, newValue);
+		}
+		webMI.trigger.fire("valuechanged", newValue, "");
+	}
+}
+
+function backTH() {
+}
+
+function arrowTH(dir) {
+}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus"){
+		focusTH();
+	} else if (keyTH == "blur"){
+		blurTH();
+	} else if (keyTH == "apply"){
+		applyTH();
+	} else if (keyTH == "back"){
+		backTH();
+	} else if (keyTH == "arrow"){
+		arrowTH(param2);
+	} else if (keyTH == "isActive"){
+		return active && param2(document.getElementById("button_clickarea").parentNode);
+	}
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent("button_clickarea", "mousedown", function(e) {
+	var id = "id_0";
+	var value = true;
+	return function(value) {
+		if (active) {
+			if (onMouseDownNode != "") {
+				webMI.data.write(onMouseDownNode, onMouseDownValue);
+			}
+			webMI.trigger.fire("valuechangedMouseDown", onMouseDownValue, "");
+		}
+	} (value);
+});
+
+webMI.addEvent("button_clickarea", "mouseup", function(e) {
+	var id = "id_0";
+	var value = true;
+	return function(value) {
+		if (active) {
+			if (onMouseUpNode != "") {
+				webMI.data.write(onMouseUpNode, onMouseUpValue);
+			}
+			webMI.trigger.fire("valuechangedMouseUp", onMouseUpValue, "");
+		}
+	} (value);
+});
+
+webMI.addEvent("button_clickarea", "click", function(e) {
+	if (active) {
+		tabHandler.setCurrentIndex(keyHandler);
+		if (base != "") {
+			webMI.data.write(base, newValue);
+		}
+		webMI.trigger.fire("valuechanged", newValue, "");
+	}
+});
+
+webMI.addEvent("button_clickarea", "dragstart", function(e) {
+	if (e.preventDefault) {
+		e.preventDefault();
+	}
+});]]></code>
+</script>

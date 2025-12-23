@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Cumbres.Alarmas._LEVEL_STATIC
+NodeClass: Variable
+BrowseName: 1:_LEVEL_STATIC
+DisplayName: en|_LEVEL_STATIC
+Description: en|Nivel de Cumbres
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Alarmas._LEVEL_STATIC.Nivel_estatico

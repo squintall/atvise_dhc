@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var GROUP_TABLE_NAME = webMI.query["tableID1"];
+var USER_TABLE_NAME = webMI.query["tableID2"];
+var check;
+var gGroupTableController;
+var gUserTableController;
+var gTemplateData = {}; //stores the data of all templates
+var gSelectedTemplateName = null;
+var gSelectedGroupName = "";
+var gAccessControlManager;
+var editFlag = 0;
+
+if (webMI.getAccessControlSupport()) {
+	gAccessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+ function handleAccessControlResponse(compareRights, successCallback, failCallback) {
+	if (!gAccessControlManager) {
+		successCallback();
+		return;
+	}
+	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		// do the checks
+		var allRights = true;
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights = allRights && response[compareRights[c].node][compareRights[c].right];
+			} else {
+				allRights = false;
+				break;
+			}
+		}
+		
+		if (allRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * success if any node/right comibination is true
+ * @param compareRights
+ * @param callback success
+ * @param callback fail
+ */
+function handleAccessControlResponseAny(compareRights, successCallback, failCallback) {
+	if (!gAccessControlManager) {
+		successCallback();
+		return;
+	}
+	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		// do the checks
+		var anyRights = false;
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				anyRights = anyRights || response[compareRights[c].node][compareRights[c].right];
+			}
+		}
+		
+		if (anyRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+
+webMI.addOnload(function(e){	
+	initGroupTable();
+	initUserTable();
+});
+
+
+
+function initGroupTable(){
+	webMI.table.loadResources(function() {
+		var config = {};
+		config["columns"] = createTableColumnsFromGlobalList(webMI.query.columnsGroups, "Main", {}, {
+			defaultvalue: function (row, cell, value, columnDef, dataContext) {
+				return "<div style='width:100%; text-align: center'>" + formatNumberValue(dataContext, value) + "</div>";
+			}
+		});
+        config["mode"] = "once"; // or live/triggered
+        config["bufferInterval"] = 75;
+		config["onClickCallback"] = function(e, info){
+			var item = info.item;
+			var row = info.rowIndex;
+			var column = info.column;
+			var controller = webMI.table.request("atvise_group", "controller");
+			if(check != item.name){
+				if(editFlag==1){
+					check = item.name;
+					webMI.display.openWindow({display:"SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.save_changes",extern:false,height:220,menubar:false,modal:false,movable:false,resizable:false,scrollbars:false,status:false,title:"",toolbar:false,width:430,query:{triggerName: "saveGroupChanges",user: info.item.username, colid: "id_"+row}});
+					webMI.trigger.connect("saveGroupChanges", function(e){
+						if (e.value.save == 1) {
+							webMI.trigger.fire("saveGroups", "1");
+							controller.grid.setSelectedRows([row]);
+							loadUsers(item.name);
+							check = item.name;
+							e.value.save = 0;
+						}else if(e.value.save == 0){
+							editFlag = 0;
+							controller.grid.setSelectedRows([row]);
+							loadUsers(item.name);
+							check = item.name;
+						}
+					});	
+				}else{
+					controller.grid.setSelectedRows([row]);
+					loadUsers(item.name);
+					check = item.name;
+				}
+			}
+		}
+        config["onHeaderClickCallback"] = function(e, info){
+			if (info.column.id != "atvise_marker") {				
+				return;
+			}	
+			setDeleteExportButtonInActive();
+        };
+		
+		config["dataRequestFunction"] = function customDataRequest(continuation) {
+			gGroupTableController = this;
+			loadGroups("");
+		};
+	
+
+        webMI.table.register(GROUP_TABLE_NAME, "config", config);
+        webMI.table.setReady(GROUP_TABLE_NAME, "config");
+    });
+}
+
+function initUserTable(){
+			
+	webMI.table.loadResources(function() {
+		
+		var config = {};
+		var controller;
+		var selectedRows = [];
+		config["columns"] = createTableColumnsFromGlobalList(webMI.query.columnsUsers, "Main", {}, {
+			defaultvalue: function (row, cell, value, columnDef, dataContext) {
+				return "<div style='width:100%; text-align: center'>" + formatNumberValue(dataContext, value) + "</div>";
+			}
+		});
+		
+        config["mode"] = "once"; // or live/triggered
+        config["bufferInterval"] = 75;
+		config["onClickCallback"] = function(e, info){
+			if (info.column.id == "atvise_marker") {
+				editFlag = 1;
+			}	
+		}
+        
+        config["onHeaderClickCallback"] = function(e, info){
+			if (info.column.id != "atvise_marker") {
+				return;
+			}
+			
+			setDeleteExportButtonInActive();
+        };
+		
+		config["dataRequestFunction"] = function customDataRequest(continuation) {
+			gUserTableController = this;
+			loadUsers("");
+			
+		};
+		
+        webMI.table.register(USER_TABLE_NAME, "config", config);
+        webMI.table.setReady(USER_TABLE_NAME, "config");
+        var controller = webMI.table.request("atvise_user", "controller");
+    });
+}
+
+webMI.trigger.connect("saveGroups", function(e){
+	if (e.value == "") {
+		editFlag = 0;
+		return;
+	}else{
+		var selectGroupId=gGroupTableController.grid.getSelectedRows();
+		if (selectGroupId.length != 0){
+			editFlag = 0;
+			var selectGroupName=gGroupTableController.grid.getDataItem(selectGroupId);
+			var selectUserIds = [];
+			var selectUsers = [];
+			selectUserIds = gUserTableController.grid.getSelectedRows();
+			for(var i=0; i < selectUserIds.length; i++){
+				selectUsers.push(gUserTableController.grid.getDataItem(selectUserIds[i]).username);
+			}
+			var options = {};
+			options.mode = "saveGroups";
+			options.users = selectUsers;
+			options.check = selectGroupName.name;
+			handleAccessControlResponse([{ node: "SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.UserManagement.UserGroupManager", right: "execute" }
+			], function() {
+				webMI.data.call("UserManagement", options, function(e){
+					var data = {result: []};
+				});
+			}, function() {});
+		}
+	else{
+		alert("Please select group first.");	
+	}
+	
+	}
+});
+
+function loadGroups(tb){
+	var options = {};
+	options.mode = "Group";
+	gGroupTableController.grid.getSelectedRows().forEach(function (rowIndex) {
+		var dataItem = gGroupTableController.grid.getDataItem(rowIndex);				
+	});
+	gGroupTableController.dataView.getItemMetadata = metadata(gGroupTableController.dataView.getItemMetadata);
+	function metadata(old_metadata_provider) {
+	  return function(row) {
+		var item = this.getItem(row);
+		var ret  = (old_metadata_provider(row) || {});
+		
+		if (item) {
+		  ret.cssClasses = (ret.cssClasses || '');
+		  ret.cssClasses += ' group_row';
+		}
+	
+		return ret;
+	  }
+	}	
+	handleAccessControlResponse([{ node: "SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.UserManagement.UserGroupManager", right: "execute" },{ node: "SYSTEM.SECURITY", right: "engineer" }], function() {
+		webMI.data.call("UserManagement", options, function(e){
+			var data = {result: []};
+			for(var i=0; i < e.length; i++){
+				data.result.push({name: e[i].name, description: e[i].description, private: e[i].private, check: e[i].usercheck});
+			}				
+			gGroupTableController.clearData();
+			gGroupTableController.addData(data);
+			
+		});
+	}, function() {});
+}
+
+function loadUsers(tb){
+	var options = {};
+	options.mode = "User";
+	if(tb != ""){
+		options.check = tb;	
+	}
+	handleAccessControlResponse([{ node: "SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.UserManagement.UserGroupManager", right: "execute" },{ node: "SYSTEM.SECURITY", right: "engineer" }], function() {
+		webMI.data.call("UserManagement", options, function(e){
+			var data = {result: []};
+			var selection = [];
+			for(var i=0; i < e.length; i++){
+				data.result.push({name: e[i].name, description: e[i].description, username: e[i].username, language: e[i].language, superuser: e[i].superuser, check: e[i].usercheck});
+				if(e[i].usercheck == 1){
+					selection.push(i);
+				}
+				
+			}
+			if(tb != ""){
+				if(selection.length>0){
+					gUserTableController.grid.setSelectedRows(selection);
+				}
+				else{					
+					var tmpitems = gUserTableController.getSelectedItems();
+					for(var i=0; i<tmpitems.length;i++){
+						gUserTableController.toggleSelectedItem(tmpitems[i]);
+					}
+				}	
+			}else{
+				gUserTableController.clearData();
+				gUserTableController.addData(data);
+				setTimeout (
+				   function () {
+					 gUserTableController.grid.setSelectedRows([1]);
+				   }, 
+				   500
+				) ;
+			}
+
+		});
+	}, function() {});
+}]]></code>
+</script>

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+    <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the button_group_alarm object display
+ * ----------------------------------------------
+ * This control is a group of buttons:
+ * - stop horn: button that stops the alarm sound
+ * - go to last alarm: opens the display of the last alarm that occured in the system
+ * - accept display: button that acknowledges all alarms that are located on the currently opened display
+ * - open alarm list: opens the alarm list display
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var frameName = webMI.query["targetFrame"];
+var strokePressed = webMI.query["strokePressed"];
+var alarmDisplay = webMI.query["alarmDisplay"];
+var alarmDisplaySmall = webMI.query["alarmDisplaySmall"];
+var deviceScaling = webMI.query["deviceScaling"] == "true";
+var soundEnabled = (webMI.query["soundEnabled"]=="true");
+var borderColor = webMI.query["borderColor"];
+var symbolColor = webMI.query["symbolColor"];
+var strokeNormal = "none";
+var isOldStyle = typeof borderColor == "undefined" && typeof symbolColor == "undefined";
+var contextMenuStyle = {};
+var isAlarm = false;
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (deviceScaling) alarmDisplay = webMI.getClientInfo() ? (webMI.getClientInfo().isDesktop ? alarmDisplay : alarmDisplaySmall) : alarmDisplay;
+if (!isOldStyle) {
+	contextMenuStyle = {maxRows: 10, fontFamily: "Verdana", fontSize: 11, fontFill: symbolColor, width: 140, fill: "#ffffff", stroke: borderColor, strokeWidth: 1, hoverFill: "#e5e5e5", closeTime: 0, zIndex: 100, showType: "right"};
+}
+
+webMI.addOnload(function(e) {
+	webMI.rootWindow.webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Alarmmanagement", {"id": ""});
+	webMI.gfx.setVisible("starthorn",soundEnabled);
+	webMI.gfx.setVisible("stophorn",!soundEnabled);
+	webMI.trigger.fire("com.atvise.alarms_exist", setActive);
+	webMI.trigger.connect("com.atvise.alarms_notify", function(e){
+		setActive(e.value);
+	});
+	if (!isOldStyle && webMI.getMethodSupport().indexOf("AlarmShelve") == -1) {
+		webMI.gfx.setVisible("id_1", false);
+		webMI.gfx.setVisible("id_4", false);
+		webMI.gfx.setVisible("clickarea_5", false);
+		webMI.gfx.setMoveY("id_15", 4);
+	}
+});
+
+if (!isOldStyle) {
+
+	if (webMI.getMethodSupport().indexOf("AlarmShelve") != -1) {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+			"id": "clickarea_5",
+			"itemsCount": 0,
+			"menuObj": {0: {text: "T{Alarms}", value: openAlarmlist("") },
+						1: {text: "T{Alarms and conditions}", value: openAlarmlist("all")},
+						2: {text: "T{Shelved}", value: openAlarmlist("shelved")},
+						3: {text: "T{Suppressed}", value: openAlarmlist("suppressed")},
+						4: {text: "T{Disabled}", value: openAlarmlist("disabled")}
+						},
+			"onEvent": ["click","mouseover","touchstart"],
+			"outputNode": "",
+			"minWidth": 180,
+			"style": contextMenuStyle,
+			"x": "26",
+			"y": "43"
+		});
+
+		/*Dummy menu for better usability of the upper menu*/
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+			"id": "clickarea_4",
+			"menuObj": {},
+			"onEvent": ["click","mouseover","touchstart"],
+			"x": "26",
+			"y": "43"
+		});
+	}
+
+}
+
+/**
+ * FUNCTION SECTION
+ */
+
+function getSupportedAudio() {
+	var myAudio = new Audio();
+	var audioFile="/alarm.wav";
+
+	if (typeof myAudio.canPlayType === "function" && myAudio.canPlayType("audio/mp4") !== "") {
+		audioFile = "/alarm.m4a";
+	} else if(typeof myAudio.canPlayType === "function" && myAudio.canPlayType("audio/ogg") !== "") {
+		audioFile = "/alarm.ogg";
+	}
+
+	myAudio = null;
+	return audioFile;
+}
+
+function setActive(activate){
+	webMI.gfx.setVisible("alarm_stroke", activate ? {0:true,2:false,4:true,6:false,8:true,10:false} : false);
+	if (soundEnabled && activate && !isAlarm)
+		webMI.sound.play(getSupportedAudio(),0);
+	else if (soundEnabled && !activate)
+		webMI.sound.stop(getSupportedAudio());
+	isAlarm = activate;
+}
+
+function acceptDisplay() {
+	var currentDisplay = null;
+	webMI.trigger.fire("getSource_" + frameName, function(e, currentDisplayWebMI) {
+		if (e != null) {
+			currentDisplayWebMI.alarm.acceptDisplay();
+		}
+	});
+}
+
+function openAlarmlist(view) {
+	return function() {
+		webMI.query.view = view;
+		webMI.display.openDisplay(alarmDisplay,webMI.query,frameName);
+	}
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent("clickarea_1", "mousedown", function(e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_1", "url(#linear_2)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_1", strokePressed);
+		}
+	} (value);
+});
+
+webMI.addEvent("clickarea_1", "mouseup", function(e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_1", "url(#linear_1)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_1", strokeNormal);
+		}
+	} (value);
+});
+
+webMI.addEvent("clickarea_1", "mouseout", function(e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_1", "url(#linear_1)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_1", strokeNormal);
+		}
+	} (value);
+});
+
+webMI.addEvent("clickarea_1", "click", function(e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function(value) {
+		if (isAlarm && soundEnabled){
+			webMI.sound.stop(getSupportedAudio());
+		}
+		else if (isAlarm && !soundEnabled){
+			webMI.sound.play(getSupportedAudio(),0);
+		}
+		soundEnabled = (soundEnabled)? false : true;
+		webMI.gfx.setVisible("starthorn",soundEnabled);
+		webMI.gfx.setVisible("stophorn",!soundEnabled);
+	} (value);
+});
+
+webMI.addEvent("clickarea_2", "mousedown", function(e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_2", "url(#linear_2)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_2", strokePressed);
+		}
+	} (value);
+});
+
+webMI.addEvent("clickarea_2", "mouseup", function(e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_2", "url(#linear_1)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_2", strokeNormal);
+		}
+	} (value);
+});
+
+webMI.addEvent("clickarea_2", "mouseout", function(e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_2", "url(#linear_1)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_2", strokeNormal);
+		}
+	} (value);
+});
+
+webMI.addEvent("clickarea_2", "click", function(e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function(value) {
+		webMI.trigger.fire("com.atvise.alarms_next_display", true);
+	} (value);
+});
+
+webMI.addEvent("clickarea_3", "mousedown", function(e) {
+	var id = "clickarea_3";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_3", "url(#linear_2)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_3", strokePressed);
+		}
+	} (value);
+});
+
+webMI.addEvent("clickarea_3", "mouseup", function(e) {
+	var id = "clickarea_3";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_3", "url(#linear_1)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_3", strokeNormal);
+		}
+	} (value);
+});
+
+webMI.addEvent("clickarea_3", "mouseout", function(e) {
+	var id = "clickarea_3";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_3", "url(#linear_1)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_3", strokeNormal);
+		}
+	} (value);
+});
+
+webMI.addEvent("clickarea_3", "click", function(e) {
+	var id = "clickarea_3";
+	var value = true;
+	return function(value) {
+		acceptDisplay();
+	} (value);
+});
+
+
+webMI.addEvent("clickarea_4", "mousedown", function(e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_4", "url(#linear_2)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_4", strokePressed);
+		}
+	} (value);
+});
+
+webMI.addEvent("clickarea_4", "mouseup", function(e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_4", "url(#linear_1)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_4", strokeNormal);
+		}
+														
+	} (value);
+});
+
+webMI.addEvent("clickarea_4", "mouseout", function(e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_4", "url(#linear_1)");
+		if (typeof strokePressed != "undefined") {
+			webMI.gfx.setStroke("button_stroke_4", strokeNormal);
+		}
+														
+	} (value);
+});
+
+webMI.addEvent("clickarea_4", "click", function(e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function(value) {
+		webMI.query.view = "";
+		webMI.display.openDisplay(alarmDisplay,webMI.query,frameName);
+	} (value);
+});]]></code>
+</script>

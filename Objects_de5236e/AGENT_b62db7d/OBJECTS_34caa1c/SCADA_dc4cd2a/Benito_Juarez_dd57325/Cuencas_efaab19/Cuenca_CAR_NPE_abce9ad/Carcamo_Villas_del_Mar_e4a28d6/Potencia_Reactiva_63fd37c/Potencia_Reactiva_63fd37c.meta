@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Villas_del_Mar.Potencia_Reactiva
+NodeClass: Variable
+BrowseName: 1:Potencia_Reactiva
+DisplayName: en|Potencia_Reactiva
+Description: en|Potencia_Reactiva
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Potencia_Reactiva.high_limits
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Potencia_Reactiva.low_limits
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Eficiencia_Energetica

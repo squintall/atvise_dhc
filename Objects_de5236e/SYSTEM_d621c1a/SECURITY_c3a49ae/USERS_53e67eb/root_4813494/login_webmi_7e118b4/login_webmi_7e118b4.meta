@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.root.login_webmi
+NodeClass: Variable
+BrowseName: 1:login_webmi
+DisplayName: en|login_webmi
+Description: en|login_webmi
+DataType: BaseDataType
+ValueRank: -1
+AccessLevel: 111
+ValueType: Boolean
+Reference: forward HasTypeDefinition BaseVariableType

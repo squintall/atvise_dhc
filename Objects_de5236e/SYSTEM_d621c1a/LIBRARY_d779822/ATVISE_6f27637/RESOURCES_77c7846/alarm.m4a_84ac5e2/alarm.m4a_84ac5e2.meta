@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/alarm.m4a
+NodeClass: Variable
+BrowseName: 1:alarm.m4a
+DisplayName: en|alarm.m4a
+Description: en|alarm.m4a
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Aac

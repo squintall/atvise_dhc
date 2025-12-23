@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Config_Bomba
+NodeClass: Variable
+BrowseName: 1:Config_Bomba
+DisplayName: en|Config_Bomba
+Description: en|Config_Bomba
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

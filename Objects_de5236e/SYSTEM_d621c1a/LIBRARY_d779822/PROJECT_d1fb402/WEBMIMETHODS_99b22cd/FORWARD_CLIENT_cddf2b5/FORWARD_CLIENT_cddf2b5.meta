@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.FORWARD_CLIENT
+NodeClass: Variable
+BrowseName: 1:FORWARD_CLIENT
+DisplayName: en|FORWARD_CLIENT
+Description: en|FORWARD_CLIENT
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

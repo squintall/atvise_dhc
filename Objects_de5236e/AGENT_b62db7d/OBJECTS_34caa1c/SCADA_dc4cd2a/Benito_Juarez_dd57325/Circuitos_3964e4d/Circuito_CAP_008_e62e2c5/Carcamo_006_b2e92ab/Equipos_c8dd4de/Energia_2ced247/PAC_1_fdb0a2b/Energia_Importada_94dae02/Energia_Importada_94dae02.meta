@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_006.Equipos.Energia.PAC_1.Energia_Importada
+NodeClass: Variable
+BrowseName: 1:Energia_Importada
+DisplayName: en|Energia_Importada
+Description: en|Energia_Importada
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Eficiencia_Energetica

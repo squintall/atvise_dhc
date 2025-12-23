@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.PTAR.AR_SOL_PLA_SAASTUN_HA.Caudalimetros.Pozo_4.Minuto_Horario_2
+NodeClass: Variable
+BrowseName: 1:Minuto_Horario_2
+DisplayName: en|Minuto_Horario_2
+Description: en|Minuto_Horario_2
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Turistica.Carcamos_AR.AR_BJ_CAR_11_POKTAPOK_ZONA_TURISTICA.Bombas.AR_BJ_CAR_11_POKTAPOK_ZONA_TURISTICA_B2_VoltajeL2L3.ModuleName
+NodeClass: Variable
+BrowseName: 1:ModuleName
+DisplayName: en|Source module name
+Description: en|ModuleName
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.ModuleName.RelMirrorInputOutput

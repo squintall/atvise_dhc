@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.005.Los_Heroes.Av20Noviembre_CNarcisoDeMendoza
+NodeClass: Object
+BrowseName: 1:005.Los_Heroes.Av20Noviembre_CNarcisoDeMendoza
+DisplayName: en|005.Los_Heroes.Av20Noviembre_CNarcisoDeMendoza
+Description: en|005.Los_Heroes.Av20Noviembre_CNarcisoDeMendoza
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.presion_min_max

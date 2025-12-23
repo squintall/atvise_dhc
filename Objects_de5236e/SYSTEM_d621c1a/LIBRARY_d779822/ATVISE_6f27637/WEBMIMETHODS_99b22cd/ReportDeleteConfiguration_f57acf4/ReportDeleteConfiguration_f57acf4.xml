@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+    <fireevent>1</fireevent>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* Report wrapper for deleting configurations *
+ *
+ * HTTP post parameters:
+ *  configuration {string} : Name of the configuration to be written
+ *
+ * Example:
+ *   webMI.data.call("ReportDeleteConfiguration", {configuration: "myOptionalFolder.MyConfigurationDemo"}, function(e) {})
+ *
+ */
+
+return call("Report.ConfigurationHandler", {action: "delete", configuration: request.postvalues["configuration"]});]]></code>
+</script>

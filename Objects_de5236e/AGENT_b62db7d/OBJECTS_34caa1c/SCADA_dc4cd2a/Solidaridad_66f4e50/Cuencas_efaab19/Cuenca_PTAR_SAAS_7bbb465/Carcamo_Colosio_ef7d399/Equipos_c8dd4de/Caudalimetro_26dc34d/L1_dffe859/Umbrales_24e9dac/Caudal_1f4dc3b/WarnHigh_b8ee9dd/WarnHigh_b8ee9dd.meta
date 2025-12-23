@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Colosio.Equipos.Caudalimetro.L1.Umbrales.Caudal.WarnHigh
+NodeClass: Variable
+BrowseName: 1:WarnHigh
+DisplayName: en|WarnHigh
+Description: en|WarnHigh
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

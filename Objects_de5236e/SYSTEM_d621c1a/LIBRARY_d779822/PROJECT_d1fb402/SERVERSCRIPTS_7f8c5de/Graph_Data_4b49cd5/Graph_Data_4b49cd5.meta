@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.Graph_Data
+NodeClass: Variable
+BrowseName: 1:Graph_Data
+DisplayName: en|Graph_Data
+Description: en|Graph_Data
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

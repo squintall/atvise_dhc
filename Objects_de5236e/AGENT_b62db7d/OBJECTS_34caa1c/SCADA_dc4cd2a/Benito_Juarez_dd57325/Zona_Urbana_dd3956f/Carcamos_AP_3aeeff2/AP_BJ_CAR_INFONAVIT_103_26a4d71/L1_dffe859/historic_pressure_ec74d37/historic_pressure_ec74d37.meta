@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_INFONAVIT_103.L1.historic_pressure
+NodeClass: Variable
+BrowseName: 1:historic_pressure
+DisplayName: en|historic_pressure
+Description: en|historic_pressure
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Caudalimetros

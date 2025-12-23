@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AP.AP_IM_CAR_TANQUE_ELEVADO.Bombas.AP_IM_CAR_TANQUE_ELEVADO_B1_Fuera.Clients.MirrorInputOutput
+NodeClass: Variable
+BrowseName: 1:MirrorInputOutput
+DisplayName: en|MirrorInputOutput
+Description: en|MirrorInputOutput
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.InputOutput

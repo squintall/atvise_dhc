@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.1013.Connection.OperatingParametersRead
+NodeClass: Variable
+BrowseName: 1:OperatingParametersRead
+DisplayName: en|OperatingParametersRead
+Description: en|OperatingParametersRead
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseDataVariableType

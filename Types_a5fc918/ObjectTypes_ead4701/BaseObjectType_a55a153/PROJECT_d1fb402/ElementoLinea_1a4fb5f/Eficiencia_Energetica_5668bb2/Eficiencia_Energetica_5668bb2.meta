@@ -1,0 +1,9 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Eficiencia_Energetica
+NodeClass: Variable
+BrowseName: 1:Eficiencia_Energetica
+DisplayName: en|Eficiencia_Energetica
+Description: en|Eficiencia_Energetica
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

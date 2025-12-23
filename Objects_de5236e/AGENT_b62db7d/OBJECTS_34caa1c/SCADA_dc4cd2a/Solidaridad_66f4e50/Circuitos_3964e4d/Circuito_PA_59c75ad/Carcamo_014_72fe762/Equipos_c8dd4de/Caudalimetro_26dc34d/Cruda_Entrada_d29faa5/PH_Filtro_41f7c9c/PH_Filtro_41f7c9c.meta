@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_014.Equipos.Caudalimetro.Cruda_Entrada.PH_Filtro
+NodeClass: Variable
+BrowseName: 1:PH_Filtro
+DisplayName: en|PH_Filtro
+Description: en|PH_Filtro
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

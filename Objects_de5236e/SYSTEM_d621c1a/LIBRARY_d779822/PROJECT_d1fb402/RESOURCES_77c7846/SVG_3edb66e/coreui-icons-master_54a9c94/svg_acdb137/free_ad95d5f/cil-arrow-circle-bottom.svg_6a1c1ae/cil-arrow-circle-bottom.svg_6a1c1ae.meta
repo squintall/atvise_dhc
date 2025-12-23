@@ -1,0 +1,11 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/SVG/coreui-icons-master/svg/free/cil-arrow-circle-bottom.svg
+NodeClass: Variable
+BrowseName: 1:cil-arrow-circle-bottom.svg
+DisplayName: en|cil-arrow-circle-bottom.svg
+Description: en|cil-arrow-circle-bottom.svg
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Svg
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Compress
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Translate

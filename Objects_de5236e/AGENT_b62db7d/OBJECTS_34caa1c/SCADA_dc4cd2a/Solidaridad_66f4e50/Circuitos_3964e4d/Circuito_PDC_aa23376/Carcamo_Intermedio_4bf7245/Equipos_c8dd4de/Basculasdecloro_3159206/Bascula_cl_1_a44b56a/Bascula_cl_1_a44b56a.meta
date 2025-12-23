@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Basculasdecloro.Bascula_cl_1
+NodeClass: Object
+BrowseName: 1:Bascula_cl_1
+DisplayName: en|Bascula_cl_1
+Description: en|Bascula_cl_1
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Basculacloracion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Basculacloracion.Nivelbascula

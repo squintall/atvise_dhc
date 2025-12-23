@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.ALARMING.Scripts.AlarmEmailHighHighLevelScript
+NodeClass: Variable
+BrowseName: 1:AlarmEmailHighHighLevelScript
+DisplayName: en|AlarmEmailHighHighLevelScript
+Description: en|AlarmEmailHighHighLevelScript
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode.AlarmModification

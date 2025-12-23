@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/.bin/semver.cmd
+NodeClass: Variable
+BrowseName: 1:semver.cmd
+DisplayName: en|semver.cmd
+Description: en|semver.cmd
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

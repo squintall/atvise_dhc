@@ -1,0 +1,803 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="1054.01" version="1.2" width="1924" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_0" x1="0" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#000000"/>
+   <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_1" x1="0" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#000000"/>
+   <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_2" x1="0" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#eaeffb"/>
+   <stop offset="1" stop-color="#eaeffb" stop-opacity="0"/>
+  </linearGradient>
+  <style type="text/css"><![CDATA[System.Text.RegularExpressions.MatchEvaluator]]></style>
+  <!-- Subtle shadows: low opacity to respect existing colors -->
+  <filter height="116%" id="panelSoftShadow" width="116%" x="-8%" y="-8%">
+   <feOffset dx="0" dy="1" in="SourceAlpha" result="off"/>
+   <feGaussianBlur in="off" result="blur" stdDeviation="0.8"/>
+   <feColorMatrix in="blur" result="shadow" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.18 0"/>
+   <feMerge>
+    <feMergeNode in="shadow"/>
+    <feMergeNode in="SourceGraphic"/>
+   </feMerge>
+  </filter>
+  <filter height="124%" id="pillSoftShadow" width="124%" x="-12%" y="-12%">
+   <feOffset dx="0" dy="1.2" in="SourceAlpha" result="off"/>
+   <feGaussianBlur in="off" result="blur" stdDeviation="1.2"/>
+   <feColorMatrix in="blur" result="shadow" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.22 0"/>
+   <feMerge>
+    <feMergeNode in="shadow"/>
+    <feMergeNode in="SourceGraphic"/>
+   </feMerge>
+  </filter>
+  <!-- Text pill background (white fill + subtle gray stroke under text) -->
+  <filter filterUnits="objectBoundingBox" height="200%" id="textPillBgLight" width="160%" x="-30%" y="-40%">
+   <!-- Outer stroke -->
+   <feMorphology in="SourceAlpha" operator="dilate" radius="2.2" result="strokeSpread"/>
+   <feGaussianBlur in="strokeSpread" result="strokeBlur" stdDeviation="0.8"/>
+   <feFlood flood-color="#1a8b22" flood-opacity="0.65" result="strokeColor"/>
+   <feComposite in="strokeColor" in2="strokeBlur" operator="in" result="strokeLayer"/>
+   <!-- Inner white fill -->
+   <feMorphology in="SourceAlpha" operator="dilate" radius="1.2" result="fillSpread"/>
+   <feGaussianBlur in="fillSpread" result="fillBlur" stdDeviation="0.6"/>
+   <feFlood flood-color="#ffffff" flood-opacity="0.95" result="fillColor"/>
+   <feComposite in="fillColor" in2="fillBlur" operator="in" result="fillLayer"/>
+   <!-- Merge layers below the original text -->
+   <feMerge>
+    <feMergeNode in="strokeLayer"/>
+    <feMergeNode in="fillLayer"/>
+    <feMergeNode in="SourceGraphic"/>
+   </feMerge>
+  </filter>
+ </defs>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <rect atv:refpx="668.238" atv:refpy="946.153" class="panel panel-lilac" fill="#b9d8a9" height="68" id="id_284" rx="7.985" ry="6.975" stroke="#1a8b22" stroke-width="2" width="529" x="430" y="905"/>
+ <rect atv:refpx="212.486" atv:refpy="931.354" class="panel panel-blue" fill="#eaeffb" height="74" id="id_283" rx="8" ry="4.589" stroke="#0000ff" stroke-width="2" width="425" x="3" y="902"/>
+ <rect atv:refpx="1228.5" atv:refpy="77" class="panel panel-soli" fill="#eaeffb" height="86" id="id_260" rx="19.295" ry="8.19" stroke="#0000ff" stroke-width="2" width="533" x="962" y="34"/>
+ <rect atv:refpx="1413.546" atv:refpy="571.5" class="panel panel-soli-ar" fill="#b9d8a9" height="102" id="id_258" rx="9.817" ry="8" stroke="#1a8b22" stroke-width="2" width="324" x="1173" y="520.5"/>
+ <rect atv:refpx="786.864" atv:refpy="110.279" fill="#b9d8a9" height="126.84" id="id_264" rx="11.831" ry="11.979" stroke="#1a8b22" stroke-width="2" width="315" x="645" y="34"/>
+ <rect atv:refpx="478.089" atv:refpy="110.63" class="panel panel-lilac" fill="#b9d8a9" height="123.855" id="id_263" rx="4.152" ry="11.697" stroke="#1a8b22" stroke-width="2" width="109" x="429" y="36.145"/>
+ <rect atv:refpx="586.189" atv:refpy="110.434" class="panel panel-lilac" fill="#b9d8a9" height="126.855" id="id_29" rx="8.152" ry="11.979" stroke="#1a8b22" stroke-width="2" width="107" x="538" y="34.145"/>
+ <rect atv:refpx="669.146" atv:refpy="280.379" class="panel panel-lilac" fill="#b9d8a9" height="205" id="id_230" rx="8.015" ry="8.542" stroke="#1a8b22" stroke-width="2" width="531" x="429" y="161"/>
+ <svg atv:refpx="483.497" atv:refpy="219.61" height="63.11" id="id_59" transform="matrix(0.7407,0,0,0.7175,0,0)" width="133" x="583.561" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="268.943">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_18_Poniente"/>
+ </svg>
+ <svg atv:refpx="904.972" atv:refpy="219.603" height="63.11" id="id_60" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1155.243" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="264.243">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_2000_Oriente"/>
+ </svg>
+ <svg atv:refpx="598.128" atv:refpy="219.606" height="63.11" id="id_89" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="728.958" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="264.243">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Guadalupana"/>
+ </svg>
+ <svg atv:refpx="696.069" atv:refpy="264.96" height="63.11" id="id_73" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="333.328">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Donceles"/>
+ </svg>
+ <svg atv:refpx="698.039" atv:refpy="374.472" height="63.11" id="id_78" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="402.637">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Lombardo"/>
+ </svg>
+ <svg atv:refpx="481.537" atv:refpy="267.961" height="63.11" id="id_86" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="583.561" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="333.328">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_ARA"/>
+ </svg>
+ <svg atv:refpx="802.859" atv:refpy="264.955" height="63.11" id="id_113" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1014.699" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="333.328">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_5_NH_Reg_90"/>
+ </svg>
+ <svg atv:refpx="799.903" atv:refpy="219.602" height="63.11" id="id_114" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1014.699" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="264.243">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_6_NH_Reg_91"/>
+ </svg>
+ <svg atv:refpx="697.067" atv:refpy="219.603" height="63.11" id="id_118" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="264.243">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_4_Cancun_86_Final"/>
+ </svg>
+ <svg atv:refpx="906.958" atv:refpy="318.954" height="63.11" id="id_119" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1155.243" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="333.328">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Coral"/>
+ </svg>
+ <svg atv:refpx="600.112" atv:refpy="264.96" height="63.11" id="id_124" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="728.958" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="333.328">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Corales"/>
+ </svg>
+ <svg atv:refpx="590.253" atv:refpy="317.47" height="63.11" id="id_128" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="728.958" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="402.637">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_N_Heroes"/>
+ </svg>
+ <svg atv:refpx="481.501" atv:refpy="315.483" height="63.11" id="id_130" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="583.561" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="402.637">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_R236"/>
+ </svg>
+ <svg atv:refpx="800.842" atv:refpy="309.47" height="63.11" id="id_262" transform="matrix(0.7519,0,0,0.7513,0,0)" width="133" x="998.594" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="389.692">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Laguna_de_oxidacion"/>
+ </svg>
+ <text atv:refpx="480.01" atv:refpy="177.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_231" transform="matrix(0.5792,0,0,0.641,189.0882,59.235)" x="453.854" y="193.5">LAN 245</text>
+ <rect atv:refpx="212.486" atv:refpy="676.921" class="panel panel-blue" fill="#eaeffb" height="374" id="id_1" rx="8" ry="7.498" stroke="#0000ff" stroke-width="2" width="425" x="3" y="528"/>
+ <text atv:refpx="59.136" atv:refpy="538.679" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_104" transform="matrix(0.5792,0,0,0.641,8.7303,189.0135)" x="25.247" y="555">FORTINET</text>
+ <rect atv:refpx="670.503" atv:refpy="528.955" class="panel panel-lilac" fill="#b9d8a9" height="209" id="id_98" rx="8.06" ry="8" stroke="#1a8b22" stroke-width="2" width="534" x="429" y="366"/>
+ <svg atv:refpx="800.873" atv:refpy="470.67" height="63.11" id="id_66" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1014.699" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="545.586">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_ST_Johns"/>
+ </svg>
+ <svg atv:refpx="699.026" atv:refpy="576.427" height="63.11" id="id_68" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="689.295">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_6_SM18"/>
+ </svg>
+ <svg atv:refpx="802.841" atv:refpy="521.455" height="63.11" id="id_69" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1014.699" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="615.262">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_7_NH_Reg_100"/>
+ </svg>
+ <svg atv:refpx="596.197" atv:refpy="576.424" height="63.11" id="id_72" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="733.008" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="689.295">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Bonampak"/>
+ </svg>
+ <svg atv:refpx="602.108" atv:refpy="470.671" height="63.11" id="id_75" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="733.008" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="545.586">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Farayon_SM_15"/>
+ </svg>
+ <svg atv:refpx="488.744" atv:refpy="577.416" height="63.11" id="id_79" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="589.307" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="689.295">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Morelos_I"/>
+ </svg>
+ <svg atv:refpx="602.108" atv:refpy="521.453" height="63.11" id="id_80" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="733.008" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="615.262">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Morelos_II"/>
+ </svg>
+ <svg atv:refpx="904.977" atv:refpy="471.665" height="63.11" id="id_81" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1155.243" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="545.586">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Plaza_Bonita"/>
+ </svg>
+ <svg atv:refpx="699.025" atv:refpy="521.45" height="63.11" id="id_82" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="615.262">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Plaza_Bonita_Infonavit"/>
+ </svg>
+ <svg atv:refpx="488.744" atv:refpy="521.448" height="63.11" id="id_85" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="589.307" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="615.262">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Tikal"/>
+ </svg>
+ <svg atv:refpx="701.986" atv:refpy="468.668" height="63.11" id="id_94" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="545.586">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_R102"/>
+ </svg>
+ <svg atv:refpx="906.958" atv:refpy="523.459" height="63.11" id="id_116" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1155.243" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="615.262">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Florida"/>
+ </svg>
+ <svg atv:refpx="803.874" atv:refpy="574.419" height="63.11" id="id_117" transform="matrix(0.7368,0,0,0.7289,0,0)" width="133" x="1020.422" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="689.295">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Sureste"/>
+ </svg>
+ <svg atv:refpx="488.761" atv:refpy="470.674" height="63.11" id="id_125" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="589.307" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="545.586">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Cuchilla"/>
+ </svg>
+ <text atv:refpx="483.399" atv:refpy="384.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_226" transform="matrix(0.5792,0,0,0.641,191.8377,133.548)" x="460.388" y="400.5">GPRS</text>
+ <rect atv:refpx="214.943" atv:refpy="392.454" class="panel panel-blue" fill="#eaeffb" height="281" id="id_282_bg" rx="7.984" ry="5.43" stroke="#0000ff" stroke-width="1.964" width="425.097" x="1.903" y="247"/>
+ <text atv:refpx="51.656" atv:refpy="256.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_103" transform="matrix(0.5792,0,0,0.641,8.8368,87.596)" x="25.5" y="272.5">LAN 245</text>
+ <rect atv:refpx="668.688" atv:refpy="762.993" class="panel panel-lilac" fill="#b9d8a9" height="329" id="id_100" rx="8" ry="5.81" stroke="#1a8b22" stroke-width="2" width="530" x="430" y="575"/>
+ <rect atv:refpx="210.977" atv:refpy="67.83" class="panel panel-blue" fill="#eaeffb" height="82.84" id="id_112" rx="15.926" ry="7.823" stroke="#0000ff" stroke-width="2" width="426" x="1" y="34.16"/>
+ <text atv:refpx="44.264" atv:refpy="47.743" class="titulos" dominant-baseline="middle" fill="#111" font-family="Arial" font-size="26" font-weight="bold" id="id_97" text-anchor="middle" transform="matrix(0.5792,0,0,0.641,5.0996,11.847)" x="67.619" y="61.5">LAN 238</text>
+ <rect atv:refpx="211.486" atv:refpy="99.486" class="panel panel-blue" fill="#eaeffb" height="130" id="id_99" rx="16.269" ry="4.463" stroke="#0000ff" stroke-width="2.576" transform="matrix(1,0.0007,0,1,0,0)" width="425" x="2" y="116.85"/>
+ <rect atv:refpx="668.688" atv:refpy="1021.205" class="panel panel-lilac" fill="#b9d8a9" height="78" id="id_222" rx="8" ry="8" stroke="#1a8b22" stroke-width="2" width="530" x="430" y="974"/>
+ <rect atv:refpx="212.486" atv:refpy="1006.554" class="panel panel-blue" fill="#eaeffb" height="77" id="id_221" rx="8" ry="4.775" stroke="#0000ff" stroke-width="2" width="425" x="3" y="976.01"/>
+ <text atv:refpx="52.952" atv:refpy="988.679" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_108" transform="matrix(0.5792,0,0,0.641,6.312,350.5635)" x="19" y="1005">SIN ENTREGAR</text>
+ <g atv:refpx="215.508" atv:refpy="18.125" id="id_224" transform="matrix(1,0,0,1,-13.617,3)">
+  <text atv:refpx="216.243" atv:refpy="18.625" class="titulos" dominant-baseline="middle" fill="#000000" font-family="Arial" font-size="24" font-weight="bold" id="id_150" text-anchor="middle" x="229.125" y="23.625">AGUA POTABLE CANCÚN</text>
+ </g>
+ <text atv:refpx="797.656" atv:refpy="44.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_102" transform="matrix(0.5792,0,0,0.641,322.7536,11.488)" x="771.5" y="60.5">LAN 232</text>
+ <text atv:refpx="479.767" atv:refpy="45.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_233" transform="matrix(0.5792,0,0,0.641,188.9859,11.847)" x="453.611" y="61.5">LAN 249</text>
+ <text atv:refpx="591.01" atv:refpy="43.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_227" transform="matrix(0.5792,0,0,0.641,235.797,11.129)" x="564.854" y="59.5">LAN 216</text>
+ <text atv:refpx="478.692" atv:refpy="589.679" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_225" transform="matrix(0.5792,0,0,0.641,187.256,207.3225)" x="449.5" y="606">FORTINET</text>
+ <text atv:refpx="479.367" atv:refpy="988.679" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_223" transform="matrix(0.5792,0,0,0.641,186.7486,350.5635)" x="447.794" y="1005">SIN ENTREGAR</text>
+ <text atv:refpx="675.956" atv:refpy="22.625" class="titulos" dominant-baseline="middle" fill="#000000" font-family="Arial" font-size="24" font-weight="bold" id="id_151" text-anchor="middle" x="695" y="27.625">AGUA RESIDUAL CANCÚN</text>
+ <rect atv:refpx="1148.952" atv:refpy="571.5" class="panel panel-soli-ar" fill="#b9d8a9" height="102" id="id_250b" rx="3.182" ry="8" stroke="#1a8b22" stroke-width="2" width="105.015" x="1068.986" y="520.5"/>
+ <text atv:refpx="1005.816" atv:refpy="535.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_247" transform="matrix(0.5792,0,0,0.641,459.0928,187.757)" x="1096.5" y="551.5">LAN 181</text>
+ <rect atv:refpx="1205.102" atv:refpy="874.442" class="panel panel-soli-ar" fill="#b9d8a9" height="215" id="id_243" rx="8" ry="11.467" stroke="#1a8b22" stroke-width="2" width="533" x="962" y="757"/>
+ <text atv:refpx="1012.869" atv:refpy="772.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_244" transform="matrix(0.5792,0,0,0.641,412.0372,272.84)" x="983.676" y="788.5">FORTINET</text>
+ <rect atv:refpx="1014.59" atv:refpy="572" class="panel panel-soli-ar" fill="#b9d8a9" height="102" id="id_250a" rx="3.187" ry="8" stroke="#1a8b22" stroke-width="2" width="105.18" x="963" y="520.5"/>
+ <text atv:refpx="1013.244" atv:refpy="535.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_249" transform="matrix(0.5792,0,0,0.641,413.473,187.757)" x="987.088" y="551.5">LAN 169</text>
+ <rect atv:refpx="1204.985" atv:refpy="737.403" class="panel panel-soli-ar" fill="#b9d8a9" height="134.643" id="id_245" rx="8" ry="5.413" stroke="#1a8b22" stroke-width="1.677" width="535" x="962" y="622.666"/>
+ <rect atv:refpx="1056.721" atv:refpy="1019.646" class="panel panel-soli-ar" fill="#b9d8a9" height="79" id="id_242" rx="3.098" ry="7.9" stroke="#1a8b22" stroke-width="2" width="206.413" x="962.587" y="974"/>
+ <text atv:refpx="1012.6" atv:refpy="989.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_241" transform="matrix(0.5792,0,0,0.641,411.1334,350.743)" x="981.028" y="1005.5">SIN ENTREGAR</text>
+ <g atv:refpx="1228.087" atv:refpy="502.5" id="id_252" transform="matrix(1,0,0,1,-76.7268,-687.1242)">
+  <text atv:refpx="1301.156" atv:refpy="1192.624" class="titulos" dominant-baseline="middle" fill="#000000" font-family="Arial" font-size="24" font-weight="bold" id="id_214" text-anchor="middle" x="1305.814" y="1198.124">AGUA RESIDUAL SOLIDARIDAD</text>
+ </g>
+ <rect atv:refpx="1317.365" atv:refpy="1019.646" class="panel panel-soli" fill="#eaeffb" height="79" id="id_240" rx="11.766" ry="7.524" stroke="#0000ff" stroke-width="2" width="325" x="1171" y="974"/>
+ <text atv:refpx="1215.573" atv:refpy="988.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_239" transform="matrix(0.5792,0,0,0.641,496.544,350.384)" x="1184" y="1004.5">SIN ENTREGAR</text>
+ <rect atv:refpx="939.489" atv:refpy="-68.82" class="panel panel-soli" fill="#eaeffb" height="84.84" id="id_216" rx="10.171" ry="5.103" stroke="#0000ff" stroke-width="2" width="534" x="699" y="-117.84"/>
+ <text atv:refpx="750.852" atv:refpy="-106.821" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_217" transform="matrix(0.5792,0,0,0.641,303.0589,-42.721)" x="724.697" y="-90.5">LAN 180</text>
+ <rect atv:refpx="1400.989" atv:refpy="-26.798" class="panel panel-soli" fill="#eaeffb" height="85.711" id="id_218" rx="8" ry="5.156" stroke="#0000ff" stroke-width="1.644" width="111" x="1373" y="-104"/>
+ <text atv:refpx="1427.01" atv:refpy="-91.175" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_234" transform="matrix(0.5792,0,0,0.641,587.5858,-37.1048)" x="1400.854" y="-74.856">LAN 182</text>
+ <rect atv:refpx="1203.513" atv:refpy="377.999" class="panel panel-soli" fill="#eaeffb" height="365.779" id="id_238" rx="8" ry="12.778" stroke="#0000ff" stroke-width="2.221" width="533.993" x="961" y="120"/>
+ <text atv:refpx="1007.78" atv:refpy="136.069" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_237" transform="matrix(0.5792,0,0,0.641,409.8962,44.4763)" x="978.588" y="152.389">FORTINET</text>
+ <svg atv:refpx="1122.78" atv:refpy="235.633" height="63.11" id="id_153" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1424.139" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="213.518">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_002"/>
+ </svg>
+ <svg atv:refpx="1327.971" atv:refpy="244.633" height="63.11" id="id_155" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1705.019" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="213.518">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_004"/>
+ </svg>
+ <svg atv:refpx="1438.002" atv:refpy="279.9" height="63.11" id="id_156" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1847.32" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="355.193">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_005"/>
+ </svg>
+ <svg atv:refpx="1414.469" atv:refpy="244.632" height="63.11" id="id_158" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1846.653" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="213.518">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_007"/>
+ </svg>
+ <svg atv:refpx="1015.683" atv:refpy="289.618" height="63.11" id="id_159" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1284.324" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="283.462">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_008"/>
+ </svg>
+ <svg atv:refpx="1228.059" atv:refpy="288.617" height="63.11" id="id_160" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1565.493" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="283.462">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_009"/>
+ </svg>
+ <svg atv:refpx="1330.967" atv:refpy="290.615" height="63.11" id="id_161" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1705.019" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="283.462">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_010"/>
+ </svg>
+ <svg atv:refpx="1410.468" atv:refpy="295.614" height="63.11" id="id_163" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1846.653" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="283.462">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_012"/>
+ </svg>
+ <svg atv:refpx="1227.063" atv:refpy="354.897" height="63.11" id="id_164" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1565.493" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="355.193">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_015"/>
+ </svg>
+ <svg atv:refpx="1015.683" atv:refpy="178.634" height="63.11" id="id_165" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1284.324" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="213.518">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_017_T1"/>
+ </svg>
+ <svg atv:refpx="1228.094" atv:refpy="178.633" height="63.11" id="id_167" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1565.493" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="213.518">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio"/>
+ </svg>
+ <svg atv:refpx="1122.779" atv:refpy="286.612" height="63.11" id="id_169" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1424.139" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="283.462">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Desaladora_008"/>
+ </svg>
+ <svg atv:refpx="1014.648" atv:refpy="346.896" height="63.11" id="id_170" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1284.324" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="355.193">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_013"/>
+ </svg>
+ <svg atv:refpx="1121.772" atv:refpy="346.896" height="63.11" id="id_171" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1424.139" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="355.193">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_014"/>
+ </svg>
+ <svg atv:refpx="1322.977" atv:refpy="347.896" height="63.11" id="id_172" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1705.019" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="355.193">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Desaladora_Puerto_Maya"/>
+ </svg>
+ <g atv:refpx="1227.996" atv:refpy="19.125" id="id_250" transform="matrix(1,0,0,1,10.4775,68.591)">
+  <text atv:refpx="1214.023" atv:refpy="-43.966" class="titulos" dominant-baseline="middle" fill="#000000" font-family="Arial" font-size="24" font-weight="bold" id="id_213" text-anchor="middle" x="1217.519" y="-40.966">AGUA POTABLE SOLIDARIDAD</text>
+ </g>
+ <g atv:refpx="1709.5" atv:refpy="77" id="id_305">
+  <rect atv:refpx="1709.5" atv:refpy="131" class="panel panel-pink" fill="#ffe7fe" height="84" id="id_256" rx="8" ry="8" stroke="#e2c0e1" stroke-width="2" width="425" x="1497" y="35"/>
+  <text atv:refpx="1549.991" atv:refpy="53.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_255" transform="matrix(0.5792,0,0,0.641,639.9173,14.719)" x="1524.716" y="69.5">FORTINET</text>
+ </g>
+ <rect atv:refpx="1686.364" atv:refpy="132.131" class="panel panel-pink" fill="#ffe7fe" height="285" id="id_106" rx="8" ry="8" stroke="#e2c0e1" stroke-width="2" width="425" x="1497" y="121"/>
+ <text atv:refpx="1549.749" atv:refpy="137.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_268" transform="matrix(0.5792,0,0,0.641,637.6017,44.875)" x="1519.713" y="153.5">MILESIGHT</text>
+ <g atv:refpx="1709.5" atv:refpy="446.5" id="id_303">
+  <rect atv:refpx="1690.375" atv:refpy="410.086" class="panel panel-pink" fill="#ffe7fe" height="79" id="id_257" rx="8" ry="8" stroke="#e2c0e1" stroke-width="2" width="425" x="1497" y="407"/>
+  <text atv:refpx="1567.293" atv:refpy="414.974" class="titulos" fill="#000000" font-family="Arial" font-size="20" font-weight="bold" id="id_280" transform="matrix(0.5792,0,0,0.641,632.5971,145.754)" x="1507.82" y="429.5">SIN ENTREGAR</text>
+ </g>
+ <g atv:refpx="1709.5" atv:refpy="19.125" id="id_251" transform="matrix(1,0,0,1,-14.1411,59.1537)">
+  <text atv:refpx="1710.341" atv:refpy="-34.529" class="titulos" dominant-baseline="middle" fill="#000000" font-family="Arial" font-size="24" font-weight="bold" id="id_215" text-anchor="middle" x="1723.641" y="-31.529">TELEMETRÍA ISLA MUJERES</text>
+ </g>
+ <g atv:refpx="1710" atv:refpy="580.25" id="ZH">
+  <rect atv:refpx="1686.809" atv:refpy="554.468" class="panel panel-zona" fill="#74ff64" fill-opacity="0.419608" height="155" id="id_107" rx="8" ry="8" stroke="#a3d49e" stroke-width="2" width="426" x="1497" y="521"/>
+  <g atv:refpx="1684.789" atv:refpy="502.5" id="id_253" transform="matrix(1,0,0,1,448.8608,-618.4382)">
+   <text atv:refpx="1235.928" atv:refpy="1123.938" class="titulos" dominant-baseline="middle" fill="#000000" font-family="Arial" font-size="24" font-weight="bold" id="id_48" text-anchor="middle" x="1235.928" y="1129.438">ZONA HOTELERA CANCÚN</text>
+  </g>
+ </g>
+ <svg atv:refpx="1655.552" atv:refpy="84.496" height="63.11" id="id_207" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2168.495" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="87.118">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Poniente"/>
+ </svg>
+ <svg atv:refpx="1576.199" atv:refpy="97.497" height="63.11" id="id_149" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2028.023" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="87.118">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Garrafon"/>
+ </svg>
+ <svg atv:refpx="1785.287" atv:refpy="97.497" height="63.11" id="id_210" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2311.659" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="87.118">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Coral"/>
+ </svg>
+ <!-- Split AR Solidaridad top panel into two: LAN 169 (left) / LAN 181 (right) -->
+ <svg atv:refpx="56.057" atv:refpy="83.489" height="63.11" id="id_34" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="80.259">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_2000P"/>
+ </svg>
+ <svg atv:refpx="373.499" atv:refpy="771.626" height="63.11" id="id_0" transform="matrix(0.7519,0,0,0.7175,0,0)" width="133" x="428.914" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1117.749">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_001"/>
+ </svg>
+ <svg atv:refpx="161.566" atv:refpy="773.626" height="63.11" id="id_6" transform="matrix(0.7519,0,0,0.7175,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1117.749">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A"/>
+ </svg>
+ <svg atv:refpx="173.569" atv:refpy="150.603" height="63.11" id="id_18" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="264.243">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Carcamo_004"/>
+ </svg>
+ <svg atv:refpx="63.061" atv:refpy="101.086" height="63.11" id="id_19" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="194.94">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Carcamo_009"/>
+ </svg>
+ <svg atv:refpx="271.374" atv:refpy="103.086" height="63.11" id="id_20" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="289.101" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="194.94">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Carcamo_Aeropuerto_ZT"/>
+ </svg>
+ <svg atv:refpx="278.37" atv:refpy="775.615" height="63.11" id="id_32" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="289.101" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1099.774">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007"/>
+ </svg>
+ <svg atv:refpx="58.057" atv:refpy="142.619" height="63.11" id="id_33" transform="matrix(0.7519,0,0,0.7175,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="268.943">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_008"/>
+ </svg>
+ <svg atv:refpx="168.483" atv:refpy="596.014" height="63.11" id="id_38" transform="matrix(0.7218,0,0,0.713,0,0)" width="133" x="158.729" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="769.462">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_FOVISSSTE"/>
+ </svg>
+ <svg atv:refpx="269.377" atv:refpy="216.607" height="63.11" id="id_43" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="289.101" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="264.243">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_010"/>
+ </svg>
+ <svg atv:refpx="373.51" atv:refpy="176.994" height="63.11" id="id_44" transform="matrix(0.7547,0,0,0.7318,0,0)" width="133" x="427.076" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="194.042">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_011"/>
+ </svg>
+ <svg atv:refpx="169.561" atv:refpy="96.092" height="63.11" id="id_46" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="194.94">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Aeropuerto_ZU"/>
+ </svg>
+ <!-- removed LAN 246 label inside Fortinet group (not applicable) -->
+ <svg atv:refpx="50.063" atv:refpy="487.131" height="63.11" id="id_4" transform="matrix(0.7519,0,0,0.7175,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="764.438">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_Infonavit14"/>
+ </svg>
+ <svg atv:refpx="50.06" atv:refpy="596.7" height="63.11" id="id_11" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="891.349">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Paraiso_Maya_1"/>
+ </svg>
+ <svg atv:refpx="266.435" atv:refpy="797.065" height="63.11" id="id_12" transform="matrix(0.7271,0,0,0.7048,0,0)" width="133" x="301.23" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1210.982">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Paraiso_Maya_2"/>
+ </svg>
+ <svg atv:refpx="162.58" atv:refpy="547.506" height="63.11" id="id_24" transform="matrix(0.7299,0,0,0.7175,0,0)" width="133" x="156.23" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="836.042">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Paseos_del_Mar_1"/>
+ </svg>
+ <svg atv:refpx="162.581" atv:refpy="595.701" height="63.11" id="id_25" transform="matrix(0.7299,0,0,0.7289,0,0)" width="133" x="156.23" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="891.349">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Prado_Norte_1"/>
+ </svg>
+ <svg atv:refpx="276.387" atv:refpy="487.12" height="63.11" id="id_26" transform="matrix(0.7299,0,0,0.7289,0,0)" width="133" x="299.819" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="751.989">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Prado_Norte_2"/>
+ </svg>
+ <svg atv:refpx="276.37" atv:refpy="547.518" height="63.11" id="id_30" transform="matrix(0.7519,0,0,0.7175,0,0)" width="133" x="289.101" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="836.042">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_0+000"/>
+ </svg>
+ <svg atv:refpx="50.063" atv:refpy="549.487" height="63.11" id="id_39" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="822.473">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_Infonavit103"/>
+ </svg>
+ <svg atv:refpx="369.492" atv:refpy="487.122" height="63.11" id="id_47" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="428.914" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="751.989">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Almendros"/>
+ </svg>
+ <svg atv:refpx="369.493" atv:refpy="545.494" height="63.11" id="id_50" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="428.914" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="822.473">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Cumbres"/>
+ </svg>
+ <svg atv:refpx="376.496" atv:refpy="972.494" height="63.11" id="id_52" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="428.914" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Fonatur_SM10"/>
+ </svg>
+ <svg atv:refpx="167.566" atv:refpy="719.023" height="63.11" id="id_2" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1028.981">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_002"/>
+ </svg>
+ <svg atv:refpx="375.499" atv:refpy="443.461" height="63.11" id="id_3" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="428.914" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="578.22">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_H23"/>
+ </svg>
+ <svg atv:refpx="52.062" atv:refpy="498.423" height="63.11" id="id_5" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="652.253">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_Uxmal"/>
+ </svg>
+ <svg atv:refpx="366.498" atv:refpy="340.531" height="63.11" id="id_7" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="428.914" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="435.634">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Ara"/>
+ </svg>
+ <svg atv:refpx="279.373" atv:refpy="668.504" height="63.11" id="id_8" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="289.101" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="959.675">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Infovir_R227"/>
+ </svg>
+ <svg atv:refpx="58.059" atv:refpy="944.646" height="63.11" id="id_9" transform="matrix(0.7519,0,0,0.7175,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1286.411">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Kusamil"/>
+ </svg>
+ <svg atv:refpx="50.061" atv:refpy="444.46" height="63.11" id="id_10" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="578.22">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Los_Heroes"/>
+ </svg>
+ <svg atv:refpx="51.06" atv:refpy="305.251" height="63.11" id="id_13" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="365.288">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_RN2"/>
+ </svg>
+ <svg atv:refpx="168.569" atv:refpy="297.259" height="63.11" id="id_14" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="365.288">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_RN3"/>
+ </svg>
+ <svg atv:refpx="373.498" atv:refpy="766.497" height="63.11" id="id_15" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="428.914" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="959.675">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Tierra_Maya_1"/>
+ </svg>
+ <svg atv:refpx="385.498" atv:refpy="297.247" height="63.11" id="id_16" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="428.914" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="365.288">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Urbi_Villas_del_Rey"/>
+ </svg>
+ <svg atv:refpx="53.064" atv:refpy="666.507" height="63.11" id="id_17" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="959.675">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Villas_Otoch"/>
+ </svg>
+ <svg atv:refpx="271.384" atv:refpy="287.643" height="63.11" id="id_21" transform="matrix(0.7299,0,0,0.7175,0,0)" width="133" x="299.819" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="369.338">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_006A"/>
+ </svg>
+ <svg atv:refpx="280.32" atv:refpy="712.022" height="63.11" id="id_22" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="289.101" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1028.981">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_La_Joya"/>
+ </svg>
+ <svg atv:refpx="51.013" atv:refpy="713.023" height="63.11" id="id_23" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1028.981">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Otoch_Paraiso"/>
+ </svg>
+ <svg atv:refpx="165.484" atv:refpy="667.501" height="63.11" id="id_27" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="959.675">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Vista_Real"/>
+ </svg>
+ <svg atv:refpx="279.37" atv:refpy="392.67" height="63.11" id="id_31" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="289.101" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="508.544">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_006"/>
+ </svg>
+ <svg atv:refpx="162.564" atv:refpy="396.665" height="63.11" id="id_35" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="508.544">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_3000"/>
+ </svg>
+ <svg atv:refpx="275.37" atv:refpy="617.693" height="63.11" id="id_36" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="289.101" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="891.349">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_CTM"/>
+ </svg>
+ <svg atv:refpx="368.499" atv:refpy="718.016" height="63.11" id="id_37" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="428.914" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1028.981">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_Donceles"/>
+ </svg>
+ <svg atv:refpx="279.375" atv:refpy="338.522" height="63.11" id="id_40" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="289.101" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="435.634">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_Lombardo"/>
+ </svg>
+ <svg atv:refpx="165.568" atv:refpy="498.415" height="63.11" id="id_41" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="652.253">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ"/>
+ </svg>
+ <svg atv:refpx="56.064" atv:refpy="395.663" height="63.11" id="id_42" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="508.544">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_RN1"/>
+ </svg>
+ <svg atv:refpx="163.561" atv:refpy="443.467" height="63.11" id="id_45" transform="matrix(0.7519,0,0,0.7175,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="587.908">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_2000_Oriente"/>
+ </svg>
+ <svg atv:refpx="275.366" atv:refpy="491.993" height="63.11" id="id_49" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="289.101" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="578.955">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Bonampak"/>
+ </svg>
+ <svg atv:refpx="163.567" atv:refpy="440.521" height="63.11" id="id_51" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="435.634">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_El_table"/>
+ </svg>
+ <svg atv:refpx="159.567" atv:refpy="956.988" height="63.11" id="id_53" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="149.713" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1263.548">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Las_Americas"/>
+ </svg>
+ <svg atv:refpx="42.06" atv:refpy="341.519" height="63.11" id="id_54" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="435.634">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Luciernagas_1"/>
+ </svg>
+ <svg atv:refpx="168.578" atv:refpy="1023.493" height="63.11" id="id_55" transform="matrix(0.7299,0,0,0.7289,0,0)" width="133" x="156.23" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Luciernagas_2"/>
+ </svg>
+ <svg atv:refpx="282.38" atv:refpy="1023.494" height="63.11" id="id_56" transform="matrix(0.7299,0,0,0.7289,0,0)" width="133" x="299.819" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Puerto_Cancun"/>
+ </svg>
+ <svg atv:refpx="56.064" atv:refpy="974.493" height="63.11" id="id_58" transform="matrix(0.7299,0,0,0.7289,0,0)" width="133" x="10.31" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Quetzales"/>
+ </svg>
+ <svg atv:refpx="589.196" atv:refpy="877.74" height="63.11" id="id_61" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="728.958" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1169.9">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_514"/>
+ </svg>
+ <svg atv:refpx="698.035" atv:refpy="875.028" height="63.11" id="id_62" transform="matrix(0.7407,0,0,0.7175,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1116.911">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Balam"/>
+ </svg>
+ <svg atv:refpx="601.119" atv:refpy="723.698" height="63.11" id="id_65" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="728.958" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="961.317">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Poder_Judicial"/>
+ </svg>
+ <svg atv:refpx="488.694" atv:refpy="1109.5" height="63.11" id="id_67" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="585.257" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Villa_Magna"/>
+ </svg>
+ <svg atv:refpx="800.845" atv:refpy="878.74" height="63.11" id="id_70" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1014.699" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1169.9">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Almendros"/>
+ </svg>
+ <svg atv:refpx="904.977" atv:refpy="673.123" height="63.11" id="id_71" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1155.243" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="821.957">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Benito_Juarez"/>
+ </svg>
+ <svg atv:refpx="484.756" atv:refpy="821.501" height="63.11" id="id_74" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="585.257" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1029.643">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_El_Table"/>
+ </svg>
+ <svg atv:refpx="904.945" atv:refpy="878.74" height="63.11" id="id_76" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1155.243" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1169.9">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_FOVISSSTE_64"/>
+ </svg>
+ <svg atv:refpx="802.846" atv:refpy="872.014" height="63.11" id="id_77" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1014.699" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1098.949">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_La_Costa"/>
+ </svg>
+ <svg atv:refpx="484.757" atv:refpy="875.01" height="63.11" id="id_83" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="585.257" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1098.949">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Plaza_de_Toros"/>
+ </svg>
+ <svg atv:refpx="800.876" atv:refpy="673.111" height="63.11" id="id_84" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1014.699" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="821.957">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Plaza_Las_Americas"/>
+ </svg>
+ <svg atv:refpx="696.076" atv:refpy="718.496" height="63.11" id="id_87" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="892.441">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Casas_del_Mar"/>
+ </svg>
+ <svg atv:refpx="703.016" atv:refpy="79.997" height="63.11" id="id_88" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="75.456">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Final_Norponiente"/>
+ </svg>
+ <svg atv:refpx="800.882" atv:refpy="718.495" height="63.11" id="id_90" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1014.699" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="892.441">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Linda_Vista"/>
+ </svg>
+ <svg atv:refpx="601.128" atv:refpy="618.121" height="63.11" id="id_91" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="728.958" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="821.957">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Paraiso_Maya"/>
+ </svg>
+ <svg atv:refpx="696.075" atv:refpy="673.12" height="63.11" id="id_92" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="821.957">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Paseos_del_Mar"/>
+ </svg>
+ <svg atv:refpx="-114.408" atv:refpy="545.736" height="63.11" id="id_93" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="728.958" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="892.441">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso"/>
+ </svg>
+ <svg atv:refpx="697.061" atv:refpy="830.495" height="63.11" id="id_95" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1029.643">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Tierra_Maya"/>
+ </svg>
+ <svg atv:refpx="904.945" atv:refpy="777.706" height="63.11" id="id_96" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1155.243" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="961.317">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Villas_del_Mar"/>
+ </svg>
+ <svg atv:refpx="801.873" atv:refpy="823.505" height="63.11" id="id_109" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1014.699" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1029.643">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_1_Reg_94"/>
+ </svg>
+ <svg atv:refpx="486.77" atv:refpy="618.124" height="63.11" id="id_110" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="585.257" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="821.957">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_2_Reg_93"/>
+ </svg>
+ <svg atv:refpx="487.257" atv:refpy="938.999" height="63.11" id="id_111" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="588.632" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1266.292">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_3_Reg_92"/>
+ </svg>
+ <svg atv:refpx="598.134" atv:refpy="875.019" height="63.11" id="id_115" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="728.958" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1098.949">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_FOVISSSTE_R4"/>
+ </svg>
+ <svg atv:refpx="904.002" atv:refpy="823.496" height="63.11" id="id_120" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1155.243" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1029.643">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Playa_Blanca"/>
+ </svg>
+ <svg atv:refpx="482.757" atv:refpy="877.74" height="63.11" id="id_121" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="585.257" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1169.9">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Puertas_del_Mar"/>
+ </svg>
+ <svg atv:refpx="486.776" atv:refpy="663.498" height="63.11" id="id_122" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="585.257" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="892.441">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Azul_Bonampak"/>
+ </svg>
+ <svg atv:refpx="704.984" atv:refpy="774.701" height="63.11" id="id_123" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="961.317">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Centenario"/>
+ </svg>
+ <svg atv:refpx="700.022" atv:refpy="1109.498" height="63.11" id="id_126" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Final_154_PTAR_NTE"/>
+ </svg>
+ <svg atv:refpx="800.887" atv:refpy="778.692" height="63.11" id="id_127" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1014.699" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="961.317">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Infovir_SM227"/>
+ </svg>
+ <svg atv:refpx="909.429" atv:refpy="1109.495" height="63.11" id="id_129" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1155.918" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Puerto_Cancun"/>
+ </svg>
+ <svg atv:refpx="595.224" atv:refpy="773.491" height="63.11" id="id_131" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="728.958" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1029.643">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Villas_Otoch"/>
+ </svg>
+ <svg atv:refpx="1553.462" atv:refpy="524.997" height="63.11" id="id_132" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2028.023" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="718.891">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_1_ZH_CREA"/>
+ </svg>
+ <svg atv:refpx="1657.491" atv:refpy="524.995" height="63.11" id="id_133" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2168.529" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="718.891">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_2_ZH_Calinda"/>
+ </svg>
+ <svg atv:refpx="1770.059" atv:refpy="526.994" height="63.11" id="id_134" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2312.506" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="721.635">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_3_ZH_Tortugas"/>
+ </svg>
+ <svg atv:refpx="1871.005" atv:refpy="524.992" height="63.11" id="id_135" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2456.789" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="718.891">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_4_ZH_Presidente"/>
+ </svg>
+ <svg atv:refpx="1561.332" atv:refpy="573.989" height="63.11" id="id_136" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2028.023" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="784.744">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_5_ZH_Convenciones"/>
+ </svg>
+ <svg atv:refpx="1657.479" atv:refpy="573.988" height="63.11" id="id_137" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2168.529" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="784.744">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_6_ZH_Caribe_Cancun"/>
+ </svg>
+ <svg atv:refpx="1764.136" atv:refpy="575.986" height="63.11" id="id_138" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2312.506" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="787.488">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_7_ZH_Piramides"/>
+ </svg>
+ <svg atv:refpx="1870.008" atv:refpy="570.986" height="63.11" id="id_139" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2456.789" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="784.744">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_9_ZH_PokTaPok"/>
+ </svg>
+ <svg atv:refpx="1654.524" atv:refpy="620.985" height="63.11" id="id_140" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2168.529" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="853.341">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_11_ZH_PokTaPok"/>
+ </svg>
+ <svg atv:refpx="1561.332" atv:refpy="622.984" height="63.11" id="id_141" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2028.023" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="853.341">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_10_ZH_PokTaPok"/>
+ </svg>
+ <svg atv:refpx="911.868" atv:refpy="872.012" height="63.11" id="id_142" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1155.243" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1098.949">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Andalucia"/>
+ </svg>
+ <svg atv:refpx="593.512" atv:refpy="75.989" height="63.11" id="id_143" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="733.419" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="72.713">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Final_Sur_PTAR_SUR"/>
+ </svg>
+ <svg atv:refpx="602.059" atv:refpy="1109.497" height="63.11" id="id_144" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="728.958" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Islazul"/>
+ </svg>
+ <svg atv:refpx="700.034" atv:refpy="877.984" height="63.11" id="id_145" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="873.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1173">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Poligono_7"/>
+ </svg>
+ <svg atv:refpx="484.757" atv:refpy="723.704" height="63.11" id="id_146" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="585.257" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="961.317">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Santa_Fe_Plus"/>
+ </svg>
+ <svg atv:refpx="805.662" atv:refpy="1109.494" height="63.11" id="id_147" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1015.849" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Tajamar"/>
+ </svg>
+ <svg atv:refpx="1018.37" atv:refpy="94.5" height="63.11" id="id_152" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1285.232" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="83.002">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_001"/>
+ </svg>
+ <svg atv:refpx="1123.49" atv:refpy="94.5" height="63.11" id="id_154" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1425.047" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="83.002">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_003"/>
+ </svg>
+ <svg atv:refpx="1016.657" atv:refpy="332.501" height="63.11" id="id_157" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1284.324" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="427.36">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_006"/>
+ </svg>
+ <svg atv:refpx="1228.095" atv:refpy="1025" height="63.11" id="id_162" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1565.493" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1374.674">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_011"/>
+ </svg>
+ <svg atv:refpx="1120.807" atv:refpy="334.503" height="63.11" id="id_168" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1424.139" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="427.36">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Desaladora_006"/>
+ </svg>
+ <svg atv:refpx="1024.305" atv:refpy="681.494" height="63.11" id="id_173" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1305.671" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="892.441">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_GONZ.Carcamo_Gonzalo"/>
+ </svg>
+ <svg atv:refpx="1137.376" atv:refpy="682.494" height="63.11" id="id_174" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1447.6" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="892.441">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_88"/>
+ </svg>
+ <svg atv:refpx="1238.985" atv:refpy="682.494" height="63.11" id="id_175" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1590.171" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="892.441">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Balamtun"/>
+ </svg>
+ <svg atv:refpx="1344.902" atv:refpy="732.993" height="63.11" id="id_176" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1731.806" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="961.723">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_CADU_II"/>
+ </svg>
+ <svg atv:refpx="1018.416" atv:refpy="575.494" height="63.11" id="id_177" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1305.671" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="751.132">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_CAME"/>
+ </svg>
+ <svg atv:refpx="1337.971" atv:refpy="879.617" height="63.11" id="id_178" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1731.806" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1080.567">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Colosio"/>
+ </svg>
+ <svg atv:refpx="1018.4" atv:refpy="725.696" height="63.11" id="id_179" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1305.671" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="961.317">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_CTM"/>
+ </svg>
+ <svg atv:refpx="1129.487" atv:refpy="575.492" height="63.11" id="id_180" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1447.6" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="751.132">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Ejido_Norte"/>
+ </svg>
+ <svg atv:refpx="1131.476" atv:refpy="724.696" height="63.11" id="id_181" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1447.6" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="961.317">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Ejido_Sur"/>
+ </svg>
+ <svg atv:refpx="1332.009" atv:refpy="570.501" height="63.11" id="id_182" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1731.806" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="751.132">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Final_AR"/>
+ </svg>
+ <svg atv:refpx="1233.063" atv:refpy="724.695" height="63.11" id="id_183" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1590.171" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="961.317">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Gaviotas"/>
+ </svg>
+ <svg atv:refpx="1018.4" atv:refpy="924.991" height="63.11" id="id_184" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1305.671" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1149.678">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Mayakoba"/>
+ </svg>
+ <svg atv:refpx="1125.472" atv:refpy="869.615" height="63.11" id="id_185" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1447.6" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1080.567">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Mision_Las_Flores"/>
+ </svg>
+ <svg atv:refpx="1015.777" atv:refpy="1025.501" height="63.11" id="id_186" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1302.115" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Palmanova"/>
+ </svg>
+ <svg atv:refpx="1338.995" atv:refpy="674.491" height="63.11" id="id_187" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1731.806" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="892.441">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Palmas_II"/>
+ </svg>
+ <svg atv:refpx="1024.305" atv:refpy="881.617" height="63.11" id="id_188" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1305.671" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1080.567">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Playero"/>
+ </svg>
+ <svg atv:refpx="1416.471" atv:refpy="876.614" height="63.11" id="id_189" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1875.582" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1080.567">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Toscana"/>
+ </svg>
+ <svg atv:refpx="1240.954" atv:refpy="881.617" height="63.11" id="id_190" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1590.171" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1080.567">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Villas_del_Carmen"/>
+ </svg>
+ <svg atv:refpx="1228.093" atv:refpy="570.501" height="63.11" id="id_191" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1590.171" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="751.132">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Villas_del_Sol"/>
+ </svg>
+ <svg atv:refpx="1416.548" atv:refpy="675.49" height="63.11" id="id_192" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1875.582" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="892.441">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Puerto_Aventuras"/>
+ </svg>
+ <svg atv:refpx="1234.076" atv:refpy="928.99" height="63.11" id="id_193" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="1590.171" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1149.678">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Cárcamo_Puerto_Maya_3"/>
+ </svg>
+ <svg atv:refpx="1569.09" atv:refpy="384.999" height="63.11" id="id_195" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2031.516" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="587.186">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Carcamo_Mundaca"/>
+ </svg>
+ <svg atv:refpx="1869.095" atv:refpy="100.5" height="63.11" id="id_196" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2456.789" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="87.118">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Carcamo_Tanque_Elevado"/>
+ </svg>
+ <svg atv:refpx="1661.516" atv:refpy="343.501" height="63.11" id="id_201" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2028.023" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="427.36">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Cañotal"/>
+ </svg>
+ <svg atv:refpx="1677.259" atv:refpy="296.497" height="63.11" id="id_202" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2168.529" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="353.272">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Electricistas"/>
+ </svg>
+ <svg atv:refpx="1766.219" atv:refpy="284.497" height="63.11" id="id_203" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2312.506" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="353.272">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Final_PTAR_IM"/>
+ </svg>
+ <svg atv:refpx="129.975" atv:refpy="111.496" height="63.11" id="id_206" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2455.612" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="353.272">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Oriente"/>
+ </svg>
+ <!-- moved LAN 232 label below its panel to ensure it stays on top -->
+ <svg atv:refpx="55.054" atv:refpy="821.619" height="63.11" id="id_259" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1099.774">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Andalucia"/>
+ </svg>
+ <svg atv:refpx="172.572" atv:refpy="899.724" height="63.11" id="id_57" transform="matrix(0.7299,0,0,0.7289,0,0)" width="133" x="156.23" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1169.9">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Punta_Sam"/>
+ </svg>
+ <!-- Panel for LAN 232 (AR Cancún) -->
+ <svg atv:refpx="488.253" atv:refpy="79.994" height="63.11" id="id_63" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="583.232" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="72.713">
+  <text atv:refpx="798.767" atv:refpy="44.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_229" transform="matrix(0.5792,0,0,0.641,323.2211,11.488)" x="772.611" y="60.5">LAN 232</text>
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Final_95"/>
+ </svg>
+ <svg atv:refpx="490.165" atv:refpy="130.993" height="63.11" id="id_64" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="584.582" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="145.425">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Final_Sur"/>
+ </svg>
+ <g atv:refpx="1711" atv:refpy="862.722" id="PM">
+  <rect atv:refpx="1711" atv:refpy="896.429" class="panel panel-pm" fill="#3ea9ba" fill-opacity="0.419608" height="343.329" id="id_148" rx="8" ry="7.803" stroke="#83a5aa" stroke-width="2" width="426" x="1498" y="708.671"/>
+  <g atv:refpx="1711" atv:refpy="691.444" id="id_254" transform="matrix(1,0,0,1,122.9566,-443.9425)">
+   <text atv:refpx="1474.654" atv:refpy="1143.886" class="titulos" dominant-baseline="middle" fill="#000000" font-family="Arial" font-size="24" font-weight="bold" id="id_219" text-anchor="middle" x="1588.043" y="1143.886">PUERTO MORELOS</text>
+  </g>
+ </g>
+ <svg atv:refpx="1551.842" atv:refpy="678.494" height="63.11" id="id_220" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1997.45" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1029.643">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Carcamo_Villas_Morelos_Tanque_01"/>
+ </svg>
+ <svg atv:refpx="1655.442" atv:refpy="678.494" height="63.11" id="id_228" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2135.237" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1029.643">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Carcamo_Villas_Morelos_Tanque_02"/>
+ </svg>
+ <svg atv:refpx="1551.842" atv:refpy="729.01" height="63.11" id="id_232" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1997.45" xlink:href="ObjectTypes.PROJECT.ElementoPozo.Monitoreo%20IT" y="1098.949">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Pozo_001_PM"/>
+ </svg>
+ <svg atv:refpx="1655.442" atv:refpy="729.01" height="63.11" id="id_236" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2135.237" xlink:href="ObjectTypes.PROJECT.ElementoPozo.Monitoreo%20IT" y="1098.949">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Pozo_002_PM"/>
+ </svg>
+ <svg atv:refpx="1762.082" atv:refpy="729.01" height="63.11" id="id_265" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2277.069" xlink:href="ObjectTypes.PROJECT.ElementoPozo.Monitoreo%20IT" y="1098.949">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Pozo_003_PM"/>
+ </svg>
+ <svg atv:refpx="1866.469" atv:refpy="729.01" height="63.11" id="id_267" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2414.574" xlink:href="ObjectTypes.PROJECT.ElementoPozo.Monitoreo%20IT" y="1098.949">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Pozo_004_PM"/>
+ </svg>
+ <svg atv:refpx="1551.842" atv:refpy="825" height="63.11" id="id_269" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1997.45" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1238.874">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_LV.Carcamo_Leona_Vicario"/>
+ </svg>
+ <svg atv:refpx="1655.416" atv:refpy="875" height="63.11" id="id_270" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2135.203" xlink:href="ObjectTypes.PROJECT.ElementoPozo.Monitoreo%20IT" y="1307.472">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_LV.Pozo_Nuevo_LV"/>
+ </svg>
+ <svg atv:refpx="1551.842" atv:refpy="875" height="63.11" id="id_271" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1997.45" xlink:href="ObjectTypes.PROJECT.ElementoPozo.Monitoreo%20IT" y="1307.472">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_LV.Pozo_Viejo_LV"/>
+ </svg>
+ <svg atv:refpx="1551.842" atv:refpy="776.61" height="63.11" id="id_272" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1997.45" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1169.742">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_CV.Carcamo_Central_Vallarta"/>
+ </svg>
+ <svg atv:refpx="1551.842" atv:refpy="924.491" height="63.11" id="id_273" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1997.45" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Cuencas.Cuenca_PTAR_Casco_Antiguo.Carcamo_Final_PTAR_Casco_Antiguo"/>
+ </svg>
+ <svg atv:refpx="1655.416" atv:refpy="924.491" height="63.11" id="id_274" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2135.203" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Cuencas.Cuenca_PTAR_VM1.Carcamo_Final_PTAR_VM1"/>
+ </svg>
+ <svg atv:refpx="1760.7" atv:refpy="924.491" height="63.11" id="id_275" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2275.231" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Cuencas.Cuenca_PTAR_VM2.Carcamo_Final_PTAR_VM2"/>
+ </svg>
+ <svg atv:refpx="1866.469" atv:refpy="924.491" height="63.11" id="id_276" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2414.574" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1375.372">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Cuencas.Cuenca_PTAR_VM4.Carcamo_Final_PTAR_VM4"/>
+ </svg>
+ <svg atv:refpx="373.501" atv:refpy="616.707" height="63.11" id="id_212" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="436.405" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="891.349">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Villas_del_Mar_1"/>
+ </svg>
+ <!-- Removed duplicate LAN 246 for AR (no aplica en residual) -->
+ <svg atv:refpx="1437.564" atv:refpy="725.543" height="63.11" id="id_101" transform="matrix(0.7368,0,0,0.713,0,0)" width="133" x="1885.862" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="983.17">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Diamante"/>
+ </svg>
+ <svg atv:refpx="374.514" atv:refpy="391.693" height="63.11" id="id_166" transform="matrix(0.7293,0,0,0.7447,0,0)" width="133" x="444.266" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="497.085">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_005"/>
+ </svg>
+ <svg atv:refpx="1332.004" atv:refpy="861" height="63.11" id="id_211" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1705.019" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1149.678">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_16"/>
+ </svg>
+ <svg atv:refpx="53.066" atv:refpy="893.774" height="63.11" id="id_281" transform="matrix(0.7519,0,0,0.7519,0,0)" width="133" x="8.063" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="1133.148">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Santa_Fe"/>
+ </svg>
+ <svg atv:refpx="905.949" atv:refpy="668.507" height="63.11" id="id_28" transform="matrix(0.736,0,0,0.736,0,0)" width="133" x="1163.045" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="883.527">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Cumbres"/>
+ </svg>
+ <svg atv:refpx="1576.499" atv:refpy="293.5" height="63.11" id="id_194" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2028.023" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Monitoreo%20IT" y="353.272">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Carcamo_Aeropuerto_IM"/>
+ </svg>
+ <svg atv:refpx="1765.23" atv:refpy="233.606" height="63.11" id="id_197" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2312.506" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="276.59">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_001_IM"/>
+ </svg>
+ <svg atv:refpx="1891.902" atv:refpy="235.604" height="63.11" id="id_198" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2455.612" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="276.59">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_002_IM"/>
+ </svg>
+ <svg atv:refpx="1554.509" atv:refpy="180.498" height="63.11" id="id_200" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2028.023" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="206.476">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Caridad_Cobre"/>
+ </svg>
+ <svg atv:refpx="1657.588" atv:refpy="227.603" height="63.11" id="id_205" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2168.529" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="276.59">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Miraflores"/>
+ </svg>
+ <svg atv:refpx="1869.218" atv:refpy="178.498" height="63.11" id="id_199" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2455.612" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="206.476">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Ampliacion"/>
+ </svg>
+ <svg atv:refpx="1576.199" atv:refpy="235.603" height="63.11" id="id_204" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2028.023" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="276.59">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Fovissste_IM"/>
+ </svg>
+ <svg atv:refpx="1764.226" atv:refpy="172.495" height="63.11" id="id_208" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2312.506" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="206.476">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Sacbajo"/>
+ </svg>
+ <svg atv:refpx="1658.588" atv:refpy="179.496" height="63.11" id="id_209" transform="matrix(0.7407,0,0,0.7289,0,0)" width="133" x="2168.529" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="206.476">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Salinas"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <svg atv:refpx="1655" atv:refpy="330.497" height="63.11" id="id_279" transform="matrix(0.7368,0,0,0.7289,0,0)" width="133" x="2180.929" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="427.36">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Convenciones"/>
+ </svg>
+ <svg atv:refpx="802.896" atv:refpy="78.999" height="63.11" id="id_289" transform="matrix(0.7368,0,0,0.7289,0,0)" width="133" x="1020.422" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="75.456">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.PTAR_Norponiente_Caja_Rompedora"/>
+ </svg>
+ <svg atv:refpx="699.06" atv:refpy="128" height="63.11" id="id_290" transform="matrix(0.7293,0,0,0.7289,0,0)" width="133" x="887.891" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="144.055">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.PTAR_NPN_CLORACION"/>
+ </svg>
+ <svg atv:refpx="906.973" atv:refpy="78.001" height="63.11" id="id_291" transform="matrix(0.7293,0,0,0.7289,0,0)" width="133" x="1174.341" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="75.456">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.PTAR_NPN_PRETRATAMIENTO"/>
+ </svg>
+ <text atv:refpx="50.656" atv:refpy="129.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_105" transform="matrix(0.5792,0,0,0.641,8.416,42.003)" x="24.5" y="145.5">LAN 246</text>
+ <svg atv:refpx="1122.552" atv:refpy="860.983" height="63.11" id="id_248" transform="matrix(0.7368,0,0,0.7289,0,0)" width="133" x="1455.614" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo%20IT" y="1149.678">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.PTAR_SSH"/>
+ </svg>
+ <text atv:refpx="1004.859" atv:refpy="48.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_266" transform="matrix(0.5792,0,0,0.641,408.312,12.924)" x="974.823" y="64.5">MILESIGHT</text>
+ <text atv:refpx="1215.536" atv:refpy="535.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_277" transform="matrix(0.5792,0,0,0.641,496.9648,187.757)" x="1185.5" y="551.5">MILESIGHT</text>
+ <text atv:refpx="1011.647" atv:refpy="637.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_278" transform="matrix(0.5792,0,0,0.641,416.1712,224.375)" x="993.5" y="653.5">GPRS</text>
+ <text atv:refpx="57.979" atv:refpy="913.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_282" transform="matrix(0.5792,0,0,0.641,6.7328,323.459)" x="20.5" y="929.5">MILESIGHT</text>
+ <text atv:refpx="480.979" atv:refpy="915.179" class="titulos" fill="#000000" font-family="Arial" font-size="26" font-weight="bold" id="id_285" transform="matrix(0.5792,0,0,0.641,184.7312,324.177)" x="443.5" y="931.5">MILESIGHT</text>
+</svg>

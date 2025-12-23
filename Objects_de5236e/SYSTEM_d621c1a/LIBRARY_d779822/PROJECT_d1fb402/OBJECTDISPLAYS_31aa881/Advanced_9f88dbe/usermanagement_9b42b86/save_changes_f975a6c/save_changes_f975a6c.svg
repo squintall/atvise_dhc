@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="200" version="1.2" width="430" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <desc>Dialog to save or cancel changes.</desc>
+ <title>Save Dialog</title>
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="Font Color" name="FontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="Fill Color" name="FillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.60x60.user" desc="Synbol" name="Symbol" substitute="$SYMBOL$" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="Symbol Color" name="SymbolColor" substitute="$SYMBOLCOLOR$" valuetype="global"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <rect atv:refpx="214.769" atv:refpy="98.979" fill="$FILLCOLOR$" height="199.958" id="id_3" stroke="none" stroke-width="2" width="429.539" x="0" y="-1"/>
+ <svg atv:refpx="102.5" atv:refpy="157.549" height="30" id="save_button" transform="matrix(2.0625,0,0,1.5,0,0)" width="80" x="9.697" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="90.033">
+  <atv:argument name="label" value="T{save}"/>
+  <atv:overwrite height="43" id="id_6" transform="matrix(0.4848,0,0,0.6667,0,0)" width="163"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.4848,0,0,0.6667,0,0)" x="82.5" y="34"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.4848,0,0,0.6667,0,0)" x="82.5" y="19"/>
+  <atv:overwrite id="button_label" transform="matrix(0.4848,0,0,0.6667,0,0)" x="82.5" y="27"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.2909,0,0,0.4,0,0)" x="127.333" y="38.792"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.2909,0,0,0.4,0,0)" x="127.333" y="17.459"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.4848,0,0,0.6667,0,0)" x="72.5" y="12.5"/>
+  <atv:overwrite height="41" id="button_stroke" transform="matrix(0.4848,0,0,0.6667,0,0)" width="161"/>
+  <atv:overwrite height="43" id="button_bg" transform="matrix(0.4848,0,0,0.6667,0,0)" width="163"/>
+  <atv:overwrite height="45" id="outer_frame" transform="matrix(0.4848,0,0,0.6667,0,0)" width="165"/>
+ </svg>
+ <svg atv:refpx="325.891" atv:refpy="156.06" height="30" id="cancel_button" transform="matrix(2.0625,0,0,1.5,0,0)" width="80" x="118.788" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="90.113">
+  <atv:argument name="label" value="T{Cancel}"/>
+  <atv:overwrite height="43" id="id_6" transform="matrix(0.4848,0,0,0.6667,0,0)" width="163"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.4848,0,0,0.6667,0,0)" x="82.5" y="34"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.4848,0,0,0.6667,0,0)" x="82.5" y="19"/>
+  <atv:overwrite id="button_label" transform="matrix(0.4848,0,0,0.6667,0,0)" x="82.5" y="27"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.2909,0,0,0.4,0,0)" x="127.333" y="38.792"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.2909,0,0,0.4,0,0)" x="127.333" y="17.459"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.4848,0,0,0.6667,0,0)" x="72.5" y="12.5"/>
+  <atv:overwrite height="41" id="button_stroke" transform="matrix(0.4848,0,0,0.6667,0,0)" width="161"/>
+  <atv:overwrite height="43" id="button_bg" transform="matrix(0.4848,0,0,0.6667,0,0)" width="163"/>
+  <atv:overwrite height="45" id="outer_frame" transform="matrix(0.4848,0,0,0.6667,0,0)" width="165"/>
+ </svg>
+ <text atv:refpx="236.382" atv:refpy="60.371" fill="$FONTCOLOR$" font-family="Arial" font-size="28" id="id_2" text-anchor="middle" x="236.382" y="70.372">T{Save Change}?</text>
+ <svg atv:refpx="58.198" atv:refpy="58.198" height="60" id="id_5" transform="matrix(1.2667,0,0,1.2667,0,0)" width="60" x="15.946" xlink:href="$SYMBOL$" y="15.945">
+  <atv:argument name="symbolColor" prefix="SymbolColor"/>
+ </svg>
+ <text atv:refpx="209.24" atv:refpy="-27.907" fill="$FONTCOLOR$" font-family="Arial" font-size="24" id="username" text-anchor="middle" x="209.24" y="-17.907">&lt;username></text>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.usermanagement.save_changes" atv:name="save changes" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

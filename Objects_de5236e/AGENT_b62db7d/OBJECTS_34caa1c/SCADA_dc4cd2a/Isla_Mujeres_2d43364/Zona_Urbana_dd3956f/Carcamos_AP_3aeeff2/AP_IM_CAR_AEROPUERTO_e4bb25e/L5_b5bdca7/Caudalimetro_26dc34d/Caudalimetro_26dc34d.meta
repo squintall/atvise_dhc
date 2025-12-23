@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AP.AP_IM_CAR_AEROPUERTO.L5.Caudalimetro
+NodeClass: Object
+BrowseName: 1:Caudalimetro
+DisplayName: en|Caudalimetro
+Description: en|Caudalimetro
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

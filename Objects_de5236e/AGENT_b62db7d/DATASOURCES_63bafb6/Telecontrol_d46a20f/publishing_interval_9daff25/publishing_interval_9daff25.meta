@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.publishing_interval
+NodeClass: Variable
+BrowseName: 1:publishing_interval
+DisplayName: en|publishing_interval
+Description: en|publishing_interval
+DataType: Int32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

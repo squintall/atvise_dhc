@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for button_image_display object display
+ * --------------------------------------------
+ * The button_image_display is used to change images (only raster graphics images are supported) depending on&nbsp;the value of an address.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var stroke = webMI.query["stroke"];
+var fill = webMI.query["fill"];
+var fillColorInactive = webMI.query["fillColorInactive"];
+var image1 = webMI.query["image1"];
+var image2 = webMI.query["image2"];
+var image3 = webMI.query["image3"];
+var image4 = webMI.query["image4"];
+var image5 = webMI.query["image5"];
+var onClickValue = webMI.query["onClickValue"] == undefined ? "" : webMI.query["onClickValue"];
+var onClickNode = webMI.query["onClickNode"] == undefined ? "" : webMI.query["onClickNode"];
+var onMouseDownValue = webMI.query["onMouseDownValue"] == undefined ? "" : webMI.query["onMouseDownValue"];
+var onMouseDownNode = webMI.query["onMouseDownNode"] == undefined ? "" : webMI.query["onMouseDownNode"];
+var onMouseUpValue = webMI.query["onMouseUpValue"] == undefined ? "" : webMI.query["onMouseUpValue"];
+var onMouseUpNode = webMI.query["onMouseUpNode"] == undefined ? "" : webMI.query["onMouseUpNode"];
+var focusStrokeColor = webMI.query["focusStrokeColor"];
+var limitLowLowStroke = webMI.query["limitLowLowStroke"];
+var limitLowStroke = webMI.query["limitLowStroke"];
+var limitHighStroke = webMI.query["limitHighStroke"];
+var limitHighHighStroke = webMI.query["limitHighHighStroke"];
+var nodeStroke = webMI.query["nodeStroke"] == undefined ? "" : webMI.query["nodeStroke"];
+var enumList = webMI.query["enumList"] == undefined ? "" : webMI.query["enumList"];
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+var curValue;
+var limitLowLow = webMI.query["limitLowLow"] == undefined ? "" : webMI.query["limitLowLow"];
+var limitLow = webMI.query["limitLow"] == undefined ? "" : webMI.query["limitLow"];
+var limitHigh = webMI.query["limitHigh"] == undefined ? "" : webMI.query["limitHigh"];
+var limitHighHigh = webMI.query["limitHighHigh"] == undefined ? "" : webMI.query["limitHighHigh"];
+var right = webMI.query["right"] == undefined ? "" : webMI.query["right"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var isActivationNodeSet = activeNode != "" && String(activeValue) != "";
+var lockInputEvents = true;
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+/**
+ * RUNTIME SECTION
+ */
+
+/**
+ * Add images to rights check if node ID has been given as path.
+ * There's no rights check with a www-root file path only.
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var runTimeNodeConfig = {};
+var imageRights = [];
+
+var runTimeNodeConfig = {
+	base: {value: null, address: base, paramValue: "", read: true, write: true, aggregate: false}
+}
+
+if (enumList !== "") {
+	for (let key in enumList) {
+		let enumItem = enumList[key];
+		if (!enumItem.image) return;
+
+		var fullImagePath = enumItem.image;
+
+		if (!fullImagePath.includes("SYSTEM.LIBRARY")) {
+			fullImagePath = "SYSTEM.LIBRARY.ATVISE.RESOURCES/" + fullImagePath;
+		}
+
+		runTimeNodeConfig[fullImagePath] = {
+			value: null,
+			address: fullImagePath,
+			paramValue: "",
+			read: true,
+			write: false,
+			aggregate: false
+		};
+
+		imageRights.push({
+			nodeId: fullImagePath,
+			rights: "read",
+			disable: false,
+			notify: true
+		});
+	}
+} else {
+	[image1, image2, image3, image4, image5].forEach((imagePath) => {
+		if (!imagePath) return;
+
+		var fullImagePath = imagePath;
+
+		if (!fullImagePath.includes("SYSTEM.LIBRARY")) {
+			fullImagePath = "SYSTEM.LIBRARY.ATVISE.RESOURCES/" + fullImagePath;
+		}
+
+		runTimeNodeConfig[fullImagePath] = {
+			value: null,
+			address: fullImagePath,
+			paramValue: "",
+			read: true,
+			write: false,
+			aggregate: false
+		};
+
+		imageRights.push({
+			nodeId: fullImagePath,
+			rights: "read",
+			disable: false,
+			notify: true
+		});
+	});
+}
+
+var rights = imageRights.concat([
+	{nodeId: webMI.query["base"], rights: "read", disable: true, notify: false},
+	{nodeId: webMI.query["nodeStroke"], rights: "read", disable: true, notify: true},
+	{nodeId: webMI.query["onClickNode"], rights: "write", disable: true, notify: false},
+	{nodeId: webMI.query["onMouseDownNode"], rights: "write", disable: true, notify: false},
+	{nodeId: webMI.query["onMouseUpNode"], rights: "write", disable: true, notify: false},
+	{nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true}
+]);
+
+var notifierConfig = {
+	id: document.getElementById("image_clickarea").id,
+	rights: rights,
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: {activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"]},
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: right
+};
+
+if (typeof rightsHandling === "function")
+	rightsHandling(rightsHandlingProperties);
+
+if (typeof updateRunTimeNodeConfig === "function") {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+} else {
+	initialize(runTimeNodeConfig);
+}
+
+function initialize(nodeCfg) {
+	if (limitHighHigh != "") {
+		limitHighHigh = limitHighHigh != "off" ? parseFloat(limitHighHigh) : "";
+	}
+	if (limitHigh != "") {
+		limitHigh = limitHigh != "off" ? parseFloat(limitHigh) : "";
+	}
+	if (limitLow != "") {
+		limitLow = limitLow != "off" ? parseFloat(limitLow) : "";
+	}
+	if (limitLowLow != "") {
+		limitLowLow = limitLowLow != "off" ? parseFloat(limitLowLow) : "";
+	}
+
+	if (base != "") {
+		if (!nodeCfg.base.read) {
+			webMI.gfx.setVisible("image", false);
+		} else {
+			if (!nodeCfg.base.subscribe) {
+				nodeCfg.base.subscribe = true;
+
+				webMI.data.subscribe(nodeCfg.base.address, function (e) {
+					curValue = e.value;
+
+					var imageNr = 3;
+
+					if (limitLowLow != "" || limitLow != "" || limitHigh != "" || limitHighHigh != "") {
+						if (limitLow != "" && curValue <= limitLow) {
+							imageNr = 2;
+						}
+						if (limitLowLow != "" && curValue <= limitLowLow) {
+							imageNr = 1;
+						}
+						if (limitHigh != "" && curValue >= limitHigh) {
+							imageNr = 4;
+						}
+						if (limitHighHigh != "" && curValue >= limitHighHigh) {
+							imageNr = 5;
+						}
+					} else {
+						imageNr = curValue; // if no limit is specified, take value from base as index for images
+					}
+
+					if (enumList == "") {
+						switch (imageNr) {
+							case 1:
+								switchImage(image1);
+								break;
+							case 2:
+								switchImage(image2);
+								break;
+							case 3:
+								switchImage(image3);
+								break;
+							case 4:
+								switchImage(image4);
+								break;
+							case 5:
+								switchImage(image5);
+								break;
+							default:
+								break;
+						}
+					} else {
+						image = enumList[curValue] != undefined ? enumList[curValue].image : null;
+						switchImage(image);
+					}
+				});
+			}
+		}
+	}
+
+	if (nodeStroke != "" && enumList == "") {
+		webMI.data.subscribe(nodeStroke, function (e) {
+			curValue = e.value;
+			if (limitLowLow != "" || limitLow != "" || limitHigh != "" || limitHighHigh != "") {
+				webMI.gfx.setStroke("image_stroke", stroke);
+				if (limitLow != "" && curValue <= limitLow) {
+					webMI.gfx.setStroke("image_stroke", limitLowStroke);
+				}
+				if (limitLowLow != "" && curValue <= limitLowLow) {
+					webMI.gfx.setStroke("image_stroke", limitLowLowStroke);
+				}
+				if (limitHigh != "" && curValue >= limitHigh) {
+					webMI.gfx.setStroke("image_stroke", limitHighStroke);
+				}
+				if (limitHighHigh != "" && curValue >= limitHighHigh) {
+					webMI.gfx.setStroke("image_stroke", limitHighHighStroke);
+				}
+			}
+		});
+	}
+
+	webMI.addOnload(function () {
+		var doc = document.getElementById("image_clickarea").ownerDocument;
+		tabHandler.register(tabIndex, keyHandler, doc);
+	});
+
+	if (tooltip != "") {
+		webMI.callExtension(
+			"SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip",
+			{
+				auto: "true",
+				id: "image_clickarea",
+				text: tooltip
+			},
+			false
+		);
+	}
+}
+
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * set active layout
+ */
+function setActiveLayout() {
+	lockInputEvents = false;
+
+	webMI.gfx.setFill("image_stroke", fill);
+	webMI.gfx.setVisible("image", true);
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+}
+
+/**
+ * set inactive layout
+ */
+function setInactiveLayout() {
+	lockInputEvents = true;
+
+	webMI.gfx.setFill("image_stroke", fillColorInactive);
+	if (typeof CRH != "undefined" && !CRH.state.activationTriggerState) {
+		webMI.gfx.setVisible("image", false);
+	}
+
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+}
+
+/**
+ * update on ac right changes
+ */
+function fetchCurrentRightsAndUpdate() {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+}
+
+function focusTH() {
+	webMI.gfx.setVisible("image_focus_stroke", true);
+}
+
+function blurTH() {
+	webMI.gfx.setVisible("image_focus_stroke", false);
+}
+
+function applyTH() {
+	if (lockInputEvents) return;
+
+	if (onClickNode != "" && onClickValue != "") {
+		webMI.data.write(onClickNode, onClickValue);
+	}
+	webMI.trigger.fire("valuechanged", onClickValue, "");
+}
+
+function backTH() {
+}
+
+function arrowTH(dir) {
+}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		focusTH();
+	} else if (keyTH == "blur") {
+		blurTH();
+	} else if (keyTH == "apply") {
+		applyTH();
+	} else if (keyTH == "back") {
+		backTH();
+	} else if (keyTH == "arrow") {
+		arrowTH(param2);
+	} else if (keyTH == "isActive") {
+		return param2(document.getElementById("image_clickarea").parentNode);
+	}
+}
+
+/**
+ * Change image according to rights
+ * @param image
+ */
+function switchImage(image) {
+	if (image != undefined && image != null && image != "") {
+		image = image.replace(/^SYSTEM\.LIBRARY\.ATVISE\.RESOURCES\//, "");
+		image = image.replace(/^SYSTEM\.LIBRARY\.PROJECT\.RESOURCES\//, "");
+
+		if (image.indexOf(".svg") == image.length - 4) {
+			image = "T{}/" + image;
+		}
+
+		var fullImagePath = image;
+
+		if (!fullImagePath.includes("SYSTEM.LIBRARY")) {
+			fullImagePath = "SYSTEM.LIBRARY.ATVISE.RESOURCES/" + fullImagePath;
+		}
+
+		setTimeout(function () {
+			if (fullImagePath in runTimeNodeConfig && runTimeNodeConfig[fullImagePath].read) {
+				webMI.gfx.setImage("image", "/" + image);
+				webMI.gfx.setVisible("image", true);
+			} else {
+				webMI.gfx.setImage("image", "");
+				webMI.gfx.setVisible("image", false);
+			}
+		}, 1);
+	} else {
+		setTimeout(function () {
+			webMI.gfx.setImage("image", "");
+			webMI.gfx.setVisible("image", false);
+		}, 1);
+	}
+}
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent("image_clickarea", "click", function (e) {
+	if (lockInputEvents) return;
+
+	var id = "image_clickarea";
+	var value = true;
+	return (function (value) {
+		tabHandler.setCurrentIndex(keyHandler);
+		if (onClickNode != "" && onClickValue != "") {
+			webMI.data.write(onClickNode, onClickValue);
+		}
+		webMI.trigger.fire("valuechanged", onClickValue, "");
+	})(value);
+});
+
+webMI.addEvent("image_clickarea", "mousedown", function (e) {
+	if (lockInputEvents) return;
+
+	var id = "image_clickarea";
+	var value = true;
+	return (function (value) {
+		if (onMouseDownNode != "" && onMouseDownValue != "") {
+			webMI.data.write(onMouseDownNode, onMouseDownValue);
+		}
+		webMI.trigger.fire("valuechangedMouseDown", onMouseDownValue, "");
+	})(value);
+});
+
+webMI.addEvent("image_clickarea", "mouseup", function (e) {
+	if (lockInputEvents) return;
+
+	var id = "image_clickarea";
+	var value = true;
+	return (function (value) {
+		if (onMouseUpNode != "" && onMouseUpValue != "") {
+			webMI.data.write(onMouseUpNode, onMouseUpValue);
+		}
+		webMI.trigger.fire("valuechangedMouseUp", onMouseUpValue, "");
+	})(value);
+});
+
+webMI.addEvent("image_clickarea", "dragstart", function (e) {
+	if (e.preventDefault) {
+		e.preventDefault();
+	}
+});
+
+]]></code>
+</script>

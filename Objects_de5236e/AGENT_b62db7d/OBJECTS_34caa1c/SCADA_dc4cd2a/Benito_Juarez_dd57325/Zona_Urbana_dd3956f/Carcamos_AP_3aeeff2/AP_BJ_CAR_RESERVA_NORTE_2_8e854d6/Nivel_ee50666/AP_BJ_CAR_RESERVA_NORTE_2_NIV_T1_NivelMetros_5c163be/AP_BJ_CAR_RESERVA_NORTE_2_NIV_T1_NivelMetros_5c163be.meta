@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_RESERVA_NORTE_2.Nivel.AP_BJ_CAR_RESERVA_NORTE_2_NIV_T1_NivelMetros
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_RESERVA_NORTE_2_NIV_T1_NivelMetros
+DisplayName: en|AP_BJ_CAR_RESERVA_NORTE_2_NIV_T1_NivelMetros
+Description: en|AP_BJ_CAR_RESERVA_NORTE_2_NIV_T1_NivelMetros
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

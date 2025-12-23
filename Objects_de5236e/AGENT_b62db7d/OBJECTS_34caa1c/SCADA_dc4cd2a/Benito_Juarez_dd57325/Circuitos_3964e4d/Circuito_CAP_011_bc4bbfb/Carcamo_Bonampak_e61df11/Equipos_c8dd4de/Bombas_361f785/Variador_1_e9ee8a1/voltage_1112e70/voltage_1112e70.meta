@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Bonampak.Equipos.Bombas.Variador_1.voltage
+NodeClass: Variable
+BrowseName: 1:voltage
+DisplayName: en|voltage
+Description: en|voltage
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.voltage.SuppressFlicker
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

@@ -1,0 +1,11 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/font/webfonts/OFL.txt
+NodeClass: Variable
+BrowseName: 1:OFL.txt
+DisplayName: en|OFL.txt
+Description: en|OFL.txt
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Text
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Text.Compress
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Text.Translate

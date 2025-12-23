@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_007.Equipos.Nivel.AP_SOL_CAR_7_NIV_T1_NivelPorcentajeAlto
+NodeClass: Variable
+BrowseName: 1:AP_SOL_CAR_7_NIV_T1_NivelPorcentajeAlto
+DisplayName: en|AP_SOL_CAR_7_NIV_T1_NivelPorcentajeAlto
+Description: en|AP_SOL_CAR_7_NIV_T1_NivelPorcentajeAlto
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

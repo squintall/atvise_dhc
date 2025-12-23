@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="Trigger" type="timer" trigger="true" relative="false" value="" starttime="00:00:00" repeat="00:05:00"/>
+  <code><![CDATA[// Buscar nodos sin prefijo "historic"
+var level_percent = Ua.findNode(base + ".level_percent");
+var level = Ua.findNode(base + ".level");
+
+// Buscar nodos "historic"
+var historic_level_percent = Ua.findNode(base + ".historic_level_percent");
+var historic_level = Ua.findNode(base + ".historic_level");
+
+var nombre_instalacion = Ua.findNode(base + ".short_name");
+var short_name = nombre_instalacion.result.value;
+
+// Comprobaciones individuales para los nodos originales y asignaciones correspondientes
+if (level_percent && level_percent.result && level_percent.result.value !== undefined) {
+    historic_level_percent.result.value = level_percent.result.value;
+} else {
+ //   console.warn((short_name || "unknown") + " level percent no existe o no tiene un valor válido. Asignación omitida.");
+}
+
+if (level && level.result && level.result.value !== undefined) {
+    historic_level.result.value = level.result.value;
+} else {
+ //   console.warn((short_name || "unknown") + " level no existe o no tiene un valor válido. Asignación omitida.");
+}]]></code>
+</script>

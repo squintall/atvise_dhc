@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the button_group_display object display
+ * ----------------------------------------------
+ * This control is a group of buttons that shows all displays from the main display structure on mouseover:
+ * - MAIN: All displays that are located in the "DISPLAYS.MAIN" folder.
+ * - USER: All displays that are located in the "DISPLAYS.USER" folder.
+ * - SYSTEM: All displays that are located in the "DISPLAYS.SYSTEM" folder.
+ * - REPORT: All displays that are located in the "DISPLAYS.REPORT" folder.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var frameName = webMI.query["targetFrame"];
+var fontColor = webMI.query["fontColor"];
+var borderColor = webMI.query["borderColor"];
+var strokePressed = webMI.query["strokePressed"];
+var strokeNormal = "none";
+var isOldStyle = typeof webMI.gfx.getX("button_stroke_4") != "undefined";
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (!isOldStyle) {
+
+	var offset1 = { x: 0, y: 43 };
+	var offset2 = { x: 42, y: 43 };
+	var offset3 = { x: 80, y: 43 };
+	var offset4 = { x: 118, y: 43 };
+
+	var mainMenuStyle = { maxRows: 10, fontFamily: "Arial", fontSize: 12, fontFill: fontColor, width: 140, fill: "#ffffff", stroke: borderColor, strokeWidth: 1, hoverFill: "#e5e5e5", closeTime: 0, zIndex: 100, showType: "right"};
+																																																					  
+} else {
+
+	var offset1 = { x: 0, y: 45 };
+	var offset2 = { x: 42, y: 45 };
+	var offset3 = { x: 80, y: 45 };
+	var offset4 = { x: 118, y: 45 };
+
+}
+
+if (!isOldStyle) {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_1", name: "MAIN", itemsCount: 0, "outputNode":null, "x":offset1.x, "y":offset1.y, onEvent: "mouseover", frameName: frameName, "style": mainMenuStyle});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_1", name: "MAIN", itemsCount: 0, "outputNode":null, "x":offset1.x, "y":offset1.y, onEvent: "click", frameName: frameName, "style": mainMenuStyle});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_2", name: "USER", itemsCount: 0, "outputNode":null, "x":offset2.x, "y":offset2.y, onEvent: "mouseover", frameName: frameName, "style": mainMenuStyle});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_2", name: "USER", itemsCount: 0, "outputNode":null, "x":offset2.x, "y":offset2.y, onEvent: "click", frameName: frameName, "style": mainMenuStyle});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_3", name: "SYSTEM", itemsCount: 0, "outputNode":null, "x":offset3.x, "y":offset3.y, onEvent: "mouseover", frameName: frameName, "style": mainMenuStyle});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_3", name: "SYSTEM", itemsCount: 0, "outputNode":null, "x":offset3.x, "y":offset3.y, onEvent: "click", frameName: frameName, "style": mainMenuStyle});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_4", name: "REPORT", itemsCount: 0, "outputNode":null, "x":offset4.x, "y":offset4.y, onEvent: "mouseover", frameName: frameName, "style": mainMenuStyle});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_4", name: "REPORT", itemsCount: 0, "outputNode":null, "x":offset4.x, "y":offset4.y, onEvent: "click", frameName: frameName, "style": mainMenuStyle});
+} else {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_1", name: "MAIN", itemsCount: 0, "outputNode":null, "x":offset1.x, "y":offset1.y, onEvent: "mouseover", frameName: frameName});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_1", name: "MAIN", itemsCount: 0, "outputNode":null, "x":offset1.x, "y":offset1.y, onEvent: "click", frameName: frameName});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_2", name: "USER", itemsCount: 0, "outputNode":null, "x":offset2.x, "y":offset2.y, onEvent: "mouseover", frameName: frameName});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_2", name: "USER", itemsCount: 0, "outputNode":null, "x":offset2.x, "y":offset2.y, onEvent: "click", frameName: frameName});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_3", name: "SYSTEM", itemsCount: 0, "outputNode":null, "x":offset3.x, "y":offset3.y, onEvent: "mouseover", frameName: frameName});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_3", name: "SYSTEM", itemsCount: 0, "outputNode":null, "x":offset3.x, "y":offset3.y, onEvent: "click", frameName: frameName});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_4", name: "REPORT", itemsCount: 0, "outputNode":null, "x":offset4.x, "y":offset4.y, onEvent: "mouseover", frameName: frameName});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Main Menu", {"id":"clickarea_4", name: "REPORT", itemsCount: 0, "outputNode":null, "x":offset4.x, "y":offset4.y, onEvent: "click", frameName: frameName});
+}
+
+/**
+ * EVENT SECTION
+ */
+
+if (!isOldStyle) {
+
+	webMI.addEvent("clickarea_1", "mousedown", function(e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_overlay_1", "url(#linear_2)");
+															
+													 
+	} (value);
+	});
+
+	webMI.addEvent("clickarea_1", "mouseout", function(e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_overlay_1", "url(#linear_1)");
+														   
+														  
+	} (value);
+	});
+
+	webMI.addEvent("clickarea_2", "mousedown", function(e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_overlay_2", "url(#linear_2)");
+															
+													 
+	} (value);
+	});
+
+	webMI.addEvent("clickarea_2", "mouseout", function(e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_overlay_2", "url(#linear_1)");
+														   
+														  
+	} (value);
+	});
+
+	webMI.addEvent("clickarea_3", "mousedown", function(e) {
+	var id = "clickarea_3";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_overlay_3", "url(#linear_2)");
+															
+													 
+	} (value);
+	});
+
+	webMI.addEvent("clickarea_3", "mouseout", function(e) {
+		var id = "clickarea_3";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_overlay_3", "url(#linear_1)");
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_4", "mousedown", function(e) {
+		var id = "clickarea_4";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_overlay_4", "url(#linear_2)");
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_4", "mouseout", function(e) {
+		var id = "clickarea_4";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_overlay_4", "url(#linear_1)");
+															   
+															  
+		} (value);
+	});
+
+} else {
+
+	webMI.addEvent("clickarea_1", "mouseover", function(e) {
+		var id = "clickarea_1";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_1", "url(#linear_2)");
+			webMI.gfx.setStroke("button_stroke_1", strokePressed);
+			webMI.gfx.setStrokeWidth("button_stroke_1", 1);
+	} (value);
+	});
+
+	webMI.addEvent("clickarea_1", "mouseout", function(e) {
+		var id = "clickarea_1";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_1", "url(#linear_1)");
+			webMI.gfx.setStroke("button_stroke_1", strokeNormal);
+			webMI.gfx.setStrokeWidth("button_stroke_1", "none");
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_2", "mouseover", function(e) {
+		var id = "clickarea_2";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_2", "url(#linear_2)");
+			webMI.gfx.setStroke("button_stroke_2", strokePressed);
+			webMI.gfx.setStrokeWidth("button_stroke_2", 1);
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_2", "mouseout", function(e) {
+		var id = "clickarea_2";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_2", "url(#linear_1)");
+			webMI.gfx.setStroke("button_stroke_2", strokeNormal);
+			webMI.gfx.setStrokeWidth("button_stroke_2", "none");
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_3", "mouseover", function(e) {
+		var id = "clickarea_3";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_3", "url(#linear_2)");
+			webMI.gfx.setStroke("button_stroke_3", strokePressed);
+			webMI.gfx.setStrokeWidth("button_stroke_3", 1);
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_3", "mouseout", function(e) {
+		var id = "clickarea_3";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_3", "url(#linear_1)");
+			webMI.gfx.setStroke("button_stroke_3", strokeNormal);
+			webMI.gfx.setStrokeWidth("button_stroke_3", "none");
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_4", "mouseover", function(e) {
+		var id = "clickarea_4";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_4", "url(#linear_2)");
+			webMI.gfx.setStroke("button_stroke_4", strokePressed);
+			webMI.gfx.setStrokeWidth("button_stroke_4", 1);
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_4", "mouseout", function(e) {
+		var id = "clickarea_4";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_4", "url(#linear_1)");
+			webMI.gfx.setStroke("button_stroke_4", strokeNormal);
+			webMI.gfx.setStrokeWidth("button_stroke_4", "none");
+		} (value);
+	});
+
+}]]></code>
+</script>

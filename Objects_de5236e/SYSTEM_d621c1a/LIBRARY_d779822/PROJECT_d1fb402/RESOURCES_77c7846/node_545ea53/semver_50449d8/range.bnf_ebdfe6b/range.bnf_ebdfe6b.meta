@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/semver/range.bnf
+NodeClass: Variable
+BrowseName: 1:range.bnf
+DisplayName: en|range.bnf
+Description: en|range.bnf
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

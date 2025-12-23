@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Control
+NodeClass: Variable
+BrowseName: 1:Control
+DisplayName: en|Control
+Description: en|Control
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/timer/imgs_glossy/calendar.gif
+NodeClass: Variable
+BrowseName: 1:calendar.gif
+DisplayName: en|calendar.gif
+Description: en|calendar.gif
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Gif

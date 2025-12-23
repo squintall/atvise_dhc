@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.PTAR_Sur.Equipos.Pac´s.CCM_C
+NodeClass: Object
+BrowseName: 1:CCM_C
+DisplayName: en|CCM_C
+Description: en|CCM_C
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.PAC_4200
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.PAC_4200.historizacion_00_05
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.PAC_4200.historizacion_01_00

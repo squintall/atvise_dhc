@@ -1,0 +1,249 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="254" version="1.2" width="550" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" name="rotation" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="15" name="angle" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="" name="speed" valuetype="number"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <svg atv:refpx="429.69" atv:refpy="194.754" height="130" id="id_16" transform="matrix(1.6041,0,0,0.9012,0,0)" width="150" x="192.861" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.bar" y="151.095">
+  <atv:argument name="series1Name" value="T{I3}"/>
+  <atv:argument name="series2Name" value="T{I5}"/>
+  <atv:argument name="series3Name" value="T{I7}"/>
+  <atv:argument name="series4Name" value="T{I9}"/>
+  <atv:argument name="series5Name" value="T{I11}"/>
+  <atv:argument name="series6Name" value="T{I13}"/>
+  <atv:argument name="series1Address" prefix="base" value=".arm_I3"/>
+  <atv:argument name="series2Address" prefix="base" value=".arm_I5"/>
+  <atv:argument name="series3Address" prefix="base" value=".arm_I7"/>
+  <atv:argument name="series4Address" prefix="base" value=".arm_I9"/>
+  <atv:argument name="series5Address" prefix="base" value=".arm_I11"/>
+  <atv:argument name="series6Address" prefix="base" value=".arm_I13"/>
+  <atv:argument name="seriesOrientation" value="Vertical"/>
+  <atv:argument name="seriesCount" value="0"/>
+  <atv:argument name="min" value="0"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.6234,0,0,1.1096,0,0)" x="120.311" y="75.952"/>
+  <atv:overwrite id="main_label" transform="matrix(0.6234,0,0,1.1096,0,0)" x="120.311" y="57.206"/>
+  <atv:overwrite height="115.157" id="fo_container" transform="matrix(0.6234,0,0,1.1096,0,0)" width="238.622"/>
+  <atv:overwrite height="116.157" id="border" transform="matrix(0.6234,0,0,1.1096,0,0)" width="239.622"/>
+ </svg>
+ <svg atv:refpx="128.346" atv:refpy="191.425" height="50.1" id="id_13" transform="matrix(0.9623,0,0,0.9301,0,0)" visibility="hidden" width="50.01" x="108.386" xlink:href="SYSTEM.LIBRARY.PROJECT.RESOURCES%2FSVG%2Fremote-control-svgrepo-com%20%281%29.svg" y="180.762"/>
+ <svg atv:refpx="37.836" atv:refpy="105.569" height="297" id="id_5" transform="matrix(0.162,0,0,0.1569,0,0)" width="297" x="84.854" xlink:href="SYSTEM.LIBRARY.PROJECT.RESOURCES%2FSVG%2Fon-button-svgrepo-com%20%281%29.svg" y="558.167">
+  <atv:argument name="base" prefix="base" value=".status"/>
+ </svg>
+ <svg atv:refpx="40.94" atv:refpy="185.631" height="315" id="id_1" transform="matrix(0.1891,0,0,0.1902,0,0)" width="327.27" x="52.892" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_DHC.manAuto" y="846.535">
+  <atv:argument name="speed" value="100"/>
+  <atv:argument name="rotation" prefix="base" value=".man_auto"/>
+ </svg>
+ <svg atv:refpx="164.899" atv:refpy="106.385" height="37.5" id="id_11" transform="matrix(1.2375,0,0,1.1982,0,0)" visibility="hidden" width="43.17" x="80" xlink:href="SYSTEM.LIBRARY.PROJECT.RESOURCES%2FSVG%2Falert_triangle" y="74.479"/>
+ <svg atv:refpx="51" atv:refpy="30" height="40" id="id_2" transform="matrix(1.6,0,0,1.5,0,0)" width="40" x="11.875" xlink:href="SYSTEM.LIBRARY.PROJECT.RESOURCES%2FSVG%2Finkscape%2Fwater_pump.svg" y="0"/>
+ <text atv:refpx="37.813" atv:refpy="150.818" fill="#000088" font-family="Arial" font-size="20" id="id_0" transform="matrix(0.6875,0,0,0.6657,3.8672,46.8596)" x="16.875" y="163.667">Estatus</text>
+ <text atv:refpx="32.313" atv:refpy="235.694" fill="#000088" font-family="Arial" font-size="20" id="id_3" text-anchor="middle" transform="matrix(0.6875,0,0,0.6657,6.0156,74.5649)" x="48.25" y="246.548">Modo</text>
+ <text atv:refpx="120.9" atv:refpy="152.815" fill="#000088" font-family="Arial" font-size="20" id="id_4" transform="matrix(0.6875,0,0,0.6657,34.0212,46.8596)" x="113.369" y="163.667">Falla</text>
+ <text atv:refpx="118.15" atv:refpy="235.694" fill="#000088" font-family="Arial" font-size="20" id="id_6" transform="matrix(0.6875,0,0,0.6657,31.7654,74.5667)" x="106.15" y="246.545">Control</text>
+ <text atv:refpx="130.93" atv:refpy="32.648" fill="#000088" font-family="Arial" font-size="20" id="id_7" transform="matrix(0.6875,0,0,0.6657,30.3123,6.6862)" x="101.5" y="43.5">Nombre_equipo</text>
+ <text atv:refpx="278.626" atv:refpy="194.754" fill="#000000" font-family="Arial" font-size="16" id="id_17" transform="matrix(0.6875,0,0,0.6657,76.3282,62.4365)" x="248.75" y="206.268">Armónicos</text>
+ <g atv:refpx="154.495" atv:refpy="126.996" id="mantto" transform="matrix(0.6875,0,0,0.6657,0.1513,1.1805)">
+  <rect atv:refpx="401" atv:refpy="191" fill="#886859" fill-opacity="0.329412" height="380" id="id_18" stroke="#0000ff" stroke-opacity="0" stroke-width="1.56" visibility="hidden" width="447.88" x="0.56" y="-1"/>
+  <text atv:refpx="213.597" atv:refpy="176.599" fill="#4e3c33" fill-opacity="0.866667" font-family="Arial" font-size="20" id="id_19" transform="matrix(1.994,-1.994,2.1876,2.1876,-649.1319,-243.4541)" x="47.5" y="300.692">Mantenimiento</text>
+ </g>
+ <svg atv:refpx="398.5" atv:refpy="22.5" height="130" id="id_21" transform="matrix(2.02,0,0,0.3462,0,0)" width="150" x="122.277" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.bar" y="0">
+  <atv:argument name="series1Name" value="T{Corriente}"/>
+  <atv:argument name="series1Address" prefix="base" value=".current"/>
+  <atv:argument name="series1Color" value="#008efa"/>
+  <atv:argument name="min" value="0"/>
+  <atv:argument name="unit" value="T{A}"/>
+  <atv:argument name="postDecimals" value="1"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.495,0,0,2.8889,0,0)" x="151.5" y="39.873"/>
+  <atv:overwrite id="main_label" transform="matrix(0.495,0,0,2.8889,0,0)" x="151.5" y="21.127"/>
+  <atv:overwrite height="43" id="fo_container" transform="matrix(0.495,0,0,2.8889,0,0)" width="301"/>
+  <atv:overwrite height="44" id="border" transform="matrix(0.495,0,0,2.8889,0,0)" width="302"/>
+ </svg>
+ <svg atv:refpx="398.5" atv:refpy="67.997" height="130" id="id_22" transform="matrix(2.02,0,0,0.3462,0,0)" width="150" x="122.277" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.bar" y="131.418">
+  <atv:argument name="series1Name" value="T{Voltaje‎ ‎ ‎ ‎ ‎ ‎ }"/>
+  <atv:argument name="series1Address" prefix="base" value=".voltage"/>
+  <atv:argument name="series1Color" value="#008efa"/>
+  <atv:argument name="min" value="0"/>
+  <atv:argument name="unit" value="T{V}"/>
+  <atv:argument name="postDecimals" value="1"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.495,0,0,2.8885,0,0)" x="151.5" y="39.876"/>
+  <atv:overwrite id="main_label" transform="matrix(0.495,0,0,2.8885,0,0)" x="151.5" y="21.13"/>
+  <atv:overwrite height="43.006" id="fo_container" transform="matrix(0.495,0,0,2.8885,0,0)" width="301"/>
+  <atv:overwrite height="44.006" id="border" transform="matrix(0.495,0,0,2.8885,0,0)" width="302"/>
+ </svg>
+ <svg atv:refpx="398.5" atv:refpy="113.5" height="130" id="id_23" transform="matrix(2.02,0,0,0.3462,0,0)" width="150" x="122.277" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.bar" y="262.854">
+  <atv:argument name="series1Name" value="T{Potencia‎ ‎ }"/>
+  <atv:argument name="series1Address" prefix="base" value=".power"/>
+  <atv:argument name="series1Color" value="#008efa"/>
+  <atv:argument name="min" value="0"/>
+  <atv:argument name="unit" value="T{KW}"/>
+  <atv:argument name="postDecimals" value="1"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.495,0,0,2.8885,0,0)" x="151.5" y="39.876"/>
+  <atv:overwrite id="main_label" transform="matrix(0.495,0,0,2.8885,0,0)" x="151.5" y="21.13"/>
+  <atv:overwrite height="43.006" id="fo_container" transform="matrix(0.495,0,0,2.8885,0,0)" width="301"/>
+  <atv:overwrite height="44.006" id="border" transform="matrix(0.495,0,0,2.8885,0,0)" width="302"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+
+
+webMI.data.subscribe(webMI.query["base"] + ".status", function(e) {
+var id = "id_5";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setFill(id, "#08c22d");
+if (value == false)
+	webMI.gfx.setFill(id, "#ff1453");
+
+});
+
+
+
+
+
+
+webMI.data.subscribe(webMI.query["base"] + ".loc_rem", function(e) {
+var id = "id_13";
+var value = e.value;
+if (value == false)
+	webMI.gfx.setVisible(id, true);
+if (value == true)
+	webMI.gfx.setVisible(id, {0:true,2:false,4:true,6:false,8:true,10:false});
+
+});
+
+
+
+
+webMI.data.subscribe(webMI.query["base"] + ".loc_rem", function(e) {
+var id = "id_13";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setFill(id, "#08c22d");
+if (value == false)
+	webMI.gfx.setFill(id, "#ff1453");
+
+});
+
+webMI.data.subscribe(webMI.query["base"] + ".fault", function(e) {
+var id = "id_11";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setVisible(id, {0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false});
+if (value == false)
+	webMI.gfx.setVisible(id, false);
+
+});
+
+
+
+webMI.data.subscribe(webMI.query["base"] + ".status", function(e) {
+var id = "id_0";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setText(id, "T{Encendido}");
+if (value == false)
+	webMI.gfx.setText(id, "T{Apagado}");
+
+});
+
+
+webMI.data.subscribe(webMI.query["base"] + ".man_auto", function(e) {
+var id = "id_3";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setText(id, "T{Automático}");
+if (value == false)
+	webMI.gfx.setText(id, "T{Manual}");
+
+});
+
+
+
+webMI.data.subscribe(webMI.query["base"] + ".status", function(e) {
+var id = "id_6";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setText(id, "T{Remoto}");
+if (value == false)
+	webMI.gfx.setText(id, "T{Local}");
+
+});
+
+
+webMI.data.subscribe(webMI.query["base"] + ".fault", function(e) {
+var id = "id_4";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setText(id, "T{Falla}");
+if (value == false)
+	webMI.gfx.setText(id, "T{Ok}");
+
+});
+
+webMI.data.subscribe(webMI.query["base"] + ".name", function(e) {
+var id = "id_7";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+
+
+
+
+webMI.data.subscribe(webMI.query["base"] + ".maintenance", function(e) {
+var id = "mantto";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setVisible(id, {0:true,2:false,4:true,6:false,8:true,10:false});
+if (value == false)
+	webMI.gfx.setVisible(id, false);
+
+});
+
+
+webMI.addEvent("id_5", "mouseover", function(e) {
+var id = "id_5";
+var value = true;
+if (value == true)
+	webMI.gfx.setFill(id, "#0ae632");
+
+});
+webMI.addEvent("id_5", "mouseout", function(e) {
+var id = "id_5";
+var value = true;
+if (value == true)
+	webMI.gfx.setFill(id, "#08c22d");
+
+});
+
+
+
+webMI.addEvent("id_1", "mouseover", function(e) {
+var id = "id_1";
+var value = true;
+if (value == true)
+	webMI.gfx.setVisible(id, {0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false});
+
+});
+
+]]><![CDATA[
+webMI.addEvent("id_1", "mouseout", function(e) {
+var id = "id_1";
+var value = true;
+if (value == true)
+	webMI.gfx.setVisible(id, true);
+
+});
+
+]]><![CDATA[
+webMI.addEvent("id_22", "click", function(e) {
+var id = "id_22";
+var value = true;
+webMI.display.openDisplay("SYSTEM.DISPLAYS.Equipos.voltaje_equipo", webMI.query, "voltaje");
+});
+
+]]></script>
+</svg>

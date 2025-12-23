@@ -1,0 +1,17 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Lombardo
+NodeClass: Object
+BrowseName: 1:Carcamo_Lombardo
+DisplayName: en|Carcamo_Lombardo
+Description: en|Carcamo_Lombardo
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.EE
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Insertar_PGSQL
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo IT
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Nivel_Estatico
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Principal
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Tanque
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.cliackarea
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.conectividad
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.historizacion_00_05

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.HISTORY.ThresholdHigh
+NodeClass: Variable
+BrowseName: 1:ThresholdHigh
+DisplayName: en|ThresholdHigh
+Description: en|ThresholdHigh
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.0U3UFXDC_HDA.Nivel
+NodeClass: Variable
+BrowseName: 1:Nivel
+DisplayName: en|Nivel
+Description: en|Nivel
+DataType: BaseDataType
+ValueRank: -1
+AccessLevel: 103
+ValueType: i=0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.2365

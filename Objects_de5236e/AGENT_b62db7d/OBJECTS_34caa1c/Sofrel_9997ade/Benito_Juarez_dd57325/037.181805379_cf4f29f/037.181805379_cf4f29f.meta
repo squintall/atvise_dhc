@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.037.181805379
+NodeClass: Object
+BrowseName: 1:037.181805379
+DisplayName: en|037.181805379
+Description: en|037.181805379
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.presion_min_max

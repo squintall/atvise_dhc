@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="1080" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="2" width="2"/>
+ </metadata>
+ <svg atv:refpx="959.956" atv:refpy="530.025" height="600" id="content" transform="matrix(2.4,0,0,1.4833,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="57.303">
+  <atv:argument name="frameName" value="content"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PUERTO.Main_PUERTO_MORELOS"/>
+ </svg>
+ <svg atv:refpx="1775.146" atv:refpy="49.973" height="52" id="layout_time" width="203" x="1709" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.time" y="0"/>
+ <svg atv:refpx="1758" atv:refpy="59" height="30" id="layout_date" width="203" x="1708" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.date" y="42"/>
+ <text atv:refpx="514.746" atv:refpy="50" fill="#050a4b" font-family="Arial" font-size="18" id="id_2" transform="matrix(2.9999,0,0,3,-759.9556,0)" x="384.497" y="21.5">P. Morelos</text>
+ <rect atv:refpx="79" atv:refpy="1059" fill="#0000ff" fill-opacity="0" height="42" id="id_10" stroke="#000000" stroke-width="2" width="154" x="1" y="1038"/>
+ <svg atv:refpx="77" atv:refpy="1015.5" height="43" id="id_8" width="154" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_alarmlog_small" y="994">
+  <atv:argument name="alarmDisplay" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Alarmas.alarmlist_log_PM_Niveles"/>
+  <atv:argument name="width" value="1792"/>
+  <atv:argument name="height" value="954"/>
+  <atv:argument name="buttonSize" value="large"/>
+  <atv:argument name="x" value="1672"/>
+  <atv:argument name="y" value="984"/>
+ </svg>
+ <svg atv:refpx="233" atv:refpy="1015.5" height="43" id="id_9" width="154" x="156" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_alarmlog_small" y="994">
+  <atv:argument name="alarmDisplay" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Alarmas.alarmlist_log_PM_Equipos"/>
+  <atv:argument name="width" value="1792"/>
+  <atv:argument name="height" value="954"/>
+  <atv:argument name="buttonSize" value="large"/>
+  <atv:argument name="x" value="1672"/>
+  <atv:argument name="y" value="984"/>
+ </svg>
+ <rect atv:refpx="233" atv:refpy="1059" fill="#0000ff" fill-opacity="0" height="42" id="id_11" stroke="#000000" stroke-width="2" width="154" x="155" y="1038"/>
+ <text atv:refpx="70.954" atv:refpy="1059.5" fill="#000003" font-family="Arial" font-size="16" font-weight="bold" id="id_12" x="50.5" y="1064">Niveles</text>
+ <text atv:refpx="222.991" atv:refpy="1059" fill="#000003" font-family="Arial" font-size="16" font-weight="bold" id="id_13" x="200.5" y="1063.5">Equipos</text>
+ <svg atv:refpx="452" atv:refpy="1017.5" height="30" id="id_0" transform="matrix(1.925,0,0,1.4333,0,0)" width="80" x="194.805" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="694.9">
+  <atv:argument name="label" value="T{Semáforo}"/>
+  <atv:argument name="fontSize" value="20"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:overwrite height="40.999" id="id_6" transform="matrix(0.5195,0,0,0.6977,0,0)" width="152"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5195,0,0,0.6977,0,0)" x="77" y="32.999"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.5195,0,0,0.6977,0,0)" x="77.5" y="18"/>
+  <atv:overwrite id="button_label" transform="matrix(0.5195,0,0,0.6977,0,0)" x="77.5" y="26"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.3117,0,0,0.4186,0,0)" x="118.167" y="37.125"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.3117,0,0,0.4186,0,0)" x="118.167" y="15.792"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5195,0,0,0.6977,0,0)" x="67" y="11.5"/>
+  <atv:overwrite height="38.999" id="button_stroke" transform="matrix(0.5195,0,0,0.6977,0,0)" width="150"/>
+  <atv:overwrite height="40.999" id="button_bg" transform="matrix(0.5195,0,0,0.6977,0,0)" width="152"/>
+  <atv:overwrite height="42.999" id="outer_frame" transform="matrix(0.5195,0,0,0.6977,0,0)" width="154"/>
+ </svg>
+ <svg atv:refpx="642.883" atv:refpy="1019.501" height="30" id="id_3" transform="matrix(1.8625,0,0,1.4333,0,0)" width="80" x="295.302" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="696.295">
+  <atv:argument name="label" value="T{Presiones}"/>
+  <atv:argument name="fontSize" value="14"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:argument name="label2" value="T{del circuito}"/>
+  <atv:argument name="fontSize2" value="14"/>
+  <atv:overwrite height="40.999" id="id_6" transform="matrix(0.5369,0,0,0.6977,0,0)" width="147"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5369,0,0,0.6977,0,0)" x="74.5" y="32.999"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.5369,0,0,0.6977,0,0)" x="75" y="18"/>
+  <atv:overwrite id="button_label" transform="matrix(0.5369,0,0,0.6977,0,0)" x="75" y="26"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.3221,0,0,0.4186,0,0)" x="114" y="37.125"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.3221,0,0,0.4186,0,0)" x="114" y="15.792"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5369,0,0,0.6977,0,0)" x="64.5" y="11.5"/>
+  <atv:overwrite height="38.999" id="button_stroke" transform="matrix(0.5369,0,0,0.6977,0,0)" width="145"/>
+  <atv:overwrite height="40.999" id="button_bg" transform="matrix(0.5369,0,0,0.6977,0,0)" width="147"/>
+  <atv:overwrite height="42.999" id="outer_frame" transform="matrix(0.5369,0,0,0.6977,0,0)" width="149"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+
+webMI.addEvent("id_0", "click", function(e) {
+var id = "id_0";
+var value = true;
+webMI.display.openWindow({display:"AGENT.DISPLAYS.USER.Layouts_DHC.simbologia",extern:false,height:730,menubar:false,modal:true,movable:true,resizable:true,scrollbars:false,status:false,title:"T{Código de colores}",toolbar:false,width:1280,query:webMI.query});
+});
+
+webMI.addEvent("id_3", "click", function(e) {
+var id = "id_3";
+var value = true;
+webMI.display.openWindow({display:"SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PUERTO.Circuitos.Presion_PuertoMorelos",extern:false,height:570,menubar:false,modal:true,movable:true,resizable:true,scrollbars:false,status:false,title:"T{Presiones del circuito Puerto Morelos}",toolbar:false,width:1920,query:webMI.query});
+});]]></script>
+ <g atv:refpx="877.604" atv:refpy="43" id="id_19" transform="matrix(1,0,0,1,-0.0624,-0.0004)">
+  <image atv:refpx="794.046" atv:refpy="46" height="131" id="id_17" transform="matrix(0.5344,0,0,0.5344,0,0)" width="352" x="1309.997" xlink:href="../../Icons/Logo DHC.png" y="20.586"/>
+  <image atv:refpx="981.168" atv:refpy="40" height="613" id="id_18" transform="matrix(0.1142,0,0,0.1142,0,0)" width="1299" x="7942.731" xlink:href="../../Icons/Logo Aguakan.png" y="43.786"/>
+ </g>
+</svg>

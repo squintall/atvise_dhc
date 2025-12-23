@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Puertas_del_Mar.confGrafico
+NodeClass: Variable
+BrowseName: 1:confGrafico
+DisplayName: en|confGrafico
+Description: en|confGrafico
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

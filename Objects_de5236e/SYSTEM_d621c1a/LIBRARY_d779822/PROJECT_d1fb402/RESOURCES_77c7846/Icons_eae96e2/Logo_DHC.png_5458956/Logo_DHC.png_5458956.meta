@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/Icons/Logo DHC.png
+NodeClass: Variable
+BrowseName: 1:Logo DHC.png
+DisplayName: en|Logo DHC.png
+Description: en|Logo DHC.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

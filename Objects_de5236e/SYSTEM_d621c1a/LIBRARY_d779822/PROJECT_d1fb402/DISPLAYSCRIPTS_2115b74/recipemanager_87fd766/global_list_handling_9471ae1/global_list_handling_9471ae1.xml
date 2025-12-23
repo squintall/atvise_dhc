@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * creates an atvise table columns config object based on a global list
+ * @param columnsGlobalList the global list from webMI.query
+ * @param view the view to use (e.g. "Main") for some parameters (like "orderMain")
+ * @param editors editors to use for certain columns {[column field] : [editor],...}
+ * @param formatters formatters to use for certain columns {[column field] : [formatter],...}
+ */
+function createTableColumnsFromGlobalList(columnsGlobalList, view, editors, formatters){
+
+	//transform global list object into array to be able to sort it:
+	var sortableColumns = [];
+	for (var key in columnsGlobalList) {
+		sortableColumns.push(columnsGlobalList[key]);
+	}
+	sortableColumns.sort(function(a, b) {
+		return a["order" + view] - b["order" + view];
+	});
+	
+	var tableColumns = [];
+	for(var i=0; i < sortableColumns.length; i++){
+		var column = {
+			id: sortableColumns[i].field,
+			name: sortableColumns[i].columnName,
+			field: sortableColumns[i].field,
+			sortable: (sortableColumns[i].sortable === "true"), //globals value is always string
+			filter: (sortableColumns[i].filter === "true"),
+			visible: (sortableColumns[i]["visible" + view] === "true"),
+			resizable: true,
+			width: parseInt(sortableColumns[i]["width" + view]),
+		}
+		
+		if(editors.hasOwnProperty(sortableColumns[i].field)){
+			column.editor = editors[sortableColumns[i].field];
+		}
+		
+		if(formatters.hasOwnProperty(sortableColumns[i].field)){
+			column.formatter = formatters[sortableColumns[i].field];
+		}
+		
+		tableColumns.push(column);
+	}
+	
+	return tableColumns;
+}]]></code>
+</script>

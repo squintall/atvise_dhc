@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var google = webMI.rootWindow.google;
+var infowindow = new google.maps.InfoWindow();
+var map; // Declarar la variable map fuera de la función
+
+//----------------Ejecución -------------------//
+
+//Determinación del dispositivo
+var infoCliente;
+infoCliente = new webMI.getClientInfo();
+
+webMI.data.subscribe(webMI.query["base"] + ".plus_code", function(e) {
+    var value = e.value;
+    console.log(value);
+
+    // Llamar a la función convertPlusCodeToLatLng con una función de callback para manejar las coordenadas
+    convertPlusCodeToLatLng(value, function(latLng) {
+        console.log(latLng);
+
+        webMI.addOnload(function() {
+            //Opciones del mapa
+            var myOptions = {
+                zoom: 20,
+                center: latLng, // Utilizar las coordenadas obtenidas como centro del mapa
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                streetViewControl: true, // Mostrar control de Street View
+				zoomControl: true, // Mostrar control de zoom
+				fullscreenControl: true, // Mostrar control de pantalla completa
+				rotateControl: true, // Mostrar control de rotación
+				scaleControl: true, // Mostrar control de escala
+				overviewMapControl: true, // Mostrar control de vista general
+                styles: [ 
+                    { 
+                        "featureType": "poi", 
+                        "stylers": [ 
+                            { "visibility": "off" } 
+                        ] 
+                    } 
+                ] 
+            };
+            // Inicializo el mapa
+            map = new google.maps.Map(document.getElementById("mapa"), myOptions);
+            
+            webMI.data.subscribeBlock([
+            webMI.query["base"] + ".short_name",
+			webMI.query["base"] + ".pressure"],
+			[], function(e) {
+				var name = e[0].value;
+				var pressure = e[1].value;
+			
+				// Crear una instancia de un marcador
+				var marker = new google.maps.Marker({
+					position: latLng, // Utilizar las coordenadas obtenidas anteriormente
+					map: map, // Asignar el mapa al que se añadirá el marcador
+					title: name // Asignar el nombre como título del marcador
+					
+				});
+				
+				// Contenido del InfoWindow
+				var contentString = '<div id="content">' +
+					'<div id="siteNotice">' +
+					'</div>' +
+					'<h1 id="firstHeading" class="firstHeading">Presión</h1>' +
+					'<div id="bodyContent">' +
+					'<p><b>' + pressure + '</b></p>' +
+					'</div>' +
+					'</div>';
+					
+					// Crear un InfoWindow con el contenido definido anteriormente
+				var infowindow = new google.maps.InfoWindow({
+					content: contentString
+				});
+				
+				// Asignar el InfoWindow al marcador
+				marker.addListener('click', function() {
+					infowindow.open(map, marker);
+				});
+			});
+			
+			
+
+			
+				
+			
+				
+			
+				
+			
+
+
+            
+        });
+    });
+});
+
+// Función para convertir un Plus Code de 12 dígitos a coordenadas latitud/longitud
+function convertPlusCodeToLatLng(plusCode, callback) {
+    // Crear un objeto Geocoder
+    var geocoder = new google.maps.Geocoder();
+
+    // Hacer una llamada a la API de geocodificación inversa con el Plus Code
+    geocoder.geocode({ 'address': plusCode }, function (results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+            // Si la respuesta es exitosa, obtener las coordenadas y llamar a la función de callback con ellas
+            var location = results[0].geometry.location;
+            var latLng = {
+                lat: location.lat(),
+                lng: location.lng()
+            };
+            // Retornar las coordenadas a través de la función de callback
+            callback(latLng);
+        } else {
+            // Si la geocodificación falla, llamar a la función de callback con null
+            callback(null);
+        }
+    });
+}
+]]></code>
+</script>

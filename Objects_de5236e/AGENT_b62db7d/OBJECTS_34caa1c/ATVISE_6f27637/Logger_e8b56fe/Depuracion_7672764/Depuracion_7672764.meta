@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Logger.Depuracion
+NodeClass: Variable
+BrowseName: 1:Depuracion
+DisplayName: en|Depuracion
+Description: en|Depuracion
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

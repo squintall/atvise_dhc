@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.fgarcia
+NodeClass: Object
+BrowseName: 1:fgarcia
+DisplayName: en|fgarcia
+Description: en|fgarcia
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

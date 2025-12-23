@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.url
+NodeClass: Variable
+BrowseName: 1:url
+DisplayName: en|url
+Description: en|url
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

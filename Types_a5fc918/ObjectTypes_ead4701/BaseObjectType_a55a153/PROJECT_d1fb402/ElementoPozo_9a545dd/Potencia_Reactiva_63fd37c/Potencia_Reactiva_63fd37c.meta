@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Potencia_Reactiva
+NodeClass: Variable
+BrowseName: 1:Potencia_Reactiva
+DisplayName: en|Potencia_Reactiva
+Description: en|Potencia_Reactiva
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

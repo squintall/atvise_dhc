@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/ls-42.png
+NodeClass: Variable
+BrowseName: 1:ls-42.png
+DisplayName: en|ls-42.png
+Description: en|ls-42.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

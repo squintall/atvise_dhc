@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.MIRROR
+NodeClass: Object
+BrowseName: 1:MIRROR
+DisplayName: en|MIRROR
+Description: en|MIRROR
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

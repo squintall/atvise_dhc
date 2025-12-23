@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="500" version="1.2" width="830" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_0" x1="0" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#a5a5a5"/>
+   <stop offset="1" stop-color="#a5a5a5" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_1" x1="0" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#000000"/>
+   <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+  </linearGradient>
+ </defs>
+ <desc>Display for changing user information.</desc>
+ <title>User Editor</title>
+ <rect atv:refpx="415" atv:refpy="250" fill="$FILLCOLOR$" height="500" id="background" stroke="none" stroke-width="0" width="830" x="0" y="0"/>
+ <rect atv:refpx="106.429" atv:refpy="12" fill="#444444" height="40" id="user_background" rx="7.692" ry="8" stroke="none" stroke-width="0" width="300" x="265" y="48"/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="T{Edit user}" desc="headline" name="headline" substitute="$HEADLINE$" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.user" desc="symbol" name="symbol" substitute="$SYMBOL$" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.keyboard.keyboard" desc="keyboard display" name="keyboard" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.dialogs.pw_editor" desc="password display" name="passworddisplay" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="font color" name="fontColor" substitute="$FONTCOLOR$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#1e1e1e" desc="fill color" name="fillColor" substitute="$FILLCOLOR$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="symbol color" name="symbolColor" substitute="$SYMBOLCOLOR$" valuetype="color"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="10" width="10"/>
+ </metadata>
+ <rect atv:refpx="-186.142" atv:refpy="55" fill="#444444" height="50" id="password_background" rx="10" ry="10" stroke="none" stroke-width="0" width="390" x="20" y="100"/>
+ <rect atv:refpx="215" atv:refpy="185" fill="#444444" height="50" id="fullname_background" rx="10" ry="10" stroke="none" stroke-width="0" width="390" x="20" y="160"/>
+ <rect atv:refpx="4.286" atv:refpy="115" fill="none" height="50" id="id_1" rx="5.961" ry="5.961" stroke="none" stroke-width="0" width="200" x="110" y="160"/>
+ <svg atv:dynamic="true" atv:refpx="372" atv:refpy="462.5" height="30" id="save_button" width="80" x="324" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.button" y="447.5">
+  <atv:argument name="label" value="T{Save}"/>
+  <atv:argument name="tabIndex" value="31"/>
+  <atv:argument name="borderVisible" value="true"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+ </svg>
+ <svg atv:dynamic="true" atv:refpx="472" atv:refpy="462.5" height="30" id="cancel_button" width="80" x="424" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.button" y="447.5">
+  <atv:argument name="label" value="T{Cancel}"/>
+  <atv:argument name="tabIndex" value="32"/>
+  <atv:argument name="borderVisible" value="true"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+ </svg>
+ <svg atv:refpx="260" atv:refpy="185" height="30" id="fullname_input" transform="matrix(1.125,0,0,1,0,0)" width="160" x="151.111" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.in_out_value" y="170">
+  <atv:argument name="validation" value="String"/>
+  <atv:argument name="allowDirectInput" value="Yes"/>
+  <atv:argument name="tabIndex" value="3"/>
+  <atv:overwrite id="id_0" transform="matrix(0.8889,0,0,1,0,0)" width="180"/>
+  <atv:overwrite id="id_1" transform="matrix(0.8889,0,0,1,0,0)" width="178"/>
+  <atv:overwrite id="input_label" transform="matrix(0.8889,0,0,1,0,0)" x="171.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.8889,0,0,1,0,0)" width="173"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.8889,0,0,1,0,0)" width="172"/>
+  <atv:overwrite id="id_2" transform="matrix(0.8889,0,0,1,0,0)" width="174.5"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.8889,0,0,1,0,0)" width="179.5"/>
+ </svg>
+ <text atv:refpx="77.763" atv:refpy="184.5" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="fullname_label" x="34" y="190.5">T{Full name}</text>
+ <text atv:refpx="78.5" atv:refpy="124.5" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="password_label" x="34" y="130.5">T{Password}</text>
+ <text atv:refpx="216" atv:refpy="51" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="status_message2" text-anchor="middle" x="216" y="55.5"/>
+ <svg atv:dynamic="true" atv:refpx="375" atv:refpy="185" height="30" id="fullname_keyboard" transform="matrix(0.375,0,0,1,0,0)" width="80" x="960" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.button" y="170">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.keyboard"/>
+  <atv:argument name="visibilitySymbol" value="inherit"/>
+  <atv:argument name="visibilityLabel" value="hidden"/>
+  <atv:argument name="tabIndex" value="4"/>
+  <atv:overwrite id="id_1" transform="matrix(2.6667,0,0,1,0,0)" width="30"/>
+  <atv:overwrite id="id_6" transform="matrix(2.6667,0,0,1,0,0)" width="28"/>
+  <atv:overwrite id="button_label_2" transform="matrix(2.6667,0,0,1,0,0)" x="15"/>
+  <atv:overwrite id="button_label_1" transform="matrix(2.6667,0,0,1,0,0)" x="15"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(1.6,0,0,0.6,0,0)" x="14.833"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(1.6,0,0,0.6,0,0)" x="14.833"/>
+  <atv:overwrite id="outer_frame" transform="matrix(2.6667,0,0,1,0,0)" width="30"/>
+  <atv:overwrite id="button_stroke" transform="matrix(2.6667,0,0,1,0,0)" width="26"/>
+  <atv:overwrite id="button_label" transform="matrix(2.6667,0,0,1,0,0)" x="15"/>
+  <atv:overwrite id="button_symbol" transform="matrix(2.6667,0,0,1,0,0)" x="5"/>
+  <atv:overwrite id="button_bg" transform="matrix(2.6667,0,0,1,0,0)" width="28"/>
+  <atv:overwrite id="id_2" transform="matrix(2.6667,0,0,1,0,0)" width="24.5"/>
+  <atv:overwrite id="id_0" transform="matrix(2.6667,0,0,1,0,0)" width="29.5"/>
+ </svg>
+ <svg atv:refpx="54.371" atv:refpy="52.37" height="20" id="symbol" transform="matrix(3.8371,0,0,3.8371,0,0)" width="20" x="6.515" xlink:href="$SYMBOL$" y="3.649">
+  <atv:argument name="symbolColor" prefix="symbolColor"/>
+ </svg>
+ <text atv:refpx="400.555" atv:refpy="29" fill="$FONTCOLOR$" font-family="Arial" font-size="20" id="headline" text-anchor="middle" x="413.055" y="33.5">$HEADLINE$</text>
+ <rect atv:refpx="-186.142" atv:refpy="175" fill="#444444" height="50" id="language_background" rx="10" ry="10" stroke="none" stroke-width="0" width="390" x="20" y="220"/>
+ <svg atv:refpx="280" atv:refpy="245" height="30" id="language_input" transform="matrix(1.375,0,0,1,0,0)" width="160" x="123.636" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.combobox" y="230">
+  <atv:argument name="tabIndex" value="5"/>
+  <atv:overwrite id="input_label" transform="matrix(0.8889,0,0,1,0,0)" x="172.055"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.8889,0,0,1,0,0)" width="172"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.7273,0,0,1,0,0)" width="216"/>
+  <atv:overwrite id="id_7" transform="matrix(0.7273,0,0,1,0,0)" x="195"/>
+  <atv:overwrite id="id_1" transform="matrix(0.7273,0,0,1,0,0)" width="218"/>
+  <atv:overwrite id="id_0" transform="matrix(0.7273,0,0,1,0,0)" width="220"/>
+  <atv:overwrite id="id_3" transform="matrix(0.7273,0,0,1,0,0)" x="194.75"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.7273,0,0,1,0,0)" x="193.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.7273,0,0,1,0,0)" x="193.5"/>
+  <atv:overwrite id="id_5" transform="matrix(0.7273,0,0,1,0,0)" x="192.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.7273,0,0,1,0,0)" width="187"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.7273,0,0,1,0,0)" x="185.5"/>
+  <atv:overwrite id="combobox_bg" transform="matrix(0.7273,0,0,1,0,0)" width="186"/>
+  <atv:overwrite id="id_2" transform="matrix(0.7273,0,0,1,0,0)" width="188"/>
+  <atv:overwrite id="combobox_stroke" transform="matrix(0.7273,0,0,1,0,0)" width="219.5"/>
+ </svg>
+ <text atv:refpx="78.949" atv:refpy="245.5" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="language_label" x="34" y="251.5">T{Language}</text>
+ <rect atv:refpx="-186.142" atv:refpy="235" fill="#444444" height="50" id="default_background" rx="10" ry="10" stroke="none" stroke-width="0" width="390" x="20" y="280"/>
+ <text atv:refpx="96.935" atv:refpy="303.5" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="default_label" x="33.688" y="309.5">T{Default display}</text>
+ <rect atv:refpx="-186.142" atv:refpy="295" fill="#444444" height="50" id="content_background" rx="10" ry="10" stroke="none" stroke-width="0" width="390" x="20" y="340"/>
+ <text atv:refpx="99.578" atv:refpy="363.5" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="content_label" x="34" y="369.5">T{Content display}</text>
+ <text atv:refpx="323.56" atv:refpy="302" fill="$FONTCOLOR$" font-family="Arial" font-size="14" id="default_display" text-anchor="end" x="384.274" y="308">&lt;default display></text>
+ <text atv:refpx="321.762" atv:refpy="363" fill="$FONTCOLOR$" font-family="Arial" font-size="14" id="content_display" text-anchor="end" x="384.5" y="369">&lt;content display></text>
+ <text atv:refpx="421" atv:refpy="70" fill="$FONTCOLOR$" font-family="Arial" font-size="18" id="username" text-anchor="middle" x="415.5" y="74.5">&lt;username></text>
+ <text atv:refpx="436.328" atv:refpy="422.5" fill="#ff0004" font-family="Arial" font-size="14" id="error_message" text-anchor="middle" x="414.328" y="427">&lt;errormessage></text>
+ <text atv:refpx="362.477" atv:refpy="126" fill="$FONTCOLOR$" font-family="Arial" font-size="14" id="password_info" text-anchor="end" x="384.5" y="130.5">&lt;info></text>
+ <svg atv:refpx="280" atv:refpy="125" height="30" id="password_change" transform="matrix(2.75,0,0,1,0,0)" width="80" x="61.818" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.button" y="110">
+  <atv:argument name="label" value="T{Change}"/>
+  <atv:argument name="tabIndex" value="2"/>
+  <atv:overwrite id="id_6" transform="matrix(0.3636,0,0,1,0,0)" width="218"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.3636,0,0,1,0,0)" x="110"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.3636,0,0,1,0,0)" x="110"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.2182,0,0,0.6,0,0)" x="173.167"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.2182,0,0,0.6,0,0)" x="173.167"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.3636,0,0,1,0,0)" width="220"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.3636,0,0,1,0,0)" width="212"/>
+  <atv:overwrite id="button_label" transform="matrix(0.3636,0,0,1,0,0)" x="110"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.3636,0,0,1,0,0)" x="100"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.3636,0,0,1,0,0)" width="212"/>
+  <atv:overwrite id="id_2" transform="matrix(0.3636,0,0,1,0,0)" width="214.5"/>
+  <atv:overwrite id="id_0" transform="matrix(0.3636,0,0,1,0,0)" width="219.5"/>
+ </svg>
+ <svg atv:dynamic="true" atv:refpx="416" atv:refpy="469.5" height="30" id="close_button" width="80" x="376" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.button" y="447.5">
+  <atv:argument name="label" value="T{Close}"/>
+  <atv:argument name="tabIndex" value="30"/>
+  <atv:argument name="borderVisible" value="true"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+ </svg>
+ <rect atv:refpx="615" atv:refpy="295" fill="#444444" height="190" id="2FA_background" rx="10" ry="10" stroke="none" stroke-width="0" width="390" x="420" y="200"/>
+ <rect atv:refpx="615" atv:refpy="145" fill="#444444" height="90" id="mail_background" rx="10" ry="10" stroke="none" stroke-width="0" width="390" x="420" y="100"/>
+ <svg atv:refpx="535" atv:refpy="365" height="30" id="2FA_reset_button" transform="matrix(2.375,0,0,1,0,0)" width="80" x="185.263" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.button" y="350">
+  <atv:argument name="label" value="T{Reset seed}"/>
+  <atv:argument name="tabIndex" value="20"/>
+  <atv:overwrite id="id_6" transform="matrix(0.4211,0,0,1,0,0)" width="188"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.4211,0,0,1,0,0)" x="95"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.4211,0,0,1,0,0)" x="95"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.2526,0,0,0.6,0,0)" x="148.167"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.2526,0,0,0.6,0,0)" x="148.167"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.4211,0,0,1,0,0)" width="190"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.4211,0,0,1,0,0)" width="182"/>
+  <atv:overwrite id="button_label" transform="matrix(0.4211,0,0,1,0,0)" x="95"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.4211,0,0,1,0,0)" x="85"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.4211,0,0,1,0,0)" width="182"/>
+  <atv:overwrite id="id_2" transform="matrix(0.4211,0,0,1,0,0)" width="184.5"/>
+  <atv:overwrite id="id_0" transform="matrix(0.4211,0,0,1,0,0)" width="189.5"/>
+ </svg>
+ <rect atv:refpx="225" atv:refpy="715" fill="#ffffff" height="50" id="id_10" rx="10" ry="10" stroke="none" stroke-width="0" width="390" x="30" y="690"/>
+ <text atv:refpx="466" atv:refpy="124.5" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="mail_label" x="434" y="130.5">T{E-mail}</text>
+ <text atv:refpx="476" atv:refpy="223.5" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="2FA_label" x="434" y="229.5">T{Two-factor authentication}</text>
+ <svg atv:refpx="640" atv:refpy="165" height="30" id="email_domain_input" transform="matrix(1.375,0,0,1,0,0)" width="160" x="385.455" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.combobox" y="150">
+  <atv:argument name="tabIndex" value="13"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.7273,0,0,1,0,0)" width="216"/>
+  <atv:overwrite id="id_7" transform="matrix(0.7273,0,0,1,0,0)" x="195"/>
+  <atv:overwrite id="id_1" transform="matrix(0.7273,0,0,1,0,0)" width="218"/>
+  <atv:overwrite id="id_0" transform="matrix(0.7273,0,0,1,0,0)" width="220"/>
+  <atv:overwrite id="id_3" transform="matrix(0.7273,0,0,1,0,0)" x="194.75"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.7273,0,0,1,0,0)" x="193.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.7273,0,0,1,0,0)" x="193.5"/>
+  <atv:overwrite id="id_5" transform="matrix(0.7273,0,0,1,0,0)" x="192.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.7273,0,0,1,0,0)" width="187"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.7273,0,0,1,0,0)" x="185.5"/>
+  <atv:overwrite id="combobox_bg" transform="matrix(0.7273,0,0,1,0,0)" width="186"/>
+  <atv:overwrite id="id_2" transform="matrix(0.7273,0,0,1,0,0)" width="188"/>
+  <atv:overwrite id="combobox_stroke" transform="matrix(0.7273,0,0,1,0,0)" width="219.5"/>
+ </svg>
+ <svg atv:refpx="640" atv:refpy="125" height="30" id="email_input" transform="matrix(1.375,0,0,1,0,0)" width="160" x="385.455" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.in_out_value" y="110">
+  <atv:argument name="validation" value="String"/>
+  <atv:argument name="tabIndex" value="11"/>
+  <atv:overwrite id="id_0" transform="matrix(0.7273,0,0,1,0,0)" width="220"/>
+  <atv:overwrite id="id_1" transform="matrix(0.7273,0,0,1,0,0)" width="218"/>
+  <atv:overwrite id="input_label" transform="matrix(0.7273,0,0,1,0,0)" x="211.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.7273,0,0,1,0,0)" width="213"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.7273,0,0,1,0,0)" width="212"/>
+  <atv:overwrite id="id_2" transform="matrix(0.7273,0,0,1,0,0)" width="214.5"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.7273,0,0,1,0,0)" width="219.5"/>
+ </svg>
+ <svg atv:dynamic="true" atv:refpx="775" atv:refpy="125" height="30" id="mail_keyboard" transform="matrix(0.375,0,0,1,0,0)" width="80" x="2026.667" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.button" y="110">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.keyboard"/>
+  <atv:argument name="visibilitySymbol" value="inherit"/>
+  <atv:argument name="visibilityLabel" value="hidden"/>
+  <atv:argument name="tabIndex" value="12"/>
+  <atv:overwrite id="id_1" transform="matrix(2.6667,0,0,1,0,0)" width="30"/>
+  <atv:overwrite id="id_6" transform="matrix(2.6667,0,0,1,0,0)" width="28"/>
+  <atv:overwrite id="button_label_2" transform="matrix(2.6667,0,0,1,0,0)" x="15"/>
+  <atv:overwrite id="button_label_1" transform="matrix(2.6667,0,0,1,0,0)" x="15"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(1.6,0,0,0.6,0,0)" x="14.833"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(1.6,0,0,0.6,0,0)" x="14.833"/>
+  <atv:overwrite id="outer_frame" transform="matrix(2.6667,0,0,1,0,0)" width="30"/>
+  <atv:overwrite id="button_stroke" transform="matrix(2.6667,0,0,1,0,0)" width="22"/>
+  <atv:overwrite id="button_label" transform="matrix(3.6923,0,0,1,12.3077,0)" x="7.5"/>
+  <atv:overwrite id="button_symbol" transform="matrix(2.6667,0,0,1,0,0)" x="5"/>
+  <atv:overwrite id="button_bg" transform="matrix(2.6667,0,0,1,0,0)" width="22"/>
+  <atv:overwrite id="id_2" transform="matrix(2.6667,0,0,1,0,0)" width="24.5"/>
+  <atv:overwrite id="id_0" transform="matrix(2.6667,0,0,1,0,0)" width="29.5"/>
+ </svg>
+ <rect atv:refpx="720" atv:refpy="310" fill="$FILLCOLOR$" height="140" id="app_code" stroke="$SYMBOLCOLOR$" stroke-width="1" width="140" x="650" y="240"/>
+ <svg atv:refpx="535" atv:refpy="290.002" height="30" id="app_info_label" transform="matrix(2.375,0,0,3.3333,0,0)" width="80" x="185.263" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.label" y="72.001">
+  <atv:argument name="text" value="T{Scan QR code in authenticator app to use app authentication.}"/>
+  <atv:argument name="vertical-align" value="middle"/>
+ </svg>
+ <svg atv:refpx="720" atv:refpy="309.999" height="30" id="app_disabled_label" transform="matrix(1.25,0,0,3.3333,0,0)" width="80" x="536" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.label" y="78.001">
+  <atv:argument name="text" value="T{App login disabled.}"/>
+  <atv:argument name="vertical-align" value="middle"/>
+  <atv:argument name="horizontal-align" value="center"/>
+ </svg>
+ <image atv:refpx="763.764" atv:refpy="315.082" height="0" id="qr_image" width="0" x="650" xlink:href="" y="240"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.dialogs.user_editor" atv:name="user_editor" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

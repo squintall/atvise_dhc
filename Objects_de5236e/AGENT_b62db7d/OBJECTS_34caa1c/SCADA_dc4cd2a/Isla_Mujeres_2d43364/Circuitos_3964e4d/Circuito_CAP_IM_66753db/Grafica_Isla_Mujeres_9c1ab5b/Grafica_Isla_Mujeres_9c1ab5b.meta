@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Grafica_Isla_Mujeres
+NodeClass: Variable
+BrowseName: 1:Grafica_Isla_Mujeres
+DisplayName: en|Grafica_Isla_Mujeres
+Description: en|Grafica_Isla_Mujeres
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

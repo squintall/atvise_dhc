@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Energia
+NodeClass: Variable
+BrowseName: 1:Energia
+DisplayName: en|Energia
+Description: en|Energia
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

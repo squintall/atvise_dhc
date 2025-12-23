@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_4_Cancun_86_Final.Equipos.Nivel.ARC4F-T1-NivelM-BajoDeseado
+NodeClass: Variable
+BrowseName: 1:ARC4F-T1-NivelM-BajoDeseado
+DisplayName: en|ARC4F-T1-NivelM-BajoDeseado
+Description: en|ARC4F-T1-NivelM-BajoDeseado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

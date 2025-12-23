@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_2000_ORIENTE.L40.Caudalimetro.AP_BJ_CAR_2000_ORIENTE_CAUD_L40_Acumulado
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_2000_ORIENTE_CAUD_L40_Acumulado
+DisplayName: en|AP_BJ_CAR_2000_ORIENTE_CAUD_L40_Acumulado
+Description: en|AP_BJ_CAR_2000_ORIENTE_CAUD_L40_Acumulado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

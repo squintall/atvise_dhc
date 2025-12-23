@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Cumbres.Equipos.Caudalimetro.L1.trendCfg.caudales
+NodeClass: Variable
+BrowseName: 1:caudales
+DisplayName: en|caudales
+Description: en|caudales
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

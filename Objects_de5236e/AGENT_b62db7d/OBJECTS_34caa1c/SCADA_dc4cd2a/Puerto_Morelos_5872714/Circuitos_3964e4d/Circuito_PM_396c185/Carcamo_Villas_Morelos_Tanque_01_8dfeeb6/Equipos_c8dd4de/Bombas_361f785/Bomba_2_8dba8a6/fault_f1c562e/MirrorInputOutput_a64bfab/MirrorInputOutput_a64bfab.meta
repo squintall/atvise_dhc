@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Carcamo_Villas_Morelos_Tanque_01.Equipos.Bombas.Bomba_2.fault.MirrorInputOutput
+NodeClass: Variable
+BrowseName: 1:MirrorInputOutput
+DisplayName: en|MirrorInputOutput
+Description: en|MirrorInputOutput
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.InputOutput

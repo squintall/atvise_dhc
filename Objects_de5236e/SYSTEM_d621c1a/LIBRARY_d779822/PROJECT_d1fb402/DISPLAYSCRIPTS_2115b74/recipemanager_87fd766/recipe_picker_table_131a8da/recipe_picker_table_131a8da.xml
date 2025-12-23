@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var PREFIX = "AGENT.OBJECTS.";
+
+const RECIPE_TABLE_NAME = webMI.query["tableID"];
+const PARAMETER_TABLE_NAME = webMI.query["tableID2"];
+
+const gConfigNode = webMI.query["configNode"];
+const gActiveRecipeBgColor = webMI.query["activeRecipeBgColor"]
+var gSelectedTemplateName = webMI.query["templateName"];
+var gActiveRecipe = "";
+var gSelectedRecipeName = "";
+
+var gTemplateData = {};
+var gRecipesTableController;
+var gParametersTableController;
+
+var gSubscriptionId;
+var gAccessControlManager;
+
+if (webMI.getAccessControlSupport()) {
+	gAccessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback
+ */
+ function handleAccessControlResponse(compareRights, callback) {
+	if (!gAccessControlManager) {
+		callback();
+		return;
+	}
+	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		// do the checks
+		var allRights = true;
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights = allRights && response[compareRights[c].node][compareRights[c].right];
+			} else {
+				allRights = false;
+				break;
+			}
+		}
+		
+		if (allRights) {
+			callback();
+		}
+	});
+}
+
+/**
+ * reads all templates, adds them to the combobox and calls init of recipes and templates table
+ */
+function initRecipeTemplates(){
+	handleAccessControlResponse({ node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", right: "execute" }, function() {
+		webMI.data.call("GetRecipeData", {"mode":"RecipeTemplates", "configNode":gConfigNode}, function(e){
+			var templateData = e;
+			var arrCboEntries = []; //used for combobox display
+	
+			for(const key in templateData){	
+				var templateNode = templateData[key];
+				var templateRowItem = {};
+				var template = JSON.parse(templateNode.value);
+	
+				arrCboEntries.push({text: template.id, value: template.id});
+				gTemplateData[template.id] = template;          
+				
+				if(gSelectedTemplateName === undefined || gSelectedTemplateName === "" ){ //initialize with the first template
+					gSelectedTemplateName = template.id;
+				}
+			}			
+			
+			webMI.trigger.fire("setItems", arrCboEntries, "cboTemplates");
+			webMI.trigger.fire("setSelectedItem", gSelectedTemplateName, "cboTemplates");
+			
+			initRecipes();	
+			initRecipesTable();	
+			initParametersTable();
+			
+			webMI.trigger.connect("valuechanged", function(e) { 
+				gSelectedTemplateName = e.value;		
+				initRecipes();
+				
+				gRecipesTableController.clearData();	
+				loadRecipes();
+				gParametersTableController.clearData();
+				loadRecipeData();
+			}, "cboTemplates");
+			
+		});
+	});
+}
+
+/**
+ * reads and stores the active recipe, selects active recipe and displays text
+ */
+function initRecipes(){
+	if(gTemplateData.hasOwnProperty(gSelectedTemplateName) && gTemplateData[gSelectedTemplateName].hasOwnProperty("activeRecipe")){
+		gActiveRecipe = gTemplateData[gSelectedTemplateName].activeRecipe;
+	}else{
+		gActiveRecipe = "";
+	}
+
+	gSelectedRecipeName = gActiveRecipe;
+
+	webMI.gfx.setText("txtActiveRecipe", gActiveRecipe);	
+}
+
+/**
+ * removes the leading PREFIX from the node address
+ */
+function nodeAddressFormatter(row, cell, value, columnDef, dataContext) {
+	
+	return value.replace(PREFIX, "");
+}
+
+/**
+ * highlights the active recipe name
+ */
+function activeRecipeFormatter(row, cell, value, columnDef, dataContext) {
+	if(columnDef.field == "address"){
+		value = nodeAddressFormatter(row, cell, value, columnDef, dataContext);
+	}
+	
+	if(dataContext.name == gActiveRecipe){
+		return "<div style='font-weight: bold;'>" + value + "</div>";
+	}
+
+	return value;
+}
+
+/**
+ * returns red or green div, depending if valuerecipe matches valueprocess
+ */
+function statusFormatter(row, cell, value, columnDef, dataContext) {
+		
+	if(dataContext.value == dataContext.valueprocess){		
+		return "<div style='width:100%;height:100%;background-color:#00FF00'> </div>";
+	}else{
+		return "<div style='width:100%;height:100%;background-color:#FF0000'/> </div>";
+	}
+}
+
+/**
+ * preselects the currently active recipe in table
+ */
+function selectActiveRecipeInTable(){
+	var rowsToSelect = [];
+	
+	var tableData = gRecipesTableController.getData();
+	
+	for(var i=0; i < tableData.length; i++){
+		if(tableData[i].name == gActiveRecipe){
+			rowsToSelect.push(tableData[i].atvise_row);
+		}
+	}
+	
+	gRecipesTableController.grid.setSelectedRows(rowsToSelect);
+}
+
+/**
+ * initializes the recipes table and calls loadRecipes() as data request function
+ */
+function initRecipesTable(){
+
+    webMI.table.loadResources(function() {
+        var config = {};
+
+        config["columns"] = createTableColumnsFromGlobalList(webMI.query.columnsRecipes, "Main", {}, {
+			name: activeRecipeFormatter,
+			description: activeRecipeFormatter,
+			address: activeRecipeFormatter
+        });
+
+        config["mode"] = "once"; // or live/triggered
+        config["bufferInterval"] = 75;
+
+        config["onClickCallback"] = function(e, info){
+        	/*workaround for duplicate click executes
+			because click is also detected on the selected element afterwards*/
+			if(e.target.className.search("selected") > -1){
+				return;
+			}
+			
+            var item = info.item;
+            var row = info.rowIndex;
+            var column = info.column;
+  		
+			gSelectedRecipeName=item.name;
+			gRecipesTableController.grid.setSelectedRows([row]);
+			loadRecipeData(item.address);
+			
+
+        }
+		  
+		config["dataRequestFunction"] = function customDataRequest(continuation) {
+			gRecipesTableController = this;
+			loadRecipes();
+		};
+	
+
+        webMI.table.register(RECIPE_TABLE_NAME, "config", config);
+        webMI.table.setReady(RECIPE_TABLE_NAME, "config");
+    });
+}
+
+/**
+ * initializes the recipes table and calls loadRecipeData() as data request function
+ */
+function initParametersTable(){
+
+
+    webMI.table.loadResources(function() {
+        var config = [];
+
+        config["columns"] = [{
+			id: "status",
+			name: "",
+			field: "status",
+			sortable: true,
+			filter: true,
+			visible: true, 
+			resizable: true,
+			width: 10,
+			formatter: statusFormatter
+		}].concat(createTableColumnsFromGlobalList(webMI.query.columnsParameters, "Main", {}, {
+			node: nodeAddressFormatter
+        }));
+
+        config["mode"] = "once"; // or live/triggered
+        config["bufferInterval"] = 75;
+	
+
+        config["dataRequestFunction"] =
+			function customDataRequest(continuation) {
+				gParametersTableController = this;
+				
+				loadRecipeData();
+		};
+	
+
+        webMI.table.register(PARAMETER_TABLE_NAME, "config", config);
+        webMI.table.setReady(PARAMETER_TABLE_NAME, "config");
+    });
+}
+
+/**
+ * loads data of selected recipe and displays it in the recipes table
+ */
+function loadRecipeData(){
+
+		if(gSelectedRecipeName == ""){
+			return;
+		}
+
+		gParametersTableController.clearData();
+
+	handleAccessControlResponse({ node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", right: "execute" }, function() {
+		webMI.data.call("GetRecipeData", {"mode":"recipeDataByName",
+			"configNode":gConfigNode,
+			"templateName":gSelectedTemplateName,
+			"recipeName":gSelectedRecipeName}, function(e){
+					
+			var parameters = gTemplateData[gSelectedTemplateName].parameters;						
+			
+			var data = [];
+			data.result = [];		
+			
+			var nodesToSubscribe=[];
+			for(var i=0; i < parameters.length; i++){
+			
+				var value = parameters[i].defaultvalue;
+		
+				if(e.hasOwnProperty("values") && e.values.hasOwnProperty(parameters[i].name)){
+					value = e.values[parameters[i].name];
+				}			
+			
+				data.result.push({...parameters[i], value: value});
+				nodesToSubscribe.push(parameters[i].node);
+			}				
+		
+			gParametersTableController.clearData();
+			gParametersTableController.addData(data);
+	
+			webMI.gfx.setText("txtRecipeName", e.name);		
+			
+			/*subscibe to all nodes to get current process value into table*/
+			if(gSubscriptionId){ //unsubscribe if subscribed before
+				webMI.data.unsubscribe(gSubscriptionId);
+			}				
+			gSubscriptionId = webMI.data.subscribe(nodesToSubscribe, function(e){
+				var item = gParametersTableController.search("node", e.address, true)[0];
+				item.valueprocess = e.value;
+				gParametersTableController.updateData(item.id, item);
+			});
+		});
+	});
+}
+
+function loadRecipes(){
+	handleAccessControlResponse({ node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", right: "execute" }, function() {
+		webMI.data.call("GetRecipeData", {"mode":"recipesByTemplateName", "templateName":gSelectedTemplateName, "configNode":gConfigNode}, function(e){		
+			
+			var data = [];
+			data.result = [];		
+			
+			for(var i=0; i < e.length; i++){
+				data.result.push({address: e[i].address, name: e[i].name, description: e[i].description});
+			}				
+			
+			gRecipesTableController.clearData();
+			gRecipesTableController.addData(data);
+		});
+	});
+}
+
+webMI.addOnload(function(e){
+	updateRecipeStructure(gConfigNode, function(){
+		initRecipeTemplates();
+	});
+});
+
+webMI.trigger.connect("clicked", function(e){
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.recipe_picker_confirm",
+		query: {receipeName: gSelectedRecipeName},
+		height: 320, width: 600, remember: true,
+		modal: true, resizable: false, movable: true,
+		scrollbars: true, menubar: false, status: false, toolbar: false
+	});
+},"btnSetActiveRecipe");
+
+webMI.trigger.connect("set_recipe_active", function(e){
+	
+	handleAccessControlResponse({ node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", right: "execute" }, function() {
+		webMI.data.call("GetRecipeData", {"mode" : "RecipeSelect",
+			"configNode":gConfigNode,
+			"templateName":gSelectedTemplateName,
+			"recipeName":gSelectedRecipeName}, function(e){
+			
+			//error handling in case errorcode is returned
+			if(e.hasOwnProperty("errorcode")){
+				var errorText = "";
+				if(e.errorcode == 1){
+					errorText = "T{Error opening variable}:";
+				}else if(e.errorcode == 2){
+					errorText = "T{No write rights for variable}:";
+				}else if(e.errorcdoe == 3){
+					errorText = "T{No read rights for variable}:";
+				}else if(e.errorcdoe == 4){
+					errorText = "T{Invalid JSON value assigned for variable}:";
+				}
+				
+				webMI.display.openWindow({
+					display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.error_popup",
+					query: {error0: errorText, error1: e.node},
+					height: 320, width: 600, remember: true,
+					modal: true, resizable: false, movable: true,
+					scrollbars: true, menubar: false, status: false, toolbar: false
+				});
+			
+			}else{
+				gActiveRecipe = e.activeRecipe;	
+				webMI.gfx.setText("txtActiveRecipe", gActiveRecipe);		
+			
+				gRecipesTableController.grid.invalidate();
+				gRecipesTableController.grid.render(); //re render to trigger fromatter for selected row
+			}	
+		});
+	});
+});]]></code>
+</script>

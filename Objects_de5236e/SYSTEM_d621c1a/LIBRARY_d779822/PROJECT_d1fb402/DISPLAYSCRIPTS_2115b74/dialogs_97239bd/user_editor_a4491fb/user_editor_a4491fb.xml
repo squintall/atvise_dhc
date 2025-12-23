@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the user editor object display
+ * ----------------------------------------
+ * This Script supports the display for user edit
+ */
+
+/**
+ * QUICK DYNAMICS
+ */
+const accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+/**
+ * DECLARATION SECTION
+ */
+var username, fullname, password, hash, language, defaultdisplay, contentdisplay;
+var keyboard = webMI.query["keyboard"];
+var passworddisplay = webMI.query["passworddisplay"];
+var trigger_fullname = "com.atvise.user.fullname";
+var trigger_language = "com.atvise.user.language";
+var clientvariables;
+var root = webMI.rootWindow;
+
+function showInfoDialog(headline, message) {
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+		height: 160,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: headline,
+			message: message,
+			button: "T{OK}"
+		}
+	});
+}
+
+function getData(username, callback) {
+	webMI.data.read(
+		[
+			"SYSTEM.SECURITY.USERS." + username + ".name",
+			"SYSTEM.SECURITY.USERS." + username + ".language",
+			"SYSTEM.SECURITY.USERS." + username + ".display_default",
+			"SYSTEM.SECURITY.USERS." + username + ".display_content"
+		],
+		function (e) {
+			if (typeof e[0].value != "undefined")
+				fullname = e[0].value;
+			else
+				fullname = clientvariables.fullname ? clientvariables.fullname : "";
+
+			if (typeof e[1].value != "undefined")
+				language = e[1].value;
+			else
+				language = clientvariables.preferredlanguage ? clientvariables.preferredlanguage : "";
+
+			if (typeof e[2].value != "undefined")
+				defaultdisplay = e[2].value == "" || e[2].value == 0 ? "-" : e[2].value;
+			else
+				defaultdisplay = clientvariables.defaultdisplay ? clientvariables.defaultdisplay : "-";
+
+			if (typeof e[3].value != "undefined")
+				contentdisplay = e[3].value == "" || e[3].value == 0 ? "-" : e[3].value;
+			else
+				contentdisplay = clientvariables.contentdisplay ? clientvariables.contentdisplay : "-";
+
+			writeData();
+			
+			if (callback)
+				callback();
+		}
+	);
+}
+
+function writeData() {
+	webMI.gfx.setText("username", username);
+	webMI.trigger.fire("setValue", fullname, "fullname_input");
+
+	if (root.project && root.project.languages) {
+		for (var i in root.project.languages)
+			webMI.trigger.fire("addItem", { text: root.project.languages[i], value: i }, "language_input");
+		webMI.trigger.fire("setSelectedItem", root.project.languages[language], "language_input");
+	} else if (language) {
+		webMI.trigger.fire("addItem", { text: language, value: language }, "language_input");
+		webMI.trigger.fire("setSelectedItem", language, "language_input");
+	} 
+
+	if (defaultdisplay && defaultdisplay.length > 25) {
+		webMI.gfx.setText("default_display", "..." + defaultdisplay.substr(defaultdisplay.length - 23, 23));
+	} else {
+		webMI.gfx.setText("default_display", defaultdisplay);
+	}
+
+	if (contentdisplay && contentdisplay.length > 25) {
+		webMI.gfx.setText("content_display", "..." + contentdisplay.substr(contentdisplay.length - 23, 23));
+	} else {
+		webMI.gfx.setText("content_display", contentdisplay);
+	}
+}
+
+function resetData() {
+	webMI.trigger.fire("setActive", "password_change", false);
+	webMI.gfx.setText("username", "T{Please login!}");
+	webMI.trigger.fire("setValue", "", "fullname_input");
+	webMI.trigger.fire("setSelectedItem", "-", "language_input");
+	webMI.gfx.setText("default_display", "-");
+	webMI.gfx.setText("content_display", "-");
+	webMI.gfx.setText("error_message", "");
+}
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+	resetData();
+
+	webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+		if (e.username && e.username != "") {
+			clientvariables = e;
+			username = e.username;
+			
+			webMI.gfx.setText("password_info", username == "root" ? "T{Password change unsupported.}" : "");
+			webMI.gfx.setVisible("password_change", username == "root" ? false : null);
+			getData(username);
+		}
+	});
+	
+	webMI.trigger.fire("addItem", { text: "-", value: "" }, "language_input");
+	webMI.trigger.fire("setSelectedItem", "-", "language_input");
+});
+
+function saveOrClose(save) {
+	webMI.gfx.setText("error_message", "");
+	webMI.gfx.setVisible("save_button", save);
+	webMI.gfx.setVisible("cancel_button", save);
+	webMI.gfx.setVisible("close_button", !save);
+}
+
+if (webMI.getMethodSupport().indexOf("SetUserData") == -1)
+	saveOrClose(false);
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		var password_error = false;
+		webMI.gfx.setText("error_message", "");
+
+		//put webMI login to the end of the callstack to receive correct data from triggers before
+		setTimeout(function () {
+			if (typeof username != "undefined" && username != "") {
+				var data = { fullname: fullname, language: language };
+				if (password != "") data["password"] = password;
+				
+				function callUserDataMethod() {
+					webMI.data.call("SetUserData", data, function (e) {
+						if (e.error) {
+							getData(username, function() {
+								webMI.gfx.setFill("error_message", "#FF0000");
+								webMI.gfx.setText("error_message", "T{Error}: T{Can't write user information}.");
+							});
+						} else {
+							saveOrClose(false);
+							webMI.gfx.setFill("error_message", "#00c800");
+							webMI.gfx.setText("error_message", "T{Changes saved successfully.}");
+						}
+					});				
+				}
+
+				if (webMI.getAccessControlSupport() && accessControlManager) {
+					accessControlManager.getRights(["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.SetUserData"], ["execute"], (response) => {
+						if (response.result[0].value === true) {
+							callUserDataMethod();
+						} else {
+							showInfoDialog("T{Access denied}", "");
+							return;
+						}
+					});
+				} else {
+					callUserDataMethod();
+				}
+			} else {
+				webMI.gfx.setFill("error_message", "#FF0000");
+				webMI.gfx.setText("error_message", "T{Error}: T{User not logged in!}");
+			}
+		}, 0);
+	},
+	"save_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.display.closeWindow();
+	},
+	"cancel_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.display.closeWindow();
+	},
+	"close_button"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		fullname = e.value;
+		if (webMI.getMethodSupport().indexOf("SetUserData") > -1)
+			saveOrClose(true);
+	},
+	"fullname_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		language = e.value;
+		if (webMI.getMethodSupport().indexOf("SetUserData") > -1)
+			saveOrClose(true);
+	},
+	"language_input"
+);
+
+webMI.trigger.connect(trigger_fullname, function (e) {
+	fullname = e.value;
+	webMI.trigger.fire("setValue", e.value, "fullname_input");
+});
+
+webMI.trigger.connect(trigger_language, function (e) {
+	language = e.value;
+	webMI.trigger.fire("setValue", e.value, "language_input");
+});
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.query.trigger = trigger_fullname;
+		webMI.query.password = "No";
+		webMI.query.value = "";
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: 300,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Full name}",
+			toolbar: false,
+			width: 700,
+			query: webMI.query
+		});
+	},
+	"fullname_keyboard"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.query.trigger = trigger_language;
+		webMI.query.password = "No";
+		webMI.query.value = "";
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: 300,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Language}",
+			toolbar: false,
+			width: 700,
+			query: webMI.query
+		});
+	},
+	"language_keyboard"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		if (typeof username != "undefined" && username != "") {
+			//webMI.display.openDisplay(passworddisplay, {username: username, fullname: fullname}, "");
+			webMI.display.openWindow({
+				display: passworddisplay,
+				extern: false,
+				height: 520,
+				menubar: false,
+				modal: false,
+				movable: true,
+				resizable: false,
+				scrollbars: false,
+				status: false,
+				title: "T{Password Editor}",
+				toolbar: false,
+				width: 430,
+				query: {username: username, fullname: fullname}
+			});
+		} else {
+			webMI.gfx.setFill("error_message", "#FF0000");
+			webMI.gfx.setText("error_message", "T{Error}: T{User not logged in!}");			
+		}
+	},
+	"password_change"
+);
+]]></code>
+</script>

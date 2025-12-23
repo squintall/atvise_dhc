@@ -1,0 +1,355 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+    <meta content="text/html; charset=windows-1252" http-equiv="content-type">
+    <title>OD_help</title>
+    <style> #parameter {
+        font-weight: bold;
+    } </style>
+</head>
+<body>
+<h1>Description</h1>
+<p>This display is suitable for displaying data in tabular form. In addition to the setting of the
+    Table parameters also require the configuration in the higher-level display. The higher-level display will be
+    in the following also referred to as Parentdisplay.</p>
+
+<h2>Conditions</h2>
+<p>The table library requires jQuery> 1.7 and is currently shipped with jQuery> 3.3.x.</p>
+<p>To avoid compatibility issues, the included jQuery version is only used if none already
+    existing version is detected. Therefore jQuery should already be used in an existing project
+    the spreadsheet library to them. Therefore, make sure that in this case a jQuery version> 1.7.x
+    is used!</p>
+
+<h1>Parameter</h1>
+<p>The table has the following general parameters::</p>
+<ul>
+    <li><span class="parameter">base</span>: Current not in use</li>
+    <li><span class="parameter">table ID</span>: Unique table name</li>
+    <li><span class="parameter">table header height</span>: Height of table header in pixels (default 30, *)</li>
+    <li><span class="parameter">table header font size</span>: Font size in the table header (default: 14)</li>
+	<li><span class="parameter">table header cell align horizontal</span>: Horizontal align of content in header (default: inherit)</li>
+	<li><span class="parameter">table header cell align vertical</span>: Vertical align of content in header (default: center)</li>
+	<li><span class="parameter">table row height</span>: Height of table rows in pixels (default 20, **)</li>
+	<li><span class="parameter">table row font size</span>: Font sizes in a table row (default: 12)</li>
+    <li><span class="parameter">table detail font size</span>: Font size for table details (default: 12)</li>
+    <li><span class="parameter">table footer font size</span>: Font size in table footer (default: 12)</li>
+</ul>
+<p><i>(*)I t is recommended to have a height that is approximately twice the drawing height.</i><br>
+    <i>(**) If the line break is active, the line of characters 1.5 times the size of the font is recommended as the
+        highest value.</i></p>
+
+<p>Appearance:</p>
+<ul>
+    <li><span class="parameter">font family</span>: Font family (default: Arial)</li>
+    <li><span class="parameter">global border colors</span>: Source for frame color (default: SYSTEM.GLOBALS.atvBorderColor)</li>
+    <li><span class="parameter">global fill colors</span>: Source for color (default: SYSTEM.GLOBALS.atvFillColor)</li>
+    <li><span class="parameter">global font colors</span>: Source for font color (default: SYSTEM.GLOBALS.atvFontColor)</li>
+    <li><span class="parameter">global symbol colors</span>: Source for Icon Color (Default: SYSTEM.GLOBALS.atvSymbolColor)</li>
+	<li><span class="parameter">global inactive colors</span>: Source for inactive Color (Default: SYSTEM.GLOBALS.atvInactiveColor)</li>
+	<li><span class="parameter">global table colors</span>: Source for table colors (default: SYSTEM.GLOBALS.atvObjectDisplays.BaseTable.ColorConfig)</li>
+    <li><span class="parameter">custom theme</span>: Optional CSS path for custom theme (default: atviseTheme)</li>
+</ul>
+
+<p>Options:</p>
+<ul>
+    <li><span class="parameter">columns reorderable</span>: Allow moving columns (default: true)</li>
+    <li><span class="parameter">paging</span>: Display of page navigation (default: true)</li>
+    <li><span class="parameter">filter bar enabled</span>: Show table filter (default: true)</li>
+    <li><span class="parameter">filter regular expressions</span>: Filter function uses Regular Expressions (default: false, ***)</li>
+    <li><span class="parameter">filter use placeholder</span>: Activation of the &quot;*&quot; placeholder in the search function</li>
+    <li><span class="parameter">filter case sensitive</span>: Case-sensitive (default: false)</li>
+    <li><span class="parameter">filter minimum lenght</span>: Minimum number of characters before the filter becomes active (default: 1)</li>
+    <li><span class="parameter">filter start delay</span>: Delay of the automatic filtering in milliseconds (default: 1000, switching off the automatic with 0)</li>
+    <li><span class="parameter">show runtime mode</span>: Display of the runtime mode in the status bar (default: true)</li>
+    <li><span class="parameter">multiselect</span>: Activation of the multiple selection (default: true)</li>
+    <li><span class="parameter">multiselect on cell click</span>: Multiple selection, marking by clicking on cell (default: false)</li>
+    <li><span class="parameter">cell linebreak</span>: Allow line break in columns (default: false, **)</li>
+	<li><span class="parameter">allow direct input</span>: select "Yes" if you want to directly enter characters in the control without opening the SVG Keyboard.</li>
+</ul>
+<p><i>(**) If the line break is active, the line of characters 1.5 times the size of the font is recommended as the
+    highest value.</i><br>
+    <i>(***) Warning: Filtering with the help of Regular Expressions can lead to a large drop in performance for large
+        amounts of data!</i><br>
+</p>
+
+<p>Menu options:</p>
+<ul>
+    <li><span class="parameter">show menu</span>: Display of the menu button (default: true)</li>
+    <li><span class="parameter">menu height</span>: Height of the menu when opened in pixels (default: 300)</li>
+    <li><span class="parameter">menu width</span>:  Width of the menu when opened in pixels (default: 150)</li>
+    <li><span class="parameter">show picker menu</span>: Display of the column selection in the menu. (Default: true)</li>
+	<li><span class="parameter">show filter menu</span>: Display of the filter selection in the menu. (Default: true)</li>
+	<li><span class="parameter">show export menu</span>: Display of the export selection in the menu. (Default: true)</li>
+</ul>
+
+<h2>Note</h2>
+<p><b>From version 3.4 svg icons are no longer supported in footer. Please only use more symbols from the library of Font Awesome Free.</b></p>
+
+<p>Footer options:</p>
+<ul>
+	<li><span class="parameter">symbol first page</span>: Symbol to open the first page (default: &lt;i class="fas fa-fast-backward"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">symbol previous page</span>: Symbol to open the previous page (default: &lt;i class="fas fa-step-backward"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">symbol pause</span>: Symbol for pause (default: &lt;i class="fas fa-pause"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">symbol stop</span>: Symbol for pause (default: &lt;i class="fas fa-stop"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">symbol next page</span>: Symbol to scroll to the next page (default: &lt;i class="fas fa-step-forward"&gt;&lt;/i&gt;) </li>
+	<li><span class="parameter">symbol last page</span>: Symbol to open the last page (default: &lt;i class="fas fa-fast-forward"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">symbol laod pages</span>: Symbol for loading the next pages in manual mode (Standard: &lt;i class="fas fa-download"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">symbol search</span>: Symbol for search (default: &lt;i class="fas fa-search"&gt;&lt;/i&gt;)</li>
+
+	<li><span class="parameter">symbol truncate</span>: Symbol when reaching the overflow (default: &lt;i class="fas fa-ban"&gt;&lt;/i&gt; )</li>
+	<li><span class="parameter">symbol triggered</span>: Symbol for trigger mode (default: &lt;i class="fas fa-angle-double-down"&gt;&lt;/i&gt; )</li>
+	<li><span class="parameter">symbol continue</span>: Symbol for continue mode (default: &lt;i class="fas fa-cog fa-spin"&gt;&lt;/i&gt; )</li>
+	<li><span class="parameter">symbol live</span>: Symbol for live mode (default: &lt;i class="fas fa-sync fa-spin"&gt;&lt;/i&gt; )</li>
+	<li><span class="parameter">symbol manually</span>: Symbol for manually mode (default: &lt;i class="fas fa-check"&gt;&lt;/i&gt; )</li>
+	<li><span class="parameter">symbol done</span>: Symbol for all data loaded (default: &lt;i class="fas fa-download"&gt;&lt;/i&gt; )</li>
+</ul>
+Note: * = SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS
+
+<h1>Quick reference</h1>
+<h2>Table configuration for a simple data structure</h2>
+<p>Drag the spreadsheet display into the parent display and open the Script Editor for the parent display.</p>
+<pre>
+    /* Loading the table resources */
+    webMI.table.loadResources(function () {
+
+        /* Create the configuration */
+        var config = [];
+
+        /* Configuration of the columns to be displayed */
+        config["columns"] =
+            [
+                {   id: "id", name: "ID", field: "id", sortable: true, filter: true },
+                {   id: "address", name: "Address", field: "address", sortable: true, filter: true },
+                {   id: "value", name: "Wert", field: "value", sortable: true, filter: true }
+            ];
+
+        /* Configuration of the runtime behavior */
+        config["mode"] = "once";
+
+        /* Example set of data */
+        var data = {};
+        data.result = [
+            { id:0, address: "node 1", value: 123 },
+            { id:1, address: "node 2", value: 456 },
+            { id:2, address: "node 3", value: 789 },
+            ...
+        ];
+
+        /* Configuration of the data query */
+        config["dataRequestFunction"] =
+            function customDataRequest(continuation) {
+                var self = this;
+                var ids = self.addData(data);
+            };
+
+        /* Registration of the configuration */
+        webMI.table.register("myTableName", "config",  config);
+        webMI.table.setReady("myTableName", "config");
+    });
+</pre>
+<p>Save the code of the parent display and parameterize the table as usual. Enter "myTableName" at the table name.</p>
+<h2>Table configuration for data queries (e.g. webMI.data.read)</h2>
+<p>Drag the spreadsheet display into the parent display and open the Script Editor for the parent display.</p>
+<pre>
+    /* Loading the table resources */
+    webMI.table.loadResources(function () {
+
+        /* Create the configuration */
+        var config = [];
+
+        /* Configuration of the columns to be displayed */
+        config["columns"] =
+            [
+                {   id: "id", name: "ID", field: "id", sortable: true, filter: true },
+                {   id: "address", name: "Address", field: "address", sortable: true, filter: true },
+                {   id: "value", name: "Wert", field: "value", sortable: true, filter: true }
+            ];
+
+        /* Configuration of the runtime behavior */
+        config["mode"] = "once";
+
+        /* Configuration of the data query */
+        config["dataRequestFunction"] =
+            function customDataRequest(continuation) {
+                var self = this;
+                webMI.data.read(
+                    "YOUR_NODE_ADDRESS",
+                    function (requestResult) {
+                        var data = {};
+                        data.result = requestResult;
+                        var ids = self.addData(data);
+                    });
+            };
+
+        /* Registration of the configuration */
+        webMI.table.register("myTableName", "config",  config);
+        webMI.table.setReady("myTableName", "config");
+    });
+</pre>
+<p>Save the code of the parent display and parameterize the table as usual. Enter "myTableName" at the table name.</p>
+<h2>Table configuration for live data</h2>
+<p>Drag the spreadsheet display into the parent display and open the Script Editor for the Parent display.
+    Enter the configuration for simple data queries. Then change the mode and modify the
+    data query as follows.
+</p>
+<pre>
+        /* Configuration of the runtime behavior */
+        config["mode"] = "live";
+
+        /* Configuration of the data query */
+        config["dataRequestFunction"] =
+            function customDataRequest(continuation) {
+                var self = this;
+                self.subscribeID = webMI.data.subscribe(
+                    "YOUR_NODE_ADDRESS",
+                    function (requestResult) {
+                        var data = {};
+                        data.result = requestResult;
+                        var ids = self.addData(data);
+                    }
+                );
+                webMI.addOnunload(
+                    function () {
+                        webMI.data.unsubscribe(self.subscribeID);
+                    }
+                );
+            };
+</pre>
+<h2>Table configuration for "Continuation Points" (continue / trigger)</h2>
+<p>Drag the spreadsheet display into the parent display and open the Script Editor for the Parent display.
+    Enter the configuration for simple data queries. Then change the mode and modify the
+    data query as follows.
+</p>
+<pre>
+        /* Configuration of the runtime behavior */
+        config["mode"] = "continue"; // <<< for the trigger mode replace "continue" with "triggered"
+
+        /* Configuration of the data query */
+		config["dataRequestFunction"] =
+			function customDataRequest(continuation) {
+				var self = this;
+				if (typeof continuation != "undefined" && continuation.CP != null) {
+					filter = continuation.CP.value;
+					webMI.data.queryNext(
+						filter,
+						addDataToController
+					);
+				} else {
+					filter = {
+						address: ["g:*YOUR_NODE_ADDRESS*"],
+						select: ["v:priority", "v:value", "v:username", "v:address", "v:timestamp", "v:type", "v:status", "v:ReplacementNames", "v:ReplacementValues"],
+						type: ["v:1"],
+						numrows:["v:1000"]
+					};
+					webMI.data.queryFilter(
+						filter,
+						addDataToController
+					);
+				}
+				function addDataToController(requestResult) {
+                    var data = requestResult;
+
+                    /* Adding "Continuation" informations */
+					if (typeof data.More != "undefined" && data.More != false && data.continuationpoint > 0) {
+						data.CP = {};
+						data.CP.value = requestResult.continuationpoint;
+					} else {
+						data.More = false;
+					}
+
+					var ids = self.addData(data);
+				}
+			};
+
+        /* Configuration of the release */
+        config["dataReleaseFunction"] =
+            function dataReleaseFunction(continuation) {
+	            if (typeof continuation != "undefined" && continuation.CP != null) {
+		            webMI.data.queryRelease(continuation.CP.value);
+	        }
+        }
+
+</pre>
+
+<h2>Access to table contents</h2>
+<p>The easiest way to access table contents is to use the onClickCallback configuration.
+	Via this callback, the event and the information about the selected item can be entered in a user-defined one
+	Function are processed (e.g., calling your own dialogs)</p>
+<pre>
+    /* Loading the table resources */
+    webMI.table.loadResources(function () {
+
+        /* Create the configuration */
+        ...
+
+        config["onClickCallback"] = function(e, info){
+          var item = info.item;
+          var row = info.rowIndex;
+          var column = info.column;
+
+          var id = item.id;
+          item.value = "changed value";
+
+          /* update/delete/window */
+          if(column.id == "timestamp"){
+            tableController.updateData(id, item);
+          } else if(column.id == "value"){
+            tableController.removeData(id);
+          } else {
+            openMyWindowFunktionToEdit(item);
+          }
+        }
+
+		/* Registration of the configuration */
+        ...
+
+    });
+</pre>
+
+<h2>Search for values ??in the table</h2>
+<p>The search (attribute, value, exactSearch) function can be used to search for values ??in the table.
+	In the case of a hit, the found items are returned in an array.</p>
+<pre>
+  webMI.table.waitReady("myTableName", "controller", function () {
+
+    tableController = webMI.table.request("myTableName", "controller");
+    var itemArray = tableController.search("timestamp", 1553785110500, true);
+
+    var id = itemArray[0].id;
+    itemArray[0].value = "changed value";
+
+    /* update */
+    tableController.updateData(id, itemArray[0]);
+
+    /* delete */
+    tableController.removeData(id);
+
+  });
+</pre>
+
+
+
+<h2>Timestamp conversation</h2>
+<p>With atvise 3.3.2 the timestamp of "datetime" columns is no longer delivered as string. It is now necessary to format the timestamp to a string inside the table with the given formatter.</p>
+<p>Example:</p>
+<pre>
+	function _makeConversions(format, value) {
+	if (format[0] == "datetime") {
+		if (value) {
+			if (typeof value == "string" && value.indexOf("-") > -1)		//ignore already formatted values
+				return value;
+
+			var date = new Date(parseInt(value, 10));
+			value = webMI.sprintf("%d-%02d-%02d %02d:%02d:%02d.%03d", date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+		} else {
+			value = "";
+		}
+	}
+	return '<div class="slick-cell-item">'+value+'</div>';
+	}
+</pre>
+<h1>Table configurations</h1>
+<p>Further configuration help can be found in the atvise documentation and at atvise Live!</p>
+<br>
+</body>
+</html>

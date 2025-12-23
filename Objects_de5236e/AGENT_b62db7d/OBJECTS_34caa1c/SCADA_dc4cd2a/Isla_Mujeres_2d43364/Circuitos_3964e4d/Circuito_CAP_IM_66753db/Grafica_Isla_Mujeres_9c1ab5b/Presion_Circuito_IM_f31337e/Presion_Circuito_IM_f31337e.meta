@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Grafica_Isla_Mujeres.Presion_Circuito_IM
+NodeClass: Variable
+BrowseName: 1:Presion_Circuito_IM
+DisplayName: en|Presion_Circuito_IM
+Description: en|Presion_Circuito_IM
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

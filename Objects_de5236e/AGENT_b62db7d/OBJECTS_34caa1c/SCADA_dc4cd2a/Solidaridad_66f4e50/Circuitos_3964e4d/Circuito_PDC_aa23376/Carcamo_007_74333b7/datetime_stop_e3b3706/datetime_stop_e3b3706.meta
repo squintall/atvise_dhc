@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_007.datetime_stop
+NodeClass: Variable
+BrowseName: 1:datetime_stop
+DisplayName: en|datetime_stop
+Description: en|datetime_stop
+DataType: DateTime
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

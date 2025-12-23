@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the user editor object display
+ * ----------------------------------------
+ * This Script supports the display for user edit
+ */
+ 
+
+/**
+ * QUICK DYNAMICS
+ */
+const accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+/**
+ * DECLARATION SECTION
+ */
+var policy, req_i;
+var oldpassword = "";
+var newpassword = "";
+var username = webMI.query["username"];
+var fullname = webMI.query["fullname"];
+var keyboard = webMI.query["keyboard"];
+var fontColor = webMI.query["fontColor"];
+var trigger_username = "com.atvise.user.username";
+var trigger_oldpassword = "com.atvise.user.oldpassword";
+var trigger_newpassword = "com.atvise.user.newpassword";
+var loginHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Login Handler");
+var textBlocks = loginHandler.getTextBlocks();
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+
+webMI.gfx.setText("username", username);
+
+function setRequirements() {
+	req_i = 1;
+	webMI.gfx.setText("valid_period", policy.maxAgeDays.text);
+
+	function setText(text, fulfilled, i) {
+		webMI.gfx.setText("req_text" + i, text);
+		webMI.gfx.setVisible("check" + i, fulfilled ? true : false);
+		webMI.gfx.setVisible("cross" + i, fulfilled ? false : true);
+	}
+
+	if(username == "") {
+		setText(textBlocks.ErrorUserOrPassword, false, req_i++);
+	} else {
+		if (policy.hasSurroundingWhiteSpace.value && policy.minLength.value)
+			setText(policy.minLength.text + " (" + policy.hasSurroundingWhiteSpace.text + ")",  policy.minLength.fulfilled && policy.hasSurroundingWhiteSpace.fulfilled, req_i++);
+		else if (policy.hasSurroundingWhiteSpace.value)
+			setText(policy.hasSurroundingWhiteSpace.text, policy.hasSurroundingWhiteSpace.fulfilled, req_i++);
+		else if (policy.minLength.value)
+			setText(policy.minLength.text, policy.minLength.fulfilled, req_i++);
+	
+		var char_content = textBlocks.Contains + " ";
+		var char_content_fulfilled = null;
+		if (policy.requireLowerCase.value) {
+			char_content = char_content + policy.requireLowerCase.text;
+			char_content_fulfilled = policy.requireLowerCase.fulfilled
+		}
+		if (policy.requireLowerCase.value && policy.requireUpperCase.value) {
+			char_content = char_content + ", " + policy.requireUpperCase.text;
+			char_content_fulfilled = policy.requireLowerCase.fulfilled && policy.requireUpperCase.fulfilled;
+		} else if (policy.requireUpperCase.value) {
+			char_content = char_content + policy.requireUpperCase.text;
+			char_content_fulfilled = policy.requireUpperCase.fulfilled;	
+		}
+		if ((policy.requireLowerCase.value || policy.requireUpperCase.value) && policy.requireDigit.value) {
+			char_content = char_content + ", " + policy.requireDigit.text;
+			char_content_fulfilled = char_content_fulfilled && policy.requireDigit.fulfilled;
+		} else if (policy.requireDigit.value) {
+			char_content = char_content + policy.requireDigit.text;
+			char_content_fulfilled = policy.requireDigit.fulfilled;
+		}	
+		
+		if (policy.requireLowerCase.value || policy.requireUpperCase.value || policy.requireDigit.value)
+			setText(char_content, char_content_fulfilled, req_i++);
+	
+		if (policy.requireSpecialChar.value)
+			setText(policy.requireSpecialChar.text, policy.requireSpecialChar.fulfilled, req_i++);	
+	
+		if (policy.requireNameExclusion.value || policy.requireFullnameExclusion.value)
+			setText(policy.requireFullnameExclusion.text, policy.requireNameExclusion.fulfilled && policy.requireFullnameExclusion.fulfilled, req_i++);
+
+		if (policy.requireNewPw.value)
+			setText(policy.requireNewPw.text, policy.requireNewPw.fulfilled, req_i++);				
+	}
+	
+	for (req_i; req_i <= 5; req_i++) {
+		webMI.gfx.setText("req_text" + req_i, req_i == 1 ? "---" : "");
+		webMI.gfx.setVisible("check" + req_i, false);
+		webMI.gfx.setVisible("cross" + req_i, false);
+	}
+}
+
+function validatePassword() {
+	loginHandler.validateUserPassword(username, newpassword, function(e) {
+		policy = e;
+		setRequirements();
+	});
+}
+
+function saveOrClose(save) {
+	if(username == "root") {
+		webMI.gfx.setFill("error_message", "#FF0000");
+		webMI.gfx.setText("error_message", textBlocks.ErrorRoot);
+		webMI.gfx.setVisible("save_button", false);
+		webMI.gfx.setVisible("cancel_button", false);
+		webMI.gfx.setVisible("close_button", true);	
+	} else {
+		webMI.gfx.setText("error_message", "");
+		webMI.gfx.setVisible("save_button", save);
+		webMI.gfx.setVisible("cancel_button", save);
+		webMI.gfx.setVisible("close_button", !save);
+	}
+}
+
+webMI.addOnload(function() {
+	if (username != "undefined" && username != "") {
+		webMI.gfx.setVisible("username_input", false);
+		webMI.gfx.setVisible("username_keyboard", false);
+	} else {
+		webMI.gfx.setVisible("username", false);
+		if (webMI.getAccessControlSupport() && accessControlManager) {
+			accessControlManager.getRights(keyboard, "read", function(e) {
+				keyboard_right = e.result;	
+				setTimeout(function() {
+					document.getElementById("fo_" + "username_input" + "_clickareaFO").click();	
+				},250);
+			});
+		} else {
+			setTimeout(function() {
+				document.getElementById("fo_" + "username_input" + "_clickareaFO").click();	
+			},250);
+		}
+	}
+
+	saveOrClose(true);
+	loginHandler.getPasswordPolicy(username, function(result) {
+		policy = result;
+		setRequirements();
+	});
+	
+	validatePassword();
+
+	webMI.addEvent("newpassword_input_html_input", "input", function(e) {
+		newpassword = e.target.value;
+		validatePassword();
+	});
+});
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.gfx.setText("error_message", "");
+
+		for (var i in policy) {
+			if (policy[i].fulfilled == false) {
+				webMI.gfx.setFill("error_message", "#FF0000");
+				webMI.gfx.setText("error_message", textBlocks.ErrorRequirements);
+				return;
+			}
+		}
+
+		if (username != "undefined" && username != "") {
+			webMI.data.changepassword(username, oldpassword, newpassword, function (e) {
+				if (e.error || (e[""] && e[""].error)) {
+					webMI.gfx.setFill("error_message", "#FF0000");
+					if (e.errorstring)
+						webMI.gfx.setText("error_message", loginHandler.getErrorText(e.errorstring));
+					else if (e[""].errorstring)
+						webMI.gfx.setText("error_message", loginHandler.getErrorText(e[""].errorstring));
+					else
+						webMI.gfx.setText("error_message", textBlocks.ChangeFailed);
+				} else {
+					saveOrClose(false);
+					webMI.gfx.setFill("error_message", "#00c800");
+					webMI.gfx.setText("error_message", textBlocks.ChangeSuccessfull);
+					
+				}
+			});
+		} else {
+			webMI.gfx.setFill("error_message", "#FF0000");
+			webMI.gfx.setText("error_message", textBlocks.ErrorUserOrPassword);
+		}
+	},
+	"save_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.trigger.fire("com.atvise.loginhandler.changepassword_closed", "");
+		webMI.display.closeWindow();
+	},
+	"cancel_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.trigger.fire("com.atvise.loginhandler.changepassword_closed", "");
+		webMI.display.closeWindow();
+	},
+	"close_button"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		username = e.value;
+		validatePassword();
+		saveOrClose(true);
+	},
+	"username_input"
+);
+
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		oldpassword = e.value;
+		saveOrClose(true);
+	},
+	"oldpassword_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		newpassword = e.value;
+		validatePassword();
+		saveOrClose(true);
+	},
+	"newpassword_input"
+);
+
+webMI.trigger.connect(trigger_username, function (e) {
+	username = e.value;
+	webMI.trigger.fire("setValue", e.value, "username_input");
+});
+
+webMI.trigger.connect(trigger_oldpassword, function (e) {
+	oldpassword = e.value;
+	webMI.trigger.fire("setValue", e.value, "oldpassword_input");
+});
+
+webMI.trigger.connect(trigger_newpassword, function (e) {
+	newpassword = e.value;
+	webMI.trigger.fire("setValue", e.value, "newpassword_input");
+});
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.query.trigger = trigger_username;
+		webMI.query.password = "No";
+		webMI.query.value = username;
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: 300,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: textBlocks.Username,
+			toolbar: false,
+			width: 700,
+			query: webMI.query
+		});
+	},
+	"username_keyboard"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.query.trigger = trigger_oldpassword;
+		webMI.query.password = "Yes";
+		webMI.query.value = "";
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: 300,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: textBlocks.CurrentPassword,
+			toolbar: false,
+			width: 700,
+			query: webMI.query
+		});
+	},
+	"oldpassword_keyboard"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.query.trigger = trigger_newpassword;
+		webMI.query.password = "Yes";
+		webMI.query.value = "";
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: 300,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: textBlocks.NewPassword,
+			toolbar: false,
+			width: 700,
+			query: webMI.query
+		});
+	},
+	"newpassword_keyboard"
+);
+]]></code>
+</script>

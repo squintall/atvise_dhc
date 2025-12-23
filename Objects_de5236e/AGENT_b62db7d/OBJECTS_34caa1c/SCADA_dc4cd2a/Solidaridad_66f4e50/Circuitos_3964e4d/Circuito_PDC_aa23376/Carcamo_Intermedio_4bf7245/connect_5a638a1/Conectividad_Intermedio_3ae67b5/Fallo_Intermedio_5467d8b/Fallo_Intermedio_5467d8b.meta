@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.connect.Conectividad_Intermedio.Fallo Intermedio
+NodeClass: Object
+BrowseName: 1:Fallo Intermedio
+DisplayName: en|Fallo Intermedio
+Description: en|Fallo Intermedio
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConditionControl.Discrete
+Reference: forward HasComponent ns=1;s=AGENT.ALARMING.Categories.Error

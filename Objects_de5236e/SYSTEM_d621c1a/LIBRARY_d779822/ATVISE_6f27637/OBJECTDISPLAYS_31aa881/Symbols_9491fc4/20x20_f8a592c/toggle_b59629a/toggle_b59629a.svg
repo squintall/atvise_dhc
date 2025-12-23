@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg enable-background="new 0 0 20 20" height="20" id="Ebene_1" version="1.1" width="20" x="0px" xml:space="preserve" y="0px" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="#000000" desc="symbol color" name="symbolColor" substitute="$SYMBOLCOLOR$" valuetype="color"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <polygon atv:refpx="10" atv:refpy="6.401" fill="$SYMBOLCOLOR$" id="id_0" points="15.007,7.793 13.254,6.04 11.239,8.055 11.239,0 8.76,0 8.76,8.054 6.746,6.04 4.993,7.793 &#xD;&#xA;&#x9;8.246,11.048 8.246,11.048 8.686,11.486 9.919,12.72 9.919,12.72 10,12.801 "/>
+ <g atv:refpx="10" atv:refpy="18.438" id="id_4">
+  <path atv:refpx="17.493" atv:refpy="18.438" d="M14.986,16.875C15.142,17.371 15.25,17.89 15.25,18.438C15.25,18.985 15.143,19.504 14.986,20L20,20L20,16.875Z" fill="$SYMBOLCOLOR$" id="id_1"/>
+  <path atv:refpx="2.506" atv:refpy="18.438" d="M4.75,18.438C4.75,17.89 4.857,17.372 5.013,16.875L0,16.875L0,20L5.013,20C4.857,19.504 4.75,18.985 4.75,18.438" fill="$SYMBOLCOLOR$" id="id_2"/>
+ </g>
+ <path atv:refpx="10" atv:refpy="17.323" d="M13.447,20C13.664,19.522 13.792,18.996 13.792,18.437C13.792,16.341 12.094,14.645 10,14.645C7.906,14.645 6.208,16.341 6.208,18.437C6.208,18.996 6.336,19.522 6.553,20Z" fill="$SYMBOLCOLOR$" id="id_3"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

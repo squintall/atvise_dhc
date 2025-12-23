@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAO6SURBVFiFxZdBTNtWGMd/gRBWMRlXag9IyeaNakxJV7oVpO4E7bSZU6VJtdNzidRddhiX9TLF7F6gu2IqzhTtNAHuKZnUjguDIcG0y4hGKiqhdcQoDCex3w4BAypbnIRqn2S99/n9P7/fe+/z83MomdSForyzw/9gudyGHAbQRwx5adsBp4xwyuCUEKXygV/ii9u9AGwVK/yQK0LFRTilY/qqru+9C/Rd7gJgcq0AnndSU6rGdEnt3LpxiTt3koQBlrYdJhe3EPYewi4idg9Ku4iw904ATC5t+/fFbvEoxt7j3ueXfQBz9eWJtuPajxSZWzcuAVQBekrPud/jIdxWqLwJ7jmoyAjXA9dlfX0dAM+F+90C4YbAfQMqEXAlRKWqu3i+1dd+rQAVD+FGoBIGt6M6c65HR6TF14WSSV0Ui0WKxWLdaxiJRJBluYHVP2bJpC7S6bQA6r4GBgZEM5ZM6iJ8CNLb28vExERg8OnpaXK5XHOj5yAHAGRZZnBwMHBgJpM5W4CVlSUGBz6sOoKT5Sn13OYWyrvvnx2ALLkM9P+KcAFXgAvCFeCd7ns7AjhDACV2jm++rCBKAsri1FKUBc9ftCDKAlEq8fRl0/0fAeT++JtvH7g1R/7irwi/7cbx/vyFtq4zBNjZbeXH5Z6jllfWXyCA/f0y5y9eoOBda7734wBXr14jk8nUDBgfHyMejzM3N8fq6mrTAC2NBElSJw8ffkdbWxjLWmgKwJ+BbDZLKBSqGXDlygdcv/4xALOz36OqnxGNxkgkEs0BBN0J5+fn/LokSZjmFKOjaUzzEZIkNQ4QdCdcXv75hJ9IJNA0nVTqLjMzs40DrKysBAJob4/4S3BomqaztraGYaQxjNHGAILOwMbG76feN4xRdP02jx/PoGl6/QCKomAYRs2A8fGxf20zzUekUneJxxOBk/JoJ8zlAgE8e/aU4eHUqW2SJJFOj5JKDWNZT4IlZb0Hkv7+vpoHjYWFeaGqnwY6kLQAGIaBECLQpShv1xyUqg6hqkOMjHxVUxuuqQho+fwmhmFg2wUAbNtGkiTy+U2i0djrAcjnNzFN03/1bLtQ917Q0LcAwLIW0DSNxcWf/FHato1t268fwDDSTE2ZWNYTNE3HsiyAg3p9H6eGADo7O5mZmUWSJFRV9Tut1q26nlV3DgwPp1DVId8/PvXRaIx8ftNPwMAAh79JQSwWe+sV/c2bnzA29oBCoYDrumSzWbq7uwM9L5RM6qK27L/NcRwcZ5/W1jAdHR11xf4Dv5OqDTAFB/wAAAAASUVORK5CYII=</icon>
+    <visible>1</visible>
+    <title>Open Main Menu</title>
+    <description>Opens the main menu.</description>
+  </metadata>
+  <parameter behavior="mandatory" desc="x coordinate" name="x" valuetype="number"/>
+  <parameter behavior="mandatory" desc="y coordinate" name="y" valuetype="number"/>
+  <parameter behavior="mandatory" config="click;dblclick;mousedown;mouseup;mouseover;mousemove;mouseout" defaultvalue="click" desc="trigger event" name="onEvent" valuetype="enum"/>
+  <parameter behavior="mandatory" config="MAIN;USER;SYSTEM;REPORT" defaultvalue="MAIN" desc="menu name" name="name" valuetype="enum"/>
+  <parameter behavior="mandatory" defaultvalue="content" desc="target display frame" name="frameName" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="0" desc="maximum displayed items (0 = all)" name="itemsCount" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="12" desc="font size" name="fontSize" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="160" desc="minimum width of the PopUp" name="minWidth" valuetype="number"/>
+  <parameter behavior="optional" desc="style" name="style" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="true" desc="close on mouseout" name="closeOnMouseout" valuetype="bool"/>
+  <code><![CDATA[var StylePresets = {
+	width: parseInt(base.minWidth, 10),
+	fontSize: base.fontSize,
+	fill: "#c7c7c7",
+	stroke: "#393939",
+	hoverFill: "#fcec3c",
+	closeTime: 0
+}; // fontSize and minWidth taken from parameters for backwards compatibility
+
+// Apply style settings from object display element if available
+var style = base.style != undefined ? base.style : {};
+
+// Externally declared (index.htm)
+var getDisplayName = getDisplayName  ? getDisplayName : undefined;
+
+// If pre-set setting
+for (var i in StylePresets) {
+	if (style[i] == undefined) {
+		style[i] = StylePresets[i];
+	}
+}
+var styleSettings = style;
+
+var frameName = base.frameName ? base.frameName : "content";
+var itemsCount = base.itemsCount ? base.itemsCount : "0";
+
+var menuMain = {};
+var menuUser = {};
+var menuSystem = {};
+var menuReport = {};
+
+function getDisplayFn(display) {
+	return function () {
+		function changeLayout() {
+			if (currDisp.indexOf("Landscape") >= 0) {
+				display = display.substr(display.indexOf("DISPLAYS.") + "DISPLAYS.".length);
+				currDisp = currDisp.slice(0, currDisp.lastIndexOf("."));
+				display = currDisp + "." + display;
+			} else if (currDisp.indexOf("Portrait") >= 0) {
+				display = display.substr(display.indexOf("DISPLAYS.") + "DISPLAYS.".length);
+				currDisp = currDisp.slice(0, currDisp.lastIndexOf("."));
+				display = currDisp + "." + display;
+			}
+		}
+
+		if (webMI.rootWindow.responsiveHandler.active) {
+			var path = document.location.pathname;
+			var currDisp = path.substring(path.lastIndexOf("/") + 1, path.length);
+			if (currDisp.indexOf(".svg") >= 0) {
+				currDisp = getDisplayName(currDisp.replace(".svg", ""));
+				display = getDisplayName(display);
+				changeLayout();
+				display = getDisplayCode(display);
+			} else {
+				changeLayout();
+			}
+		}
+		webMI.display.openDisplay(display, webMI.query, frameName);
+		webMI.display.showPopup(0, 0, -1); // empties addedClosePopUpEvents in ATVISE.QUICKDYNAMICS.index
+	};
+}
+
+function getUrlFn(url) {
+	if (typeof url === "undefined") return;
+
+	return function () {
+		webMI.display.openUrl(url, webMI.query, frameName);
+	};
+}
+
+// eslint-disable-next-line no-unused-vars
+webMI.trigger.fire("com.atvise.display_structure", function (e, _preload) {
+	function addEntry(menu, menuObj) {
+		for (var i in menuObj) {
+			menu[i] = menuObj[i];
+		}
+		return menu;
+	}
+
+	function atviseDefault(menuName) {
+		return menuName == "MAIN" || menuName == "SYSTEM" || menuName == "USER" || menuName == "REPORT";
+	}
+
+	function createMenu(menuObj, menuItem) {
+		var menuItemId = menuItem.identifier.substr(menuItem.identifier.search(".DISPLAYS.") + 10);
+		if (menuItem.sub) {
+			if (!atviseDefault(menuItem.name) && !atviseDefault(menuItemId)) {
+				menuObj[menuItem.name] = {
+					sub: {},
+					text: menuItem.name,
+					value: menuItem.display ? getDisplayFn(menuItem.display) : getUrlFn(menuItem.url)
+				};
+				for (let i in menuItem.sub) {
+					createMenu(menuObj[menuItem.name]["sub"], menuItem.sub[i]);
+				}
+			} else {
+				for (let i in menuItem.sub) {
+					createMenu(menuObj, menuItem.sub[i]);
+				}
+			}
+		} else if (menuItem.display) {
+			menuObj[menuItem.display] = { text: menuItem.name, value: getDisplayFn(menuItem.display) };
+		} else if (menuItem.url) {
+			menuObj[menuItem.url] = { text: menuItem.name, value: getUrlFn(menuItem.url) };
+		}
+		menuObj.style = styleSettings;
+		menuObj.style.closeOnMouseout = base.closeOnMouseout;
+		switch (menuItem.name) {
+			case "MAIN":
+				menuMain = addEntry(menuMain, menuObj);
+				break;
+			case "USER":
+				menuUser = addEntry(menuUser, menuObj);
+				break;
+			case "SYSTEM":
+				menuSystem = addEntry(menuSystem, menuObj);
+				break;
+			case "REPORT":
+				menuReport = addEntry(menuReport, menuObj);
+				break;
+			default:
+				break;
+		}
+		switch (menuItemId) {
+			case "MAIN":
+				menuMain = addEntry(menuMain, menuObj);
+				break;
+			case "USER":
+				menuUser = addEntry(menuUser, menuObj);
+				break;
+			case "SYSTEM":
+				menuSystem = addEntry(menuSystem, menuObj);
+				break;
+			case "REPORT":
+				menuReport = addEntry(menuReport, menuObj);
+				break;
+			default:
+				break;
+		}
+	}
+
+	var displayConfig = e;
+
+	if (displayConfig) {
+		if (displayConfig.menu) {
+			for (var i in displayConfig.menu) {
+				var menuObj = {};
+				var menuItem;
+				if (displayConfig.menu[i].name != "TABLET" && displayConfig.menu[i].name != "MOBILE") {
+					menuItem = displayConfig.menu[i];
+				}
+				if (menuItem) {
+					createMenu(menuObj, menuItem);
+				}
+			}
+		}
+	}
+});
+
+function addEntries(menu) {
+	for (var i in menu) {
+		tempObj[i] = menu[i];
+	}
+}
+
+var tempObj = {};
+tempObj.style = styleSettings;
+tempObj.style.closeOnMouseout = base.closeOnMouseout;
+tempObj.itemsCount = itemsCount;
+if (base.name != undefined) {
+	switch (base.name) {
+		case "MAIN":
+			addEntries(menuMain);
+			break;
+		case "USER":
+			addEntries(menuUser);
+			break;
+		case "SYSTEM":
+			addEntries(menuSystem);
+			break;
+		case "REPORT":
+			addEntries(menuReport);
+			break;
+		default:
+			break;
+	}
+}
+
+webMI.addEvent(base.id, base.onEvent, function () {
+	var p = webMI.gfx.createPoint(base.x, base.y).matrixTransform(webMI.gfx.getScreenCTM(true));
+	tempObj.style.closeOnMouseout = base.closeOnMouseout;
+	tempObj.style.clickAreaId = base.id;
+	tempObj.style.isDisplayMenu = true;
+	webMI.display.showPopup(0, 0, -1);
+	webMI.display.showPopup(p.x, p.y, tempObj);
+});
+
+webMI.addOnunload(function () {
+	tempObj.style.closeOnMouseout = base.closeOnMouseout;
+	tempObj.style.clickAreaId = base.id;
+	tempObj.style.isDisplayMenu = true;
+	webMI.display.showPopup(0, 0, tempObj);
+});
+]]></code>
+</script>

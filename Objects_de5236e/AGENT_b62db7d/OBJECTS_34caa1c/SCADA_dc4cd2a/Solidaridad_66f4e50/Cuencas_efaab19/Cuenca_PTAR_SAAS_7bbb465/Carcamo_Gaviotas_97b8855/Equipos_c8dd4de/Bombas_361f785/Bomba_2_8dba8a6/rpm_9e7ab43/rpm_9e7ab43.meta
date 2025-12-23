@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Gaviotas.Equipos.Bombas.Bomba_2.rpm
+NodeClass: Variable
+BrowseName: 1:rpm
+DisplayName: en|rpm
+Description: en|rpm
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

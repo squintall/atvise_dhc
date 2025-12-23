@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.opcuxm01.pass_through_event_history
+NodeClass: Variable
+BrowseName: 1:pass_through_event_history
+DisplayName: en|pass_through_event_history
+Description: en|pass_through_event_history
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

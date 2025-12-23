@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="20" version="1.2" width="20" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="#000000" desc="symbol color" name="symbolColor" substitute="$SYMBOLCOLOR$" valuetype="color"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="2" width="2"/>
+ </metadata>
+ <g atv:refpx="9.998" atv:refpy="9.998" id="id_0">
+  <path atv:refpx="22.043" atv:refpy="5.51" d="M19.518,9.967L19.49,10.573L11.278,10.573L11.086,9.933L11.816,9.555L12.483,8.889L12.92,8.042L13.076,7.071L12.92,6.097L12.483,5.253L11.816,4.586L10.971,4.149L9.998,3.992L9.025,4.149L8.18,4.586L7.513,5.253L7.076,6.097L6.919,7.071L7.076,8.042L7.513,8.889L8.18,9.555L8.909,9.933L8.717,10.573L0.504,10.573L0.477,9.967L0.516,9.1L0.631,8.256L0.818,7.436L1.073,6.645L1.394,5.886L1.777,5.162L2.219,4.477L2.716,3.834L3.266,3.236L3.864,2.686L4.507,2.189L5.193,1.747L5.917,1.364L6.676,1.043L7.467,0.787L8.286,0.6L9.131,0.486L9.998,0.447L10.864,0.486L11.709,0.6L12.528,0.787L13.319,1.043L14.078,1.364L14.803,1.747L15.488,2.189L16.131,2.686L16.729,3.236L17.279,3.834L17.776,4.477L18.218,5.162L18.601,5.886L18.922,6.645L19.177,7.436L19.364,8.256L19.479,9.1Z" fill="$SYMBOLCOLOR$" fill-rule="evenodd" id="id_5" stroke="none" stroke-width="1.027"/>
+  <path atv:refpx="21.565" atv:refpy="24.821" d="M19.518,10.03L19.479,10.897L19.364,11.741L19.177,12.561L18.922,13.351L18.601,14.111L18.218,14.835L17.776,15.52L17.279,16.164L16.729,16.761L16.131,17.311L15.488,17.808L14.803,18.25L14.078,18.633L13.319,18.954L12.528,19.21L11.709,19.397L10.864,19.511L9.998,19.55L9.131,19.511L8.286,19.397L7.467,19.21L6.676,18.954L5.917,18.633L5.193,18.25L4.507,17.808L3.863,17.311L3.266,16.761L2.716,16.164L2.219,15.52L1.777,14.835L1.394,14.111L1.073,13.351L0.818,12.561L0.63,11.741L0.516,10.897L0.477,10.03L8.899,10.03L7.106,16.004L12.889,16.004L11.096,10.03Z" fill="$SYMBOLCOLOR$" fill-rule="evenodd" id="id_6" stroke="none" stroke-width="1.027"/>
+ </g>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

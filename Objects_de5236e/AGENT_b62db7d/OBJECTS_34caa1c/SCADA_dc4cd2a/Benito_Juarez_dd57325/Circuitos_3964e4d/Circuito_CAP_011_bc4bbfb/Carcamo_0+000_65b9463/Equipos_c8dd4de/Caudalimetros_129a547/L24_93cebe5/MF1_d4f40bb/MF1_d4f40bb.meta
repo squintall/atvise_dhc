@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_0+000.Equipos.Caudalimetros.L24.MF1
+NodeClass: Variable
+BrowseName: 1:MF1
+DisplayName: en|MF1
+Description: en|MF1
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

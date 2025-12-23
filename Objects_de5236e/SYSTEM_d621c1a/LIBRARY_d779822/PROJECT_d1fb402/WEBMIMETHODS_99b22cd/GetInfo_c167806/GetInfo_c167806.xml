@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="h" type="http" trigger="false" relative="false" value=""/>
+  <code><![CDATA[console.log("-------------------EXECUTING SCRIPT--------------");
+console.log(h.request.content);
+
+var connectionString='Driver={MySQL ODBC 8.4 Unicode Driver};Server=localhost;Database=innovabd;User=root;Password=Vester12;Option=3;';
+var tableName="innovabd.tablamonitoreo";
+
+var arrayEstaciones=["Raiser_Removal","X-Ray_Inspection","Rough_finish_of_Combustion_Bowl","Oval_Turning","Ultrasonic_Inspection","Packaging"];
+
+var writingParameters = {
+
+    parte_num: h.request.getvalues["parte_num"]!="undefined" ? h.request.getvalues["parte_num"]:'',
+    batch: h.request.getvalues["batch"]!="undefined" ? h.request.getvalues["batch"]:'',
+    fecha: "FROM_UNIXTIME("+new Date()/1000+")",
+    estacion: h.request.getvalues["estacion"],
+};
+
+
+class DatabaseWriter {
+
+    constructor(connectionString, tableName, writingParameters,arrayEstaciones) {
+        this.odbcClient = null;
+        this.connectionString = connectionString;
+        this.connectionStatus = null;
+        this.tableName = tableName;
+        this.writingParameters = writingParameters;
+        this.sqlQuery = '';
+        this.queryAnswer = null;
+        this.searchParte = "";
+        this.columns = "";
+        this.queryFilter = Object.keys(this.writingParameters)[0]+" = '" +this.writingParameters.parte_num+"'";
+        
+        //Custom
+        this.arrayEstaciones=arrayEstaciones;
+        this.recordedStations;       
+        this.existConflict=false;
+        this.textConfilct="";
+    }
+
+    basicWrite() {
+        // Create Query
+        this.createQuery("INSERT");
+        console.log("-------------------Insert Query--------------");
+        console.log(this.sqlQuery);
+
+        // Open Connection
+        this.openConnection();
+        console.log("-------------------Connection Status--------------");
+        console.log(this.connectionStatus);
+		
+	 /*
+        // Write to Database
+        this.writeToDatabase();
+        //console.log("-------------------Query Answer--------------");
+        console.log(this.queryAnswer);
+        
+        // Create Select Query
+        this.createQuery("SELECT");
+		console.log("-------------------Select Query--------------");
+        console.log(this.sqlQuery);
+        
+        //Read from Database
+         this.readFromDatabase();
+        console.log("-------------------Query Answer--------------");
+        console.log(this.queryAnswer);
+    */
+        // Close Connection
+       this.closeConnection();
+    }
+    
+    advancedWrite() {
+    
+		// Create Select Query
+        this.createQuery("SELECT");
+		console.log("-------------------Select Query--------------");
+        console.log(this.sqlQuery);
+        
+          // Open Connection
+        this.openConnection();
+        console.log("-------------------Connection Status--------------");
+        console.log(this.connectionStatus);
+        
+        //Read from Database
+         this.readFromDatabase();
+        console.log("-------------------Query Answer--------------");
+        console.log(this.queryAnswer);
+        
+        //Check Confliict
+        this.checkConflict();
+        
+        if(!this.existConflict){
+			// Create Query
+			this.createQuery("INSERT");
+			console.log("-------------------Insert Query--------------");
+			console.log(this.sqlQuery);
+			
+			// Write to Database
+			this.writeToDatabase();
+			//console.log("-------------------Query Answer--------------");
+			console.log(this.queryAnswer);      
+			
+			return "The record was written succesfully";  
+        }
+        
+        else {
+			console.log(this.textConfilct);
+			return this.textConfilct;
+        }
+       // Close Connection
+       this.closeConnection();
+    
+    }
+
+    openConnection() {
+        // Create ODBC Object
+        this.odbcClient = new ODBCClient();
+        this.odbcClient.source = this.connectionString;
+
+        // Open Connection
+        this.connectionStatus = this.odbcClient.open();
+    }
+    
+    closeConnection(){
+		this.odbcClient.close();
+     }
+
+	/****************CREATE QUERY FUNCTION**************/
+	
+    createQuery(type) {
+		
+		this.columns = Object.keys(this.writingParameters).join(', ');
+		
+		if (type=="INSERT"){
+			// Create columns and values for the query
+			
+			var values = Object.values(this.writingParameters)
+				.map(value =>  value.includes("FROM_UNIXTIME") ? `${value}`:`'${value}'`)
+				.join(', ');
+	
+			this.sqlQuery = `INSERT INTO ${this.tableName} (${this.columns}) VALUES (${values});`;
+	
+        }
+        
+        else if (type=="SELECT"){        
+			
+			if (this.queryFilter != undefined){
+				this.sqlQuery = `SELECT ${this.columns} FROM ${this.tableName} WHERE ${this.queryFilter};`;
+			}
+			else{
+				this.sqlQuery = `SELECT ${this.columns} FROM ${this.tableName};`;
+			}
+        }
+    }
+    
+    readFromDatabase() {
+        console.log("Reading from database");
+
+        // Connection Successful
+        if (this.connectionStatus) {
+            try {
+                this.queryAnswer = this.odbcClient.query(this.sqlQuery);
+                return this.queryAnswer;
+            } catch (exp) {
+                console.log(exp);
+                if (exp.message.indexOf('No Data') > -1)
+                    return 0; // no data found
+
+                return undefined;
+            }
+        } else {
+            // Connection Failed
+            console.log("Error opening ODBC");
+            return undefined;
+        }
+    }
+
+    writeToDatabase() {
+		
+        // Connection Successful
+        if (this.connectionStatus) {
+            try {
+                this.queryAnswer = this.odbcClient.query(this.sqlQuery);
+                return this.queryAnswer;
+            } catch (exp) {
+                console.log(exp);
+               if (exp.message.indexOf('No Data') > -1)
+                    return 0; // ok
+
+                return undefined;
+            } 
+        } else {
+            // Connection Failedection
+            console.log("Error opening ODBC");
+            return undefined;
+        }
+
+    }
+    
+    checkConflict(){
+		
+     }
+
+	
+}
+
+  // Create Object with required parameters
+const databaseWriter1 = new DatabaseWriter(connectionString, tableName, writingParameters,arrayEstaciones);
+
+// Initialize Writer
+var conection=databaseWriter1.advancedWrite();
+
+return conection;]]></code>
+</script>

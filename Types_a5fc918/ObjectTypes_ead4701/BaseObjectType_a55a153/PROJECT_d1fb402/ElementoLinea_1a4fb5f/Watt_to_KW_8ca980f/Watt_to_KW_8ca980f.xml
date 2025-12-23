@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <code><![CDATA[var KW = Ua.findNode(base + ".Potencia_Activa");
+var W = Ua.findNode(base + ".Potencia_Activa_W");
+console.log(W);
+
+KW.result.value = W.result.value / 1000;]]></code>
+</script>

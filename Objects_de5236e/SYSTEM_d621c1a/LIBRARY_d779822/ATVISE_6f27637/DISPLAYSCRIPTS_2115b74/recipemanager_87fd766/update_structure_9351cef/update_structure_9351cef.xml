@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[function updateRecipeStructure(configNode, callback) {
+	if (typeof handleAccessControlResponse !== "undefined") {
+		handleAccessControlResponse(
+			{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.GetRecipeData", right: "execute" },
+			function () {
+				//success function
+				webMI.data.call("GetRecipeData", { mode: "Update", configNode: configNode }, function () {
+					callback();
+				});
+			},
+			function () {
+				//error function
+			}
+		);
+	}
+}
+
+/**
+ * With the following object, we address linter warnings about unused variables and functions,
+ * since these references will be shared with other linked display scripts.
+ */
+const updateStructureSharedReferences = {
+	updateRecipeStructure
+};
+updateStructureSharedReferences;
+]]></code>
+</script>

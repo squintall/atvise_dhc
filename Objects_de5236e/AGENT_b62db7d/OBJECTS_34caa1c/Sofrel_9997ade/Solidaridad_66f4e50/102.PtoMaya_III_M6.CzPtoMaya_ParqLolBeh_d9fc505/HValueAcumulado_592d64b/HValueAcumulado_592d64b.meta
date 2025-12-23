@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Solidaridad.102.PtoMaya_III_M6.CzPtoMaya_ParqLolBeh.HValueAcumulado
+NodeClass: Variable
+BrowseName: 1:HValueAcumulado
+DisplayName: en|HValueAcumulado
+Description: en|102. Puerto Maya III M6, Calz Puerto Maya esq Parque Lol Beh
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Sofrel

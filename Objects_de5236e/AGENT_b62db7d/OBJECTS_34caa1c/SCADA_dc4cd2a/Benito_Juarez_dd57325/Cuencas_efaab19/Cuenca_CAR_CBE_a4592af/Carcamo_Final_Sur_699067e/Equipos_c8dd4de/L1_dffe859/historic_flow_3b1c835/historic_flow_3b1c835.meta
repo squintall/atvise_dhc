@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Final_Sur.Equipos.L1.historic_flow
+NodeClass: Variable
+BrowseName: 1:historic_flow
+DisplayName: en|historic_flow
+Description: en|historic_flow
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Caudalimetros

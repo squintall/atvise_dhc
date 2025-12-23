@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvFontColor
+NodeClass: Variable
+BrowseName: 1:atvFontColor
+DisplayName: en|atvFontColor
+Description: en|atvFontColor
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

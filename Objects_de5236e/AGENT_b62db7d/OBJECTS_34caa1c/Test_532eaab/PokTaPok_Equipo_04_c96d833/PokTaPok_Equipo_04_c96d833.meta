@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Test.PokTaPok_Equipo_04
+NodeClass: Object
+BrowseName: 1:PokTaPok_Equipo_04
+DisplayName: en|PokTaPok_Equipo_04
+Description: en|PokTaPok_Equipo_04
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Asignar_LR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Indicador_Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.button

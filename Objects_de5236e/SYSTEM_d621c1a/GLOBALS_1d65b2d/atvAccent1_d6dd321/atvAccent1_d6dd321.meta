@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvAccent1
+NodeClass: Variable
+BrowseName: 1:atvAccent1
+DisplayName: en|atvAccent1
+Description: en|atvAccent1
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

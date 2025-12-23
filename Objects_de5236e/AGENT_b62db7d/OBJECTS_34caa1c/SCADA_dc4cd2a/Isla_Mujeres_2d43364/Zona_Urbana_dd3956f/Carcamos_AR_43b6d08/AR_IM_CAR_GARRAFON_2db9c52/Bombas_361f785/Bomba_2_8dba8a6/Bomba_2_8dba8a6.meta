@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AR.AR_IM_CAR_GARRAFON.Bombas.Bomba_2
+NodeClass: Object
+BrowseName: 1:Bomba_2
+DisplayName: en|Bomba_2
+Description: en|Bomba_2
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.button

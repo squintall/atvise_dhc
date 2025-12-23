@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_3_ZH_Tortugas.Equipos.Caudalimetro.L1.Umbrales.Presion.WarnLow
+NodeClass: Variable
+BrowseName: 1:WarnLow
+DisplayName: en|WarnLow
+Description: en|WarnLow
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

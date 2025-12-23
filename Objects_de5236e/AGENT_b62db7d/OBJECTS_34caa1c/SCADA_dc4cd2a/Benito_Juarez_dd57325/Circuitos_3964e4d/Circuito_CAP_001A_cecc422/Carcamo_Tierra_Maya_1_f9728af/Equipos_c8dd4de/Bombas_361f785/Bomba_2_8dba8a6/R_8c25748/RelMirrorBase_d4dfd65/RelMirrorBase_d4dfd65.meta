@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Tierra_Maya_1.Equipos.Bombas.Bomba_2.R.RelMirrorBase
+NodeClass: Variable
+BrowseName: 1:RelMirrorBase
+DisplayName: en|RelMirrorBase
+Description: en|RelMirrorBase
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.Relative.Base

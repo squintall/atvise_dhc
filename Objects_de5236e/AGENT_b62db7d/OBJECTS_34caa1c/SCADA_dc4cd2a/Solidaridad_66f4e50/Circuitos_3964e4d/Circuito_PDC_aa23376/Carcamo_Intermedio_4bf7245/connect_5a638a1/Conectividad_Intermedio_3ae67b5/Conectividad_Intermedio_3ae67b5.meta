@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.connect.Conectividad_Intermedio
+NodeClass: Object
+BrowseName: 1:Conectividad_Intermedio
+DisplayName: en|Conectividad_Intermedio
+Description: en|Conectividad_Intermedio
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

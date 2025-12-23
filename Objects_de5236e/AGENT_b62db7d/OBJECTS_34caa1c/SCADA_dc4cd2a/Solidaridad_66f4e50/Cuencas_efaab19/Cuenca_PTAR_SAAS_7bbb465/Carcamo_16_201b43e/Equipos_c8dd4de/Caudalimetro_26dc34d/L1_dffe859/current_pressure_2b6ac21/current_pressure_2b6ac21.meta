@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_16.Equipos.Caudalimetro.L1.current_pressure
+NodeClass: Variable
+BrowseName: 1:current_pressure
+DisplayName: en|current_pressure
+Description: en|Presión Cuenca_PTAR_SAAS en L1
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Caudalimetros

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_008.Equipos.Caudalimetros.L1.L1.trendCfg
+NodeClass: Variable
+BrowseName: 1:trendCfg
+DisplayName: en|trendCfg
+Description: en|trendCfg
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

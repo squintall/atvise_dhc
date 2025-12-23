@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.eloeza.display_content
+NodeClass: Variable
+BrowseName: 1:display_content
+DisplayName: en|display_content
+Description: en|display_content
+DataType: NodeId
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

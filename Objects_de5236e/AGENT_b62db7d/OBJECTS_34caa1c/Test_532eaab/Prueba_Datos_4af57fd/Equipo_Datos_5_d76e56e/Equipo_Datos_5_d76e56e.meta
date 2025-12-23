@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Test.Prueba Datos.Equipo_Datos_5
+NodeClass: Object
+BrowseName: 1:Equipo_Datos_5
+DisplayName: en|Equipo_Datos_5
+Description: en|Equipo_Datos_5
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Asignar_LR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Indicador_Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.button

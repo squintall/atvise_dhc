@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Caudalimetros.L_20.current_flow.FlujoAnormal.Cero
+NodeClass: Object
+BrowseName: 1:Cero
+DisplayName: en|Cero
+Description: en|Cero
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConditionControl.Limit
+Reference: forward HasComponent ns=1;s=AGENT.ALARMING.Categories.Error

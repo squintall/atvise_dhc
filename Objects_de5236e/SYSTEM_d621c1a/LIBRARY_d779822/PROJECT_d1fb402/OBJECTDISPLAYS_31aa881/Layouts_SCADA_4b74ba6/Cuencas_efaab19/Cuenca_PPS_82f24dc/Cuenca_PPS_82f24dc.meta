@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuenca_PPS
+NodeClass: Variable
+BrowseName: 1:Cuenca_PPS
+DisplayName: en|Cuenca_PPS
+Description: en|Cuenca_PPS
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Value xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+	<uax:ListOfString>
+		<uax:String>&quot;1&quot;:{&quot;columnName&quot;:&quot;T{Name}&quot;,&quot;field&quot;:&quot;name&quot;,&quot;filter&quot;:&quot;true&quot;,&quot;orderMain&quot;:&quot;1&quot;,&quot;sortable&quot;:&quot;true&quot;,&quot;visibleMain&quot;:&quot;true&quot;,&quot;widthMain&quot;:&quot;178&quot;}</uax:String>
+		<uax:String>&quot;2&quot;:{&quot;columnName&quot;:&quot;T{Description}&quot;,&quot;field&quot;:&quot;description&quot;,&quot;filter&quot;:&quot;true&quot;,&quot;orderMain&quot;:&quot;2&quot;,&quot;sortable&quot;:&quot;true&quot;,&quot;visibleMain&quot;:&quot;true&quot;,&quot;widthMain&quot;:&quot;520&quot;}</uax:String>
+		<uax:String>&quot;3&quot;:{&quot;columnName&quot;:&quot;T{Private}&quot;,&quot;field&quot;:&quot;private&quot;,&quot;filter&quot;:&quot;true&quot;,&quot;orderMain&quot;:&quot;3&quot;,&quot;sortable&quot;:&quot;true&quot;,&quot;visibleMain&quot;:&quot;true&quot;,&quot;widthMain&quot;:&quot;90&quot;}</uax:String>
+	</uax:ListOfString>
+</Value>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Carcamo_Aeropuerto_IM.Equipos.Bombas.Variador_1.rpm
+NodeClass: Variable
+BrowseName: 1:rpm
+DisplayName: en|rpm
+Description: en|rpm
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

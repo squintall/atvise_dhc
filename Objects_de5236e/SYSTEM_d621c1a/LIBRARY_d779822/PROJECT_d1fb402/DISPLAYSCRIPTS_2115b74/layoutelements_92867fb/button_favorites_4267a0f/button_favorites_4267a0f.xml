@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element button favorites object display
+ * ----------------------------------------
+ * This script supports the display evaluating the favorite selection.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var activeDisplay, activeQuery;
+var checkActiveState = false;
+var configNode = webMI.query["configNode"];
+var baseNode = configNode.substring(0, configNode.lastIndexOf("."));
+var userNode = "";
+var contextMenuFillColor = webMI.query["context_menu_fill_color"];
+var contextMenuHoverColor = webMI.query["context_menu_hover_color"];
+var listOfFavorites = [];
+var menuObj = {};
+var popUpX = 0;
+var popUpY = 42;
+var symbolColor = webMI.query["symbolColor"];
+var symbolColorActive = webMI.query["symbolColorActive"];
+var selfId = document.getElementById("button_fav").parentNode.parentNode.id;
+var username;
+
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager = false;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * UI SETUP SECTION
+ */
+var contextMenuStyle = {
+	itemHeight: 50,
+	itemFill: contextMenuFillColor,
+	itemPadding: 10,
+	itemMargin: 5,
+	itemBorderRadius: 3,
+	itemBorder: "1px #d7d7d7 solid",
+	maxRows: 5,
+	fontFamily: webMI.query["context_menu_font_family"],
+	fontSize: webMI.query["context_menu_font_size"],
+	fontFill: webMI.query["context_menu_font_color"],
+	hoverFontFill: webMI.query["context_menu_font_color_hover"],
+	width: 140,
+	fill: 0,
+	stroke: "#565656",
+	strokeWidth: 0,
+	hoverFill: contextMenuHoverColor,
+	closeTime: 0,
+	zIndex: 100,
+	showType: "right",
+	alignment: "left"
+};
+
+webMI.gfx.setStroke("button_fav_button_symbol_id_0", symbolColor);
+webMI.gfx.setWidth("button_fav_button_bg", webMI.gfx.getWidth("button_fav_button_bg") - 2);
+webMI.gfx.setHeight("button_fav_button_bg", webMI.gfx.getHeight("button_fav_button_bg") - 2);
+webMI.gfx.setX("button_fav_button_bg", "2");
+webMI.gfx.setY("button_fav_button_bg", "2");
+
+/**
+ * RUNTIME SECTION
+ */
+
+/**
+ * Init after onload
+ */
+webMI.addOnload(function () {
+	webMI.trigger.fire("com.atvise.setActive", false, "button_fav");
+
+	if (!username) return;
+
+	initNodes();
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * Add favorite
+ * @param favName
+ * @param displayAddress
+ * @param query
+ */
+function addFav(favName, displayAddress, query) {
+	query = cleanQuery(query);
+
+	listOfFavorites.push({ name: favName, address: displayAddress, query: query });
+	webMI.gfx.setFillOpacity("button_fav_button_symbol_id_0", 1);
+	writeConfig(configNode, username, listOfFavorites);
+	checkDisplay();
+}
+
+/**
+ * Add Node in compatibility mode
+ * @param node
+ */
+function addNodeInCompatibilityMode(node, callback, fallback) {
+	if (webMI.getMethodSupport().indexOf("AddNode") > -1) {
+		webMI.data.call(
+			"AddNode",
+			{
+				address: node,
+				typeDefinition: "i=62",
+				dataType: "STRING",
+				value: "",
+				nodeClass: "NODECLASS_VARIABLE",
+				writePolicy: 2
+			},
+			function (e) {
+				webMI.data.read(node, function (e) {
+					if (e.error && e.error != "0") {
+						fallback();
+					} else {
+						callback();
+					}
+				});
+			}
+		);
+	} else {
+		console.warn("The AddNode method is not supported, please add the configuration node manually");
+	}
+}
+
+/**
+ * Add or remove favorite
+ * @param doAdd
+ * @param display
+ * @param query
+ */
+function addOrRemoveFav(doAdd, display, query) {
+	if (doAdd) {
+		getNameInputForFav(display, query);
+	} else {
+		webMI.display.openWindow({
+			display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog",
+			extern: false,
+			width: 675,
+			height: 425,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Favorites} ",
+			toolbar: false,
+			query: {
+				btn1: "T{OK}",
+				btn2: "T{Cancel}",
+				headline: "T{Remove favorite}?",
+				msg1: decodeURIComponent(display),
+				action_btn1: "com.atvise.favorites.remove",
+				displayAddress: display,
+				id: configNode,
+				query: query,
+				backgroundColor: webMI.query["popup_fill"],
+				fontColor: webMI.query["popup_font_color"],
+				fontSize: webMI.query["popup_font_size"],
+				fontFamily: webMI.query["popup_font_family"]
+			}
+		});
+	}
+}
+
+/**
+ * Check display
+ */
+function checkDisplay() {
+	if (listOfFavorites.length) {
+		var activeFoundInFavorites = false;
+
+		for (var i = 0; i < listOfFavorites.length; i++) {
+			if (
+				compareDisplay(listOfFavorites[i].address, activeDisplay) &&
+				listOfFavorites[i].query == cleanQuery(activeQuery)
+			) {
+				activeFoundInFavorites = true;
+				continue;
+			}
+		}
+
+		checkActiveState = activeFoundInFavorites;
+
+		if (activeFoundInFavorites) {
+			webMI.gfx.setFill("button_fav_button_bg", contextMenuFillColor);
+			webMI.gfx.setFill("button_fav_button_symbol", webMI.query["fontColorActive2"]);
+			webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+				newColor: symbolColorActive,
+				currentColor: symbolColor,
+				buttonId: selfId + "_button_fav"
+			});
+		} else {
+			webMI.gfx.setFill("button_fav_button_bg", contextMenuHoverColor);
+			webMI.gfx.setFill("button_fav_button_symbol", webMI.query["fontColor2"]);
+			webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+				newColor: symbolColor,
+				currentColor: symbolColorActive,
+				buttonId: selfId + "_button_fav"
+			});
+		}
+	} else if (username) {
+		webMI.gfx.setFill("button_fav_button_bg", contextMenuHoverColor);
+		webMI.gfx.setFill("button_fav_button_symbol", webMI.query["fontColor2"]);
+		webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+			newColor: symbolColor,
+			currentColor: symbolColorActive,
+			buttonId: selfId + "_button_fav"
+		});
+	}
+}
+
+/**
+ * Remove session-dependent parameters
+ * @param query
+ * @returns {string | *}
+ */
+function cleanQuery(query) {
+	if (typeof query == "undefined") query = "";
+
+	if (query.indexOf("&") > -1) {
+		var junkQuery = query.split("&");
+		var cleanup = [];
+
+		for (var cq in junkQuery) {
+			if (junkQuery[cq].indexOf("X-WebMI") == -1 && junkQuery[cq].indexOf("base=undefined") == -1) {
+				cleanup.push(junkQuery[cq]);
+			}
+		}
+
+		query = cleanup.join("&");
+	}
+
+	return query;
+}
+
+/**
+ * Close context menu
+ */
+function closeContextMenu() {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+		id: "",
+		onEvent: "immediately"
+	});
+}
+
+/**
+ * Compare Display
+ * @param favorite
+ * @param actual
+ * @returns {boolean}
+ */
+function compareDisplay(favorite, actual) {
+	var match = false;
+	if (actual) actual = decodeURIComponent(actual);
+	if (favorite === actual) match = true;
+	return match;
+}
+
+/**
+ * Replace periods in username with UTF one dot leaders for use as node ID in atvise
+ * @param usernameToEscape {string} Username in which perios are to be replaced
+ * @returns {string}
+ */
+function escapeUsername(usernameToEscape) {
+	usernameToEscape = usernameToEscape.replaceAll(".", "(period)");
+	usernameToEscape = usernameToEscape.replaceAll("?", "(quest)");
+	usernameToEscape = usernameToEscape.replaceAll("/", "(slash)");
+	usernameToEscape = usernameToEscape.replaceAll("\\", "(bslash)");
+
+	return usernameToEscape;
+}
+
+/**
+ * Get name input for favorite
+ * @param display_address
+ * @param query
+ */
+function getNameInputForFav(display_address, query) {
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.fav_input",
+		extern: false,
+		width: 780,
+		height: 257.5,
+		menubar: false,
+		modal: true,
+		movable: true,
+		resizable: false,
+		scrollbars: false,
+		status: false,
+		title: "T{Favorites} ",
+		toolbar: false,
+		query: {
+			displayAddress: display_address,
+			id: configNode,
+			query: query,
+			fillColor: webMI.query["popup_fill"],
+			fontColor: webMI.query["popup_font_color"],
+			fontSize: webMI.query["popup_font_size"],
+			fontFamily: webMI.query["popup_font_family"],
+			isLoggedIn: typeof username != "undefined"
+		}
+	});
+}
+
+/**
+ * Init nodes and read data
+ */
+function initNodes() {
+	userNode = configNode + "." + escapeUsername(username);
+
+	if (webMI.getMethodSupport().indexOf("CheckNodeExists") > -1 && accessControlManager) {
+		var compareRights = [{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FavoritesConfig", right: "execute" }];
+
+		accessControlManager.assist.handleWithPermissions(
+			compareRights,
+			function () {
+				webMI.data.call(
+					"FavoritesConfig",
+					{
+						address: configNode
+					},
+					function (e) {
+						if (typeof e.error != "undefined" || e.result === false) {
+							webMI.trigger.fire("com.atvise.setActive", false, "button_fav");
+							console.warn("Can not create " + userNode + " (Permission denied)");
+						} else {
+							webMI.trigger.fire("com.atvise.setActive", true, "button_fav");
+							setConfigIfLoggedIn(e.result);
+						}
+					}
+				);
+			},
+			function () {
+				console.warn("Can not read " + userNode + " (Permission denied)");
+			}
+		);
+	} else {
+		webMI.data.read(configNode, function (e) {
+			if (e.error && e.error != "0") {
+				addNodeInCompatibilityMode(
+					configNode,
+					function () {
+						initNodes();
+					},
+					function () {
+						console.warn("no rights");
+					}
+				);
+			} else {
+				webMI.data.read(userNode, function (e) {
+					if (e.error && e.error != "0") {
+						addNodeInCompatibilityMode(
+							userNode,
+							function () {
+								webMI.trigger.fire("com.atvise.setActive", true, "button_fav");
+								setConfigIfLoggedIn(userNode);
+							},
+							function () {
+								console.warn("no rights");
+							}
+						);
+					} else {
+						webMI.trigger.fire("com.atvise.setActive", true, "button_fav");
+						setConfigIfLoggedIn(e.value);
+					}
+				});
+			}
+		});
+	}
+}
+
+/**
+ * New node standard options
+ * @param address
+ * @returns {{address: *, typeDefinition: string, dataType: string, value: string, nodeClass: string, writePolicy: number}}
+ */
+function newNodeOptions(address) {
+	return {
+		address: address,
+		typeDefinition: "i=62",
+		dataType: "STRING",
+		value: "",
+		nodeClass: "NODECLASS_VARIABLE",
+		writePolicy: 2
+	};
+}
+
+/**
+ * Open context menu
+ */
+function openContextMenu() {
+	menuObj = {};
+	var activeFoundInFavorites = null;
+
+	for (var i = 0; i < listOfFavorites.length; i++) {
+		menuObj[i] = {
+			text: listOfFavorites[i].name,
+			value: openFav(listOfFavorites[i].address, listOfFavorites[i].query),
+			textAlign: webMI.query["contextMenuTextAlignment"]
+		};
+
+		if (
+			compareDisplay(listOfFavorites[i].address, activeDisplay) &&
+			listOfFavorites[i].query == cleanQuery(activeQuery)
+		) {
+			activeFoundInFavorites = i;
+		}
+	}
+
+	var compareRights = [{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FavoritesConfig", right: "execute" }];
+
+	if (accessControlManager) {
+		accessControlManager.assist.handleWithPermissions(
+			compareRights,
+			function () {
+				createContextMenu(true);
+			},
+			function () {
+				createContextMenu(false);
+			}
+		);
+	} else {
+		createContextMenu(true);
+	}
+
+	function createContextMenu(withFunction) {
+		if (withFunction) {
+			menuObj[i + 1] = { textAlign: webMI.query["contextMenuTextAlignment"] };
+
+			if (activeFoundInFavorites != null) {
+				menuObj[i + 1].text = "T{Remove}";
+				menuObj[i + 1].menuPosition = "bottom";
+				menuObj[i + 1].value = function () {
+					addOrRemoveFav(false, activeDisplay, cleanQuery(activeQuery));
+				};
+			} else {
+				menuObj[i + 1].text = "T{Add}";
+				menuObj[i + 1].menuPosition = "bottom";
+				menuObj[i + 1].value = function () {
+					addOrRemoveFav(true, activeDisplay, cleanQuery(activeQuery));
+				};
+			}
+		}
+
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+			id: "button_fav",
+			onEvent: "immediately",
+			menuObj: menuObj,
+			active: function () {
+				return true;
+			},
+			x: popUpX,
+			y: popUpY,
+			itemsCount: 5,
+			elementHeight:
+				(webMI.gfx.getHeight("button_fav") / webMI.gfx.getScreenCTM().d) * webMI.gfx.getScreenCTM("button_fav").d,
+			minWidth:
+				(webMI.gfx.getWidth("button_fav") / webMI.gfx.getScreenCTM().a) * webMI.gfx.getScreenCTM("button_fav").a,
+			style: contextMenuStyle
+		});
+	}
+}
+
+/**
+ * Open favorite
+ * @param favDisplayAddress
+ * @param query
+ * @returns {Function}
+ */
+function openFav(favDisplayAddress, query) {
+	return function () {
+		webMI.display.openDisplay(favDisplayAddress, query, "content");
+	};
+}
+
+/**
+ * Remove favorite
+ * @param displayAddress
+ * @param query
+ * @param window
+ */
+function removeFav(displayAddress, query, window) {
+	var addressFoundInFavorites = null;
+
+	for (var i = 0; i < listOfFavorites.length; i++) {
+		if (compareDisplay(listOfFavorites[i].address, displayAddress) && listOfFavorites[i].query == cleanQuery(query)) {
+			addressFoundInFavorites = i;
+			continue;
+		}
+	}
+
+	if (addressFoundInFavorites != null) {
+		listOfFavorites.splice(addressFoundInFavorites, 1);
+		window.close();
+		closeContextMenu();
+		writeConfig(configNode, username, listOfFavorites);
+	}
+
+	checkDisplay();
+}
+
+/**
+ * set button colors
+ * @param menuInfo
+ */
+function setButtonColors(menuInfo) {
+	if (checkActiveState || (menuInfo != undefined && menuInfo.menu == menuObj && menuInfo.opened == true)) {
+		webMI.gfx.setFill("button_fav_button_bg", contextMenuFillColor);
+		webMI.gfx.setFill("button_fav_button_symbol", webMI.query["fontColorActive2"]);
+		webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+			newColor: symbolColorActive,
+			currentColor: symbolColor,
+			buttonId: selfId + "_button_fav"
+		});
+	} else {
+		webMI.gfx.setFill("button_fav_button_bg", contextMenuHoverColor);
+		webMI.gfx.setFill("button_fav_button_symbol", webMI.query["fontColor2"]);
+		webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+			newColor: symbolColor,
+			currentColor: symbolColorActive,
+			buttonId: selfId + "_button_fav"
+		});
+	}
+}
+
+/**
+ * Set config if logged in
+ * @param node
+ */
+function setConfigIfLoggedIn(values) {
+	if (values == "") listOfFavorites = [];
+	else listOfFavorites = JSON.parse(values);
+
+	checkDisplay();
+}
+
+/**
+ * Write config to node
+ * @param configNode
+ * @param username
+ * @param configuration
+ */
+function writeConfig(configNode, username, configuration) {
+	var jsonListOfFavorites = JSON.stringify(listOfFavorites);
+	if (jsonListOfFavorites.length <= parseInt(webMI.query["sizeLimit"])) {
+		if (accessControlManager) {
+			var compareRights = [{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FavoritesConfig", right: "execute" }];
+
+			accessControlManager.assist.handleWithPermissions(
+				compareRights,
+				function () {
+					webMI.data.call(
+						"FavoritesConfig",
+						{
+							address: configNode,
+							value: jsonListOfFavorites
+						},
+						function (e) {
+							if (e.error) {
+								console.warn("Can not write " + userNode + " (Permission denied)");
+							}
+						}
+					);
+				},
+				function () {
+					console.warn("Can not write " + userNode + " (Permission denied)");
+				}
+			);
+		} else {
+			webMI.data.write(configNode + "." + escapeUsername(username), jsonListOfFavorites);
+		}
+	} else {
+		listOfFavorites.pop();
+		webMI.display.openWindow({
+			display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+			extern: false,
+			width: 510,
+			height: 200,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Size limit exceeded} ",
+			toolbar: false,
+			query: {
+				button: "T{OK}",
+				headline: "T{Size limit exceeded}",
+				message:
+					"T{The current display can not be added to the favorites, because the config node would exceed its size limit.}",
+				backgroundColor: webMI.query["popup_fill"],
+				fontColor: webMI.query["popup_font_color"],
+				fontSize: webMI.query["popup_font_size"],
+				fontFamily: webMI.query["popup_font_family"]
+			}
+		});
+	}
+}
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+	listOfFavorites = [];
+	webMI.trigger.fire("com.atvise.setActive", false, "button_fav");
+
+	if ("username" in e) {
+		username = e.username != "" ? e.username : null;
+	} else {
+		username = null;
+	}
+
+	if (!username) return;
+
+	initNodes();
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+/**
+ * Trigger open context menu
+ */
+webMI.trigger.connect("clicked", openContextMenu, "button_fav");
+
+/**
+ * Trigger display changes
+ */
+webMI.trigger.connect("com.atvise.iframe.onloadFrame", function (e) {
+	if (userNode) {
+		if (e.value.name != "content") return;
+
+		activeDisplay = e.value.content;
+		if (webMI.rootWindow.displaysJs.postfix.indexOf("svg") > -1) activeDisplay = activeDisplay.replace(".svg", "");
+		activeQuery = cleanQuery(e.value.query);
+
+		checkDisplay();
+	}
+});
+
+/**
+ * Trigger new favorites
+ */
+webMI.trigger.connect("com.atvise.favorites.add", function (e) {
+	if (e.context.id == configNode) addFav(e.context.favName, e.context.displayAddress, e.context.query);
+});
+
+/**
+ * Trigger remove favorites
+ */
+webMI.trigger.connect("com.atvise.favorites.remove", function (e) {
+	if (e.value.webMI.query["id"] == configNode)
+		removeFav(e.value.webMI.query["displayAddress"], e.value.webMI.query["query"], e.value);
+
+	/* required for update with multiple favorite buttons */
+	setConfigIfLoggedIn();
+
+	e.value.close();
+});
+]]></code>
+</script>

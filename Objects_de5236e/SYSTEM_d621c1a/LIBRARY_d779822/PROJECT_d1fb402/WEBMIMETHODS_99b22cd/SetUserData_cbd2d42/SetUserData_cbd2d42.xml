@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[const username = script.caller;
+const password = request.postvalues.password;
+const fullname = request.postvalues.fullname;
+const description = request.postvalues.description;
+const language = request.postvalues.language;
+
+const userNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username);
+const userNodeExist = Ua.Status(userNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+if (!userNodeExist)
+	return {"error": "User node does not exist."};
+
+/** Write user data **/
+if (typeof fullname != "undefined") {
+	const fullnameNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".name");
+	fullnameNode.result.value = fullname;
+}
+
+if (typeof description != "undefined") {
+	const descriptionNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".description");
+	descriptionNode.result.value = description;
+}
+
+if (typeof language != "undefined") {
+	const languageNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".language");
+	languageNode.result.value = language;
+}
+
+/**
+ * Set the user password within this server script.
+ * DEPRECATED and replaced by "webMI.data.changepassword" request!
+ **/
+if (typeof password != "undefined") {
+	console.warn("Setting password over SetUserData script is deprecated. Please use webMI.data.changepassword function.");
+	return false;
+}
+
+return true;]]></code>
+</script>

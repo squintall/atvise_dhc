@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Solidaridad.121.181804918.trendCfg.monitoreo_red_dhc
+NodeClass: Variable
+BrowseName: 1:monitoreo_red_dhc
+DisplayName: en|monitoreo_red_dhc
+Description: en|monitoreo_red_dhc
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

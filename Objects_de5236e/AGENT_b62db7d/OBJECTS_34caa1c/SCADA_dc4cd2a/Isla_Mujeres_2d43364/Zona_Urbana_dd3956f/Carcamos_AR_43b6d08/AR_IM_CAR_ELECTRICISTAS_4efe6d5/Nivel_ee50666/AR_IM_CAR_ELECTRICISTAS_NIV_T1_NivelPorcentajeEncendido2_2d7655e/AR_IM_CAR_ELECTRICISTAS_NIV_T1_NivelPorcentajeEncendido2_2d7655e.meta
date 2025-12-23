@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AR.AR_IM_CAR_ELECTRICISTAS.Nivel.AR_IM_CAR_ELECTRICISTAS_NIV_T1_NivelPorcentajeEncendido2
+NodeClass: Variable
+BrowseName: 1:AR_IM_CAR_ELECTRICISTAS_NIV_T1_NivelPorcentajeEncendido2
+DisplayName: en|AR_IM_CAR_ELECTRICISTAS_NIV_T1_NivelPorcentajeEncendido2
+Description: en|AR_IM_CAR_ELECTRICISTAS_NIV_T1_NivelPorcentajeEncendido2
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

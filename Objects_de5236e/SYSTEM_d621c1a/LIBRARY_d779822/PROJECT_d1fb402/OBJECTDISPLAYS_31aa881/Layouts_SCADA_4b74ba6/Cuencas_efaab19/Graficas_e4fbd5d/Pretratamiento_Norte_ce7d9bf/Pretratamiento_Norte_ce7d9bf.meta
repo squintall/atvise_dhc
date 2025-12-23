@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Graficas.Pretratamiento_Norte
+NodeClass: Variable
+BrowseName: 1:Pretratamiento_Norte
+DisplayName: en|Pretratamiento_Norte
+Description: en|Pretratamiento_Norte
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

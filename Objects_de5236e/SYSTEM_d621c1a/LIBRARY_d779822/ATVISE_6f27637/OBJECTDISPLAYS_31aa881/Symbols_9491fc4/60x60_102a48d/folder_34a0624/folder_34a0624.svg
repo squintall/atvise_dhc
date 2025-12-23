@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg enable-background="new 0 0 16 16" height="60" id="Ebene_1" version="1.1" width="60" x="0px" xml:space="preserve" y="0px" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="SVGID_1_" x1="-0.290145" x2="0.792871" y1="0.136603" y2="0.639639">
+   <stop offset="0" stop-color="#9d9d9c"/>
+   <stop offset="1" stop-color="#c3c3b"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="SVGID_2_" x1="0.0373956" x2="0.933879" y1="0.0373166" y2="1.06773">
+   <stop offset="0" stop-color="#9d9d9c"/>
+   <stop offset="1" stop-color="#c3c3b"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="#000000" desc="symbol color" name="symbolColor" substitute="$SYMBOLCOLOR$" valuetype="color"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <g atv:refpx="30" atv:refpy="30" id="id_2" transform="matrix(1,0,0,1,-0.2812,3.2774)">
+  <path atv:refpx="102.781" atv:refpy="34.531" d="M48.695,22.761L48.656,46.292L48.839,46.292L59.556,23.163C59.657,22.941 59.494,22.767 59.196,22.767" fill="$SYMBOLCOLOR$" id="id_0" stroke-width="1.117"/>
+  <path atv:refpx="23.794" atv:refpy="33.602" d="M46.032,12.351L21.655,12.351L21.655,7.441C21.655,7.126 21.4,6.874 21.08,6.874L4.395,6.874C4.08,6.874 3.823,7.126 3.823,7.441L3.823,12.351L1.543,12.351C1.227,12.351 0.976,12.606 0.976,12.922L0.976,46.001C0.976,46.318 1.227,46.571 1.543,46.571L46.032,46.571C46.354,46.571 46.607,46.318 46.607,46.001L46.607,12.922C46.607,12.606 46.354,12.351 46.032,12.351" fill="$SYMBOLCOLOR$" id="id_1" stroke-width="1.117"/>
+ </g>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

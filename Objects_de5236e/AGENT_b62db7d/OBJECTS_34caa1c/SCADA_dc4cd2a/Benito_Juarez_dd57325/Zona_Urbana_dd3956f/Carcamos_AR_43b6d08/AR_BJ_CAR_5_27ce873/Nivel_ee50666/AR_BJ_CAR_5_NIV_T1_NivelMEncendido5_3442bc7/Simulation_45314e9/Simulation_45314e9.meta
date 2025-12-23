@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AR.AR_BJ_CAR_5.Nivel.AR_BJ_CAR_5_NIV_T1_NivelMEncendido5.Simulation
+NodeClass: Variable
+BrowseName: 1:Simulation
+DisplayName: en|Simulation
+Description: en|Simulation
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Simulation.RelMirrorInputOutput

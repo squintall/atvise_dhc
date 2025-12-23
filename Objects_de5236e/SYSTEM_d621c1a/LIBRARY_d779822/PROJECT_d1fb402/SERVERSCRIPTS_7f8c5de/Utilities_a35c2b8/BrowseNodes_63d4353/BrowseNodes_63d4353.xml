@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="startAddress" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="endLevel" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="vTypes" type="array" trigger="false" relative="false" value=""/>
+  <parameter name="mapping" type="array" trigger="false" relative="false" value=""/>
+  <parameter name="includeStartAddress" type="boolean" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var retObject = {};
+var array = [];
+var node = Ua.findNode(startAddress);
+var nodeName = startAddress.split(".").slice(-1).join("");
+var validTypes = [
+	"FolderType",
+	"BaseVariableType",
+	"BaseDataVariableType",
+	"VariableTypes.ATVISE.Display",
+	"ObjectTypes.PROJECT",
+	"ns=1;s=ObjectTypes.ATVISE.ArchiveGroup.Data",
+	"ns=1;s=ObjectTypes.ATVISE.Alarm",
+	"VariableTypes.PROJECT"
+];
+
+if (Ua.Status(node) == Ua.Status.BADNODEIDUNKNOWN) {
+	// Alternative way to find node if it was not found: iterate through parent node's children, and if
+	// browseName is equal to nodeName then the node was found
+	let newNodeId = startAddress.split(".").slice(0, -1).join(".");
+	node = Ua.findNode(newNodeId);
+
+	if (Ua.Status(node) == Ua.Status.BADNODEIDUNKNOWN) return { error: -1, errorstring: "BadNodeIdUnknown" };
+
+	var parentArray = node.result.browse().result;
+
+	for (var i = 0; i < parentArray.length; i++) {
+		if (parentArray[i].node.browseName === nodeName) {
+			array = parentArray[i].node.browse().result;
+			break;
+		}
+
+		return retObject;
+	}
+} else {
+	array = node.result.browse().result;
+}
+
+if (vTypes && vTypes.length > 0) {
+	validTypes = vTypes;
+
+	// requesting type BaseVariableType always shall implicitely include type BaseDataVariableType
+	if (validTypes.indexOf("BaseVariableType") > -1 && validTypes.indexOf("BaseDataVariableType") == -1) {
+		validTypes.push("BaseDataVariableType");
+	}
+}
+
+if (!(mapping && mapping.length > 0)) {
+	mapping = [
+		{
+			alias: "name",
+			keys: ["nodeId", "xml"],
+			removeNsTag: true
+		},
+		{
+			alias: "text",
+			keys: ["browseName", "name"]
+		}
+	];
+}
+
+function checkType(type) {
+	var typestring = type.toString();
+	type = type.valueOf();
+
+	for (var i = 0; i < validTypes.length; i++) {
+		if (type.indexOf(validTypes[i]) > -1 || typestring.indexOf(validTypes[i]) > -1) return true;
+	}
+
+	return false;
+}
+
+function hasValidSubarray(array) {
+	if (typeof array === "undefined" || array.length == 0) return false;
+
+	for (var i = 0; i < array.length; i++) {
+		if (checkType(array[i].node.typeDefinition)) return true;
+	}
+
+	return false;
+}
+
+function createEntry(node, childs) {
+	var obj = {};
+
+	mapping = normalizeMappingParameter(mapping);
+	
+	for (var i = 0; i < mapping.length; i++) {
+		var alias = mapping[i].alias;
+		var keys = mapping[i].keys;
+		var removeNsTag = mapping[i].removeNsTag === true ? true : false;
+
+		// Retrieve value with keys from nested object
+		obj[alias] = keys.reduce((o, prop) => {
+			// First level is contained in result object, subsequent levels are flat
+			if (o.result) o = o.result;
+
+			if (typeof o[prop] === "function") {
+				return o[prop]();
+			} else {
+				if (prop === "hardcodedLocale") {
+					/** locale values are obsolete and will always return "en"
+					 * for backwards compatibility. (Has always been static.) */
+					return "en";
+				} else {
+					if (typeof o[prop] == "undefined")
+						return null;
+					return o[prop];
+				}
+			}
+		}, node);
+
+		if (removeNsTag) {
+			if (obj[alias].indexOf("ns=") > -1) {
+				obj[alias] = obj[alias].split(";")[1].substr(2);
+			}
+		}
+	}
+
+	obj["childs"] = childs;
+
+	return obj;
+}
+
+function addLevel(retObject, array, level) {
+	if (typeof array == "undefined") return;
+
+	for (var i = 0; i < array.length; i++) {
+		if (!checkType(array[i].node.typeDefinition)) continue;
+
+		var identifier = array[i].node.browseName.name;
+		var subarray = array[i].node.browse().result;
+
+		if (hasValidSubarray(subarray)) {
+			if (endLevel == 0 || level + 1 <= endLevel) {
+				retObject[identifier] = createEntry(array[i].node, {});
+				addLevel(retObject[identifier]["childs"], subarray, level + 1);
+			} else {
+				retObject[identifier] = createEntry(array[i].node, "ondemand");
+			}
+		} else {
+			retObject[identifier] = createEntry(array[i].node, null);
+		}
+	}
+}
+
+function normalizeMappingParameterItem(mappingItem) {
+	if (typeof mappingItem === "object") {
+		// New style mapping (in object form) is passed through unchanged
+		return mappingItem;
+	}
+
+	// In some instances JSON objects don't arrive in good shape when passed to webMI-methods.
+
+	// Sanitize JSON notation in mappingItem
+	mappingItem = mappingItem.split("'").join('"');
+
+	try {
+		return JSON.parse(mappingItem);
+	} catch (err) {
+		// mappingItem is in old style format (e.g. "name:nodeid:splitnamespace").
+		// Continue with normalization/conversion.
+	}
+
+	var values = mappingItem.split(":");
+
+	var keyMappings = {
+		browsename: ["browseName", "name"],
+		browsenamens: ["browseName", "idx"],
+		datatype: ["dataType", "valueOf"],
+		description: ["description"],
+		descriptionlocale: ["hardcodedLocale"],
+		displayname: ["displayName"],
+		displaynamelocale: ["hardcodedLocale"],
+		nodeaddr: ["nodeId", "xml"],
+		nodeclass: ["nodeClass", "valueOf"],
+		nodeid: ["nodeId", "xml"],
+		rawstatus: ["rawStatus", "valueOf"],
+		servertime: ["serverTime", "valueOf"],
+		sourcetime: ["sourceTime", "valueOf"],
+		status: ["status", "value"],
+		typedefinition: ["typeDefinition", "valueOf"],
+		value: ["value"]
+	};
+	
+	
+	if (typeof keyMappings[values[1]] == "undefined")
+		keyMappings[values[1]] = [values[1]];
+
+	var newMappingItem = {
+		alias: values[0],
+		keys: keyMappings[values[1]],
+		removeNsTag: values[2] === "splitnamespace" ? true : false
+	};
+
+	return newMappingItem;
+}
+
+function normalizeMappingParameter(mapping) {
+	return mapping.map(normalizeMappingParameterItem);
+}
+
+if (includeStartAddress) {
+	retObject[nodeName] = createEntry(node, {});
+	addLevel(retObject[nodeName]["childs"], array, 2);
+} else {
+	addLevel(retObject, array, 1);
+}
+
+return retObject;
+
+/*
+ * FolderType											Folders
+ * BaseVariableType										Primitive variables (int, string, ...)
+ * BaseDataVariableType									TODO(MIGF): find a good description
+ * VariableTypes.ATVISE.Display							Display
+ * ObjectTypes.PROJECT									Objects
+ * ns=1;s=ObjectTypes.ATVISE.ArchiveGroup.Data			Data (archives)
+ * ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration			AlarmConfiguration
+ * VariableTypes.PROJECT								Variable types
+ */
+]]></code>
+</script>

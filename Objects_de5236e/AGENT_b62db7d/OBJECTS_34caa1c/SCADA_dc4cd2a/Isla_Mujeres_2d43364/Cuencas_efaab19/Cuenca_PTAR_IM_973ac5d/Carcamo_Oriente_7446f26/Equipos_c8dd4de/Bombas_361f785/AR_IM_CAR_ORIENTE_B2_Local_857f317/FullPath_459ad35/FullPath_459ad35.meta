@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Oriente.Equipos.Bombas.AR_IM_CAR_ORIENTE_B2_Local.FullPath
+NodeClass: Variable
+BrowseName: 1:FullPath
+DisplayName: en|Full tag path
+Description: en|FullPath
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.FullPath.RelMirrorInputOutput

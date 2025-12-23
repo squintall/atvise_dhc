@@ -1,0 +1,110 @@
+div.editor-number-wrapper{
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+div.editor-number-wrapper div.editor-number-button {
+  position: relative;
+  cursor: pointer;
+  width: 10%;
+  min-width: 20px;
+  height: 100%;
+  float: left;
+  line-height: 200%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div.editor-number-wrapper div.editor-number-buttons, div.editor-number-wrapper input.editor-number-range {
+  position: absolute;
+  right: 0px;
+  height: 100%;
+}
+
+div.editor-number-buttons span.slick-sort-indicator {
+  background: none;
+}
+
+input.editor-number {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  outline: 0;
+  padding: 0;
+  float: left;
+  -moz-appearance: textfield;
+}
+
+input[type=number].editor-number::-webkit-inner-spin-button,
+input[type=number].editor-number::-webkit-outer-spin-button
+{
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input.editor-number-range {
+  width: 70%;
+  height: 100%;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  outline: 0;
+  padding: 0;
+}
+
+input.editor-string {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  outline: 0;
+  padding: 0;
+}
+
+select.editor-bool, select.editor-options {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  outline: 0;
+  padding: 0;
+}
+
+select.editor-typeselect {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  outline: 0;
+  padding: 0;
+}
+
+div.invalid-value {
+    background-color: #ff6767;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+div.invalid-value div {
+	position: absolute;
+	right: 1px;
+	top: 0px;
+}
+
+div.inactive-value {
+    background-color: #aaaaaa;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    align-items: center;
+}

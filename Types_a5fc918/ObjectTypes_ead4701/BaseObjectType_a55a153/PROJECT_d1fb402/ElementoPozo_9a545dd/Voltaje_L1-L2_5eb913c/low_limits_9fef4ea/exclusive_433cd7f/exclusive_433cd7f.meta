@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Voltaje_L1-L2.low_limits.exclusive
+NodeClass: Variable
+BrowseName: 1:exclusive
+DisplayName: en|exclusive
+Description: en|exclusive
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

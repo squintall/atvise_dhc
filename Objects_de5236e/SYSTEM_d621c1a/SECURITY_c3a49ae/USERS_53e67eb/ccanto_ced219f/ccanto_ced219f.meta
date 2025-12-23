@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.ccanto
+NodeClass: Object
+BrowseName: 1:ccanto
+DisplayName: en|ccanto
+Description: en|ccanto
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

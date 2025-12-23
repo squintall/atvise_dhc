@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Luciernagas_1_TE.Potencia_Aparente
+NodeClass: Variable
+BrowseName: 1:Potencia_Aparente
+DisplayName: en|Potencia_Aparente
+Description: en|Potencia_Aparente
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Potencia_Aparente.SuppressFlicker
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Potencia_Aparente.high_limits
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Potencia_Aparente.low_limits

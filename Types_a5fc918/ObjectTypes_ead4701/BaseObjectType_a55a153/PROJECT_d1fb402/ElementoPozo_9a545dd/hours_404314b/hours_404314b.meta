@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoPozo.hours
+NodeClass: Variable
+BrowseName: 1:hours
+DisplayName: en|hours
+Description: en|hours
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

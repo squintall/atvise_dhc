@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Ampliacion.cummulative
+NodeClass: Variable
+BrowseName: 1:cummulative
+DisplayName: en|cummulative
+Description: en|cummulative
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

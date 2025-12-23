@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.0U3UFXDC_HDA.Presion
+NodeClass: Variable
+BrowseName: 1:Presion
+DisplayName: en|Presion
+Description: en|Presion
+DataType: BaseDataType
+ValueRank: -1
+AccessLevel: 103
+ValueType: i=0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.2365

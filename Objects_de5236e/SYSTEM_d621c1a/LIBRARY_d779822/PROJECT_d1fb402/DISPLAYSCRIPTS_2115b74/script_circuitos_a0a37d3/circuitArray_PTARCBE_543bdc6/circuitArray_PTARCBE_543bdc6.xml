@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var circuito_s =
+	[[{lat:21.139890022898054, lng:-86.87256515325815},
+	"Cárcamo Poniente 18, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_18_Poniente",
+	1, "carcamoAR"],
+	[{lat:21.136529681569726, lng:-86.87231677364156},
+	"Cárcamo 514, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_514",
+	2, "carcamoAR"],
+	[{lat:21.12647408915108, lng:-86.83107662632888},
+	"Cárcamo ST Johns, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_ST_Johns",
+	3, "carcamoAR"],
+	[{lat:21.10647803293382, lng:-86.84035207689556},
+	"Cárcamo Villa Magna, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Morelos_I",
+	4, "carcamoAR"],
+	[{lat:21.13926884877736, lng:-86.82331381102499},
+	"Cárcamo Balam, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Balam",
+	5, "carcamoAR"],
+	[{lat:21.141240038027057, lng:-86.84384109696313},
+	"Cárcamo 2000 Oriente, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_2000_Oriente",
+	6, "carcamoAR"],
+	[{lat:21.140176456675523, lng:-86.85628629031635},
+	"Cárcamo Final 95, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Final_95",
+	7, "carcamoAR"],
+	[{lat:21.1376189784048, lng:-86.85666445317105},
+	"Cárcamo Sur, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Final_Sur",
+	8, "carcamoAR"],
+	[{lat:21.138363518564496, lng:-86.85727866943714},
+	"PTAR Caribe 2000, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Final_Sur",
+	9, "ptar"],
+	[{lat:21.141323597760575, lng:-86.8253934451595},
+	"Cárcamo Poder Judicial, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Poder_Judicial",
+	10, "carcamoAR"]];]]></code>
+</script>

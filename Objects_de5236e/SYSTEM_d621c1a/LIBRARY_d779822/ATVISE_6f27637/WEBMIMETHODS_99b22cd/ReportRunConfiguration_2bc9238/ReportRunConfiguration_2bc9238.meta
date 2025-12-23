@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.ReportRunConfiguration
+NodeClass: Variable
+BrowseName: 1:ReportRunConfiguration
+DisplayName: en|ReportRunConfiguration
+Description: en|ReportRunConfiguration
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

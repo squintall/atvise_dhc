@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the clock_analog object display
+ * ----------------------------------------
+ * This control displays the current client time.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var isOldStyle = typeof webMI.query["borderColor"] == "undefined";
+
+/**
+ * RUNTIME SECTION
+ */
+ 
+(function setClock() {
+	var today = new Date();
+	var h = today.getHours();
+	var m = today.getMinutes();
+	if (!isOldStyle) var s = today.getSeconds();
+
+	webMI.gfx.setRotation("hour", webMI.translate(h * 30 + m/2, 0, 359, 0, 359));
+	webMI.gfx.setRotation("minute", webMI.translate(m, 0, 60, 0, 360));
+	if (!isOldStyle) webMI.gfx.setRotation("second", webMI.translate(s, 0, 60, 0, 360));
+
+	if (!isOldStyle) setTimeout(setClock, 1000);
+	else setTimeout(setClock, 3000);
+})();]]></code>
+</script>

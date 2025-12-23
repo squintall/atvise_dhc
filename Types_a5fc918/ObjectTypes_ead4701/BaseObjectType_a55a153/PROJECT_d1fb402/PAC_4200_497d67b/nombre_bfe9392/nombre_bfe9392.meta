@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.PAC_4200.nombre
+NodeClass: Variable
+BrowseName: 1:nombre
+DisplayName: en|nombre
+Description: en|nombre
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

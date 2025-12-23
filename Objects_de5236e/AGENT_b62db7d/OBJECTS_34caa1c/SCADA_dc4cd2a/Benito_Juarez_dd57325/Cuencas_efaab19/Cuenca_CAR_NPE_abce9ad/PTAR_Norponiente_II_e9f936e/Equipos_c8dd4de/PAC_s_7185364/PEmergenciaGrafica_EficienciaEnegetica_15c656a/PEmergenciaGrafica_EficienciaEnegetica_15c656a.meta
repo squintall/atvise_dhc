@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.PTAR_Norponiente_II.Equipos.PAC´s.PEmergenciaGrafica_EficienciaEnegetica
+NodeClass: Variable
+BrowseName: 1:PEmergenciaGrafica_EficienciaEnegetica
+DisplayName: en|PEmergenciaGrafica_EficienciaEnegetica
+Description: en|PEmergenciaGrafica_EficienciaEnegetica
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

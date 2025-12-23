@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_SCADA.Circuitos.Grafica_C1A
+NodeClass: Variable
+BrowseName: 1:Grafica_C1A
+DisplayName: en|Grafica_C1A
+Description: en|Grafica_C1A
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_005.confGrafico.test_byron
+NodeClass: Variable
+BrowseName: 1:test_byron
+DisplayName: en|test_byron
+Description: en|test_byron
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

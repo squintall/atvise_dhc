@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_008.Equipos.Send.M3%Enviado
+NodeClass: Variable
+BrowseName: 1:M3%Enviado
+DisplayName: en|M3%Enviado
+Description: en|M3%Enviado
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

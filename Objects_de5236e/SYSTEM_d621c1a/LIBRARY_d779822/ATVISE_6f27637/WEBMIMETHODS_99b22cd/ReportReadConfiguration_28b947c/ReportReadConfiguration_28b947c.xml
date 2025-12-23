@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+    <fireevent>0</fireevent>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* Report wrapper for reading configurations *
+ *
+ * HTTP post parameters:
+ *  configuration {string}: Optional name of the configuration to be read - returns all configurations when not specified.
+ *
+ * Examples:
+ *   webMI.data.call("ReportReadConfiguration", {}, function(e) {})
+ *   webMI.data.call("ReportReadConfiguration", {configuration: "myOptionalFolder.MyConfigurationDemo"}, function(e) {})
+ *
+ */
+ 
+ var name = request.postvalues["configuration"] ? request.postvalues["configuration"] : "";
+ return call("Report.ConfigurationHandler", {action: "read", configuration: name});]]></code>
+</script>

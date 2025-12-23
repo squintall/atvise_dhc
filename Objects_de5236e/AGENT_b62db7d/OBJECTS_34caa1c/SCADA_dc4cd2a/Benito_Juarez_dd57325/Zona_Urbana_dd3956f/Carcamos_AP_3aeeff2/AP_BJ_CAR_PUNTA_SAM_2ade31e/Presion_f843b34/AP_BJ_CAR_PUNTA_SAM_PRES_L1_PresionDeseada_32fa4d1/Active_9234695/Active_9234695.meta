@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_PUNTA_SAM.Presion.AP_BJ_CAR_PUNTA_SAM_PRES_L1_PresionDeseada.Active
+NodeClass: Variable
+BrowseName: 1:Active
+DisplayName: en|Active
+Description: en|Active
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Active.RelMirrorInputOutput

@@ -1,0 +1,21 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Otoch_Paraiso
+NodeClass: Object
+BrowseName: 1:Carcamo_Otoch_Paraiso
+DisplayName: en|Carcamo_Otoch_Paraiso
+Description: en|Carcamo_Otoch_Paraiso
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.ElementoLinea
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.CRppm
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.EE
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Insertar_PGSQL
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Monitoreo IT
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Nivel_Estatico
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Principal
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Principal_trend
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Tabla_Energia
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Tanque
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Watt_to_KW
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.cliackarea
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.conectividad
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.historizacion_00_05

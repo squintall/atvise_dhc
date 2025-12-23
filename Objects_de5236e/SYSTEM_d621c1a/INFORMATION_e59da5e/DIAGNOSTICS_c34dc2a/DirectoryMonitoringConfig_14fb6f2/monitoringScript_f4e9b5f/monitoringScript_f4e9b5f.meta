@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.monitoringScript
+NodeClass: Variable
+BrowseName: 1:monitoringScript
+DisplayName: en|monitoringScript
+Description: en|monitoringScript
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

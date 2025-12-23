@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Oriente.Control
+NodeClass: Variable
+BrowseName: 1:Control
+DisplayName: en|Control
+Description: en|Control
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

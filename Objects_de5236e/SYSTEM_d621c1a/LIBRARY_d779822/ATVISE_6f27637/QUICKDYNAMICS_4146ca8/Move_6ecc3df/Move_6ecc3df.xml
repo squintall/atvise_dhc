@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png">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</icon>
+	<visible>1</visible>
+	<title>Move</title>
+	<description>Moves an element according to a node value.</description>
+  </metadata>
+  <parameter name="nodeId" description="node triggering the change" valuetype="address" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="minValue" description="min value" valuetype="number" defaultvalue="0" config="" behavior="optional" group=""/>
+  <parameter name="maxValue" description="max value" valuetype="number" defaultvalue="100" config="" behavior="optional" group=""/>
+  <parameter name="startPositionX" description="start position for X-direction" valuetype="number" defaultvalue="0" config="" behavior="optional" group=""/>
+  <parameter name="stopPositionX" description="stop position for X-direction" valuetype="number" defaultvalue="500" config="" behavior="optional" group=""/>
+  <parameter name="startPositionY" description="start position for Y-direction" valuetype="number" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="stopPositionY" description="stop position for Y-direction" valuetype="number" defaultvalue="" config="" behavior="optional" group=""/>
+  <code><![CDATA[// This Quick Dynamic moves the applied graphical element in X- and/or Y-direction depending on the value of the defined node and the ranged defined by "minValue" and "maxValue", i.e. the
+// range defined by "minValue" and "maxValue" will be translated to the range defined by "startPositionX" and "stopPositionX" and/or to the range defined by "startPositionY" and
+// "stopPositionY".
+// The movement in X-direction will only be done if both "startPositionX" and "stopPositionX" are defined.
+// The movement in Y-direction will only be done if both "startPositionY" and "stopPositionY" are defined.
+// e.g.: the defined range of the value from 0 (=minValue) to 100 (=maxValue) will be translated to 0 (=startPositionX) to 10 (=stopPositionX) pixels in X-direction
+// Parameters:
+//	nodeId:			this node triggers this Quick Dynamic
+//	minValue:		lower bound of the range where the node's value should lie in
+//	maxValue:		upper bound of the range where the node's value should lie in
+//	startPositionX:	start position for X-direction where "minValue" will be translated to
+//	stopPositionX:	stop position for X-direction where "maxValue" will be translated to
+//	startPositionY:	start position for Y-direction where "minValue" will be translated to
+//	stopPositionY:	stop position for Y-direction where "maxValue" will be translated to
+
+var AggregateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Aggregate Manager");
+webMI.addOnunload(function unloadAggregateManager() {
+	AggregateManager.destroy();
+	AggregateManager = null;
+});
+
+AggregateManager.subscribeNodeOrAggregate(base.nodeId, handleResult);
+
+function handleResult(e) {
+	var value = e.value;
+	if (base.startPositionX != "" && base.stopPositionX != "") {
+		webMI.gfx.setMoveX(base.id, webMI.translate(value, base.minValue, base.maxValue, base.startPositionX, base.stopPositionX));
+	}
+	if (base.startPositionY != "" && base.stopPositionY != "") {
+		webMI.gfx.setMoveY(base.id, webMI.translate(value, base.minValue, base.maxValue, base.startPositionY, base.stopPositionY));
+	}
+};
+]]></code>
+</script>

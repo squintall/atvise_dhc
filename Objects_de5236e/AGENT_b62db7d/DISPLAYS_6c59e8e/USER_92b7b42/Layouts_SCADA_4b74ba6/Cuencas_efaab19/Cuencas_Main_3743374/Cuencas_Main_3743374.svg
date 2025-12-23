@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="890" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <svg atv:refpx="320" atv:refpy="222.5" height="600" id="id_0" transform="matrix(0.8,0,0,0.7417,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="0">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuenca_NPE"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="Cuenca_NPE"/>
+ </svg>
+ <svg atv:refpx="1600" atv:refpy="222.5" height="600" id="id_1" transform="matrix(0.8,0,0,0.7417,0,0)" width="800" x="1600" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="0">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuenca_PTP"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="Cuenca_PTP"/>
+ </svg>
+ <svg atv:refpx="960" atv:refpy="147.993" height="600" id="id_2" transform="matrix(0.8,0,0,0.4933,0,0)" width="800" x="800" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="0">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuenca_NTE"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="Cuenca_NTE"/>
+ </svg>
+ <svg atv:refpx="320" atv:refpy="667.48" height="600" id="id_3" transform="matrix(0.8,0,0,0.7417,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="599.946">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuenca_SUR"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="Cuenca_SUR"/>
+ </svg>
+ <svg atv:refpx="1600" atv:refpy="667.48" height="600" id="id_4" transform="matrix(0.8,0,0,0.7417,0,0)" width="800" x="1600" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="599.946">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuenca_CBE"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="Cuenca_CBE"/>
+ </svg>
+ <svg atv:refpx="960" atv:refpy="445.003" height="600" id="id_5" transform="matrix(0.8,0,0,0.4933,0,0)" width="800" x="800" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="602.047">
+  <atv:argument name="frameName" value="Cuenca_4FINAL"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuenca_4FINAL"/>
+ </svg>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.script_circuitos.circuitArray" atv:name="circuitArray" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+
+
+
+]]></script>
+ <svg atv:refpx="960" atv:refpy="742.013" height="600" id="id_6" transform="matrix(0.8,0,0,0.4933,0,0)" width="800" x="800" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="1204.176">
+  <atv:argument name="frameName" value="Cuenca_LOX"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuenca_LOX"/>
+ </svg>
+</svg>

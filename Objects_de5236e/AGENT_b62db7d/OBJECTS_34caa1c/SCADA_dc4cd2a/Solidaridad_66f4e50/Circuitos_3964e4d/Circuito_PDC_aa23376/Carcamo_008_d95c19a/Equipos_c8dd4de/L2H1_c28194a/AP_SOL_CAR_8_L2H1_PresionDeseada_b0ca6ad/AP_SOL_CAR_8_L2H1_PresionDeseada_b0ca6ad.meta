@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_008.Equipos.L2H1.AP_SOL_CAR_8_L2H1_PresionDeseada
+NodeClass: Variable
+BrowseName: 1:AP_SOL_CAR_8_L2H1_PresionDeseada
+DisplayName: en|AP_SOL_CAR_8_L2H1_PresionDeseada
+Description: en|AP_SOL_CAR_8_L2H1_PresionDeseada
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

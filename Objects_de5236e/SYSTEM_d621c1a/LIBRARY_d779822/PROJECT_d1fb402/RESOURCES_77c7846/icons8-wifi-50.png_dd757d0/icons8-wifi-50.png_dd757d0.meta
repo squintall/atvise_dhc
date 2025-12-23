@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/icons8-wifi-50.png
+NodeClass: Variable
+BrowseName: 1:icons8-wifi-50.png
+DisplayName: en|icons8-wifi-50.png
+Description: en|icons8-wifi-50.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

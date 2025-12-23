@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_3_ZH_Tortugas.level_low
+NodeClass: Variable
+BrowseName: 1:level_low
+DisplayName: en|level_low
+Description: en|level_low
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

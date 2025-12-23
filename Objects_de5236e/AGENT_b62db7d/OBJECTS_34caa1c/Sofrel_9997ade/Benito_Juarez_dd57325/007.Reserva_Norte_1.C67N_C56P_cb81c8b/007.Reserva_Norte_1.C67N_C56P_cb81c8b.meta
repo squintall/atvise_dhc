@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.007.Reserva_Norte_1.C67N_C56P
+NodeClass: Object
+BrowseName: 1:007.Reserva_Norte_1.C67N_C56P
+DisplayName: en|007.Reserva_Norte_1.C67N_C56P
+Description: en|007.Reserva_Norte_1.C67N_C56P
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.presion_min_max

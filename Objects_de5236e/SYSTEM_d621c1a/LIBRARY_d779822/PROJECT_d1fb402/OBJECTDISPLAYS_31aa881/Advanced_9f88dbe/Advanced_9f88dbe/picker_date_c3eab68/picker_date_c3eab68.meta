@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.Advanced.picker_date
+NodeClass: Variable
+BrowseName: 1:picker_date
+DisplayName: en|picker_date
+Description: en|picker_date
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

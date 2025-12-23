@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Report.schedulerLog
+NodeClass: Variable
+BrowseName: 1:schedulerLog
+DisplayName: en|schedulerLog
+Description: en|schedulerLog
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

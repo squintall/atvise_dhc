@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.Redundancy.connection_failover_type
+NodeClass: Variable
+BrowseName: 1:connection_failover_type
+DisplayName: en|connection_failover_type
+Description: en|connection_failover_type
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

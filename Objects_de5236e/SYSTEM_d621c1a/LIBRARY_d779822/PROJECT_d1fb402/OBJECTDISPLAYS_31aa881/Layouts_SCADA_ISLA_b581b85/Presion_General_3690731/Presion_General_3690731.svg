@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="539.20000000000005" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <svg atv:refpx="959.999" atv:refpy="284.703" height="400" id="id_3" transform="matrix(4.8,0,0,1.2724,0,0)" width="400" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.highcharts" y="23.768">
+  <atv:argument name="trendName" value="presiones"/>
+  <atv:argument name="gatviseOptions_disableDownSampling" value="false"/>
+  <atv:argument name="performance_sampling_factor" value="3"/>
+  <atv:argument name="performance_update_interval" value="3000"/>
+  <atv:argument name="yAxis1yAxis_id" value="P"/>
+  <atv:argument name="yAxis1yAxis_title_text" value="Presión"/>
+  <atv:argument name="yAxis1yAxis_title_style_color" value="#ff4911"/>
+  <atv:argument name="yAxis1yAxis_min" value="-1"/>
+  <atv:argument name="yAxis1yAxis_lineColor" value="#ff4911"/>
+  <atv:argument name="yAxis1yAxis_labels_style_color" value="#ff4911"/>
+  <atv:argument name="yAxis1yAxis_crosshair_color" value="#ff4911"/>
+  <atv:argument name="xAxisxAxis_title_text" value="Tiempo"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="day(s)"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="3"/>
+  <atv:argument name="xAxisxAxis_title_style_color" value="#000000"/>
+  <atv:argument name="series1series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_001.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="xAxisxAxis_tickInterval" value="8600000"/>
+  <atv:argument name="xAxisxAxis_minorTickInterval" value="860000"/>
+  <atv:argument name="series1series_color" value="#ff4911"/>
+  <atv:argument name="series1series_name" value="T{Presión L1 T1 Solidaridad}"/>
+  <atv:argument name="series1series_yAxis" value="P"/>
+  <atv:argument name="gatviseOptions_configName" value="AP"/>
+  <atv:argument name="series2series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_002.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="series3series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_003.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="series4series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_004.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="series5series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_005.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="series6series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_006.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="series7series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_007.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="series8series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_008.Equipos.Caudalimetros.L1.L1.historic_pressure"/>
+  <atv:argument name="series9series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_008.Equipos.Caudalimetros.L2.L2.historic_pressure"/>
+  <atv:argument name="series10series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_009.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="series11series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_010.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="series12series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_012.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="series13series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_015.Equipos.Caudalimetro.L1.historic_pressure"/>
+  <atv:argument name="series14series_address" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_017_T1.Equipos.L1.historic_pressure"/>
+  <atv:argument name="series2series_name" value="T{Presión L1 T2 Solidaridad}"/>
+  <atv:argument name="series3series_name" value="T{Presión L1 T3 Solidaridad}"/>
+  <atv:argument name="series4series_name" value="T{Presión L1 T4 Solidaridad}"/>
+  <atv:argument name="series5series_name" value="T{Presión L1 T5 Solidaridad}"/>
+  <atv:argument name="series6series_name" value="T{Presión L1 T6 Solidaridad}"/>
+  <atv:argument name="series7series_name" value="T{Presión L1 T7 Solidaridad}"/>
+  <atv:argument name="series8series_name" value="T{Presión L1 T8 Solidaridad}"/>
+  <atv:argument name="series9series_name" value="T{Presión L2 T8 Solidaridad}"/>
+  <atv:argument name="series10series_name" value="T{Presión L1 T9 Solidaridad}"/>
+  <atv:argument name="series11series_name" value="T{Presión L1 T10 Solidaridad}"/>
+  <atv:argument name="series12series_name" value="T{Presión L1 T12 Solidaridad}"/>
+  <atv:argument name="series13series_name" value="T{Presión L1 T15 Solidaridad}"/>
+  <atv:argument name="series14series_name" value="T{Presión L1 T17 Solidaridad}"/>
+  <atv:argument name="series1series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series1series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series2series_yAxis" value="P"/>
+  <atv:argument name="series2series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series2series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series3series_yAxis" value="P"/>
+  <atv:argument name="series3series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series3series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series4series_yAxis" value="P"/>
+  <atv:argument name="series4series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series4series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series5series_yAxis" value="P"/>
+  <atv:argument name="series5series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series5series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series6series_yAxis" value="P"/>
+  <atv:argument name="series6series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series6series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series7series_yAxis" value="P"/>
+  <atv:argument name="series7series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series7series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series8series_yAxis" value="P"/>
+  <atv:argument name="series8series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series8series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series9series_yAxis" value="P"/>
+  <atv:argument name="series9series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series9series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series10series_yAxis" value="P"/>
+  <atv:argument name="series10series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series10series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series11series_yAxis" value="P"/>
+  <atv:argument name="series11series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series11series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series12series_yAxis" value="P"/>
+  <atv:argument name="series12series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series12series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series13series_yAxis" value="P"/>
+  <atv:argument name="series13series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series13series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series14series_yAxis" value="P"/>
+  <atv:argument name="series14series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series14series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="gatviseOptions_mode" value="history"/>
+  <atv:argument name="gatviseOptions_configNode" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Grafica_Circuito_Isla_Mujeres"/>
+  <atv:overwrite id="highchart_label" transform="matrix(0.2083,0,0,0.7859,0,0)" x="789.5" y="265.479"/>
+  <atv:overwrite height="506.957" id="border" transform="matrix(0.2083,0,0,0.7859,0,0)" width="1918"/>
+  <atv:overwrite height="508.957" id="id_3" transform="matrix(0.2083,0,0,0.7859,0,0)" width="1920"/>
+ </svg>
+ <svg atv:refpx="613.218" atv:refpy="15" height="30" id="id_4" width="141" x="465.718" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.toolbar" y="0">
+  <atv:argument name="chartname" value="presiones"/>
+  <atv:argument name="startAddress" value="AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos"/>
+ </svg>
+ <svg atv:refpx="231.179" atv:refpy="15" height="30" id="id_6" width="460" x="1.179" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.buttons_start_end_time" y="0">
+  <atv:argument name="chartname" value="presiones"/>
+ </svg>
+ <svg atv:refpx="750" atv:refpy="15" height="30" id="id_0" width="80" x="710" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_forward" y="0">
+  <atv:argument name="chartname" value="presiones"/>
+ </svg>
+ <svg atv:refpx="670" atv:refpy="15" height="30" id="id_1" width="80" x="630" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_back" y="0">
+  <atv:argument name="chartname" value="presiones"/>
+ </svg>
+</svg>

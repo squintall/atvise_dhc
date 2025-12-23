@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="340" width="560" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="mandatory" desc="Nodo base" name="base" substitute="$base$" valuetype="address"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <!-- Marco -->
+ <rect atv:refpx="280" atv:refpy="170" fill="#ffffff" height="320" id="frame" rx="12" ry="12" stroke="#3b82f6" width="540" x="10" y="10"/>
+ <text atv:refpx="134.5" atv:refpy="35.5" font-family="Arial" font-size="18" font-weight="bold" id="cfg_title" x="28" y="42">Configuración de equipo</text>
+ <text atv:refpx="34.5" atv:refpy="59" fill="#444" font-family="Arial" font-size="13" id="cfg_name" x="28" y="64">—</text>
+ <!-- Local/Remoto (solo lectura) -->
+ <text atv:refpx="108.5" atv:refpy="97" font-family="Arial" font-size="13" id="id_0" x="28" y="102">Local/Remoto (solo lectura):</text>
+ <rect atv:refpx="334" atv:refpy="97" fill="#9e9e9e" height="22" id="lr_bg" rx="6" ry="6" width="76" x="296" y="86"/>
+ <text atv:refpx="334" atv:refpy="97.5" fill="#fff" font-family="Arial" font-size="12" id="lr_txt" text-anchor="middle" x="334" y="102">—</text>
+ <!-- Modo MA (toggle) -->
+ <text atv:refpx="61" atv:refpy="133" font-family="Arial" font-size="13" id="id_1" x="28" y="138">Modo (MA):</text>
+ <rect atv:refpx="334" atv:refpy="135" cursor="pointer" fill="#bdbdbd" height="22" id="ma_track" rx="11" ry="11" width="76" x="296" y="124"/>
+ <circle atv:refpx="307" atv:refpy="135" cursor="pointer" cx="307" cy="135" fill="#ffffff" id="ma_knob" r="9" stroke="#757575"/>
+ <text atv:refpx="307" atv:refpy="158" font-family="Arial" font-size="11" id="id_2" x="296" y="162">MAN</text>
+ <text atv:refpx="364" atv:refpy="158" font-family="Arial" font-size="11" id="id_3" x="350" y="162">AUTO</text>
+ <!-- Mantenimiento (toggle) -->
+ <text atv:refpx="71.5" atv:refpy="193" font-family="Arial" font-size="13" id="id_4" x="28" y="198">Mantenimiento:</text>
+ <rect atv:refpx="334" atv:refpy="195" cursor="pointer" fill="#bdbdbd" height="22" id="mnt_track" rx="11" ry="11" width="76" x="296" y="184"/>
+ <circle atv:refpx="307" atv:refpy="195" cursor="pointer" cx="307" cy="195" fill="#ffffff" id="mnt_knob" r="9" stroke="#757575"/>
+ <text atv:refpx="305.5" atv:refpy="218" font-family="Arial" font-size="11" id="id_5" x="296" y="222">OFF</text>
+ <text atv:refpx="357" atv:refpy="218" font-family="Arial" font-size="11" id="id_6" x="350" y="222">ON</text>
+ <!-- Setpoint .R (prompt) -->
+ <text atv:refpx="106" atv:refpy="251" font-family="Arial" font-size="13" id="id_7" x="28" y="256">Setpoint de frecuencia (.R):</text>
+ <rect atv:refpx="334" atv:refpy="253" cursor="pointer" fill="#f3f3f3" height="26" id="sp_box" rx="6" ry="6" stroke="#bdbdbd" width="76" x="296" y="240"/>
+ <text atv:refpx="334" atv:refpy="252" cursor="pointer" font-family="Arial" font-size="13" id="sp_val" text-anchor="middle" x="334" y="257">—</text>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+/* ========= Base ========= */
+var base = webMI.query["base"];
+
+/* ========= Helpers ========= */
+function Tip(id, txt){ try{ if(webMI.gfx.setTooltip) webMI.gfx.setTooltip(id, txt||""); }catch(_){ } }
+function moveKnob01(id, v01){
+  var off = webMI.translate(v01, 0, 1, 0, 54); // travel aprox
+  try{ webMI.gfx.setMoveX(id, off); }catch(_){}
+}
+
+/* ========= Estado ========= */
+var stLR = null;      // 'LOC' | 'REM'
+var stMaint = false;  // mantenimiento
+var stMA = null;      // true=AUTO, false=MAN
+
+/* ========= Nombre ========= */
+webMI.data.read(base + ".name", function(r){
+  try{ webMI.gfx.setText("cfg_name", (r && r.value) ? r.value : (base.split(".").pop()||"")); }catch(_){}
+});
+
+/* ========= LR (solo lectura) ========= */
+function paintLR(isLocal){
+  try{
+    webMI.gfx.setFill("lr_bg", isLocal ? "#ffab4a" : "#00897b");
+    webMI.gfx.setText("lr_txt", isLocal ? "LOC" : "REM");
+  }catch(_){}
+}
+var lrResolved=false;
+webMI.alarm.subscribe(base + ".Alarma_Local.LR.Estado", function(e){
+  lrResolved=true;
+  var isLocal = (e.state===1||e.state===2);
+  stLR = isLocal? "LOC" : "REM";
+  paintLR(isLocal); refreshGuards();
+});
+webMI.data.read(base + ".loc_rem", function(r){
+  if (lrResolved) return;
+  if (r && typeof r.value !== "undefined"){
+    var isRem = (r.value===true);
+    stLR = isRem? "REM" : "LOC";
+    paintLR(!isRem);
+  } else { stLR=null; }
+  refreshGuards();
+});
+
+/* ========= UI paint ========= */
+function setMAUI(auto){
+  try{
+    webMI.gfx.setFill("ma_track", auto ? "#1976d2" : "#bdbdbd");
+    webMI.gfx.setStroke("ma_knob", auto ? "#0d47a1" : "#757575");
+    moveKnob01("ma_knob", auto ? 1 : 0);
+  }catch(_){}
+}
+function setMntUI(on){
+  try{
+    webMI.gfx.setFill("mnt_track", on ? "#22c55e" : "#bdbdbd");
+    webMI.gfx.setStroke("mnt_knob", on ? "#15803d" : "#757575");
+    moveKnob01("mnt_knob", on ? 1 : 0);
+  }catch(_){}
+}
+
+/* ========= Suscripciones ========= */
+webMI.data.read(base + ".MA", function(r){ stMA = !!(r && r.value); setMAUI(stMA); refreshGuards(); });
+webMI.data.subscribe(base + ".MA", function(e){ stMA = !!(e && e.value); setMAUI(stMA); refreshGuards(); });
+
+webMI.data.read(base + ".maintenance", function(r){ stMaint = !!(r && r.value); setMntUI(stMaint); refreshGuards(); });
+webMI.data.subscribe(base + ".maintenance", function(e){ stMaint = !!(e && e.value); setMntUI(stMaint); refreshGuards(); });
+
+/* ========= Guards & tooltips ========= */
+var canEditMA=false, canEditSP=false, canEditMaint=false;
+
+function refreshGuards(){
+  var isREM = (stLR === "REM");
+
+  canEditMaint = isREM;
+  canEditMA    = isREM && !stMaint;
+  canEditSP    = isREM && !stMaint;
+
+  Tip("ma_track",  canEditMA ? "T{Click para alternar MAN/AUTO}" :
+      (isREM? "T{Bloqueado por mantenimiento}" : "T{Requiere REM}"));
+  Tip("ma_knob",   canEditMA ? "T{Alternar MAN/AUTO}" : "T{Bloqueado}");
+  Tip("mnt_track", canEditMaint ? "T{Click para alternar ON/OFF}" : "T{Requiere REM}");
+  Tip("mnt_knob",  canEditMaint ? "T{Alternar ON/OFF}" : "T{Bloqueado}");
+  Tip("sp_box",    canEditSP ? "T{Click para editar Hz}" :
+      (isREM? "T{Bloqueado por mantenimiento}" : "T{Requiere REM}"));
+  Tip("sp_val",    canEditSP ? "T{Click para editar Hz}" :
+      (isREM? "T{Bloqueado por mantenimiento}" : "T{Requiere REM}"));
+}
+
+/* ========= Acciones ========= */
+function toggleMA(){
+  if (!canEditMA) return;
+  webMI.data.read(base + ".MA", function(r){
+    var next = !(r && r.value===true);
+    webMI.data.write(base + ".MA", next);
+  });
+}
+function toggleMnt(){
+  if (!canEditMaint) return;
+  webMI.data.read(base + ".maintenance", function(r){
+    var next = !(r && r.value===true);
+    webMI.data.write(base + ".maintenance", next);
+  });
+}
+["ma_track","ma_knob"].forEach(function(id){ try{ webMI.addEvent(id,"click", toggleMA); }catch(_){ } });
+["mnt_track","mnt_knob"].forEach(function(id){ try{ webMI.addEvent(id,"click", toggleMnt); }catch(_){ } });
+
+/* .R por prompt */
+function paintR(v){
+  try{ webMI.gfx.setText("sp_val", (typeof v === "number") ? webMI.sprintf("%.1f Hz", v) : "—"); }catch(_){}
+}
+function readR(){ webMI.data.read(base + ".R", function(r){ paintR(r ? r.value : null); }); }
+readR();
+webMI.data.subscribe(base + ".R", function(e){ paintR(e.value); });
+
+function promptR(){
+  if (!canEditSP){
+    try{
+      webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.MessageBox",
+        {title:"T{Edición bloqueada}", text:(stLR!=="REM" ? "T{Requiere REM.}" : "T{Bloqueado por mantenimiento.}")});
+    }catch(_){}
+    return;
+  }
+  webMI.data.read(base + ".R", function(r){
+    var cur = (r && typeof r.value==="number") ? r.value : 0;
+    var nv = prompt("Setpoint de frecuencia (Hz, 0 a 60):", webMI.sprintf("%.1f", cur));
+    if (nv===null) return;
+    var num = parseFloat(String(nv).replace(",", "."));
+    if (isNaN(num)) { alert("Valor no numérico."); return; }
+    num = Math.max(0, Math.min(60, +(num.toFixed(1))));
+    webMI.data.write(base + ".R", num);
+  });
+}
+["sp_box","sp_val"].forEach(function(id){ try{ webMI.addEvent(id,"click", promptR); }catch(_){ } });
+
+refreshGuards();
+  ]]></script>
+</svg>

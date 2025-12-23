@@ -1,0 +1,371 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="900" version="1.2" width="800" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <svg atv:refpx="1563.83" atv:refpy="624.439" height="600" id="topologia" transform="matrix(0.9009,0,0,0.6796,0,0)" width="800" x="1332.075" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="706.263">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuenca_NPE"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="topologia"/>
+ </svg>
+ <foreignObject height="480" id="mapa" width="720" x="1200" y="0">
+  <div style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <text atv:refpx="283.5" atv:refpy="861" fill="#000039" font-family="Arial" font-size="28" font-weight="bold" id="id_1" x="149.5" y="870.5">Niveles aguas abajo</text>
+ <text atv:refpx="862" atv:refpy="861" fill="#000039" font-family="Arial" font-size="28" font-weight="bold" id="id_3" x="754.5" y="870.5">Flujos entrantes</text>
+ <svg atv:refpx="274.999" atv:refpy="215" height="130" id="id_5" transform="matrix(3.6667,0,0,2.3077,0,0)" width="150" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.bar" y="28.167">
+  <atv:argument name="seriesOrientation" value="Vertical"/>
+  <atv:argument name="series1Name" value="T{GUAD}"/>
+  <atv:argument name="series2Name" value="T{ARA}"/>
+  <atv:argument name="series3Name" value="T{VMAR}"/>
+  <atv:argument name="series1Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Guadalupana.level_percent"/>
+  <atv:argument name="series2Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_ARA.level_percent"/>
+  <atv:argument name="series3Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Villas_del_Mar.level_percent"/>
+  <atv:argument name="min" value="0"/>
+  <atv:argument name="max" value="100"/>
+  <atv:argument name="unit" value="T{%}"/>
+  <atv:argument name="seriesCount" value="0"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.2727,0,0,0.4333,0,0)" x="275.002" y="167.374"/>
+  <atv:overwrite id="main_label" transform="matrix(0.2727,0,0,0.4333,0,0)" x="275.002" y="148.628"/>
+  <atv:overwrite height="298.001" id="fo_container" transform="matrix(0.2727,0,0,0.4333,0,0)" width="548.004"/>
+  <atv:overwrite height="299.001" id="border" transform="matrix(0.2727,0,0,0.4333,0,0)" width="549.004"/>
+ </svg>
+ <svg atv:refpx="824.994" atv:refpy="215" height="130" id="id_7" transform="matrix(3.6667,0,0,2.3077,0,0)" width="150" x="149.998" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.bar" y="28.167">
+  <atv:argument name="series1Name" value="T{GUAD}"/>
+  <atv:argument name="series2Name" value="T{ARA‎ }"/>
+  <atv:argument name="series3Name" value="T{VMAR}"/>
+  <atv:argument name="series1Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Guadalupana.flow"/>
+  <atv:argument name="series2Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_ARA.flow"/>
+  <atv:argument name="series3Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Villas_del_Mar.flow"/>
+  <atv:argument name="min" value="0"/>
+  <atv:argument name="unit" value="T{l/s}"/>
+  <atv:argument name="seriesCount" value="0"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.2727,0,0,0.4333,0,0)" x="275.002" y="167.373"/>
+  <atv:overwrite id="main_label" transform="matrix(0.2727,0,0,0.4333,0,0)" x="275.002" y="148.627"/>
+  <atv:overwrite height="298.001" id="fo_container" transform="matrix(0.2727,0,0,0.4333,0,0)" width="548.004"/>
+  <atv:overwrite height="299.001" id="border" transform="matrix(0.2727,0,0,0.4333,0,0)" width="549.004"/>
+ </svg>
+ <text atv:refpx="118.5" atv:refpy="406" fill="#000039" font-family="Arial" font-size="28" font-weight="bold" id="id_4" text-anchor="start" x="19.5" y="410.5">Pretratamiento</text>
+ <text atv:refpx="63.924" atv:refpy="41" fill="#000039" font-family="Arial" font-size="28" font-weight="bold" id="id_6" text-anchor="start" x="19.5" y="45.5">Caja rompedora</text>
+ <svg atv:refpx="274.998" atv:refpy="628.999" height="130" id="id_11" transform="matrix(3.6667,0,0,3.0769,0,0)" width="150" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.bar" y="139.425">
+  <atv:argument name="seriesOrientation" value="Vertical"/>
+  <atv:argument name="series1Name" value="T{CAR CASAS}"/>
+  <atv:argument name="series2Name" value="T{CAR POL PARAISO}"/>
+  <atv:argument name="series3Name" value="T{CAR PASEOS}"/>
+  <atv:argument name="series1Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Casas_del_Mar.level_percent"/>
+  <atv:argument name="series2Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.level_percent"/>
+  <atv:argument name="series3Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Paseos_del_Mar.level_percent"/>
+  <atv:argument name="min" value="0"/>
+  <atv:argument name="max" value="100"/>
+  <atv:argument name="unit" value="T{%}"/>
+  <atv:argument name="seriesCount" value="0"/>
+  <atv:argument name="series4Name" value="T{CAR PARAISO MAYA}"/>
+  <atv:argument name="series5Name" value="T{CAR TIERRA MAYA}"/>
+  <atv:argument name="series6Name" value="T{CAR LINDA VISTA}"/>
+  <atv:argument name="series7Name" value="T{CAR R102}"/>
+  <atv:argument name="series4Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Paraiso_Maya.level_percent"/>
+  <atv:argument name="series5Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Tierra_Maya.level_percent"/>
+  <atv:argument name="series6Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Linda_Vista.level_percent"/>
+  <atv:argument name="series7Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_R102.level_percent"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.2727,0,0,0.325,0,0)" x="275.002" y="217.373"/>
+  <atv:overwrite id="main_label" transform="matrix(0.2727,0,0,0.325,0,0)" x="275.002" y="198.627"/>
+  <atv:overwrite height="398" id="fo_container" transform="matrix(0.2727,0,0,0.325,0,0)" width="548.004"/>
+  <atv:overwrite height="399" id="border" transform="matrix(0.2727,0,0,0.325,0,0)" width="549.004"/>
+ </svg>
+ <svg atv:refpx="824.994" atv:refpy="628.999" height="130" id="id_12" transform="matrix(3.6667,0,0,3.0769,0,0)" width="150" x="149.998" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.bar" y="139.425">
+  <atv:argument name="series1Name" value="T{CAR CASAS}"/>
+  <atv:argument name="series2Name" value="T{CAR POL PARAISO}"/>
+  <atv:argument name="series3Name" value="T{CAR PASEOS}"/>
+  <atv:argument name="series1Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Casas_del_Mar.flow"/>
+  <atv:argument name="series2Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.flow"/>
+  <atv:argument name="series3Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Paseos_del_Mar.flow"/>
+  <atv:argument name="min" value="0"/>
+  <atv:argument name="unit" value="T{l/s}"/>
+  <atv:argument name="seriesCount" value="0"/>
+  <atv:argument name="series4Name" value="T{CAR PARAISO MAYA}"/>
+  <atv:argument name="series5Name" value="T{CAR TIERRA MAYA}"/>
+  <atv:argument name="series6Name" value="T{CAR LINDA VISTA}"/>
+  <atv:argument name="series7Name" value="T{CAR R102}"/>
+  <atv:argument name="series4Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Paraiso_Maya.flow"/>
+  <atv:argument name="series5Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Tierra_Maya.flow"/>
+  <atv:argument name="series6Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Linda_Vista.flow"/>
+  <atv:argument name="series7Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_R102.flow"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.2727,0,0,0.325,0,0)" x="275.002" y="217.373"/>
+  <atv:overwrite id="main_label" transform="matrix(0.2727,0,0,0.325,0,0)" x="275.002" y="198.627"/>
+  <atv:overwrite height="398" id="fo_container" transform="matrix(0.2727,0,0,0.325,0,0)" width="548.004"/>
+  <atv:overwrite height="399" id="border" transform="matrix(0.2727,0,0,0.325,0,0)" width="549.004"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[//----------------Inicializo variables -------------------//
+
+
+//Variable interna
+var Info_Windowact=false;
+var Markeract=false;
+var Markeractdc;
+var Markers= new Array();
+var Rutas= new Array();
+var Pos_origen;
+var Pos_destination;
+var WayPoints = new Array();
+
+var google = webMI.rootWindow.google; //Clase Principal
+var map; //Variable donde va a vivir el mapa
+var m,n;
+var circuito =
+	[[21.137170400189998, -86.92098834822414],				
+	 [21.141268641653536, -86.90480579616154],
+	 [21.14128142495474, -86.8981065114646],	
+	 [21.153443715839963, -86.88558830323406],	 
+	 [21.15689142838811, -86.89918766741306],	 	 
+	 [21.163703500523773, -86.91392151418717],	 	 
+	 [21.171519679486227, -86.9041667302432],	 	 
+	 [21.17055747597586, -86.87896273160592],	 	 
+	 [21.193558916751513, -86.87174585244826],	 	  
+	 [21.187849356182213, -86.87511644805177],	 	 
+	 [21.179728208567866, -86.89379704204964],
+	 [21.179906188278824, -86.89371214107973]]
+
+					
+var circuito_s =
+	[[{lat:21.137170400189998, lng:-86.92098834822414},
+	"Cárcamo Paraíso Maya, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Paraiso_Maya",
+	1, "carcamoAR"],
+	[{lat:21.141268641653536, lng:-86.90480579616154},
+	"Cárcamo Tierra Maya, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Tierra_Maya",
+	2, "carcamoAR"],
+	[{lat:21.14128142495474, lng:-86.8981065114646},
+	"Cárcamo Linda Vista, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Linda_Vista",
+	3, "carcamoAR"],
+	[{lat:21.153443715839963, lng:-86.88558830323406},
+	"Cárcamo R 102, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_R102",
+	4, "carcamoAR"],
+	[{lat:21.15689142838811, lng:-86.89918766741306},
+	"Cárcamo ARA, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_ARA",
+	5, "carcamoAR"],
+	[{lat:21.163703500523773, lng:-86.91392151418717},
+	"Cárcamo Polígono Paraíso, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso",
+	6, "carcamoAR"],
+	[{lat:21.171519679486227, lng:-86.9041667302432},
+	"Cárcamo Paseos del Mar, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Paseos_del_Mar",
+	7, "carcamoAR"],
+	[{lat:21.17055747597586, lng:-86.87896273160592},
+	"Cárcamo Guadalupana, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Guadalupana",
+	7, "carcamoAR"],
+	[{lat:21.193558916751513, lng:-86.87174585244826},
+	"Cárcamo Villas del Mar, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Villas_del_Mar",
+	7, "carcamoAR"],
+	[{lat:21.187849356182213, lng:-86.87511644805177},
+	"Cárcamo Casas del Mar, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Casas_del_Mar",
+	7, "carcamoAR"],
+	[{lat:21.179728208567866, lng:-86.89379704204964},
+	"Cárcamo Final Norponiente, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Final_Norponiente",
+	7, "carcamoAR"],
+	[{lat:21.179373899815154, lng:-86.89465893421475},
+	"Pretratamiento PTAR Norponiente",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Final_Norponiente",
+	7, "ptar"]];
+					
+var infowindow;					
+var circuito_centro;
+var carcamoAR = "/icons/carcamo_ar_30_18px.png";
+
+
+
+//----------------Ejecución -------------------//
+
+
+
+//Determinación del dispositivo
+var infoCliente;
+infoCliente = new webMI.getClientInfo();
+
+//Preprocesamiento de variables
+
+//Calculo del Centro
+var suma=[0,0];
+for (var i=0; i<circuito.length; i++){
+	suma[0]=suma[0]+circuito[i][0]; //Latitud 
+	suma[1]=suma[1]+circuito[i][1]; //Longitud
+}
+
+circuito_centro=[suma[0]/circuito.length,suma[1]/circuito.length];
+
+
+webMI.addOnload(function() {
+	
+	//Posiciones en el mapa
+	var position1 = new google.maps.LatLng(circuito_centro[0], circuito_centro[1]);
+	
+	//Opciones del mapa
+	var myOptions = {
+		zoom: 13,
+		center: position1,
+		mapTypeId: google.maps.MapTypeId.roadmap
+	};
+	
+
+	//Inicializo el mapa
+	map = new google.maps.Map(document.getElementById("mapa"), myOptions);
+	
+	
+		
+	
+		
+	// Instantiate an info window to hold step text.
+	const stepDisplay = new google.maps.InfoWindow();
+	
+	
+	//-------Inicializo Marcadores
+	
+	circuito_s.forEach(([position,title,object,order,type],i) =>{
+	if (type == 'ptar') {
+	carcamoAR = "/icons/planta.png"
+	}
+	
+	
+		const marker = new google.maps.Marker({
+			position, 
+			map,
+			icon: carcamoAR,
+			title: ` ${order}`,
+			optimized: false,
+		});
+		
+		marker.setMap(map);
+		
+		//Agrego marcador a lista de marcadores
+		Markers.push(marker);
+	
+		//-------Listener de Marcadores
+		
+		//DOBLECLICK (Fija Carcamo)
+		google.maps.event.addListener(marker,'dblclick',function(event) {
+							
+			//Abrir display en frame de la izquierda, en la primera posición, relativo a la base		
+			//webMI.display.openDisplay("ObjectTypes.PROJECT.ElementoLineaAR.Tanque",
+			//{base:   object}, "topologia");			
+			map.panTo(this.getPosition());
+			map.setZoom(16.5);
+			webMI.display.openDisplay( object + ".Control",
+			webMI.query, "topologia");
+			
+
+			Markeract=true;
+			Markeractdc=marker;
+			Pos_origen=position;
+		
+			
+			//Limpio
+			Elimina_Ruta(Rutas);
+				
+		});
+	/*	map.addListener("zoom_changed", () => {
+    infowindow.setContent("Zoom: " + map.getZoom());
+  });*/
+		
+		
+		//CLICK (Abre Infowindow)
+		google.maps.event.addListener(marker,'click',function(event) {	
+			
+			//Abro en temporal
+			if (marker!=Markeractdc && Markeract==true ){		
+				Pos_destination=position;	
+				
+				//Limpio
+				Elimina_Ruta(Rutas);
+				
+				//Dibujo
+				Dibuja_Ruta(Pos_origen,Pos_destination);
+			}
+			
+			
+		});	
+			
+		
+		//MOUSEOVER
+		google.maps.event.addListener(marker, "mouseover", function(event){
+			infowindow = new google.maps.InfoWindow();
+			//Abro marcador
+			infowindow.open(marker.getMap,marker);
+			Info_Windowact=true;
+			//Defino que objeto va a ser el seleccionado para mostrar su información
+			webMI.data.subscribe( object +".level_percent",
+			function(e){
+				infowindow.setContent(title+" - Nivel: " +
+				e.value.toFixed(2) + "%");
+				}
+			);
+			
+				//infowindow.setContent(title);
+		
+		});	
+		
+		//MOUSEOUT
+		google.maps.event.addListener(marker, "mouseout", function(event){
+			
+			
+			if (Info_Windowact){
+				infowindow.close();
+				Info_Windowact=false;
+			}			
+		});
+		
+		
+		
+	});	
+			
+});
+
+
+
+function Dibuja_Ruta(Origen,Destination){
+	
+	if(Markeract && (Origen!=Destination)){
+			
+		//////////// Servicios Rutas en el mapa
+		var directionsService = new google.maps.DirectionsService();
+		var directionsRenderer = new google.maps.DirectionsRenderer({ map: map });		
+		
+		//Crea el request
+		var request = {
+			origin: Origen,
+			destination:Destination,
+			travelMode: google.maps.TravelMode.DRIVING // Puedes ajustar el modo de transporte según tus necesidades
+		  };    
+		
+		
+		directionsService.route(request, function(response, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  directionsRenderer.setDirections(response);
+			  Rutas.push(directionsRenderer);
+			}
+		  });
+	 }
+    
+ }
+
+
+function Elimina_Ruta(Rutas){
+	
+	Rutas.forEach(function(ruta) {
+		ruta.setMap(null);
+	});
+	
+	Rutas=new Array();
+    
+ }
+]]></script>
+</svg>

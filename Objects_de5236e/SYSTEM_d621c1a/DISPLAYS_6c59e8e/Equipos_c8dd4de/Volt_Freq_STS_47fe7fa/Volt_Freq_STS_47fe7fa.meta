@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Equipos.Volt_Freq_STS
+NodeClass: Variable
+BrowseName: 1:Volt_Freq_STS
+DisplayName: en|Volt_Freq_STS
+Description: en|Volt_Freq_STS
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

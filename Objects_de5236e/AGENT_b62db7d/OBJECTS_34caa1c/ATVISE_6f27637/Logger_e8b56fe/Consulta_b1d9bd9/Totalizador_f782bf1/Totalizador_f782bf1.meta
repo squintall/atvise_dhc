@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Logger.Consulta.Totalizador
+NodeClass: Variable
+BrowseName: 1:Totalizador
+DisplayName: en|Totalizador
+Description: en|Totalizador
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.atvLogger

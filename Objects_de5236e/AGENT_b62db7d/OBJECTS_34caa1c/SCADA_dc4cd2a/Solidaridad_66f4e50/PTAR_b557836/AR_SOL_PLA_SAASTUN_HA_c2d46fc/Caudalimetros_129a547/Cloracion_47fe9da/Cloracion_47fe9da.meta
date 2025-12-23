@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.PTAR.AR_SOL_PLA_SAASTUN_HA.Caudalimetros.Cloracion
+NodeClass: Object
+BrowseName: 1:Cloracion
+DisplayName: en|Cloracion
+Description: en|Cloracion
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

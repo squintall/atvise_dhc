@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Presiones_Solidaridad.Temporal Sol
+NodeClass: Variable
+BrowseName: 1:Temporal Sol
+DisplayName: en|Temporal Sol
+Description: en|Temporal Sol
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

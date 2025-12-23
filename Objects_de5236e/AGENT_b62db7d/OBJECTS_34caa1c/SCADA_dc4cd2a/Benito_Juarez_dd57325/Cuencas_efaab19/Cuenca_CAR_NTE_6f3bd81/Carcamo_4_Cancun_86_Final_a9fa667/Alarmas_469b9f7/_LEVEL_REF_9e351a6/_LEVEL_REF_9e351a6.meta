@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_4_Cancun_86_Final.Alarmas._LEVEL_REF
+NodeClass: Variable
+BrowseName: 1:_LEVEL_REF
+DisplayName: en|_LEVEL_REF
+Description: en|_LEVEL_REF
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

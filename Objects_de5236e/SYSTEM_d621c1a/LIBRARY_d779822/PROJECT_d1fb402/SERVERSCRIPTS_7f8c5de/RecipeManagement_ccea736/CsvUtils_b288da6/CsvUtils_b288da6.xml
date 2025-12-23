@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <code><![CDATA[function Settings(dataRootAddress) {
+	this.recipeDataProvider = call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", { dataRootAddress: dataRootAddress, writeToLogger: true });
+	this.delimiterCharacter = "\;";	// must be only ONE character (with maybe a leading escape character)
+	this.templateHeaderArray = [
+		"templatename",
+		"templatedescription",
+		"paramname",
+		"paramdescription",
+		"paramnode",
+		"paramdecimals",
+		"paramdefaultvalue",
+		"parammin",
+		"parammax",
+		"paramstepsize",
+		"paramunit",
+		"paramdatatype",
+		"paramoptions"
+	];
+	this.templateHeaderString = this.templateHeaderArray.join(this.delimiterCharacter);
+	this.recipeHeaderArray = [
+		"templatename",
+		"recipename",
+		"recipedescription",
+		""							// necessary, because a trailing ; is needed
+	];
+	this.recipeHeaderString = this.recipeHeaderArray.join(this.delimiterCharacter);
+}
+
+// does the complete export
+function ExportRecipeConfigurations(dataRootAddress, toExport) {
+	var s = new Settings(dataRootAddress);
+	var collectedData = [];
+	
+	var ct = s.recipeDataProvider.templateData();
+	var configuredTemplates = {};
+	
+	for (const t in ct) {
+		// check if template configuration can be parsed/is valid
+		try {
+			configuredTemplates[t] = JSON.parse(ct[t].value);
+		} catch {
+			s.recipeDataProvider.log("warn", "Value of recipe template " + t + " not available in a parsable JSON format.");
+			continue;
+		}
+	}
+	
+	for (const template in toExport) {
+		// search template
+		var t = configuredTemplates[template];
+		if (t === undefined) {
+			s.recipeDataProvider.log("info", "Requested recipe template " + template + " not configured.");
+			continue;
+		}
+		
+		var recipes = [];
+		// search recipes of template
+		s.recipeDataProvider.recipesByTemplateName(template).forEach(function(recipe) {
+			// check if recipe is in requested recipes
+			if (Array.isArray(toExport[template]) &&
+				toExport[template].length > 0 &&
+				!toExport[template].includes(recipe.name)) {
+				return;
+			}
+			// get recipe data
+			var r = s.recipeDataProvider.recipeDataByName(template, recipe.name);
+			if (!("error" in r) || r.error == 0) {
+				recipes.push(r);
+			} else {
+				s.recipeDataProvider.log("info", "Requested recipe " + recipe.name + " for template " + template + " not configured.");
+			}
+		});
+		
+		// add template and recipes based on it
+		collectedData.push({
+			template: t,
+			recipes: recipes
+		});
+	}
+	
+	var csv = s.templateHeaderString;
+	
+	// exporting templates
+	collectedData.forEach(function(e) {
+		var prefix = "\n" + csvStrings(s, [ e.template.id, e.template.description ]);
+		
+		// template parameters
+		(e.template.parameters || []).forEach(function(p) {
+			csv += prefix + csvStrings(s, [ p.name, p.description, p.node, p.decimals, p.defaultvalue, p.min, p.max, p.stepsize, p.unit, p.datatype, p.options ]);
+			prefix = "\n" + s.delimiterCharacter + s.delimiterCharacter;
+		});
+	});
+	
+	// exporting recipes
+	collectedData.forEach(function(e) {
+		csv += "\n\n\n";
+		
+		// common header
+		csv += s.recipeHeaderString;
+		
+		// template based header
+		(e.template.parameters || []).forEach(function(p) {
+			csv += csvStrings(s, [ p.name ]);
+		});
+		var prefix = csvStrings(s, [ e.template.id ]);
+		
+		// export individual recipe
+		e.recipes.forEach(function(recipe) {
+			csv += "\n" + prefix + csvStrings(s, [ recipe.name, recipe.description ]);
+				
+			// export values based on template
+			(e.template.parameters || []).forEach(function(p) {
+				var value = (recipe.values || {})[p.name] || p.defaultvalue;
+				csv += csvStrings(s, [ value ]);
+			});
+		});
+	});
+	
+	return csv;
+}
+
+// format value accordingly
+function csvStrings(s, values) {
+	var retString = "";
+	values.forEach(function(val) {
+		if (String(val).indexOf(s.delimiterCharacter) != -1) {
+			retString += '"' + String(val) + '"';
+		} else if (typeof val !== "undefined") {
+			retString += String(val) || "";
+		}
+		retString += s.delimiterCharacter;
+	});
+	return retString;
+}
+
+// does the complete import
+function ImportRecipeConfigurations(dataRootAddress, csv) {
+	var s = new Settings(dataRootAddress);
+	
+	var parsedCsv = new CSVReader({
+		delimiter: s.delimiterCharacter,
+		trim: true,
+		encoding: "UTF-8"
+	}).parse(csv);
+	
+	var regExpDelimiter = new RegExp("[" + s.delimiterCharacter + "\"]", "g");
+	var templateSectionFound = false;
+	var templatesDone = false;
+	var recipeSectionFound = false;
+	var parsedImport = {};
+	var templateName = undefined;
+	var recipeParameter = [];
+	
+	parsedCsv.forEach(function(line) {
+		if (line.join(s.delimiterCharacter).replace(regExpDelimiter, "").trim() == "") {
+			// omitting empty lines
+			return;
+		}
+		
+		if (!templateSectionFound) {
+			// identify template section
+			templateSectionFound = line.join(s.delimiterCharacter).startsWith(s.templateHeaderString);
+			return;
+		}
+		
+		// identify a new recipe section
+		recipeSectionFound = line.join(s.delimiterCharacter).startsWith(s.recipeHeaderString);
+		
+		if (templateSectionFound && !templatesDone && !recipeSectionFound) {
+			if (line[0] != "") {
+				// create new object if template name is present
+				parsedImport[templateName = line[0]] = {
+					template: {
+						id: line[0],
+						parameters: []
+					},
+					recipes: []
+				};
+			}
+			
+			if (!(templateName in parsedImport)) {
+				// omit line if template is not in parsedImport
+				s.recipeDataProvider.log("info", "Template " + templateName + " is not in the list of imported templates.");
+				return;
+			}
+			
+			var property;
+			var parameter = {};
+			
+			// process parameters
+			for (var i = 1; i < Math.min(line.length - 1, s.templateHeaderArray.length); i++) {
+				if (s.templateHeaderArray[i].startsWith("template")) {
+					property = s.templateHeaderArray[i].substring("template".length);
+					if(line[i] !== ""){
+						parsedImport[templateName].template[property] = line[i];
+					}
+				} else if (s.templateHeaderArray[i].startsWith("param")) {
+					property = s.templateHeaderArray[i].substring("param".length);
+					parameter[property] = line[i];
+				} else {
+					// not of expected format, omitting line
+					s.recipeDataProvider.log("info", "Column " + (line[i] || "") + " can not be associated to the template " + templateName + " or to a parameter.");
+					return;
+				}
+			}
+			
+			// remove template if parameter name is duplicated
+			if (parsedImport[templateName].template.parameters.some(function(p) {
+				return p.name === parameter.name;
+			})) {
+				delete parsedImport[templateName];
+				s.recipeDataProvider.log("info", "Template " + templateName + " will be removed because of a misconfiguration of parameters.");
+				return;
+			}
+			
+			// set up properties for check
+			var props = [ "defaultvalue" ];
+			if (parameter.datatype == "Number") {
+				// check additional properties specific to data type Number
+				props = props.concat([
+					"decimals",
+					"max",
+					"min",
+					"stepsize",
+				]);
+			}
+			
+			// check values of properties depending on data types
+			var check;
+			for (var prop of props) {
+				check = checkDataType(parameter.datatype, parameter[prop]);
+				
+				if (!check.validType) {
+					// remove template because value isn't of configured data type
+					delete parsedImport[templateName];
+					s.recipeDataProvider.log("info", prop + " of parameter " + parameter.name + " for template " + templateName + " has an unsupported data type: " + parameter.datatype);
+					return;
+				} else {
+					parameter[prop] = check[parameter.datatype].parsedValue;
+				}
+			}
+
+			parsedImport[templateName].template.parameters.push(parameter);
+		} else {
+			if (!templateSectionFound) {
+				// templates weren't processed yet, so ignoring current line
+				return;
+			}
+			
+			// first recipe section implies, templates will be ignored from now on
+			templatesDone = true;
+			
+			if (recipeSectionFound) {
+				// on each new recipe section, get the associated parameters
+				recipeParameter = line.splice(s.recipeHeaderArray.length - 1);
+				return;
+			}
+			
+			if (!(line[0] in parsedImport)) {
+				// template not available, omit recipe configuration
+				return;
+			}
+			
+			var recipe = { values: {} };
+			
+			// process recipe values
+			for (var i = 1; i < s.recipeHeaderArray.length - 1; i++) {
+				if (s.recipeHeaderArray[i].startsWith("recipe")) {
+					property = s.recipeHeaderArray[i].substring("recipe".length);
+					recipe[property] = line[i];
+				} else {
+					// not of expected format, omitting line
+					s.recipeDataProvider.log("info", "Column " + (line[i] || "") + " can not be associated to the recipe " + (recipe.name || "") + ".");
+					return;
+				}
+			}
+			
+			// process associated parameters of recipe
+			for (; i < Math.min(line.length - 1, s.recipeHeaderArray.length - 1 + recipeParameter.length, s.recipeHeaderArray.length - 1 + parsedImport[line[0]].template.parameters.length); i++) {
+				recipe.values[recipeParameter[i - s.recipeHeaderArray.length + 1]] = line[i];
+			}
+			
+			// add found recipes to the corresponding template
+			parsedImport[line[0]].recipes.push(recipe);
+		}
+	});
+	
+	// get templates already available
+	var ct = s.recipeDataProvider.templateData();
+	
+	for (const t in ct) {
+		// check if template configuration can be parsed/is valid
+		try {
+			ct[t] = JSON.parse(ct[t].value);
+		} catch {
+			s.recipeDataProvider.log("warn", "Value of recipe template " + t + " not available in a parsable JSON format.");
+			continue;
+		}
+	}
+	
+	// check recipe parameters against template configuration and import if everything is fine
+	for (const t in parsedImport) {
+		// check if template from CSV and project are equal
+		if (t in ct && !recursiveCheckObj(ct[t], parsedImport[t].template)) {
+			s.recipeDataProvider.log("info", "The already configured template " + t + " differs to much from the imported template.");
+			continue;
+		}
+		
+		// save template
+		var templateNode = Ua.findNode(dataRootAddress + "." + t);
+		if (templateNode.error == Ua.Status.GOOD && templateNode.result.value != undefined) {
+			templateNode.result.value = JSON.stringify(parsedImport[t].template);
+		} else {
+			s.recipeDataProvider.log("info", "Creating template " + t + ".");
+			s.recipeDataProvider.createTemplate(t, JSON.stringify(parsedImport[t].template));
+		}
+		
+		parsedImport[t].recipes.forEach(function(r) {
+			var valid = true;
+			// check each recipe parameter if available in template configuration
+			for (const val in r.values) {
+				valid &= parsedImport[t].template.parameters.some(function(p) {
+					// check parameter name
+					var result = p.name == val;
+					
+					if (result) {
+						const check = checkDataType(p.datatype, r.values[val]);
+
+						if (!check.validType) {
+							result = false;
+							s.recipeDataProvider.log("info", "Parameter " + p.name + " for recipe " + r.name + " of template " + t + " has no supported data type: " + p.datatype);
+						} else {
+							r.values[val] = check[p.datatype].parsedValue;
+							result &= check[p.datatype].result;
+						}
+					}
+					
+					return Boolean(result);
+				});
+			};
+			
+			// if every recipe parameter is also a configured template parameter...
+			if (valid) {
+				// ... save the recipe
+				var error = s.recipeDataProvider.saveRecipe(t, r.name, JSON.stringify(r));
+				if (error != Ua.Status.GOOD) {
+					s.recipeDataProvider.log("error", "Saving recipe " + r.name + " for template " + t + " has thrown the error: " + error);
+				}
+			} else {
+				s.recipeDataProvider.log("info", "One of the parameters for recipe " + r.name + " of template " + t + " has not the expected data type.");
+			}
+		});
+	};
+}
+
+// check if provided value is of data type
+function checkDataType(datatype, val) {
+	var result = { validType: true };
+	
+	result[datatype] = {
+			parsedValue: null,
+			result: false
+	};
+	
+	switch(datatype) {
+		case "Number":
+			if (String(val) === "null") {
+				// We need to allow this because of some exception while defining template parameters
+				result[datatype].parsedValue = null;
+				result[datatype].result = true;
+			} else if (String(val) === "") {
+				// We need to allow this because of some exception while defining template parameters
+				result[datatype].parsedValue = "";
+				result[datatype].result = true;
+			} else {
+				// Because of different regional settings or formats, a number could be exported (eg with Excel) in different ways.
+				// As we know that a number is expected, we can now try to modify the value and therefore create a valid JavaScript number.
+				// Attention: that might lead to wrong values!
+				
+				// replace (first) decimal comma with decimal point
+				result[datatype].parsedValue = String(val).replace(",", ".");
+	
+				// maybe add other cases here...
+				
+				result[datatype].parsedValue = Number(result[datatype].parsedValue);
+				result[datatype].result = !isNaN(result[datatype].parsedValue);
+			}
+			break;
+		case "String":
+			// TODO: This check is toothless because the value in a recipe will always be stored as
+			// String, regardless of the underlying data type. Therefore we can NOT distinguish if
+			// it is in fact a String.
+			result[datatype].parsedValue = String(val);
+			result[datatype].result = result[datatype].parsedValue === String(val);
+			break;
+		case "Bool":
+			result[datatype].parsedValue = String(val).toLowerCase() == "true" ? true : (String(val).toLowerCase() == "false" ? false : null);
+			result[datatype].result = String(result[datatype].parsedValue).toLowerCase() === String(val).toLowerCase();
+			break;
+		default:
+			result.validType = false;
+			break;
+	}
+	
+	return result;
+}
+
+// checking if properties of two objects are "identical"
+function recursiveCheckObj(objA, objB) {
+	var result = true;
+	
+	if (Array.isArray(objA) && Array.isArray(objB)) {
+		if (objA.length != objB.length) {
+			return false;
+		}
+		
+		for (const prop in objA) {
+			result &= recursiveCheckObj(objA[prop], objB[prop]);
+		}
+	} else if (typeof objA === "object" && typeof objB === "object" && objA !== null && objB !== null) {
+		// only check properties from objA, so additional ones from objB, e.g. new properties from an updated version, does NOT interfere during import
+		for (const prop in objA) {
+			// skip property for active recipe
+			if (prop === "activeRecipe") {
+				continue;
+			}
+			result &= prop in objB;
+			if (result &&
+				(String(objA[prop]) != "null" && String(objA[prop]) != "undefined" && String(objA[prop]) != "")) {
+				result &= recursiveCheckObj(objA[prop], objB[prop]);
+			}
+		}
+	} else {
+		result &= String(objA) == String(objB);
+	}
+	
+	return Boolean(result);
+}
+
+
+return {
+	export: ExportRecipeConfigurations,
+	import: ImportRecipeConfigurations
+};]]></code>
+</script>

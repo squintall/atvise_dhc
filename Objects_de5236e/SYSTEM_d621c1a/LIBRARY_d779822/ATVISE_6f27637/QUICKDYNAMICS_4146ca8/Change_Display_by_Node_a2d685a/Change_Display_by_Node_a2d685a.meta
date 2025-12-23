@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Change Display by Node
+NodeClass: Variable
+BrowseName: 1:Change Display by Node
+DisplayName: en|Change Display by Node
+Description: en|Change Display by Node
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

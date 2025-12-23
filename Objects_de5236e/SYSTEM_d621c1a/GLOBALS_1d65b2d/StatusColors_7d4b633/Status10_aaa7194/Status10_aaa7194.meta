@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.StatusColors.Status10
+NodeClass: Variable
+BrowseName: 1:Status10
+DisplayName: en|Status10
+Description: en|Status10
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Final_LLegada.Equipos.Bombas.AR_PA_PLA__PUERTO_AVENTURAS_B1_Selector.Simulation
+NodeClass: Variable
+BrowseName: 1:Simulation
+DisplayName: en|Simulation
+Description: en|Simulation
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Simulation.RelMirrorInputOutput

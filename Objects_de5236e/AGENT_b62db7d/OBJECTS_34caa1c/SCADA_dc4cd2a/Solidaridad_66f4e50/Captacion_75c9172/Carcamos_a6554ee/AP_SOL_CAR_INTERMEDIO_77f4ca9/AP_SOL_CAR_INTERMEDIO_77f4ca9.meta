@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Captacion.Carcamos.AP_SOL_CAR_INTERMEDIO
+NodeClass: Object
+BrowseName: 1:AP_SOL_CAR_INTERMEDIO
+DisplayName: en|AP_SOL_CAR_INTERMEDIO
+Description: en|AP_SOL_CAR_INTERMEDIO
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

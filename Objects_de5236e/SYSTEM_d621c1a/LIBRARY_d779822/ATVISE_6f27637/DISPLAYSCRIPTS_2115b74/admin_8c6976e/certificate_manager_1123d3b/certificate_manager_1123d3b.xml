@@ -1,0 +1,1754 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[// Certificate Manager Display Script
+const POPUP_TITLE_BAR_HEIGHT = 20;
+
+if (!webMI.getMethodSupport().includes("CertificateManager")) {
+	showExceptionMessage(new Error("Certificate Management is not supported on this version of atvise."));
+	return;
+}
+
+const certificateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Certificate Manager");
+
+const TableStores = {
+	SERVER: "SERVER",
+	MIRROR: "MIRROR",
+	HTTPS: "HTTPS"
+};
+
+const ServerTypes = {
+	OWN: "OWN",
+	TRUSTED: "TRUSTED",
+	REJECTED: "REJECTED",
+	ISSUER: "ISSUER",
+	USERS_OWN: "USERS_OWN",
+	USERS_TRUSTED: "USERS_TRUSTED",
+	USERS_REJECTED: "USERS_REJECTED",
+	USERS_ISSUER: "USERS_ISSUER"
+};
+
+const CertificateTableTypes = {
+	OWN_CERTIFICATES: "own_certificates",
+	PEER_CERTIFICATES: "peer_certificates",
+	ISSUER_CERTIFICATES: "issuer_certificates",
+	USER_CERTIFICATES: "user_own_certificates",
+	USER_PEER_CERTIFICATES: "user_peer_certificates",
+	USER_ISSUER_CERTIFICATES: "user_issuer_certificates"
+};
+
+const TableToCertificateTypes = {
+	[CertificateTableTypes.OWN_CERTIFICATES]: [ServerTypes.OWN],
+	[CertificateTableTypes.PEER_CERTIFICATES]: [ServerTypes.TRUSTED, ServerTypes.REJECTED],
+	[CertificateTableTypes.ISSUER_CERTIFICATES]: [ServerTypes.ISSUER],
+	[CertificateTableTypes.USER_CERTIFICATES]: [ServerTypes.USERS_OWN],
+	[CertificateTableTypes.USER_PEER_CERTIFICATES]: [ServerTypes.USERS_TRUSTED, ServerTypes.USERS_REJECTED],
+	[CertificateTableTypes.USER_ISSUER_CERTIFICATES]: [ServerTypes.USERS_ISSUER]
+};
+
+let tableControllerCertificates;
+let currentTableData;
+let currentStore = TableStores.SERVER;
+let currentTableType = CertificateTableTypes.OWN_CERTIFICATES;
+let webMIQueryProperties = {};
+let reloadInProgress = false;
+const timestampedTableID = (webMIQueryProperties.tableID = webMI.query["tableID"]);
+const buttons = ["upload", "delete", "create", "trust", "reject"];
+
+const menuTree = [
+	{
+		key: TableStores.SERVER,
+		label: "T{OPC UA Server}",
+		children: [
+			{
+				label: "T{Own}",
+				key: CertificateTableTypes.OWN_CERTIFICATES,
+				columns: [
+					{
+						id: "Details",
+						name: "",
+						field: "Details",
+						sortable: false,
+						formatter: function () {
+							const detailButton = webMI.rootWindow.document.createElement("div");
+							detailButton.innerHTML = `<i class="fa-solid fa-circle-info" style="cursor: pointer" title="Show Details"></i>`;
+							return detailButton.outerHTML;
+						}
+					},
+					{
+						id: "IssuerType",
+						name: "T{Issuer Type}",
+						field: "IssuerType",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Valid",
+						name: "T{Valid}",
+						field: "atvise_certificate_validity",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Filename",
+						name: "T{Filename}",
+						field: "Filename",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "ValidFrom",
+						name: "T{Valid from}",
+						field: "ValidFrom",
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "ValidTo", name: "T{Valid To}", field: "ValidTo", sortable: true, filter: true },
+					{
+						id: "CommonName",
+						name: "T{Common name (CN)}",
+						field: "CommonName",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "AppURI",
+						name: "T{Application URI}",
+						field: "AppURI",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{ id: "DNS", name: "T{DNS names (DNS)}", field: "DNS", resizable: true, sortable: true, filter: true },
+					{ id: "IP", name: "T{IP addresses (IP)}", field: "IPs", resizable: true, sortable: true, filter: true },
+					{
+						id: "Issuer",
+						name: "T{Issuer}",
+						field: "Issuer",
+						resizable: true,
+						sortable: true,
+						filter: true
+					}
+				],
+				buttons: ["upload", "delete", "create"]
+			},
+			{
+				label: "T{Peers}",
+				key: CertificateTableTypes.PEER_CERTIFICATES,
+				columns: [
+					{
+						id: "Details",
+						name: "",
+						field: "Details",
+						width: 10,
+						sortable: false,
+						formatter: function () {
+							const detailButton = webMI.rootWindow.document.createElement("div");
+							detailButton.innerHTML = `<i class="fa-solid fa-circle-info" style="cursor: pointer" title="Show Details"></i>`;
+							return detailButton.outerHTML;
+						}
+					},
+					{
+						id: "IssuerType",
+						name: "T{Issuer Type}",
+						field: "IssuerType",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Filename",
+						name: "T{Filename}",
+						field: "Filename",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "Type",
+						name: "T{Status}",
+						field: "Type",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Valid",
+						name: "T{Valid}",
+						field: "atvise_certificate_validity",
+						filter: true
+					},
+					{
+						id: "ValidFrom",
+						name: "T{Valid from}",
+						field: "ValidFrom",
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "ValidTo", name: "T{Valid To}", field: "ValidTo", resizable: true, sortable: true, filter: true },
+					{
+						id: "CommonName",
+						name: "T{Common name (CN)}",
+						field: "CommonName",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{ id: "AppURI", name: "T{Application URI}", field: "AppURI", resizable: true, sortable: true, filter: true },
+					{
+						id: "DNS",
+						name: "T{DNS names (DNS)}",
+						field: "DNS",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "IP",
+						name: "T{IP addresses (IP)}",
+						field: "IPs",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "Issuer", name: "T{Issuer}", field: "Issuer", resizable: true, sortable: false, filter: true }
+				],
+				buttons: ["upload", "delete", "trust", "reject"]
+			},
+			{
+				label: "T{Issuers}",
+				key: CertificateTableTypes.ISSUER_CERTIFICATES,
+				columns: [
+					{
+						id: "Details",
+						name: "",
+						field: "Details",
+						resizable: false,
+						width: 10,
+						sortable: false,
+						formatter: function () {
+							const detailButton = webMI.rootWindow.document.createElement("div");
+							detailButton.innerHTML = `<i class="fa-solid fa-circle-info" style="cursor: pointer" title="Show Details"></i>`;
+							return detailButton.outerHTML;
+						}
+					},
+					{
+						id: "IssuerType",
+						name: "T{Issuer Type}",
+						field: "IssuerType",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Filename",
+						name: "T{Filename}",
+						field: "Filename",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "Valid",
+						name: "T{Valid}",
+						field: "atvise_certificate_validity",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "ValidFrom",
+						name: "T{Valid from}",
+						field: "ValidFrom",
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "ValidTo", name: "T{Valid To}", field: "ValidTo", resizable: true, sortable: true, filter: true },
+					{
+						id: "CommonName",
+						name: "T{Common name (CN)}",
+						field: "CommonName",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{ id: "Issuer", name: "T{Issuer}", field: "Issuer", resizable: true, sortable: false, filter: true }
+				],
+				buttons: ["upload", "delete"]
+			},
+			{
+				label: "T{Users}",
+				key: CertificateTableTypes.USER_PEER_CERTIFICATES,
+				columns: [
+					{
+						id: "Details",
+						name: "",
+						field: "Details",
+						resizable: false,
+						width: 10,
+						sortable: false,
+						formatter: function () {
+							const detailButton = webMI.rootWindow.document.createElement("div");
+							detailButton.innerHTML = `<i class="fa-solid fa-circle-info" style="cursor: pointer" title="Show Details"></i>`;
+							return detailButton.outerHTML;
+						}
+					},
+					{
+						id: "IssuerType",
+						name: "T{Issuer Type}",
+						field: "IssuerType",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Filename",
+						name: "T{Filename}",
+						field: "Filename",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "Type",
+						name: "T{Status}",
+						field: "Type",
+						sortable: true,
+						filter: true
+					},
+					{ id: "Username", name: "T{Username}", field: "CommonName", resizable: true, sortable: true, filter: true },
+					{
+						id: "Valid",
+						name: "T{Valid}",
+						field: "atvise_certificate_validity",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "ValidFrom",
+						name: "T{Valid from}",
+						field: "ValidFrom",
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "ValidTo", name: "T{Valid To}", field: "ValidTo", resizable: true, sortable: true, filter: true },
+					{
+						id: "Issuer",
+						name: "T{Issuer}",
+						field: "Issuer",
+						sortable: false,
+						filter: true
+					}
+				],
+				buttons: ["upload", "delete", "trust", "reject"]
+			}
+		]
+	},
+	{
+		key: TableStores.MIRROR,
+		label: "T{OPC UA Datasources}",
+		children: [
+			{
+				label: "T{Own}",
+				key: CertificateTableTypes.OWN_CERTIFICATES,
+				columns: [
+					{
+						id: "Details",
+						name: "",
+						field: "Details",
+						resizable: false,
+						width: 10,
+						sortable: false,
+						formatter: function () {
+							const detailButton = webMI.rootWindow.document.createElement("div");
+							detailButton.innerHTML = `<i class="fa-solid fa-circle-info" style="cursor: pointer" title="Show Details"></i>`;
+							return detailButton.outerHTML;
+						}
+					},
+					{
+						id: "IssuerType",
+						name: "T{Issuer Type}",
+						field: "IssuerType",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Valid",
+						name: "T{Valid}",
+						field: "atvise_certificate_validity",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Filename",
+						name: "T{Filename}",
+						field: "Filename",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: true
+					},
+					{ id: "ValidFrom", name: "T{Valid from}", field: "ValidFrom", sortable: true, filter: true, visible: false },
+					{ id: "ValidTo", name: "T{Valid To}", field: "ValidTo", sortable: true, filter: true },
+					{
+						id: "CommonName",
+						name: "T{Common name (CN)}",
+						field: "CommonName",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{ id: "AppURI", name: "T{Application URI}", field: "AppURI", resizable: true, sortable: true, filter: true },
+					{
+						id: "DNS",
+						name: "T{DNS names (DNS)}",
+						field: "DNS",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "IP",
+						name: "T{IP addresses (IP)}",
+						field: "IPs",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "Issuer", name: "T{Issuer}", field: "Issuer", resizable: true, sortable: true, filter: true }
+				],
+				buttons: ["upload", "delete", "create"]
+			},
+			{
+				label: "T{Peers}",
+				key: CertificateTableTypes.PEER_CERTIFICATES,
+				columns: [
+					{
+						id: "Details",
+						name: "",
+						field: "Details",
+						resizable: false,
+						width: 10,
+						sortable: false,
+						formatter: function () {
+							const detailButton = webMI.rootWindow.document.createElement("div");
+							detailButton.innerHTML = `<i class="fa-solid fa-circle-info" style="cursor: pointer" title="Show Details"></i>`;
+							return detailButton.outerHTML;
+						}
+					},
+					{
+						id: "IssuerType",
+						name: "T{Issuer Type}",
+						field: "IssuerType",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Filename",
+						name: "T{Filename}",
+						field: "Filename",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "Type",
+						name: "T{Status}",
+						field: "Type",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Valid",
+						name: "T{Valid}",
+						field: "atvise_certificate_validity",
+						sortable: true,
+						filter: true,
+						width: 50
+					},
+					{
+						id: "ValidFrom",
+						name: "T{Valid from}",
+						field: "ValidFrom",
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "ValidTo", name: "T{Valid To}", field: "ValidTo", sortable: true, filter: true },
+					{
+						id: "CommonName",
+						name: "T{Common name (CN)}",
+						field: "CommonName",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{ id: "AppURI", name: "T{Application URI}", field: "AppURI", resizable: true, sortable: true, filter: true },
+					{
+						id: "DNS",
+						name: "T{DNS names (DNS)}",
+						field: "DNS",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "IP",
+						name: "T{IP addresses (IP)}",
+						field: "IPs",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "Issuer", name: "T{Issuer}", field: "Issuer", resizable: true, sortable: false, filter: true }
+				],
+				buttons: ["upload", "delete", "trust", "reject"]
+			},
+			{
+				label: "T{Issuers}",
+				key: CertificateTableTypes.ISSUER_CERTIFICATES,
+				columns: [
+					{
+						id: "Details",
+						name: "",
+						field: "Details",
+						resizable: false,
+						width: 10,
+						sortable: false,
+						formatter: function () {
+							const detailButton = webMI.rootWindow.document.createElement("div");
+							detailButton.innerHTML = `<i class="fa-solid fa-circle-info" style="cursor: pointer" title="Show Details"></i>`;
+							return detailButton.outerHTML;
+						}
+					},
+					{
+						id: "IssuerType",
+						name: "T{Issuer Type}",
+						field: "IssuerType",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Filename",
+						name: "T{Filename}",
+						field: "Filename",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "Valid",
+						name: "T{Valid}",
+						field: "atvise_certificate_validity",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "ValidFrom",
+						name: "T{Valid from}",
+						field: "ValidFrom",
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "ValidTo", name: "T{Valid To}", field: "ValidTo", sortable: true, filter: true },
+					{
+						id: "CommonName",
+						name: "T{Common name (CN)}",
+						field: "CommonName",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{ id: "Issuer", name: "T{Issuer}", field: "Issuer", resizable: true, sortable: false, filter: true }
+				],
+				buttons: ["upload", "delete"]
+			},
+			{
+				label: "T{Users}",
+				key: CertificateTableTypes.USER_CERTIFICATES,
+				columns: [
+					{
+						id: "Details",
+						name: "",
+						field: "Details",
+						resizable: false,
+						width: 10,
+						sortable: false,
+						formatter: function () {
+							const detailButton = webMI.rootWindow.document.createElement("div");
+							detailButton.innerHTML = `<i class="fa-solid fa-circle-info" style="cursor: pointer" title="Show Details"></i>`;
+							return detailButton.outerHTML;
+						}
+					},
+					{
+						id: "IssuerType",
+						name: "T{Issuer Type}",
+						field: "IssuerType",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Filename",
+						name: "T{Filename}",
+						field: "Filename",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "Username",
+						name: "T{Username}",
+						field: "CommonName",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Valid",
+						name: "T{Valid}",
+						field: "atvise_certificate_validity",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "ValidFrom",
+						name: "T{Valid from}",
+						field: "ValidFrom",
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "ValidTo", name: "T{Valid To}", field: "ValidTo", sortable: true, filter: true },
+					{ id: "Issuer", name: "T{Issuer}", field: "Issuer", resizable: true, sortable: false, filter: true }
+				],
+				buttons: ["upload", "delete"]
+			},
+			{
+				label: "T{User Issuers}",
+				key: CertificateTableTypes.USER_ISSUER_CERTIFICATES,
+				columns: [
+					{
+						id: "Details",
+						name: "",
+						field: "Details",
+						resizable: false,
+						width: 10,
+						sortable: false,
+						formatter: function () {
+							const detailButton = webMI.rootWindow.document.createElement("div");
+							detailButton.innerHTML = `<i class="fa-solid fa-circle-info" style="cursor: pointer" title="Show Details"></i>`;
+							return detailButton.outerHTML;
+						}
+					},
+					{
+						id: "IssuerType",
+						name: "T{Issuer Type}",
+						field: "IssuerType",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Filename",
+						name: "T{Filename}",
+						field: "Filename",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "Valid",
+						name: "T{Valid}",
+						field: "atvise_certificate_validity",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "ValidFrom",
+						name: "T{Valid from}",
+						field: "ValidFrom",
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "ValidTo", name: "T{Valid To}", field: "ValidTo", sortable: true, filter: true },
+					{
+						id: "CommonName",
+						name: "T{Common name (CN)}",
+						field: "CommonName",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{ id: "Issuer", name: "T{Issuer}", field: "Issuer", resizable: true, sortable: false, filter: true }
+				],
+				buttons: ["upload", "delete"]
+			}
+		]
+	},
+	{
+		key: TableStores.HTTPS,
+		label: "T{HTTPS}",
+		children: [
+			{
+				label: "T{Own}",
+				key: CertificateTableTypes.OWN_CERTIFICATES,
+				columns: [
+					{
+						id: "Details",
+						name: "",
+						field: "Details",
+						resizable: false,
+						width: 10,
+						sortable: false,
+						formatter: function () {
+							const detailButton = webMI.rootWindow.document.createElement("div");
+							detailButton.innerHTML = `<i class="fa-solid fa-circle-info" style="cursor: pointer" title="Show Details"></i>`;
+							return detailButton.outerHTML;
+						}
+					},
+					{
+						id: "IssuerType",
+						name: "T{Issuer Type}",
+						field: "IssuerType",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "Valid",
+						name: "T{Valid}",
+						field: "atvise_certificate_validity",
+						sortable: true,
+						filter: true,
+						width: 50
+					},
+					{
+						id: "Filename",
+						name: "T{Filename}",
+						field: "Filename",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: true
+					},
+					{ id: "ValidFrom", name: "T{Valid from}", field: "ValidFrom", sortable: true, filter: true, visible: false },
+					{ id: "ValidTo", name: "T{Valid To}", field: "ValidTo", sortable: true, filter: true },
+					{
+						id: "CommonName",
+						name: "T{Common name (CN)}",
+						field: "CommonName",
+						resizable: true,
+						sortable: true,
+						filter: true
+					},
+					{ id: "AppURI", name: "T{Application URI}", field: "AppURI", resizable: true, sortable: true, filter: true },
+					{
+						id: "DNS",
+						name: "T{DNS names (DNS)}",
+						field: "DNS",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{
+						id: "IP",
+						name: "T{IP addresses (IP)}",
+						field: "IPs",
+						resizable: true,
+						sortable: true,
+						filter: true,
+						visible: false
+					},
+					{ id: "Issuer", name: "T{Issuer}", field: "Issuer", resizable: true, sortable: true, filter: true }
+				],
+				buttons: ["upload", "delete", "create"]
+			}
+		]
+	}
+];
+
+function addColumnProperties(menuTree) {
+	menuTree.forEach((section) => {
+		section.children.forEach((subsection) => {
+			subsection.columns.forEach((column) => {
+				if (column.id === "Details") {
+					column.width = 10;
+					column.resizable = false;
+					column.cssClass = "slick-cell-center";
+				}
+
+				if (column.id === "IssuerType") {
+					column.width = 120;
+					column.resizable = false;
+					column.cssClass = "slick-cell-center";
+				}
+
+				if (column.id === "Type") {
+					column.width = 100;
+					column.resizable = false;
+					column.cssClass = "slick-cell-center";
+					column.formatter = typeFormatter;
+				}
+
+				if (column.id === "Valid") {
+					column.width = 88;
+					column.resizable = false;
+					column.cssClass = "slick-cell-center";
+					column.filterExtension = [
+						{
+							value: "",
+							textContent: "T{All}"
+						},
+						{
+							value: "true",
+							textContent: "T{Valid}"
+						},
+						{ value: "false", textContent: "T{Invalid}" }
+					];
+					column.formatter = validityFormatter;
+				}
+
+				if (column.id === "ValidTo") {
+					column.width = 130;
+					column.resizable = false;
+					column.cssClass = "slick-cell-center";
+				}
+
+				if (column.id === "ValidFrom") {
+					column.width = 130;
+					column.resizable = false;
+					column.cssClass = "slick-cell-center";
+				}
+
+				if (column.id === "Issuer") {
+					column.cssClass = "slick-cell-center";
+				}
+			});
+		});
+	});
+}
+
+addColumnProperties(menuTree);
+
+const config = {
+	mode: "once",
+	options: { clear_table: false },
+	onHeaderClickCallback: function (_e, clickInfo) {
+		switch (clickInfo.column.field) {
+			case "atvise_marker":
+				setButtonsActive(tableControllerCertificates.getSelectedItems().length != 0);
+				break;
+			default:
+				break;
+		}
+	},
+	onClickCallback: function (_e, clickInfo) {
+		switch (clickInfo.column.field) {
+			case "atvise_marker":
+				setButtonsActive(tableControllerCertificates.getSelectedItems().length != 0);
+				break;
+			case "Details":
+				// Build two dimensional array from row data and pass it to details view
+				showCertificateDetails(buildTwoDimensionalArray(clickInfo.item.rawCertificate));
+				break;
+			default:
+				break;
+		}
+	},
+	dataRequestFunction: function () {}
+};
+
+function setButtonsActive(state) {
+	webMI.trigger.fire("com.atvise.setActive", state, "btn_trust");
+	webMI.trigger.fire("com.atvise.setActive", state, "btn_delete");
+	webMI.trigger.fire("com.atvise.setActive", state, "btn_reject");
+}
+
+function validityFormatter(_row, _cell, value, _columnDef, _dataContext, _grid) {
+	if (value === true) {
+		return "✓";
+	} else if (value === false) {
+		return "✗";
+	} else {
+		return "?";
+	}
+}
+
+/**
+ * Normalizes the display of TRUSTED and REJECTED certificate types.
+ *
+ * If the type is "USERS_TRUSTED" or "USERS_REJECTED", the "USERS_" prefix is removed
+ * for a cleaner UI. All other values remain unchanged.
+ */
+function typeFormatter(_row, _cell, value, _columnDef, _dataContext, _grid) {
+	if (value === "USERS_TRUSTED") return "TRUSTED";
+	if (value === "USERS_REJECTED") return "REJECTED";
+	return value; // Leave everything else untouched
+}
+
+function buildTwoDimensionalArray(obj) {
+	const result = [];
+
+	// Recursive function to handle nested arrays and objects
+	function processValue(value) {
+		if (Array.isArray(value)) {
+			return value
+				.map((item) => {
+					return typeof item === "object" ? JSON.stringify(item, null, 2) : item;
+				})
+				.join(", ");
+		} else if (typeof value === "object" && value !== null) {
+			return JSON.stringify(value, null, 2);
+		} else {
+			return value;
+		}
+	}
+
+	// Iterate over the object's properties
+	for (const [key, value] of Object.entries(obj)) {
+		const processedValue = processValue(value, key);
+		result.push([key, processedValue]);
+	}
+
+	return result;
+}
+
+function createTableCallback() {
+	tableControllerCertificates = webMI.table.request(timestampedTableID, "controller");
+	initializeStoreComboboxAndSelectItem();
+
+	const selectorHeaderIcon = webMI.rootWindow.document.createElement("i");
+	selectorHeaderIcon.className = "fas fa-check-square";
+	selectorHeaderIcon.style.pointerEvents = "none";
+
+	const selectorColumnName = webMI.rootWindow.document
+		.querySelector("[id^='slickgrid_'][id$='selector']")
+		.querySelector(".slick-column-name");
+	selectorColumnName.appendChild(selectorHeaderIcon);
+
+	reloadTable();
+}
+
+function createTable(callback) {
+	// Register and set up the table
+	const initialColumns = menuTree
+		.find((storeConfig) => storeConfig.key === currentStore)
+		.children.find((type) => type.key === currentTableType).columns;
+	config.columns = JSON.parse(JSON.stringify(initialColumns));
+	webMI.table.register(timestampedTableID, "config", config);
+	webMI.table.setReady(timestampedTableID, "config");
+	webMI.table.waitReady(timestampedTableID, "controller", callback);
+}
+
+// Wait for the table to be ready and then set up additional UI elements
+createTable(createTableCallback);
+
+/**
+ * Retrieves the SlickGrid table column configuration for the current store and type from the `menuTree`.
+ *
+ * This function filters the `menuTree` to find the store matching the `currentStore` value,
+ * then filters the children of that store to find the type matching the `currentType` value.
+ * It returns the `columns` configuration of the matched type, if found.
+ *
+ * @returns {Array} The SlickGrid columns configuration for the current store and type, or an empty array if not found.
+ */
+function getTableConfig(options) {
+	const checkmarkColumn = tableControllerCertificates.columns.filter((c) => c.id === "atvise_marker")[0];
+	if (!Array.isArray(menuTree) || typeof currentStore !== "string" || typeof currentTableType !== "string") {
+		console.error("Invalid menuTree, currentStore, or currentType");
+		return [];
+	}
+
+	const store = menuTree.find((store) => store.key === currentStore);
+	if (!store || !Array.isArray(store.children)) {
+		console.error("Store not found or invalid children");
+		return [];
+	}
+
+	const type = store.children.find((child) => child.key === currentTableType);
+	if (!type || !Array.isArray(type.columns)) {
+		console.error("Type not found or invalid columns");
+		return [];
+	}
+
+	// Since we are updating the column
+	if (!type.columns.find((col) => col.id === "atvise_marker")) {
+		type.columns.unshift(checkmarkColumn);
+	}
+
+	let eligibleColumns;
+
+	if (options && "onlyVisible" in options && options.onlyVisible) {
+		eligibleColumns = type.columns.filter((column) => column.visible !== false);
+	} else {
+		eligibleColumns = type.columns;
+	}
+
+	eligibleColumns.forEach((column) => {
+		column.headerCssClass = "slick-header-column-center";
+	});
+
+	return eligibleColumns;
+}
+
+setButtonsActive(false);
+
+if (webMI.isRedundant()) {
+	webMI.gfx.setVisible("btn_sync_stores", true);
+	webMI.gfx.setVisible("header_sync_stores", true);
+	webMI.gfx.setVisible("seperator_sync_stores", true);
+	webMI.gfx.setMoveX("action_group", -130);
+}
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (trigger) {
+		if (trigger.value === undefined) {
+			// Values for combobox not set yet.
+			trigger.value = currentStore;
+		}
+
+		const storeKey = trigger.value;
+		const typeList = menuTree.find((store) => {
+			return store.key === storeKey;
+		}).children;
+
+		const dropDownList = typeList.map((type) => {
+			return { text: type.label, value: type.key };
+		});
+
+		currentStore = storeKey;
+
+		webMI.trigger.fire("setItems", dropDownList, "type_picker");
+		webMI.trigger.fire("setSelectedItem", dropDownList[0].text, "type_picker");
+	},
+	"store_picker"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	async function (trigger) {
+		currentTableType = trigger.value;
+
+		await reloadTable(currentStore, TableToCertificateTypes[currentTableType]);
+	},
+	"type_picker"
+);
+
+webMI.trigger.connect("com.atvise.upload_certificate", (trigger) => {
+	const file1 = trigger.value.file1;
+	const file2 = trigger.value.file2;
+	const sharedName = trigger.value.sharedName;
+
+	certificateManager
+		.upload(currentStore, TableToCertificateTypes[currentTableType][0], [file1, file2], sharedName, currentStore)
+		.then(() => {
+			toast.show("T{File uploaded successfully.}", "success");
+			reloadTable();
+		})
+		.catch((err) => {
+			toast.show(err, "error");
+			reloadTable();
+		});
+});
+
+webMI.trigger.connect(
+	"clicked",
+	() => {
+		showCertificateUploadDialog();
+	},
+	"btn_upload"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	() => {
+		showCertificateForm();
+	},
+	"btn_create"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	() => {
+		reloadTable();
+	},
+	"btn_reload"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	() => {
+		const certificatesToTrust = tableControllerCertificates.getSelectedItems().map((row) => {
+			return { name: row.rawCertificate.name, type: row.Type };
+		});
+		const trustPromises = certificatesToTrust.map((certificateToTrust) => {
+			return certificateManager
+				.trust(currentStore, certificateToTrust.type, certificateToTrust.name)
+				.then(() => {
+					toast.show(`<b>${certificateToTrust.name}</b>` + ": T{Certificate trusted successfully.}", "success");
+				})
+				.catch((err) => {
+					toast.show(`<b>${certificateToTrust.name}: </b>${err}`, "error");
+				});
+		});
+
+		// Wait for all promises to be fulfilled before calling reloadTable
+		Promise.all(trustPromises).then(() => {
+			reloadTable(); // This will be called once all promises are fulfilled
+		});
+	},
+	"btn_trust"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	() => {
+		const certificatesToReject = tableControllerCertificates.getSelectedItems().map((row) => {
+			return { name: row.rawCertificate.name, type: row.Type };
+		});
+		const rejectPromises = certificatesToReject.map((certificateToReject) => {
+			console.log(currentStore, certificateToReject.type, certificateToReject.name);
+			return certificateManager
+				.reject(currentStore, certificateToReject.type, certificateToReject.name)
+				.then(() => {
+					toast.show(`<b>${certificateToReject.name}</b>` + ": T{Certificate rejected successfully.}", "success");
+				})
+				.catch((err) => {
+					toast.show(`<b>${certificateToReject.name}: </b>${err}`, "error");
+				});
+		});
+
+		// Wait for all promises to be fulfilled before calling reloadTable
+		Promise.all(rejectPromises).then(() => {
+			reloadTable(); // This will be called once all promises are fulfilled
+		});
+	},
+	"btn_reject"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	() => {
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_sync_stores");
+		certificateManager
+			.syncStores()
+			.then(() => {
+				webMI.trigger.fire("com.atvise.setActive", true, "btn_sync_stores");
+				toast.show("T{Certificate stores successfully synchronized.}", "success");
+			})
+			.catch((err) => {
+				toast.show(`T{Syncing error}: ${err}`, "error");
+				webMI.trigger.fire("com.atvise.setActive", true, "btn_sync_stores");
+			});
+	},
+	"btn_sync_stores"
+);
+
+webMI.trigger.connect("com.atvise.createCertificate", (trigger) => {
+	const commonName = trigger.value.commonName;
+	const certificateName = commonName;
+
+	certificateManager
+		.create(currentStore, certificateName, commonName)
+		.then(() => {
+			toast.show(`<b>${commonName}</b>` + ": T{Certificate created successfully.}", "success");
+			reloadTable();
+		})
+		.catch((err) => {
+			toast.show(err, "error");
+			reloadTable();
+		});
+});
+
+webMI.trigger.connect(
+	"clicked",
+	() => {
+		showDeletePrompt();
+	},
+	"btn_delete"
+);
+
+webMI.trigger.connect("com.atvise.deleteCertificates", function (trigger) {
+	const promptWindow = trigger.value;
+
+	const certificatesToDelete = tableControllerCertificates.getSelectedItems().map((row) => ({
+		fileName: row.rawCertificate.name,
+		intType: row.Type || TableToCertificateTypes[currentTableType]
+	}));
+
+	const deletePromises = certificatesToDelete.map((certificateToDelete) => {
+		let certType;
+
+		if (TableToCertificateTypes[currentTableType].length > 1) {
+			certType = [certificateToDelete.intType];
+		} else {
+			certType = TableToCertificateTypes[currentTableType];
+		}
+
+		return certificateManager
+			.delete(currentStore, certType, certificateToDelete.fileName)
+			.then(() => {
+				toast.show(`<b>${certificateToDelete.fileName}</b>: T{Certificate deleted successfully.}`, "success");
+			})
+			.catch((err) => {
+				toast.show(`<b>${certificateToDelete.fileName}: </b>${err}`, "error");
+			});
+	});
+
+	// Wait for all promises to be fulfilled before calling reloadTable
+	Promise.all(deletePromises).then(() => {
+		reloadTable(); // This will be called once all promises are fulfilled
+	});
+
+	promptWindow.close();
+});
+
+function formatDate(timestring) {
+	if (!timestring) return ""; // Return empty if no input
+	// Convert 'YYYY-MM-DDTHH:MM:SS.sssZ' to 'YYYY-MM-DD HH:MM:SS'
+	// e.g. "2024-05-07T22:00:00.000Z" -> "2024-05-07 22:00:00"
+	return timestring.split(".")[0].replace("T", " ");
+}
+
+// Helper function to map fields from backend data to the table row
+function mapFieldsToColumns(columns, certificate) {
+	const rowData = {
+		rawCertificate: {
+			name: certificate.name,
+			...certificate.data
+		}
+	};
+
+	columns.forEach(({ field }) => {
+		switch (field) {
+			case "atvise_certificate_validity":
+				rowData[field] = new Date(certificate.data.fields.validTo) > new Date();
+				break;
+
+			case "Type":
+				rowData[field] = certificate.type;
+				break;
+
+			case "IssuerType":
+				rowData[field] = certificate.issuerType;
+				break;
+
+			case "ValidFrom":
+				rowData[field] = formatDate(certificate.data.fields.validFrom);
+				break;
+
+			case "ValidTo":
+				rowData[field] = formatDate(certificate.data.fields.validTo);
+				break;
+
+			case "Filename":
+				rowData[field] = certificate.name;
+				break;
+
+			case "CommonName":
+				rowData[field] = certificate.data.subject?.commonName || "";
+				break;
+
+			case "AppURI":
+				rowData[field] = certificate.data.subjectAltName?.uri || "";
+				break;
+
+			case "DNS":
+				rowData[field] = certificate.data.subjectAltName?.dnsNames?.join(", ") || "";
+				break;
+
+			case "IPs":
+				rowData[field] = certificate.data.subjectAltName?.ipAddresses?.join(", ") || "";
+				break;
+
+			case "Issuer":
+				rowData[field] = certificate.data.issuer?.commonName || "";
+				break;
+
+			default:
+				rowData[field] = certificate[field] || "";
+				break;
+		}
+	});
+
+	return rowData;
+}
+
+function initializeStoreComboboxAndSelectItem() {
+	const storeList = menuTree.map((store) => {
+		return { text: store.label, value: store.key };
+	});
+	webMI.trigger.fire("setItems", storeList, "store_picker");
+	webMI.trigger.fire("setSelectedItem", storeList[0].text, "store_picker");
+}
+
+/**
+ * Reloads the certificate data table for the current store and type.
+ *
+ * Fetches certificates, updates the table, and handles errors. Clears existing data
+ * and configures columns before reloading.
+ *
+ * @async
+ * @returns {Promise<void>} Resolves when the table reload is complete.
+ */
+async function reloadTable() {
+	if (reloadInProgress) {
+		return;
+	}
+
+	reloadInProgress = true;
+	webMI.trigger.fire("com.atvise.setActive", false, "btn_reload");
+	tableControllerCertificates.clearData();
+	tableControllerCertificates.grid.setColumns(getTableConfig({ onlyVisible: true }));
+	tableControllerCertificates.gridMenu.setColumns(getTableConfig());
+
+	// When reloading, we implicitly reset all checkmarks to not-checked, so we
+	//  also need to reset the state of the action buttons.
+	setButtonsActive(false);
+
+	try {
+		await certificateManager
+			.list(currentStore, TableToCertificateTypes[currentTableType])
+			.then((certificates) => {
+				// Map server data to a flat structure based on the table's columns.
+				let tableData = certificates.map((certificate) => {
+					return mapFieldsToColumns(getTableConfig(), certificate);
+				});
+
+				currentTableData = tableData;
+
+				tableControllerCertificates.addData({ result: tableData });
+				setTimeout(() => {
+					reloadInProgress = false;
+					webMI.trigger.fire("com.atvise.setActive", true, "btn_reload");
+				}, 250);
+			})
+			.catch((error) => {
+				if (!error.message.includes("bad user access denied")) {
+					console.error(`Error fetching data:`, error);
+				}
+				showExceptionMessage(error);
+				reloadInProgress = false;
+				webMI.trigger.fire("com.atvise.setActive", true, "btn_reload");
+				return { result: [] };
+			});
+	} catch (error) {
+		console.error("Error updating table:", error);
+		showExceptionMessage(error);
+		reloadInProgress = false;
+		webMI.trigger.fire("com.atvise.setActive", true, "btn_reload");
+	}
+
+	const visibleButtons = menuTree
+		.find((store) => store.key === currentStore)
+		.children.find((child) => child.key === currentTableType).buttons;
+
+	buttons.forEach((button) => {
+		webMI.gfx.setVisible(`btn_${button}`, false);
+	});
+
+	visibleButtons.forEach((visibleButton) => {
+		webMI.gfx.setVisible(`btn_${visibleButton}`, null);
+	});
+}
+
+/**
+ * Displays an error message in a dialog window.
+ *
+ * Opens a modal dialog to inform the user of an exception, showing the provided exception message.
+ *
+ * @param {Error} exception - The exception object containing the error message to display.
+ * @returns {void}
+ */
+function showExceptionMessage(exception) {
+	let message;
+	if (exception.message.includes("bad user access denied")) {
+		message = "T{Permission(s) missing for certificate management!}";
+	} else {
+		message = exception.message;
+	}
+
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+		height: 140 + POPUP_TITLE_BAR_HEIGHT,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		title: "T{Error}",
+		query: {
+			headline: "T{Error}",
+			message: message,
+			button: "T{OK}"
+		}
+	});
+	return;
+}
+
+/**
+ * Displays a success message in a dialog window.
+ *
+ * Opens a modal dialog to inform the user of a successful operation, showing the provided message.
+ *
+ * @param {string} message - The success message to display.
+ * @returns {void}
+ */
+function showSuccessMessage(message) {
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+		height: 140 + POPUP_TITLE_BAR_HEIGHT,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		title: "T{Info}",
+		query: {
+			headline: "T{Info}",
+			message: message,
+			button: "T{OK}"
+		}
+	});
+
+	return;
+}
+
+/**
+ * Displays the endpoint form for certificate management in a modal dialog.
+ *
+ * Opens a modal window that allows users to view or edit endpoint details for certificates.
+ * The form includes fields such as application URI, paths for storing certificates, and
+ * various organizational details.
+ *
+ * @returns {void}
+ */
+function showCertificateForm() {
+	const defaults = {};
+
+	certificateManager
+		.getDefaults(currentStore)
+		.then((serverDefaults) => {
+			Object.assign(defaults, {
+				applicationUri: serverDefaults.data.subjectAltName.uri,
+				pathToStore: serverDefaults.storePath,
+				pathToCertIni: serverDefaults.iniPath,
+				commonName: serverDefaults.data.subject.commonName,
+				country: serverDefaults.data.subject.country,
+				dnsName: serverDefaults.data.subjectAltName.dnsNames,
+				ipAddress: serverDefaults.data.subjectAltName.ipAddresses,
+				locality: serverDefaults.data.subject.locality,
+				organization: serverDefaults.data.subject.organization,
+				organizationalUnit: serverDefaults.data.subject.organizationalUnit,
+				state: serverDefaults.data.subject.state,
+				certificate_description: `${currentStore}/${TableToCertificateTypes[currentTableType]}`,
+				validity: serverDefaults.data.fields.validTime,
+				keyLength: serverDefaults.data.fields.keyLength
+			});
+
+			webMI.display.openWindow({
+				display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.admin.dialogs.certificates_endpoint_editor",
+				height: 630 + POPUP_TITLE_BAR_HEIGHT,
+				width: 1013,
+				modal: true,
+				resizable: false,
+				movable: true,
+				scrollbars: false,
+				menubar: false,
+				status: false,
+				toolbar: false,
+				title: "T{New Self-Signed Certificate}",
+				query: defaults
+			});
+		})
+		.catch((err) => {
+			toast.show(err, "error");
+		});
+}
+
+/**
+ * Displays the endpoint form for certificate management in a modal dialog.
+ *
+ * Opens a modal window that allows users to view or edit endpoint details for certificates.
+ * The form includes fields such as application URI, paths for storing certificates, and
+ * various organizational details.
+ *
+ * @returns {void}
+ */
+function showCertificateDetails(certificateData) {
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.admin.dialogs.certificate_details_viewer",
+		height: 800 + POPUP_TITLE_BAR_HEIGHT,
+		width: 500,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		title: "T{Certificate Details}",
+		query: {
+			certificateData: JSON.stringify(certificateData)
+		}
+	});
+}
+
+/**
+ * Opens a modal dialog for certificate uploads based on the current store and table type.
+ * Supports configurations for SERVER, MIRROR, and HTTPS stores with options
+ * for DER/PEM pairs or single-file uploads.
+ *
+ * @returns {void}
+ */
+
+function showCertificateUploadDialog() {
+	const configMapping = {
+		[TableStores.SERVER]: {
+			[CertificateTableTypes.OWN_CERTIFICATES]: {
+				certificate_description: "T{OPC UA DER/PEM-Pair}",
+				fileType1: "der",
+				fileType2: "pem",
+				file1Label: "T{Certificate (.der)} *",
+				file2Label: "T{Private Key (.pem)} *",
+				fileNameLabel: "T{Shared Filename} *"
+			},
+			[CertificateTableTypes.PEER_CERTIFICATES]: {
+				certificate_description: "T{OPC UA Client Certificate (DER)}",
+				fileType1: "der",
+				fileType2: "",
+				file1Label: "T{Certificate (.der)} *",
+				file2Label: "",
+				fileNameLabel: ""
+			},
+			[CertificateTableTypes.ISSUER_CERTIFICATES]: {
+				certificate_description: "T{OPC UA Client Certificate (DER)}",
+				fileType1: "der",
+				fileType2: "",
+				file1Label: "T{Certificate (.der)} *",
+				file2Label: "",
+				fileNameLabel: ""
+			},
+			[CertificateTableTypes.USER_PEER_CERTIFICATES]: {
+				certificate_description: "T{OPC UA Client Certificate (DER)}",
+				fileType1: "der",
+				fileType2: "",
+				file1Label: "T{Certificate (.der)} *",
+				file2Label: "",
+				fileNameLabel: ""
+			}
+		},
+		[TableStores.MIRROR]: {
+			[CertificateTableTypes.OWN_CERTIFICATES]: {
+				certificate_description: "T{OPC UA DER/PEM-Pair}",
+				fileType1: "der",
+				fileType2: "pem",
+				file1Label: "T{Certificate (.der)} *",
+				file2Label: "T{Private Key (.pem)} *",
+				fileNameLabel: "T{Shared Filename} *"
+			},
+			[CertificateTableTypes.PEER_CERTIFICATES]: {
+				certificate_description: "T{OPC UA Client Certificate (DER)}",
+				fileType1: "der",
+				fileType2: "",
+				file1Label: "T{Certificate (.der)} *",
+				file2Label: "",
+				fileNameLabel: ""
+			},
+			[CertificateTableTypes.ISSUER_CERTIFICATES]: {
+				certificate_description: "T{OPC UA Client Certificate (DER)}",
+				fileType1: "der",
+				fileType2: "",
+				file1Label: "T{Certificate (.der)} *",
+				file2Label: "",
+				fileNameLabel: ""
+			},
+			[CertificateTableTypes.USER_CERTIFICATES]: {
+				certificate_description: "T{OPC UA DER/PEM-Pair}",
+				fileType1: "der",
+				fileType2: "pem",
+				file1Label: "T{Certificate (.der)} *",
+				file2Label: "T{Private Key (.pem)} *",
+				fileNameLabel: "T{Shared Filename} *"
+			},
+			[CertificateTableTypes.USER_ISSUER_CERTIFICATES]: {
+				certificate_description: "T{OPC UA Client Certificate (DER)}",
+				fileType1: "der",
+				fileType2: "",
+				file1Label: "T{Certificate (.der)} *",
+				file2Label: "",
+				fileNameLabel: ""
+			}
+		},
+		[TableStores.HTTPS]: {
+			[CertificateTableTypes.OWN_CERTIFICATES]: {
+				certificate_description: "T{HTTPS Certificate (PEM)}",
+				fileType1: "pem",
+				fileType2: "",
+				file1Label: "T{Certificate (.pem)} *",
+				file2Label: "",
+				fileNameLabel: ""
+			}
+		}
+	};
+
+	let certificate_description = "T{Unknown certificate type}";
+	let fileType1 = "";
+	let fileType2 = "";
+	let file1Label = "";
+	let file2Label = "";
+	let fileNameLabel = "";
+
+	const storeConfig = configMapping[currentStore];
+	if (storeConfig) {
+		const tableTypeConfig = storeConfig[currentTableType];
+		if (tableTypeConfig) {
+			({ certificate_description, fileType1, fileType2, file1Label, file2Label, fileNameLabel } = tableTypeConfig);
+		}
+	}
+
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.admin.dialogs.certificate_upload",
+		height: 405 + POPUP_TITLE_BAR_HEIGHT,
+		width: 430,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		title: "T{Certificate Upload}",
+		query: {
+			certificate_description,
+			fileType1,
+			fileType2,
+			file1Label,
+			file2Label,
+			fileNameLabel
+		}
+	});
+}
+
+/**
+ * Displays a confirmation dialog for deleting selected certificates.
+ * Opens a modal dialog to prompt the user for confirmation before deleting the selected certificates.
+ *
+ * @returns {void}
+ */
+function showDeletePrompt() {
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog",
+		height: 240 + POPUP_TITLE_BAR_HEIGHT,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		title: "T{Delete Certificate}",
+		query: {
+			headline: "T{Delete Certificate}",
+			msg1: `T{Please confirm that you want to delete the selected certificates!}`,
+			btn1: "T{Delete}",
+			btn2: "T{Cancel}",
+			action_btn1: "com.atvise.deleteCertificates"
+		}
+	});
+}
+
+/**
+ * Represents a toast notification system for displaying temporary messages.
+ *
+ * The `Toast` class creates a fixed-position container in the browser window to
+ * show toast notifications with different types (info, success, error).
+ * Notifications automatically fade out after a specified duration.
+ */
+class Toast {
+	constructor() {
+		// Create the toast container
+		this.toastContainer = webMI.rootWindow.document.createElement("div");
+		this.toastContainer.style.position = "fixed";
+		this.toastContainer.style.top = "20px";
+		this.toastContainer.style.right = "20px";
+		this.toastContainer.style.zIndex = "9999";
+		this.toastContainer.style.fontFamily = "Arial,Helvetica Neue,Helvetica,sans-serif";
+		webMI.rootWindow.document.body.appendChild(this.toastContainer);
+	}
+
+	/**
+	 * Displays a toast notification with the specified message and type.
+	 *
+	 * @param {string} message - The message to display in the toast.
+	 * @param {string} [type='info'] - The type of the toast (info, success, error).
+	 * @param {number} [duration=3000] - The duration in milliseconds before the toast fades out.
+	 */
+	show(message, type = "info", duration = 3000) {
+		// Create a new toast element
+		const toast = webMI.rootWindow.document.createElement("div");
+		toast.innerHTML = message;
+		toast.style.minWidth = "250px";
+		toast.style.margin = "10px";
+		toast.style.padding = "15px";
+		toast.style.borderRadius = "5px";
+		toast.style.color = "#fff";
+		toast.style.opacity = "0.9";
+		toast.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+		toast.style.display = "flex";
+		toast.style.alignItems = "center";
+
+		// Set background color based on type
+		if (type === "success") {
+			toast.style.backgroundColor = "#4caf50"; // Green
+		} else if (type === "error") {
+			toast.style.backgroundColor = "#f44336"; // Red
+		} else {
+			toast.style.backgroundColor = "#2196F3"; // Blue (info)
+		}
+
+		// Add the toast to the container
+		this.toastContainer.appendChild(toast);
+
+		// Fade out the toast before removing it
+		setTimeout(() => {
+			toast.style.opacity = "0";
+			toast.style.transform = "translateY(-20px)";
+		}, duration - 500); // Fade out before the duration ends
+
+		// Remove the toast from the DOM after the duration
+		setTimeout(() => {
+			this.toastContainer.removeChild(toast);
+		}, duration);
+	}
+}
+
+const toast = new Toast();
+]]></code>
+</script>

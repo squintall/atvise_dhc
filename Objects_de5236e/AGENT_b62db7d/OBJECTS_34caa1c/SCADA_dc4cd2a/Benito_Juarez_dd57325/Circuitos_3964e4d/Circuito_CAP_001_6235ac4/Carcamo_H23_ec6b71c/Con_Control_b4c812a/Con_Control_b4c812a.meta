@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_H23.Con_Control
+NodeClass: Variable
+BrowseName: 1:Con_Control
+DisplayName: en|Con_Control
+Description: en|Con_Control
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

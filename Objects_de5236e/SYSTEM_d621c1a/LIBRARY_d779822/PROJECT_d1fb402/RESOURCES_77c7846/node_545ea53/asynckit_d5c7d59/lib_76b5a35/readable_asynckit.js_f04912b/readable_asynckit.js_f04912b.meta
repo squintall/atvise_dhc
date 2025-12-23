@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/asynckit/lib/readable_asynckit.js
+NodeClass: Variable
+BrowseName: 1:readable_asynckit.js
+DisplayName: en|readable_asynckit.js
+Description: en|readable_asynckit.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

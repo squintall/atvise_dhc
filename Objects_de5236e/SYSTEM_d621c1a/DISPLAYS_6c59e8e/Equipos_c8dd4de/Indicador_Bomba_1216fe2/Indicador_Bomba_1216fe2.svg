@@ -1,0 +1,551 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="180" width="300" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter desc="Nodo base" name="base" substitute="$base$" valuetype="address"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <!-- ARO -->
+ <rect atv:refpx="150" atv:refpy="90" fill="#f7f7f7" height="178" id="ring" rx="12" ry="12" stroke="#000000" stroke-width="1.2" width="298" x="1" y="1"/>
+ <!-- Contenido -->
+ <g atv:refpx="150.5" atv:refpy="82.75" id="card">
+  <!-- encabezado -->
+  <text atv:refpx="22" atv:refpy="16.5" font-family="Arial" font-size="16" font-weight="bold" id="title" x="14" y="22">—</text>
+  <!-- mantenimiento -->
+  <g atv:refpx="76" atv:refpy="37" id="mantTag" visibility="hidden">
+   <rect atv:refpx="76" atv:refpy="37" fill="#ffb300" height="18" id="id_0" rx="4" ry="4" width="124" x="14" y="28"/>
+   <text atv:refpx="76" atv:refpy="37" fill="#212121" font-family="Arial" font-size="11" font-weight="bold" id="id_1" text-anchor="middle" x="76" y="41">MANTENIMIENTO</text>
+  </g>
+  <!-- badges -->
+  <g atv:refpx="52" atv:refpy="61" id="badge_ma">
+   <rect atv:refpx="52" atv:refpy="62" fill="#1976d2" height="20" id="ma_bg" rx="5" ry="5" width="76" x="14" y="52"/>
+   <text atv:refpx="52" atv:refpy="61" fill="#fff" font-family="Arial" font-size="12.5" id="ma_txt" text-anchor="middle" x="52" y="66">AUTO</text>
+  </g>
+  <g atv:refpx="136" atv:refpy="61" id="badge_lr">
+   <rect atv:refpx="136" atv:refpy="62" fill="#00897b" height="20" id="lr_bg" rx="5" ry="5" width="76" x="98" y="52"/>
+   <text atv:refpx="136" atv:refpy="61" fill="#fff" font-family="Arial" font-size="12.5" id="lr_txt" text-anchor="middle" x="136" y="66">REM</text>
+  </g>
+  <g atv:refpx="215" atv:refpy="61" id="badge_fault" visibility="hidden">
+   <rect atv:refpx="215" atv:refpy="62" fill="#c62828" height="20" id="id_2" rx="5" ry="5" width="66" x="182" y="52"/>
+   <text atv:refpx="215" atv:refpy="61" fill="#fff" font-family="Arial" font-size="12.5" id="id_3" text-anchor="middle" x="215" y="66">FALLA</text>
+  </g>
+  <!-- pastilla de estado -->
+  <g atv:refpx="232" atv:refpy="15" id="status_pill">
+   <rect atv:refpx="232" atv:refpy="16" fill="#9e9e9e" height="20" id="status_bg" rx="10" ry="10" width="60" x="222" y="6"/>
+   <text atv:refpx="232" atv:refpy="15" fill="#fff" font-family="Arial" font-size="12.5" id="status_txt" text-anchor="middle" x="252" y="20">OFF</text>
+  </g>
+  <!-- mediciones -->
+  <text atv:refpx="28" atv:refpy="87" font-family="Arial" font-size="13" id="id_4" x="14" y="92">Freq:</text>
+  <text atv:refpx="56.5" atv:refpy="87" font-family="Arial" font-size="13" font-weight="bold" id="t_freq" x="50" y="92">—</text>
+  <text atv:refpx="115.5" atv:refpy="87" font-family="Arial" font-size="13" id="id_5" x="106" y="92">FP:</text>
+  <text atv:refpx="134.5" atv:refpy="87" font-family="Arial" font-size="13" font-weight="bold" id="t_fp" x="128" y="92">—</text>
+  <text atv:refpx="177" atv:refpy="87" font-family="Arial" font-size="13" id="id_6" x="166" y="92">kW:</text>
+  <text atv:refpx="200.5" atv:refpy="87" font-family="Arial" font-size="13" font-weight="bold" id="t_kw" x="194" y="92">—</text>
+  <text atv:refpx="33" atv:refpy="107" font-family="Arial" font-size="13" id="id_7" x="14" y="112">I prom:</text>
+  <text atv:refpx="70.5" atv:refpy="107" font-family="Arial" font-size="13" font-weight="bold" id="t_iavg" x="64" y="112">—</text>
+  <text atv:refpx="144" atv:refpy="107" font-family="Arial" font-size="13" id="id_8" x="132" y="112">Volt:</text>
+  <text atv:refpx="168.5" atv:refpy="107" font-family="Arial" font-size="13" font-weight="bold" id="t_vavg" x="162" y="112">—</text>
+  <!-- botones -->
+  <g atv:refpx="60" atv:refpy="149" id="btn_on">
+   <rect atv:refpx="60" atv:refpy="149" cursor="pointer" fill="#2e7d32" height="28" id="id_9" rx="9" ry="9" width="92" x="14" y="135"/>
+   <text atv:refpx="60" atv:refpy="148" cursor="pointer" fill="#fff" font-family="Arial" font-size="13.5" id="id_10" text-anchor="middle" x="60" y="153">ENCENDER</text>
+  </g>
+  <g atv:refpx="151" atv:refpy="149" id="btn_off">
+   <rect atv:refpx="151" atv:refpy="149" cursor="pointer" fill="#455a64" height="28" id="id_11" rx="9" ry="9" width="78" x="112" y="135"/>
+   <text atv:refpx="151" atv:refpy="148" cursor="pointer" fill="#fff" font-family="Arial" font-size="13.5" id="id_12" text-anchor="middle" x="151" y="153">APAGAR</text>
+  </g>
+  <g atv:refpx="219" atv:refpy="149" id="btn_ti">
+   <rect atv:refpx="219" atv:refpy="149" cursor="pointer" fill="#37474f" height="28" id="id_13" rx="9" ry="9" width="46" x="196" y="135"/>
+   <text atv:refpx="219" atv:refpy="148.5" cursor="pointer" fill="#fff" font-family="Arial" font-size="12" id="id_14" text-anchor="middle" x="219" y="153">T·I</text>
+  </g>
+  <g atv:refpx="269" atv:refpy="149" id="btn_tv">
+   <rect atv:refpx="269" atv:refpy="149" cursor="pointer" fill="#37474f" height="28" id="id_15" rx="9" ry="9" width="46" x="246" y="135"/>
+   <text atv:refpx="269" atv:refpy="148.5" cursor="pointer" fill="#fff" font-family="Arial" font-size="12" id="id_16" text-anchor="middle" x="269" y="153">T·V</text>
+  </g>
+ </g>
+ <!-- Botón engrane configuración -->
+ <g atv:refpx="271" atv:refpy="38" id="btn_settings" transform="matrix(1,0,0,1,-10,19)">
+  <rect atv:refpx="281" atv:refpy="19" cursor="pointer" fill="#000" fill-opacity="0" height="26" id="btn_settings_hit" width="26" x="268" y="6"/>
+  <circle atv:refpx="281" atv:refpy="19" cursor="pointer" cx="281" cy="19" fill="#1976d2" id="btn_settings_bg" r="9" stroke="#0d47a1" stroke-width="1.2"/>
+  <path atv:refpx="281" atv:refpy="19" cursor="pointer" d="M281,15L281,23M277,19L285,19M278.4,16.4L283.6,21.6M283.6,16.4L278.4,21.6" id="btn_settings_glyph" stroke="#fff" stroke-linecap="round" stroke-width="1.2"/>
+ </g>
+ <!-- ================== SCRIPT ================== -->
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[/* ====== Helpers ====== */
+const base = webMI.query["base"];
+const $   = (id)=>document.getElementById(id);
+const T   =(id,v)=>webMI.gfx.setText(id,v);
+const F   =(id,c)=>webMI.gfx.setFill(id,c);
+const S   =(id,c)=>webMI.gfx.setStroke(id,c);
+const V   =(id,on)=>webMI.gfx.setVisible(id,on);
+// Tooltip con fallback a atributo title
+const Tip =(id,txt)=>{
+  try {
+    if (webMI.gfx.setTooltip) { webMI.gfx.setTooltip(id, txt||""); return; }
+  } catch(_) {}
+  try { const el=$(id); if (el) el.setAttribute("title", txt||""); } catch(_) {}
+};
+// Cursor “pointer” con fallback
+function setCursor(id, cur){
+  try {
+    if (webMI.gfx.setCursor) { webMI.gfx.setCursor(id, cur); return; }
+  } catch(_) {}
+  try { const el=$(id); if (el) el.style.cursor = cur; } catch(_) {}
+}
+const BLINK = {0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false};
+
+/* ====== Pastilla de estado (auto-size) ====== */
+const PILL_CX = 252;   // centro horizontal deseado de la pastilla
+const PILL_Y  = 6;     // y del rect (alto 20, texto a y=20)
+
+/* ====== Viewport/Slots estáticos ====== */
+// Ventana principal (padre del padre)
+const TOP_VIEWPORT = { width: 1920, height: 890 };
+// Banda inferior (iframe padre de 6 hijos) @ (0,645), 1920x245 —solo informativo
+const PARENT6      = { x: 0, y: 645, width: 1920, height: 245 };
+// Cada slot 800x600 escalado a 300x180 con matrix(0.375,0,0,0.3)
+const SLOT_RECTS = {
+  eq01: { x: 10,   y: 673, w: 300, h: 180 },
+  eq02: { x: 330,  y: 673, w: 300, h: 180 },
+  eq03: { x: 650,  y: 673, w: 300, h: 180 },
+  eq04: { x: 970,  y: 673, w: 300, h: 180 },
+  eq05: { x: 1290, y: 673, w: 300, h: 180 },
+  eq06: { x: 1610, y: 673, w: 300, h: 180 },
+};
+function getActiveSlotId(){
+  const fm = (webMI.query && webMI.query.frameName) ? String(webMI.query.frameName) : "";
+  return (fm && SLOT_RECTS[fm]) ? fm : "eq01";
+}
+// Centro global de la ventana principal (padre del padre)
+function globalCenter(popupW, popupH){
+  return {
+    gx: Math.round((TOP_VIEWPORT.width  - popupW) / 2),
+    gy: Math.round((TOP_VIEWPORT.height - popupH) / 2)
+  };
+}
+// Convierte centro global -> offset local relativo al slot (permitiendo negativos)
+function localOffsetFromSlot(popupW, popupH, slotId){
+  const r = SLOT_RECTS[slotId] || SLOT_RECTS.eq01;
+  const { gx, gy } = globalCenter(popupW, popupH);
+  return { x: gx - r.x, y: gy - r.y }; // ← puede ser negativo en x/y
+}
+// DEBUG corto
+function logLocalCenter(tag, popupW, popupH){
+  const sId = getActiveSlotId();
+  const r = SLOT_RECTS[sId];
+  const { gx, gy } = globalCenter(popupW, popupH);
+  const { x, y } = localOffsetFromSlot(popupW, popupH, sId);
+  try {
+    console.groupCollapsed(`[${tag}] center (global→local)`);
+    console.log("slot:", sId, "rect:", r);
+    console.log("globalCenter:", {gx, gy}, "=> local xy:", {x, y});
+    console.groupEnd();
+  } catch(_) {}
+  return { x, y, sId, r, gx, gy };
+}
+
+/* ====== Estado (interlocks) ====== */
+let stMaint=false;     // mantenimiento
+let stLR=null;         // 'LOC' | 'REM' | null (solo lectura)
+let stMA=null;         // true=AUTO, false=MAN, null=sin dato
+let stStatusOn=null;   // true=ON, false=OFF, null=desconocido
+let lockClicks=false;  // retry en curso
+let canClickOn=true, canClickOff=true, canConfig=false;
+
+/* ====== Telemetrías / potencia ====== */
+let fp=null, iavg=null, vavg=null;
+let power_present=false, power_last=null;
+
+/* ====== Colores botón ====== */
+const COL_ON_EN  = "#2e7d32"; // habilitado (verde fuerte)
+const COL_OFF_EN = "#a5d6a7"; // deshabilitado (verde pálido)
+const COL_ON_OFFBTN  = "#c62828"; // habilitado (rojo fuerte)
+const COL_OFF_OFFBTN = "#bdbdbd"; // deshabilitado (gris)
+const COL_BUSY = "#546e7a";
+
+/* ====== Nodo de mando (.ON / .run_stop / .switch) ====== */
+let CMD_NODE = null;
+function resolveCommandNode(cb){
+  const candidates = [".ON", ".run_stop", ".switch"];
+  let i = 0;
+  (function tryNext(){
+    if (i>=candidates.length){ cb(null); return; }
+    const n = base + candidates[i++];
+    webMI.data.read(n, function(r){
+      if (r && (typeof r.value !== "undefined" || typeof r.status !== "undefined")){
+        CMD_NODE = n; cb(n);
+      } else { tryNext(); }
+    });
+  })();
+}
+resolveCommandNode(function(n){ if(n){} });
+
+/* ====== Tipografías / init textos ====== */
+try {
+  webMI.gfx.setFontFamily("title", "Arial");
+  webMI.gfx.setFontSize("title", "17");  // tamaños como string
+} catch (e) {}
+
+["t_freq","t_fp","t_kw","t_iavg","t_vavg"].forEach(id => {
+  try {
+    webMI.gfx.setFontFamily(id, "Arial");
+    webMI.gfx.setFontSize(id, "14");
+  } catch (e) {}
+  T(id, "—");
+});
+
+/* ====== Nombre ====== */
+webMI.data.read(base+".name", r=>{
+  const nm = (r && r.value) ? r.value : (base.split(".").pop()||"Equipo");
+  T("title", nm);
+});
+webMI.data.subscribe(base+".name", e=>{ if(e && e.value) T("title", e.value); });
+
+/* ====== Frecuencia ====== */
+webMI.data.subscribe(base+".freq", e=>{
+  const ok=(e.status===0)&&typeof e.value==="number";
+  T("t_freq", ok? (webMI.sprintf("%.1f Hz",e.value)) : "—");
+});
+
+/* ====== Potencia ====== */
+function showKW(kw, note){
+  if (kw==null || isNaN(kw)) { T("id_6","Pot:"); T("t_kw","—"); return; }
+  const v = Number(kw);
+  if (v < 1) { T("id_6","Pot:"); T("t_kw", Math.round(v*1000) + " W"); }
+  else { T("id_6","kW:"); T("t_kw", v.toFixed(2) + " kW"); }
+  Tip("t_kw", note || "");
+}
+function recalcKW(){
+  if (power_present && typeof power_last==="number" && power_last>0){
+    showKW(power_last, "Potencia de nodo .power");
+    return;
+  }
+  if (vavg!=null && iavg!=null){
+    const pf = (typeof fp === "number" && !isNaN(fp)) ? fp : 0.90;
+    const kw = (vavg * iavg * pf) / 1000.0;
+    showKW(kw, pf===0.90 ? "Estimado V×I×0.90" : "Estimado V×I×FP");
+    return;
+  }
+  showKW(null);
+}
+webMI.data.read(base+".power", r=>{
+  power_present = !!(r && typeof r.value !== "undefined");
+  if (power_present) power_last = (typeof r.value==="number") ? r.value : null;
+  recalcKW();
+  if (r){
+    webMI.data.subscribe(base+".power", e=>{
+      power_last = (typeof e.value==="number") ? e.value : null;
+      recalcKW();
+    });
+  }
+});
+webMI.data.read(base+".FP", r=>{
+  if (r && typeof r.value!=="undefined"){
+    webMI.data.subscribe(base+".FP", e=>{
+      fp = (typeof e.value==="number") ? e.value : null;
+      T("t_fp", fp==null? "—" : fp.toFixed(2));
+      recalcKW();
+    });
+  } else { T("t_fp","—"); }
+});
+const iTags=[".current",".current2",".current3"]; const iBuf={};
+iTags.forEach((suf,i)=>{
+  webMI.data.read(base+suf, r=>{
+    if (r && typeof r.value!=="undefined"){
+      webMI.data.subscribe(base+suf, e=>{
+        iBuf[i] = (typeof e.value==="number") ? e.value : null;
+        const vals=Object.values(iBuf).filter(x=>typeof x==="number");
+        iavg = vals.length? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+        T("t_iavg", iavg==null? "—" : (iavg.toFixed(1)+" A"));
+        recalcKW();
+      });
+    }
+  });
+});
+webMI.data.read(base+".voltage", r=>{
+  if (r && typeof r.value!=="undefined"){
+    webMI.data.subscribe(base+".voltage", e=>{
+      vavg = (typeof e.value==="number") ? e.value : null;
+      T("t_vavg", vavg==null? "—" : (Math.round(vavg)+" V"));
+      recalcKW();
+    });
+  } else { T("t_vavg","—"); }
+});
+
+/* ====== MAN/AUTO ====== */
+webMI.data.read(base+".MA", r=>{
+  if (r && typeof r.value!=="undefined"){
+    webMI.data.subscribe(base+".MA", e=>{
+      stMA = (e.value===true);
+      const man = (stMA===false);
+      T("ma_txt", man? "MAN" : "AUTO");
+      F("ma_bg", man? "#ef6c00" : "#1976d2");
+      applyInterlocks();
+    });
+  } else {
+    stMA=null; T("ma_txt","—"); F("ma_bg","#9e9e9e"); applyInterlocks();
+  }
+});
+Tip("ma_bg","Modo manual/automático (MA).");
+
+/* ====== LR SOLO LECTURA ====== */
+webMI.alarm.subscribe(base+".Alarma_Local.LR.Estado", e=>{
+  const isLocal = (e.state===1 || e.state===2);
+  stLR = isLocal? "LOC" : "REM";
+  T("lr_txt", stLR); F("lr_bg", isLocal? "#ffab4a" : "#00897b");
+  S("ring",  isLocal? "#ffab4a" : "#1e9eff");
+  applyInterlocks();
+});
+webMI.data.read(base+".loc_rem", r=>{
+  if (stLR!=null) return;
+  if (r && typeof r.value!=="undefined"){
+    webMI.data.subscribe(base+".loc_rem", e=>{
+      const isRem=(e.value===true);
+      stLR = isRem? "REM":"LOC";
+      T("lr_txt", stLR); F("lr_bg", isRem? "#00897b" : "#ffab4a");
+      S("ring",  isRem? "#1e9eff" : "#ffab4a");
+      applyInterlocks();
+    });
+  } else {
+    stLR=null; T("lr_txt","—"); F("lr_bg","#9e9e9e"); S("ring","#000000"); applyInterlocks();
+  }
+});
+Tip("lr_bg","Local/Remoto (selector físico en campo: solo lectura).");
+
+/* ====== Estado ON/OFF visual ====== */
+webMI.data.subscribe(base+".status", e=>{
+  const on = (e.value===true);
+  stStatusOn = on;
+  setStatusPill(on ? "ON" : "OFF", on ? "#43a047" : "#9e9e9e");
+  applyInterlocks();
+});
+
+/* ====== Falla ====== */
+webMI.data.subscribe(base+".fault", e=>{
+  const fault = (e.value===true);
+  const id = "badge_fault";
+
+  try {
+    if (fault) {
+      // Parpadeo por visibilidad (si no lo soporta, el try/catch lo ignora)
+      V(id, {0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false});
+    } else {
+      V(id, false);
+    }
+  } catch(_) {}
+
+  Tip(id, fault ? "Falla activa" : "");
+});
+
+/* ====== Mantenimiento ====== */
+function applyMaint(on){
+  stMaint=!!on; V("mantTag", stMaint); applyInterlocks();
+}
+webMI.data.read(base+".maintenance", r=>{
+  applyMaint(r && r.value);
+});
+webMI.data.subscribe(base+".maintenance", e=>{
+  applyMaint(e.value);
+});
+Tip("mantTag","Equipo en mantenimiento");
+
+/* ====== Helpers visuales de botones ====== */
+function setBtnFill(idRect, color){ try{ F(idRect, color); }catch(e){} }
+function reflectButtonsState(encEnabled, apgEnabled){
+  setBtnFill("id_9", encEnabled ? COL_ON_EN : COL_OFF_EN);
+  setBtnFill("id_11", apgEnabled ? COL_ON_OFFBTN : COL_OFF_OFFBTN);
+  canClickOn  = !!encEnabled;
+  canClickOff = !!apgEnabled;
+  Tip("btn_on",  encEnabled ? "T{Enviar orden de encendido}" : "T{Encender bloqueado}");
+  Tip("btn_off", apgEnabled ? "T{Enviar orden de apagado}"   : "T{Apagar bloqueado}");
+}
+
+/* ====== Interlocks + MUTUA EXCLUSIÓN ====== */
+function applyInterlocks(){
+  let baseEnable = true;
+  if (stMaint) baseEnable=false;
+  if (stLR==="LOC") baseEnable=false; // ON/OFF requiere REM
+  if (stMA===true) baseEnable=false;
+  if (lockClicks) baseEnable=false;
+
+  // Config solo bloquea por mantenimiento
+  canConfig = !stMaint;
+  try{ F("id_17", canConfig? "#1976d2" : "#9e9e9e"); }catch(e){}
+
+  if (!baseEnable){
+    reflectButtonsState(false, false);
+  } else {
+    if (stStatusOn===true){
+      reflectButtonsState(false, true);
+    } else if (stStatusOn===false){
+      reflectButtonsState(true, false);
+    } else {
+      reflectButtonsState(true, true);
+    }
+  }
+}
+
+/* ====== Retry ON/OFF ====== */
+function ensureCmdNode(doWork){
+  if (CMD_NODE){ doWork(CMD_NODE); return; }
+  resolveCommandNode(function(n){
+    if (!n){ return; }
+    doWork(n);
+  });
+}
+function commandWithRetry(desiredOn){
+  if (lockClicks) { return; }
+  if (stMaint) { return; }
+  if (stLR!=="REM") { return; }
+  if (stMA===true) { return; }
+  if (desiredOn && !canClickOn)  return;
+  if (!desiredOn && !canClickOff) return;
+  lockClicks=true; applyInterlocks();
+  setStatusPill(desiredOn ? "ENC…" : "APG…", COL_BUSY);
+  const MAX=3, GAP=10000;
+  let attempt=0, timer=null;
+  const finish=(ok)=>{
+    if (timer) clearTimeout(timer);
+    lockClicks=false; applyInterlocks();
+    if (!ok){
+      setStatusPill("FALLO", "#c62828");
+      setTimeout(()=> webMI.data.read(base+".status",r=>{
+        const on = r && r.value===true;
+        setStatusPill(on ? "ON" : "OFF", on ? "#43a047" : "#9e9e9e");
+      }), 1200);
+    }
+  };
+  const tryOnce=(cmdNode)=>{
+    attempt++;
+    const valNum = desiredOn ? 1 : 0;
+    webMI.data.write(cmdNode, valNum, function(){
+      setTimeout(()=>{
+        webMI.data.read(base+".status", r=>{
+          const ok = r && r.value === desiredOn;
+          if (ok){ finish(true); return; }
+          webMI.data.write(cmdNode, !!desiredOn, function(){
+            setTimeout(()=>{
+              webMI.data.read(base+".status", r2=>{
+                const ok2 = r2 && r2.value === desiredOn;
+                if (ok2){ finish(true); }
+                else if (attempt < MAX){
+                  setStatusPill((desiredOn? "ENC " : "APG ") + attempt + "/" + MAX, COL_BUSY);
+                  timer = setTimeout(()=>tryOnce(cmdNode), GAP);
+                } else {
+                  finish(false);
+                }
+              });
+            }, 1000);
+          });
+        });
+      }, 900);
+    });
+  };
+  ensureCmdNode(tryOnce);
+}
+
+/* ====== Eventos ON/OFF ====== */
+webMI.addEvent("btn_on","click", function(){
+  commandWithRetry(true);
+});
+webMI.addEvent("btn_off","click", function(){
+  commandWithRetry(false);
+});
+Tip("btn_on","Enviar orden de encendido (respeta LR/MA/Mtto)");
+Tip("btn_off","Enviar orden de apagado (respeta LR/MA/Mtto)");
+
+/* ====== Tendencia Corriente (centrado por slot + nombre de equipo) ====== */
+webMI.addEvent("btn_ti","click", ()=> {
+  const equipo = (() => {
+    const raw = (webMI.query.base || "").split(".").pop() || "Equipo";
+    return raw.replace(/_/g, " ").replace(/\b0+(\d)\b/g, "$1");
+  })();
+  const { x, y } = localOffsetFromSlot(1912, 564, getActiveSlotId());
+  try { console.log("[btn_ti] local xy:", {x, y}); } catch(_) {}
+  webMI.display.openWindow({
+    display:"SYSTEM.DISPLAYS.Equipos.Amp_Freq_STS",
+    title: "Tendencia Corriente — " + equipo,
+    query:webMI.query, extern:false, width:1912, height:564, x, y,
+    menubar:false, modal:false, movable:true, resizable:true,
+    scrollbars:false, status:false, toolbar:false
+  });
+});
+
+/* ====== Tendencia Voltaje (centrado por slot + nombre de equipo) ====== */
+webMI.addEvent("btn_tv","click", ()=> {
+  const equipo = (() => {
+    const raw = (webMI.query.base || "").split(".").pop() || "Equipo";
+    return raw.replace(/_/g, " ").replace(/\b0+(\d)\b/g, "$1");
+  })();
+  const { x, y } = localOffsetFromSlot(1912, 564, getActiveSlotId());
+  try { console.log("[btn_tv] local xy:", {x, y}); } catch(_) {}
+  webMI.display.openWindow({
+    display:"SYSTEM.DISPLAYS.Equipos.Volt_Freq_STS",
+    title: "Tendencia Voltaje — " + equipo,
+    query:webMI.query, extern:false, width:1912, height:564, x, y,
+    menubar:false, modal:false, movable:true, resizable:true,
+    scrollbars:false, status:false, toolbar:false
+  });
+});
+
+/* ====== Configuración (engrane) ====== */
+const CONFIG_DISPLAY = "SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Config_Bomba";
+function openConfig(){
+  if (!canConfig){
+    try{
+      webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.MessageBox", {
+        title:"T{Configuración bloqueada}",
+        text:"T{Disponible sólo sin mantenimiento.}"
+      });
+    }catch(e){}
+    return;
+  }
+  const { x, y } = localOffsetFromSlot(560, 340, getActiveSlotId());
+  try { console.log("[openConfig] local xy (negativos ok):", {x, y}); } catch(_){}
+  webMI.display.openWindow({
+    display: CONFIG_DISPLAY,
+    title: "T{Configuración de equipo}",
+    query: webMI.query,
+    extern: false, width: 560, height: 340, x: x, y: y,
+    menubar: false, modal: true, movable: true, resizable: false,
+    scrollbars: false, status: false, toolbar: false
+  });
+}
+// Pastilla ON/OFF
+function sizeStatusPill(txt){
+  var w = Math.max(60, 20 + 9 * String(txt).length);
+  var x = Math.round(PILL_CX - w/2);
+  try {
+    webMI.gfx.setWidth("status_bg", w);
+    webMI.gfx.setX("status_bg", x);
+    webMI.gfx.setY("status_bg", PILL_Y);
+    if (webMI.gfx.setSVGElementAttribute){
+      webMI.gfx.setSVGElementAttribute("status_bg", "rx", 10);
+      webMI.gfx.setSVGElementAttribute("status_bg", "ry", 10);
+    }
+    webMI.gfx.setX("status_txt", PILL_CX);
+    webMI.gfx.setY("status_txt", PILL_Y + 14);
+    try { webMI.gfx.setTextAnchor("status_txt", "middle"); } catch(_){}
+  } catch(e){}
+}
+function setStatusPill(txt, fill){
+  sizeStatusPill(txt);
+  try{
+    webMI.gfx.setText("status_txt", txt);
+    if (fill) webMI.gfx.setFill("status_bg", fill);
+  }catch(e){}
+}
+
+// Conecta el/los botones de configuración (soporta varios ids)
+["btn_settings"].forEach(function(cfgId){
+  try {
+    setCursor(cfgId, "pointer");
+    webMI.addEvent(cfgId, "click", openConfig);
+    Tip(cfgId, "Abrir configuración");
+  } catch(_) {}
+});
+
+// Estado inicial de interlocks
+applyInterlocks();
+]]></script>
+</svg>

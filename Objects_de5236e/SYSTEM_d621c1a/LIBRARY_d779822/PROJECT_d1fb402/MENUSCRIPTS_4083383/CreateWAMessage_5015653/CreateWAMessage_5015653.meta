@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.MENUSCRIPTS.CreateWAMessage
+NodeClass: Variable
+BrowseName: 1:CreateWAMessage
+DisplayName: en|CreateWAMessage
+Description: en|CreateWAMessage
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

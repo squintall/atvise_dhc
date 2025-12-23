@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="address" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="xmldata" type="string" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/** atvise server wrapper for UA method "AGENT.GENERATOR.METHODS.mergeTranslations"
+
+This script is a standard atvise resource and must not be modified.
+
+Example:
+
+var result = call("Methods.MergeTranslations", {
+	address: "SYSTEM.TRANSLATIONS.de",
+	xmldata: "<?xml version='1.0' encoding='UTF-8'?><TS><context>" +
+		"<message>" +
+			"<source>text which should be translated</source>" +
+			"<translation>translated text</translation>" +
+			"<comment>optional descriptive text</comment>" +
+		"</message>" +
+		"</context></TS>"
+});
+
+if (result.error)
+	console.log(result.errorstring);
+else
+	console.log(result.result);
+
+
+Input:
+param address {string} The language node which should be merged with provided XML.
+param xmldata {string} The data as XML which will be used for import. XML structure must be in TS file format used by Qt Linguist.
+
+Output:
+return {Object} A result object is returned with the following properties:
+- Object.error {number},{optional} Returns the error code of the call in case of an error. If no error occurred, it is undefined.
+- Object.errorstring {string},{optional} Returns the error string of the call in case of an error. If no error occurred, it is undefined.
+- Object.result {object},{optional} Returns the result of the call if no error occurred. It has the following properties:
+	- result.new_translations {number} Number of newly created translations.
+	- result.updated_translations {number} Number of updated translations.
+	- result.errors {[Object]},{optional} Returns the list of errors appeared during merge.
+		- Object.error {number} Returns the error code.
+		- Object.errorstring {string} Returns the error string of the associated error code with optional additional information.
+*/
+
+var nodetranslation = Ua.findNode(address);
+var result = {};
+
+if (nodetranslation.error) {
+	result.error = nodetranslation.error;
+	result.errorstring = Ua.Status(result).toString();
+	
+	return result;
+}
+
+var targetxmldata = nodetranslation.result.value;
+
+var methodCall = Ua.findNode("AGENT.GENERATOR.METHODS.mergeTranslations").result;
+
+var response = methodCall.call({
+	object: "AGENT.GENERATOR.METHODS",
+	input: [
+		{ type: Ua.DataType.XMLELEMENT, value: xmldata },
+		{ type: Ua.DataType.UINT32, value: 0 },
+		{ type: Ua.DataType.XMLELEMENT, value: targetxmldata },
+		{ type: Ua.DataType.NODEID, value: address }
+	]
+});
+
+if (response.error) {
+	result.error = response.error;
+	result.errorstring = Ua.Status(result).toString();
+
+	if (response.argumentError) {
+		var parameterNames = ["xmldata", "sourcetype", "targetxmldata", "address"];
+
+		for (var i = 0; i < response.argumentError.length; ++i)
+			if (response.argumentError[i]) {
+				result.errorstring += ", " + parameterNames[i] + ":" + Ua.Status(response.argumentError[i]).toString();
+			}
+	}
+} else {
+	result.result = {};
+
+	if (response.result.length === 5) {
+		result.result["new_translations"] = response.result[1];
+		result.result["updated_translations"] = response.result[2];
+
+		nodetranslation.result.value = response.result[0];
+
+		result.result["errors"] = [];
+		for (var i = 0; i < response.result[3].length; ++i) {
+			var info = response.result[4][i];
+			result.result["errors"].push({
+				error: response.result[3][i],
+				errorstring: Ua.Status(response.result[3][i]).toString() + (info.length > 0 ? ": " + info : "")
+			});
+		}
+	}
+}
+
+return result;]]></code>
+</script>

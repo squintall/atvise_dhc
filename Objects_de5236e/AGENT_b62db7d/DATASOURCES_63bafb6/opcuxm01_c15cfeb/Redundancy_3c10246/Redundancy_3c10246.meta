@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.opcuxm01.Redundancy
+NodeClass: Object
+BrowseName: 1:Redundancy
+DisplayName: en|Redundancy
+Description: en|Redundancy
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.DatasourceRedundancy

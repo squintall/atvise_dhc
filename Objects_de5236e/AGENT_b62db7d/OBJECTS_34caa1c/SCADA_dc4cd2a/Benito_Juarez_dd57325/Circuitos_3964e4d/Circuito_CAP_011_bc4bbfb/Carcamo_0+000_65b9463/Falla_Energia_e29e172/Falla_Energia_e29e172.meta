@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_0+000.Falla_Energia
+NodeClass: Variable
+BrowseName: 1:Falla_Energia
+DisplayName: en|Falla_Energia
+Description: en|Falla_Energia
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

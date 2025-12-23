@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_8.Caudalimetros.L2
+NodeClass: Object
+BrowseName: 1:L2
+DisplayName: en|L2
+Description: en|L2
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

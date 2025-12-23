@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="342.63" version="1.2" width="727.10000000000002" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <rect atv:refpx="363.594" atv:refpy="171.913" fill="#000088" fill-opacity="0" height="339.432" id="id_5" stroke="#000000" stroke-width="2" width="725" x="1.098" y="2.197"/>
+ <svg atv:refpx="362.995" atv:refpy="104.5" height="400" id="id_1" transform="matrix(1.805,0,0,0.5125,0,0)" width="400" x="1.108" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.highcharts" y="3.902">
+  <atv:argument name="trendName" value="conectividad"/>
+  <atv:argument name="series1series_address" prefix="base" value=".connect"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="hour(s)"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="8"/>
+  <atv:argument name="xAxisxAxis_tickInterval" value="5000000"/>
+  <atv:argument name="yAxis1yAxis_id" value="con"/>
+  <atv:argument name="yAxis1yAxis_title_text" value="Conectividad"/>
+  <atv:argument name="xAxisxAxis_title_text" value="Tiempo"/>
+  <atv:argument name="yAxis1yAxis_min" value="0"/>
+  <atv:argument name="series1series_color" value="#2a4876"/>
+  <atv:argument name="alignTicks" value="true"/>
+  <atv:argument name="series1series_name" value="T{Estado de conectividad}"/>
+  <atv:argument name="yAxis1yAxis_max" value="1"/>
+  <atv:argument name="gatviseOptions_configNode" prefix="base" value=".trendCfg"/>
+  <atv:argument name="gatviseOptions_configName" value="conectividad"/>
+  <atv:argument name="series1series_interpolation" value="step"/>
+  <atv:argument name="xAxisxAxis_lineWidth" value="4"/>
+  <atv:argument name="series1series_lineWidth" value="4"/>
+  <atv:argument name="series1series_marker_enabled" value="false"/>
+  <atv:overwrite id="highchart_label" transform="matrix(0.554,0,0,1.9512,0,0)" x="190.5" y="113.5"/>
+  <atv:overwrite height="203" id="border" transform="matrix(0.554,0,0,1.9512,0,0)" width="720"/>
+  <atv:overwrite height="205" id="id_3" transform="matrix(0.554,0,0,1.9512,0,0)" width="722"/>
+ </svg>
+ <svg atv:refpx="367.78" atv:refpy="307.82" height="160" id="id_15" transform="matrix(0.565,0,0,0.3989,0,0)" width="1280" x="2.518" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.legend" y="691.677">
+  <atv:argument name="_trendName" value="conectividad"/>
+  <atv:argument name="columnOptions_nodeAddress_visibility" value="false"/>
+  <atv:argument name="columnOptions_aggregate_visibility" value="false"/>
+  <atv:argument name="columnOptions_cursorYValue1_visibility" value="false"/>
+  <atv:argument name="columnOptions_cursorYValue2_visibility" value="false"/>
+  <atv:argument name="startAddress" value="AGENT.OBJECTS.SCADA"/>
+  <atv:argument name="columnOptions_seriesSettings_name" value="Ajustes"/>
+  <atv:argument name="columnOptions_type_visibility" value="false"/>
+  <atv:argument name="columnOptions_cursorXValue1_name" value="Instante 1"/>
+  <atv:argument name="columnOptions_cursorXValue2_name" value="Instante 2"/>
+  <atv:argument name="columnOptions_cursorXValue2_visibility" value="false"/>
+  <atv:argument name="columnOptions_cursorXValue1_visibility" value="false"/>
+  <atv:overwrite id="preview" transform="matrix(1.77,0,0,2.5069,0,0)" x="301.08" y="39.412"/>
+ </svg>
+ <svg atv:refpx="46.41" atv:refpy="244.542" height="30" id="id_7" width="80" x="1.41" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_back" y="241.542">
+  <atv:argument name="chartname" value="conectividad"/>
+ </svg>
+ <svg atv:refpx="424.968" atv:refpy="244.542" height="30" id="id_9" width="80" x="379.968" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_forward" y="241.542">
+  <atv:argument name="chartname" value="conectividad"/>
+ </svg>
+ <svg atv:refpx="236.41" atv:refpy="212.625" height="30" id="id_10" width="460" x="1.41" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.buttons_start_end_time" y="209.625">
+  <atv:argument name="chartname" value="conectividad"/>
+ </svg>
+ <svg atv:refpx="605.82" atv:refpy="212.625" height="30" id="id_4" width="260" x="464.82" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_config" y="209.625">
+  <atv:argument name="chartname" value="conectividad"/>
+ </svg>
+ <svg atv:refpx="665.32" atv:refpy="250.542" height="30" id="id_0" width="141" x="583.82" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.toolbar" y="241.542">
+  <atv:argument name="chartname" value="conectividad"/>
+  <atv:argument name="startAddress" value="AGENT.OBJECTS.SCADA"/>
+ </svg>
+</svg>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.world_of_visualization
+NodeClass: Variable
+BrowseName: 1:world_of_visualization
+DisplayName: en|world_of_visualization
+Description: en|world_of_visualization
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/preview/hosted_numbers/authorizationDocument/dependentHostedNumberOrder.d.ts
+NodeClass: Variable
+BrowseName: 1:dependentHostedNumberOrder.d.ts
+DisplayName: en|dependentHostedNumberOrder.d.ts
+Description: en|dependentHostedNumberOrder.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

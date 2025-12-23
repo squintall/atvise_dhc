@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="30" version="1.2" width="160" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_21" x1="1" x2="1" y1="-0.0183441" y2="1">
+   <stop offset="0" stop-color="#494949"/>
+   <stop offset="1" stop-color="#000000"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_5" x1="0.223168" x2="0.223168" y1="1" y2="0.149253">
+   <stop offset="0" stop-color="#494949"/>
+   <stop offset="1" stop-color="#000000"/>
+  </linearGradient>
+ </defs>
+ <title>Display User</title>
+ <desc>Displays the currently logged in user or a default text.</desc>
+ <metadata>
+  <atv:parameter behavior="hidden" desc="base" name="base" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Login}" desc="login text" name="loginText" substitute="$LOGINTEXT$" valuetype="trstring"/>
+  <atv:parameter behavior="optional" config="Arial;Courier;Verdana" defaultvalue="Arial" desc="family" group="Font" name="fontFamily" substitute="$FONTFAMILY$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="22" desc="size" group="Font" name="fontSize" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="color" group="Font" name="fontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Appearance" name="fillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="value field fill color" group="Appearance" name="valueFieldFill" substitute="$VALUEFIELDFILL$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvBorderColor" desc="border color" group="Appearance" name="borderColor" substitute="$BORDERCOLOR$" valuetype="global"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="5" width="5"/>
+  <atv:snapconfig enabled="false" height="5" width="5"/>
+ </metadata>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80.25" atv:refpy="15.5" fill="$FILLCOLOR$" height="29.5" id="id_4" rx="3" ry="3" stroke="$BORDERCOLOR$" stroke-width="0.5" width="159.5" x="0.25" y="0.25"/>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80" atv:refpy="15" fill="$BORDERCOLOR$" height="24.5" id="id_5" rx="3" ry="3" stroke="none" stroke-width="0.5" width="155" x="2.5" y="2.75"/>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80" atv:refpy="15" fill="$VALUEFIELDFILL$" height="22.5" id="input_bg" rx="3" ry="3" stroke="none" stroke-width="0.5" width="153" x="3.5" y="3.75"/>
+ <text atv:bindbr="0,0.5" atv:bindtl="0,0.5" atv:dynamic="true" atv:refpx="28" atv:refpy="14" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="16" id="user_label" x="6.5" y="20">$LOGINTEXT$</text>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.hmi.user_display" atv:name="user_display" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.NI_0005
+NodeClass: Object
+BrowseName: 1:NI_0005
+DisplayName: en|NI_0005
+Description: en|NI_0005
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.1008

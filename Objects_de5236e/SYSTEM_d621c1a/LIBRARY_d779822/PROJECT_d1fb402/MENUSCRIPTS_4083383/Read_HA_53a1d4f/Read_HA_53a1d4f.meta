@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.MENUSCRIPTS.Read_HA
+NodeClass: Variable
+BrowseName: 1:Read_HA
+DisplayName: en|Read_HA
+Description: en|Read_HA
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

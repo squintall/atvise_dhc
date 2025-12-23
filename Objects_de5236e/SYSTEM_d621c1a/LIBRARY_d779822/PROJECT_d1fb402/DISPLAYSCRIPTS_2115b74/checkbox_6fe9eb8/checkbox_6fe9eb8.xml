@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the checkbox object display
+ * ------------------------------------
+ * The checkbox will only be ticked if the value of "base" equals the parameter "value On".
+ * If no "outputNode" is specified, the value of "base" will be switched between "value On" (= checkbox is ticked) and "value Off".
+ * If an "outputNode" is specified, then this node will be switched between "value On to be set" (= checkbox is ticked) and "value Off to be set". This
+ * is done in addition to the switching of "base".
+ */
+
+/**
+ *    IMPORTS
+ */
+var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var consistencyGroup = webMI.query["consistencyGroup"] ? webMI.query["consistencyGroup"] : "";
+var outputNode = webMI.query["outputNode"] ? webMI.query["outputNode"] : webMI.query["base"];
+var outputValueOn = webMI.query["outputValueOn"];
+var outputValueOff = webMI.query["outputValueOff"];
+
+/** default values **/
+var defaultSelected = webMI.query["preselected"];
+var defaultValueOn = webMI.query["valueOn"] == undefined ? "" : webMI.query["valueOn"];
+
+/** style & colors **/
+var fontColor = webMI.query["fontColor"];
+var focusStrokeColor = webMI.query["focusStrokeColor"];
+var fillCheckArea =
+	typeof webMI.query["fillCheckArea"] != "undefined" ? webMI.query["fillCheckArea"] : webMI.query["fill"];
+var fillColorInactive = webMI.query["fillColorInactive"];
+var fillNotEditable = webMI.query["fillNotEditable"];
+var strokePressed = webMI.query["strokePressed"];
+var lockInputEvents = true;
+var lockMouseClick = false;
+var lockMouseEvents = false;
+var lockMouseTimeout = null;
+
+/** others **/
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+var notAvailableString = "T{N/A}";
+
+/** status **/
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+
+/** data **/
+var runTimeNodeConfig = {
+	base: {value: null, address: base, paramValue: "", read: true, write: true, aggregate: false}
+};
+
+/** advanced menu layout with corrections **/
+var compatibilityMode = typeof webMI.query["compatibilityMode"] == "undefined" ? false : true;
+var advancedMode = !compatibilityMode;
+
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+if (advancedMode) {
+	menuLayout.customElementLayoutOffsets = {
+		"top-right": {x: 68, y: 10},
+		"bottom-right": {x: 68, y: 10}
+	};
+}
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: document.getElementById("checkbox_clickarea").id,
+	rights: [
+		{nodeId: webMI.query["base"], rights: "read", disable: true, notify: false},
+		{nodeId: outputNode, rights: "write", disable: true, notify: false},
+		{nodeId: webMI.query["alarm"], rights: "alarmRead", disable: false, notify: true},
+		{nodeId: webMI.query["symbol"], rights: "read", disable: true, notify: true},
+		{nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true}
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: {activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"]},
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: webMI.query["right"],
+	editable: webMI.query["editable"] != "No"
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+if (typeof updateRunTimeNodeConfig === "function") {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+} else {
+	initialize(runTimeNodeConfig);
+}
+
+webMI.addOnload(function () {
+	var doc = document.getElementById("checkbox_clickarea").ownerDocument;
+	tabHandler.register(tabIndex, _inputKeyHandler, doc);
+
+	if (tooltip != "") {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+			auto: "true",
+			id: "checkbox_clickarea",
+			text: tooltip
+		});
+	}
+});
+
+webMI.addOnunload(function () {
+	if (lockMouseTimeout) clearTimeout(lockMouseTimeout);
+	lockMouseTimeout = null;
+});
+
+if (base != "" && consistencyGroup)
+	consistencyHandler.register(consistencyGroup, base, handleInput);
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * read or subscribe data by runtime node configuration
+ * @param nodeCfg
+ */
+function initialize(nodeCfg) {
+	/* init alarm indication */
+	if (alarmToSubscribe != "") updateAlarmIndication(alarmToSubscribe);
+
+	/* base */
+	if (!nodeCfg.base.address) {
+		if (runTimeNodeConfig.base.value == null)
+			runTimeNodeConfig.base.value = defaultSelected ? outputValueOn : outputValueOff;
+		_updateCheckbox();
+	} else if (consistencyGroup) {
+		//handled in runtime section
+	} else if (nodeCfg.base.read) {
+		if (!nodeCfg.base.subscribe) {
+			nodeCfg.base.subscribe = true;
+
+			webMI.data.subscribe(nodeCfg.base.address, function (result) {
+				if (typeof result.status != "undefined" && typeof updateStatusIndication === "function") {
+					updateStatusIndication(result.status);
+				}
+
+				runTimeNodeConfig.base.value = result.value;
+				_updateCheckbox();
+			});
+		}
+	} else {
+		webMI.gfx.setFill("checkbox_bg", fillColorInactive);
+		if (typeof webMI.gfx.getFill("checkbox_bg2") != "undefined")
+			webMI.gfx.setFill("checkbox_bg2", fillColorInactive);
+
+		runTimeNodeConfig.base.value = notAvailableString;
+		_updateCheckbox();
+	}
+}
+
+/**
+ * validate input
+ */
+function inputValidation(state) {
+	var newValue = outputValueOff;
+
+	if (state) {
+		newValue = outputValueOn;
+	}
+
+	if (!_simpleCompareValue(runTimeNodeConfig.base.value, newValue)) {
+		runTimeNodeConfig.base.value = newValue;
+		inputWriteNodeOrGroup(newValue);
+		_updateCheckbox();
+	}
+}
+
+/**
+ * write value to node or consistencyGroup
+ * @param tempValue
+ */
+function inputWriteNodeOrGroup(newValue) {
+	if (lockInputEvents) return;
+
+	if (consistencyGroup == "" && outputNode != "") {
+		webMI.data.write(outputNode, newValue);
+	} else if (webMI.query["base"] != "") {
+		// consistency
+		handleInput(newValue);
+	}
+}
+
+/**
+ * switch to active layout
+ */
+function setActiveLayout() {
+	lockInputEvents = false;
+
+	webMI.gfx.setFill("checkbox_bg", fillCheckArea);
+	if (typeof webMI.gfx.getFill("checkbox_bg2") != "undefined")
+		webMI.gfx.setFill("checkbox_bg2", fillCheckArea);
+}
+
+/**
+ * switch to inactive layout
+ */
+function setInactiveLayout() {
+	lockInputEvents = true;
+
+	var setFillColor = fillColorInactive;
+	if (!CRH.state.activationTriggerState) {
+		setFillColor = fillColorInactive;
+	}
+
+	webMI.gfx.setFill("checkbox_bg", setFillColor);
+	if (typeof webMI.gfx.getFill("checkbox_bg2") != "undefined")
+		webMI.gfx.setFill("checkbox_bg2", setFillColor);
+}
+
+/**
+ * update on ac right changes
+ */
+function fetchCurrentRightsAndUpdate() {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+}
+
+/**
+ * key handler for keyboard inputs
+ * @param keyTH
+ * @param param2
+ * @returns {*}
+ * @private
+ */
+function _inputKeyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		_inputKeyHandlerFocusTH();
+	} else if (keyTH == "blur") {
+		_inputKeyHandlerBlurTH();
+	} else if (keyTH == "apply") {
+		_inputKeyHandlerApplyTH();
+	} else if (keyTH == "space") {
+		_inputKeyHandlerSpaceTH();
+	} else if (keyTH == "back") {
+		_inputKeyHandlerBackTH();
+	} else if (keyTH == "arrow") {
+		_inputKeyHandlerArrowTH();
+	} else if (keyTH == "isActive") {
+		return param2(document.getElementById("checkbox_clickarea").parentNode);
+	}
+
+	function _inputKeyHandlerFocusTH() {
+		_inputSetFocusFrame(focusStrokeColor);
+	}
+
+	function _inputKeyHandlerBlurTH() {
+		_inputSetFocusFrame("none");
+	}
+
+	function _inputKeyHandlerApplyTH() {
+		inputValidation(runTimeNodeConfig.base.value != outputValueOn);
+	}
+
+	function _inputKeyHandlerSpaceTH() {
+		inputValidation(runTimeNodeConfig.base.value != outputValueOn);
+	}
+
+	function _inputKeyHandlerBackTH() {
+		return;
+	}
+
+	function _inputKeyHandlerArrowTH() {
+		return;
+	}
+}
+
+/**
+ * update focus frame
+ * @private
+ */
+function _inputSetFocusFrame(color) {
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", color);
+	} else {
+		webMI.gfx.setStroke("checkbox_bg2", color);
+		webMI.gfx.setStroke("checkbox_bg", color);
+	}
+}
+
+/**
+ * simple compare function for values
+ * @param value1
+ * @param value2 (!always string!)
+ * @returns {boolean}
+ * @private
+ */
+function _simpleCompareValue(value1, value2) {
+	var equal = false;
+	switch (typeof value1) {
+		case "boolean":
+			if (value1 == true) {
+				if (value2 == "true" || value2 == "1") {
+					equal = true;
+				} else {
+					equal = false;
+				}
+			}
+			if (value1 == false) {
+				if (value2 == "false" || value2 == "0") {
+					equal = true;
+				} else {
+					equal = false;
+				}
+			}
+			break;
+		case "number":
+			try {
+				var temp = parseFloat(value2);
+				equal = value1 == temp;
+			} catch (e) {
+				equal = false;
+			}
+			break;
+		default:
+			equal = value1 == value2;
+			break;
+	}
+	return equal;
+}
+
+/**
+ * update checkbox
+ * @private
+ */
+function _updateCheckbox() {
+	var updateValue = runTimeNodeConfig.base.value;
+
+	if (updateValue == notAvailableString) {
+		webMI.gfx.setVisible("checkbox_symbol", false);
+	} else {
+		if (_simpleCompareValue(updateValue, outputValueOn)) {
+			webMI.gfx.setVisible("checkbox_symbol", null);
+		} else {
+			webMI.gfx.setVisible("checkbox_symbol", false);
+		}
+		webMI.trigger.fire("valuechanged", updateValue, "");
+	}
+}
+
+function handleInput(consistencyValue) {
+	if (typeof consistencyValue != "undefined" && consistencyGroup != "") {
+		// Does not support alternative node
+		consistencyHandler.set(consistencyGroup, runTimeNodeConfig["base"]["address"], consistencyValue);
+	}
+
+	runTimeNodeConfig.base.value = consistencyValue == undefined ? runTimeNodeConfig["base"]["value"] : consistencyValue;
+
+	_updateCheckbox();
+}
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent("checkbox_clickarea", ["mousedown", "click"], function (e) {
+	if (e.type == "mousedown") lockMouseClick = true;
+
+	/** if mousedown is supported do not trigger to mouseclick **/
+	var ignoreMouseClick = lockMouseClick && e.type != "mousedown";
+
+	if (lockInputEvents || lockMouseEvents || ignoreMouseClick) return;
+
+	lockMouseEvents = true;
+
+	var id = "checkbox_clickarea";
+	tabHandler.setCurrentIndex(_inputKeyHandler);
+
+	inputValidation(runTimeNodeConfig.base.value != outputValueOn);
+});
+
+webMI.addEvent("checkbox_clickarea", ["mouseup", "mouseout"], function (e) {
+	lockMouseTimeout = setTimeout(
+		function releaseMouseEvent() {
+			_inputSetFocusFrame();
+			lockMouseEvents = false;
+		},
+		lockMouseClick ? 125 : 250
+	);
+});
+
+webMI.addEvent("checkbox_clickarea", "dragstart", function (e) {
+	if (e.preventDefault) {
+		e.preventDefault();
+	}
+});
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect(
+	"setChecked",
+	function (e) {
+		inputValidation(e.value);
+	},
+	""
+);
+]]></code>
+</script>

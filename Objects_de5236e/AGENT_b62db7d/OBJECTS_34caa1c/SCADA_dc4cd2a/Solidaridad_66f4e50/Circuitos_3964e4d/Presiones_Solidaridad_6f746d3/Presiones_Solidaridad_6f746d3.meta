@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Presiones_Solidaridad
+NodeClass: Variable
+BrowseName: 1:Presiones_Solidaridad
+DisplayName: en|Presiones_Solidaridad
+Description: en|Presiones_Solidaridad
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

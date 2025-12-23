@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.SMTPSERVERS.Google
+NodeClass: Object
+BrowseName: 1:Google
+DisplayName: en|Google
+Description: en|Google
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.SmtpServer

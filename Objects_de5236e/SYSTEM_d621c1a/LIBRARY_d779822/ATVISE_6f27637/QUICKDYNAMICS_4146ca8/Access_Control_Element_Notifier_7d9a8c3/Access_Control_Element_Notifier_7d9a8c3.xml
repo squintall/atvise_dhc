@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAPNSURBVEhL1dVbTBNZGADg01ZKbaHItRdqWquWTQklRIiyqTFZtJjU8GJ88UFQE30wQdk1AqI2G8TbrmKiicaFxBhjdokGIxelLV4BwUu8YGDLuqKtFwIEL8BCO52Op9O/bNuZ1mLig1/Ow/x/z/w/Z84ZhkNRFPqWom3woa/f/Ne5h/1PGh88+mdwKE40d11+/jJdbn6hIctQAJNY4QaRTfT3VhevyVGIu/WZzvRFFFfiG870xd3Ls3OU0o2rCgdud8Jshi80eHzhZIYyvven7Jm6zPGsYElqSmLTiVNwT7BIDR6dO6xViNzJypCKzOFOUS1SSC4fPwl3BgjbYLjjojpdiO8MqiXPon79nep5SJXtCcrTPdJSk55ZrsP9flzYihCuD7tMVa2L1byxKcj4cDhILkXaDJScDBk/PPOOTr1zbyXEfuwN7FfPDgy+zbg9AvEMwo3c/sGgueH49H7oXsMliGksDSiPq/lK8ynZfIgD+UqTJCJZGmCnJanWtjYIaFyBQMAJplYkWJ72Z/ZNwpRABIHcpHfgpbDR9o5eu38XAtqc0tJSoVAIEU0aP7m98iiPTIM4EC7t/fNxD/YGvI9T9ybfQEDjhlTHuMjjIsK83t4VhN0DH6eLgCsfOE0BPBOD+QtTyaQwx7/mOPXvS2pbeWieHmSSKlORDoVobKcoJmG1bkH3hnkQhjjxBzKuRw1XIAzWvVm5IlMHAY2lAYefmJOtmbgV/Ab4KOToQBW6b0Y7tkIm2MTN8aU/6iGgsb8Hq7f9fHB0bPiICuIZ+EXDPB7vPjOM/Jax1/HOsGUTxLRw/66py/uLuX/eLRpxo9HgpcTGopg5aNoZss9UirBVnjCwqrDsyCFI0cJ/D4jx3WsLBGnv9zUxejBQ8fzq9bLnvYIzljb8YkGWFumDQzrHdhcVTomHaz9JedZXkGUgVyrLUlz/2WKrmxplMhlk/dj3wIcXm3SwtVOnXpHz4u/ze9LcBSpK/v/RouSJnpWq8/vma587uO4fjra3MatjUX0y7S/6GkyVx65ZsxaKtEqBWBQz7oyxvSY7H78rXrbc+EuZwWCAqQzRfpOx8vJygiBqa2tNJlNcXFxeXl5ubq5IJIKfw8ENoqTX61taWmZ1CxZpDwJZLBaHw6HRaKRSKaSiBI0iMpvNEonEarXW1NSUlJRANjoc/EChFZvp6emuri673V5fXy8Wi41GY0dHB14H/BwFLi4Bl2xw0YqKivb29p6eHly9rq5uVtW9+Hw+XIWHnzt+MjabDZY9G7M4pl8n2lP01b73Bgh9BoIFUn7HhnGEAAAAAElFTkSuQmCC</icon>
+    <visible>1</visible>
+    <title>Access Control Element Notifier</title>
+    <description>Permission notifications on elements.</description>
+  </metadata>
+  <parameter behavior="hidden" desc="element ID for notification" name="id" valuetype="string"/>
+  <parameter behavior="optional" desc="address 1" name="node_1" valuetype="address"/>
+  <parameter behavior="optional" config="browse;read;write;execute;alarmAcknowledge;alarmConfirm;engineer" desc="address 1 right" name="right_1" valuetype="enum"/>
+  <parameter behavior="optional" desc="address 2" name="node_2" valuetype="address"/>
+  <parameter behavior="optional" config="browse;read;write;execute;alarmAcknowledge;alarmConfirm;engineer" desc="address 2 right" name="right_2" valuetype="enum"/>
+  <parameter behavior="optional" desc="address 3" name="node_3" valuetype="address"/>
+  <parameter behavior="optional" config="browse;read;write;execute;alarmAcknowledge;alarmConfirm;engineer" desc="address 3 right" name="right_3" valuetype="enum"/>
+  <parameter behavior="optional" desc="address 4" name="node_4" valuetype="address"/>
+  <parameter behavior="optional" config="browse;read;write;execute;alarmAcknowledge;alarmConfirm;engineer" desc="address 4 right" name="right_4" valuetype="enum"/>
+  <parameter behavior="optional" desc="address 5" name="node_5" valuetype="address"/>
+  <parameter behavior="optional" config="browse;read;write;execute;alarmAcknowledge;alarmConfirm;engineer" desc="address 5 right" name="right_5" valuetype="enum"/>
+  <parameter behavior="optional" desc="address 6" name="node_6" valuetype="address"/>
+  <parameter behavior="optional" config="browse;read;write;execute;alarmAcknowledge;alarmConfirm;engineer" desc="address 6 right" name="right_6" valuetype="enum"/>
+  <parameter behavior="optional" desc="address 7" name="node_7" valuetype="address"/>
+  <parameter behavior="optional" config="browse;read;write;execute;alarmAcknowledge;alarmConfirm;engineer" desc="address 7 right" name="right_7" valuetype="enum"/>
+  <parameter behavior="optional" desc="address 8" name="node_8" valuetype="address"/>
+  <parameter behavior="optional" config="browse;read;write;execute;alarmAcknowledge;alarmConfirm;engineer" desc="address 8 right" name="right_8" valuetype="enum"/>
+  <parameter behavior="optional" desc="address 9" name="node_9" valuetype="address"/>
+  <parameter behavior="optional" config="browse;read;write;execute;alarmAcknowledge;alarmConfirm;engineer" desc="address 9 right" name="right_9" valuetype="enum"/>
+  <parameter behavior="optional" desc="address 10" name="node_10" valuetype="address"/>
+  <parameter behavior="optional" config="browse;read;write;execute;alarmAcknowledge;alarmConfirm;engineer" desc="address 10 right" name="right_10" valuetype="enum"/>
+  <parameter behavior="optional" config="Example: AGENT.OBJECTS.node1,r;AGENT.OBJECTS.node2,w" desc="alternate input method" name="alternate" valuetype="string"/>
+  <parameter behavior="optional" config="Example: &lt;i class='fas fa-ban'&gt;&lt;/i&gt;;&lt;i class='fas fa-exclamation-circle'&gt;&lt;/i&gt;" desc="element notification symbol" name="elementSymbol" valuetype="string"/>
+  <parameter behavior="hidden" desc="element notification ID" name="elementId" valuetype="string"/>
+  <parameter behavior="optional" desc="element notification color" name="elementColor" valuetype="color"/>
+  <parameter behavior="optional" desc="element notification background" name="elementBackground" valuetype="color"/>
+  <parameter behavior="optional" desc="element notification border color" name="elementBorderColor" valuetype="address"/>
+  <parameter behavior="optional" desc="element notification margin" name="elementMargin" valuetype="number"/>
+  <parameter behavior="optional" config="true;false" desc="element notification error only" name="elementErrorOnly" valuetype="enum"/>
+  <parameter behavior="optional" desc="element event target" name="elementEventTarget" valuetype="string"/>
+  <code><![CDATA[// This Quick Dynamic manages access control messanges and errors on elements
+if (!webMI.getAccessControlSupport()) {
+	return false;
+}
+
+let rightsOrderedStrings = {
+	browse: { order: 1, name: "T{Visibility}" },
+	read: { order: 2, name: "T{Read}" },
+	write: { order: 3, name: "T{Write}" },
+	engineer: { order: 4, name: "T{Engineer}" },
+	accessControl: { order: 5, name: "T{Configure access control}" },
+	execute: { order: 6, name: "T{Execute}" },
+	scriptAdmin: { order: 7, name: "T{Configure scripts}" },
+	alarmRead: { order: 8, name: "T{Read alarms}" },
+	alarmAcknowledge: { order: 9, name: "T{Acknowledge alarms}" },
+	alarmConfirm: { order: 10, name: "T{Confirm alarms}" },
+	alarmAdmin: { order: 11, name: "T{Manage alarms}" },
+	remoteBrowse: { order: 12, name: "T{Remote browse}" },
+	remoteAlarms: { order: 13, name: "T{Remote alarms}" },
+	remoteEvents: { order: 14, name: "T{Remote events}" }
+};
+
+function orderRights(item1, item2) {
+	return rightsOrderedStrings[item1].order > rightsOrderedStrings[item2].order ? 1 : -1;
+}
+
+var notifier = new (function () {
+	var element;
+	var nodes = [];
+	var rights = [];
+	var rightsDict = {};
+	var _self = this;
+	var initializeTimer = false;
+
+	/* set correct menu id */
+	var menuCfgObj = { id: base.id };
+	if (base.elementId)
+		menuCfgObj = {
+			elementId: base.elementId,
+			elementEventTarget: base.elementEventTarget ? base.elementEventTarget : false
+		};
+
+	for (var key in base.menuLayout) {
+		menuCfgObj[key] = base.menuLayout[key];
+	}
+
+	var odMenu = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Element Menu", menuCfgObj);
+	var menu;
+
+	var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+	var configuration = {};
+	var baseConfiguration = {
+		id: base.id,
+		elementSymbol: base.elementSymbol,
+		elementPosition: base.elementPosition,
+		elementSizeX: base.elementSizeX,
+		elementSizeY: base.elementSizeY,
+		elementOffsetX: base.elementOffsetX,
+		elementOffsetY: base.elementOffsetY,
+		elementBorderSize: base.elementBorderSize,
+		elementBorderRadius: base.elementBorderRadius,
+		elementBorderColor: base.elementBorderColor,
+		elementColor: base.elementColor,
+		elementBackground: base.elementBackground,
+		elementEventTarget: base.elementEventTarget,
+		elementErrorOnly: base.elementErrorOnly
+	};
+
+	function initialize() {
+		clearTimeout(initializeTimer);
+
+		initializeTimer = setTimeout(() => {
+			configuration = getConfiguration();
+
+			nodes = [];
+			rights = [];
+			rightsDict = {};
+
+			if (configuration.id) element = self.document.getElementById(configuration.id);
+			else console.warn("Access Control Manager: Element ID is not defined in function call");
+
+			if (configuration.id && !element) {
+				console.warn("Access Control Manager: Can't find element with id '" + configuration.id + "'");
+			} else {
+				for (var i = 1; i < 11; i++) {
+					var node = base["node_" + i];
+					var right = base["right_" + i];
+					if (node != undefined && node != "" && right != undefined) {
+						nodes.push(node);
+						rights.push(right);
+					}
+				}
+
+				if (typeof base.alternate === "string") {
+					base.alternate.split(";").forEach((alternateParam) => {
+						let nodeAddress, right;
+						[nodeAddress, right] = alternateParam.split(",");
+
+						if (nodeAddress) {
+							nodes.push(nodeAddress);
+							rights.push(right);
+						}
+					});
+				}
+			}
+
+			_self.update();
+		}, 100);
+	}
+
+	function getConfiguration() {
+		var globalConfiguration = accessControlManager.getConfiguration();
+
+		const localConfig = {
+			id: base.id,
+			elementNotification: globalConfiguration.elementNotification,
+			elementSymbol: baseConfiguration.elementSymbol
+				? baseConfiguration.elementSymbol
+				: globalConfiguration.elementSymbol,
+			elementColor: baseConfiguration.elementColor ? baseConfiguration.elementColor : globalConfiguration.elementColor,
+			elementBackground: baseConfiguration.elementBackground
+				? baseConfiguration.elementBackground
+				: globalConfiguration.elementBackground,
+			elementBorderColor: baseConfiguration.elementBorderColor
+				? baseConfiguration.elementBorderColor
+				: globalConfiguration.elementBorderColor,
+			elementMargin: baseConfiguration.elementMargin
+				? baseConfiguration.elementMargin
+				: globalConfiguration.elementMargin,
+			elementErrorOnly: baseConfiguration.elementErrorOnly
+				? baseConfiguration.elementErrorOnly
+				: globalConfiguration.elementErrorOnly
+		};
+
+		return localConfig;
+	}
+
+	this.addRights = function (nodeAddress, rights) {
+		if (!base.alternate) {
+			base.alternate = "";
+		}
+
+		if (typeof rights === "string") {
+			base.alternate += nodeAddress + "," + rights + ";";
+		} else if (Array.isArray(rights)) {
+			rights.forEach((right) => {
+				base.alternate += nodeAddress + "," + right + ";";
+			});
+		}
+
+		initialize();
+	};
+
+	this.showNotification = function () {
+		odMenu.setSymbol({
+			icon: configuration.elementSymbol,
+			fontScale: 80,
+			color: configuration.elementColor,
+			background: configuration.elementBackground,
+			borderColor: configuration.elementBorderColor,
+			margin: configuration.elementMargin,
+			visible: true
+		});
+	};
+
+	this.showAll = function () {
+		var preCfg = getConfiguration();
+		var includeAll = preCfg.elementErrorOnly == false || preCfg.elementErrorOnly == "false";
+		return includeAll;
+	};
+
+	this.hideNotification = function () {
+		odMenu.setSymbol({});
+	};
+
+	this.update = function () {
+		configuration = getConfiguration();
+
+		if (element === null || element === undefined) return;
+
+		if (nodes.length == 0 || rights.length == 0) return;
+
+		// Making deep copies
+		let cbNodes = Array.from(nodes);
+		let cbRights = Array.from(rights);
+
+		accessControlManager.getRightsDict(cbNodes, cbRights, (response) => {
+			let showNotification = false;
+
+			rightsDict = response;
+
+			let uniqueNodes = [...new Set(cbNodes)];
+			let listedRights = cbRights;
+
+			showNotification = false;
+
+			for (const nodeId in rightsDict) {
+				if (Object.values(rightsDict[nodeId]).includes(false)) {
+					showNotification = true;
+				}
+			}
+
+			menu = [];
+
+			menu.push({
+				mid: "accessControlRights",
+				text: "<i class='fas fa-user-shield' style='margin-left: 0.5em;'></i> <b>T{Access Control}</b>",
+				order: 6000,
+				sub: {}
+			});
+
+			// Remove duplicates from nodes array before iterating over them
+			uniqueNodes.forEach((address) => {
+				// NOTE(migf): At the moment we have to pass the text values for var  items via their property
+				// keys, because otherwise they get sanitized, i.e. any HTML elements get removed. This seems to be a
+				// bug in the generic 'show popup'-function.
+				//
+				// E.g.: menu[0].sub[symbol + " " + nodename] instead of just menu[0].sub[nodename]
+
+				// default
+				if (!configuration) {
+					return;
+				} else if (typeof configuration["elementErrorOnly"] == "undefined") {
+					configuration["elementErrorOnly"] = true;
+				}
+
+				// Just show missing rights in menu
+				var includeAll = configuration.elementErrorOnly == false || configuration.elementErrorOnly == "false";
+
+				if (!(Object.values(rightsDict[address]).includes(false) || includeAll)) {
+					return;
+				}
+
+				let nodename = address.replace(/AGENT.OBJECTS./g, "");
+				let symbol;
+				let createdRightMenus = [];
+
+				if (nodename.length > 20) {
+					nodename = "..." + nodename.substring(nodename.length - 17, nodename.length);
+				}
+
+				if (Object.values(rightsDict[address]).includes(false)) {
+					symbol =
+						"<i class='fas fa-exclamation' style='text-align: center; display: inline-block; width: 1.1em; margin-left: 0.5em; color: #ff0000'></i>&nbsp;";
+				} else {
+					symbol =
+						"<i class='fas fa-check' style='text-align: center; display: inline-block; width: 1.1em; margin-left: 0.5em; color: #15992b'></i>&nbsp;";
+				}
+
+				if (!menu[0].sub[symbol + " " + nodename]) {
+					menu[0].sub[symbol + " " + nodename] = {
+						text: symbol + " " + nodename,
+						sub: {}
+					};
+				}
+
+				listedRights = [...new Set(listedRights)];
+				listedRights.sort(orderRights);
+
+				for (const right of listedRights) {
+					let hasRight = rightsDict[address][right];
+
+					if (hasRight === undefined) {
+						continue;
+					}
+
+					let rightSymbol = rightsDict[address][right]
+						? "<i class='fas fa-check' style='text-align: center; display: inline-block; width: 1.1em; margin-left: 0.5em; color: #15992b;'></i>&nbsp;"
+						: "<i class='fas fa-times' style='text-align: center; display: inline-block; width: 1.1em; margin-left: 0.5em; color: #ff0000;'></i>&nbsp;";
+
+					if (!createdRightMenus.includes(right)) {
+						menu[0].sub[symbol + " " + nodename].sub[rightSymbol + right] = {};
+						menu[0].sub[symbol + " " + nodename].sub[rightSymbol + right].text =
+							rightSymbol + rightsOrderedStrings[right].name;
+						createdRightMenus.push(right);
+					}
+				}
+			});
+
+			if (Object.keys(menu[0].sub).length > 0) {
+				odMenu.addMenu(menu);
+
+				if (configuration.elementNotification && showNotification) {
+					_self.showNotification();
+				} else {
+					_self.hideNotification();
+				}
+			} else {
+				_self.hideNotification();
+			}
+		});
+	};
+
+	this.destroy = function () {
+		clearTimeout(initializeTimer);
+		base = null;
+		element = null;
+		nodes = null;
+		rights = null;
+		rightsDict = null;
+		menu = null;
+		configuration = null;
+	};
+
+	webMI.trigger.connect("com.atvise.access_control_update", function (e) {
+		if (e.value.notification === null) return;
+
+		_self.update();
+	});
+
+	webMI.addEvent(webMI.data, "clientvariableschange", () => {
+		if (element) {
+			initialize();
+		}
+	});
+
+	webMI.addOnunload(function () {
+		_self.destroy();
+	});
+
+	initialize();
+})();
+
+return notifier;
+]]></code>
+</script>

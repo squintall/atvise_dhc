@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/object-inspect/readme.markdown
+NodeClass: Variable
+BrowseName: 1:readme.markdown
+DisplayName: en|readme.markdown
+Description: en|readme.markdown
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <code><![CDATA[/**
+ * Browses a specified parent node for its direct children (based on HierarchicalReferences)
+ * and exports each child node individually to a separate XML file.
+ * The export for each child is flat (withouthierarchy: true).
+ * Files are named using the child's browseName + "_Export.xml".
+ *
+ * @param {string} parentNodeAddress - The address of the node whose children should be exported.
+ * @param {string} [exportDirectory=""] - Optional. A directory path (relative to the project or absolute)
+ *                                        to save the files in. Must end with '/'. Example: "Exports/".
+ *                                        If empty, files are saved in the project root.
+ * @param {Integer} [nodeClassFilter=Ua.NodeClass.UNSPECIFIED] - Optional. Filter children by node class
+ *                                        (e.g., Ua.NodeClass.OBJECT, Ua.NodeClass.VARIABLE).
+ *                                        Defaults to UNSPECIFIED (export all types).
+ */
+function exportChildNodesToSeparateFiles(parentNodeAddress, exportDirectory, nodeClassFilter) {
+    // --- Input Validation and Defaults ---
+    if (typeof parentNodeAddress !== 'string' || parentNodeAddress.trim() === "") {
+        console.error("Error: 'parentNodeAddress' must be a non-empty string.");
+        return;
+    }
+     if (typeof exportDirectory !== 'string' && typeof exportDirectory !== 'undefined') {
+         console.warn("Warning: 'exportDirectory' should be a string. Using project root.");
+         exportDirectory = "";
+    }
+    if (exportDirectory && !exportDirectory.endsWith('/')) {
+        console.warn("Warning: 'exportDirectory' should ideally end with '/'. Appending it.");
+        exportDirectory += "/";
+    }
+    var exportDir = exportDirectory || ""; // Use empty string if undefined or null
+    var filterClass = (typeof nodeClassFilter === 'number') ? nodeClassFilter : Ua.NodeClass.UNSPECIFIED;
+
+    console.log("Starting child node export for parent: '" + parentNodeAddress + "'");
+    console.log("Export directory: '" + (exportDir || "[Project Root]") + "'");
+    console.log("Filtering for NodeClass: " + filterClass + " (0=Unspecified, 1=Object, 2=Variable, ...)");
+
+
+    // --- Find the Parent Node ---
+    var findRes = Ua.findNode(parentNodeAddress);
+    if (findRes.error !== Ua.Status.GOOD || !findRes.result) {
+        console.error("Error finding parent node '" + parentNodeAddress + "': " + findRes.errorstring + " (Code: " + findRes.error + ")");
+        return;
+    }
+    var parentNode = findRes.result;
+    console.log("Found parent node: " + parentNode.nodeId.toString());
+
+    // --- Browse for Children ---
+    console.log("Browsing for children...");
+    var browseOptions = {
+        direction: Ua.Node.BROWSEDIRECTION_FORWARD,
+        reference: Ua.Reference.HIERARCHICALREFERENCES, // Find nodes organized under the parent
+        subType: true,                                  // Include subtypes of the reference
+        nodeClass: filterClass,                         // Filter by specified node class (or UNSPECIFIED)
+        maxResult: 0,                                   // No limit on results
+        recursive: false                                // IMPORTANT: Only direct children
+    };
+    var browseRes = parentNode.browse(browseOptions);
+
+    if (browseRes.error !== Ua.Status.GOOD) {
+        console.error("Error browsing parent node '" + parentNodeAddress + "': " + browseRes.errorstring + " (Code: " + browseRes.error + ")");
+        return;
+    }
+
+    if (!browseRes.result || browseRes.result.length === 0) {
+        console.log("No children found matching the criteria under '" + parentNodeAddress + "'. Export finished.");
+        return;
+    }
+
+    console.log("Found " + browseRes.result.length + " children matching criteria. Starting export process...");
+
+    var successCount = 0;
+    var errorCount = 0;
+
+    // --- Loop through each Child Node Found ---
+    browseRes.result.forEach(function(browseResultItem) {
+        var childNode = browseResultItem.node;
+        var childAddress = childNode.nodeId.address; // Get the full address of the child
+        var childBrowseName = childNode.browseName.toString(); // Get the browse name for the filename
+
+        if (!childAddress || !childBrowseName) {
+            console.warn("Skipping child with missing address or browse name: " + JSON.stringify(browseResultItem));
+            errorCount++;
+            return; // Skip this iteration
+        }
+
+        // --- Generate Filename ---
+        // Basic check for potentially problematic characters in browse names for filenames (optional enhancement)
+        // var safeBrowseName = childBrowseName.replace(/[/\\?%*:|"<>]/g, '-'); // Replace forbidden chars
+        var safeBrowseName = childBrowseName; // Assuming browse names are generally safe
+        var fileName = exportDir + safeBrowseName + "_Export.xml";
+
+        console.log("Attempting to export child '" + childAddress + "' (BrowseName: " + childBrowseName + ") to file '" + fileName + "'...");
+
+        // --- Prepare Options for ExportNodesToFile ---
+        var exportOptions = {
+            address: [childAddress],    // API requires an array
+            withouthierarchy: true,     // Export ONLY this child node (flat)
+            file: fileName
+        };
+
+        // --- Call the Export Method ---
+        var exportRes = call("Methods.ExportNodesToFile", exportOptions);
+
+        // --- Handle Export Result ---
+        if (exportRes.error) {
+            // Error occurred during the script call itself
+            console.error("  ERROR calling ExportNodesToFile for '" + childAddress + "': " + exportRes.errorstring + " (Code: " + exportRes.error + ")");
+            errorCount++;
+        } else if (exportRes.result && exportRes.result.success === true) {
+            // Export successful
+            console.log("  SUCCESS: Node '" + childAddress + "' exported to '" + fileName + "'.");
+            successCount++;
+        } else if (exportRes.result && exportRes.result.success === false) {
+            // Export failed, log specific errors if available
+            console.error("  FAILED to export node '" + childAddress + "' to '" + fileName + "'.");
+            if (exportRes.result.errors && exportRes.result.errors.length > 0) {
+                exportRes.result.errors.forEach(function(errDetail) {
+                    console.error("    - Detail: " + errDetail.errorstring + " (Code: " + errDetail.error + ")");
+                });
+            } else {
+                console.error("    - No specific error details provided in the result.");
+            }
+            errorCount++;
+        } else {
+            // Unexpected result format
+             console.error("  FAILED to export node '" + childAddress + "' - Unexpected result format received: " + JSON.stringify(exportRes));
+             errorCount++;
+        }
+    }); // End of forEach loop
+
+    // --- Summary ---
+    console.log("-------------------------------------");
+    console.log("Child Node Export Summary for Parent '" + parentNodeAddress + "':");
+    console.log("  Successfully exported: " + successCount);
+    console.log("  Failed exports:        " + errorCount);
+    console.log("-------------------------------------");
+}
+
+// --- Example Usage ---
+
+// 1. Define the parent node whose children you want to export
+var targetParentNode = "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS"; // Example: Export displays under OBJECTDISPLAYS
+// var targetParentNode = "AGENT.OBJECTS"; // Another example
+
+// 2. Define the export directory (optional)
+var outputFolder = "ObjectDisplayExports/"; // Example: Save to a subfolder
+
+// 3. Call the export function
+
+// Example 1: Export all direct children (any node class) to the 'ObjectDisplayExports/' folder
+console.log("\n--- Running Example 1: Export all children to subfolder '" + outputFolder + "' ---");
+// Make sure the directory exists or the script has permissions to create it if necessary
+exportChildNodesToSeparateFiles(targetParentNode, outputFolder);
+
+
+// Example 2: Export only direct children that are OBJECTS to the project root
+var objectTypeParent = "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents"; // Node with components (likely objects)
+console.log("\n--- Running Example 2: Export only OBJECT children from '" + objectTypeParent + "' to project root ---");
+exportChildNodesToSeparateFiles(objectTypeParent, "", Ua.NodeClass.OBJECT);
+
+// Example 3: Export only direct children that are VARIABLES from AGENT.OBJECTS to the project root
+// var variableParent = "AGENT.OBJECTS.instance1"; // Assuming this has child variables
+// console.log("\n--- Running Example 3: Export only VARIABLE children from '" + variableParent + "' to project root ---");
+// exportChildNodesToSeparateFiles(variableParent, "", Ua.NodeClass.VARIABLE);
+
+
+]]></code>
+</script>

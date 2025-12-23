@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_ANDALUCIA.L500.L_500.current_pressure
+NodeClass: Variable
+BrowseName: 1:current_pressure
+DisplayName: en|current_pressure
+Description: en|current_pressure
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

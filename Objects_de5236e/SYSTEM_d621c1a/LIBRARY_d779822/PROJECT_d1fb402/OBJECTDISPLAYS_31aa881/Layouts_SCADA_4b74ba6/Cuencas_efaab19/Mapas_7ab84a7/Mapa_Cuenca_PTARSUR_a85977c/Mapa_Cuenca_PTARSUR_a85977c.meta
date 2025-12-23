@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Mapas.Mapa_Cuenca_PTARSUR
+NodeClass: Variable
+BrowseName: 1:Mapa_Cuenca_PTARSUR
+DisplayName: en|Mapa_Cuenca_PTARSUR
+Description: en|Mapa_Cuenca_PTARSUR
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

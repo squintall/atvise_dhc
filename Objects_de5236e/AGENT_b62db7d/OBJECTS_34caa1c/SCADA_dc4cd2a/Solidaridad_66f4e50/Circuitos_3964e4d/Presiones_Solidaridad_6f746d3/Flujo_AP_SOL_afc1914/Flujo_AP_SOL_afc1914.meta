@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Presiones_Solidaridad.Flujo_AP_SOL
+NodeClass: Variable
+BrowseName: 1:Flujo_AP_SOL
+DisplayName: en|Flujo_AP_SOL
+Description: en|Flujo_AP_SOL
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

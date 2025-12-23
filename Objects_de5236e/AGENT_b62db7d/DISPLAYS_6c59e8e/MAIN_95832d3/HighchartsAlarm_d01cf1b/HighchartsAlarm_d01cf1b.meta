@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MAIN.HighchartsAlarm
+NodeClass: Variable
+BrowseName: 1:HighchartsAlarm
+DisplayName: en|HighchartsAlarm
+Description: en|HighchartsAlarm
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

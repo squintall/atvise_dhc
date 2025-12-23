@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_La_Joya.Control
+NodeClass: Variable
+BrowseName: 1:Control
+DisplayName: en|Control
+Description: en|Control
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

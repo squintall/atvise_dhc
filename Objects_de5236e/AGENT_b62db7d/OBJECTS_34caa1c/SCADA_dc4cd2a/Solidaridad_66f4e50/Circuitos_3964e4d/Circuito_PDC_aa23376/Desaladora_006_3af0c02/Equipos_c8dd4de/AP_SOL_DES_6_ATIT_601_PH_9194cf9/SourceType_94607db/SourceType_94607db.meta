@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Desaladora_006.Equipos.AP_SOL_DES_6_ATIT_601_PH.SourceType
+NodeClass: Variable
+BrowseName: 1:SourceType
+DisplayName: en|Source type
+Description: en|SourceType
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.SourceType.RelMirrorInputOutput

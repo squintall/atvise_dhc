@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var USER_TABLE_NAME = webMI.query["tableID1"];
+var GROUP_TABLE_NAME = webMI.query["tableID2"];
+
+var check;
+var gGroupTableController;
+var gUserTableController;
+var gTemplateData = {}; //stores the data of all templates
+var gSelectedTemplateName = null;
+var gSelectedGroupName = "";
+var gAccessControlManager;
+var editFlag = 0;
+
+if (webMI.getAccessControlSupport()) {
+	gAccessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+ function handleAccessControlResponse(compareRights, successCallback, failCallback) {
+	if (!gAccessControlManager) {
+		successCallback();
+		return;
+	}
+	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		// do the checks
+		var allRights = true;
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights = allRights && response[compareRights[c].node][compareRights[c].right];
+			} else {
+				allRights = false;
+				break;
+			}
+		}
+		
+		if (allRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * success if any node/right comibination is true
+ * @param compareRights
+ * @param callback success
+ * @param callback fail
+ */
+function handleAccessControlResponseAny(compareRights, successCallback, failCallback) {
+	if (!gAccessControlManager) {
+		successCallback();
+		return;
+	}
+	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		// do the checks
+		var anyRights = false;
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				anyRights = anyRights || response[compareRights[c].node][compareRights[c].right];
+			}
+		}
+		
+		if (anyRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+
+webMI.addOnload(function(e){	
+	initGroupTable();
+	initUserTable();
+});
+
+
+
+
+webMI.addEvent("btnAdd", "click", function(e) {
+var id = "btnAdd";
+var value = true;
+return function(value) {
+	webMI.display.openWindow({display:"SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.user_add",extern:false,height:620,menubar:false,modal:true,movable:false,resizable:false,scrollbars:false,status:false,title:"",toolbar:false,width:860,query:{triggerName: "add_user"}}); 
+} (value);
+});
+
+
+function initGroupTable(){
+	webMI.table.loadResources(function() {
+		var config = {};
+		config["columns"] = createTableColumnsFromGlobalList(webMI.query.columnsGroups, "Main", {}, {
+			defaultvalue: function (row, cell, value, columnDef, dataContext) {
+				return "<div style='width:100%; text-align: center'>" + formatNumberValue(dataContext, value) + "</div>";
+			}
+		});
+        config["mode"] = "once"; // or live/triggered
+        config["bufferInterval"] = 75;
+		config["onClickCallback"] = function(e, info){
+			var row = info.rowIndex;			
+			if (info.column.id == "atvise_marker") {				
+				editFlag = 1;
+			}	
+		}
+        config["onHeaderClickCallback"] = function(e, info){
+			if (info.column.id != "atvise_marker") {				
+				return;
+			}	
+			//setDeleteExportButtonInActive();
+        };
+		
+		config["dataRequestFunction"] = function customDataRequest(continuation) {
+			gGroupTableController = this;
+			loadGroups("");
+		};
+	
+
+        webMI.table.register(GROUP_TABLE_NAME, "config", config);
+        webMI.table.setReady(GROUP_TABLE_NAME, "config");
+    });
+}
+
+function initUserTable(){
+			
+	webMI.table.loadResources(function() {
+		
+		var config = {};
+		var controller;
+		config["columns"] = createTableColumnsFromGlobalList(webMI.query.columnsUsers, "Main", {}, {}).concat({
+			id: "edit",
+			name: "T{Edit}",
+			field: "edit",
+			orderMain: 6,
+			sortable: false,
+			filter: false,
+			visible: true, 
+			resizable: true,
+			width: 70,
+			formatter : function (row, cell, value, columnDef, dataContext) {
+				return "<div style='width:100%; text-align:center;'><i class='fas fa-edit'></i></div>";
+			},
+			defaultvalue: function (row, cell, value, columnDef, dataContext) {
+				return "<div style='width:100%; text-align: center'>" + formatNumberValue(dataContext, value) + "</div>";
+			}
+			
+		});
+		var DeleteColumn = {id: "delete",
+			name: "T{delete}",
+			field: "delete",
+			orderMain: 7,
+			sortable: false,
+			filter: false,
+			visible: true, 
+			resizable: true,
+			width: 70,
+			formatter : function (row, cell, value, columnDef, dataContext) {
+				return "<div style='width:100%; text-align:center;'><i class='fas fa-trash'></i></div>";
+			},
+			defaultvalue: function (row, cell, value, columnDef, dataContext) {
+				return "<div style='width:100%; text-align: center'>" + formatNumberValue(dataContext, value) + "</div>";
+			}};
+		config["columns"].push( DeleteColumn );
+		
+        config["mode"] = "once"; // or live/triggered
+        config["bufferInterval"] = 75;
+		config["onClickCallback"] = function(e, info){
+				var items = info.item;
+				var row = info.rowIndex;
+				var column = info.column;
+				var itemId = info.item.id;
+				var item = [];		
+				controller = webMI.table.request("atvise_user", "controller");
+				if(info.column.id == "edit"){
+					webMI.query.user = info.item.username;	
+					webMI.query.colid = itemId;
+					webMI.display.openWindow({display:"SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.user_editor",
+					extern:false,width:860,height:560,menubar:false,
+					modal:true,movable:true,resizable:false,scrollbars:false,status:false,title:"T{Edit user}",
+					toolbar:false,query:webMI.query});
+					webMI.trigger.connect("edit_user", function(e){	
+						if (e.value == "") {
+							return;
+						}else{	
+							var superuser = (e.value.superuser == 1) ? true : false;											const ids = e.value.colid.split('_');
+							var rownum = ids[1];
+							item = {
+								"name":e.value.fullname,
+								"username":e.value.username,
+								"language":e.value.language,
+								"description":controller.grid.getDataItem(rownum).description,
+								"superuser":superuser,
+								atvise_marker: false,
+								atvise_expand: false					
+							};
+							item.id = e.value.colid;
+							gUserTableController.updateData(item.id, item);
+						}
+					});
+										
+					
+					return;						
+				} else if (info.column.id == "delete") {
+					webMI.display.openWindow({display:"SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.user_delete",extern:false,height:220,menubar:false,modal:true,movable:false,resizable:false,scrollbars:false,status:false,title:"",toolbar:false,width:430,query:{triggerName: "delete_user",user: info.item.username, colid: itemId}});
+					webMI.trigger.connect("delete_user", function(e){
+						if (e.value == "") {
+							return;
+						}else if(controller.dataView.getItemById(e.value.colid)){
+							controller.dataView.deleteItem(e.value.colid);
+						}
+					});
+				}
+				else{
+					if(check != items.username){
+						if(editFlag==1){
+							check = items.username;
+							webMI.display.openWindow({display:"SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.save_changes",extern:false,height:220,menubar:false,modal:false,movable:false,resizable:false,scrollbars:false,status:false,title:"",toolbar:false,width:430,query:{triggerName: "saveUserChanges",user: info.item.username, colid: "id_"+row}});						
+							webMI.trigger.connect("saveUserChanges", function(e){
+								if (e.value.save == 1) {
+									webMI.trigger.fire("saveUsers", "1");
+									controller.grid.setSelectedRows([row]);
+									loadGroups(items.username);
+									check = items.username;
+									e.value.save = 0;
+								}else if(e.value.save == 0){
+									editFlag = 0;
+									controller.grid.setSelectedRows([row]);
+									loadGroups(items.username);
+									check = items.username;
+								}
+							});
+							
+						}
+						else{
+							controller.grid.setSelectedRows([row]);
+							loadGroups(items.username);
+							check = items.username;
+						}
+					}
+				}
+			}
+        
+        config["onHeaderClickCallback"] = function(e, info){
+			if (info.column.id != "atvise_marker") {
+				return;
+			}
+			
+			//setDeleteExportButtonInActive();
+        };
+		
+		config["dataRequestFunction"] = function customDataRequest(continuation) {
+			gUserTableController = this;
+			loadUsers("");
+		};
+
+        webMI.table.register(USER_TABLE_NAME, "config", config);
+        webMI.table.setReady(USER_TABLE_NAME, "config");
+    });
+}
+
+webMI.trigger.connect("add_user", function(e){
+	if (e.value == "") {
+		return;
+	}else{
+		var superuser = (e.value.superuser == 1) ? true : false;
+		var item = {
+			"name":e.value.fullname,
+			"username":e.value.username,
+			"language":e.value.language,
+			"description":((e.value.description) ? e.value.description : ""),
+			"superuser":superuser,
+			atvise_marker: false,
+			atvise_expand: false					
+		};
+		var controller = webMI.table.request("atvise_user", "controller");
+		item.id = "id_"+controller.grid.getDataLength();
+		var data = controller.grid.getData();
+		data.insertItem(controller.grid.getDataLength(), item);
+		return;
+	}
+});
+
+webMI.trigger.connect("saveUsers", function(e){
+	if (e.value == "") {
+		editFlag = 0;
+		return;
+	}else{
+		var selectUserId=gUserTableController.grid.getSelectedRows();
+		if (selectUserId.length != 0){
+			editFlag = 0;
+			var selectUserName=gUserTableController.grid.getDataItem(selectUserId);
+			var selectGroupIds = [];
+			var selectGroups = [];
+			selectGroupIds = gGroupTableController.grid.getSelectedRows();
+			for(var i=0; i < selectGroupIds.length; i++){
+				selectGroups.push(gGroupTableController.grid.getDataItem(selectGroupIds[i]).name);
+			}
+			var options = {};
+			options.mode = "saveUsers";
+			options.groups = selectGroups;
+			options.check = selectUserName.username;
+			handleAccessControlResponse([ 
+			{ node: "SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.UserManagement.UserGroupManager", right: "execute" }
+			], function() {
+				webMI.data.call("UserManagement", options, function(e){
+					var data = {result: []};
+				});
+			}, function() {});
+		}
+	else{
+		alert("Please select user first.");
+	}
+	
+	}
+});
+
+function loadGroups(tb){
+	var options = {};
+	options.mode = "Group";
+	if(tb != ""){
+		options.check = tb;
+	}
+	handleAccessControlResponse([{ node: "SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.UserManagement.UserGroupManager", right: "execute" },{ node: "SYSTEM.SECURITY", right: "engineer" }], function() {
+		webMI.data.call("UserManagement", options, function(e){
+			var data = {result: []};
+			var selection = [];
+			for(var i=0; i < e.length; i++){
+				data.result.push({name: e[i].name, description: e[i].description, private: e[i].private, check: e[i].usercheck});
+				if(e[i].usercheck == 1){
+					selection.push(i);
+				}
+			}				
+			if(tb != ""){
+				if(selection.length>0){
+					gGroupTableController.grid.setSelectedRows(selection);
+				}
+				else{						
+					var tmpitems = gGroupTableController.getSelectedItems();
+					for(var i=0; i<tmpitems.length;i++){
+						gGroupTableController.toggleSelectedItem(tmpitems[i]);
+					}
+				}		
+			}else{
+				gGroupTableController.clearData();
+				gGroupTableController.addData(data);
+				setTimeout (
+				   function () {
+					 gGroupTableController.grid.setSelectedRows([1]);
+				   }, 
+				   500
+				) ;
+			}
+		});
+	}, function() {});
+}
+
+function loadUsers(tb){
+	var options = {};
+	options.mode = "User";
+	gUserTableController.grid.getSelectedRows().forEach(function (rowIndex) {
+		var dataItem = gUserTableController.grid.getDataItem(rowIndex);				
+	});
+	gUserTableController.dataView.getItemMetadata = metadata(gUserTableController.dataView.getItemMetadata);
+	function metadata(old_metadata_provider) {
+	  return function(row) {
+		var item = this.getItem(row);
+		var ret  = (old_metadata_provider(row) || {});
+		
+		if (item) {
+		  ret.cssClasses = (ret.cssClasses || '');
+		  ret.cssClasses += ' user_row';
+		}
+	
+		return ret;
+	  }
+	}
+	
+	handleAccessControlResponse([{ node: "SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.UserManagement.UserGroupManager", right: "execute" },{ node: "SYSTEM.SECURITY", right: "engineer" }], function() {
+		webMI.data.call("UserManagement", options, function(e){
+			var data = {result: []};
+			for(var i=0; i < e.length; i++){
+				data.result.push({name: e[i].name, description: e[i].description, username: e[i].username, language: e[i].language, superuser: e[i].superuser, check: e[i].usercheck});
+			}				
+			gUserTableController.clearData();
+			gUserTableController.addData(data);
+			
+		});
+	}, function() {});
+}
+]]></code>
+</script>

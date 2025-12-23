@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>11</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="alarm" type="alarm" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var alarmtext = "Alarma de rebosamiento en " + alarm.description.es;
+
+/*call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Mail.SendMail",{
+	smtpserver: "Zimbra",
+	from: "monitoreo@aguakan.com",
+	to: "tianalitica@aguakan.com",
+	subject: alarm.description.es,
+	body: alarmtext
+}
+);*/
+//Build message
+
+var timestamp = alarm.valuetimestamp;
+const date = new Date(timestamp);
+const fdate = date.toLocaleString();
+var message = alarmtext + "\n" + fdate;
+var encMessage = encodeURIComponent(message + " " + address);
+
+//Send Telegram Messages
+var http = new HTTPClient();
+
+var address = alarm.base;
+
+if (address.includes("Benito_Juarez")){
+http.get("https://api.telegram.org/bot7299662874:AAHxoaRhuIIb7Z5_ejw9a4fNW-AU_of6rnk/sendMessage?chat_id=@DHCOperacionCUN&parse_mode=Markdown&text=" +encMessage);
+console.log("alarma enviada Benito_Juarez");
+}
+
+if (address.includes("Solidaridad")){
+http.get("https://api.telegram.org/bot7299662874:AAHxoaRhuIIb7Z5_ejw9a4fNW-AU_of6rnk/sendMessage?chat_id=@DHCOperacionSOL&parse_mode=Markdown&text=" +encMessage);
+console.log("alarma enviada Solidaridad");
+}
+
+if (address.includes("Isla_Mujeres")){
+http.get("https://api.telegram.org/bot7299662874:AAHxoaRhuIIb7Z5_ejw9a4fNW-AU_of6rnk/sendMessage?chat_id=@DHCOperacionIM&parse_mode=Markdown&text=" +encMessage);
+console.log("alarma enviada Isla_Mujeres");
+}
+
+if (address.includes("Puerto_Morelos")){
+http.get("https://api.telegram.org/bot7299662874:AAHxoaRhuIIb7Z5_ejw9a4fNW-AU_of6rnk/sendMessage?chat_id=@DHCOperacionPM&parse_mode=Markdown&text=" +encMessage);
+console.log("alarma enviada Puerto_Morelos");
+}
+
+console.log("alarma enviada " + address);
+
+http.get("https://api.telegram.org/bot7299662874:AAHxoaRhuIIb7Z5_ejw9a4fNW-AU_of6rnk/sendMessage?chat_id=@DHCConectividad&parse_mode=Markdown&text=" +encMessage);]]></code>
+</script>

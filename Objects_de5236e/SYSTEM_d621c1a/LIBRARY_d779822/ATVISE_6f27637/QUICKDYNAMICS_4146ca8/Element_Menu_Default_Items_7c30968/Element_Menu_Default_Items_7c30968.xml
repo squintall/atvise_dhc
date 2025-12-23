@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png"></icon>
+    <visible>0</visible>
+    <title>Element Menu Default Items</title>
+    <description>Provides the basic configuration for the Element Menu Quick Dynamic.</description>
+  </metadata>
+  <parameter behavior="hidden" name="id" valuetype="string"/>
+  <parameter behavior="hidden" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.ElementMenu.Index.Default" name="startOrderDefaults" valuetype="global"/>
+  <code><![CDATA[/**
+ * These quick dynamics provide basic menu configurations for the quick dynamics of the Element Menu and Element Menu Manager
+ */
+var _self = this;
+
+if (_self.menuGroup == undefined) {
+	_self.menuGroup = {};
+
+	/* example 1 */
+	var order = __getStartOrder("example1");
+	var orderStart = order["start"];
+	var orderSteps = order["steps"];
+	_self.menuGroup["example1"] = [
+		{mid: "example_item_1", text: "<i class='fas fa-bars'></i> <b>T{About}</b>", order: orderStart},
+		{
+			mid: "example_item_2",
+			text: "About",
+			value: "sendByTrigger",
+			trigger: "example.trigger.definition",
+			order: orderStart += orderSteps
+		},
+		{
+			mid: "example_item_3", text: "Help", value: function () {
+				alert("Help");
+			}, order: orderStart += orderSteps
+		}
+	];
+
+	/* example 2 */
+	var order = __getStartOrder("example2");
+	var orderStart = order["start"];
+	var orderSteps = order["steps"];
+	_self.menuGroup["example2"] = [
+		{mid: "example_item_1", text: "<i class='fas fa-bars'></i> <b>T{About}</b>", order: orderStart},
+		{mid: "example_item_2", text: "About", value: null, trigger: null, order: orderStart += orderSteps},
+		{
+			mid: "example_item_3", text: "Help", value: null, sub: {
+				"example_sub_1": {"text": "Sub Item 1", value: null, trigger: null},
+				"example_sub_2": {"text": "Sub Item 2", value: null, trigger: null},
+				"example_sub_3": {
+					"text": "Sub Item 3", value: function () {
+						alert("Sub Item 3");
+					}
+				}
+			},
+			order: orderStart += orderSteps
+		}
+	];
+}
+
+
+/**
+ * Get predefined start order of a menu group
+ * @param group
+ * @returns {*}
+ * @private
+ */
+function __getStartOrder(group) {
+	var tList = base.startOrderDefaults;
+	if (tList && tList[group]) {
+		tList[group]["start"] = parseInt(tList[group]["start order at"]);
+		tList[group]["steps"] = parseInt(tList[group]["step size between elements"]);
+		return tList[group];
+	} else if (tList && tList["default"]) {
+		tList["default"]["start"] = parseInt(tList["default"]["start order at"]);
+		tList["default"]["steps"] = parseInt(tList["default"]["step size between elements"]);
+		return tList["default"];
+	} else if (!tList) {
+		console.error("Element Menu: The standard sort order is not defined. Please check your setup!");
+	}
+	return {start: 1000, steps: 100};
+}
+
+
+/**
+ * Obj. handling Element Menu Setups
+ */
+var ElementMenuSetupQD = new function () {
+
+	/**
+	 * Get menu items for group
+	 * @param group
+	 * @returns {Array}
+	 */
+	this.getDefault = function (group) {
+		return _self.menuGroup[group] ? _self.menuGroup[group] : [];
+	}
+
+
+	/**
+	 * Set menu items
+	 * @param menu
+	 */
+	this.setDefault = function (menu) {
+		_self.menuGroup = menu;
+	}
+
+
+	/**
+	 * Set menu items for specific group
+	 * @param menu
+	 */
+	this.setDefaultGroup = function (menu, group) {
+		if (group) {
+			_self.menuGroup[group] = menu;
+		}
+	}
+
+
+	/**
+	 * Get predefined start order of a menu group
+	 * @param type
+	 * @returns {*}
+	 */
+	this.getStartOrder = function (group) {
+		return __getStartOrder(group);
+	}
+
+
+	/**
+	 * Get unique symbol id for foreign object container
+	 * @param id
+	 * @returns {*}
+	 */
+	this.getUniqueSymbolID = function (id) {
+		var display = self.document.URL;
+
+		var s = display.lastIndexOf("/") + 1;
+		var e = display.indexOf("?");
+
+		var displayName = display.substring(s, e == -1 ? display.length : e);
+		displayName = displayName.replaceAll("%20", "_");
+		displayName = displayName.replaceAll(" ", "_");
+		displayName = displayName.replaceAll(".", "_");
+		displayName = displayName.toLowerCase();
+
+		return id + "_element_menu_" + displayName;
+	}
+
+}
+
+return ElementMenuSetupQD;
+
+]]></code>
+</script>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="smtpserver" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="from" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="to" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="cc" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="bcc" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="reply_to" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="content_type" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="subject" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="body" type="string" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* Input Parameters
+	 - smtpserver: MANDATORY_STRING; Specifies the name of the smtp server.
+	 - from: MANDATORY_STRING; Specifies the name of the sender.
+	 - to: MANDATORY_STRING; Specifies the name of the recepient(s). Multiple recepients are separated by ';'.
+	 - cc: OPTIONAL_STRING_DEFAULT=""; Specifies the carbon copy recepient(s). Multiple recepients are separated by ';'.
+	 - bcc: OPTIONAL_STRING_DEFAULT=""; Specifies the blind carbon copy recepient(s). Multiple recepients are separated by ';'.
+	 - reply_to: OPTIONAL_STRING_DEFAULT=""; Specifies the "Reply-To" field of the e-mail header.
+	 - content_type: OPTIONAL_STRING_DEFAULT="text/plain"; specifies the "Content-Type" field of the e-mail header.
+	 - subject: OPTIONAL_STRING_DEFAULT=""; Specifies the subject of the mail.
+	 - body: OPTIONAL_STRING_DEFAULT=""; Specifies the message of the mail.
+*/
+
+var nodeId = "AGENT.SMTPSERVERS." + smtpserver;
+var smtpServer = Ua.findNode(nodeId);
+
+if (Ua.Status(smtpServer) != Ua.Status.BADNODEIDUNKNOWN) {
+	var smtpServerData = {};
+	var authentication;
+	var result = smtpServer.result.browse().result;
+
+	for (var i = 0; i < result.length; ++i) {
+		smtpServerData[result[i].node.browseName.name] = result[i].node.value;
+	}
+
+	if (smtpServerData.authentication == "login") authentication = SMTPClient.AUTH_LOGIN;
+	else if (smtpServerData.authentication == "plain") authentication = SMTPClient.AUTH_PLAIN;
+	else if (smtpServerData.authentication == "md5") authentication = SMTPClient.AUTH_MD5;
+	else authentication = SMTPClient.AUTH_NONE;
+
+	var smtp = new SMTPClient({
+		server: smtpServerData.server,
+		port: smtpServerData.port,
+		security: smtpServerData.security,
+		authentication: authentication,
+		user: smtpServerData.user,
+		password: smtpServerData.password
+	});
+
+	if (
+		!smtp.send({
+			from: from,
+			to: to,
+			cc: cc,
+			bcc: bcc,
+			reply_to: reply_to,
+			content_type: content_type,
+			subject: subject,
+			body: body
+		})
+	) {
+		var recipients;
+
+		if (to.search(",") != -1) {
+			recipients = to.substring(0, to.search(",")) + ",...";
+		} else {
+			recipients = to;
+		}
+
+		console.error("Error sending e-mail to ", recipients, " on server ", smtpServerData.server, ": ", smtp.diagnostic);
+	}
+} else console.error("SMTP server doesn't exist: " + smtpserver);
+]]></code>
+</script>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEQAACxEBf2RfkQAABS1JREFUWIXtl02MHMUVx3+vXnXP5+4si0EmtjHGhhiIIgE5JCAuEUgIcUi4css5B645hQsIiQMHbpFyzCWKIkXKLVEIygGRxFFiIkCxwtoGYrPYu+vZ+eru+uDQPb09O7MQFIlceNJTvapqvf+/Xv2rpga+tv+zyTx44cennjj1jdaj1kAAjAGjBjVlnBhADbbqq1bfGAihdA+EArIiEAJkWSBGZHen2P3t7/NfXrhwbXKYgJ0Hzzy58cqZ+55+LPgpMXqAso2eSCzbGIBIjH7hmxgD+ewGeT5GxACQZTlpanHOMdwPbF3de/fCBf58JAFCcNPxFt4tkTzCQh0l6W18sHWTf/xzwrcf6nD1o4LECq2WsLvn+c7DXQYDNauy1ARMYmK7cwLv9uvJ+YoP2+FxY1LuOb2BCNz/zXO02//mtg2lKCJ5Ebn99k2m052VyziogAgfXv4DWQYi9VDdipT7XQLK0py1lntObzIZ/YeTJ44RgqPXSwjBkWUjer1keSULBCJYK1g7BzBARMSUbhQRgzGKMUk1bqvYIlLOI1rFitEWRb6DG17h/femo88lEH2k1etiNMEVM65dm2ATwRjBCIgBValOhVQnQOrKmJqMIQRHCAUxBpyL7I8CP3xu/SfP/WBwxQfSravZ1quvXfkZ4GoCPkK7fQybbnBj+x3OP/god599gRhd6aGoYk+IeaV+B9ETQl6fjBgdwc+YjC6Rza4jotxx1xrHj196vt09QT7b5uSpj4tXX+NXwHajAh6bDkjSDVqtDtnsE27tvoVzQxrXBcIKMcvivE0GvPnm77j4zpSnvr/GH/804szplL3hh1gVHn98bX+e9KACgGobYzqICK32cVqdE2jRrxhGYuPoESPNoxjjXGMBY1p877sPc//Zdzl7/kd0uz/n9L1PceP6G6xvPEgRJsDfFzXgChDTQrVDkvTIsxtc/MtPl9ReeqmFcv8tUgnTmLQUoLEk6THuOvkEt3b/yplzz+CKIcdPPkue3STb+3hZhM5RKbeL0TLR+voAm/QrtaclgLaqSrVKb8Ri0rIVReZkKgdBbY/Z5DLj4dYygcKBkQS1fYy2iaGgt3YOm6wfENBOBVT2EcVICYQIwhyM6jgaQBpELEY7C/JpVCCCKNb2MSbF+Yze+gNYO6i2YHE1JWgTYBHsgESjAtohJJtgzSoCHhFFbR/VDq4YkrbuxJgO5bW7mLyOD/ebhEQRpCZiTAcbcpqnakEDkYBIORRDgbWDstSN1SyDLQMJZuWWqHaJIQfnVxMIfkoIOd5PKYphXY0qw4qyV2D13JyIqfd8ThgxGO0SQkZwo9UEIFZqb1EUGdauodon4hG0kWyxAvPfgvIDcwhY60qISQk6YuZXEIghdPdu/o2iuMXN7Yt4D6p9bLJRXrlHCawqdxNoPr9gjQeMm67Ygp1b/jdvvf1prrodRqNgHzjfe0Rtv6W2T4y+Srx6b1cChbwGLEUckOjxfkwRDn6ZawIvvrz1EvBS1e38+hcPvS9i71Y7KJN9LlBsPFJC49qOC48XI5Hgp8zyFQQOmfjMVaWnTPQlgObklrNCiDl++sUEdFog3k+IISf4KZH5HlZARzzXvshicEyDq/tHEcAHauUe3FtfFlAWeyZFtYv7LypAPgv9y/96hSTdXFT//2KizCZXKYq41uvBeHw0gfGlrfz1j66/8S2rJmxuKO0OiFFUQaX8Y3LgihpQW94WPoL3Ee89eQHelz6aePaHwezsuQ/GY1Y/k7+2r9o+A5fxXuqEjN0RAAAAAElFTkSuQmCCRK5CYII=</icon>
+	<visible>1</visible>
+	<title>Change Display by Node</title>
+	<description>Changes the display by a node value.</description>
+  </metadata>
+  <parameter name="nodeId" description="node triggering the change" valuetype="address" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="minRange" description="min of range" valuetype="number" defaultvalue="0" config="" behavior="optional" group=""/>
+  <parameter name="maxRange" description="max of range" valuetype="number" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="display" description="display to be opened" valuetype="display" defaultvalue="" config="" behavior="optional" group=""/>
+  <code><![CDATA[// This Quick Dynamic opens a new display if the value of the node defined by "nodeId" lies within the range defined by "minRange" and "maxRange".
+// Parameters:
+//	nodeId:		node triggering this Quick Dynamic
+//	minRange:	lower bound of the range where the node's value should lie in
+//	maxRange:	upper bound of the range where the node's value should lie in; if not specified it will be set to "minRange", i.e. the quick dynamic will be triggered at a
+//				discrete value (minRange=maxRange=value) only and not for a range
+//	Display:	the display which shall be opened
+var AggregateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Aggregate Manager");
+webMI.addOnunload(function unloadAggregateManager() {
+	AggregateManager.destroy();
+	AggregateManager = null;
+});
+
+AggregateManager.subscribeNodeOrAggregate(base.nodeId, handleResult);
+
+function handleResult(e) {
+	var value = e.value;
+
+	if (String(base.maxRange) == "") {
+		var maxRange=base.minRange; // If no maxRange is specified, the Display will only be opened at a discrete value (value = minRange = maxRange)
+	} else {
+		var maxRange = parseFloat(base.maxRange);
+	}
+	if (value >= base.minRange && value <= maxRange) {
+		webMI.display.openDisplay(base.display, {});
+	}
+}
+]]></code>
+</script>

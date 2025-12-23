@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>11</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="alarm" type="alarm" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/*var alarmtext = "Alarma de rebosamiento en " + alarm.description.es;
+
+call("SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.Mail.SendMail",{
+	smtpserver: "Google",
+	from: "monitoreo@aguakan.com",
+	to: "tianalitica@aguakan.com",
+	subject: alarm.description.es,
+	body: alarmtext
+}
+);*/]]></code>
+</script>

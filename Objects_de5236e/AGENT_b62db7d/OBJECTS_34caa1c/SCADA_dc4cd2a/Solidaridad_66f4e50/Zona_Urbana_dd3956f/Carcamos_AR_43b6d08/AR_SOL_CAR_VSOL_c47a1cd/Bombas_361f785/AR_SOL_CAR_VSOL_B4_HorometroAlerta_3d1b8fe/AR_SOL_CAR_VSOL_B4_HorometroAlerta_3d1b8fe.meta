@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AR.AR_SOL_CAR_VSOL.Bombas.AR_SOL_CAR_VSOL_B4_HorometroAlerta
+NodeClass: Variable
+BrowseName: 1:AR_SOL_CAR_VSOL_B4_HorometroAlerta
+DisplayName: en|AR_SOL_CAR_VSOL_B4_HorometroAlerta
+Description: en|AR_SOL_CAR_VSOL_B4_HorometroAlerta
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

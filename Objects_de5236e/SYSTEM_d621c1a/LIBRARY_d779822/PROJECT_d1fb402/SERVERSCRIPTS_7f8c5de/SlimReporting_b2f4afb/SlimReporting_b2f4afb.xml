@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="timeStampFrom" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="timeStampTo" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="SavePDF" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="BaseNode" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="Tipo_Reporte" type="node" trigger="false" relative="false" value="ns=1;s=AGENT.OBJECTS.Tipo_Reporte"/>
+  <parameter name="Periodicidad" type="node" trigger="false" relative="false" value="ns=1;s=AGENT.OBJECTS.Periodicidad"/>
+  <parameter name="Mult_Periodicidad" type="node" trigger="false" relative="false" value="ns=1;s=AGENT.OBJECTS.Multiplo_Periodicidad"/>
+  <parameter name="Metodo_Ajuste" type="node" trigger="false" relative="false" value="ns=1;s=AGENT.OBJECTS.Metodo_Ajuste"/>
+  <code><![CDATA[
+//Llamo al generador de reportes
+var Report_Config=call("SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.Genera_Reporte",{Tipo_Reporte:Tipo_Reporte.value,
+																			  timeStampFrom:timeStampFrom,
+																			  timeStampTo:timeStampTo,
+																			  Periodicidad:Periodicidad.value,
+																			  Mult_Periodicidad:Mult_Periodicidad.value, 
+																			  Metodo_Ajuste:Metodo_Ajuste.value});
+
+
+var http = new HTTPClient();
+
+var res = http.request({
+	hostname: "localhost",
+	port: 5000,
+	path: "/report",
+	method: "POST",
+	data: "doc=" + JSON.stringify(Report_Config.doc) + "&" +
+		  "titlePage=" + JSON.stringify(Report_Config.titlePage) + "&" +
+		  "contentPage=" + JSON.stringify(Report_Config.contentPage),
+	
+});
+
+if(SavePDF == true){
+	var date = new Date();
+	var day = date.getDate();
+	var months = date.getMonth() + 1;
+	var year = date.getYear() + 1900;
+	var hour = date.getHours();
+	var minutes = date.getMinutes();
+	var seconds = date.getSeconds();
+	var milliseconds = date.getMilliseconds();	
+	
+	date = year + '-' + months + '-' + day;
+	if (seconds < 10) { seconds = '0' + seconds.toString(); }
+	if (minutes < 10) { minutes = '0' + minutes.toString(); }
+	if (day < 10) { day = '0' + day.toString(); }
+	if (months < 10) { months = '0' + months.toString(); }
+	
+	const timeStamp = date + '-' + hour + '-' + minutes + '-' + seconds + "-"+milliseconds;
+	
+	var ofs = new OutputFileStream("Reports/"+timeStamp+".pdf", "binary", "append");
+	ofs.open();
+	ofs.write(res.data);
+	ofs.close();
+}
+return res.data;]]></code>
+</script>

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=VariableTypes.PROJECT.Word.bit11
+NodeClass: Variable
+BrowseName: 1:bit11
+DisplayName: en|bit11
+Description: en|bit11
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

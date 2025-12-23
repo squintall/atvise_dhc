@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Captacion.Carcamos.AP_BJ_CAR_7.Caudalimetro.APC7-L1-AcumuladoPasado
+NodeClass: Variable
+BrowseName: 1:APC7-L1-AcumuladoPasado
+DisplayName: en|APC7-L1-AcumuladoPasado
+Description: en|APC7-L1-AcumuladoPasado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

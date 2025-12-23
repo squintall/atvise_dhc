@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Cárcamo_Puerto_Maya_3.Equipos.Nivel.AR_SOL_CAR_PUERTOMAYA2_NIV_T1_NivelPorcentaje
+NodeClass: Variable
+BrowseName: 1:AR_SOL_CAR_PUERTOMAYA2_NIV_T1_NivelPorcentaje
+DisplayName: en|AR_SOL_CAR_PUERTOMAYA2_NIV_T1_NivelPorcentaje
+Description: en|AR_SOL_CAR_PUERTOMAYA2_NIV_T1_NivelPorcentaje
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Grafica_Circuito_Intermedio.Presion_INT
+NodeClass: Variable
+BrowseName: 1:Presion_INT
+DisplayName: en|Presion_INT
+Description: en|Presion_INT
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

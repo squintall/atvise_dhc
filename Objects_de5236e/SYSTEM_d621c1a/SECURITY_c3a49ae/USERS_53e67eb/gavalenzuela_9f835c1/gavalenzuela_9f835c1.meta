@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.gavalenzuela
+NodeClass: Object
+BrowseName: 1:gavalenzuela
+DisplayName: en|gavalenzuela
+Description: en|gavalenzuela
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

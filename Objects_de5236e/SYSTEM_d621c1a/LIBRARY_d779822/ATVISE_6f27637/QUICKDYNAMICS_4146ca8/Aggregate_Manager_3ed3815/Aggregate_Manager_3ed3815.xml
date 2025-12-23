@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">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</icon>
+    <visible>0</visible>
+    <title>Aggregate Manager</title>
+    <description>Adds functions for aggregate management and subscription.</description>
+  </metadata>
+  <code><![CDATA[/**
+ * This Quick Dynamic helps managing aggregate selection
+ */
+
+if (base.legacy) {
+	/**
+	 ************************
+	 * Old Aggregate Manager
+	 ************************
+	 */
+
+	var self = this;
+	var AggregateFunctions = [];
+	self.timeout = 3000;
+	self.lastBrowse = 0;
+	self.bufferedAggregateList = false;
+    self.readBuffer = false;
+	self.userRights = {
+		browse: false,
+		execute: false
+	};
+
+	var AggregateManager = new (function () {
+		this.subscribeID = null;
+		this.subscribeFilterID = null;
+		this.aggregateIndex = [];
+
+		this.validAggregates = [
+			"AnnotationCount",
+			"Average",
+			"Count",
+			"Delta",
+			"DeltaBounds",
+			"DurationBad",
+			"DurationGood",
+			"DurationInStateNonZero",
+			"DurationInStateZero",
+			"End",
+			"EndBound",
+			"Interpolative",
+			"Maximum",
+			"Maximum2",
+			"MaximumActualTime",
+			"MaximumActualTime2",
+			"Minimum",
+			"Minimum2",
+			"MinimumActualTime",
+			"MinimumActualTime2",
+			"NumberOfTransitions",
+			"PercentBad",
+			"PercentGood",
+			"Range",
+			"Range2",
+			"Sampled",
+			"StandardDeviationPopulation",
+			"StandardDeviationSample",
+			"Start",
+			"StartBound",
+			"TimeAverage",
+			"TimeAverage2",
+			"Total",
+			"Total2",
+			"VariancePopulation",
+			"VarianceSample",
+			"WorstQuality",
+			"WorstQuality2"
+		];
+
+		/** returns list of valid aggregates **/
+		this.getAggregateList = function () {
+			return this.validAggregates;
+		};
+
+		/** check if its a valid aggregate **/
+		/* @param aggregate ... string name of aggregate */
+		this.isValidAggregate = function (aggregate) {
+			if (this.validAggregates.indexOf(aggregate) != -1) return true;
+			return false;
+		};
+
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+		this.getRequiredUserRights = function () {
+			return new Promise((resolve) => {
+				accessControlManager.getRights("SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.Browse", "execute", (response) => {
+					if (response.value == true) {
+						accessControlManager.getRights("AGENT.HISTORY.AGGREGATETEMPLATES", "browse", (response2) => {
+							resolve(response2.value);
+						});
+					} else {
+						resolve(response.value);
+					}
+				});
+			});
+		};
+
+		this.getAggregateAddress = function (nodeAddress) {
+			return new Promise((resolve) => {
+				webMI.data.call(
+					"BrowseNodes",
+					{
+						startAddress: "AGENT.HISTORY.AGGREGATETEMPLATES",
+						vTypes: [
+							"i=61",
+							"i=62x",
+							"i=63",
+							"i=2340x",
+							"ns=1;s=ObjectTypes.ATVISE.AggregateTemplate",
+							"ns=1;s=ObjectTypes.ATVISE.AggregateFunction"
+						],
+						mapping: ["name:nodeid:splitnamespace", "text:browsename", "type:typedefinition:splitnamespace"]
+					},
+					(aggregateList) => {
+						self.bufferedAggregateList = aggregateList;
+						self.lastBrowseCompleted = true;
+						var aggregateAddress = this.checkAggregate(nodeAddress, self.bufferedAggregateList);
+						resolve(aggregateAddress);
+					}
+				);
+			});
+		};
+
+		this.checkAggregate = function (nodeAddress, aggregateList) {
+			var aggregateAddress = false;
+
+			function createList(aggregateList) {
+				if (Object.keys(aggregateList).includes("error")) return;
+
+				for (var key in aggregateList) {
+					var aggregateName = aggregateList[key].name;
+					var aggregateIndex = aggregateName.replace("AGENT.HISTORY.AGGREGATETEMPLATES", "");
+
+					if (AggregateFunctions.indexOf(aggregateIndex) < 0) AggregateFunctions.push(aggregateIndex);
+
+					if (aggregateList[key].childs) createList(aggregateList[key].childs);
+				}
+			}
+
+			if (AggregateFunctions.length == 0) {
+				createList(aggregateList);
+			}
+
+			for (var i in AggregateFunctions) {
+				var name = AggregateFunctions[i];
+				var pos = nodeAddress.lastIndexOf(name);
+
+				if (pos > -1 && nodeAddress.substring(pos) == name) {
+					aggregateAddress = name;
+					break;
+				}
+			}
+
+			return aggregateAddress;
+		};
+
+		/** browse for configured aggregates **/
+		/* @param nodeAddress ... address for browse aggregate parameters */
+		/* @param callback ... callback function */
+		this.isAggregates = async function (nodeAddress, callback) {
+			if (typeof nodeAddress == "undefined") {
+				return;
+			}
+
+			if (webMI.getFeatureSupport().aggregates != true) {
+				callback(false);
+				return;
+			}
+
+			if (webMI.getMethodSupport().indexOf("BrowseNodes") == -1) {
+				console.warn("The method BrowseNodes is not supported! Aggregates can not be queried.");
+				callback(false);
+				return;
+			}
+
+			if (accessControlManager != false) {
+				if (!(await this.getRequiredUserRights())) {
+					/* callback({execute: false}); */
+					callback(false);
+					return;
+				}
+			}
+
+			var currentTime = Date.now();
+
+			if (self.lastBrowse + self.timeout < currentTime) {
+				self.bufferedAggregateList = false;
+				self.lastBrowse = currentTime;
+
+				webMI.data.call(
+					"BrowseNodes",
+					{
+						startAddress: "AGENT.HISTORY.AGGREGATETEMPLATES",
+						vTypes: [
+							"i=61",
+							"i=62x",
+							"i=63",
+							"i=2340x",
+							"ns=1;s=ObjectTypes.ATVISE.AggregateTemplate",
+							"ns=1;s=ObjectTypes.ATVISE.AggregateFunction"
+						],
+						mapping: ["name:nodeid:splitnamespace", "text:browsename", "type:typedefinition:splitnamespace"]
+					},
+					(aggregateList) => {
+						self.bufferedAggregateList = aggregateList;
+						self.lastBrowseCompleted = true;
+						var aggregateAddress = this.checkAggregate(nodeAddress, self.bufferedAggregateList);
+						callback(aggregateAddress);
+					}
+				);
+			} else {
+				if (self.bufferedAggregateList != false) {
+					var aggregateAddress = this.checkAggregate(nodeAddress, self.bufferedAggregateList);
+					callback(aggregateAddress);
+				} else {
+					var self_function = this;
+					setTimeout(function () {
+						if (!self_function || !self_function.isAggregates) return;
+						self_function.isAggregates(nodeAddress, callback);
+					}, 100);
+				}
+			}
+		};
+
+		/** subscribe node or aggregate on given base adresse **/
+		/* @param base ... node or aggregate address  */
+		/* @param manageNodeResult ... callback if node address is found */
+		/* @param manageAggregateResult ... callback if aggregate address is found (optional) */
+		/* @param modComponent ... callback to modify components if aggregate is found (optional) */
+		this.subscribeNodeOrAggregate = function (base, manageNodeResult, manageAggregateResult, modComponent) {
+			var self = this;
+			if (typeof manageAggregateResult == "undefined") {
+				manageAggregateResult = manageNodeResult;
+			}
+
+			this.isAggregates(base, function (aggregateAddress) {
+				if (aggregateAddress.execute === false || !self || typeof self.subscribeByNode != "function") {
+					return;
+				}
+
+				if (aggregateAddress == false) {
+					self.subscribeByNode(base, manageNodeResult);
+				} else {
+					if (typeof modComponent != "undefined" && typeof modComponent == "function") {
+						modComponent();
+					}
+
+					var aggregateBase = base.replace(aggregateAddress, "");
+					var aggregateTemplate = "AGENT.HISTORY.AGGREGATETEMPLATES" + aggregateAddress;
+
+					webMI.data.call(
+						"BrowseNodes",
+						{
+							startAddress: aggregateTemplate,
+							vTypes: [
+								"i=61",
+								"i=62",
+								"i=63",
+								"i=2340",
+								"ns=1;s=ObjectTypes.ATVISE.AggregateTemplate",
+								"ns=1;s=ObjectTypes.ATVISE.AggregateFunction"
+							],
+							mapping: ["name:nodeid:splitnamespace", "text:browsename", "type:typedefinition:splitnamespace"]
+						},
+
+						function (aggregate) {
+							var aggregateKeys = [];
+							var aggregateConfig = {};
+
+							for (var key in aggregate) aggregateKeys.push(key);
+
+							function evalAggregate(aggregate, aggregateKeys, aggregateConfig, manageAggregateResult) {
+								if (aggregateKeys.length) {
+									var key = aggregateKeys.pop();
+									if (aggregate[key]["type"] == "i=2340") {
+										aggregateConfig["aggregate"] = aggregate[key].text;
+										evalAggregate(aggregate, aggregateKeys, aggregateConfig, manageAggregateResult);
+									} else if (aggregate[key]["type"] == "i=62") {
+										webMI.data.read(aggregateTemplate + "." + key, function (e) {
+											aggregateConfig[key] = e.value;
+											evalAggregate(aggregate, aggregateKeys, aggregateConfig, manageAggregateResult);
+										});
+									} else {
+										evalAggregate(aggregate, aggregateKeys, aggregateConfig, manageAggregateResult);
+									}
+								} else {
+									try {
+										self.subscribeByAggregate(aggregateConfig, manageAggregateResult);
+									} catch (ex) {
+										console.warn("DEBUG: AGM not ready"); // in case of slow loading do not display errors
+									}
+								}
+							}
+
+							aggregateConfig["address"] = aggregateBase;
+							evalAggregate(aggregate, aggregateKeys, aggregateConfig, manageAggregateResult);
+						}
+					);
+				}
+			});
+		};
+
+		/** compatible: @internal subscribe if node on given base adresse **/
+		this.subscribeNode = function (base, manageNodeResult) {
+			this.subscribeByNode(base, manageNodeResult);
+		};
+
+		/** @internal subscribe if node on given base adresse **/
+		this.subscribeByNode = function (base, manageNodeResult) {
+			this.subscribeID = webMI.data.subscribe(base, manageNodeResult);
+		};
+
+		/** compatible: @internal subscribe if aggregate on given base adresse **/
+		this.subscribeAggregate = function (AggregateConfig, manageAggregateResult) {
+			return this.subscribeByAggregate(AggregateConfig, manageAggregateResult);
+		};
+
+		/** unsubscribe aggregate **/
+		this.unsubscribeAggregate = function (id) {
+			var unSubscribeDone = false;
+			for (var key in this.aggregateIndex) {
+				if (this.aggregateIndex[key] == id) {
+					webMI.data.unsubscribeFilter(id);
+					delete this.aggregateIndex[key];
+					unSubscribeDone = true;
+					break;
+				}
+			}
+
+			/* clean index if empty */
+			if (!Object.keys(this.aggregateIndex).length) {
+				this.aggregateIndex = [];
+			}
+
+			return unSubscribeDone;
+		};
+
+		/** @internal subscribe if aggregate on given base adresse **/
+		this.subscribeByAggregate = function (AggregateConfig, manageAggregateResult) {
+			this.subscribeFilterID = webMI.data.subscribeFilter(
+				{
+					address: ["v:" + AggregateConfig["address"]],
+					aggregate: ["v:" + AggregateConfig["aggregate"]],
+					select: [
+						"v:priority",
+						"v:value",
+						"v:username",
+						"v:address",
+						"v:timestamp",
+						"v:type",
+						"v:status",
+						"v:ReplacementNames",
+						"v:ReplacementValues"
+					],
+					interval: ["v:" + AggregateConfig["interval_value"]],
+					unit: ["v:" + AggregateConfig["interval_unit"]],
+					type: "v:1",
+					init: ["v:true"]
+				},
+				function (subscribeResult) {
+					manageAggregateResult(subscribeResult);
+				}
+			);
+			this.aggregateIndex.push(this.subscribeFilterID);
+			return this.subscribeFilterID;
+		};
+
+		/** gets and extracts the aggregate configuration from browseNode **/
+		/* @param aggregate_template ... node adresse of the aggregate template */
+		/* @param aggregate_result ... object of browse node result */
+		/* @param callback ... callback function */
+		this.extractAggregateConfig = function (aggregate_template, aggregate_result, callback) {
+			var Aggregate = "";
+			var AggregateKeys = [];
+			for (var item in aggregate_result) {
+				if (AggregateManager.isValidAggregate(item)) {
+					Aggregate = item;
+				} else {
+					AggregateKeys.push(aggregate_template + "." + item);
+				}
+			}
+			if (Aggregate != "") {
+				var AggregateValue = [];
+				webMI.data.read(AggregateKeys, function (readAggregateConfig) {
+					for (var item in readAggregateConfig) {
+						AggregateValue[AggregateKeys[item].substring(AggregateKeys[item].lastIndexOf(".") + 1)] =
+							readAggregateConfig[item].value;
+					}
+					AggregateValue["aggregate"] = Aggregate;
+					callback(AggregateValue);
+				});
+			} else {
+				callback(false);
+			}
+		};
+
+		/** destroy **/
+		this.destroy = function () {
+			if (this.subscribeID != null) {
+				webMI.data.unsubscribe(this.subscribeID);
+			}
+			if (this.subscribeFilterID != null) {
+				webMI.data.unsubscribeFilter(this.subscribeFilterID);
+			}
+			for (var key in this) {
+				this[key] = null;
+			}
+		};
+	})();
+
+	return AggregateManager;
+} else {
+	/**
+	 ************************
+	 * New Aggregate Manager
+	 ************************
+	 */
+
+    var self = this;
+    self.timeout = 3000;
+    if(typeof self.lastBrowse == "undefined")
+        self.lastBrowse = 0;
+    if(typeof self.bufferedAggregateList == "undefined")
+        self.bufferedAggregateList = false;
+    if(typeof self.readBuffer == "undefined")
+        self.readBuffer = false;
+
+	/**
+	 * IMPORTS
+	 */
+	var AccessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+	/**
+	 * Class AggregateManager
+	 */
+
+	AggregateManager = function () {
+		var aggregateIndex = [];
+		var isReady = false;
+		var isACSupport = webMI.getAccessControlSupport();
+		var canBrowseNodes = webMI.getMethodSupport().indexOf("BrowseNodes") != -1;
+
+		var compareRights = [
+			{ node: "AGENT.HISTORY.AGGREGATETEMPLATES", right: "browse", disable: true, notify: false },
+			{ node: "AGENT.HISTORY.AGGREGATETEMPLATES", right: "read", disable: true, notify: false },
+			{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes", right: "execute", disable: true, notify: false }
+		];
+
+		if (isACSupport && AccessControlManager) {
+			AccessControlManager.assist.handleWithPermissions(compareRights, _setupWithPermissions, _setupWithoutPermission);
+		} else {
+			_setupWithPermissions();
+		}
+
+		/**
+		 * Clean up
+		 */
+		this.destroy = function () {
+			if (this.subscribeID != null) {
+				webMI.data.unsubscribe(this.subscribeID);
+			}
+			if (this.subscribeFilterID != null) {
+				webMI.data.unsubscribeFilter(this.subscribeFilterID);
+			}
+			for (var key in this) {
+				this[key] = null;
+			}
+		};
+
+		/**
+		 * Checks an address being valid aggregate
+		 * @param node
+		 * @param callback
+		 */
+		this.isAggregates = function (node, callback) {
+			var that = this;
+
+			if (!isReady) {
+				setTimeout(function recall() {
+					if (that && that.isAggregates) that.isAggregates(node, callback);
+				}, 50);
+			} else {
+				if (!node) {
+					callback(false);
+				} else if (canBrowseNodes) {
+					_isAggregates(node, callback);
+				} else {
+					if (isACSupport && AccessControlManager) {
+						var nodeCompareRighs = [{ node: node, right: "read", disable: true, notify: false }];
+						AccessControlManager.assist.handleWithPermissions(
+							nodeCompareRighs,
+							function _validateWithPermissions() {
+								callback(false, nodeCompareRighs);
+							},
+							function _validateWithoutPermissions() {
+								let aggregateRights = compareRights.concat({
+									node: node,
+									right: "read",
+									disable: true,
+									notify: false
+								});
+								callback(false, aggregateRights);
+							}
+						);
+					} else {
+						callback(false);
+					}
+				}
+			}
+		};
+
+		/**
+		 * Subscribe a nodes or an aggregate
+		 * @param base
+		 * @param manageNodeResult
+		 * @param manageAggregateResult
+		 * @param modComponent
+		 */
+		this.subscribeNodeOrAggregate = function (base, manageNodeResult, manageAggregateResult, modComponent) {
+			var self = this;
+
+			if (typeof manageAggregateResult == "undefined") {
+				manageAggregateResult = manageNodeResult;
+			}
+
+			this.isAggregates(base, function (index) {
+				if (!self || typeof self.subscribeByNode != "function") return;
+
+				if (index == false) {
+					self.subscribeByNode(base, manageNodeResult);
+				} else {
+					if (typeof modComponent != "undefined" && typeof modComponent == "function") {
+						modComponent();
+					}
+
+					var aggregateBase = base.replace(index, "");
+					var aggregateTemplate = "AGENT.HISTORY.AGGREGATETEMPLATES" + index;
+
+					webMI.data.call(
+						"BrowseNodes",
+						{
+							startAddress: aggregateTemplate,
+							vTypes: [
+								"i=61",
+								"i=62",
+								"i=63",
+								"i=2340",
+								"ns=1;s=ObjectTypes.ATVISE.AggregateTemplate",
+								"ns=1;s=ObjectTypes.ATVISE.AggregateFunction"
+							],
+							mapping: ["name:nodeid:splitnamespace", "text:browsename", "type:typedefinition:splitnamespace"]
+						},
+						function (aggregate) {
+							var aggregateKeys = [];
+							var aggregateConfig = {};
+
+							for (var key in aggregate) aggregateKeys.push(key);
+
+							function evalAggregate(aggregate, aggregateKeys, aggregateConfig, manageAggregateResult) {
+								if (aggregateKeys.length) {
+									var key = aggregateKeys.pop();
+									if (aggregate[key]["type"] == "i=2340") {
+										aggregateConfig["aggregate"] = aggregate[key].text;
+										evalAggregate(aggregate, aggregateKeys, aggregateConfig, manageAggregateResult);
+									} else if (aggregate[key]["type"] == "i=62") {
+										webMI.data.read(aggregateTemplate + "." + key, function (e) {
+											aggregateConfig[key] = e.value;
+											evalAggregate(aggregate, aggregateKeys, aggregateConfig, manageAggregateResult);
+										});
+									} else {
+										evalAggregate(aggregate, aggregateKeys, aggregateConfig, manageAggregateResult);
+									}
+								} else {
+									try {
+										self.subscribeByAggregate(aggregateConfig, manageAggregateResult);
+									} catch (ex) {
+										console.error("AGM: " + ex);
+									}
+								}
+							}
+
+							aggregateConfig["address"] = aggregateBase;
+							evalAggregate(aggregate, aggregateKeys, aggregateConfig, manageAggregateResult);
+						}
+					);
+				}
+			});
+		};
+
+		/** compatible: @internal subscribe if node on given base adresse **/
+		this.subscribeNode = function (base, manageNodeResult) {
+			this.subscribeByNode(base, manageNodeResult);
+		};
+
+		/** @internal subscribe if node on given base adresse **/
+		this.subscribeByNode = function (base, manageNodeResult) {
+			this.subscribeID = webMI.data.subscribe(base, manageNodeResult);
+		};
+
+		/** compatible: @internal subscribe if aggregate on given base adresse **/
+		this.subscribeAggregate = function (AggregateConfig, manageAggregateResult) {
+			return this.subscribeByAggregate(AggregateConfig, manageAggregateResult);
+		};
+
+		/** unsubscribe aggregate **/
+		this.unsubscribeAggregate = function (id) {
+			var unSubscribeDone = false;
+			for (var key in this.aggregateIndex) {
+				if (this.aggregateIndex[key] == id) {
+					webMI.data.unsubscribeFilter(id);
+					delete this.aggregateIndex[key];
+					unSubscribeDone = true;
+					break;
+				}
+			}
+
+			/* clean index if empty */
+			if (this.aggregateIndex && !Object.keys(this.aggregateIndex).length) {
+				this.aggregateIndex = [];
+			}
+
+			return unSubscribeDone;
+		};
+
+		/** @internal subscribe if aggregate on given base adresse **/
+		this.subscribeByAggregate = function (AggregateConfig, manageAggregateResult) {
+			this.subscribeFilterID = webMI.data.subscribeFilter(
+				{
+					address: ["v:" + AggregateConfig["address"]],
+					aggregate: ["v:" + AggregateConfig["aggregate"]],
+					select: [
+						"v:priority",
+						"v:value",
+						"v:username",
+						"v:address",
+						"v:timestamp",
+						"v:type",
+						"v:status",
+						"v:ReplacementNames",
+						"v:ReplacementValues"
+					],
+					interval: ["v:" + AggregateConfig["interval_value"]],
+					unit: ["v:" + AggregateConfig["interval_unit"]],
+					type: "v:1",
+					init: ["v:true"]
+				},
+				function (subscribeResult) {
+					manageAggregateResult(subscribeResult);
+				}
+			);
+
+			return this.subscribeFilterID;
+		};
+
+		/**
+		 * PRIVATE FUNCTIONS
+		 */
+
+		/**
+		 * Parses the node tree for valid aggregate functions
+		 * @param aggregateResultTree
+		 * @private
+		 */
+		function _buildList(aggregateResultTree) {
+			for (var key in aggregateResultTree) {
+				var node = aggregateResultTree[key];
+
+				if (node.type == "ObjectTypes.ATVISE.AggregateFunction") {
+					aggregateIndex.push(node.name.replace("AGENT.HISTORY.AGGREGATETEMPLATES", ""));
+				}
+
+				if (node.childs) {
+					_buildList(node.childs);
+				}
+			}
+			isReady = true;
+            self.readBuffer = false;
+		}
+
+		/**
+		 * Initial reading of the aggregate declarations
+		 * @private
+		 */
+		function _initAggregatesIndex() {
+            if(self.readBuffer) {
+                setTimeout(function(e) { _initAggregatesIndex() }, 50);
+                return;
+            }
+
+            self.readBuffer = true;
+
+            var currentTime = Date.now();
+            if (self.lastBrowse + self.timeout < currentTime) {
+                self.bufferedAggregateList = false;
+                self.lastBrowse = currentTime;
+            }
+
+            if(!self.bufferedAggregateList) {
+              webMI.data.call(
+                  "BrowseNodes",
+                  {
+                      startAddress: "AGENT.HISTORY.AGGREGATETEMPLATES",
+                      vTypes: [
+                          "i=61",
+                          "i=62x",
+                          "i=63",
+                          "i=2340x",
+                          "ns=1;s=ObjectTypes.ATVISE.AggregateTemplate",
+                          "ns=1;s=ObjectTypes.ATVISE.AggregateFunction"
+                      ],
+                      mapping: ["name:nodeid:splitnamespace", "text:browsename", "type:typedefinition:splitnamespace"]
+                  },
+                  (aggregateResultTree) => {
+                      self.bufferedAggregateList = aggregateResultTree;
+                      _buildList(aggregateResultTree);
+                  }
+              );
+            } else {
+                _buildList(self.bufferedAggregateList);
+            }
+		}
+
+		/**
+		 * Checks if a node is an aggregate
+		 * @param node
+		 * @param callback
+		 * @private
+		 */
+		function _isAggregates(node, callback) {
+			var nodeCompareRighs = [{ node: node, right: "read", disable: true, notify: false }];
+
+			if (isACSupport && AccessControlManager) {
+				AccessControlManager.assist.handleWithPermissions(
+					nodeCompareRighs,
+					function _validateWithPermissions() {
+						callback(false, nodeCompareRighs);
+					},
+					function _validateWithoutPermissions() {
+						_searchAggregates(node, nodeCompareRighs, callback);
+					}
+				);
+			} else {
+				_searchAggregates(node, false, callback);
+			}
+		}
+
+		/**
+		 * Help function for reversing a string
+		 * @param s
+		 * @returns {string}
+		 * @private
+		 */
+		function _reverse(s) {
+			return s.split("").reverse().join("");
+		}
+
+		/**
+		 * Cycles through aggregates and searches for a valid result
+		 * @param node
+		 * @param currentCompareRights
+		 * @param callback
+		 * @private
+		 */
+		function _searchAggregates(node, nodeCompareRighs, callback) {
+			var check = false;
+			for (var key in aggregateIndex) {
+				var rKey = _reverse(aggregateIndex[key]);
+				var rNode = _reverse(node);
+
+				if (rNode.indexOf(rKey) === 0) {
+					check = aggregateIndex[key];
+					break;
+				}
+			}
+
+			var aggregateRights = compareRights; // .concat({node: node, right: "read", disable: true, notify: false});
+			callback(check, check ? aggregateRights : nodeCompareRighs);
+		}
+
+		/**
+		 * Start the setup with necessary ac permissions and browseNode cross check
+		 * @private
+		 */
+		function _setupWithPermissions() {
+			if (canBrowseNodes) {
+				_initAggregatesIndex();
+			} else {
+				if (webMI.getFeatureSupport().aggregates == true) {
+					console.warn(
+						"Aggregate Manager: The method BrowseNodes is not supported! Potential aggregates can not be queried."
+					);
+				}
+				isReady = true;
+			}
+		}
+
+		/**
+		 * Start the setup without necessary ac permissions
+		 * @private
+		 */
+		function _setupWithoutPermission() {
+			canBrowseNodes = false;
+			isReady = true;
+		}
+	};
+
+	/* ******************************************* */
+	/* Memory to avoid duplicate menu declarations */
+	/* ******************************************* */
+
+	return new AggregateManager();
+}
+]]></code>
+</script>

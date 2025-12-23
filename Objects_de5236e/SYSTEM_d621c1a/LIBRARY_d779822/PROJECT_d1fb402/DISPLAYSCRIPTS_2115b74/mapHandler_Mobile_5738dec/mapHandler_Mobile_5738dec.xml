@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[//----------------Inicializo variables -------------------//
+
+
+//Variable interna
+var Info_Windowact=false;
+var Markeract=false;
+var Markeractdc;
+var Markers= new Array();
+var Rutas= new Array();
+var Pos_origen;
+var Pos_destination;
+var WayPoints = new Array();
+
+var google = webMI.rootWindow.google; //Clase Principal
+var map; //Variable donde va a vivir el mapa
+var m,n;
+
+//Obtener el nombre en formato string del objeto base, haciendo una query al webMI 
+	var name = webMI.query.base;
+	//Parte de la función addOnload
+	var id = "";
+	var value = true;
+	
+					
+var infowindow;					
+var circuito_centro;
+const symbolOK =   {
+    path: "M 4 1.5 A 2.5 2.5 90 1 0 4 6.5 A 2.5 2.5 90 0 0 4 1.5 Z",
+    fillColor: "green",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+const symbolNoCom =  {
+    path: "M 4 1.5 A 2.5 2.5 90 1 0 4 6.5 A 2.5 2.5 90 0 0 4 1.5 Z",
+    fillColor: "red",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+const symbolIdle =  {
+    path: "M 4 1.5 A 2.5 2.5 90 1 0 4 6.5 A 2.5 2.5 90 0 0 4 1.5 Z",
+    fillColor: "#7c1536",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+const symbolWriteError =  {
+    path: "M 4 1.5 A 2.5 2.5 90 1 0 4 6.5 A 2.5 2.5 90 0 0 4 1.5 Z",
+    fillColor: "#8b3db8",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+const symbolBadDevice =  {
+    path: "M 4 1.5 A 2.5 2.5 90 1 0 4 6.5 A 2.5 2.5 90 0 0 4 1.5 Z",
+    fillColor: "#b98f2d",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+ const symbolUndefined =  {
+    path: "M 4 1.5 A 2.5 2.5 90 1 0 4 6.5 A 2.5 2.5 90 0 0 4 1.5 Z",
+    fillColor: "gray",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+   const symbolBlack =  {
+    path: "M 4 1.5 A 2.5 2.5 90 1 0 4 6.5 A 2.5 2.5 90 0 0 4 1.5 Z",
+    fillColor: "black",
+    fillOpacity: 0.6,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+
+
+//----------------Ejecución -------------------//
+
+
+
+//Determinación del dispositivo
+var infoCliente;
+infoCliente = new webMI.getClientInfo();
+
+
+webMI.addOnload(function() {
+	
+	
+	
+	//Opciones del mapa
+	var myOptions = {
+		zoom: 3,
+		mapTypeId: google.maps.MapTypeId.roadmap
+	};
+	
+
+	//Inicializo el mapa
+	map = new google.maps.Map(document.getElementById("mapa"), myOptions);
+	
+	
+		
+		
+
+	//-------Inicializo Marcadores
+	
+	circuito_s.forEach(([position,title,object,order,type],i) =>{
+	
+		const marker = new google.maps.Marker({
+			position, 
+			map,
+			icon: symbolBlack,
+			title: ` ${title}`,
+			optimized: false,
+		});
+		
+		webMI.data.subscribe(object + ".connectivity", function(e) {
+			var valor = e.value;
+			var status = e.status;
+			switch (status) {
+		case 0:
+			if (valor == true)
+				marker.setIcon(symbolOK);
+			else
+				marker.setIcon(symbolNoCom);
+			break;
+		case undefined:
+			marker.setIcon(symbolUndefined);
+			break;
+		case 2156593152:
+			marker.setIcon(symbolBadDevice);
+			break;
+		case 2150694912:
+			marker.setIcon(symbolNoCom);
+			break;
+		case 2150760448:
+			marker.setIcon(symbolIdle);
+			break;
+		case 1083179008:
+			marker.setIcon(symbolBlack);
+			break;
+		default:
+			marker.setIcon(symbolBlack);
+		break;
+			}
+		});	
+		marker.setMap(map);
+		//Agrego marcador a lista de marcadores
+		Markers.push(marker);
+	
+		//-------Listener de Marcadores
+		
+		//DOBLECLICK (Fija Carcamo)
+		google.maps.event.addListener(marker,'dblclick',function(event) {
+			if (type=="carcamoAR") {
+			webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Circuito.Eslabon_AR",
+			extern:false,height:610,menubar:false,modal:false,movable:true,
+			resizable:true,scrollbars:false,status:false,title:title,
+			toolbar:false,width:600,x:0,y:50,query:{base:   object}});
+			} else {
+			webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Circuito.Eslabon",
+			extern:false,height:610,menubar:false,modal:false,movable:true,
+			resizable:true,scrollbars:false,status:false,title:title,
+			toolbar:false,width:600,x:0,y:50,query:{base:   object}});
+					}
+			map.panTo(this.getPosition());
+			map.setZoom(15);
+
+
+			
+
+		});
+
+		
+		var susID = null;
+		//CLICK (Abre Infowindow)
+		google.maps.event.addListener(marker,'click',function(event) {	
+			            
+            webMI.data.unsubscribe(susID);
+               			
+			susID = null;
+			
+			map.setZoom(15);
+			map.panTo(this.getPosition());
+			
+			infowindow = new google.maps.InfoWindow();
+			//Abro marcador
+			infowindow.open(marker.getMap,marker);
+			
+			
+			if (type == 'carcamoAR' || type == 'ptar'){
+				//Defino que objeto va a ser el seleccionado para mostrar su información
+				
+			susID = webMI.data.subscribe( object +".level_percent",
+				function(e){
+					infowindow.setContent(
+						'<div id="content">' +
+                            '<h2 id="firstHeading" class="firstHeading">'+title+'</h2>' +
+                            '<h3>'+'Nivel actual: '+ e.value.toFixed(2) +' %</h>' +
+                         '</div>');
+					}
+				);
+			} else {
+			//Defino que objeto va a ser el seleccionado para mostrar su información
+			susID = webMI.data.subscribe( object +".pressure",
+				function(e){
+					infowindow.setContent(
+					'<div id="content">' +
+                            '<h1 id="firstHeading" class="firstHeading">'+title+'</h1>' +
+                            '<h2>'+'Presión: '+ e.value.toFixed(2) +' kg/cm2</h2>' +
+                         '</div>');
+					}
+				);
+			}
+			
+			setTimeout(function() {
+              infowindow.close();             
+                webMI.data.unsubscribe(susID);
+            }, 3000);
+					console.log(susID);	
+		});	
+		
+		
+	});	
+		fitMarkers();
+		
+});
+
+function fitMarkers() {
+            const bounds = new google.maps.LatLngBounds();
+            Markers.splice(0,4);
+            Markers.forEach(marker => {
+                bounds.extend(marker.getPosition());
+            });
+           
+            map.fitBounds(bounds);
+        }
+
+]]></code>
+</script>

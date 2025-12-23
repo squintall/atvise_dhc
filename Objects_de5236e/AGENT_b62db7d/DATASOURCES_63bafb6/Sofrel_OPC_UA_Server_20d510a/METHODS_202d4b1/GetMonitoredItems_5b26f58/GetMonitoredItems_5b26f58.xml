@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+	<parameter name="ObjectId" type="string" trigger="false" relative="false" value="i=2253"/>
+	<parameter name = "SubscriptionId" type = "number" trigger = "false" relative = "false" value = "" /><code><![CDATA[/** atvise server 3.10.0 (23-3cfd475) Imported UA method "i=11492" from "UnifiedAutomation UaServerNET 2.20.22" to "Sofrel OPC UA Server"
+This is an automatically generated script and can be adapted to fulfill more specific requirements. E.g. Rename/remove/extend/group input/output arguments.
+\example
+\code
+var result = call("AGENT.DATASOURCES.Sofrel OPC UA Server.METHODS.GetMonitoredItems", {
+	"ObjectId": ..., // optional
+	"SubscriptionId": ...
+});
+if (result.error)
+	console.log(result.errorstring);
+else
+	console.log(result.result);
+\endcode
+
+\b Input:
+\param ObjectId {string}, {optional} Specifies node id of the object owning the method in the data source.
+\param SubscriptionId {number} 
+
+\b Output:
+\return {Object} A result object is returned with the following properties:
+- Object.error {number},{optional} Returns the error code in case of an error. If no error occurred, it is undefined.
+- Object.errorstring {string},{optional} Returns the error string in case of an error. If no error occurred, it is undefined.
+- Object.result {object},{optional} Returns the result if no error occurred. It has the following properties:
+	- result.ServerHandles {numberarray} 
+	- result.ClientHandles {numberarray} 
+*/
+
+var mirrorCall = Ua.findNode("AGENT.MIRROR.METHODS.call");
+var callResult = mirrorCall.result.call({
+	object: "AGENT.MIRROR.METHODS",
+	input: [
+		{type: Ua.DataType.STRING, value: server.script.origin.split('.').slice(-3,-2)[0]},
+		{type: Ua.DataType.STRING, value: ObjectId},
+		{type: Ua.DataType.STRING, value: "i=11492"},
+		{type: Ua.DataType.BASEDATATYPE, value: [
+			{type: Ua.DataType.UINT32, value: SubscriptionId}
+		]}
+	]
+});
+var result = {};
+
+if (callResult.error) {
+	result.error = callResult.error;
+	result.errorstring = Ua.Status(callResult.error).toString();
+	if (callResult.argumentError) {
+		var parameterNames = [
+			server.script.origin.split('.').slice(-3,-2)[0],
+			"ObjectId",
+			"i=11492",
+			"SubscriptionId"];
+		for (var i = 0; i < callResult.argumentError.length; ++i)
+			if (callResult.argumentError[i])
+				result.errorstring += ", " + parameterNames[i] + ":" + Ua.Status(callResult.argumentError[i]).toString();
+	}
+}
+else {
+	result.result = {};
+
+	if (callResult.result.length > 0) result.result["ServerHandles"] = callResult.result[0];
+	if (callResult.result.length > 1) result.result["ClientHandles"] = callResult.result[1];
+}
+
+return result;]]></code>
+</script>

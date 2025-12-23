@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/Alarm_sounds/mixkit-critical-alarm-1004.wav
+NodeClass: Variable
+BrowseName: 1:mixkit-critical-alarm-1004.wav
+DisplayName: en|mixkit-critical-alarm-1004.wav
+Description: en|mixkit-critical-alarm-1004.wav
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Wave

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.Layouts_SCADA_PLAYA.Main_Cuenca_PTAR_Puerto_Aventuras
+NodeClass: Variable
+BrowseName: 1:Main_Cuenca_PTAR_Puerto_Aventuras
+DisplayName: en|Main_Cuenca_PTAR_Puerto_Aventuras
+Description: en|Main_Cuenca_PTAR_Puerto_Aventuras
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AP.AP_IM_CAR_AEROPUERTO.Bombas.AP_IM_CAR_AEROPUERTO_B3_Fuera
+NodeClass: Variable
+BrowseName: 1:AP_IM_CAR_AEROPUERTO_B3_Fuera
+DisplayName: en|AP_IM_CAR_AEROPUERTO_B3_Fuera
+Description: en|AP_IM_CAR_AEROPUERTO_B3_Fuera
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

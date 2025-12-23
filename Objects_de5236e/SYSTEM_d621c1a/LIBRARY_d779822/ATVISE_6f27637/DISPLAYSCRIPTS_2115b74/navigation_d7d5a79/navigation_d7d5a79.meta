@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.navigation
+NodeClass: Variable
+BrowseName: 1:navigation
+DisplayName: en|navigation
+Description: en|navigation
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

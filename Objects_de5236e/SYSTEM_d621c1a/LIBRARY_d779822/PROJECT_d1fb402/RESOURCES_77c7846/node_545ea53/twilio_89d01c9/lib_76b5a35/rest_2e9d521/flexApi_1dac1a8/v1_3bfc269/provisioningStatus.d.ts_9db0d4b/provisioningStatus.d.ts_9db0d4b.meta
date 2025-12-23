@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/flexApi/v1/provisioningStatus.d.ts
+NodeClass: Variable
+BrowseName: 1:provisioningStatus.d.ts
+DisplayName: en|provisioningStatus.d.ts
+Description: en|provisioningStatus.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

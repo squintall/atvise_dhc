@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/highcharts/maps/at-all.topo.json
+NodeClass: Variable
+BrowseName: 1:at-all.topo.json
+DisplayName: en|at-all.topo.json
+Description: en|at-all.topo.json
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Json
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Json.Compress

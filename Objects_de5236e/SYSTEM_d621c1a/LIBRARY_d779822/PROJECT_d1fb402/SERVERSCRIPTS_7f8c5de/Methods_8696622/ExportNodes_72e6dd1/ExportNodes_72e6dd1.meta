@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.Methods.ExportNodes
+NodeClass: Variable
+BrowseName: 1:ExportNodes
+DisplayName: en|ExportNodes
+Description: en|ExportNodes
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

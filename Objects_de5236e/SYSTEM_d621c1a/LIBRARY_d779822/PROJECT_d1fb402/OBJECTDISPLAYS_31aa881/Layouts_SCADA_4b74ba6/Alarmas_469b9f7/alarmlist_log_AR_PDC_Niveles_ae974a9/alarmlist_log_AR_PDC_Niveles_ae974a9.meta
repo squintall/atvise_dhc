@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Alarmas.alarmlist_log_AR_PDC_Niveles
+NodeClass: Variable
+BrowseName: 1:alarmlist_log_AR_PDC_Niveles
+DisplayName: en|alarmlist_log_AR_PDC_Niveles
+Description: en|alarmlist_log_AR_PDC_Niveles
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

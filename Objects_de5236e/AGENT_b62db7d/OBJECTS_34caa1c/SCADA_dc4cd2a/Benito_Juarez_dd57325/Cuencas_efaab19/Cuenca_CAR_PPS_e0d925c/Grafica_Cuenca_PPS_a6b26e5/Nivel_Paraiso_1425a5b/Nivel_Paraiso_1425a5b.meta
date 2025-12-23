@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PPS.Grafica_Cuenca_PPS.Nivel Paraiso
+NodeClass: Variable
+BrowseName: 1:Nivel Paraiso
+DisplayName: en|Nivel Paraiso
+Description: en|Nivel Paraiso
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

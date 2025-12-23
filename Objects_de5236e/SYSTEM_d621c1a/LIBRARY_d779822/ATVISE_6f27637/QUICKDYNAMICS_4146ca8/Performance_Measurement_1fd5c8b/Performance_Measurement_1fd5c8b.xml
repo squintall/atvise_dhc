@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEsWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS41LjAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iCiAgICB4bWxuczpleGlmPSJodHRwOi8vbnMuYWRvYmUuY29tL2V4aWYvMS4wLyIKICAgIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIKICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIgogICAgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIKICAgdGlmZjpJbWFnZUxlbmd0aD0iMzIiCiAgIHRpZmY6SW1hZ2VXaWR0aD0iMzIiCiAgIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiCiAgIHRpZmY6WFJlc29sdXRpb249IjcyLzEiCiAgIHRpZmY6WVJlc29sdXRpb249IjcyLzEiCiAgIGV4aWY6UGl4ZWxYRGltZW5zaW9uPSIzMiIKICAgZXhpZjpQaXhlbFlEaW1lbnNpb249IjMyIgogICBleGlmOkNvbG9yU3BhY2U9IjEiCiAgIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiCiAgIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIKICAgeG1wOk1vZGlmeURhdGU9IjIwMjMtMTEt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</icon>
+    <visible>1</visible>
+    <title>Performance Measurement</title>
+    <description>Helper for measuring HMI performance</description>
+  </metadata>
+  <parameter behavior="mandatory" name="targetFrame" valuetype="string"/>
+  <parameter behavior="optional" desc="Test UID" name="test_uid" valuetype="string"/>
+  <parameter behavior="optional" desc="Display 1" name="display_1" valuetype="display"/>
+  <parameter behavior="optional" desc="Display 2" name="display_2" valuetype="display"/>
+  <parameter behavior="optional" desc="Display 3" name="display_3" valuetype="display"/>
+  <parameter behavior="optional" desc="Display 4" name="display_4" valuetype="display"/>
+  <parameter behavior="optional" desc="Display 5" name="display_5" valuetype="display"/>
+  <parameter behavior="optional" desc="Display 6" name="display_6" valuetype="display"/>
+  <parameter behavior="optional" desc="Display 7" name="display_7" valuetype="display"/>
+  <parameter behavior="optional" desc="Display 8" name="display_8" valuetype="display"/>
+  <parameter behavior="optional" desc="Display 9" name="display_9" valuetype="display"/>
+  <parameter behavior="optional" desc="Display 10" name="display_10" valuetype="display"/>
+  <parameter behavior="optional" desc="Test display list" name="displayList" valuetype="string"/>
+  <parameter behavior="mandatory" desc="How often to test the displays" name="runCount" valuetype="number"/>
+  <parameter behavior="mandatory" defaultvalue="5000" desc="Minimum display lifespan (ms)" name="minimumDisplayLifespan" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="5000" desc="Minimum waiting time after last trigger (ms)" name="debounceDelay" valuetype="number"/>
+  <parameter behavior="mandatory" config="browser;serverscript;trigger" defaultvalue="browser" desc="Get via browser, server script, or trigger" name="outputMode" valuetype="enum"/>
+  <parameter behavior="optional" desc="webMI Method to call in serverscript mode" name="webmiMethodName" valuetype="string"/>
+  <code><![CDATA[const testUID = webMI.query.test_uid || base.test_uid;
+
+if (!testUID) {
+	showMissingUidOverlay();
+	console.warn("Can't run test without a test UID!");
+	return;
+}
+
+const OUTPUT_MODES = {
+	SERVERSCRIPT: "serverscript",
+	BROWSER: "browser",
+	TRIGGER: "trigger"
+};
+
+const CSV_HEADERS = [
+	"scaleType",
+	"display",
+	"docId",
+	"uptime",
+	"unloadDuration",
+	"atvPerfGenTime",
+	"networkDuration",
+	"parsingDuration",
+	"processingDuration",
+	"atvForeignObjectsProcessingDuration",
+	"loadDuration",
+	"atvDisplayDrawn",
+	"atvDisplayInteractive",
+	"absoluteLoadDuration"
+];
+
+const CSV_DELIMITER = ";";
+const PARAMS_DISPLAY_COUNT = 10; // Number of displays that the user can parameterize via the Insert QD dialog
+
+const displays = [];
+const targetFrame = base.targetFrame;
+const maxRunCount = Number(base.runCount) + 1; // Add one run in order to load all new resources first
+const minimumDisplayLifespan = Number(base.minimumDisplayLifespan); // How long to wait before deciding that the last trigger has probably been received
+const debounceDelay = Number(base.debounceDelay); // Time to wait after trigger has been processed before evaluating the current state of the test run
+const enableLogging = false; // Set this to true to enable log output
+const outputMode = base.outputMode;
+const webmiMethodName = base.webmiMethodName;
+const displayList = base.displayList ? base.displayList.split(";").filter(Boolean) : []; // filter removes empty strings (e.g. trailing semicolon)
+
+// Validate output mode
+if (!Object.values(OUTPUT_MODES).includes(outputMode)) {
+	throw new Error('Invalid value for "outputMode". It must be one of "browser", "serverscript", or "trigger".');
+}
+
+/**
+ * Utility function to create a display tracking object.
+ * @param {string} displayAddress - The display address.
+ * @returns {object} Display object.
+ */
+function createDisplayObject(displayAddress) {
+	return {
+		address: displayAddress,
+		drawnTriggerCount: 0,
+		interactiveTriggerCount: 0,
+		drawnTriggersRecorded: false,
+		interactiveTriggersRecorded: false,
+		drawnDisplays: [],
+		interactiveDisplays: []
+	};
+}
+
+/**
+ * Processes displayList parameter.
+ */
+function processDisplayList() {
+	if (displayList.length) {
+		if (displayList.every((element) => typeof element === "string" && element.length > 0)) {
+			displays.push(...displayList.map(createDisplayObject));
+		} else {
+			throw new Error("All elements in displayList must be non-empty strings.");
+		}
+	}
+}
+
+/**
+ * Processes individual display parameters.
+ */
+function processParameterDisplays() {
+	for (let index = 1; index <= PARAMS_DISPLAY_COUNT; ++index) {
+		const displayKeyIndexMap = "display_" + index;
+		if (base[displayKeyIndexMap]) {
+			const display = base[displayKeyIndexMap];
+			displays.push(createDisplayObject(display));
+		}
+	}
+}
+
+// Initialize displays based on parameters.
+processDisplayList();
+processParameterDisplays();
+
+let currentIndex = 0;
+let currentRunCount = 0;
+let finished = false;
+let currentTimeout;
+
+const callCountMap = {}; // Object to keep track of function calls
+
+/**
+ * Prints the current call count of all logged functions to the console.
+ * @param {Function} func - The function to log.
+ */
+function logFunctionName(func) {
+	if (!enableLogging) return;
+
+	/**
+	 * Retrieves the current status.
+	 * @returns {object} The current status.
+	 */
+	function getCurrentStatus() {
+		return {
+			displays,
+			targetFrame,
+			maxRunCount,
+			currentIndex,
+			currentRunCount,
+			finished
+		};
+	}
+
+	const functionName = func.name || "Anonymous";
+	callCountMap[functionName] = (callCountMap[functionName] || 0) + 1;
+	console.log(`Calling function: ${functionName}`);
+	console.log("Variables:", JSON.stringify(getCurrentStatus(), null, 2));
+	console.log("Function call counts: ", callCountMap);
+}
+
+/**
+ * Opens a display for processing.
+ */
+function openDisplay() {
+	logFunctionName(openDisplay);
+
+	if (finished) return;
+
+	const currentDisplay = displays[currentIndex];
+	if (currentIndex >= displays.length) {
+		finished = true;
+		return;
+	}
+
+	webMI.display.openDisplay(currentDisplay.address, {}, targetFrame);
+
+	currentTimeout = setTimeout(() => {
+		debouncedProcessDisplayTriggers(currentDisplay);
+	}, minimumDisplayLifespan);
+}
+
+/**
+ * Handles an interactive trigger.
+ * @param {Event} e - The event object.
+ */
+function handleInteractiveTrigger(e) {
+	logFunctionName(handleInteractiveTrigger);
+
+	if (finished) return;
+
+	let currentDisplayId = e.value;
+	let currentDisplay = displays[currentIndex];
+
+	if (!currentDisplay.interactiveDisplays.includes(currentDisplayId)) {
+		currentDisplay.interactiveDisplays.push(currentDisplayId);
+		currentDisplay.interactiveTriggerCount++;
+
+		webMI.performance.setMarker(encodeURI(currentDisplay.address), "atvDisplayInteractive");
+
+		debouncedProcessDisplayTriggers(currentDisplay);
+	}
+}
+
+/**
+ * Handles a drawn trigger.
+ * @param {Event} e - The event object.
+ */
+function handleDrawnTrigger(e) {
+	logFunctionName(handleDrawnTrigger);
+
+	if (finished) return;
+
+	let currentDisplayId = e.value;
+	let currentDisplay = displays[currentIndex];
+
+	if (!currentDisplay.drawnDisplays.includes(currentDisplayId)) {
+		currentDisplay.drawnDisplays.push(currentDisplayId);
+		currentDisplay.drawnTriggerCount++;
+
+		webMI.performance.setMarker(encodeURI(currentDisplay.address), "atvDisplayDrawn");
+
+		debouncedProcessDisplayTriggers(currentDisplay);
+	}
+}
+
+/**
+ * Processes display triggers.
+ * @param {object} currentDisplay - The current display object.
+ */
+function processDisplayTriggers(currentDisplay) {
+	logFunctionName(processDisplayTriggers);
+
+	if (currentDisplay.drawnTriggerCount !== currentDisplay.interactiveTriggerCount) return;
+
+	// Wrap the reset in a timeout to avoid triggers from spilling from one display over into the next one
+	setTimeout(() => {
+		currentDisplay.drawnTriggerCount = 0;
+		currentDisplay.interactiveTriggerCount = 0;
+		currentDisplay.drawnTriggersRecorded = false;
+		currentDisplay.interactiveTriggersRecorded = false;
+		currentDisplay.drawnDisplays = [];
+		currentDisplay.interactiveDisplays = [];
+		currentRunCount++;
+
+		if (currentRunCount === maxRunCount) {
+			currentRunCount = 0;
+			processNextDisplay();
+		} else {
+			openDisplay();
+		}
+	}, minimumDisplayLifespan);
+}
+
+const debouncedProcessDisplayTriggers = debounce(processDisplayTriggers, debounceDelay);
+
+/**
+ * Filters performance markers for specific displays.
+ * @param {object[]} markers - The performance markers to filter.
+ * @returns {object[]} Filtered markers.
+ */
+function filterMarkersForDisplays(markers) {
+	const filteredMarkers = markers.filter((marker) => {
+		const displayAddress = marker.display;
+		return displays.some((display) => display.address === decodeURI(displayAddress));
+	});
+	return filteredMarkers;
+}
+
+/**
+ * Removes duplicate markers for each display, keeping only the first one.
+ * @param {object[]} markers - The performance markers to process.
+ * @returns {object[]} Sanitized markers.
+ */
+function removeFirstMarkerForEveryDisplay(markers) {
+	const sanitizedMarkers = [];
+	const processedDisplays = [];
+
+	markers.forEach((marker) => {
+		if (!processedDisplays.includes(marker.display)) {
+			processedDisplays.push(marker.display);
+			return;
+		} else {
+			sanitizedMarkers.push(marker);
+		}
+	});
+
+	return sanitizedMarkers;
+}
+
+/**
+ * Processes the next display in the sequence.
+ */
+function processNextDisplay() {
+	logFunctionName(processNextDisplay);
+
+	currentIndex++;
+
+	if (currentIndex >= displays.length) {
+		finished = true;
+
+		// Convert the performance markers to a CSV string
+		webMI.performance.getMarkers((allPerformanceMarkers) => {
+			const filteredPerformanceMarkers = filterMarkersForDisplays(allPerformanceMarkers);
+			const sanitizedMarkers = removeFirstMarkerForEveryDisplay(filteredPerformanceMarkers);
+			const csvString = convertToCSV(sanitizedMarkers);
+
+			const dateTimeString = new Date().toISOString().replace(/:/g, "-");
+			const filename = `performance-markers_${testUID}_${dateTimeString}.csv`;
+
+			if (outputMode === OUTPUT_MODES.BROWSER) {
+				downloadCSV(csvString, filename, showFinishedOverlay);
+			} else if (outputMode === OUTPUT_MODES.SERVERSCRIPT) {
+				if (!webmiMethodName || webmiMethodName === "") {
+					throw new Error(
+						'Invalid configuration for "outputMode". The "webmiMethodName" must be provided when outputMode is set to "serverscript".'
+					);
+				}
+				callServerMethodScript(csvString, filename, showFinishedOverlay);
+			} else if (outputMode === OUTPUT_MODES.TRIGGER) {
+				webMI.trigger.fire("com.atvise.performance.resultReady", { csvString, filename });
+				showFinishedOverlay();
+			}
+		});
+	} else {
+		openDisplay();
+	}
+}
+
+/**
+ * Shows a finished overlay message.
+ */
+function showFinishedOverlay() {
+	const overlay = document.createElement("div");
+	overlay.style.width = "100%";
+	overlay.style.height = "100%";
+	overlay.style.background = "black";
+	overlay.style.opacity = "70%";
+	overlay.style.fontFamily = "sans-serif";
+	overlay.style.fontSize = "3em";
+	overlay.style.fontWeight = "bold";
+	overlay.style.textAlign = "center";
+	overlay.style.position = "absolute";
+	overlay.style.color = "white";
+	overlay.style.paddingTop = "40%";
+	overlay.style.zIndex = 9999;
+
+	overlay.textContent = "Done.";
+
+	webMI.rootWindow.document.body.appendChild(overlay);
+}
+
+/**
+ * Shows an overlay message reminding the user to define a test_uid.
+ */
+function showMissingUidOverlay() {
+	const overlay = document.createElement("div");
+	overlay.style.width = "100%";
+	overlay.style.height = "100%";
+	overlay.style.background = "black";
+	overlay.style.opacity = "70%";
+	overlay.style.fontFamily = "sans-serif";
+	overlay.style.fontSize = "1em";
+	overlay.style.textAlign = "center";
+	overlay.style.position = "absolute";
+	overlay.style.color = "white";
+	overlay.style.paddingTop = "40%";
+	overlay.style.zIndex = 9999;
+
+	overlay.innerHTML =
+		"<p><b>'test_uid'-parameter required. Either via URL or when calling the Performance Measurement quick dynamic.</b></p><p>Please refer to the documentation for more information.</p>";
+
+	webMI.rootWindow.document.body.appendChild(overlay);
+}
+
+function showUnloadErrorOverlay() {
+	const overlay = document.createElement("div");
+	overlay.style.width = "100%";
+	overlay.style.height = "100%";
+	overlay.style.background = "black";
+	overlay.style.opacity = "70%";
+	overlay.style.fontFamily = "sans-serif";
+	overlay.style.fontSize = "1em";
+	overlay.style.textAlign = "center";
+	overlay.style.position = "absolute";
+	overlay.style.color = "white";
+	overlay.style.paddingTop = "40%";
+	overlay.style.zIndex = 9999;
+
+	overlay.innerHTML =
+		"<p>Performance Measurement quickdynamic has been unloaded. Please ensure that the display in which it is instantiated remains loaded throughout the test procedure.</p>";
+
+	webMI.rootWindow.document.body.appendChild(overlay);
+}
+
+/**
+ * Converts data to CSV format.
+ * @param {object[]} data - The data to convert.
+ * @returns {string} CSV string.
+ */
+function convertToCSV(data) {
+	// Get default markers and all aditional markers defined by user
+	const allFields = CSV_HEADERS;
+	const rows = data.map((obj) => {
+		return allFields.map((field) => {
+			const value = obj[field];
+			if (value === undefined) {
+				return "";
+			} else if (typeof value === "number") {
+				return Math.round(value);
+			} else {
+				return value;
+			}
+		});
+	});
+
+	const csvArray = [allFields, ...rows];
+	return csvArray.map((row) => row.join(CSV_DELIMITER)).join("\n");
+}
+
+/**
+ * Downloads a CSV file to the browser.
+ * @param {string} csvString - The CSV string to download.
+ * @param {string} filename - The filename for the download.
+ * @param {Function} [callback] - Optional callback function.
+ */
+function downloadCSV(csvString, filename, callback) {
+	// Create a Blob from the CSV content
+	const blob = new Blob([csvString], { type: "text/csv" });
+
+	// Create a download link element
+	const downloadLink = webMI.rootWindow.document.createElement("a");
+	downloadLink.href = URL.createObjectURL(blob);
+	downloadLink.download = filename;
+	downloadLink.style.display = "none"; // Make the link invisible
+
+	// Append the link to the document body
+	webMI.rootWindow.document.body.appendChild(downloadLink);
+
+	// Automatically click the link to initiate the download
+	downloadLink.click();
+
+	if (callback && typeof callback === "function") {
+		callback();
+	}
+}
+
+/**
+ * Calls the serverscript with the test result and a file name.
+ * @param {string} csvString - The CSV string created from the test data.
+ * @param {string} filename - The suggested filename for the CSV test data.
+ * @param {Function} [callback] - Optional callback function.
+ */
+function callServerMethodScript(csvString, filename, callback) {
+	webMI.data.call(
+		webmiMethodName,
+		{
+			filePath: filename,
+			csvString: csvString
+		},
+		(response) => {
+			if (callback && typeof callback === "function") {
+				callback(response);
+			}
+		}
+	);
+}
+
+/**
+ * Debounces a function.
+ * @param {Function} func - The function to debounce.
+ * @param {number} delay - The debounce delay in milliseconds.
+ * @returns {Function} Debounced function.
+ */
+function debounce(func, delay) {
+	let timerId;
+
+	return function (...args) {
+		clearTimeout(timerId);
+
+		timerId = setTimeout(() => {
+			func.apply(this, args);
+		}, delay);
+	};
+}
+
+/**
+ * Make sure everything is loaded and all previous triggers have been fired
+ * before connecting to them and starting the test run.
+ */
+setTimeout(() => {
+	if (!webMI.performance) return;
+	webMI.performance.clearMarkers();
+	webMI.trigger.connect("com.atvise.performance.interactive", handleInteractiveTrigger);
+	webMI.trigger.connect("com.atvise.performance.drawn", handleDrawnTrigger);
+	openDisplay();
+}, 2500);
+
+webMI.addOnunload(() => {
+	if (!finished) {
+		showUnloadErrorOverlay();
+		console.log("clear timeout", currentTimeout);
+		clearTimeout(currentTimeout);
+		return;
+	}
+});
+]]></code>
+</script>

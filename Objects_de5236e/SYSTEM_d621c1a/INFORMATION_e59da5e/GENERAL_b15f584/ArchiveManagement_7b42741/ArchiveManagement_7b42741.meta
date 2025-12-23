@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION.GENERAL.ArchiveManagement
+NodeClass: Object
+BrowseName: 1:ArchiveManagement
+DisplayName: en|ArchiveManagement
+Description: en|ArchiveManagement
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

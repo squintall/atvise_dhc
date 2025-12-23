@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlog_1row
+NodeClass: Variable
+BrowseName: 1:alarmlog_1row
+DisplayName: en|alarmlog_1row
+Description: en|alarmlog_1row
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

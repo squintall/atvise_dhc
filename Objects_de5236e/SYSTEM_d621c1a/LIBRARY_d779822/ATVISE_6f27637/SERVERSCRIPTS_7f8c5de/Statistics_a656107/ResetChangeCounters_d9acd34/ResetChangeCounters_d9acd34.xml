@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="prefix" type="string" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var counters = server.statistics.changecounters;
+var reset = 0;
+
+if (counters != undefined)
+{
+	for (var i = 0; i < counters.length; ++i)
+	{
+		if (counters[i].nodeId.address.substring(0, prefix.length) == prefix)
+		{
+			counters[i].value = 0;
+			++reset;
+		}
+	}
+}
+
+return reset;]]></code>
+</script>

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Downtime.Downtime_Status.Downtime_Reason_Status_!
+NodeClass: Variable
+BrowseName: 1:Downtime_Reason_Status_!
+DisplayName: en|Downtime_Reason_Status_!
+Description: en|Downtime_Reason_Status_!
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

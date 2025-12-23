@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Landscape.00_Menu_Carcamos_AR
+NodeClass: Variable
+BrowseName: 1:00_Menu_Carcamos_AR
+DisplayName: en|00_Menu_Carcamos_AR
+Description: en|00_Menu_Carcamos_AR
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

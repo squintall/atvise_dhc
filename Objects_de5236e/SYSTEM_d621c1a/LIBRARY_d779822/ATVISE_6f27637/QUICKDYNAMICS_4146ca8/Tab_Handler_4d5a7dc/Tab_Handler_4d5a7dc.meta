@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler
+NodeClass: Variable
+BrowseName: 1:Tab Handler
+DisplayName: en|Tab Handler
+Description: en|Tab Handler
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.hmi.button_zoom_rect
+NodeClass: Variable
+BrowseName: 1:button_zoom_rect
+DisplayName: en|button_zoom_rect
+Description: en|button_zoom_rect
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

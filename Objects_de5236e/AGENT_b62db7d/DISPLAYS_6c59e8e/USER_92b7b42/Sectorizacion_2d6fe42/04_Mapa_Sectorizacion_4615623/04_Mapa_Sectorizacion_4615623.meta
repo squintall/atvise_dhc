@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Sectorizacion.04_Mapa_Sectorizacion
+NodeClass: Variable
+BrowseName: 1:04_Mapa_Sectorizacion
+DisplayName: en|04_Mapa_Sectorizacion
+Description: en|04_Mapa_Sectorizacion
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

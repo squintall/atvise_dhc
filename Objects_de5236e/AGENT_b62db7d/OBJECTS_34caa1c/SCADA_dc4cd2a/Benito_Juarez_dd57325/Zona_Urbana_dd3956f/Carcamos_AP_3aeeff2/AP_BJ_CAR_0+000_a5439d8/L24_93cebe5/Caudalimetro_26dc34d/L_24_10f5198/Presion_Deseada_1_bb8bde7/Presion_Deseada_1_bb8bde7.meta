@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_0+000.L24.Caudalimetro.L_24.Presion_Deseada_1
+NodeClass: Variable
+BrowseName: 1:Presion_Deseada_1
+DisplayName: en|Presion_Deseada_1
+Description: en|Presion_Deseada_1
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

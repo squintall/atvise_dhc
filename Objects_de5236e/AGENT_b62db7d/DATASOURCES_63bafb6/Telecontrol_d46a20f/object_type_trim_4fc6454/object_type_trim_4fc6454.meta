@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.object_type_trim
+NodeClass: Variable
+BrowseName: 1:object_type_trim
+DisplayName: en|object_type_trim
+Description: en|object_type_trim
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

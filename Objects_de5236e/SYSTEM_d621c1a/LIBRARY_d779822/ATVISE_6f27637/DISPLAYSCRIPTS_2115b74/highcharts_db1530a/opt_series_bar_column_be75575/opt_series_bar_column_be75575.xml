@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+    <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts opt series bar column object display
+ * ----------------------------------------
+ * This script supports the display to show and edit series options for the bar type.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var activeSeries = webMI.query.activeSeries;
+var chart = webMI.trendFactory.getTrendByName(webMI.query.chartname);
+var configHandler = new webMI.rootWindow.ConfigHandler();
+var inputDefaults = {
+	series_xAxis: 0,
+	series_yAxis: 0,
+	series_color: "#cccccc",
+	series_borderColor: "#000000",
+	series_borderWidth: 1,
+	series_dataLabels_enabled: true,
+	series_dataLabels_format: "{point.y:.2f}"
+};
+var triggerEnabled = true;
+var xAxes = [];
+var yAxes = [];
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ * Triggers for every input element
+ */
+webMI.addOnload(function () {
+	for (var key in inputDefaults)
+		webMI.trigger.connect(
+			"valuechanged",
+			function (e) {
+				processInput(e.context, e.value, activeSeries);
+			},
+			key
+		);
+
+	readOptions();
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * Read options
+ */
+function readOptions() {
+	triggerEnabled = false;
+
+	/* Search configured axis */
+	xAxes = [];
+	yAxes = [];
+
+	let i = 0;
+
+	while (chart.chart.xAxis[i] !== undefined) {
+		const name = chart.chart.xAxis[i]?.options.title.text || `X-Axis ${i}`;
+		xAxes.push(name);
+		webMI.trigger.fire("addItem", { text: name, value: i }, "series_xAxis");
+		i++;
+	}
+
+	i = 0; // Resetting i for the y-axis iteration
+
+	while (chart.chart.yAxis[i] !== undefined) {
+		const name = chart.chart.yAxis[i]?.options.title.text || `Y-Axis ${i}`;
+		yAxes.push(name);
+		webMI.trigger.fire("addItem", { text: name, value: i }, "series_yAxis");
+		i++;
+	}
+
+	/* Set values for current series */
+	var curSeries = chart.chart.series[activeSeries];
+
+	if (typeof curSeries == "undefined") return;
+
+	webMI.trigger.fire(
+		"setSelectedItem",
+		curSeries.options.xAxis ? xAxes[curSeries.options.xAxis] : xAxes[0],
+		"series_xAxis"
+	);
+	webMI.trigger.fire(
+		"setSelectedItem",
+		curSeries.options.yAxis ? yAxes[curSeries.options.yAxis] : yAxes[0],
+		"series_yAxis"
+	);
+
+	if (!curSeries.color) setOptions("series_color", inputDefaults["series_color"], activeSeries);
+
+	if (!curSeries.options.borderColor)
+		setOptions("series_borderColor", inputDefaults["series_borderColor"], activeSeries);
+
+	if (!curSeries.options.dataLabels.format)
+		setOptions("series_dataLabels_format", inputDefaults["series_dataLabels_format"], activeSeries);
+
+	webMI.trigger.fire("valuechanged_series_color", { hex: curSeries.color });
+	webMI.trigger.fire("valuechanged_series_borderColor", { hex: curSeries.options.borderColor });
+
+	curSeries.options.borderWidth =
+		typeof curSeries.options.borderWidth != "undefined" ? curSeries.options.borderWidth : 0;
+	webMI.trigger.fire("setValue", curSeries.options.borderWidth, "series_borderWidth");
+
+	webMI.trigger.fire("setChecked", curSeries.options.dataLabels.enabled, "series_dataLabels_enabled");
+	webMI.trigger.fire("setValue", curSeries.options.dataLabels.format, "series_dataLabels_format");
+	triggerEnabled = true;
+}
+
+/**
+ * Write options
+ * @param key
+ * @param value
+ * @param identifier
+ */
+function setOptions(key, value, identifier) {
+	if (value == "true") value = true;
+	else if (value == "false") value = false;
+
+	if (chart.chart.series[identifier]) {
+		var optionsObj = configHandler.createConfigObject(key.slice(7, key.length), value);
+		chart.chart.series[identifier].update(optionsObj);
+		chart.control.updated();
+	}
+}
+
+function processInput(key, value, identifier) {
+	if (typeof key == "undefined" || typeof value == "undefined") return;
+
+	if (!triggerEnabled) return;
+
+	setOptions(key, value, identifier);
+}
+
+this.window.addEventListener("keydown", (e) => {
+	if (e.key === "Escape") webMI.trigger.fire("com.atvise.highCharts.closeTrendConfigurator");
+});
+
+this.window.focus();
+]]></code>
+</script>

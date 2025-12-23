@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_CADU.Presion.AP_BJ_CAR_ARA_PRES_L1_PresionDeseada
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_ARA_PRES_L1_PresionDeseada
+DisplayName: en|AP_BJ_CAR_ARA_PRES_L1_PresionDeseada
+Description: en|AP_BJ_CAR_ARA_PRES_L1_PresionDeseada
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

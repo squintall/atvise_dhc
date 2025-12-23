@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Luciernagas_1.Equipos.Nivel.T1
+NodeClass: Object
+BrowseName: 1:T1
+DisplayName: en|T1
+Description: en|T1
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

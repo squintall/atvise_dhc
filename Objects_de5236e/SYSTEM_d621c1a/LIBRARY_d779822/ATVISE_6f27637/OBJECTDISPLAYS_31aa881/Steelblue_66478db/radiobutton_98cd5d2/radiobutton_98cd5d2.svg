@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="30" version="1.2" width="160" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_2" x1="0.119403" x2="0.119403" y1="0.970149" y2="-0.0159425">
+   <stop offset="0" stop-color="#29394b"/>
+   <stop offset="1" stop-color="#788ba3"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_6" x1="0.776844" x2="0.776844" y1="-0.0159425" y2="0.940299">
+   <stop offset="0" stop-color="#1a242f"/>
+   <stop offset="1" stop-color="#71849c"/>
+  </linearGradient>
+ </defs>
+ <title>Radiobutton</title>
+ <desc>Allows multiple selection within a group.</desc>
+ <metadata>
+  <atv:parameter behavior="mandatory" desc="base" name="base" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="alarm address" name="alarm" valuetype="address"/>
+  <atv:parameter behavior="mandatory" desc="radio group id" name="radiogroupId" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Radiobutton}" desc="label" name="label" substitute="$LABEL$" valuetype="trstring"/>
+  <atv:parameter behavior="optional" desc="value" name="value" valuetype="string"/>
+  <atv:parameter behavior="optional" config="Yes;No" defaultvalue="Yes" desc="enable status monitoring" name="statusEnabled" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="fire status trigger" name="statusTrigger" valuetype="string"/>
+  <!-- font -->
+  <atv:parameter behavior="optional" config="Arial;Courier;Verdana" defaultvalue="Arial" desc="family" group="Font" name="fontFamily" substitute="$FONTFAMILY$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="12" desc="size" group="Font" name="fontSize" substitute="$FONTSIZE$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="#000000" desc="color" group="Font" name="fontColor" substitute="$FONTCOLOR$" valuetype="color"/>
+  <!-- appearance -->
+  <atv:parameter behavior="optional" defaultvalue="false" desc="preselect this option" group="Appearance" name="preselected" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="#d0d0d0" desc="fill color" group="Appearance" name="fill" substitute="$FILL$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#8c8c8c" desc="fill color when inactive" group="Appearance" name="fillColorInactive" valuetype="color"/>
+  <atv:parameter behavior="optional" config="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.disc" desc="symbol" group="Appearance" name="symbol" substitute="$SYMBOL$" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="#000000" desc="symbol color" group="Appearance" name="symbolColor" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="stroke color pressed" group="Appearance" name="strokePressed" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="focus stroke color" group="Appearance" name="focusStrokeColor" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvStatusIndication" desc="status indication" group="Appearance" name="statusIndication" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvAlarmIndication" desc="alarm indication" group="Appearance" name="alarmIndication" valuetype="global"/>
+  <!-- options -->
+  <atv:parameter behavior="optional" desc="address to set" group="Options" name="outputNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="consistency group" group="Options" name="consistencyGroup" valuetype="string"/>
+  <atv:parameter behavior="optional" desc="tab index" group="Options" name="tabIndex" valuetype="number"/>
+  <atv:parameter behavior="optional" desc="tooltip" group="Options" name="tooltip" valuetype="trstring"/>
+  <!-- security -->
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" desc="necessary right" group="Security" name="right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security" name="activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security" name="activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show access control notification" group="Security" name="displayAcNotification" valuetype="bool"/>
+  <!-- compatibility -->
+  <atv:parameter behavior="hidden" defaultvalue="false" desc="compatibility mode" group="Compatibility" name="compatibilityMode" valuetype="bool"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="2" width="2"/>
+  <atv:snapconfig enabled="true" height="2" width="2"/>
+ </metadata>
+ <g atv:refpx="80" atv:refpy="15" id="radiobutton_clickarea">
+  <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80.25" atv:refpy="16" fill="url(#linear_2)" height="29.5" id="id_0" rx="3" ry="3" stroke="#646464" stroke-width="0.5" width="159.5" x="0.25" y="0.25"/>
+  <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="238" atv:refpy="-12.25" fill="url(#linear_6)" height="24.5" id="id_2" rx="3" ry="3" stroke="none" stroke-width="0.5" width="128" x="29" y="2.75"/>
+  <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="243" atv:refpy="18.75" fill="$FILL$" height="22.5" id="radiobutton_bg" rx="3" ry="3" stroke="none" stroke-width="2" width="126" x="30" y="3.75"/>
+  <text atv:bindbr="1,0.5" atv:bindtl="1,0.5" atv:refpx="463.897" atv:refpy="18" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="$FONTSIZE$" id="radiobutton_label" text-anchor="end" x="153" y="19.25">$LABEL$</text>
+  <circle atv:bindbr="0,0.5" atv:bindtl="0,0.5" atv:refpx="16.25" atv:refpy="-66.75" cx="14.25" cy="15" fill="url(#linear_6)" id="id_1" r="12.25" stroke="none" stroke-width="0.5"/>
+  <circle atv:bindbr="0,0.5" atv:bindtl="0,0.5" atv:refpx="17.25" atv:refpy="-33.75" cx="14.25" cy="15" fill="$FILL$" id="radiobutton_bg2" r="11.25" stroke="none" stroke-width="2"/>
+  <circle atv:bindbr="0,0.5" atv:bindtl="0,0.5" atv:refpx="15" atv:refpy="15" cx="14.25" cy="15" fill="none" id="blinking_frame" r="12" stroke="none" stroke-width="2"/>
+  <svg atv:bindbr="0,0.5" atv:bindtl="0,0.5" atv:refpx="18.5" atv:refpy="30" height="20" id="radiobutton_symbol" width="20" x="4.25" xlink:href="$SYMBOL$" y="5">
+   <atv:argument name="symbolColor" prefix="symbolColor"/>
+  </svg>
+ </g>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.common.indicator_handling" atv:name="indicator_handling" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.common.rights_handling" atv:name="rights_handling" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.radiobutton" atv:name="radiobutton" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

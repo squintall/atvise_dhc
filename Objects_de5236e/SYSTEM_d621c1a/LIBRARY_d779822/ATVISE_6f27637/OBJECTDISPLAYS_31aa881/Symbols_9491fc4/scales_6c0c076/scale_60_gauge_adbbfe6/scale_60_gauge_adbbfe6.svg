@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg enable-background="new 0 0 88 88" height="88" id="Ebene_1" version="1.1" width="88" x="0px" xml:space="preserve" y="0px" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Gauge scale for every minute between 300 degrees.</desc>
+ <title>Gauge scale - 60</title>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="scale color" name="scaleColor" substitute="$SCALECOLOR$" valuetype="color"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <path atv:refpx="23.627" atv:refpy="8.714" d="M26.119,11.029L22.866,5.394L21.134,6.394L24.39,12.033C24.958,11.686 25.532,11.348 26.119,11.029" fill="$SCALECOLOR$" id="id_0" stroke-width="1"/>
+ <path atv:refpx="8.715" atv:refpy="23.627" d="M12.035,24.39L6.395,21.134L5.395,22.866L11.03,26.119C11.348,25.533 11.686,24.958 12.035,24.39" fill="$SCALECOLOR$" id="id_1" stroke-width="1"/>
+ <path atv:refpx="79.286" atv:refpy="23.628" d="M76.971,26.12L82.606,22.867L81.606,21.135L75.965,24.391C76.314,24.958 76.651,25.533 76.971,26.12" fill="$SCALECOLOR$" id="id_2" stroke-width="1"/>
+ <path atv:refpx="3.263" atv:refpy="44" d="M6.5,44C6.5,43.665 6.517,43.333 6.525,43L0,43L0,45L6.525,45C6.517,44.667 6.5,44.335 6.5,44" fill="$SCALECOLOR$" id="id_3" stroke-width="1"/>
+ <path atv:refpx="64.374" atv:refpy="8.715" d="M63.609,12.035L66.866,6.395L65.134,5.395L61.881,11.03C62.468,11.349 63.043,11.686 63.609,12.035" fill="$SCALECOLOR$" id="id_4" stroke-width="1"/>
+ <path atv:refpx="44" atv:refpy="3.263" d="M44,6.5C44.335,6.5 44.667,6.517 45,6.525L45,0L43,0L43,6.525C43.333,6.517 43.665,6.5 44,6.5" fill="$SCALECOLOR$" id="id_5" stroke-width="1"/>
+ <g atv:refpx="43.999" atv:refpy="83.055" id="id_62">
+  <path atv:refpx="87" atv:refpy="166.212" d="M44,81.5C43.665,81.5 43.333,81.483 43,81.475L43,88L45,88L45,81.475C44.667,81.483 44.335,81.5 44,81.5" fill="none" id="id_6" stroke-width="1"/>
+  <path atv:refpx="118.823" atv:refpy="157.997" d="M58.824,78.45L60.318,81.806L61.175,81.425L59.678,78.063C59.395,78.194 59.111,78.326 58.824,78.45" fill="none" id="id_36" stroke-width="1"/>
+  <path atv:refpx="111.301" atv:refpy="160.925" d="M55.144,79.816L56.278,83.304L57.171,83.016L56.033,79.515C55.736,79.616 55.443,79.723 55.144,79.816" fill="none" id="id_40" stroke-width="1"/>
+  <path atv:refpx="103.517" atv:refpy="163.052" d="M51.338,80.777L52.103,84.373L53.02,84.179L52.254,80.577C51.949,80.646 51.646,80.716 51.338,80.777" fill="none" id="id_41" stroke-width="1"/>
+  <path atv:refpx="95.565" atv:refpy="164.353" d="M47.453,81.335L47.838,84.999L48.77,84.901L48.385,81.235C48.074,81.272 47.765,81.307 47.453,81.335" fill="none" id="id_42" stroke-width="1"/>
+  <path atv:refpx="54.824" atv:refpy="157.997" d="M28.321,78.063L26.824,81.425L27.681,81.806L29.176,78.45C28.888,78.326 28.604,78.194 28.321,78.063" fill="none" id="id_48" stroke-width="1"/>
+  <path atv:refpx="70.803" atv:refpy="163.052" d="M35.747,80.577L34.981,84.179L35.898,84.373L36.662,80.777C36.354,80.717 36.051,80.646 35.747,80.577" fill="none" id="id_54" stroke-width="1"/>
+  <path atv:refpx="62.672" atv:refpy="160.927" d="M31.967,79.516L30.83,83.017L31.721,83.305L32.855,79.817C32.557,79.723 32.264,79.616 31.967,79.516" fill="none" id="id_55" stroke-width="1"/>
+  <path atv:refpx="79.12" atv:refpy="164.354" d="M39.616,81.236L39.231,84.901L40.162,84.999L40.547,81.335C40.235,81.307 39.925,81.272 39.616,81.236" fill="none" id="id_56" stroke-width="1"/>
+ </g>
+ <path atv:refpx="79.286" atv:refpy="64.374" d="M75.965,63.609L81.606,66.866L82.606,65.135L76.97,61.881C76.651,62.468 76.313,63.043 75.965,63.609" fill="$SCALECOLOR$" id="id_7" stroke-width="1"/>
+ <path atv:refpx="8.715" atv:refpy="64.374" d="M11.03,61.881L5.395,65.135L6.395,66.866L12.035,63.609C11.686,63.043 11.349,62.468 11.03,61.881" fill="$SCALECOLOR$" id="id_8" stroke-width="1"/>
+ <path atv:refpx="84.737" atv:refpy="44" d="M81.475,43C81.484,43.333 81.5,43.665 81.5,44C81.5,44.335 81.483,44.667 81.475,45L88,45L88,43Z" fill="$SCALECOLOR$" id="id_9" stroke-width="1"/>
+ <path atv:refpx="23.627" atv:refpy="79.286" d="M24.39,75.965L21.134,81.606L22.866,82.606L26.119,76.971C25.533,76.651 24.958,76.314 24.39,75.965" fill="$SCALECOLOR$" id="id_10" stroke-width="1"/>
+ <path atv:refpx="64.374" atv:refpy="79.286" d="M61.881,76.971L65.134,82.606L66.866,81.606L63.609,75.965C63.042,76.313 62.467,76.651 61.881,76.971" fill="$SCALECOLOR$" id="id_11" stroke-width="1"/>
+ <path atv:refpx="31.842" atv:refpy="6.589" d="M32.855,8.183L31.721,4.694L30.83,4.984L31.967,8.484C32.262,8.384 32.555,8.277 32.855,8.183" fill="$SCALECOLOR$" id="id_12" stroke-width="1"/>
+ <path atv:refpx="28" atv:refpy="8.065" d="M29.175,9.55L27.681,6.194L26.824,6.574L28.321,9.936C28.604,9.806 28.887,9.674 29.175,9.55" fill="$SCALECOLOR$" id="id_13" stroke-width="1"/>
+ <path atv:refpx="35.822" atv:refpy="5.524" d="M36.662,7.223L35.897,3.627L34.98,3.82L35.746,7.422C36.051,7.354 36.354,7.284 36.662,7.223" fill="$SCALECOLOR$" id="id_14" stroke-width="1"/>
+ <path atv:refpx="4.882" atv:refpy="39.888" d="M6.764,39.615L3.099,39.23L3,40.161L6.665,40.546C6.693,40.235 6.728,39.925 6.764,39.615" fill="$SCALECOLOR$" id="id_15" stroke-width="1"/>
+ <path atv:refpx="39.888" atv:refpy="4.883" d="M40.547,6.665L40.162,3.001L39.23,3.099L39.614,6.764C39.925,6.728 40.235,6.693 40.547,6.665" fill="$SCALECOLOR$" id="id_16" stroke-width="1"/>
+ <path atv:refpx="5.523" atv:refpy="35.822" d="M7.422,35.747L3.82,34.982L3.624,35.897L7.221,36.662C7.284,36.354 7.354,36.051 7.422,35.747" fill="$SCALECOLOR$" id="id_17" stroke-width="1"/>
+ <path atv:refpx="8.064" atv:refpy="28" d="M9.936,28.321L6.574,26.824L6.193,27.68L9.55,29.175C9.674,28.887 9.806,28.604 9.936,28.321" fill="$SCALECOLOR$" id="id_18" stroke-width="1"/>
+ <path atv:refpx="6.588" atv:refpy="31.843" d="M8.484,31.968L4.984,30.831L4.693,31.722L8.183,32.856C8.277,32.557 8.384,32.264 8.484,31.968" fill="$SCALECOLOR$" id="id_19" stroke-width="1"/>
+ <path atv:refpx="17.683" atv:refpy="14.769" d="M19.265,15.827L16.797,13.086L16.1,13.713L18.566,16.452C18.795,16.239 19.03,16.033 19.265,15.827" fill="$SCALECOLOR$" id="id_20" stroke-width="1"/>
+ <path atv:refpx="48.111" atv:refpy="4.883" d="M48.385,6.764L48.769,3.099L47.837,3.001L47.452,6.665C47.765,6.693 48.074,6.728 48.385,6.764" fill="$SCALECOLOR$" id="id_21" stroke-width="1"/>
+ <path atv:refpx="14.769" atv:refpy="17.682" d="M16.452,18.565L13.714,16.1L13.086,16.795L15.828,19.264C16.033,19.029 16.239,18.794 16.452,18.565" fill="$SCALECOLOR$" id="id_22" stroke-width="1"/>
+ <path atv:refpx="12.175" atv:refpy="20.88" d="M13.938,21.579L10.963,19.418L10.412,20.176L13.395,22.342C13.576,22.088 13.751,21.83 13.938,21.579" fill="$SCALECOLOR$" id="id_23" stroke-width="1"/>
+ <path atv:refpx="20.88" atv:refpy="12.177" d="M22.344,13.395L20.177,10.413L19.416,10.964L21.578,13.94C21.83,13.751 22.089,13.575 22.344,13.395" fill="$SCALECOLOR$" id="id_24" stroke-width="1"/>
+ <path atv:refpx="79.935" atv:refpy="28.001" d="M78.449,29.175L81.807,27.68L81.425,26.826L78.064,28.323C78.194,28.605 78.326,28.888 78.449,29.175" fill="$SCALECOLOR$" id="id_25" stroke-width="1"/>
+ <path atv:refpx="81.41" atv:refpy="31.842" d="M79.816,32.855L83.305,31.72L83.015,30.83L79.515,31.967C79.616,32.264 79.723,32.557 79.816,32.855" fill="$SCALECOLOR$" id="id_26" stroke-width="1"/>
+ <path atv:refpx="75.824" atv:refpy="20.882" d="M74.605,22.344L77.587,20.177L77.036,19.419L74.061,21.58C74.249,21.83 74.425,22.089 74.605,22.344" fill="$SCALECOLOR$" id="id_27" stroke-width="1"/>
+ <path atv:refpx="82.475" atv:refpy="35.821" d="M80.777,36.661L84.374,35.896L84.179,34.981L80.577,35.747C80.646,36.051 80.717,36.354 80.777,36.661" fill="$SCALECOLOR$" id="id_28" stroke-width="1"/>
+ <path atv:refpx="83.118" atv:refpy="39.888" d="M81.335,40.546L85,40.161L84.9,39.23L81.236,39.615C81.272,39.925 81.307,40.235 81.335,40.546" fill="$SCALECOLOR$" id="id_29" stroke-width="1"/>
+ <path atv:refpx="73.231" atv:refpy="17.682" d="M72.172,19.264L74.913,16.794L74.286,16.1L71.548,18.566C71.76,18.794 71.966,19.029 72.172,19.264" fill="$SCALECOLOR$" id="id_30" stroke-width="1"/>
+ <path atv:refpx="52.179" atv:refpy="5.525" d="M52.254,7.423L53.019,3.821L52.102,3.627L51.337,7.223C51.646,7.284 51.949,7.354 52.254,7.423" fill="$SCALECOLOR$" id="id_31" stroke-width="1"/>
+ <path atv:refpx="56.157" atv:refpy="6.59" d="M56.033,8.484L57.17,4.984L56.277,4.695L55.143,8.183C55.443,8.277 55.736,8.384 56.033,8.484" fill="$SCALECOLOR$" id="id_32" stroke-width="1"/>
+ <path atv:refpx="60" atv:refpy="8.066" d="M59.679,9.937L61.176,6.574L60.319,6.194L58.824,9.55C59.112,9.674 59.396,9.806 59.679,9.937" fill="$SCALECOLOR$" id="id_33" stroke-width="1"/>
+ <path atv:refpx="70.319" atv:refpy="14.769" d="M69.435,16.452L71.902,13.713L71.204,13.086L68.736,15.827C68.971,16.033 69.205,16.239 69.435,16.452" fill="$SCALECOLOR$" id="id_34" stroke-width="1"/>
+ <path atv:refpx="67.119" atv:refpy="12.175" d="M66.42,13.938L68.582,10.962L67.823,10.411L65.656,13.394C65.911,13.576 66.17,13.751 66.42,13.938" fill="$SCALECOLOR$" id="id_35" stroke-width="1"/>
+ <path atv:refpx="67.119" atv:refpy="75.823" d="M65.655,74.605L67.822,77.587L68.582,77.036L66.42,74.06C66.17,74.249 65.91,74.425 65.655,74.605" fill="$SCALECOLOR$" id="id_37" stroke-width="1"/>
+ <path atv:refpx="73.23" atv:refpy="70.319" d="M71.547,69.436L74.285,71.902L74.913,71.204L72.172,68.736C71.966,68.971 71.759,69.205 71.547,69.436" fill="$SCALECOLOR$" id="id_38" stroke-width="1"/>
+ <path atv:refpx="70.318" atv:refpy="73.23" d="M68.735,72.172L71.203,74.913L71.901,74.286L69.435,71.547C69.205,71.76 68.971,71.966 68.735,72.172" fill="$SCALECOLOR$" id="id_39" stroke-width="1"/>
+ <path atv:refpx="75.826" atv:refpy="67.119" d="M74.062,66.42L77.036,68.581L77.589,67.823L74.606,65.656C74.424,65.911 74.248,66.17 74.062,66.42" fill="$SCALECOLOR$" id="id_43" stroke-width="1"/>
+ <path atv:refpx="82.475" atv:refpy="52.178" d="M80.577,52.254L84.176,53.019L84.374,52.102L80.777,51.336C80.717,51.645 80.646,51.949 80.577,52.254" fill="$SCALECOLOR$" id="id_44" stroke-width="1"/>
+ <path atv:refpx="83.118" atv:refpy="48.112" d="M81.236,48.386L84.899,48.771L85,47.837L81.336,47.452C81.307,47.765 81.272,48.075 81.236,48.386" fill="$SCALECOLOR$" id="id_45" stroke-width="1"/>
+ <path atv:refpx="81.411" atv:refpy="56.155" d="M79.516,56.032L83.015,57.169L83.306,56.275L79.817,55.141C79.724,55.442 79.616,55.735 79.516,56.032" fill="$SCALECOLOR$" id="id_46" stroke-width="1"/>
+ <path atv:refpx="79.935" atv:refpy="60" d="M78.063,59.679L81.424,61.175L81.807,60.318L78.45,58.824C78.326,59.11 78.194,59.395 78.063,59.679" fill="$SCALECOLOR$" id="id_47" stroke-width="1"/>
+ <path atv:refpx="8.064" atv:refpy="59.998" d="M9.549,58.823L6.193,60.317L6.576,61.174L9.936,59.678C9.805,59.395 9.673,59.111 9.549,58.823" fill="$SCALECOLOR$" id="id_49" stroke-width="1"/>
+ <path atv:refpx="14.77" atv:refpy="70.318" d="M15.827,68.735L13.086,71.203L13.715,71.901L16.453,69.435C16.241,69.205 16.033,68.971 15.827,68.735" fill="$SCALECOLOR$" id="id_50" stroke-width="1"/>
+ <path atv:refpx="12.175" atv:refpy="67.119" d="M13.395,65.656L10.411,67.823L10.965,68.581L13.937,66.421C13.751,66.17 13.576,65.911 13.395,65.656" fill="$SCALECOLOR$" id="id_51" stroke-width="1"/>
+ <path atv:refpx="6.589" atv:refpy="56.157" d="M8.183,55.143L4.693,56.277L4.985,57.17L8.483,56.033C8.384,55.735 8.277,55.442 8.183,55.143" fill="$SCALECOLOR$" id="id_52" stroke-width="1"/>
+ <path atv:refpx="5.524" atv:refpy="52.178" d="M7.223,51.337L3.626,52.102L3.823,53.02L7.423,52.254C7.354,51.949 7.284,51.645 7.223,51.337" fill="$SCALECOLOR$" id="id_53" stroke-width="1"/>
+ <path atv:refpx="17.681" atv:refpy="73.231" d="M18.565,71.548L16.099,74.286L16.797,74.913L19.264,72.173C19.03,71.966 18.795,71.76 18.565,71.548" fill="$SCALECOLOR$" id="id_57" stroke-width="1"/>
+ <path atv:refpx="4.882" atv:refpy="48.111" d="M6.665,47.452L3,47.837L3.1,48.771L6.764,48.386C6.728,48.075 6.693,47.765 6.665,47.452" fill="$SCALECOLOR$" id="id_58" stroke-width="1"/>
+ <path atv:refpx="20.881" atv:refpy="75.826" d="M21.579,74.062L19.417,77.038L20.178,77.589L22.345,74.607C22.089,74.425 21.83,74.249 21.579,74.062" fill="$SCALECOLOR$" id="id_59" stroke-width="1"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

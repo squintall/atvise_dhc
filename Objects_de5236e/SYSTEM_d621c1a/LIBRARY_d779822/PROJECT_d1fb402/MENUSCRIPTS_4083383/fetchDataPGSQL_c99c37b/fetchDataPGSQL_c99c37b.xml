@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="Parameters" type="interval" trigger="true" relative="false" value=""/>
+  <code><![CDATA[function fetchDataPGSQL() {
+    var o = new ODBCClient();
+    o.source = "DSN=PostgreSQL;UID=vnode;PWD=vnode"; // Configura tu DSN, usuario y contraseña
+    
+    if (o.open()) {
+        try {
+            // Consulta a la base de datos con límite de 100 registros
+            var query = "SELECT id, nombre, edad, email, fecha_registro,  *** lugar FROM public.pruebas LIMIT 5";
+            var result = o.query(query);
+
+            if (!result || result.length === 0) {
+                throw new Error("No se obtuvieron datos.");
+            }
+          
+           // Procesar los resultados
+            for (var i = 0; i < result.length; i++) {
+                console.log(result[i]); 
+            }
+
+            return result; // Devuelve el resultado si es necesario
+        } catch (exp) {
+            console.error("Error al consultar la base de datos:", exp.message);
+            return undefined; // O maneja el error de otra manera según sea necesario
+        } finally {
+            
+            if (o && o.opened === true) {
+                o.close();
+            }
+        }
+    } else {
+        console.error("No se pudo abrir la conexión a la base de datos.");
+        return undefined; // O maneja el error de otra manera
+    }
+}]]></code>
+</script>

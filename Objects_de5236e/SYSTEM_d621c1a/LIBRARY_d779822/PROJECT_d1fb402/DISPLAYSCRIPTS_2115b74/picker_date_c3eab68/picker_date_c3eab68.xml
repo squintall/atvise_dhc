@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the picker_date object display
+ * ---------------------------------------
+ * This control opens a dialog to enter a date/time combination.
+ * In addition the trigger "valuechanged" will be fired.
+ * An additional border indicates the current value's negative state or an additionally defined alarm. The colors and blinking intervals are defined in global lists.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var name = webMI.query["name"] == undefined ? "dpt" : webMI.query["name"];
+var showTime = webMI.query["showTime"] == "Yes" ? true : false;
+var fillColor = typeof webMI.query["buttonFill"] != "undefined" ? webMI.query["buttonFill"] : webMI.query["fillColor"];
+var inputFill = typeof webMI.query["fill"] != "undefined" ? webMI.query["fill"] : webMI.query["inputFill"];
+var inputFillInactive =
+	typeof webMI.query["fillColorInactive"] != "undefined"
+		? webMI.query["fillColorInactive"]
+		: webMI.query["inputFillInactive"];
+var buttonStrokePressed = webMI.query["buttonStrokePressed"];
+var focusStrokeColor = webMI.query["focusStrokeColor"];
+var arrowFill = webMI.query["arrowFill"];
+var consistencyGroup = webMI.query["consistencyGroup"];
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+var openCentered = webMI.query["openCentered"];
+var right = webMI.query["right"] == undefined ? "" : webMI.query["right"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var date_picker_dialog = webMI.query["date_picker_dialog"];
+var timestamp = 0;
+var lockInputEvents = false;
+var isSetActive = true; //isSetActive is set by the com.atvise.setActive trigger.
+var isActivationNodeSet = activeNode != "" && String(activeValue) != "";
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: document.getElementById("datepicker_clickarea").id,
+	rights: [
+		{ nodeId: base, rights: "read", disable: true, notify: false },
+		{ nodeId: base, rights: "write", disable: true, notify: false },
+		{ nodeId: alarmToSubscribe, rights: "alarmRead", disable: false, notify: true },
+		{ nodeId: date_picker_dialog, rights: "read", disable: true, notify: true },
+		{ nodeId: activeNode, rights: "read", disable: true, notify: true }
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: { activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"] },
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: right
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+/* AC set n/a on read denie */
+if (webMI.getAccessControlSupport() && base != "") {
+	var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+	var compareRights = [{ node: webMI.query["base"], right: "read" }];
+
+	accessControlManager.assist.handleWithPermissions(compareRights, readGranted, readDenied);
+
+	function readGranted() {
+		// nothing to do
+	}
+
+	function readDenied() {
+		webMI.gfx.setText("datepicker_label", "T{N/A}");
+	}
+}
+
+if (base) {
+	if (consistencyGroup) {
+		var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+		consistencyHandler.register(consistencyGroup, base, updateDisplayValue);
+	} else {
+		webMI.data.subscribe(base, function (e) {
+			if(typeof e.value == "undefined") {
+				webMI.gfx.setText("datepicker_label", "T{N/A}");
+				return;
+			}
+			updateDisplayValue(e.value);
+			if (typeof e.status != "undefined" && typeof handleStatus === "function") handleStatus(e.status);
+			accessControlManager.assist.handleWithPermissions(compareRights, readGranted, readDenied);
+		});
+	}
+} else {
+	updateDisplayValue(0);
+}
+
+if (alarmToSubscribe != "") updateAlarmIndication(alarmToSubscribe);
+
+webMI.addOnload(function () {
+	var doc = document.getElementById("datepicker_clickarea").ownerDocument;
+	tabHandler.register(tabIndex, keyHandler, doc);
+});
+
+if (tooltip != "") {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "datepicker_clickarea",
+		text: tooltip
+	});
+}
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setActiveLayout() {
+	lockInputEvents = false;
+
+	webMI.gfx.setFill("input_bg", inputFill);
+	webMI.gfx.setFill("button_bg", fillColor);
+	webMI.gfx.setVisible("button_stroke", null);
+}
+
+function setInactiveLayout() {
+	lockInputEvents = true;
+
+	webMI.gfx.setFill("input_bg", inputFillInactive);
+	webMI.gfx.setFill("button_bg", inputFillInactive);
+	webMI.gfx.setVisible("button_stroke", false);
+}
+
+function fetchCurrentRightsAndUpdateInputField() {
+	if (accessControlManager) {
+		var compareRights = [{ node: webMI.query["base"], right: "read" }];
+		accessControlManager.assist.handleWithPermissions(compareRights, readGranted, readDenied);
+	}
+}
+
+function getDisplayParameters() {
+	var passObj = {};
+	for (var i in webMI.query) passObj[i] = webMI.query[i];
+	passObj["popupId"] = name;
+	passObj["timestamp"] = timestamp;
+	return passObj;
+}
+
+function focusTH() {
+	if (lockInputEvents) return;
+
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", focusStrokeColor);
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setStroke("input_bg", focusStrokeColor);
+	}
+}
+
+function blurTH() {
+	if (lockInputEvents) return;
+
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", "none");
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setStroke("input_bg", "none");
+	}
+}
+
+function applyTH() {
+	if (lockInputEvents) return;
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Picker", {
+		picker: date_picker_dialog,
+		openCentered: openCentered,
+		width: 350,
+		height: 160,
+		callingElementWidth: webMI.gfx.getWidth("id_0"),
+		callingElementHeight: webMI.gfx.getHeight("id_0"),
+		title: "Seleccione la fecha:",
+		parameters: getDisplayParameters()
+	});
+}
+
+function backTH() {}
+
+function arrowTH(dir) {}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		focusTH();
+	} else if (keyTH == "blur") {
+		blurTH();
+	} else if (keyTH == "apply") {
+		applyTH();
+	} else if (keyTH == "space") {
+		applyTH();
+	} else if (keyTH == "back") {
+		backTH();
+	} else if (keyTH == "arrow") {
+		arrowTH(param2);
+	} else if (keyTH == "isActive") {
+		return param2(document.getElementById("datepicker_clickarea").parentNode);
+	}
+}
+
+function updateDisplayValue(value) {
+	//if not number, try to parse
+	if (typeof value != "number") {
+		value = parseInt(value, 10);
+
+		if (isNaN(value)) {
+			value = 0;
+		}
+	}
+
+	timestamp = value;
+	webMI.trigger.fire("valuechanged", timestamp, "");
+	var date = new Date(value);
+	var day = date.getDate();
+	var month = date.getMonth() + 1;
+	var year = date.getFullYear();
+	var hours = date.getHours();
+	var minutes = date.getMinutes();
+	var seconds = date.getSeconds();
+	var text = preNull(day) + "." + preNull(month) + "." + year;
+	if (showTime) {
+		text += " " + preNull(hours) + ":" + preNull(minutes) + ":" + preNull(seconds);
+	}
+	webMI.gfx.setText("datepicker_label", text);
+}
+
+function updateNodeValue(value) {
+	//if not number, try to parse
+	if (typeof value != "number") {
+		value = parseInt(value, 10);
+
+		if (isNaN(value)) {
+			value = 0;
+		}
+	}
+
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		if (consistencyGroup) {
+			consistencyHandler.set(consistencyGroup, base, value);
+			updateDisplayValue(value);
+		} else {
+			webMI.data.write(base, value);
+		}
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+}
+
+function preNull(value) {
+	return value < 10 ? "0" + value : value;
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent("datepicker_clickarea", "click", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "datepicker_clickarea";
+		var value = true;
+		return (function (value) {
+			if (lockInputEvents) return;
+
+			tabHandler.setCurrentIndex(keyHandler);
+			webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Picker", {
+				picker: date_picker_dialog,
+				openCentered: openCentered,
+				width: 400,
+				height: 160,
+				callingElementWidth: webMI.gfx.getWidth("id_0"),
+				callingElementHeight: webMI.gfx.getHeight("id_0"),
+				title: "Seleccione la fecha:",
+				parameters: getDisplayParameters()
+			});
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("datepicker_clickarea", "mousedown", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "datepicker_clickarea";
+		var value = true;
+		return (function (value) {
+			if (lockInputEvents) return;
+
+			webMI.gfx.setStroke("button_stroke", buttonStrokePressed);
+			if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+				webMI.gfx.setStroke("focus_frame", buttonStrokePressed);
+				webMI.gfx.setFill("button_bg", "url(#linear_2)");
+			} else {
+				webMI.gfx.setStroke("input_bg", buttonStrokePressed);
+			}
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("datepicker_clickarea", ["mouseup", "mouseout"], function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "datepicker_clickarea";
+		var value = true;
+		return (function (value) {
+			if (lockInputEvents) return;
+
+			webMI.gfx.setStroke("button_stroke", buttonStrokePressed);
+			if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+				webMI.gfx.setStroke("focus_frame", "none");
+				webMI.gfx.setFill("button_bg", "none");
+			} else {
+				webMI.gfx.setStroke("input_bg", "none");
+			}
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("datepicker_clickarea", "dragstart", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		if (e.preventDefault) {
+			e.preventDefault();
+		}
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect("com.atvise.datepicker_" + name, function (e) {
+	if (base) {
+		updateNodeValue(e.value);
+	} else {
+		updateDisplayValue(e.value);
+	}
+});
+
+webMI.trigger.connect("com.atvise.access_control_update", function (e) {
+	fetchCurrentRightsAndUpdateInputField();
+});
+]]></code>
+</script>

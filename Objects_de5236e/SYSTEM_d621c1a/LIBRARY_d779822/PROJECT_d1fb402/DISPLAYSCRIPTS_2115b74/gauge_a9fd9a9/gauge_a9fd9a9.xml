@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the gauge object display
+ * ---------------------------------
+ * The gauge is used for the graphical representation of the value of an address.
+ * For each gauge 0 to 4 limits (from 'limit low low' up to 'limit high high') can be specified.
+ * These limits split the range defined by 'min' and 'max' in 1 to 5 intervals.
+ * Depending in what interval the value of the "base" address lies,
+ * the text color of the value will be changed according to the specified color for each limit &ndash; see below under 'Appearance'.
+ * In case a limit lies below min or above max, it will not be explicitly drawn, though the text color will be changed accordingly.
+ * (e.g. max = 100 and limit high high = 120: although the needle will not go beyond 'max', the text color will change according to 'limit high high color' as soon as the value reaches the 'limit high high')
+ * The limits are defined as follows:
+ * - limit low low &gt;= value: text color according to "limit low low color"
+ * - limit low low &lt;  value &lt;= limit low: text color according to "limit low color"
+ * - limit low &lt;  value &lt; limit high: text color according to "color"
+ * - limit high &lt;=  value &lt; limit high high: text color according to"limit high color"
+ * - limit high high  &lt;=  value: text color according to "limit high high&nbsp;color"
+ */
+
+/**
+ * QD Calls e.g. Imports
+ */
+
+var AggregateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Aggregate Manager");
+webMI.addOnunload(function () {
+	AggregateManager.destroy();
+	AggregateManager = null;
+});
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var decimalPositions = webMI.query["decimalPositions"];
+
+/** style & colors **/
+var backgroundColor = webMI.gfx.getFill("bg_scale");
+var backgroundColorInactive = webMI.query["backgroundColorInactive"];
+var fontColor = webMI.query["fontColor"];
+var limitLowLowFill = webMI.query["limitLowLowFill"];
+var limitLowFill = webMI.query["limitLowFill"];
+var limitHighFill = webMI.query["limitHighFill"];
+var limitHighHighFill = webMI.query["limitHighHighFill"];
+var pointerColor = webMI.query["pointerColor"];
+var scaleColor = webMI.query["scaleColor"];
+
+/** limits **/
+var min = webMI.query["min"] == undefined ? "" : parseFloat(webMI.query["min"]);
+var max = webMI.query["max"] == undefined ? "" : parseFloat(webMI.query["max"]);
+var limitLowLow = webMI.query["limitLowLow"] == undefined ? "" : webMI.query["limitLowLow"];
+var limitLow = webMI.query["limitLow"] == undefined ? "" : webMI.query["limitLow"];
+var limitHigh = webMI.query["limitHigh"] == undefined ? "" : webMI.query["limitHigh"];
+var limitHighHigh = webMI.query["limitHighHigh"] == undefined ? "" : webMI.query["limitHighHigh"];
+var pointerColorLimitsOn = webMI.query["pointerColorLimitsOn"];
+var nodeMin = webMI.query["nodeMin"] == undefined ? "" : webMI.query["nodeMin"];
+var nodeMax = webMI.query["nodeMax"] == undefined ? "" : webMI.query["nodeMax"];
+var nodeLowLow = webMI.query["nodeLowLow"] == undefined ? "" : webMI.query["nodeLowLow"];
+var nodeLow = webMI.query["nodeLow"] == undefined ? "" : webMI.query["nodeLow"];
+var nodeHigh = webMI.query["nodeHigh"] == undefined ? "" : webMI.query["nodeHigh"];
+var nodeHighHigh = webMI.query["nodeHighHigh"] == undefined ? "" : webMI.query["nodeHighHigh"];
+
+/** status **/
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+
+/** notification cfg **/
+var notifierConfig;
+
+/** data **/
+var runTimeNodeConfig = {
+	base: {value: null, address: base, paramValue: "", read: true, write: true, aggregate: false},
+	min: {value: null, address: nodeMin, paramValue: min, read: true, write: false},
+	max: {value: null, address: nodeMax, paramValue: max, read: true, write: false},
+	limitLowLow: {value: null, address: nodeLowLow, paramValue: limitLowLow, read: true, write: false},
+	limitLow: {value: null, address: nodeLow, paramValue: limitLow, read: true, write: false},
+	limitHigh: {value: null, address: nodeHigh, paramValue: limitHigh, read: true, write: false},
+	limitHighHigh: {value: null, address: nodeHighHigh, paramValue: limitHighHigh, read: true, write: false}
+};
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {
+		"top-left": {x: 20, y: 15},
+		"top-right": {x: 20, y: 15},
+		"bottom-left": {x: 10, y: 30},
+		"bottom-right": {x: 10, y: 30}
+	}
+};
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+AggregateManager.isAggregates(webMI.query["base"], function (aggregate, aggregateNodeRights) {
+	var address = aggregate ? webMI.query["base"].replace(aggregate, "") : webMI.query["base"];
+	var eleOuter_shape = document.getElementById("outer_shape");
+
+	if (!eleOuter_shape)
+		return;
+
+	notifierConfig = {
+		id: eleOuter_shape.id,
+		rights: [
+			{nodeId: webMI.query["alarm"], rights: "alarmRead", disable: false, notify: true},
+			{nodeId: webMI.query["nodeMin"], rights: "read", disable: true, notify: true},
+			{nodeId: webMI.query["nodeMax"], rights: "read", disable: true, notify: true},
+			{nodeId: webMI.query["nodeLowLow"], rights: "read", disable: false, notify: true},
+			{nodeId: webMI.query["nodeLow"], rights: "read", disable: false, notify: true},
+			{nodeId: webMI.query["nodeHigh"], rights: "read", disable: false, notify: true},
+			{nodeId: webMI.query["nodeHighHigh"], rights: "read", disable: false, notify: true}
+		],
+		menuLayout: menuLayout
+	};
+
+	if (aggregateNodeRights) {
+		for (var key in aggregateNodeRights) {
+			var cR = aggregateNodeRights[key];
+			notifierConfig.rights.push({
+				nodeId: cR.node,
+				rights: cR.right,
+				disable: cR.disable ? true : false,
+				notify: cR.notify ? true : false
+			});
+		}
+	}
+
+	var rightsHandlingProperties = {
+		notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {}
+	};
+
+	if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+	if (aggregate) {
+		notifierConfig.rights.push({nodeId: address, rights: "read", disable: true, notify: false});
+		runTimeNodeConfig.base.aggregate = aggregate;
+	}
+
+	if (typeof updateRunTimeNodeConfig === "function") {
+		updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+	} else {
+		initialize(runTimeNodeConfig);
+	}
+});
+
+/**
+ * FUNCTIONS
+ */
+
+/**
+ * read or subscribe data by runtime node configuration
+ * @param nodeCfg
+ */
+function initialize(nodeCfg) {
+	/* init alarm indication */
+	if (alarmToSubscribe != "") updateAlarmIndication(alarmToSubscribe);
+
+	if (runTimeNodeConfig.base.value == null)
+		runTimeNodeConfig.base.value = 0;
+
+	/* base */
+	if (nodeCfg.base.read) {
+		if (!nodeCfg.base.subscribe) {
+			nodeCfg.base.subscribe = true;
+
+			if(AggregateManager)
+			  AggregateManager.subscribeNodeOrAggregate(nodeCfg.base.address, manageBaseResult);
+
+			function manageBaseResult(result) {
+				if (typeof result.status != "undefined" && typeof updateStatusIndication === "function") {
+					updateStatusIndication(result.status);
+				}
+
+				if (!result.error) {
+					runTimeNodeConfig.base.value = result.value;
+					_updateColors();
+				} else {
+					runTimeNodeConfig.base.value = null;
+					webMI.gfx.setText("gauge_value", "T{N/A}");
+					_updateColors();
+				}
+			}
+		}
+	} else if (nodeCfg.base.address && !nodeCfg.base.read) {
+		webMI.gfx.setText("gauge_value", "T{N/A}");
+		_updateColors();
+	} else {
+		webMI.gfx.setText("gauge_value", runTimeNodeConfig.base.value);
+		_updateColors();
+	}
+
+	/* min max limits ... */
+	for (var key in nodeCfg) {
+		if (key != "base" && key != "outputNode") {
+			let cKey = key;
+			let node = nodeCfg[key];
+
+			if (node.address && node.read) {
+				if (!nodeCfg[key].subscribe) {
+					nodeCfg[key].subscribe = true;
+
+					webMI.data.subscribe(node.address, function (response) {
+						runTimeNodeConfig[cKey].value = response.value;
+						_updateLimits();
+						_updateColors();
+					});
+				}
+			} else if (node.address && !node.read) {
+				// _updateLimits();
+			} else if (!node.address) {
+				runTimeNodeConfig[cKey].value = node.paramValue;
+				_updateLimits();
+				_updateColors();
+			}
+		}
+	}
+
+	if (typeof tooltip != "undefined") {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+			auto: "true",
+			id: "clickareaFO",
+			text: tooltip
+		});
+	}
+}
+
+/**
+ * switch to active layout
+ */
+function setActiveLayout() {
+	_updateLimits();
+	_updateColors();
+	webMI.gfx.setText("gauge_value", runTimeNodeConfig.base.value);
+}
+
+/**
+ * switch to inactive layout
+ */
+function setInactiveLayout() {
+	_updateLimits();
+	_updateColors();
+	webMI.gfx.setText("gauge_value", "T{N/A}");
+}
+
+/**
+ * update on ac right changes
+ */
+function fetchCurrentRightsAndUpdate() {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+}
+
+/**
+ * update input value
+ * @param component
+ * @param value
+ * @private
+ */
+function _updateOutput(component, value, decimal) {
+	var formatValue = parseFloat(value);
+
+	if (decimal) {
+		var formatString = "%0." + parseFloat(decimal) + "f";
+		formatValue = webMI.sprintf(formatString, formatValue);
+	}
+
+	webMI.gfx.setText(component, formatValue);
+}
+
+function _updateLimits() {
+	var min = parseFloat(runTimeNodeConfig.min.value);
+	var max = parseFloat(runTimeNodeConfig.max.value);
+
+	var limitLowLow = parseFloat(runTimeNodeConfig.limitLowLow.value);
+	var limitLow = parseFloat(runTimeNodeConfig.limitLow.value);
+	var limitHigh = parseFloat(runTimeNodeConfig.limitHigh.value);
+	var limitHighHigh = parseFloat(runTimeNodeConfig.limitHighHigh.value);
+
+	if (isNaN(min) || isNaN(max)) {
+		limitLowLow = undefined;
+		limitLow = undefined;
+		limitHigh = undefined;
+		limitHighHigh = undefined;
+	}
+
+	/* limit_low_low */
+	if (isNaN(limitLowLow) || min > limitLowLow || max < limitLowLow) {
+		webMI.gfx.setVisible("limit_low_low", false);
+	} else {
+		webMI.gfx.setRotation("limit_low_low", Math.round(webMI.translate(limitLowLow, min, max, -150, 150)));
+		webMI.gfx.setVisible("limit_low_low", null);
+	}
+
+	/* limit_low */
+	if (isNaN(limitLow) || min > limitLow || max < limitLow) {
+		webMI.gfx.setVisible("limit_low", false);
+	} else {
+		webMI.gfx.setRotation("limit_low", Math.round(webMI.translate(limitLow, min, max, -150, 150)));
+		webMI.gfx.setVisible("limit_low", null);
+	}
+
+	/* limit_high */
+	if (isNaN(limitHigh) || min > limitHigh || max < limitHigh) {
+		webMI.gfx.setVisible("limit_high", false);
+	} else {
+		webMI.gfx.setRotation("limit_high", Math.round(webMI.translate(limitHigh, min, max, -150, 150)));
+		webMI.gfx.setVisible("limit_high", null);
+	}
+
+	/* limit_high_high */
+	if (isNaN(limitHighHigh) || min > limitHighHigh || max < limitHighHigh) {
+		webMI.gfx.setVisible("limit_high_high", false);
+	} else {
+		webMI.gfx.setRotation("limit_high_high", Math.round(webMI.translate(limitHighHigh, min, max, -150, 150)));
+		webMI.gfx.setVisible("limit_high_high", null);
+	}
+}
+
+function _updateColors() {
+	var value = parseFloat(runTimeNodeConfig.base.value);
+
+	var min = parseFloat(runTimeNodeConfig.min.value);
+	var max = parseFloat(runTimeNodeConfig.max.value);
+
+	var limitLowLow = parseFloat(runTimeNodeConfig.limitLowLow.value);
+	var limitLow = parseFloat(runTimeNodeConfig.limitLow.value);
+	var limitHigh = parseFloat(runTimeNodeConfig.limitHigh.value);
+	var limitHighHigh = parseFloat(runTimeNodeConfig.limitHighHigh.value);
+
+	var update = true;
+	if (CRH && !CRH.state.accessControlState) {
+		update = false;
+	}
+
+	if (CRH && !CRH.state.activationTriggerState) {
+		update = false;
+	}
+
+	if (update && !isNaN(value)) {
+		var formatDecimal = parseFloat(decimalPositions);
+		var formatString = "%0." + formatDecimal + "f";
+
+		var textValue = webMI.sprintf(formatString, value);
+		webMI.gfx.setText("gauge_value", textValue);
+
+		var gaugeValue = value;
+		if (String(min) != "" && String(max) != "") {
+			if (min > value) {
+				gaugeValue = min;
+			}
+			if (value > max) {
+				gaugeValue = max;
+			}
+		}
+
+		webMI.gfx.setVisible("gauge_pointer", null);
+		webMI.gfx.setFill("bg_scale", backgroundColor);
+		webMI.gfx.setRotation("gauge_pointer", Math.round(webMI.translate(gaugeValue, min, max, -150, 150)));
+		webMI.gfx.setFill("gauge_value", fontColor);
+	}
+
+	if (update) {
+		if (!isNaN(limitLow) || !isNaN(limitLowLow) || !isNaN(limitHigh) || !isNaN(limitHighHigh)) {
+			webMI.gfx.setFill("gauge_pointer_col", pointerColorLimitsOn);
+		} else {
+			webMI.gfx.setFill("gauge_pointer_col", pointerColor);
+		}
+
+		if (!isNaN(limitLow) && value <= limitLow) {
+			webMI.gfx.setFill("gauge_value", limitLowFill);
+			webMI.gfx.setFill("gauge_pointer_col", limitLowFill);
+		}
+
+		if (!isNaN(limitLowLow) && value <= limitLowLow) {
+			webMI.gfx.setFill("gauge_value", limitLowLowFill);
+			webMI.gfx.setFill("gauge_pointer_col", limitLowLowFill);
+		}
+
+		if (!isNaN(limitHigh) && value >= limitHigh) {
+			webMI.gfx.setFill("gauge_value", limitHighFill);
+			webMI.gfx.setFill("gauge_pointer_col", limitHighFill);
+		}
+
+		if (!isNaN(limitHighHigh) && value >= limitHighHigh) {
+			webMI.gfx.setFill("gauge_value", limitHighHighFill);
+			webMI.gfx.setFill("gauge_pointer_col", limitHighHighFill);
+		}
+	}
+
+	if (!update || isNaN(min) || isNaN(max) || isNaN(value)) {
+		webMI.gfx.setVisible("gauge_pointer", false);
+		webMI.gfx.setFill("bg_scale", backgroundColorInactive);
+		webMI.gfx.setFill("gauge_pointer_col", pointerColor);
+	}
+}
+]]></code>
+</script>

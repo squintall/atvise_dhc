@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <code><![CDATA[var odbcClient = new ODBCClient();
+odbcClient.source = "DSN=PostgreSQL;UID=vnode;PWD=vnode;";
+
+if (odbcClient.open()) {
+   
+   var nameNode = Ua.findNode(base + ".name"); // Nodo para obtener la dirección
+    var host_dir = nameNode.result.nodeId.address; // Dirección completa
+    var cadena = host_dir.split("."); // Dividir la dirección en niveles
+
+    // Obtener las iniciales del municipio -8 y nombre del carcamo directamente -5
+  var nivel8 = cadena[cadena.length - 8];
+var nivel5 = cadena[cadena.length - 5];
+
+var abreviadoNivel8 = nivel8
+    .split("_") 
+    .map(palabra => palabra[0]) 
+    .join(""); 
+    
+  // identificacion de cuenca o circuito, para asignar tanque agua potable o residual
+var nombre = abreviadoNivel8 + "_" + nivel5;
+console.log(cadena[cadena.length-6]);
+console.log(cadena[cadena.length-6].includes("Cuenca"));
+console.log(cadena[cadena.length-6].includes("Circuito"));
+console.log(nivel5);
+if (cadena[cadena.length-6].includes("Cuenca")){
+	nombre = nombre.replace("Carcamo_","CAR_");
+}
+
+if (cadena[cadena.length-6].includes("Circuito")){
+	nombre = nombre.replace("Carcamo_","TAP_");
+}
+    
+
+    // Validar que el nombre no sea vacío o inválido para PostgreSQL
+    if (!nombre || nombre.trim() === "") {
+        console.log("Error: El nombre de la tabla es inválido.");
+        odbcClient.close();
+        return;
+    }
+
+    // Obtener el valor dinámico de id_caudalimetro desde un nodo en Atvise
+    var idCaudalimetroNode = Ua.findNode(base + ".id_caudalimetro"); // Nodo que contiene el id_caudalimetro
+    if (!idCaudalimetroNode || !idCaudalimetroNode.result || !idCaudalimetroNode.result.value) {
+        console.log("Error: Nodo id_caudalimetro no encontrado o sin valor válido.");
+        odbcClient.close();
+        return;
+    }
+    var id_caudalimetro = idCaudalimetroNode.result.value; // Obtener el valor del nodo id_caudalimetro
+
+    // Paso 1: Verificar que la tabla existe o crearla si no existe
+    try {
+        var query = `
+            CREATE TABLE IF NOT EXISTS public."${nombre}" (
+                historic_flow FLOAT,
+                historic_pressure FLOAT,
+                historic_daily_production FLOAT,
+                historic_hourly_production FLOAT,
+                id_caudalimetro INT,
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+        `;
+        console.log("Consulta para crear la tabla:", query); // Imprimir la consulta para depuración
+
+        odbcClient.query(query); // Ejecutar la consulta para crear la tabla
+        console.log("Tabla " + nombre + " creada o verificada exitosamente.");
+    } catch (createError) {
+        console.log("Error al crear o verificar la tabla:", createError);
+        odbcClient.close();
+        return;
+    }
+
+    // Paso 2: Obtener los valores dinámicos de los nodos SCADA
+    try {
+        // Obtener el valor de historic_flow
+        var flow = Ua.findNode(base + ".historic_flow");
+        var historic_flow = flow.result.value;
+
+        // Obtener el valor de historic_pressure
+        var pressure = Ua.findNode(base + ".historic_pressure");
+        var historic_pressure = pressure.result.value;
+
+        // Obtener el valor de historic_daily_production
+        var dailyProduction = Ua.findNode(base + ".historic_daily_production");
+        var historic_daily_production = dailyProduction.result.value;
+
+        // Obtener el valor de historic_hourly_production
+        var hourlyProduction = Ua.findNode(base + ".historic_hourly_production");
+        var historic_hourly_production = hourlyProduction.result.value;
+
+        var count = pressure.result.serverTime.value;
+
+        var currentTimestamp = new Date(count);
+
+        // Obtener la hora, minutos y segundos en UTC
+        var currentHours = (currentTimestamp.getUTCHours() - 5 + 24) % 24;
+        var currentMinutes = currentTimestamp.getUTCMinutes();
+        var currentSeconds = currentTimestamp.getUTCSeconds();
+        console.log(currentHours);
+        console.log(currentMinutes);
+        console.log(currentSeconds);
+
+        // Insertar datos iniciales (Pressure y Flow)
+        var insertQuery = `
+            INSERT INTO public."${nombre}" (historic_flow, historic_pressure, id_caudalimetro, created_at)
+            VALUES (${historic_flow}, ${historic_pressure}, ${id_caudalimetro}, NOW());
+        `;
+
+        // Llamar cuando se cumpla 1 hora
+        if (currentMinutes === 0 && currentSeconds === 0) {
+            insertQuery = `
+                INSERT INTO public."${nombre}" (historic_flow, historic_pressure, historic_hourly_production, id_caudalimetro, created_at)
+                VALUES (${historic_flow}, ${historic_pressure}, ${historic_hourly_production}, ${id_caudalimetro}, NOW());
+            `;
+            console.log("¡Es una hora exacta (minutos y segundos son 0)!");
+        }
+
+        // Verificar si es medianoche exacta UTC (00:00:00)
+        if (currentHours === 0 && currentMinutes === 0 && currentSeconds === 0) {
+            insertQuery = `
+                INSERT INTO public."${nombre}" (historic_flow, historic_pressure, historic_daily_production, historic_hourly_production, id_caudalimetro, created_at)
+                VALUES (${historic_flow}, ${historic_pressure}, ${historic_daily_production}, ${historic_hourly_production}, ${id_caudalimetro}, NOW());
+            `;
+            console.log("¡Es medianoche UTC (00:00:00)!");
+        }
+
+        console.log("Consulta para insertar datos iniciales:", insertQuery); // Imprimir la consulta para depuración
+        odbcClient.query(insertQuery);
+        console.log("Datos iniciales insertados exitosamente en la tabla " + nombre);
+    } catch (error) {
+        console.log("Error al insertar datos:", error);
+    } finally {
+        odbcClient.close();
+    }
+} else {
+    console.log("No se pudo conectar a la base de datos.");
+}]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.Calculos_Estadisticos
+NodeClass: Variable
+BrowseName: 1:Calculos_Estadisticos
+DisplayName: en|Calculos_Estadisticos
+Description: en|Calculos_Estadisticos
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

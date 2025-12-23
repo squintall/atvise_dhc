@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.PTAR_Norponiente.Equipos.Caudal.Demasias.Umbrales.Caudal.AlarmLow
+NodeClass: Variable
+BrowseName: 1:AlarmLow
+DisplayName: en|AlarmLow
+Description: en|AlarmLow
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.WEBACCESS.http1.caching
+NodeClass: Variable
+BrowseName: 1:caching
+DisplayName: en|caching
+Description: en|caching
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

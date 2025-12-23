@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Mapas.Mapa_Cuenca_PTARNTE
+NodeClass: Variable
+BrowseName: 1:Mapa_Cuenca_PTARNTE
+DisplayName: en|Mapa_Cuenca_PTARNTE
+Description: en|Mapa_Cuenca_PTARNTE
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

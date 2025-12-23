@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the button_login object display
+ * ---------------------------------------------
+ * This control opens the login dialog.<br/>
+ * The "logged in" / "not logged in" states are displayed by different symbols too.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var strokeNormal = "none";
+var strokePressed = webMI.query["strokePressed"];
+var fillColor = webMI.query["fill"];
+var fillColorInactive = webMI.query["fillColorInactive"];
+var loggedIn = false;
+var loginmethod = null;
+var activatedEvents = true;
+var symbolScaling = parseInt(webMI.query["symbolScaling"], 10);
+var login_address = webMI.query["login_address"];
+var login_height = webMI.query["login_height"];
+var login_width = webMI.query["login_width"];
+var isOldStyle = typeof webMI.query["borderColor"] == "undefined";
+
+/**
+ * RUNTIME SECTION
+ */
+
+webMI.addOnload(function() {
+	webMI.data.call("info",{},function(e) { //get information from webmi.js
+		loginmethod = e.loginmethod;
+		if(loginmethod == "none") {
+			setButton(false, false);
+			return;
+		}
+		webMI.addEvent(webMI.data, "clientvariableschange", function(e) {
+			loggedIn = (e.username != "" && e.username != undefined);
+			if(loggedIn && loginmethod == "form")
+				webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", {"action":"start"});
+			if("username" in e) {
+				if(loginmethod == "http" ||	loginmethod == "ntlm") //ntml is not defined in webmi
+					setButton(false, false);
+				else if(loginmethod == "form")
+					setButton(true, true);
+			}
+			else if(e.username == undefined) //webMI2ADS 2.0.1 specific fix to enable login
+				setButton(true, true);
+		}
+	);});
+
+	if (!isOldStyle) {
+		/* set and scale icon position */
+		var FRAME = {};
+		FRAME.element = document.getElementById("id_0");
+		FRAME.height = parseInt(FRAME.element.getAttribute("height"));
+		FRAME.width = parseInt(FRAME.element.getAttribute("width"));
+
+		var SYMBOL = {};
+		SYMBOL.element = document.getElementById("button_clickarea").parentNode;
+		SYMBOL.height = parseInt(SYMBOL.element.getAttribute("height"));
+		SYMBOL.width = parseInt(SYMBOL.element.getAttribute("width"));
+
+		if(symbolScaling != 0 && symbolScaling != 100){
+			var scale = {};
+			scale.x = FRAME.width / SYMBOL.width;
+			scale.y = FRAME.height / SYMBOL.height;
+			scale.value = symbolScaling / 100;
+		
+			var offset = {};
+			offset.x = 20 * (scale.x - scale.value) / 2;
+			offset.y = 20 * (scale.y - scale.value) / 2;
+		
+			var icon = document.getElementById("button_symbol");
+			icon.setAttribute("viewBox", "0,0,20,20");
+			icon.setAttribute("x", 4.694 * scale.x + offset.x);
+			icon.setAttribute("y", 4.694 * scale.y + offset.y);
+			icon.setAttribute("width", 20 * scale.value);
+			icon.setAttribute("height", 20 * scale.value);
+		}
+	}
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setButton(fill, activateEvents) {
+	webMI.gfx.setVisible("button_symbol_pressed", loggedIn);
+	webMI.gfx.setVisible("button_symbol", !loggedIn);
+	webMI.gfx.setFill("button_bg", fill ? fillColor : fillColorInactive);
+	activatedEvents = activateEvents;
+}
+
+function setButtonEvents(strokeStyle, buttonFill, setStroke) {
+	if(activatedEvents) {
+		webMI.gfx.setStroke("button_stroke", strokeStyle ? strokePressed : strokeNormal);
+		webMI.gfx.setFill("button_stroke", buttonFill ? "url(#linear_1)" : "url(#linear_2)");
+		if(setStroke)
+			webMI.gfx.setStrokeWidth("button_stroke", "1");
+	}
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent("button_clickarea", "click", function(e) {
+	if (loggedIn == false && loginmethod == "form") {
+		webMI.display.openWindow({display:login_address,extern:false,height:login_height,menubar:false,modal:true,movable:true,resizable:false,scrollbars:false,status:false,title:"T{Login}",toolbar:false,width:login_width,query:webMI.query});
+	} else if (loggedIn == false && loginmethod == "http") { //webMI2ADS 2.0.1 specific fix to enable login
+		webMI.data.login();
+	} else if (loggedIn == true && loginmethod == "form") {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", {"action":"manualLogout"});
+		webMI.data.logout(function(){});
+	}
+});
+
+webMI.addEvent("button_clickarea", "mouseup", function(e) {
+	setButtonEvents(false, true, false);
+});
+
+webMI.addEvent("button_clickarea", "mousedown", function(e) {
+		setButtonEvents(true, false, false);
+});
+
+webMI.addEvent("button_clickarea", "mouseout", function(e) {
+		setButtonEvents(false, true, true);
+});
+
+webMI.addEvent("button_clickarea", "dragstart", function(e) {
+	if (e.preventDefault) {
+		e.preventDefault();
+	}
+});]]></code>
+</script>

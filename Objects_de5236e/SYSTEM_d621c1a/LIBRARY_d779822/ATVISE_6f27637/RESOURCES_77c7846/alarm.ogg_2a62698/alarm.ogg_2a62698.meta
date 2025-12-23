@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/alarm.ogg
+NodeClass: Variable
+BrowseName: 1:alarm.ogg
+DisplayName: en|alarm.ogg
+Description: en|alarm.ogg
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Ogg

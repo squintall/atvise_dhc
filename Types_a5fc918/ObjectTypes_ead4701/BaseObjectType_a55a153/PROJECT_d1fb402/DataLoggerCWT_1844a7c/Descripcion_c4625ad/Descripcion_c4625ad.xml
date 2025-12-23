@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="t" type="interval" trigger="true" relative="false" value="" offset="00:00:00" interval="00:00:05"/>
+  <code><![CDATA[var nombre = Ua.findNode(base + ".DataloggerID");
+var nombre_corto = Ua.findNode(base + ".ID_corto");
+var punto = Ua.findNode(base + ".punto");
+var array_nombre = nombre.result.value.split(",");
+
+
+
+var node_address = punto.result.nodeId.address.split(".");
+
+
+nombre_corto.result.value = array_nombre[0];
+punto.result.value = "Punto: " + node_address[4];]]></code>
+</script>

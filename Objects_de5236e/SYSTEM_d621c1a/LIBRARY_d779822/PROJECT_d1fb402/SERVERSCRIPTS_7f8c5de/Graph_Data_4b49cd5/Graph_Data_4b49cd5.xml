@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="Ref_Variables" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="from" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="to" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="Raw_Data" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="Method" type="number" trigger="false" relative="false" value=""/>
+  <code><![CDATA[//--------------Sección de Definición de Variables------------//
+
+//Variables Externas
+var Addresses = new Array();
+
+//Variables Internas
+var data = new Array();
+var series = new Array();
+
+//--------------Sección de Ejecución de Logica------------//
+//Metodos  0:Lee de datos historicos  1:Toma data ya preprocesada
+
+//Preparo el arreglo de direcciones
+	for (var i=0; i<Ref_Variables.length; i++){
+		Addresses.push("g:"+Ref_Variables[i]);
+		data.push([]);
+	}
+
+if (Method==0){	
+	
+	//Sección de adquisición de datos
+	var query = history.query({
+		type: ["v:1"], // Datos crudos
+		timestamp: ["n:>=" + (new Date(from)).getTime() + "<" + (new Date(to)).getTime()],
+		address: Addresses
+	});
+	
+	var result=query.result;
+	
+	//Separo y Organizo los datos
+	for (var i=0; i<Ref_Variables.length; i++){
+		for (var j=0; j<result.length; j++){
+				if(result[j].address==Ref_Variables[i]){
+				data[i].push([result[j].timestamp,
+							 result[j].value]);
+				
+			}
+		}
+		
+		//Lleno las series
+		series.push({
+				"name":Ref_Variables[i].split('.').pop(),
+				"stacking": "normal",
+				"data": data[i]
+		});
+	}
+}
+
+if (Method==1){		
+	
+	var time=Raw_Data[1][0]; //Arreglo de arreglos de tiempo para cada variable, solo ocupo el primer arreglo
+	
+	//Separo y Organizo los datos
+	for (var i=0; i<Ref_Variables.length; i++){
+		for (var j=0; j<time.length; j++){				
+				data[i].push([time[j],
+							 Raw_Data[0][i][j]]);			
+			}
+		
+		
+		//Lleno las series
+		series.push({
+				"name":Ref_Variables[i].split('.').pop(),
+				"stacking": "normal",
+				"data": data[i]
+		});
+	}
+}
+
+console.log("-------Para el grafico-------");
+console.log("Cantidad de datos por serie: "+data[0].length);
+
+
+
+//Returno todo
+return(series);]]></code>
+</script>

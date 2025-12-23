@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.bar_vertical
+NodeClass: Variable
+BrowseName: 1:bar_vertical
+DisplayName: en|bar_vertical
+Description: en|bar_vertical
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

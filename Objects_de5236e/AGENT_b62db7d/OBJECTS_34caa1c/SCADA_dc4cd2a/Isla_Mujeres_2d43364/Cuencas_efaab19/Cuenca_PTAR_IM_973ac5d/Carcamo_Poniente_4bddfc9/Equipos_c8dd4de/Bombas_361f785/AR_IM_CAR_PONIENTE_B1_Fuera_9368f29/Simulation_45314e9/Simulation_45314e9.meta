@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Poniente.Equipos.Bombas.AR_IM_CAR_PONIENTE_B1_Fuera.Simulation
+NodeClass: Variable
+BrowseName: 1:Simulation
+DisplayName: en|Simulation
+Description: en|Simulation
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Simulation.RelMirrorInputOutput

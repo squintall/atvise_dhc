@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.SlimReporting
+NodeClass: Variable
+BrowseName: 1:SlimReporting
+DisplayName: en|SlimReporting
+Description: en|SlimReporting
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

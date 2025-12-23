@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_11_ZH_PokTaPok.Entrada
+NodeClass: Variable
+BrowseName: 1:Entrada
+DisplayName: en|Entrada
+Description: en|Entrada
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

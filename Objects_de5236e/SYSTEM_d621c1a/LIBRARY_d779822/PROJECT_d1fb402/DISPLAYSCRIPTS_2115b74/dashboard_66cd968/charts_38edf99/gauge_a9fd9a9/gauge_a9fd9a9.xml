@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the chart gauge resource object display
+ * ----------------------------------------
+ * This script serves as an interface that connects the with highcharts for gouge charts
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var BORDER_ID = "border";
+var CHART_ID = document.getElementById(BORDER_ID).id.replace("_border", "");
+var FO_ID = "fo_container";
+var HIGHCHARTS_CONTAINER_ID = "dashboard_highcharts_container";
+var MAIN_LABEL_ID = "main_label";
+var SUB_LABEL_ID = "sub_label";
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+var displayAcNotification = webMI.query["displayAcNotification"];
+
+/**
+ * Trigger setup
+ */
+var OPEN_DISPLAY_TRIGGER = "com.atvise.dashboard.openDisplay";
+var SET_ACTIVE_TRIGGER = "com.atvise.dashboard.setActive";
+var SET_INACTIVE_TRIGGER = "com.atvise.dashboard.setInactive";
+var SET_STATUS_TRIGGER = "com.atvise.dashboard.setStatus";
+var SET_BLINKING_FRAME_STROKE_TRIGGER = "com.atvise.dashboard.setBlinkingFrameStroke";
+var SHOW_HIDE_BLINKING_FRAME_TRIGGER = "com.atvise.dashboard.showHideBlinkingFrame";
+
+
+/**
+ * BASE SETUP
+ */
+var BLINKING_FRAME_COLOR_INACTIVE = "#000000";
+
+var chartDiv = document.getElementById(HIGHCHARTS_CONTAINER_ID);
+
+/* Query parameters */
+var colorInactive = webMI.query["colorInactive"];
+var activeNode = webMI.query["activeNode"] || "";
+var activeValue = webMI.query["activeValue"] || "";
+var active = false;
+
+
+/** data **/
+var runTimeNodeConfig = {
+	base: {value: null, address: webMI.query["base"], paramValue: "", read: true, write: false, aggregate: false},
+	min: {value: null, address: webMI.query["nodeMin"], paramValue: webMI.query["min"], read: true, write: false},
+	max: {value: null, address: webMI.query["nodeMax"], paramValue: webMI.query["max"], read: true, write: false},
+};
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+if (true) {
+	var notifierConfig = {
+		rights: [
+			{nodeId: webMI.query["base"], rights: "read", disable: true, notify: false},
+			{nodeId: webMI.query["nodeMin"], rights: "read", disable: true, notify: false},
+			{nodeId: webMI.query["nodeMax"], rights: "read", disable: true, notify: false},
+			{nodeId: webMI.query["alarm"], rights: "alarmRead", disable: false, notify: true},
+			{nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true}
+		]
+	};
+
+	var rightsHandlingProperties = {
+		activationNodeSet: {activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"]},
+		notifierConfiguration: notifierConfig,
+		userRight: webMI.query["right"],
+		editable: true
+	};
+
+	if (typeof rightsHandling === "function")
+		rightsHandling(rightsHandlingProperties);
+
+	if (typeof updateRunTimeNodeConfig === "function") {
+		updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+	} else {
+		initialize(runTimeNodeConfig)
+	}
+}
+
+
+function initialize(nodeCfg) {
+
+	webMI.addOnload(function () {
+		if (!nodeCfg["base"].read || (nodeCfg.min.address && !nodeCfg.min.read) || (nodeCfg.max.address && !nodeCfg.max.read)) {
+			setInactiveLayout();
+			return;
+		}
+
+		var options = {};
+
+		webMI.trigger.connect(SET_ACTIVE_TRIGGER, function (triggerObj) {
+			webMI.gfx.setVisible(FO_ID, null);
+		}, FO_ID);
+
+		webMI.trigger.connect(SET_INACTIVE_TRIGGER, function (triggerObj) {
+			webMI.gfx.setVisible(FO_ID, false);
+		}, FO_ID);
+
+		// Query parameters
+		var base = webMI.query["base"];
+		var unit = webMI.query["unit"] || "";
+		var nodeMin = webMI.query["nodeMin"];
+		var nodeMax = webMI.query["nodeMax"];
+		var min = webMI.query["min"];
+		var max = webMI.query["max"];
+		var postDecimalFactor = Math.pow(10, webMI.query["postDecimals"]);
+		var right = webMI.query["right"] || "";
+		var alarmIndication = webMI.query["alarmIndication"];
+		var statusIndication = webMI.query["statusIndication"];
+		var statusEnabled = webMI.query["statusEnabled"];
+		var statusTrigger = webMI.query["statusTrigger"];
+		var alarmAddress = webMI.query["alarm"];
+		var textColor = webMI.query["textColor"];
+		var barColor = webMI.query["barColor"];
+		var barBackgroundColor = webMI.query["barBackgroundColor"];
+		var barBorderColor = webMI.query["barBorderColor"];
+		var barBorderWidth = webMI.query["barBorderWidth"];
+
+		var active = false;
+		var hasRight = false;
+		var nodeIsActive = false;
+
+		var statusLabels = {};
+		statusLabels.Good = "";
+		statusLabels.Bad = "BAD";
+		statusLabels.Uncertain = "UNCERTAIN";
+		statusLabels.Unknown = "UNKNOWN";
+
+		/* fix min / max */
+		min = min ? round(parseFloat(min, 10)) : 0;
+		max = max ? round(parseFloat(max, 10)) : 100;
+
+		var trendConfig;
+
+
+		function round(value) {
+			return Math.round(value * postDecimalFactor) / postDecimalFactor;
+		}
+
+		function sortAsc(prev, next) {
+			return prev.y - next.y;
+		}
+
+		function sortDesc(prev, next) {
+			return next.y - prev.y;
+		}
+
+		function formatLabels() {
+			var label = "";
+
+			if (this.point) {
+				var statusLabel = getStatusLabel(this.point.status);
+				label = round(this.y) + " " + unit;
+
+				if (statusLabel !== statusLabels.Good) {
+					label += " (" + statusLabel + ")";
+				}
+			} else {
+				label = round(this.value) + " " + unit;
+			}
+
+			return label;
+		};
+
+
+		function getStatusLabel(status) {
+			var label = "";
+
+			if (_isGood(status)) {
+				label = statusLabels.Good;
+			} else if (_isBad(status)) {
+				label = statusLabels.Bad;
+			} else if (_isUncertain(status)) {
+				label = statusLabels.Uncertain;
+			} else {
+				label = statusLabels.Unknown;
+			}
+
+
+			return label;
+		}
+
+		function createChart() {
+			var seriesObj = {};
+
+			seriesObj.data = [];
+			seriesObj.color = barColor;
+
+			trendConfig.yAxis.max = max;
+			trendConfig.yAxis.min = min;
+			trendConfig.yAxis.tickPositions = [min, max];
+
+			trendConfig.series.push(seriesObj);
+
+			webMI.trendFactory.createTrend(chartDiv, options, function (trendInstance) {
+				var chart = trendInstance.chart;
+
+				// Open display trigger
+				webMI.trigger.connect(OPEN_DISPLAY_TRIGGER, function (triggerObj) {
+					if (active) {
+						webMI.display.openDisplay(triggerObj.value);
+					}
+				}, "");
+
+				chartDiv.style.visiblity = "visible";
+
+				webMI.data.subscribe(base, function (node) {
+					var seriesObj = {};
+					seriesObj.y = node.value;
+					seriesObj.status = node.status;
+					seriesObj.color = barColor;
+
+					updateStatus(seriesObj.status);
+
+					chart.series[0].update({
+						data: [seriesObj]
+					}, true);
+				});
+
+				if (nodeCfg.min.address && nodeCfg.min.read) {
+					webMI.data.subscribe(nodeMin, function (result) {
+						min = result.value;
+
+						updateAxis(min, max)
+
+						chart.update({plotOptions: {bar: {threshold: min}}});
+						chart.redraw(true);
+					});
+				}
+
+				if (nodeCfg.max.address && nodeCfg.max.read) {
+					webMI.data.subscribe(nodeMax, function (result) {
+						max = result.value;
+
+						updateAxis(min, max);
+
+						chart.series[0].update({
+							data: [{y: max, status: 0}]
+						}, true);
+
+						chart.redraw(true);
+					});
+				}
+
+				updateAxis(min, max);
+
+				function updateAxis(min, max) {
+					chart.yAxis[0].setExtremes(min, max, true, false);
+					chart.yAxis[0].options.tickPositions = [min, max];
+					chart.yAxis[0].options.startOnTick = false;
+					chart.yAxis[0].options.endOnTick = false;
+					chart.yAxis[0].options.labels.x = 0;
+					chart.yAxis[0].options.labels.y = 15;
+				}
+			});
+		}
+
+		webMI.gfx.setVisible(MAIN_LABEL_ID, false);
+		webMI.gfx.setVisible(SUB_LABEL_ID, false);
+		webMI.gfx.setVisible(BORDER_ID, false);
+
+		options.trendName = chartDiv.id.split("_dashboard_highcharts_container")[0];
+		options.trendName = chartDiv.id.split("_highcharts_container")[0]; // mod
+		options.trendGroup = "";
+		options.trendConfig = {};
+		options.additionalModules = ["/highcharts/modules/solid-gauge.js"];
+
+		trendConfig = options.trendConfig;
+
+		trendConfig.chart = {};
+		trendConfig.title = {};
+		trendConfig.yAxis = {};
+		trendConfig.yAxis.labels = {};
+		trendConfig.tooltip = {};
+		trendConfig.plotOptions = {};
+		trendConfig.plotOptions.solidgauge = {};
+		trendConfig.plotOptions.series = {};
+		trendConfig.plotOptions.solidgauge.dataLabels = {};
+		trendConfig.legend = {};
+		trendConfig.series = [];
+		trendConfig.credits = {};
+		trendConfig.exporting = {};
+		trendConfig.pane = {};
+		trendConfig.pane.background = {};
+
+		trendConfig.chart.type = "solidgauge"
+		trendConfig.title.text = "";
+		trendConfig.chart.panning = false;
+
+		trendConfig.yAxis.title = "";
+		trendConfig.yAxis.lineWidth = 0;
+		trendConfig.yAxis.tickWidth = 0;
+		trendConfig.yAxis.minorTickInterval = null;
+		trendConfig.yAxis.tickAmount = 2;
+		trendConfig.yAxis.labels.align = "center";
+		trendConfig.yAxis.labels.y = 16;
+		trendConfig.yAxis.labels.distance = 0;
+		trendConfig.yAxis.labels.formatter = formatLabels;
+
+		trendConfig.pane.center = ['50%', '75%'];
+		trendConfig.pane.size = '100%';
+		trendConfig.pane.startAngle = -90;
+		trendConfig.pane.endAngle = 90;
+		trendConfig.pane.background.backgroundColor = barBackgroundColor || (Highcharts.theme && Highcharts.theme.background2);
+		trendConfig.pane.background.innerRadius = "60%";
+		trendConfig.pane.background.outerRadius = "100%";
+		trendConfig.pane.background.shape = "arc";
+		trendConfig.pane.background.borderColor = barBorderColor;
+		trendConfig.pane.background.borderWidth = barBorderWidth;
+
+		trendConfig.plotOptions.solidgauge.dataLabels.enabled = true;
+		trendConfig.plotOptions.solidgauge.dataLabels.align = "center";
+		trendConfig.plotOptions.solidgauge.dataLabels.formatter = formatLabels;
+		trendConfig.plotOptions.solidgauge.dataLabels.color = textColor;
+		trendConfig.plotOptions.solidgauge.dataLabels.borderWidth = 0;
+		trendConfig.plotOptions.solidgauge.dataLabels.y = 5;
+
+		/* [AT-D-12171] */
+		trendConfig.plotOptions.solidgauge.animation = false;
+
+		trendConfig.tooltip.enabled = false;
+		trendConfig.legend.enabled = false;
+		trendConfig.credits.enabled = false;
+		trendConfig.exporting.enabled = false;
+
+		options.trendConfig.atviseOptions = {
+			configNode: "",
+			configName: "",
+			mode: "",
+			source: "opcUA",
+			enableCursor1: false,
+			enableCursor2: false,
+			disableDownSampling: true
+		};
+
+		if (base) {
+			createChart();
+		} else {
+			webMI.trigger.fire(SET_INACTIVE_TRIGGER, "", "");
+		}
+	});
+}
+
+/**
+ * FUNCTIONS
+ */
+
+function updateStatus(status) {
+	if (status)
+		webMI.trigger.fire(SET_STATUS_TRIGGER, {"chart": CHART_ID, "status": status});
+}
+
+function setActiveLayout() {
+	chartDiv.style.visibility = "visible";
+
+	webMI.trigger.fire(SET_ACTIVE_TRIGGER, "", FO_ID);
+	webMI.trigger.fire(SET_ACTIVE_TRIGGER, {"chart": CHART_ID});
+}
+
+function setInactiveLayout() {
+	chartDiv.style.visibility = "hidden";
+
+	webMI.trigger.fire(SET_INACTIVE_TRIGGER, "", FO_ID);
+	webMI.trigger.fire(SET_INACTIVE_TRIGGER, {"chart": CHART_ID});
+}
+
+]]></code>
+</script>

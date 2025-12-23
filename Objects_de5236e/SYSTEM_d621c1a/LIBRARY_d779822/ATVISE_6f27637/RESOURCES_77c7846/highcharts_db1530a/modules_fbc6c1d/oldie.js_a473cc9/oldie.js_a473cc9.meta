@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/highcharts/modules/oldie.js
+NodeClass: Variable
+BrowseName: 1:oldie.js
+DisplayName: en|oldie.js
+Description: en|oldie.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

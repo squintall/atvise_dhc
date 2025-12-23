@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="890" version="1.2" width="1675" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="mandatory" defaultvalue="trend1" desc="chart name" name="a" valuetype="string"/>
+  <atv:parameter behavior="optional" config="avocado;brand-dark;brand-light;dark-blue;dark-green;dark-unica;gray;grid-light;grid;high-contrast-dark;high-contrast-light;sand-signika;skies;sunset" defaultvalue="" desc="trend theme" name="trendTheme" substitute="" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="area;arearange;areaspline;areasplinerange;bar;bubble;bullet;column;columnpyramid;columnrange;cylinder;dumbbell;funnel;line;packedbubble;pareto;pie;polygon;scatter;spline;streamgraph;sunburst;timeline;treemap;waterfall;wordcloud" defaultvalue="line" desc="trend type" name="trendType" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="export menu" name="showExportMenu" substitute="" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="title" group="X-Axis" name="xAxis_title_text" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="AGENT.OBJECTS.highcharts.xAxis" desc="node" group="X-Axis" name="xAxis_node" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="labels" group="X-Axis" name="xAxis_labels" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="crosshair" group="X-Axis" name="xAxis_crosshair" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="title" group="Y-Axis" name="yAxis_title_text" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="labels" group="Y-Axis" name="yAxis_labels" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="crosshair" group="Y-Axis" name="yAxis_crosshair" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="AGENT.OBJECTS.highcharts.SingleSeries" desc="node" group="Series" name="Series_node" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="data labels" group="Series" name="dataLabels" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="data label suffix" group="Series" name="dataLabelSuffix" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="tooltip" group="Options" name="tooltip" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="tooltip suffix" group="Options" name="tooltipSuffix" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="sharedtooltip" group="Options" name="sharedTooltip" substitute="" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="legend" group="Options" name="legend" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="20" desc="legend font size" group="Options" name="legendFontSize" valuetype="number"/>
+  <atv:parameter behavior="optional" config="none;x axis;y axis;xy axis" defaultvalue="none" desc="zoom type" group="Options" name="zoomType" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="panning" group="Options" name="panning" valuetype="bool"/>
+  <atv:parameter behavior="optional" config="ctrl;shift" defaultvalue="shift" desc="panKey" group="Options" name="panKey" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="annotation" group="Options" name="annotation" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="inverted" group="Options" name="inverted" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="3d enable" group="Options3d" name="3d_enable" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="10" desc="alpha" group="Options3d" name="3d_alpha" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="50" desc="depth" group="Options3d" name="3d_depth" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="50" desc="viewDistance" group="Options3d" name="3d_viewDistance" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" group="Appearance" name="globalFillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <foreignObject atv:bindbr="1,1" atv:bindtl="0,0" height="770.291" id="id_3" width="1674.634" x="0" y="121.707">
+  <div style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml">
+   <div id="highcharts_container" style="width:100%; height:100%;"/>
+  </div>
+ </foreignObject>
+ <rect atv:refpx="282.5" atv:refpy="60.001" fill="$FILLCOLOR$" height="120" id="id_1" stroke="#0000ff" stroke-width="0" width="565" x="0" y="0"/>
+ <rect atv:refpx="860.95" atv:refpy="60.001" fill="$FILLCOLOR$" height="120" id="id_0" stroke="#0000ff" stroke-width="0" width="565" x="578.45" y="0"/>
+ <rect atv:refpx="1415.931" atv:refpy="60.001" fill="$FILLCOLOR$" height="120" id="id_2" stroke="#0000ff" stroke-width="0" width="518.062" x="1156.9" y="0"/>
+ <svg atv:refpx="362.908" atv:refpy="34.34" height="30" id="x_node" transform="matrix(1.5411,0,0,1.5,0,0)" width="160" x="155.488" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.picker_address" y="7.226">
+  <atv:argument name="fontSize" value="18"/>
+  <atv:overwrite height="45" id="addresspicker_clickarea" transform="matrix(0.6489,0,0,0.6667,0,0)" x="218.576"/>
+  <atv:overwrite height="41" id="focus_frame" transform="matrix(0.6489,0,0,0.6667,0,0)" width="242.576"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6489,0,0,0.6667,0,0)" x="221.576" y="12.5"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6489,0,0,0.6667,0,0)" x="221.326" y="12.5"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6489,0,0,0.6667,0,0)" x="221.576" y="12.5"/>
+  <atv:overwrite id="input_label" transform="matrix(0.6489,0,0,0.6667,0,0)" x="212.576" y="26.75"/>
+  <atv:overwrite height="37" id="blinking_frame" transform="matrix(0.6489,0,0,0.6667,0,0)" width="214.576"/>
+  <atv:overwrite height="37" id="addresspicker_bg" transform="matrix(0.6489,0,0,0.6667,0,0)" width="214.576"/>
+  <atv:overwrite height="43" id="id_0" transform="matrix(0.6489,0,0,0.6667,0,0)" width="244.576"/>
+  <atv:overwrite height="45" id="addresspicker_stroke" transform="matrix(0.6489,0,0,0.6667,0,0)" width="246.576"/>
+ </svg>
+ <svg atv:refpx="362.907" atv:refpy="84.899" height="30" id="series_node" transform="matrix(1.5411,0,0,1.5,0,0)" width="160" x="155.487" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.picker_address" y="42.933">
+  <atv:argument name="fontSize" value="18"/>
+  <atv:overwrite height="45" id="addresspicker_clickarea" transform="matrix(0.6489,0,0,0.6667,0,0)" x="218.576"/>
+  <atv:overwrite height="41" id="focus_frame" transform="matrix(0.6489,0,0,0.6667,0,0)" width="242.576"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6489,0,0,0.6667,0,0)" x="221.576" y="12.5"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6489,0,0,0.6667,0,0)" x="221.326" y="12.5"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6489,0,0,0.6667,0,0)" x="221.576" y="12.5"/>
+  <atv:overwrite id="input_label" transform="matrix(0.6489,0,0,0.6667,0,0)" x="212.576" y="26.75"/>
+  <atv:overwrite height="37" id="blinking_frame" transform="matrix(0.6489,0,0,0.6667,0,0)" width="214.576"/>
+  <atv:overwrite height="37" id="addresspicker_bg" transform="matrix(0.6489,0,0,0.6667,0,0)" width="214.576"/>
+  <atv:overwrite height="43" id="id_0" transform="matrix(0.6489,0,0,0.6667,0,0)" width="244.576"/>
+  <atv:overwrite height="45" id="addresspicker_stroke" transform="matrix(0.6489,0,0,0.6667,0,0)" width="246.576"/>
+ </svg>
+ <text atv:refpx="52.424" atv:refpy="24.543" fill="#000000" font-family="Arial" font-size="22" id="id_6" text-anchor="end" x="67.424" y="32.043"/>
+ <text atv:refpx="39.073" atv:refpy="106.654" fill="#000000" font-family="Arial" font-size="22" id="id_9" text-anchor="end" x="54.073" y="114.154"/>
+ <text atv:refpx="645.223" atv:refpy="44.57" fill="#000000" font-family="Arial" font-size="22" id="id_10" text-anchor="end" x="660.223" y="52.07"/>
+ <text atv:refpx="84.57" atv:refpy="36.34" fill="#000000" font-family="Arial" font-size="22" id="id_5" x="37.57" y="40.84">T{X Axis Address}</text>
+ <text atv:refpx="125.07" atv:refpy="86.899" fill="#000000" font-family="Arial" font-size="22" id="id_7" x="37.57" y="94.399">T{Series Address}</text>
+ <text atv:refpx="1271.647" atv:refpy="36.178" fill="#000000" font-family="Arial" font-size="22" id="id_8" x="1201.571" y="43.678">T{Trend Type}</text>
+ <svg atv:refpx="1560.444" atv:refpy="36.179" height="30" id="type" transform="matrix(1.3125,0,0,1.5,0,0)" width="160" x="1083.766" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.combobox" y="9.119">
+  <atv:argument name="fontSize" value="18"/>
+  <atv:overwrite height="41" id="focus_frame" transform="matrix(0.7619,0,0,0.6667,0,0)" width="206"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.7619,0,0,0.6667,0,0)" x="185" y="12.5"/>
+  <atv:overwrite id="id_7" transform="matrix(0.7619,0,0,0.6667,0,0)" x="185" y="13.5"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.7619,0,0,0.6667,0,0)" x="185" y="12.5"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.7619,0,0,0.6667,0,0)" x="175.5" y="27"/>
+  <atv:overwrite height="37" id="blinking_frame" transform="matrix(0.7619,0,0,0.6667,0,0)" width="178"/>
+  <atv:overwrite height="37" id="combobox_bg" transform="matrix(0.7619,0,0,0.6667,0,0)" width="178"/>
+  <atv:overwrite height="43" id="id_1" transform="matrix(0.7619,0,0,0.6667,0,0)" width="208"/>
+  <atv:overwrite height="45" id="id_0" transform="matrix(0.7619,0,0,0.6667,0,0)" width="210"/>
+ </svg>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.highcharts.highcharts_container" atv:name="highcharts container" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+
+]]></script>
+ <svg atv:refpx="1592.443" atv:refpy="85.393" height="30" id="nextType" transform="matrix(1,0,0,1.3333,0,0)" width="80" x="1552.443" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="49.045">
+  <atv:argument name="label" value="T{>}"/>
+  <atv:argument name="fontSize" value="20"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:argument name="elementOffsetY" value="10"/>
+  <atv:overwrite height="38" id="id_6" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite id="button_label_2" transform="matrix(1,0,0,0.75,0,0)" y="31.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(1,0,0,0.75,0,0)" y="16.5"/>
+  <atv:overwrite id="button_label" transform="matrix(1,0,0,0.75,0,0)" y="24.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.6,0,0,0.45,0,0)" y="34.625"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.6,0,0,0.45,0,0)" y="13.292"/>
+  <atv:overwrite id="button_symbol" transform="matrix(1,0,0,0.75,0,0)" y="10"/>
+  <atv:overwrite height="36" id="button_stroke" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="38" id="button_bg" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="40" id="outer_frame" transform="matrix(1,0,0,0.75,0,0)"/>
+ </svg>
+ <svg atv:refpx="1462.443" atv:refpy="85.393" height="30" id="prevType" transform="matrix(1,0,0,1.3333,0,0)" width="80" x="1422.443" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="49.045">
+  <atv:argument name="label" value="T{&lt;}"/>
+  <atv:argument name="fontSize" value="20"/>
+  <atv:overwrite height="38" id="id_6" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite id="button_label_2" transform="matrix(1,0,0,0.75,0,0)" y="31.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(1,0,0,0.75,0,0)" y="16.5"/>
+  <atv:overwrite id="button_label" transform="matrix(1,0,0,0.75,0,0)" y="24.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.6,0,0,0.45,0,0)" y="34.625"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.6,0,0,0.45,0,0)" y="13.292"/>
+  <atv:overwrite id="button_symbol" transform="matrix(1,0,0,0.75,0,0)" y="10"/>
+  <atv:overwrite height="36" id="button_stroke" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="38" id="button_bg" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="40" id="outer_frame" transform="matrix(1,0,0,0.75,0,0)"/>
+ </svg>
+ <text atv:refpx="1314.987" atv:refpy="75.273" fill="#000000" font-family="Arial" font-size="22" id="id_12" x="1314.987" y="82.773"/>
+ <text atv:refpx="1213.44" atv:refpy="75.273" fill="#000000" font-family="Arial" font-size="22" id="id_13" x="1213.44" y="82.773"/>
+ <text atv:refpx="1254.071" atv:refpy="85.391" fill="#000000" font-family="Arial" font-size="22" id="id_11" x="1201.571" y="92.891">T{Preview}</text>
+ <svg atv:refpx="701.667" atv:refpy="60" height="30" id="effect3d" width="160" x="676.667" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="45">
+  <atv:argument name="label" value="T{3D Effect}"/>
+  <atv:argument name="fontSize" value="20"/>
+  <atv:argument name="base" prefix="base"/>
+  <atv:argument name="valueOn" value="0"/>
+ </svg>
+ <svg atv:refpx="913.333" atv:refpy="60" height="30" id="annotation" width="160" x="888.333" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="45">
+  <atv:argument name="label" value="T{Annotation}"/>
+  <atv:argument name="fontSize" value="20"/>
+  <atv:argument name="base" prefix="base"/>
+  <atv:argument name="valueOn" value="0"/>
+ </svg>
+</svg>

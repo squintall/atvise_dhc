@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AR.AR_BJ_CAR_FINAL_NORPONIENTE.Bombas.Variador_3.freq
+NodeClass: Variable
+BrowseName: 1:freq
+DisplayName: en|freq
+Description: en|freq
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

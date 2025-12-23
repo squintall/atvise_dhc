@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_002_IM.com
+NodeClass: Variable
+BrowseName: 1:com
+DisplayName: en|com
+Description: en|Conectividad de Cárcamo 2
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.com.Comunicacion

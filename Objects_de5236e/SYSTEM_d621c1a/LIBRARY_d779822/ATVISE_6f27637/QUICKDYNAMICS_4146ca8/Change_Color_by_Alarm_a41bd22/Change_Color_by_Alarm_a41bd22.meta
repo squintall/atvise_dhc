@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Change Color by Alarm
+NodeClass: Variable
+BrowseName: 1:Change Color by Alarm
+DisplayName: en|Change Color by Alarm
+Description: en|Change Color by Alarm
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

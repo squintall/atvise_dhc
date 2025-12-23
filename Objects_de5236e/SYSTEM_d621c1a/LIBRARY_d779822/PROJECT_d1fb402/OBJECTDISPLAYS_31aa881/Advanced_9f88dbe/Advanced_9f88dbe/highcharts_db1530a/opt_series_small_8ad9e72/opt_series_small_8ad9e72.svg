@@ -1,0 +1,252 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="300" version="1.2" width="800" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_2" x1="0" x2="0" y1="0" y2="1.07843">
+   <stop offset="0" stop-color="#818181"/>
+   <stop offset="0.8475336322869955" stop-color="#464646"/>
+   <stop offset="0.9372197309417041" stop-color="#000000"/>
+  </linearGradient>
+ </defs>
+ <desc>Used by highcharts configuration dialog.</desc>
+ <title>Configuration - Series (Small)</title>
+ <rect atv:refpx="75" atv:refpy="19.811" fill="$FILLCOLOR$" height="300" id="filters_bg" rx="0" ry="0" stroke="#000000" stroke-width="0" width="180" x="0" y="0"/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" name="fontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" name="fillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="AGENT.OBJECTS" desc="node entry path" name="startAddress" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.opt_series_bar_column_small" desc="display for series bar" group="Subdisplay" name="display_series_bar" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.opt_series_pie" desc="display for series pie" group="Subdisplay" name="display_series_pie" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.opt_series_line_area_small" desc="display for series line" group="Subdisplay" name="display_series_line" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog" desc="display for message" group="Subdisplay" name="display_message" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="#c9d9b8" desc="button color 1" group="Appearance" name="btn_color_1" substitute="" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#d7d7d7" desc="button color 2" group="Appearance" name="btn_color_2" substitute="" valuetype="color"/>
+  <atv:parameter behavior="hidden" defaultvalue="true" desc="small layout" group="Appearance" name="small_layout" substitute="" valuetype="bool"/>
+  <atv:parameter behavior="hidden" defaultvalue="5" desc="number of series" group="Appearance" name="num_series" substitute="" valuetype="number"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <text atv:refpx="88.221" atv:refpy="21.5" fill="$FONTCOLOR$" font-family="Arial" font-size="12" font-weight="bold" id="id_2" x="24.5" y="26">T{Data set to configure}:</text>
+ <rect atv:refpx="350" atv:refpy="205" fill="none" height="170" id="id_5" stroke="#575757" stroke-width="0.5" width="260.001" x="209" y="120"/>
+ <text atv:refpx="234.328" atv:refpy="30.5" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_16" text-anchor="end" x="255.5" y="35">T{Type}:</text>
+ <text atv:refpx="561" atv:refpy="86.5" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_35" text-anchor="end" x="573.5" y="91">T{Title}:</text>
+ <svg atv:refpx="378.342" atv:refpy="30" height="30" id="series_type" transform="matrix(1.2812,0,0,1,0,0)" width="160" x="206.704" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.combobox" y="15">
+  <atv:argument name="tabIndex" value="50"/>
+  <atv:overwrite id="id_3" transform="matrix(0.7805,0,0,1,0,0)" x="179.742"/>
+  <atv:overwrite id="id_5" transform="matrix(0.7805,0,0,1,0,0)" x="177.492"/>
+  <atv:overwrite id="id_2" transform="matrix(0.7805,0,0,1,0,0)" width="172.992"/>
+  <atv:overwrite id="combobox_stroke" transform="matrix(0.7805,0,0,1,0,0)" width="204.492"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.7805,0,0,1,0,0)" width="200.992"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.7805,0,0,1,0,0)" x="179.992"/>
+  <atv:overwrite id="id_7" transform="matrix(0.7805,0,0,1,0,0)" x="179.992"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.7805,0,0,1,0,0)" x="179.992"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.7805,0,0,1,0,0)" x="170.492"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.7805,0,0,1,0,0)" width="172.992"/>
+  <atv:overwrite id="combobox_bg" transform="matrix(0.7805,0,0,1,0,0)" width="172.992"/>
+  <atv:overwrite id="id_1" transform="matrix(0.7805,0,0,1,0,0)" width="202.992"/>
+  <atv:overwrite id="id_0" transform="matrix(0.7805,0,0,1,0,0)" width="204.992"/>
+ </svg>
+ <svg atv:refpx="685.018" atv:refpy="85" height="30" id="series_name" transform="matrix(1.25,0,0,1,0,0)" width="160" x="468.8" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="70">
+  <atv:argument name="tabIndex" value="55"/>
+  <atv:argument name="validation" value="String"/>
+  <atv:overwrite id="id_2" transform="matrix(0.7805,0,0,1,0,0)" width="199.492"/>
+  <atv:overwrite id="id_6" transform="matrix(1.8435,0,0,1,0,0)" x="-0.471"/>
+  <atv:overwrite id="id_5" transform="matrix(0.7805,0,0,1,0,0)" width="45.016"/>
+  <atv:overwrite id="alarm_button" transform="matrix(0.8996,0,0,1,0,0)"/>
+  <atv:overwrite id="input_label" transform="matrix(0.8,0,0,1,0,0)" x="192.055"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.8,0,0,1,0,0)" width="192"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.8,0,0,1,0,0)" width="196"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.8,0,0,1,0,0)" width="192"/>
+  <atv:overwrite id="id_1" transform="matrix(0.8,0,0,1,0,0)" width="198"/>
+  <atv:overwrite id="id_0" transform="matrix(0.8,0,0,1,0,0)" width="200"/>
+ </svg>
+ <svg atv:refpx="88.143" atv:refpy="138" height="30" id="selector1" visibility="hidden" width="160" x="21.143" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.radiobutton" y="116">
+  <atv:argument name="label" value="T{Series}"/>
+  <atv:argument name="radiogroupId" value="g0"/>
+  <atv:argument name="value" value="1"/>
+  <atv:argument name="tabIndex" value="11"/>
+  <atv:overwrite id="radiobutton_bg2" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="id_2" transform="matrix(1.1429,0,0,1,0,0)" width="108"/>
+  <atv:overwrite id="id_0" transform="matrix(1.1429,0,0,1,0,0)" width="139.5"/>
+  <atv:overwrite id="radiobutton_bg" width="106"/>
+ </svg>
+ <svg atv:refpx="88.143" atv:refpy="173" height="30" id="selector2" visibility="hidden" width="160" x="21.143" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.radiobutton" y="151">
+  <atv:argument name="label" value="T{Series}"/>
+  <atv:argument name="radiogroupId" value="g0"/>
+  <atv:argument name="value" value="2"/>
+  <atv:argument name="tabIndex" value="12"/>
+  <atv:overwrite id="radiobutton_bg2" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="id_2" transform="matrix(1.1429,0,0,1,0,0)" width="108"/>
+  <atv:overwrite id="id_0" transform="matrix(1.1429,0,0,1,0,0)" width="139.5"/>
+  <atv:overwrite id="radiobutton_bg" width="106"/>
+ </svg>
+ <svg atv:refpx="88.143" atv:refpy="208" height="30" id="selector3" visibility="hidden" width="160" x="21.143" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.radiobutton" y="186">
+  <atv:argument name="label" value="T{Series}"/>
+  <atv:argument name="radiogroupId" value="g0"/>
+  <atv:argument name="value" value="3"/>
+  <atv:argument name="tabIndex" value="13"/>
+  <atv:overwrite id="radiobutton_bg2" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="id_2" transform="matrix(1.1429,0,0,1,0,0)" width="108"/>
+  <atv:overwrite id="id_0" transform="matrix(1.1429,0,0,1,0,0)" width="139.5"/>
+  <atv:overwrite id="radiobutton_bg" width="106"/>
+ </svg>
+ <svg atv:refpx="55" atv:refpy="68" height="30" id="btn_add" transform="matrix(0.875,0,0,1,0,0)" width="80" x="22.857" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="46">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.plus"/>
+  <atv:argument name="label" value="T{Add}"/>
+  <atv:argument name="tabIndex" value="1"/>
+  <atv:overwrite id="id_2" transform="matrix(1.1429,0,0,1,0,0)" width="64.5"/>
+  <atv:overwrite id="id_0" transform="matrix(1.1429,0,0,1,0,0)" width="69.5"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+  <atv:overwrite id="id_6" transform="matrix(1.1429,0,0,1,0,0)" width="68"/>
+  <atv:overwrite id="button_label" transform="matrix(1.1429,0,0,1,0,0)" x="35"/>
+  <atv:overwrite id="button_symbol" transform="matrix(1.1429,0,0,1,0,0)" x="25"/>
+  <atv:overwrite id="button_stroke" transform="matrix(1.1429,0,0,1,0,0)" width="66"/>
+  <atv:overwrite id="button_bg" transform="matrix(1.1429,0,0,1,0,0)" width="68"/>
+  <atv:overwrite id="outer_frame" transform="matrix(1.1429,0,0,1,0,0)" width="70"/>
+ </svg>
+ <svg atv:refpx="110" atv:refpy="68" height="30" id="btn_up" transform="matrix(0.375,0,0,1,0,0)" width="80" x="253.333" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="46">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.arrow_up"/>
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="2"/>
+  <atv:argument name="visibilityLabel" value="hidden"/>
+  <atv:argument name="visibilitySymbol" value="inherit"/>
+  <atv:overwrite id="id_2" transform="matrix(2.6667,0,0,1,0,0)" width="24.5"/>
+  <atv:overwrite id="id_0" transform="matrix(2.6667,0,0,1,0,0)" width="29.5"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+  <atv:argument name="tooltip" value="T{Scroll list up}"/>
+  <atv:overwrite id="id_6" transform="matrix(2.6667,0,0,1,0,0)" width="28"/>
+  <atv:overwrite id="button_label" transform="matrix(2.6667,0,0,1,0,0)" x="15"/>
+  <atv:overwrite id="button_symbol" transform="matrix(2.6667,0,0,1,0,0)" x="5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(2.6667,0,0,1,0,0)" width="26"/>
+  <atv:overwrite id="button_bg" transform="matrix(2.6667,0,0,1,0,0)" width="28"/>
+  <atv:overwrite id="outer_frame" transform="matrix(2.6667,0,0,1,0,0)" width="30"/>
+ </svg>
+ <svg atv:refpx="144.999" atv:refpy="68" height="30" id="btn_down" transform="matrix(0.375,0,0,1,0,0)" width="80" x="346.667" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="46">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.arrow_down"/>
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="3"/>
+  <atv:argument name="visibilityLabel" value="hidden"/>
+  <atv:argument name="visibilitySymbol" value="inherit"/>
+  <atv:overwrite id="id_2" transform="matrix(2.6667,0,0,1,0,0)" width="24.5"/>
+  <atv:overwrite id="id_0" transform="matrix(2.6667,0,0,1,0,0)" width="29.5"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+  <atv:argument name="tooltip" value="T{Scroll list down}"/>
+  <atv:overwrite id="id_6" transform="matrix(2.6667,0,0,1,0,0)" width="28"/>
+  <atv:overwrite id="button_label" transform="matrix(2.6667,0,0,1,0,0)" x="15"/>
+  <atv:overwrite id="button_symbol" transform="matrix(2.6667,0,0,1,0,0)" x="5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(2.6667,0,0,1,0,0)" width="26"/>
+  <atv:overwrite id="button_bg" transform="matrix(2.6667,0,0,1,0,0)" width="28"/>
+  <atv:overwrite id="outer_frame" transform="matrix(2.6667,0,0,1,0,0)" width="30"/>
+ </svg>
+ <svg atv:refpx="650" atv:refpy="200" height="600" id="type_configuration" transform="matrix(0.375,0,0,0.3333,0,0)" width="800" x="1333.333" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="300">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.opt_start"/>
+  <atv:argument name="frameName" value="type_configuration"/>
+ </svg>
+ <svg atv:refpx="95" atv:refpy="275" height="30" id="btn_delete" transform="matrix(1.75,0,0,1,0,0)" width="80" x="11.429" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="259">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.plus"/>
+  <atv:argument name="label" value="T{Delete selected}"/>
+  <atv:argument name="tabIndex" value="21"/>
+  <atv:overwrite id="id_2" transform="matrix(0.5714,0,0,1,0,0)" width="134.5"/>
+  <atv:overwrite id="id_0" transform="matrix(0.5714,0,0,1,0,0)" width="139.5"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+  <atv:overwrite id="id_6" transform="matrix(0.5714,0,0,1,0,0)" width="138"/>
+  <atv:overwrite id="button_label" transform="matrix(0.5714,0,0,1,0,0)" x="70"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5714,0,0,1,0,0)" x="60"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.5714,0,0,1,0,0)" width="136"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.5714,0,0,1,0,0)" width="138"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.5714,0,0,1,0,0)" width="140"/>
+ </svg>
+ <svg atv:refpx="417.499" atv:refpy="65" height="30" id="btn_address2" transform="matrix(1.5625,0,0,1,0,0)" width="80" x="220.157" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="50">
+  <atv:argument name="label" value="T{Upper value address}"/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:overwrite id="id_2" transform="matrix(0.4848,0,0,1,0,0)" width="159.5"/>
+  <atv:overwrite id="id_0" transform="matrix(0.4848,0,0,1,0,0)" width="164.5"/>
+  <atv:overwrite id="id_6" transform="matrix(0.64,0,0,1,0,0)" width="123"/>
+  <atv:overwrite id="button_label" transform="matrix(0.64,0,0,1,0,0)" x="62.5"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.64,0,0,1,0,0)" x="52.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.64,0,0,1,0,0)" width="121"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.64,0,0,1,0,0)" width="123"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.64,0,0,1,0,0)" width="125"/>
+ </svg>
+ <svg atv:refpx="285" atv:refpy="65" height="30" id="btn_address1" transform="matrix(1.625,0,0,1,0,0)" width="80" x="128.615" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="50">
+  <atv:argument name="label" value="T{Lower value address}"/>
+  <atv:argument name="tabIndex" value="51"/>
+  <atv:overwrite id="id_2" transform="matrix(0.4848,0,0,1,0,0)" width="159.5"/>
+  <atv:overwrite id="id_0" transform="matrix(0.4848,0,0,1,0,0)" width="164.5"/>
+  <atv:overwrite id="id_6" transform="matrix(0.6154,0,0,1,0,0)" width="128"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6154,0,0,1,0,0)" x="65"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6154,0,0,1,0,0)" x="55"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6154,0,0,1,0,0)" width="126"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6154,0,0,1,0,0)" width="128"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.6154,0,0,1,0,0)" width="130"/>
+ </svg>
+ <svg atv:refpx="87.143" atv:refpy="103" height="30" id="selector0" width="160" x="20" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.radiobutton" y="81">
+  <atv:argument name="label" value="T{Series}"/>
+  <atv:argument name="radiogroupId" value="g0"/>
+  <atv:argument name="value" value="0"/>
+  <atv:argument name="tabIndex" value="10"/>
+  <atv:argument name="preselected" value="true"/>
+  <atv:overwrite id="radiobutton_bg2" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="id_2" transform="matrix(1.1429,0,0,1,0,0)" width="108"/>
+  <atv:overwrite id="id_0" transform="matrix(1.1429,0,0,1,0,0)" width="139.5"/>
+  <atv:overwrite id="radiobutton_bg" width="106"/>
+ </svg>
+ <foreignObject height="160" id="address_treeview" width="250.001" x="214" y="125">
+  <div id="address_treeview" style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <text atv:refpx="607" atv:refpy="21.5" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="series_aggregate" text-anchor="start" x="589.5" y="26">&lt;type></text>
+ <svg atv:refpx="349.999" atv:refpy="100" height="30" id="address_picker" transform="matrix(1.6251,0,0,1,0,0)" width="160" x="128.607" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.picker_address" y="85">
+  <atv:argument name="showArchives" value="No"/>
+  <atv:argument name="showAlarms" value="No"/>
+  <atv:argument name="showDisplays" value="No"/>
+  <atv:argument name="base" prefix="startAddress" value=""/>
+  <atv:overwrite id="id_2" transform="matrix(0.6153,0,0,1,0,0)" width="260.017"/>
+  <atv:overwrite id="id_1" transform="matrix(0.6153,0,0,1,0,0)" x="234.767"/>
+  <atv:argument name="itemsCount" value="5"/>
+  <atv:argument name="tabIndex" value="53"/>
+  <atv:overwrite id="addresspicker_clickarea" transform="matrix(0.6153,0,0,1,0,0)" x="232.016"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.6153,0,0,1,0,0)" width="256.016"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6153,0,0,1,0,0)" x="235.016"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6153,0,0,1,0,0)" x="234.766"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6153,0,0,1,0,0)" x="235.016"/>
+  <atv:overwrite id="input_label" transform="matrix(0.6153,0,0,1,0,0)" x="226.016"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.6153,0,0,1,0,0)" width="228.016"/>
+  <atv:overwrite id="addresspicker_bg" transform="matrix(0.6153,0,0,1,0,0)" width="228.016"/>
+  <atv:overwrite id="id_0" transform="matrix(0.6153,0,0,1,0,0)" width="258.016"/>
+  <atv:overwrite id="addresspicker_stroke" transform="matrix(0.6153,0,0,1,0,0)" width="260.016"/>
+ </svg>
+ <text atv:refpx="543.5" atv:refpy="51.5" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="label_data_archive" text-anchor="end" x="571.5" y="56">T{Archive}:</text>
+ <svg atv:refpx="683.807" atv:refpy="50" height="30" id="data_archive" transform="matrix(1.25,0,0,1,0,0)" width="160" x="468.8" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.combobox" y="35">
+  <atv:argument name="tabIndex" value="54"/>
+  <atv:argument name="validation" value="String"/>
+  <atv:overwrite id="id_2" transform="matrix(0.7805,0,0,1,0,0)" width="199.492"/>
+  <atv:overwrite id="id_6" transform="matrix(1.8435,0,0,1,0,0)" x="-0.471"/>
+  <atv:overwrite id="id_5" transform="matrix(0.7805,0,0,1,0,0)" width="45.016"/>
+  <atv:overwrite id="alarm_button" transform="matrix(0.8996,0,0,1,0,0)"/>
+  <atv:overwrite id="input_label" transform="matrix(0.9697,0,0,1,0,0)" x="157.055"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.9697,0,0,1,0,0)" width="157"/>
+  <atv:argument name="itemsCount" value="5"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.8,0,0,1,0,0)" width="196"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.8,0,0,1,0,0)" x="175"/>
+  <atv:overwrite id="id_7" transform="matrix(0.8,0,0,1,0,0)" x="175"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.8,0,0,1,0,0)" x="175"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.8,0,0,1,0,0)" x="165.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.8,0,0,1,0,0)" width="168"/>
+  <atv:overwrite id="combobox_bg" transform="matrix(0.8,0,0,1,0,0)" width="168"/>
+  <atv:overwrite id="id_1" transform="matrix(0.8,0,0,1,0,0)" width="198"/>
+  <atv:overwrite id="id_0" transform="matrix(0.8,0,0,1,0,0)" width="200"/>
+ </svg>
+ <svg atv:refpx="87" atv:refpy="243" height="30" id="selector4" visibility="hidden" width="160" x="22" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.radiobutton" y="222">
+  <atv:argument name="label" value="T{Series}"/>
+  <atv:argument name="radiogroupId" value="g0"/>
+  <atv:argument name="value" value="4"/>
+  <atv:argument name="tabIndex" value="13"/>
+  <atv:overwrite id="radiobutton_bg2" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="id_2" transform="matrix(1.1429,0,0,1,0,0)" width="108"/>
+  <atv:overwrite id="id_0" transform="matrix(1.1429,0,0,1,0,0)" width="139.5"/>
+  <atv:overwrite id="radiobutton_bg" width="106"/>
+ </svg>
+ <line atv:refpx="495" atv:refpy="150" id="id_4" stroke="#d7d7d7" stroke-width="0.5" x1="491" x2="491" y1="14" y2="294"/>
+ <text atv:refpx="537" atv:refpy="21.5" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_9" text-anchor="end" x="573.5" y="26">T{Aggregate}:</text>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.highcharts.opt_series" atv:name="opt_series" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

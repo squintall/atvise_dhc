@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Bomba.Alarma_ManAuto.Manual_Automatico
+NodeClass: Object
+BrowseName: 1:Manual_Automatico
+DisplayName: en|Manual_Automatico
+Description: en|Manual_Automatico
+EventNotifier: 0
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

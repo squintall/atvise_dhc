@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Zona_Urbana.Carcamos_AP.AP_PM_CAR_PUERTO_MORELOS.L10.Presion
+NodeClass: Object
+BrowseName: 1:Presion
+DisplayName: en|Presion
+Description: en|Presion
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

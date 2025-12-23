@@ -1,0 +1,2038 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the historylist and historylist_small object displays
+ * --------------------------------------------------------------
+ * The history list is an advanced control that displays historical data based on a query to the server.
+ * Four types of data are displayed: Alarms, Value changes, Aggregates and (OPC-UA-) Events.
+ * Please note: To historize alarms and events, an archive group "event" must be added to the historization archives.
+ * For aggregates an archive group "aggregate" must be added to the historization archives.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+
+var topWindow = parent;
+var tableID = webMI.query["tableID"];
+var columnParameters = webMI.query["columns"];
+var filterStart = parseFloat(webMI.query["starttime"] != "" ? webMI.query["starttime"] * 1000 : 60 * 1000);
+var filterPriority = parseFloat(webMI.query["severity"]);
+var filterSource = webMI.query["source"];
+var filterEventText = webMI.query["message"];
+var filterValue = webMI.query["value"];
+//Set only to webMI.query["archive"] set only to webMI.query["archive"] if archiv exists
+var filterArchive = "";
+var defaultFilterArchive = webMI.query["archive"];
+var filterUsername = webMI.query["user"];
+var filterTypeNum = parseInt(webMI.query["type"]);
+var filterComment = webMI.query["comment"];
+var filterGroup = webMI.query["group"];
+var filterAggregate = webMI.query["aggregate"];
+var defaultFilterAggregate = webMI.query["aggregate"];
+var filterIntervalValue = parseInt(webMI.query["interval_value"]);
+var filterIntervalUnit = webMI.query["interval_unit"];
+var filterNumRows = parseInt(webMI.query["num_rows"], 10);
+var defaultMode = webMI.query["data_mode"];
+var runtimeMode = webMI.query["data_mode"];
+var statusIndicationConfig = webMI.query["atvStatusIndication"];
+var detailMode = webMI.query["detail_mode"];
+var row_text_size = webMI.query["row_text_size"];
+var header_text_size = webMI.query["header_text_size"];
+var detail_text_size = webMI.query["detail_text_size"];
+var footer_text_size = webMI.query["footer_text_size"];
+//enum RangeFilterModes
+var RangeFilterModes = {FROM_TO: 0, FROM_NUMROWS: 1, TO_NUMROWS: 2};
+var currentRangeFilterMode = webMI.query["range_filter_mode"];
+var heightCollapsedFilters = parseInt(webMI.query["heightCollapsedFilters"]);
+var initVisuForTable = false;
+
+var aggregateFunctions = [
+	"AnnotationCount",
+	"Average",
+	"Count",
+	"Delta",
+	"DeltaBounds",
+	"DurationBad",
+	"DurationGood",
+	"DurationInStateNonZero",
+	"DurationInStateZero",
+	"End",
+	"EndBound",
+	"Interpolative",
+	"Maximum",
+	"Maximum2",
+	"MaximumActualTime",
+	"MaximumActualTime2",
+	"Minimum",
+	"Minimum2",
+	"MinimumActualTime",
+	"MinimumActualTime2",
+	"NumberOfTransitions",
+	"PercentBad",
+	"PercentGood",
+	"Range",
+	"Range2",
+	"Sampled",
+	"StandardDeviationPopulation",
+	"StandardDeviationSample",
+	"Start",
+	"StartBound",
+	"TimeAverage",
+	"TimeAverage2",
+	"Total",
+	"Total2",
+	"VariancePopulation",
+	"VarianceSample",
+	"WorstQuality",
+	"WorstQuality2"
+];
+var units = [
+	{text: "T{second(s)}", value: "s"},
+	{text: "T{minute(s)}", value: "m"},
+	{text: "T{hour(s)}", value: "h"},
+	{text: "T{day(s)}", value: "d"},
+	{text: "T{month(s)}", value: "M"}
+];
+
+if (isNaN(filterStart)) filterStart = 1000 * 60;
+if (isNaN(filterPriority)) filterPriority = 0;
+if (isNaN(filterTypeNum)) filterTypeNum = 0;
+var typeTexts = ["T{Value, Event, Alarm}", "T{Value}", "T{Event}", "T{Alarm}"];
+var typeConvert = ["all", "value", "event", "alarm"];
+var filterType = typeConvert[filterTypeNum];
+var rangeTo = new Date().getTime();
+var rangeFrom = rangeTo - filterStart;
+var filterTo = rangeTo;
+var filterFrom = rangeFrom;
+var enableApplyButton = true;
+var isLive = webMI.query["live"] == "true";
+var liveSubscription = null;
+var tableController;
+var tableLayer;
+var currentScaleFactor = 1;
+var columns = getColumnSettings(columnParameters);
+var showFilter = false;
+var filtersBgOrig = webMI.gfx.getHeight("filters_bg");
+var yMove = filtersBgOrig - heightCollapsedFilters;
+var hasBrowseNodes = webMI.getMethodSupport().indexOf("BrowseNodes") !== -1;
+var fontSizeToTransformationFactor = 0.065;
+var appendLiveData = false;
+var appendLiveMode = false;
+var slickStyler;
+var slickConfigurator;
+var badStatusConfig;
+var badStatusRowStyle;
+var screenCTM = webMI.gfx.getScreenCTM(true);
+var heightTransformationFactor = screenCTM.d;
+var PanelTopPositionExpandedTransformed;
+var PanelTopPositionCollapsedTransformed;
+var PanelHeightExpandedTransformed;
+var PanelHeightCollapsedTransformed;
+var deviceScaling = webMI.query["deviceScaling"] == "true";
+var iconShelveHeader = initIcon(
+	"icon_shelve",
+	"T{Shelved}",
+	fontSizeToTransformationFactor * header_text_size * heightTransformationFactor
+);
+var iconOneshotshelved = initIcon(
+	"icon_oneshotshelved",
+	"T{OneShotShelved}",
+	fontSizeToTransformationFactor * row_text_size * heightTransformationFactor
+);
+var iconTimeshelved = initIcon(
+	"icon_timeshelved",
+	"T{TimeShelved}",
+	fontSizeToTransformationFactor * row_text_size * heightTransformationFactor
+);
+var iconUnshelved = initIcon(
+	"icon_unshelved",
+	"T{Unshelved}",
+	fontSizeToTransformationFactor * row_text_size * heightTransformationFactor
+);
+var iconConfirmed = initIcon(
+	"icon_confirmed",
+	"T{Confirmed}",
+	fontSizeToTransformationFactor * row_text_size * heightTransformationFactor
+);
+var iconConfirmedHeader = initIcon(
+	"icon_confirmed",
+	"T{Confirmed}",
+	fontSizeToTransformationFactor * header_text_size * heightTransformationFactor
+);
+var iconUnconfirmed = initIcon(
+	"icon_unconfirmed",
+	"T{Unconfirmed}",
+	fontSizeToTransformationFactor * row_text_size * heightTransformationFactor
+);
+var iconSuppressed = initIcon(
+	"icon_suppressed",
+	"T{Suppressed}",
+	fontSizeToTransformationFactor * row_text_size * heightTransformationFactor
+);
+var iconSuppressedHeader = initIcon(
+	"icon_suppressed",
+	"T{Suppressed}",
+	fontSizeToTransformationFactor * header_text_size * heightTransformationFactor
+);
+var iconUnsuppressed = initIcon(
+	"icon_unsuppressed",
+	"T{Unsuppressed}",
+	fontSizeToTransformationFactor * row_text_size * heightTransformationFactor
+);
+var iconEnabled = initIcon(
+	"icon_enabled",
+	"T{Enabled}",
+	fontSizeToTransformationFactor * row_text_size * heightTransformationFactor
+);
+var iconEnabledHeader = initIcon(
+	"icon_enabled",
+	"T{Enabled}",
+	fontSizeToTransformationFactor * header_text_size * heightTransformationFactor
+);
+var iconDisabled = initIcon(
+	"icon_disabled",
+	"T{Disabled}",
+	fontSizeToTransformationFactor * row_text_size * heightTransformationFactor
+);
+var groupBtnShowSettingsMenu = document.getElementById("btn_show_settings_menu").parentElement;
+var groupBtnShowSettingsMenuMatrix = groupBtnShowSettingsMenu.transform.baseVal.consolidate().matrix;
+var contextMenuStyle = {
+	maxRows: 10,
+	fontFamily: "Verdana",
+	fontSize: 11,
+	fontFill: "000000",
+	width: 150,
+	fill: "#ffffff",
+	stroke: webMI.query["globalBorderColor"],
+	strokeWidth: 1,
+	hoverFill: "#e5e5e5",
+	closeTime: 0,
+	zIndex: 100,
+	showType: "right"
+};
+if (deviceScaling) {
+	var maxColumnPriority;
+	var fontMultiplicator;
+}
+
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager = false;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (deviceScaling) {
+	maxColumnPriority = webMI.getClientInfo()
+		? webMI.getClientInfo().isDesktop
+			? 100
+			: webMI.getClientInfo().isTablet
+				? 2
+				: 1
+		: 100;
+	fontMultiplicator = webMI.getClientInfo()
+		? webMI.getClientInfo().deviceScaling.table.fontsize
+			? webMI.getClientInfo().deviceScaling.table.fontsize
+			: 1
+		: 1;
+	header_text_size = header_text_size * fontMultiplicator;
+	row_text_size = row_text_size * fontMultiplicator;
+	detail_text_size = detail_text_size * fontMultiplicator;
+	footer_text_size = footer_text_size * fontMultiplicator;
+}
+
+columns.fields.push("v:status", "v:ReplacementNames", "v:ReplacementValues");
+
+if (!document.getElementById("icon_shelve").outerHTML) {
+	Object.defineProperty(SVGElement.prototype, "outerHTML", {
+		get: function () {
+			return new XMLSerializer().serializeToString(this);
+		},
+		enumerable: false,
+		configurable: true
+	});
+}
+
+toggleAppendLiveData(false);
+
+if (statusIndicationConfig.ItemStatusBad) badStatusConfig = statusIndicationConfig.ItemStatusBad;
+
+webMI.addOnload(function () {
+	if (webMI.getConfig("frame.scaletype") != "native") currentScaleFactor = webMI.frame.getCurrentScaleFactor();
+
+	setSupportedFilters();
+
+	// initial view - hide detailed filters
+	webMI.gfx.setVisible("adv_1", false);
+	webMI.gfx.setVisible("adv_2", false);
+	webMI.gfx.setVisible("adv_3", false);
+	webMI.gfx.setVisible("adv_6", false);
+	webMI.gfx.setHeight("filters_bg", filtersBgOrig - yMove);
+
+	// init aggregates
+	if (hasBrowseNodes) {
+		webMI.gfx.setVisible("adv_4", false);
+	} else {
+		setPredefinedAggregates(defaultFilterAggregate);
+		var unitText = getUnitText(filterIntervalUnit);
+		webMI.trigger.fire("setSelectedItem", unitText, "combo_intervalunit");
+		webMI.trigger.fire("setValue", filterIntervalValue, "picker_intervalvalue");
+		webMI.gfx.setVisible("adv_5", false);
+	}
+
+	// set default filters
+	setDefaultFilters();
+
+	isLive = webMI.query["live"] == "true";
+
+	if (isLive) {
+		webMI.trigger.fire("setChecked", true, "cb_live");
+	} else {
+		webMI.trigger.fire("setChecked", false, "cb_live");
+	}
+
+	//init table
+	tableLayer = document.getElementById("slick_table_panel").parentElement.parentElement;
+
+	setPanelHeightAndTop(), (tableLayer.style.top = PanelTopPositionCollapsedTransformed + "px");
+	tableLayer.style.height = PanelHeightCollapsedTransformed + "px";
+
+	webMI.table.loadResources(function () {
+		/* special for ie11 */
+		function iconInnerHTML(icon, iconClass, dimensions, spanAround) {
+			var newIcon = icon;
+			newIcon.setAttribute("visibility", "visible");
+			newIcon.setAttribute("viewbox", "0 0 " + icon.getAttribute("width") + " " + icon.getAttribute("height"));
+			if (dimensions) {
+				newIcon.setAttribute("width", dimensions.width);
+				newIcon.setAttribute("height", dimensions.height);
+			}
+			for (var ic in iconClass) {
+				webMI.rootWindow.jQuery(newIcon).addClass(iconClass[ic]);
+			}
+			var iconInnerHTML = webMI.rootWindow.jQuery("<div>").append(webMI.rootWindow.jQuery(newIcon).clone()).html(); // webMI.rootWindow.jQuery(newIcon).outerHTML;
+			if (!spanAround) {
+				return iconInnerHTML;
+			} else {
+				var originalButtonSize = parseInt(icon.height.baseVal.value);
+				var span = parent.document.createElement("span");
+				span.style.display = "flex";
+				span.style.justifyContent = "center";
+				span.innerHTML = iconInnerHTML;
+				return span;
+			}
+		}
+
+		function spanAroundIcon(icon) {
+		}
+
+		/**
+		 * Declaration of some ICONS
+		 * @type {HTMLElement | null}
+		 */
+		var dimensionsSelected = {
+			width:
+			((fontSizeToTransformationFactor * header_text_size * 12.5) / currentScaleFactor) * heightTransformationFactor,
+			height:
+			((fontSizeToTransformationFactor * header_text_size * 12.5) / currentScaleFactor) * heightTransformationFactor
+		};
+
+		var iconSelected = iconInnerHTML(
+			document.getElementById("iconSelected"),
+			["iconSelected", "table-icon"],
+			dimensionsSelected,
+			true
+		);
+
+		var originalBurgerIconSize = document.getElementById("iconBurger").height.baseVal.value;
+		var transformFactor = (fontSizeToTransformationFactor * header_text_size) / currentScaleFactor;
+		var transformedBurgerButtonSize = transformFactor * originalBurgerIconSize;
+		var dimensionsBurger = {
+			width: transformFactor * originalBurgerIconSize * heightTransformationFactor,
+			height: transformFactor * originalBurgerIconSize * heightTransformationFactor
+		};
+
+		var iconBurger = iconInnerHTML(
+			document.getElementById("iconBurger"),
+			["iconBurger", "table-icon"],
+			dimensionsBurger,
+			true
+		);
+		iconBurger.id = "burgerSpan";
+		iconBurger.style.marginRight = "1.5px";
+
+		var iconMessage = iconInnerHTML(
+			document.getElementById("iconMessage"),
+			[],
+			{
+				width: 80 * heightTransformationFactor,
+				height: 20 * heightTransformationFactor
+			},
+			false
+		);
+
+		/**
+		 * Scaling correction for external event listener
+		 */
+		var elementForScaleEvents = document.getElementById("slick_table_panel");
+		var scaleType = webMI.getConfig("frame.scaletype");
+		if (scaleType == "zoom") {
+			webMI.gfx.setScaledEvents(
+				elementForScaleEvents.parentElement.parentElement,
+				false,
+				false,
+				elementForScaleEvents.parentElement
+			);
+		}
+
+		var config = {};
+		config.mode = isLive ? "live" : defaultMode;
+		config.columns = columns.mainTableColumns;
+		config.containerID = document.getElementById("slick_table_panel").id;
+		config.dataRequestFunction = dataRequestFunction;
+		config.dataReleaseFunction = dataReleaseFunction;
+		config.detailRowSettings = {
+			/* add three rows for prevent scrolling */
+			rows: columns.detailTableColumns.length + 6,
+			template: createSubTable,
+			exclude: function (item) {
+				if (detailMode == "alarm" && item.type == "W") return true;
+				if (detailMode == "value" && item.type == "A") return true;
+				return false;
+			}
+		};
+		config.bufferInterval = 0;
+		config.renderInterval = 100;
+		config.truncateSize = webMI.query["truncate"];
+		config.rowFormatter = rowFormatter;
+
+		/* get settings from query param */
+		var settings = {};
+		var heightMultiplicator = 1;
+		if (deviceScaling) {
+			heightMultiplicator = webMI.getClientInfo() ? webMI.getClientInfo().deviceScaling.table.rowheight : 1;
+		}
+		settings.multiselect = true;
+		settings.header_height =
+			(webMI.query["header_height"] / currentScaleFactor) * heightMultiplicator * heightTransformationFactor;
+		settings.row_height =
+			(webMI.query["row_height"] / currentScaleFactor) * heightMultiplicator * heightTransformationFactor;
+		settings.header_text_size = (header_text_size / currentScaleFactor) * heightTransformationFactor;
+		settings.row_text_size = (row_text_size / currentScaleFactor) * heightTransformationFactor;
+		settings.detail_text_size = (detail_text_size / currentScaleFactor) * heightTransformationFactor;
+		settings.footer_text_size = (footer_text_size / currentScaleFactor) * heightTransformationFactor;
+		settings.font_family = webMI.query["font_family"];
+		settings.theme_class = webMI.query["theme_class"];
+		settings.paging = webMI.query["paging"];
+		settings.filterBar = webMI.query["filterBar"];
+		settings.filterRegExp = webMI.query["filterRegExp"];
+		settings.filterStar = webMI.query["filterStar"];
+		settings.filterCaseSensitive = webMI.query["filterCaseSensitive"];
+		settings.filterLength = webMI.query["filterLength"];
+		settings.filterDelay = webMI.query["filterDelay"];
+		settings.filterConversion = {
+			timestamp: ["datetime"],
+			activetime: ["datetime"],
+			inactivetime: ["datetime"],
+			ShelvingStateUnshelveTime: ["datetime"],
+			ReceiveTime: ["datetime"],
+			acktime: ["datetime"],
+			flash: ["datetime"]
+		};
+		settings.linebreak = webMI.query["linebreak"];
+		settings.columnReorder = webMI.query["columnReorder"];
+		settings.multicellselect = webMI.query["multicellselect"];
+		settings.showMenu = webMI.query["showMenu"];
+		settings.showMenuCustomTitle = webMI.query["showMenuCustomTitle"];
+		settings.showMenuPickerTitle = webMI.query["showMenuPickerTitle"];
+		settings.showMenuPicker = webMI.query["showMenuPicker"];
+		settings.showMenuWidth = (webMI.query["menuWidth"] * settings.row_text_size) / 12 / currentScaleFactor;
+		settings.showMenuHeight = webMI.query["menuHeight" / currentScaleFactor];
+		settings.showMode = true;
+		settings.icons = [];
+		settings.icons.selector = typeof iconSelected == "undefined" ? false : iconSelected.outerHTML;
+		settings.icons.burger = typeof iconBurger == "undefined" ? false : iconBurger.outerHTML;
+		settings.notification = document.getElementById("notification_area").getAttribute("id");
+		var translation = {
+			title_export: "T{Export}",
+			title_command: "T{Filter}",
+			title_picker: "T{Columns}",
+			export_csv: "T{All rows with displayed columns}",
+			export_csv_wh: "T{All rows with all columns}",
+			export_csv_m: "T{Marked rows with displayed columns}",
+			export_csv_mwh: "T{Marked rows with all columns}",
+			export_option_timestamp: "T{Export time as timestamp}",
+			export_option_milliseconds: "T{Precision in milliseconds}",
+			filter_show_hide: "T{Show or hide filter}",
+			filter_clear: "T{Reset filter}",
+			sort_clear: "T{Reset sorting}",
+			tooltip_marks: "T{Set/Cancel marks}",
+			tooltip_details: "T{Details show/hide}"
+		};
+		settings.translation = translation;
+
+		/* add globals to settings */
+		for (var key in webMI.query["globalColorConfig"]) {
+			var value = webMI.query["globalColorConfig"][key];
+			if (typeof value.color != "undefined") settings[key] = value.color;
+		}
+
+		/* get custom styling */
+		var styling = webMI.table.request(tableID, "styling");
+		for (var key in styling) {
+			var value = styling[key];
+			if (typeof value != "undefined") settings[key] = value;
+		}
+
+		/* global fallback colors */
+		var fallbacks = {};
+		fallbacks.globalBorderColor = webMI.query["globalBorderColor"];
+		fallbacks.globalFillColor = webMI.query["globalFillColor"];
+		fallbacks.globalFontColor = webMI.query["globalFontColor"];
+		fallbacks.globalSymbolColor = webMI.query["globalSymbolColor"];
+
+		slickConfigurator = new webMI.rootWindow.SlickConfigurator(config, settings, fallbacks);
+		var tableConfig = slickConfigurator.getConfig();
+
+		webMI.table.register(tableID, "ControllerConfig", tableConfig);
+		webMI.table.setReady(tableID, "ControllerConfig");
+
+		webMI.table.waitReady(tableID, "ControllerConfig", function () {
+			var dataController = new webMI.rootWindow.DataController();
+			tableController = new webMI.rootWindow.SlickController(dataController, tableConfig);
+			webMI.table.register(tableID, "controller", tableController);
+
+			/**
+			 * Add some dialogs to the tableController
+			 * @type {Array}
+			 */
+			var dialogs = new webMI.rootWindow.SlickDialogs().getDialogs();
+			tableController.dialogs = [];
+			tableController.dialogs.continuation = [];
+			tableController.dialogs.continuation.search = function () {
+				_openDialog(dialogs.continuation.search("T{}"));
+			};
+			tableController.dialogs.continuation.filter = function () {
+				_openDialog(dialogs.continuation.filter("T{}"));
+			};
+
+			tableController.dialogs.sorting = [];
+			tableController.dialogs.sorting.running = function () {
+				return _openDialog(dialogs.sorting.running("T{}"));
+			};
+
+			tableController.dialogs.triggered = [];
+			tableController.dialogs.triggered.search = function () {
+				_openDialog(dialogs.triggered.search("T{}"));
+			};
+			tableController.dialogs.triggered.filter = function () {
+				_openDialog(dialogs.triggered.filter("T{}"));
+			};
+
+			/**
+			 * Add message icon to notification_area and configure listener
+			 */
+			webMI.rootWindow
+				.jQuery("#" + settings.notification)
+				.append(webMI.rootWindow.jQuery(iconMessage).clone())
+				.html();
+			webMI.addEvent("notification_area", "click", function (e) {
+				tableController.notification.handleEvent(e, null);
+			});
+
+			/**
+			 * Hide show notification button
+			 */
+			var panel = [];
+			panel.element = document.getElementById("slick_table_panel"); // config.containerID);
+			panel.width = panel.element.offsetWidth;
+
+			var noteButton = [];
+			noteButton.element = document.getElementById("id_notification");
+			noteButton.top = noteButton.element.style.top;
+
+			noteButton.icon = [];
+			noteButton.icon.id = document.getElementById("iconMessage").id;
+			noteButton.icon.container = noteButton.element.querySelector("#" + noteButton.icon.id);
+			noteButton.icon.width = noteButton.icon.container.width.baseVal.value;
+			noteButton.icon.height = noteButton.icon.container.height.baseVal.value;
+
+			tableController.hideNotificatonButton = function () {
+				noteButton.element.style.top = "-100px";
+				noteButton.element.style.display = "none";
+			};
+
+			tableController.showNotificatonButton = function () {
+				noteButton.element.style.top = noteButton.top;
+				var nbWidth = noteButton.icon.width;
+				var nbLeft = noteButton.element.style.left.replace("px", "");
+				var nbHeight = noteButton.icon.height;
+
+				if (nbLeft > panel.width - nbWidth - 25) {
+					nbLeft = panel.width - nbWidth - 25;
+					noteButton.element.style.left = nbLeft + "px";
+				}
+				if (nbWidth < 80) {
+					nbWidth = 80;
+					noteButton.element.style.width = nbWidth + "px";
+				}
+				noteButton.element.style.display = "block";
+
+				/* correction for parent */
+				var noteArea = document.getElementById("notification_area");
+
+				var header = [];
+				header.container = [];
+				header.container.content = document.getElementById("slick_table_panel");
+				header.container.top = parseInt(
+					header.container.content.parentElement.parentElement.style.top.replace("px", ""),
+					10
+				);
+				header.container.left = parseInt(
+					header.container.content.parentElement.parentElement.style.left.replace("px", ""),
+					10
+				);
+				header.container.height = parseInt(
+					header.container.content.parentElement.parentElement.style.height.replace("px", ""),
+					10
+				);
+
+				header.column = [];
+				header.column.content = header.container.content.getElementsByClassName("slick-header-columns")[0];
+				header.column.width = parseInt(header.column.content.style.width.replace("px", ""), 10);
+				header.column.left = parseInt(header.column.content.style.left.replace("px", ""), 10);
+				header.column.height = header.column.content.offsetHeight;
+				header.offset = header.container.left + header.column.left + header.column.width;
+
+				noteArea.parentElement.parentElement.style.top =
+					header.container.top + (header.column.height - nbHeight + 4) / 2 + "px";
+				noteArea.parentElement.parentElement.style.height = header.column.height + 1 + "px";
+				noteArea.parentElement.parentElement.style.left = header.offset - nbWidth - 25 + "px";
+				noteArea.parentElement.parentElement.style.width = nbWidth + "px";
+
+				// noteArea.style.top = (header.container.top + (header.column.height - nbHeight) / 2) + "px";
+				noteArea.style.height = nbHeight + "px";
+				noteArea.style.left = header.offset - nbWidth - 25 + "px";
+				noteArea.style.width = nbWidth + "px";
+			};
+
+			tableController.hideNotificatonButton();
+
+			/**
+			 * init table
+			 */
+			tableController.init(function () {
+				// Fit burger alignment to scrollbar width
+				var slickViewport = topWindow.document.getElementsByClassName("slick-viewport")[0];
+				var scrollbarWidth = slickViewport.offsetWidth - slickViewport.clientWidth;
+				var burgerSpan = topWindow.document.getElementById("burgerSpan");
+				if (typeof burgerSpan != "undefined" && burgerSpan != null) burgerSpan.style.width = scrollbarWidth + "px";
+
+				/* apply custom css to all components */
+				slickStyler = new webMI.rootWindow.SlickStyler();
+				slickStyler.generate(tableConfig.containerID, tableConfig.style);
+				if (badStatusConfig) {
+					badStatusRowStyle = slickStyler.getRowStyle(
+						tableConfig.containerID,
+						badStatusConfig.fontColor,
+						badStatusConfig.fontFlashInterval,
+						badStatusConfig.fillColor,
+						badStatusConfig.fillFlashColor
+					);
+				}
+
+				tableController.grid.resizeCanvas();
+
+				setHeaderIcon("ShelvingState", iconShelveHeader);
+				setHeaderIcon("ConfirmedStateId", iconConfirmedHeader);
+				setHeaderIcon("SuppressedStateId", iconSuppressedHeader);
+				setHeaderIcon("EnabledStateId", iconEnabledHeader);
+
+				tableController.grid.onHeaderCellRendered.subscribe(function (e, args) {
+					if (args.column.field == "ShelvingState") {
+						setHeaderIcon("ShelvingState", iconShelveHeader);
+					} else if (args.column.field == "ConfirmedStateId") {
+						setHeaderIcon("ConfirmedStateId", iconConfirmedHeader);
+					} else if (args.column.field == "SuppressedStateId") {
+						setHeaderIcon("SuppressedStateId", iconSuppressedHeader);
+					} else if (args.column.field == "EnabledStateId") {
+						setHeaderIcon("EnabledStateId", iconEnabledHeader);
+					}
+				});
+
+				webMI.table.setReady(tableID, "controller");
+
+				// Start live subscription or get historical data for inital view
+				if (isLive) subscribeLiveData();
+				else requestHistoricalData();
+
+				initVisuForTable = true;
+			});
+		});
+	});
+});
+
+//cleanup subscriptions
+webMI.addOnunload(function () {
+	if (liveSubscription != null) {
+		webMI.data.unsubscribeFilter(liveSubscription);
+	}
+
+	try {
+		webMI.table.register(tableID, "controller", null, true);
+	} catch (ex) {
+		/* already unregistered */
+	}
+
+	/* remove functions */
+	if(tableController) {
+		tableController.hideNotificatonButton();
+		tableController.showNotificatonButton = undefined;
+		tableController.hideNotificatonButton = undefined;
+		tableController.dialogs = undefined;
+	}
+
+	slickConfigurator = null;
+
+	try {
+		slickStyler.unload();
+		slickStyler = null;
+	} catch (ex) {
+		/* already unset */
+	}
+
+	try {
+		tableController.destroy();
+		tableController = null;
+	} catch (ex) {
+		/* already unset */
+	}
+});
+
+webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+	id: "btn_show_settings_menu",
+	closeOnMouseout: "false",
+	itemsCount: 4,
+	menuObj: {
+		0: {
+			text: "____T{Range filters}___",
+			value: function () {
+			}
+		},
+		1: {
+			text: "T{From - To}",
+			value: function () {
+				setRangeFilterMode(RangeFilterModes.FROM_TO);
+			}
+		},
+		2: {
+			text: "T{From - Number of rows}",
+			value: function () {
+				setRangeFilterMode(RangeFilterModes.FROM_NUMROWS);
+			}
+		},
+		3: {
+			text: "T{Number of rows - To}",
+			value: function () {
+				setRangeFilterMode(RangeFilterModes.TO_NUMROWS);
+			}
+		}
+	},
+	onEvent: ["click", "touchstart"],
+	outputNode: "",
+	minWidth: 150,
+	style: contextMenuStyle,
+	x: parseInt(webMI.gfx.getX("btn_show_settings_menu") * groupBtnShowSettingsMenuMatrix.a),
+	y: parseInt(
+		(parseInt(webMI.gfx.getY("btn_show_settings_menu")) + parseInt(webMI.gfx.getHeight("btn_show_settings_menu"))) *
+		groupBtnShowSettingsMenuMatrix.d
+	)
+});
+
+webMI.addOnresize(function () {
+	if (webMI.getConfig("frame.scaletype") != "native") return;
+
+	setPanelHeightAndTop();
+
+	if (showFilter == true) {
+		tableLayer.style.top = PanelTopPositionExpandedTransformed + "px";
+		tableLayer.style.height = PanelHeightExpandedTransformed + "px";
+	} else {
+		tableLayer.style.top = PanelTopPositionCollapsedTransformed + "px";
+		tableLayer.style.height = PanelHeightCollapsedTransformed + "px";
+	}
+
+	tableController.grid.resizeCanvas();
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+function toggleAppendLiveData(value) {
+	if (value == true) {
+		webMI.gfx.setVisible("btn_append", true);
+		webMI.gfx.setVisible("btn_apply", false);
+		webMI.gfx.setVisible("btn_reset", false);
+	} else {
+		webMI.gfx.setVisible("btn_append", false);
+		webMI.gfx.setVisible("btn_apply", true);
+		webMI.gfx.setVisible("btn_reset", true);
+	}
+}
+
+function detectMicrosoftBrowser() {
+	var ua = navigator.userAgent;
+
+	var msie = ua.indexOf("MSIE ");
+	if (msie > 0) {
+		// IE 10 or older => return version number
+		return parseInt(ua.substring(msie + 5, ua.indexOf(".", msie)), 10);
+	}
+
+	var trident = ua.indexOf("Trident/");
+	if (trident > 0) {
+		// IE 11 => return version number
+		var rv = ua.indexOf("rv:");
+		return parseInt(ua.substring(rv + 3, ua.indexOf(".", rv)), 10);
+	}
+
+	var edge = ua.indexOf("Edge/");
+	if (edge > 0) {
+		// Edge (IE 12+) => return version number
+		return parseInt(ua.substring(edge + 5, ua.indexOf(".", edge)), 10);
+	}
+
+	// other browser
+	return false;
+}
+
+function setSupportedFilters() {
+	//Deactivate unsupported filter inputs
+	var filtersupport = webMI.getFilterSupport();
+	var filters;
+	if (filtersupport["queryfilter"] == true || filtersupport["subscribefilter"] == true) {
+		filters = true;
+	} else {
+		filters = [];
+		if (typeof filtersupport["queryfilter"] != "boolean") filters = filters.concat(filtersupport["queryfilter"]);
+		if (typeof filtersupport["subscribefilter"] != "boolean")
+			filters = filters.concat(filtersupport["subscribefilter"]);
+	}
+	
+	function filtersup(filter) {
+		if (typeof filters == "boolean") return filters;
+		return filters.indexOf(filter) == -1 ? false : true;
+	}
+
+	if (!filtersupport["subscribefilter"]) webMI.gfx.setVisible("cb_live", false);
+	if (!filtersup("timestamp")) {
+		webMI.trigger.fire("com.atvise.setActive", false, "date_from");
+		webMI.trigger.fire("com.atvise.setActive", false, "date_to");
+	}
+	if (!filtersup("type")) webMI.trigger.fire("com.atvise.setActive", false, "combo_type");
+	if (!filtersup("address")) webMI.trigger.fire("com.atvise.setActive", false, "address_source");
+	if (!filtersup("value")) webMI.trigger.fire("com.atvise.setActive", false, "inout_value");
+	if (!filtersup("archive")) webMI.trigger.fire("com.atvise.setActive", false, "combo_archive");
+	if (!filtersup("Comment")) webMI.trigger.fire("com.atvise.setActive", false, "inout_comment");
+	if (!filtersup("username")) webMI.trigger.fire("com.atvise.setActive", false, "inout_username");
+	if (!filtersup("eventtext")) webMI.trigger.fire("com.atvise.setActive", false, "inout_event");
+	if (!filtersup("priority")) webMI.trigger.fire("com.atvise.setActive", false, "picker_priority");
+	if (!filtersup("Group")) webMI.trigger.fire("com.atvise.setActive", false, "inout_group");
+	if (!filtersup("aggregate")) webMI.trigger.fire("com.atvise.setActive", false, "combo_predefined_aggregate");
+	if (!filtersup("interval")) webMI.trigger.fire("com.atvise.setActive", false, "picker_intervalvalue");
+	if (!filtersup("unit")) webMI.trigger.fire("com.atvise.setActive", false, "combo_intervalunit");
+	if (!filtersup("numrows")) webMI.gfx.setVisible("btn_show_settings_menu", false);
+}
+
+function setPanelHeightAndTop() {
+	screenCTM = webMI.gfx.getScreenCTM(true);
+	heightTransformationFactor = screenCTM.d;
+	PanelTopPositionExpandedTransformed = parseInt(tableLayer.style.top.replace("px", ""));
+	PanelHeightExpandedTransformed = parseInt(tableLayer.style.height.replace("px", ""));
+	PanelTopPositionCollapsedTransformed =
+		PanelTopPositionExpandedTransformed - (yMove * heightTransformationFactor) / currentScaleFactor;
+	PanelHeightCollapsedTransformed =
+		PanelHeightExpandedTransformed + (yMove * heightTransformationFactor) / currentScaleFactor;
+}
+
+/**
+ * Functions for preparing settings and headers of the table's columns
+ */
+function getColumnSettings(columnsParameters) {
+	var mainTableColumns = [];
+	var detailTableColumns = [];
+	var fields = [];
+
+	for (var prop in columnsParameters) {
+		var colParameters = columnsParameters[prop];
+
+		//main table columns
+		var column = {
+			id: colParameters.field,
+			name: colParameters.columnName,
+			field: colParameters.field,
+			alignment: colParameters.alignment,
+			filter: colParameters.filter == "true",
+			minWidth: 0,
+			order: parseInt(colParameters.orderMain),
+			sortable: colParameters.sortable == "true",
+			textoption: colParameters.textoption,
+			type: trimAndSplit(colParameters.type)
+		};
+
+		if (deviceScaling) {
+			column.visible = colParameters.visibleMain == "true" && colParameters.priority <= maxColumnPriority;
+		} else {
+			column.visible = colParameters.visibleMain == "true";
+		}
+
+		if (parseInt(colParameters.widthMain) > 0) {
+			column.width = parseInt(colParameters.widthMain);
+		}
+
+		if (column.field == "timestamp") {
+			column.sortByDefault = true;
+			column.sortByDefaultAsc = false;
+		} else if (column.field == "ShelvingState") {
+			column.formatter = shelveIconFormatter;
+		} else if (column.field == "SuppressedStateId") {
+			column.formatter = suppressIconFormatter;
+		} else if (column.field == "ConfirmedStateId") {
+			column.formatter = confirmIconFormatter;
+		} else if (column.field == "EnabledStateId") {
+			column.formatter = enableIconFormatter;
+		}
+
+		mainTableColumns.push(column);
+
+		//detail table columns
+		if (colParameters.visibleDetail == "true") {
+			detailTableColumns.push({
+				name: colParameters.columnName,
+				field: colParameters.field,
+				order: parseInt(colParameters.orderDetail),
+				type: colParameters.type
+			});
+		}
+
+		fields.push("v:" + colParameters.field); //Will be used as select parameter at queryFilter
+	}
+
+	mainTableColumns.sort(columnCompareFunction);
+	detailTableColumns.sort(columnCompareFunction);
+
+	return {mainTableColumns: mainTableColumns, detailTableColumns: detailTableColumns, fields: fields};
+}
+
+//Custom compare function for Array.sort
+function columnCompareFunction(a, b) {
+	//The table colums are sorted by "order" and, if two ore more colums have the same "order", by "name".
+	if (a.order < b.order) return -1;
+	if (a.order > b.order) return 1;
+	//if a.order == b.order sort by name:
+	if (a.name.toUpperCase() < b.name.toUpperCase()) return -1;
+	if (a.name.toUpperCase() > b.name.toUpperCase()) return 1;
+	//if a.name.toUpperCase() == b.name.toUpperCase() return 0:
+	return 0;
+}
+
+function trimAndSplit(input) {
+	return input.replace(/\s/g, "").replace(/;/g, ",").split(",");
+}
+
+function setHeaderIcon(columnField, icon) {
+	var header = parent.document.getElementById(tableController.grid.getUID() + columnField);
+	if (header != null) {
+		var headerSpan = header.getElementsByClassName("slick-column-name")[0];
+		headerSpan.innerHTML = icon.outerHTML;
+	}
+}
+
+function initIcon(domId, title, transform) {
+	var icon = document.getElementById(domId);
+	var originalButtonSize = parseInt(icon.height.baseVal.value);
+	var transformFactor = transform / currentScaleFactor;
+	if (detectMicrosoftBrowser() == false) {
+		icon.setAttribute("transform", "matrix(" + transform + ",0,0," + transform + ",0,0)");
+	} else {
+		var iconGroup = document.getElementById(domId + "_group");
+		iconGroup.setAttribute("transform", "matrix(" + transform + ",0,0," + transform + ",0,0)");
+		icon.style.height = originalButtonSize * transformFactor + "px";
+		icon.style.width = originalButtonSize * transformFactor + "px";
+	}
+	icon.setAttribute("visibility", "visible");
+
+	var span = parent.document.createElement("span");
+	span.setAttribute("title", title);
+	span.setAttribute("style", "display:flex");
+	span.innerHTML = icon.outerHTML;
+	return span;
+}
+
+/**
+ * Functions for subscribing, filtering and preparing data
+ */
+var subscriptionData = {};
+
+function subscribeLiveData() {
+	webMI.gfx.setVisible("label_loading", false);
+	tableController.clearData();
+
+	runtimeMode = "live";
+	tableController.triggerLiveRequests();
+
+	var filterToSubscribe = createQueryFilter();
+	liveSubscription = webMI.data.subscribeFilter(filterToSubscribe, function (item) {
+		if (appendLiveData != appendLiveMode) {
+			appendLiveMode = appendLiveData;
+			subscriptionData = {};
+			tableController.clearData();
+		}
+
+		if (typeof item.error != "undefined") {
+			var errorstring = item.errorstring ? item.error + " (" + item.errorstring + ")" : item.error;
+			errorstring = item.address ? errorstring + " T{for node} " + item.address : errorstring;
+			tableController.setMessage("T{Error}: " + translateErrorCode(errorstring));
+		}
+
+		prepareData(item);
+
+		if (subscriptionData[item.address] && !appendLiveMode) {
+			item.id = subscriptionData[item.address];
+			tableController.updateData(subscriptionData[item.address], item, true);
+		} else {
+			var id = tableController.addData({result: [item]});
+			if (!appendLiveMode) {
+				subscriptionData[item.address] = id[0];
+			}
+		}
+	});
+
+	webMI.trigger.connect("com.atvise.access_control_update", function (e) {
+		if (!e.value.notification || e.value.notification.reset == true)
+			return;
+
+		let address = e.value.notification.address.replace("AGENT.OBJECTS.", "");
+		let addressMap = {};
+
+		tableController.getData().forEach((dataRow) => {
+			addressMap[dataRow.address] = dataRow.id;
+		});
+
+		if (address in addressMap) {
+			tableController.removeData(addressMap[address]);
+			delete subscriptionData[address];
+		}
+	});
+}
+
+function unsubscribeLiveData() {
+	if (liveSubscription != null) webMI.data.unsubscribeFilter(liveSubscription);
+
+	subscriptionData = {};
+	liveSubscription = null;
+}
+
+function requestHistoricalData() {
+	if (currentRangeFilterMode == RangeFilterModes.FROM_TO && defaultMode == "continue") {
+		runtimeMode = "continue";
+		tableController.triggerContinueRequests();
+	} else if (
+		currentRangeFilterMode == RangeFilterModes.FROM_NUMROWS ||
+		currentRangeFilterMode == RangeFilterModes.TO_NUMROWS
+	) {
+		runtimeMode = "manually";
+		tableController.triggerManuallyRequests("manually");
+	} else {
+		runtimeMode = "triggered";
+		tableController.triggerStopRequests();
+	}
+
+	tableController.clearData();
+	tableController.startDataRequest();
+}
+
+function createQueryFilter() {
+	var filter_type = [];
+	if (filterType == "event" || filterType == "all" || filterType == "") filter_type.push("v:3"); //event
+	if (filterType == "alarm" || filterType == "all" || filterType == "") filter_type.push("v:2"); //alarm
+	if (filterType == "value" || filterType == "aggregate" || filterType == "all" || filterType == "")
+		filter_type.push("v:1"); //value or aggregate
+
+	var filter = {};
+
+	filter.language = ["v:T{}"];
+
+	if (rangeFrom != null || rangeTo != null) {
+		filter.timestamp = ["n:"];
+		if (
+			rangeFrom &&
+			(currentRangeFilterMode == RangeFilterModes.FROM_TO || currentRangeFilterMode == RangeFilterModes.FROM_NUMROWS)
+		)
+			filter.timestamp[0] += ">=" + rangeFrom;
+		if (
+			rangeTo &&
+			(currentRangeFilterMode == RangeFilterModes.FROM_TO || currentRangeFilterMode == RangeFilterModes.TO_NUMROWS)
+		)
+			filter.timestamp[0] += "<" + rangeTo;
+	}
+
+	//do not filter by AGENT.OBJECTS.* as it will create large database queries
+	if (filterSource) filter.address = ["g:*" + filterSource + "*"];
+	filter.type = filter_type;
+	filterPriority = parseFloat(filterPriority);
+
+	if (filterPriority > 0) filter.priority = ["n:>=" + filterPriority];
+
+	if (filterEventText) filter.eventtext = ["g:*" + filterEventText + "*"];
+
+	if (filterValue) filter.value = ["g:*" + filterValue + "*"];
+
+	if (filterUsername) filter.username = ["g:*" + filterUsername + "*"];
+
+	if (filterComment) filter.Comment = ["g:*" + filterComment + "*"];
+
+	if (filterGroup) {
+		var groupArray = trimAndSplit(filterGroup);
+		var groupArrayForSearch = [];
+		for (var i = 0; i < groupArray.length; i++) {
+			if (groupArray[i].search(/AGENT.ALARMING.Groups./i) == -1)
+				groupArrayForSearch.push("v:AGENT.ALARMING.Groups." + groupArray[i] + "");
+			else groupArrayForSearch.push("v:" + groupArray[i] + "");
+		}
+		filter.Groups = groupArrayForSearch;
+	}
+
+	/* numrows depend on rangefilter */
+	var useNumRows = parseInt(webMI.query["num_rows"], 10);
+	if (currentRangeFilterMode == RangeFilterModes.FROM_NUMROWS || currentRangeFilterMode == RangeFilterModes.TO_NUMROWS)
+		useNumRows = filterNumRows;
+
+	filter.numrows = ["v:" + useNumRows];
+	filter.select = columns.fields.slice();
+	filter.select.push("v:type");
+
+	if (filterType == "aggregate") {
+		filterIntervalValue = filterIntervalValue ? filterIntervalValue : "";
+		filterIntervalUnit = filterIntervalUnit ? filterIntervalUnit : "";
+		filterAggregate = filterAggregate ? filterAggregate : "";
+
+		filter.select.push("v:aggregate");
+		filter.select.push("v:interval");
+		filter.select.push("v:unit");
+		filter.aggregate = ["v:" + filterAggregate];
+		filter.interval = ["v:" + filterIntervalValue];
+		filter.unit = ["v:" + filterIntervalUnit];
+	}
+
+	if (filterArchive != "none" && filterArchive != "") {
+		filter.archive = ["v:" + filterArchive];
+	}
+
+	return filter;
+}
+
+function prepareData(item) {
+	// Should only concern atvise scada:
+	// if using atvise scada the status is a signed int32 value and therefore the value can be negative.
+	if (item.status < 0) {
+		// convert signed int32 value to unsigned value by adding 2^32.
+		item.status = item.status + Math.pow(2, 32);
+	}
+
+	//set state text
+	if (item.type == 1) {
+		//values
+		item.state = createValueStatustext(item);
+	} else if (item.type == 2) {
+		//alarms
+		item.state =
+			item.state == 0
+				? "T{inactiv ack.}"
+				: item.state == 1
+				? "T{ACTIVE!}"
+				: item.state == 2
+					? "T{activ ack.}"
+					: item.state == 3
+						? "T{INACTIVE!}"
+						: item.state == 5
+							? "T{(IN)ACTIVE!}"
+							: "T{Unknown}: (" + item.state + ")";
+	}
+
+	//short address
+	if (item.address) {
+		item.address = item.address.replace(/AGENT\.OBJECTS\./g, "");
+		item.address = item.address.replace(/AGENT.ALARMING.Groups./g, "");
+	}
+
+	// Sort Groups array and concat its elements
+	if (item.Groups && Array.isArray(item.Groups)) {
+		item.Groups = item.Groups.sort().join(", ");
+		item.Groups = item.Groups.replace(/AGENT.ALARMING.Groups./g, "");
+	}
+
+	//localize text properties
+	item.description = formatString(item, "description");
+	item.eventtext = formatString(item, "eventtext");
+	item.Comment = formatString(item, "Comment");
+	item.ConfirmedState = formatString(item, "ConfirmedState");
+	item.EnabledState = formatString(item, "EnabledState");
+	item.SuppressedState = formatString(item, "SuppressedState");
+	item.ShelvingState = formatString(item, "ShelvingState");
+	item.display = formatString(item, "display");
+
+	//set shelved, suppressed, confirmed and enabled if not set by server
+	if (item.type == 2) {
+		item.EnabledStateId = item.EnabledStateId !== undefined ? item.EnabledStateId : true;
+		item.ConfirmedStateId = item.ConfirmedStateId !== undefined ? item.ConfirmedStateId : false;
+		item.SuppressedStateId = item.SuppressedStateId !== undefined ? item.SuppressedStateId : false;
+		// if (typeof item.SuppressedState != "undefined") console.log(item.SuppressedState);
+		item.ShelvingState = item.ShelvingState ? item.ShelvingState : "Unshelved";
+	}
+
+	//set type text
+	item.type = item.type == 1 ? "T{V}" : item.type == 2 ? "T{A}" : item.type == 3 ? "T{E}" : "T{U} (" + item.type + ")";
+
+	//Limit item value string length for better table performance
+	if (Array.isArray(item.value)) item.value = item.value.toString();
+	if (typeof item.value === "string" || item.value instanceof String) {
+		item.value = item.value.replace(/AGENT.ALARMING.Groups./g, "");
+		if (item.value.length > 250) item.value = webMI.escapeHTML(item.value.substr(0, 250) + "...");
+	}
+
+	//set event text in case of filterType "aggregate"
+	if (filterType == "aggregate") {
+		if (item.aggregate && item.interval && item.unit)
+			item.eventtext = item.aggregate + " (" + item.interval + " " + getUnitText(item.unit) + ")";
+		else item.eventtext = filterAggregate + " (" + filterIntervalValue + " " + getUnitText(filterIntervalUnit) + ")";
+	}
+}
+
+function createValueStatustext(item) {
+	if (typeof item.status != "undefined") {
+		if (item.status == 0) return "";
+
+		if ((item.status & 0x80000000).toString(16) != 0) return "Bad: (0x" + item.status.toString(16) + ")";
+		else if ((item.status & 0xc0000000).toString(16) == 0) return "Good: (0x" + item.status.toString(16) + ")";
+		else if ((item.status & 0xc0000000).toString(16) == 40000000)
+			return "Uncertain: (0x" + item.status.toString(16) + ")";
+
+		return "Unknown: (0x" + item.status.toString(16) + ")";
+	} else {
+		return "";
+	}
+}
+
+function formatString(obj, attribute) {
+	if (obj[attribute]) {
+		var text = typeof obj[attribute] === "string" ? obj[attribute] : obj[attribute]["T{}"];
+		try {
+			return webMI.sprintf(text, obj, "T{}");
+		} catch (err) {
+			console.error(attribute + ": " + text + "\n error: " + err);
+		}
+	}
+	return "";
+}
+
+/**
+ * Functions for visualization of filters
+ */
+function getAggregateList(startAddress) {
+	webMI.trigger.fire("setItems", {}, "combo_aggregate");
+	webMI.trigger.fire("setSelectedItem", "", "combo_aggregate");
+
+	if (typeof startAddress == "undefined" || startAddress == "") startAddress = "AGENT.HISTORY.AGGREGATETEMPLATES";
+
+	if (accessControlManager) {
+		var compareRights = [
+			{node: startAddress, right: "browse"},
+			{node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes", right: "execute"}
+		];
+
+		accessControlManager.assist.handleWithPermissions(
+			compareRights,
+			function success() {
+				readAggregateList(startAddress);
+			},
+			function failure() {
+				return;
+			}
+		);
+	} else {
+		readAggregateList(startAddress);
+	}
+
+	function readAggregateList(startAddress) {
+		webMI.data.call(
+			"BrowseNodes",
+			{
+				startAddress: startAddress,
+				vTypes: [
+					"i=61",
+					"i=62",
+					"i=2340",
+					"ns=1;s=ObjectTypes.ATVISE.AggregateTemplate",
+					"ns=1;s=ObjectTypes.ATVISE.AggregateFunction"
+				]
+			},
+			function (templates) {
+				var confAggregate = false;
+				for (var tmp in templates) {
+					var template = templates[tmp];
+					for (var agg in template.childs) {
+						browseAggregate(template.childs[agg]);
+					}
+				}
+
+				function browseAggregate(aggregate) {
+					var childs = aggregate.childs;
+					var aggregateAddress = aggregate.name;
+					for (var prop in childs) {
+						if (childs[prop].childs !== null) {
+							browseAggregate(childs[prop]);
+						} else if (
+							aggregateFunctions.indexOf(childs[prop].text) > -1 ||
+							(childs["interval_value"].value && childs["interval_unit"].value)
+						) {
+							var aggregateType = childs[prop].text;
+							if (childs["interval_value"].value && childs["interval_unit"].value) {
+								addAggregate(
+									aggregateAddress,
+									aggregateType,
+									childs["interval_value"].value,
+									childs["interval_unit"].value
+								);
+							} else {
+								webMI.data.read(
+									[aggregateAddress + ".interval_value", aggregateAddress + ".interval_unit"],
+									function (e) {
+										addAggregate(aggregateAddress, aggregateType, e[0].value, e[1].value);
+									}
+								);
+							}
+						}
+					}
+				}
+
+				function addAggregate(aggregateAddress, aggregateType, intervalValue, intervalUnit) {
+					var isSec = intervalUnit == "s";
+					var isMin = intervalUnit == "m";
+					var isHour = intervalUnit == "h";
+					var isDay = intervalUnit == "d";
+
+					var unitText = isSec
+						? "T{sec.}"
+						: isMin
+							? "T{min.}"
+							: isHour
+								? "T{hour(s)}"
+								: isDay
+									? "T{day(s)}"
+									: "T{month(s)}";
+					var text =
+						aggregateAddress.replace("AGENT.HISTORY.AGGREGATETEMPLATES.", "") +
+						" (" +
+						aggregateType +
+						" " +
+						intervalValue +
+						"	 " +
+						unitText +
+						")";
+					var aggregate = {
+						aggregateType: aggregateType,
+						intervalValue: intervalValue,
+						intervalUnit: intervalUnit
+					};
+					webMI.trigger.fire("addItem", {text: text, value: aggregate}, "combo_aggregate");
+
+					//Select first aggregate of combobox
+					if (!confAggregate) {
+						webMI.trigger.fire("setSelectedItem", text, "combo_aggregate");
+					}
+					confAggregate = true;
+
+					// ie11 hack for endsWith
+					if (!String.prototype.endsWith) {
+						String.prototype.endsWith = function (searchString, position) {
+							var subjectString = this.toString();
+							if (
+								typeof position !== "number" ||
+								!isFinite(position) ||
+								Math.floor(position) !== position ||
+								position > subjectString.length
+							) {
+								position = subjectString.length;
+							}
+							position -= searchString.length;
+							var lastIndex = subjectString.indexOf(searchString, position);
+							return lastIndex !== -1 && lastIndex === position;
+						};
+					}
+					//If a filterAggregate is set at the display's parameter, select it
+					if (aggregateAddress.endsWith(defaultFilterAggregate.trim())) {
+						webMI.trigger.fire("setSelectedItem", text, "combo_aggregate");
+					}
+				}
+			}
+		);
+	}
+}
+
+function setPredefinedAggregates(selectedItem) {
+	for (var i = 0; i < aggregateFunctions.length; i++) {
+		webMI.trigger.fire(
+			"addItem",
+			{
+				text: aggregateFunctions[i],
+				value: aggregateFunctions[i]
+			},
+			"combo_predefined_aggregate"
+		);
+	}
+	if (selectedItem == null || selectedItem.trim() == "") {
+		webMI.trigger.fire("setSelectedItem", aggregateFunctions[0], "combo_predefined_aggregate");
+	} else {
+		webMI.trigger.fire("setSelectedItem", selectedItem, "combo_predefined_aggregate");
+	}
+}
+
+function getArchives(filterType) {
+	webMI.trigger.fire("setItems", [{text: "T{[none]}", value: "none"}], "combo_archive");
+	var vBase = "ns=1;s=ObjectTypes.ATVISE.ArchiveGroup";
+	var vTypes = [vBase + ".Data", vBase + ".Event"];
+	if (filterType == "value") vTypes = [vBase + ".Data"];
+	else if (filterType == "alarm" || filterType == "event") vTypes = [vBase + ".Event"];
+	else if (filterType == "aggregate") vTypes = [vBase + ".Aggregate"];
+
+	var startAddress = "AGENT.HISTORY";
+
+	if (accessControlManager) {
+		var compareRights = [
+			{node: startAddress, right: "browse"},
+			{node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes", right: "execute"}
+		];
+
+		accessControlManager.assist.handleWithPermissions(
+			compareRights,
+			function success() {
+				readArchives(startAddress);
+			},
+			function failure() {
+				webMI.trigger.fire("setSelectedItem", "T{[none]}", "combo_archive");
+				webMI.trigger.fire("com.atvise.setActive", false, "combo_archive");
+				return;
+			}
+		);
+	} else {
+		readArchives(startAddress);
+	}
+
+	function readArchives(startAddress) {
+		webMI.data.call(
+			"BrowseNodes",
+			{
+				startAddress: startAddress,
+				vTypes: vTypes
+			},
+			function (archives) {
+				var isArchiveSet = false;
+				for (var n in archives) {
+					webMI.trigger.fire("addItem", {text: archives[n].text, value: archives[n].text}, "combo_archive");
+					if (archives[n].text == defaultFilterArchive) {
+						webMI.trigger.fire("setSelectedItem", defaultFilterArchive, "combo_archive");
+						isArchiveSet = true;
+					}
+				}
+				if (!isArchiveSet) webMI.trigger.fire("setSelectedItem", "T{[none]}", "combo_archive");
+			}
+		);
+	}
+}
+
+function toggleFilter(force) {
+	if (showFilter === false && (typeof force == "undefined" || force)) {
+		webMI.gfx.setHeight("filters_bg", filtersBgOrig);
+		tableLayer.style.top = PanelTopPositionExpandedTransformed + "px";
+		tableLayer.style.height = PanelHeightExpandedTransformed + "px";
+		webMI.gfx.setText("showFilter_button_label", "T{Hide advanced}");
+		webMI.gfx.setVisible("adv_1", true);
+		if (filterType == "aggregate") webMI.gfx.setVisible("adv_3", true);
+		else webMI.gfx.setVisible("adv_2", true);
+		webMI.gfx.setVisible("adv_6", filterType == "alarm" || filterType == "all"); //Filters for severity, comment and alarm group
+		showFilter = true;
+	} else if (showFilter === true && (typeof force == "undefined" || !force)) {
+		webMI.gfx.setText("showFilter_button_label", "T{Advanced filters}");
+		webMI.gfx.setVisible("adv_1", false);
+		webMI.gfx.setVisible("adv_2", false);
+		webMI.gfx.setVisible("adv_3", false);
+		webMI.gfx.setVisible("adv_6", false);
+		webMI.gfx.setHeight("filters_bg", filtersBgOrig - yMove);
+		tableLayer.style.top = PanelTopPositionCollapsedTransformed + "px";
+		tableLayer.style.height = PanelHeightCollapsedTransformed + "px";
+		showFilter = false;
+	}
+	tableController.grid.resizeCanvas();
+}
+
+function setDefaultFilters() {
+	filterPriority = parseFloat(webMI.query["severity"]);
+	if (isNaN(filterPriority)) filterPriority = 0;
+	filterSource = webMI.query["source"];
+	filterUsername = webMI.query["user"];
+	filterEventText = webMI.query["message"];
+	filterValue = webMI.query["value"];
+	defaultFilterArchive = webMI.query["archive"];
+	filterType = typeTexts[filterTypeNum];
+	filterComment = webMI.query["comment"];
+	filterGroup = webMI.query["group"];
+	filterAggregate = webMI.query["aggregate"];
+	filterIntervalValue = parseInt(webMI.query["interval_value"]);
+	filterIntervalUnit = webMI.query["interval_unit"];
+	filterNumRows = parseInt(webMI.query["num_rows"], 10);
+
+	webMI.trigger.fire("com.atvise.datepicker_from", filterFrom, "date_from");
+	webMI.trigger.fire("com.atvise.datepicker_to", filterTo, "date_to");
+	webMI.trigger.fire("setValue", filterUsername, "inout_username");
+	webMI.trigger.fire("setValue", filterEventText, "inout_event");
+	webMI.trigger.fire("setValue", filterValue, "inout_value");
+	webMI.trigger.fire("setSelectedItem", filterType, "combo_type"); //this trigger calls getArchives()
+	webMI.trigger.fire("setValue", filterPriority, "picker_priority");
+	webMI.trigger.fire("setValue", filterSource, "address_source"); // this trigger calls getAggregateList(filterSource)
+	webMI.trigger.fire("setValue", filterIntervalValue, "picker_intervalvalue");
+	webMI.trigger.fire("setValue", filterComment, "inout_comment");
+	webMI.trigger.fire("setValue", filterGroup, "inout_group");
+	webMI.trigger.fire("setValue", filterNumRows, "picker_number_of_rows");
+
+	if (!hasBrowseNodes) {
+		var unitText = getUnitText(filterIntervalUnit);
+		webMI.trigger.fire("setSelectedItem", filterAggregate, "combo_predefined_aggregate");
+		webMI.trigger.fire("setSelectedItem", unitText, "combo_intervalunit");
+		webMI.trigger.fire("setValue", filterIntervalValue, "picker_intervalvalue");
+	}
+
+	setRangeFilterMode(parseInt(webMI.query["range_filter_mode"]), 10);
+}
+
+function setRangeFilterMode(mode) {
+	currentRangeFilterMode = mode;
+	switch (mode) {
+		default:
+			currentRangeFilterMode = RangeFilterModes.FROM_TO;
+		//falls through to RangeFilterModes.FROM_TO
+		case RangeFilterModes.FROM_TO:
+			webMI.gfx.setText("lbl_from", "T{From}:");
+			webMI.trigger.fire("com.atvise.datepicker_from", rangeFrom, "date_from");
+			webMI.gfx.setVisible("group_to", true);
+			webMI.gfx.setVisible("group_number_of_rows", false);
+			break;
+		case RangeFilterModes.FROM_NUMROWS:
+			webMI.gfx.setText("lbl_from", "T{From}:");
+			webMI.trigger.fire("com.atvise.datepicker_from", rangeFrom, "date_from");
+			webMI.gfx.setVisible("group_to", false);
+			webMI.gfx.setVisible("group_number_of_rows", true);
+			break;
+		case RangeFilterModes.TO_NUMROWS:
+			webMI.gfx.setText("lbl_from", "T{To}:");
+			webMI.trigger.fire("com.atvise.datepicker_from", rangeTo, "date_from");
+			webMI.gfx.setVisible("group_to", false);
+			webMI.gfx.setVisible("group_number_of_rows", true);
+			break;
+	}
+}
+
+function getUnitText(unitValue) {
+	for (var i = 0; i < units.length; i++) {
+		if (units[i].value == unitValue) return units[i].text;
+	}
+	return "";
+}
+
+function translateErrorCode(errorstring) {
+	console.log(errorstring + " | " + typeof errorstring);
+	switch (errorstring) {
+		case 2152333312:
+			return "T{Continuation Point Invalid}. T{The filter result might be incomplete.}";
+		case 2152398848:
+			return "T{No Continuation Points}. T{The filter result might be incomplete.}";
+		case "lockedArchives":
+			return "T{Cannot read archive}. T{Archive is locked}:";
+		default:
+			return errorstring;
+	}
+}
+
+/**
+ * Table Callback Functions
+ */
+function dataRequestFunction(continuation) {
+	webMI.gfx.setVisible("label_loading", "inherit");
+	webMI.gfx.setText("label_loading", "T{loading...}");
+
+	var that = this;
+	var filter = createQueryFilter();
+
+	if (typeof continuation != "undefined" && continuation.CP != null) {
+		webMI.data.queryNext(continuation.CP.value, addDataToController);
+	} else {
+		webMI.data.queryFilter(filter, addDataToController);
+	}
+
+	function addDataToController(e) {
+		if (e.continuationpoint > 0) {
+			e.CP = {value: e.continuationpoint};
+		}
+
+		if (e.lockedArchives) {
+			for (var i in e.lockedArchives)
+				tableController.setMessage("T{Error} @ queryFilter: " + translateErrorCode("lockedArchives") + " " + e.lockedArchives[i].archive);
+		}
+
+		if (typeof e.error != "undefined") {
+			var errorstring = e.errorstring ? e.error + " (" + e.errorstring + ")" : e.error;
+			errorstring = e.address ? errorstring + " T{for node} " + e.address : errorstring;
+			tableController.setMessage("T{Error} @ queryFilter: " + translateErrorCode(errorstring));
+		}
+
+		if (typeof e.errors != "undefined") {
+			for (var i = 0; i < e.errors.length; i++) {
+				var hex = typeof e.errors[i].error == "number" ? " (0x" + e.errors[i].error.toString(16) + ")" : "";
+				tableController.setMessage(
+					"T{Error} @ queryFilter: " + e.errors[i].error + hex + " T{for node} " + e.errors[i].node
+				);
+			}
+		}
+
+		if (typeof e.result != "undefined") {
+			var ex = {};
+			ex.result = [];
+
+			var j = 0;
+			for (var i = 0; i < e.result.length; i++) {
+				if (e.result[i].address && e.result[i].address.indexOf("AGENT.OBJECTS.ErrorLog.invalid") === -1) {
+					ex.result[j] = e.result[i];
+					j++;
+				}
+			}
+
+			for (var i = 0; i < ex.result.length; i++) {
+				prepareData(ex.result[i]);
+			}
+
+			if (e.continuationpoint > 0) {
+				ex.CP = {value: e.continuationpoint};
+			}
+
+			if (typeof that.addData == "function") that.addData(ex);
+		}
+		webMI.gfx.setVisible("label_loading", false);
+		enableApplyButton = true;
+	}
+}
+
+function dataReleaseFunction(continuation) {
+	if (typeof continuation != "undefined" && continuation.CP != null) {
+		webMI.data.queryRelease(continuation.CP.value);
+	}
+}
+
+function shelveIconFormatter(row, cell, value, columnDef, dataContext) {
+	if (value == "OneShotShelved") return iconOneshotshelved.outerHTML;
+	else if (value == "TimedShelved") return iconTimeshelved.outerHTML;
+	else if (value == "Unshelved") return iconUnshelved.outerHTML;
+}
+
+function suppressIconFormatter(row, cell, value, columnDef, dataContext) {
+	if (value !== undefined) {
+		if (value) return iconSuppressed.outerHTML;
+		else return iconUnsuppressed.outerHTML;
+	}
+}
+
+function confirmIconFormatter(row, cell, value, columnDef, dataContext) {
+	if (value !== undefined) {
+		if (value) return iconConfirmed.outerHTML;
+		else return iconUnconfirmed.outerHTML;
+	}
+}
+
+function enableIconFormatter(row, cell, value, columnDef, dataContext) {
+	if (value !== undefined) {
+		if (value) return iconEnabled.outerHTML;
+		else return iconDisabled.outerHTML;
+	}
+}
+
+function rowFormatter(item, rowIndex) {
+	if ((item.status & 0xc0000000).toString(16) == 0) return [];
+	else return [badStatusRowStyle];
+}
+
+/* Formatting function for row details - modify as you need */
+function createSubTable(item) {
+	var tableStyle =
+		"height:" +
+		parseInt((detail_text_size / currentScaleFactor) * 1.15 * heightTransformationFactor) +
+		"px;font-size:" +
+		parseInt((detail_text_size / currentScaleFactor) * heightTransformationFactor) +
+		"px";
+
+	var output =
+		'<table cellpadding="5" cellspacing="0" border="0" style="margin-left:74px;min-width:70%">' +
+		"<tr>" +
+		'<td class="detail_head" style="' +
+		tableStyle +
+		'"><strong>T{Parameter}</strong></td>' +
+		'<td class="detail_head" style="' +
+		tableStyle +
+		'"><strong>T{Value}</strong></td>' +
+		"</tr>";
+
+	for (var i = 0; i < columns.detailTableColumns.length; i++) {
+		var field = columns.detailTableColumns[i].field;
+		// Fields containing a value are shown
+		if (item[field]) {
+			output +=
+				"<tr>" +
+				'<td class="detail_line" style="' +
+				tableStyle +
+				'">' +
+				columns.detailTableColumns[i].name +
+				"</td>" +
+				'<td class="detail_line" style="' +
+				tableStyle +
+				'">';
+			var type = columns.detailTableColumns[i].type;
+
+			if (type.startsWith("datetime")) output += formatTimestamp(item[field]);
+			else output += item[field];
+
+			output += "</td></tr>";
+		}
+	}
+
+	output += "</table>";
+	return output;
+}
+
+function formatTimestamp(timestamp) {
+	if (!timestamp) return "";
+	var date = new Date(parseInt(timestamp, 10));
+	return webMI.sprintf(
+		"%d-%02d-%02d %02d:%02d:%02d.%03d",
+		date.getFullYear(),
+		date.getMonth() + 1,
+		date.getDate(),
+		date.getHours(),
+		date.getMinutes(),
+		date.getSeconds(),
+		date.getMilliseconds()
+	);
+}
+
+/**
+ * simple open dialogs
+ * @param parameter
+ * @returns {Promise<WindowClient> | *}
+ * @private
+ */
+function _openDialog(parameter) {
+	var w = 400;
+	var h = 250;
+	var id = webMI.display.openWindow({
+		display: parameter.display,
+		height: h,
+		width: w,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: parameter.headline,
+			msg1: parameter.msg1 + " " + parameter.msg2,
+			btn1: parameter.btn1,
+			btn2: parameter.btn2,
+			action_btn2: parameter.action_btn2
+		}
+	});
+	return id;
+}
+
+/**
+ * EVENT SECTION
+ */
+
+/*
+ * SimpleDynamics
+ */
+webMI.addEvent("showFilter", "click", function (e) {
+	toggleFilter();
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		if (appendLiveData == true) {
+			webMI.gfx.setText("btn_append_button_label", "T{Append data off}");
+		} else {
+			webMI.gfx.setText("btn_append_button_label", "T{Append data on}");
+		}
+		appendLiveData = !appendLiveData;
+	},
+	"btn_append"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		if (filterType == "aggregate" && filterAggregate == "") {
+			webMI.gfx.setVisible("label_loading", "inherit");
+			webMI.gfx.setText("label_loading", "T{No aggregate selected}!");
+			return;
+		}
+
+		if (rangeTo < rangeFrom) {
+			tableController.setMessage("T{Invalid period}! T{The specified start date is after the end date}!");
+		}
+
+		if (!isLive && enableApplyButton) {
+			requestHistoricalData();
+			enableApplyButton = false;
+		}
+	},
+	"btn_apply"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		// ignore trigger if not table not init or valuechanges of same mode!"
+		if (!initVisuForTable || isLive == e.value) {
+			return;
+		}
+
+		if ((isLive = e.value == true)) {
+			rangeFrom = rangeTo = null;
+			filterFrom = filterTo = null;
+		} else {
+			rangeTo = filterTo = new Date().getTime();
+			rangeFrom = filterFrom = filterTo - filterStart;
+		}
+
+		if (isLive) {
+			subscribeLiveData();
+		} else {
+			unsubscribeLiveData();
+			requestHistoricalData();
+		}
+
+		webMI.trigger.fire("com.atvise.datepicker_from", filterFrom, "date_from");
+		webMI.trigger.fire("com.atvise.datepicker_to", filterTo, "date_to");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "inout_username");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "inout_event");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "inout_value");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "inout_comment");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "inout_group");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "date_from");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "date_to");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "picker_priority");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "address_source");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "combo_type");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "combo_archive");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "combo_aggregate");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "combo_predefined_aggregate");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "combo_intervalunit");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "picker_intervalvalue");
+		webMI.trigger.fire("com.atvise.setActive", !isLive, "picker_number_of_rows");
+
+		if (!isLive) setSupportedFilters();
+
+		toggleAppendLiveData(isLive);
+	},
+	"cb_live"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterType = e.value;
+		if (hasBrowseNodes) getArchives(filterType);
+		webMI.gfx.setVisible("adv_6", showFilter && (filterType == "alarm" || filterType == "all")); //Filters for priority, comment and alarm group
+
+		if (filterType == "aggregate") {
+			toggleFilter(true);
+			if (showFilter) {
+				webMI.gfx.setVisible("adv_2", false);
+				webMI.gfx.setVisible("adv_3", true);
+			}
+		} else if (showFilter) {
+			webMI.gfx.setVisible("cb_live", true);
+			webMI.gfx.setVisible("adv_2", true);
+			webMI.gfx.setVisible("adv_3", false);
+		}
+	},
+	"combo_type"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (currentRangeFilterMode != RangeFilterModes.TO_NUMROWS) {
+			rangeFrom = e.value;
+		} else {
+			rangeTo = e.value;
+		}
+	},
+	"date_from"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		rangeTo = e.value;
+	},
+	"date_to"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterPriority = e.value;
+	},
+	"picker_priority"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterSource = e.value;
+		if (hasBrowseNodes) getAggregateList(filterSource);
+	},
+	"address_source"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterUsername = e.value;
+	},
+	"inout_username"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterEventText = e.value;
+	},
+	"inout_event"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterValue = e.value;
+	},
+	"inout_value"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterComment = e.value;
+	},
+	"inout_comment"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterGroup = e.value;
+	},
+	"inout_group"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterAggregate = e.value.aggregateType;
+		filterIntervalUnit = e.value.intervalUnit;
+		filterIntervalValue = e.value.intervalValue;
+	},
+	"combo_aggregate"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterAggregate = e.value;
+		if (filterAggregate == "Sampled") {
+			webMI.trigger.fire("setItems", units, "combo_intervalunit");
+		} else {
+			webMI.trigger.fire("setItems", units.slice(1), "combo_intervalunit");
+			if (filterIntervalUnit == "s") webMI.trigger.fire("setSelectedItem", "T{minute(s)}", "combo_intervalunit");
+		}
+	},
+	"combo_predefined_aggregate"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterIntervalUnit = e.value;
+	},
+	"combo_intervalunit"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterIntervalValue = e.value;
+	},
+	"picker_intervalvalue"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterArchive = e.value;
+		defaultFilterArchive = e.value;
+	},
+	"combo_archive"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		setDefaultFilters();
+	},
+	"btn_reset"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterNumRows = e.value;
+	},
+	"picker_number_of_rows"
+);
+]]></code>
+</script>

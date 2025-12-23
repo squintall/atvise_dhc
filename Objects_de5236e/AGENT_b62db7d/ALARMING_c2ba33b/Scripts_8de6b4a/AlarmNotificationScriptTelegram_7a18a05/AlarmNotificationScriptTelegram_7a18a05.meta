@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.ALARMING.Scripts.AlarmNotificationScriptTelegram
+NodeClass: Variable
+BrowseName: 1:AlarmNotificationScriptTelegram
+DisplayName: en|AlarmNotificationScriptTelegram
+Description: en|AlarmNotificationScriptTelegram
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode.AlarmModification

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvObjectDisplays.Alarmlist.Columns.Shelved
+NodeClass: Variable
+BrowseName: 1:Shelved
+DisplayName: en|Shelved
+Description: en|Shelved
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

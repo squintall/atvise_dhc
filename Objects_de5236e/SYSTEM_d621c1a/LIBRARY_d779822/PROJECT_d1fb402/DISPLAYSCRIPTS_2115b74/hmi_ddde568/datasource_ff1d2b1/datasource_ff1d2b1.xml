@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    </metadata>
+    <code><![CDATA[/**
+ * Code for the datasource object display
+ * --------------------------------------
+ * This display shows the connection state between the atvise server and the datasource as well as the configuration of the datasource.
+ * In the atvise standalone mode the connection state of one server is displayed. If the atvise redundancy mode is used the connection state
+ * of the primary and secondary atvise server is displayed.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var datasourceAddress = webMI.query["datasource_address"];
+var datasourceName=datasourceAddress.substring("AGENT.DATASOURCES.".length);
+
+var datasourceConfig = datasourceAddress + ".Redundancy";
+var datasourcePrimary = datasourceAddress;
+var datasourceSecondary = "AGENT.REDUNDANCY.SECONDARY.DATASOURCES." + datasourceName;
+var subscribedPrimaryAlternatives = [];
+var subscribedPrimaryConnections = [];
+var subscribedSecondaryAlternatives = [];
+var subscribedSecondaryConnections = [];
+var vitality_table_display = webMI.query["vitality_table_display"];
+var isOldStyle = typeof webMI.gfx.getX("primary_led_shadow") != "undefined";
+
+var reduMode = webMI.isRedundant();
+
+/**
+ * RUNTIME SECTION
+ */
+
+if(reduMode) {
+	datasourcePrimary = "AGENT.REDUNDANCY.PRIMARY.DATASOURCES." + datasourceName;
+}
+
+// show secondary server in reduMode only
+webMI.gfx.setVisible("secondary", reduMode);
+webMI.gfx.setVisible("secondary_connections", reduMode);
+
+// show network addresses in reduMode only
+webMI.gfx.setVisible("primary_redu_info", reduMode);
+
+// show redu status in reduMode only
+webMI.gfx.setVisible("redu_status_info", reduMode);
+
+webMI.data.subscribe(datasourceConfig + ".connection_failover_type", function(e) {
+	webMI.gfx.setText("behaviour_urls", e.value);
+});
+
+webMI.data.subscribe(datasourceConfig + ".current_connection_name", function(e) {
+	webMI.gfx.setText("datasource_name", e.value);
+});
+
+webMI.data.subscribe(datasourceConfig + ".connection_lock_index", function(e) {
+	var text = "Only alternative URL " + e.value;
+	if (e.value == -1)
+		text = "Auto";
+	else if (e.value == 0)
+		text = "Only source URL";
+	webMI.gfx.setText("switching_mode", text);
+});
+
+webMI.data.subscribeBlock([
+		datasourcePrimary + ".connection_status",
+		datasourcePrimary + ".connected",
+		datasourcePrimary + ".Redundancy.current_connection_index"
+	], function(e) {
+		var active_connection = e[2].value;
+
+		webMI.gfx.setText("primary_source_status", getDatasourceConnectionStatusTranslation(e[0].value));
+		webMI.gfx.setVisible("primary_source", e[1].value ? null : false);
+		webMI.gfx.setStroke("primary_source", active_connection == 0 ? "#04ff00" : "#6d6d6d");
+		if(!e[1].value) {
+			webMI.gfx.setFill("primary_source_connector", "#ff0000");
+		} else {
+			webMI.gfx.setFill("primary_source_connector", active_connection == 0 ? "#04ff00" : "#bababa");
+		}
+	}
+);
+
+webMI.data.subscribe(datasourcePrimary + ".Redundancy.datasource_connected", function(e) {
+	webMI.gfx.setFill("primary_connector", e.value ? "#04ff00" : "#ff0000");
+});
+
+if(reduMode) {
+
+	webMI.data.subscribeBlock([
+			"AGENT.REDUNDANCY.replication_status",
+			"AGENT.REDUNDANCY.system_splitmode",
+			"AGENT.REDUNDANCY.connection_status_network1",
+			"AGENT.REDUNDANCY.connection_status_network2",
+			"AGENT.REDUNDANCY.role"
+		], function(e) {
+
+		var connection_status_nw1 = e[2].value;
+		var connection_status_nw2 = e[3].value;
+		var role  = e[4].value;
+		var replicationFinished = false;
+		if (!e[1].value) {
+			replicationFinished = e[0].value != "Replicating S->P" && e[0].value != "Replicating P->S";
+		} else {
+			// splitmode
+			replicationFinished = true;
+		}
+
+		var syncConnectionAvailable = connection_status_nw1 == "Connected";
+
+		if(!syncConnectionAvailable) {
+			syncConnectionAvailable = connection_status_nw2 == "Connected";
+		}
+
+		var overlay="secondary_overlay";
+		if(role == "Secondary") {
+			overlay="primary_overlay";
+		}
+
+		if(!syncConnectionAvailable || !replicationFinished) {
+			webMI.gfx.setVisible(overlay, null);
+		} else {
+			webMI.gfx.setVisible(overlay, false);
+		}
+	});
+
+	webMI.data.subscribe(datasourceSecondary + ".Redundancy.datasource_connected", function(e) {
+		webMI.gfx.setFill("secondary_connector", e.value ? "#04ff00" : "#ff0000");
+	});
+
+	webMI.data.subscribeBlock([
+		datasourceConfig + ".connectivity_server_active",
+		datasourceConfig + ".connectivity_server_passive",
+		datasourceConfig + ".connectivity_server_sop",
+		datasourceConfig + ".connectivity_server_snop",
+	], function(e) {
+		webMI.gfx.setText("connectivity_server_active", getDatasourceBehaviourTranslation(e[0].value));
+		webMI.gfx.setText("connectivity_server_passive", getDatasourceBehaviourTranslation(e[1].value));
+		webMI.gfx.setText("connectivity_server_sop", getDatasourceBehaviourTranslation(e[2].value));
+		webMI.gfx.setText("connectivity_server_snop", getDatasourceBehaviourTranslation(e[3].value));
+	});
+
+	webMI.data.subscribe("AGENT.REDUNDANCY.PRIMARY.status", function(e){
+		if (e.value.charAt(0) === "S")
+			e.value = e.value.toUpperCase();
+
+		webMI.gfx.setText("primary_status", getServerStatusTranslation(e.value));
+		webMI.gfx.setFill("primary_led", e.value === "Active" ? "#04ff00" : "#bababa");
+		if (isOldStyle) webMI.gfx.setFill("primary_led_shadow", e.value === "Active" ? "url(#linear_4)" : "url(#linear_24)");
+	});
+
+	webMI.data.subscribe("AGENT.REDUNDANCY.PRIMARY.vitality_status", function(e){
+		webMI.gfx.setText("primary_vitality_status", e.value);
+	});
+
+	if (isOldStyle) {
+		webMI.data.subscribe("AGENT.REDUNDANCY.PRIMARY.vitality_userdefined", function(e){
+			webMI.gfx.setText("primary_memory", e.value);
+			webMI.gfx.setText("primary_cpu", e.value);
+		});
+	} else {
+		webMI.data.subscribe("AGENT.REDUNDANCY.PRIMARY.INFORMATION.DIAGNOSTICS.MEM.TotalMemUsedPercent", function(e){
+			(typeof e.value != "undefined") ? webMI.gfx.setText("primary_memory", webMI.sprintf("%0.1f", e.value) + " %") : webMI.gfx.setText("primary_memory", "-");
+		});
+
+		webMI.data.subscribe("AGENT.REDUNDANCY.PRIMARY.INFORMATION.DIAGNOSTICS.CPU.TotalCPUPercent", function(e){
+			(typeof e.value != "undefined") ? webMI.gfx.setText("primary_cpu", webMI.sprintf("%0.0f", e.value) + " %") : webMI.gfx.setText("primary_cpu", "-");
+		});
+	}
+
+	webMI.data.subscribeBlock([
+		"AGENT.REDUNDANCY.PRIMARY.primary_network1",
+		"AGENT.REDUNDANCY.PRIMARY.primary_network2",
+		"AGENT.REDUNDANCY.PRIMARY.primary_visu_network1",
+		"AGENT.REDUNDANCY.PRIMARY.primary_visu_network2",
+		"AGENT.REDUNDANCY.SECONDARY.secondary_network1",
+		"AGENT.REDUNDANCY.SECONDARY.secondary_network2",
+		"AGENT.REDUNDANCY.SECONDARY.secondary_visu_network1",
+		"AGENT.REDUNDANCY.SECONDARY.secondary_visu_network2"
+		], function(e) {
+			webMI.gfx.setText("primary_server_address1", e[0].value);
+			webMI.gfx.setText("primary_server_address2", e[1].value);
+			webMI.gfx.setText("secondary_server_address1", e[4].value);
+			webMI.gfx.setText("secondary_server_address2", e[5].value);
+
+			var ids = e[2].value.split('@');
+			webMI.gfx.setText("primary_web_address1", ids[0]);
+			if(ids.length > 1) {
+				webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {"id":"primary_web_address1", "text":ids[1]});
+			}
+
+			ids = e[3].value.split('@');
+			webMI.gfx.setText("primary_web_address2", ids[0]);
+			if(ids.length > 1) {
+				webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {"id":"primary_web_address2", "text":ids[1]});
+			}
+
+			ids = e[6].value.split('@');
+			webMI.gfx.setText("secondary_web_address1", ids[0]);
+			if(ids.length > 1) {
+				webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {"id":"secondary_web_address1", "text":ids[1]});
+			}
+
+			ids = e[7].value.split('@');
+			webMI.gfx.setText("secondary_web_address2", ids[0]);
+			if(ids.length > 1) {
+				 webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {"id":"secondary_web_address2", "text":ids[1]});
+			 }
+
+		}
+	);
+
+	webMI.data.subscribeBlock([
+		datasourceSecondary + ".connection_status",
+			datasourceSecondary + ".connected",
+			datasourceSecondary + ".Redundancy.current_connection_index"
+		], function(e) {
+			var active_connection = e[2].value;
+
+			webMI.gfx.setText("secondary_source_status", getDatasourceConnectionStatusTranslation(e[0].value));
+			webMI.gfx.setVisible("secondary_source", e[1].value ? null : false);
+			webMI.gfx.setStroke("secondary_source", active_connection == 0 ? "#04ff00" : "#6d6d6d");
+			if(!e[1].value) {
+				webMI.gfx.setFill("secondary_source_connector", "#ff0000");
+			} else {
+				webMI.gfx.setFill("secondary_source_connector", active_connection == 0 ? "#04ff00" : "#bababa");
+			}
+		}
+	);
+
+	webMI.data.subscribe("AGENT.REDUNDANCY.SECONDARY.status", function(e){
+		if (e.value.charAt(0) === "S")
+			e.value = e.value.toUpperCase();
+
+		webMI.gfx.setText("secondary_status", getServerStatusTranslation(e.value));
+		webMI.gfx.setFill("secondary_led", e.value === "Active" ? "#04ff00" : "#bababa");
+		if (isOldStyle) webMI.gfx.setFill("secondary_led_shadow", e.value === "Active" ? "url(#linear_4)" : "url(#linear_24)");
+	});
+
+	webMI.data.subscribe("AGENT.REDUNDANCY.SECONDARY.vitality_status", function(e){
+		webMI.gfx.setText("secondary_vitality_status", e.value);
+	});
+
+	if (isOldStyle) {
+		webMI.data.subscribe("AGENT.REDUNDANCY.SECONDARY.vitality_userdefined", function(e){
+			webMI.gfx.setText("secondary_memory", e.value);
+			webMI.gfx.setText("secondary_cpu", e.value);
+		});
+	} else {
+		webMI.data.subscribe("AGENT.REDUNDANCY.SECONDARY.INFORMATION.DIAGNOSTICS.MEM.TotalMemUsedPercent", function(e){
+			(typeof e.value != "undefined") ? webMI.gfx.setText("secondary_memory", webMI.sprintf("%0.1f", e.value) + " %") : webMI.gfx.setText("secondary_memory", "-");
+		});
+
+		webMI.data.subscribe("AGENT.REDUNDANCY.SECONDARY.INFORMATION.DIAGNOSTICS.CPU.TotalCPUPercent", function(e){
+			(typeof e.value != "undefined") ? webMI.gfx.setText("secondary_cpu", webMI.sprintf("%0.0f", e.value) + " %") : webMI.gfx.setText("secondary_cpu", "-");
+		});
+	}
+
+} else {
+	webMI.gfx.setVisible("primary_overlay", false);
+	webMI.gfx.setVisible("secondary_overlay", false);
+}
+
+showHideAlternatives();
+
+/**
+ * FUNCTION SECTION
+ */
+
+function showHideAlternatives() {
+
+	if(reduMode) {
+		webMI.data.subscribe(datasourcePrimary + ".Redundancy.connection_counter", function(e) {
+			var connection_counter = e.value;
+			var alternatives = [];
+			var connections = [];
+
+			// initialize alternative connections
+			webMI.gfx.setText("primary_alternative1_status", "-");
+			webMI.gfx.setText("primary_alternative2_status", "-");
+			webMI.gfx.setText("primary_alternative3_status", "-");
+			webMI.gfx.setVisible("primary_alternative1", false);
+			webMI.gfx.setVisible("primary_alternative2", false);
+			webMI.gfx.setVisible("primary_alternative3", false);
+
+
+			for (var i = 1; i <= connection_counter - 1; ++i) {
+				alternatives.push(datasourcePrimary + ".Redundancy.alternative" + i + ".connection_status");
+				connections.push(datasourcePrimary + ".Redundancy.alternative" + i + ".connected");
+			}
+
+			connections.push(datasourcePrimary + ".Redundancy.current_connection_index");
+
+			webMI.data.unsubscribe(subscribedPrimaryAlternatives);
+			webMI.data.unsubscribe(subscribedPrimaryConnections);
+
+			subscribedPrimaryAlternatives = webMI.data.subscribeBlock(alternatives, function(e) {
+				for (var i = 0; i < e.length; ++i) {
+					webMI.gfx.setText("primary_alternative" + (i+1) + "_status", getDatasourceConnectionStatusTranslation(e[i].value));
+				}
+			});
+
+			subscribedPrimaryConnections = webMI.data.subscribeBlock(connections, function(e) {
+				var active_primary_connection = e[e.length-1].value;
+				// ignore last item of array because this is the active connection information
+				for (var i = 0; i < e.length-1; ++i) {
+
+					webMI.gfx.setVisible("primary_alternative" + (i+1), e[i].value);
+					if(!e[i].value) {
+						webMI.gfx.setFill("primary_alternative" + (i+1) + "_connector", "#ff0000");
+					} else {
+						webMI.gfx.setStroke("primary_alternative" + (i+1), active_primary_connection == (i+1) ? "#04ff00" : "#6d6d6d");
+						webMI.gfx.setFill("primary_alternative" + (i+1) + "_connector", active_primary_connection == (i+1) ? "#04ff00" : "#bababa");
+					}
+				}
+			});
+		});
+
+		webMI.data.subscribe(datasourceSecondary + ".Redundancy.connection_counter", function(e) {
+			var connection_counter = e.value;
+			var alternatives = [];
+			var connections = [];
+
+			// initialize alternative connections
+			webMI.gfx.setText("secondary_alternative1_status", "-");
+			webMI.gfx.setText("secondary_alternative2_status", "-");
+			webMI.gfx.setText("secondary_alternative3_status", "-");
+			webMI.gfx.setVisible("secondary_alternative1", false);
+			webMI.gfx.setVisible("secondary_alternative2", false);
+			webMI.gfx.setVisible("secondary_alternative3", false);
+
+			for (var i = 1; i <= connection_counter - 1; ++i) {
+				alternatives.push(datasourceSecondary + ".Redundancy.alternative" + i + ".connection_status");
+				connections.push(datasourceSecondary + ".Redundancy.alternative" + i + ".connected");
+			}
+
+			connections.push(datasourceSecondary + ".Redundancy.current_connection_index");
+
+			webMI.data.unsubscribe(subscribedSecondaryAlternatives);
+			webMI.data.unsubscribe(subscribedSecondaryConnections);
+
+			subscribedSecondaryAlternatives = webMI.data.subscribeBlock(alternatives, function(e) {
+				for (var i = 0; i < e.length; ++i) {
+					webMI.gfx.setText("secondary_alternative" + (i+1) + "_status", getDatasourceConnectionStatusTranslation(e[i].value));
+				}
+			});
+
+			subscribedSecondaryConnections = webMI.data.subscribeBlock(connections, function(e) {
+				var active_secondary_connection = e[e.length-1].value;
+				// ignore last item of array because this is the active connection information
+				for (var i = 0; i < e.length-1; ++i) {
+
+					webMI.gfx.setVisible("secondary_alternative" + (i+1), e[i].value);
+					if(!e[i].value) {
+						webMI.gfx.setFill("secondary_alternative" + (i+1) + "_connector", "#ff0000");
+					} else {
+						webMI.gfx.setStroke("secondary_alternative" + (i+1), active_secondary_connection == (i+1) ? "#04ff00" : "#6d6d6d");
+						webMI.gfx.setFill("secondary_alternative" + (i+1) + "_connector", active_secondary_connection == (i+1) ? "#04ff00" : "#bababa");
+					}
+				}
+			});
+		});
+	} else {
+		webMI.data.subscribe(datasourceConfig + ".connection_counter", function(e) {
+			var connection_counter = e.value;
+			var alternatives = [];
+			var connections = [];
+
+			// initialize alternative connections
+			webMI.gfx.setText("primary_alternative1_status", "-");
+			webMI.gfx.setText("primary_alternative2_status", "-");
+			webMI.gfx.setText("primary_alternative3_status", "-");
+			webMI.gfx.setVisible("primary_alternative1", false);
+			webMI.gfx.setVisible("primary_alternative2", false);
+			webMI.gfx.setVisible("primary_alternative3", false);
+
+			for (var i = 1; i <= connection_counter - 1; ++i) {
+				alternatives.push(datasourcePrimary + ".Redundancy.alternative" + i + ".connection_status");
+				connections.push(datasourcePrimary + ".Redundancy.alternative" + i + ".connected");
+			}
+
+			connections.push(datasourceConfig + ".current_connection_index");
+
+			webMI.data.unsubscribe(subscribedPrimaryAlternatives);
+			webMI.data.unsubscribe(subscribedPrimaryConnections);
+
+			subscribedPrimaryAlternatives = webMI.data.subscribeBlock(alternatives, function(e) {
+				for (var i = 0; i < e.length; ++i) {
+					webMI.gfx.setText("primary_alternative" + (i+1) + "_status", getDatasourceConnectionStatusTranslation(e[i].value));
+				}
+			});
+
+			subscribedPrimaryConnections = webMI.data.subscribeBlock(connections, function(e) {
+				var active_connection = e[e.length-1].value;
+				// ignore last item of array because this is the active connection information
+				for (var i = 0; i < e.length-1; ++i) {
+					webMI.gfx.setVisible("primary_alternative" + (i+1), e[i].value ? null : false);
+					webMI.gfx.setStroke("primary_alternative" + (i+1), active_connection == (i+1) ? "#04ff00" : "#6d6d6d");
+					if(!e[i].value) {
+						webMI.gfx.setFill("primary_alternative" + (i+1) + "_connector", "#ff0000");
+					} else {
+						webMI.gfx.setFill("primary_alternative" + (i+1) + "_connector", active_connection == (i+1) ? "#04ff00" : "#bababa");
+					}
+
+				}
+			});
+		});
+	}
+}
+
+function getDatasourceBehaviourTranslation(text) {
+	var translation;
+	switch(text) {
+		case "InputOutput":
+			translation = "T{InputOutput}";
+			break;
+		case "Input":
+			translation = "T{Input}";
+			break;
+		case "Output":
+			translation = "T{Output}";
+			break;
+		case "Disabled":
+			translation = "T{Disabled}";
+			break;
+		case "Monitored":
+			translation = "T{Monitored}";
+			break;
+		default:
+			translation = text;
+	}
+	return translation;
+}
+
+function getDatasourceConnectionStatusTranslation(text) {
+	var translation;
+	switch(text) {
+		case "Connected":
+			translation = "T{Connected}";
+			break;
+		case "LostConnection":
+			translation = "T{LostConnection}";
+			break;
+		case "NotConnected":
+			translation = "T{NotConnected}";
+			break;
+		case "SubscriptionPending":
+			translation = "T{SubscriptionPending}";
+			break;
+		default:
+			translation = text;
+	}
+	return translation;
+}
+
+function getServerStatusTranslation(text) {
+	var statustext;
+	switch(text) {
+		case "Active":
+			statustext = "T{Active}";
+			break;
+		case "Passive":
+			statustext = "T{Passive}";
+			break;
+		case "SOP":
+			statustext = "T{SOP}";
+			break;
+		case "SNOP":
+			statustext = "T{SNOP}";
+			break;
+		default:
+			statustext = text;
+	}
+
+	return statustext;
+}
+
+/**
+ * EVENT SECTION
+ */
+
+if (reduMode) {
+
+	webMI.addEvent(webMI.data, "serverstatechange", function(e) {
+		var active = {overlay: "primary_overlay" };
+		var passive = {overlay: "secondary_overlay" };
+
+		if (e.active.role == "Secondary") {
+			active = {overlay: "secondary_overlay" };
+			passive = {overlay: "primary_overlay" };
+		}
+
+		if (!e.active["connection-status"].primary && !e.active["connection-status"].secondary)
+			webMI.gfx.setVisible(active.overlay, null);
+		else
+			webMI.gfx.setVisible(active.overlay, false);
+
+		if (!e.passive["connection-status"].primary && !e.passive["connection-status"].secondary)
+			webMI.gfx.setVisible(passive.overlay, null);
+		else
+			webMI.gfx.setVisible(passive.overlay, false);
+	});
+
+	webMI.addEvent(["primary_vitality_clickarea", "secondary_vitality_clickarea"], "click", function(e) {
+		var openWindowParameters = {
+			display: vitality_table_display,
+			extern: false,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Vitality table}",
+			toolbar: false,
+			width: 1200
+		};
+		if (isOldStyle) openWindowParameters.height = 500;
+		else openWindowParameters.height = 520;
+		webMI.display.openWindow(openWindowParameters);
+	});
+
+}
+]]></code>
+</script>

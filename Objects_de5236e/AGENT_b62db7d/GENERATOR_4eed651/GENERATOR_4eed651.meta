@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.GENERATOR
+NodeClass: Object
+BrowseName: 1:GENERATOR
+DisplayName: en|GENERATOR
+Description: en|GENERATOR
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

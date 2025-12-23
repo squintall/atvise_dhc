@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[// create default pdf and directory "PDFs" for first start
+
+var node = Ua.findNode("SYSTEM.LIBRARY.PROJECT.RESOURCES/atvise_empty_pdf_load.pdf");
+
+for(var i=0;i<=2;i++) {
+	var File = new OutputFileStream(server.database.directory+'/PDFs/atvise_PDF-'+(i+1)+'.pdf','binary');
+	File.open()
+	File.writeLine(node.result.value);
+	File.close();
+}
+
+var projectpath = server.database.directory;
+returnValue = projectpath;
+
+return returnValue;]]></code>
+</script>

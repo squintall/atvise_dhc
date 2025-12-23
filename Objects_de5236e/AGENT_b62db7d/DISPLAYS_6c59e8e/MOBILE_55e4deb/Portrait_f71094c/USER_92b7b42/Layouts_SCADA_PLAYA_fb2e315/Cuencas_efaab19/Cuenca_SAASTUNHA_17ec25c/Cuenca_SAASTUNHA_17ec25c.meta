@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA_PLAYA.Cuencas.Cuenca_SAASTUNHA
+NodeClass: Variable
+BrowseName: 1:Cuenca_SAASTUNHA
+DisplayName: en|Cuenca_SAASTUNHA
+Description: en|Cuenca_SAASTUNHA
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

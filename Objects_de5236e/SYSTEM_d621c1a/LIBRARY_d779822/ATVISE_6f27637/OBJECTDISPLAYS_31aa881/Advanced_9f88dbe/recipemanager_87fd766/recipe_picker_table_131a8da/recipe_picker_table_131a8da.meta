@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.recipe_picker_table
+NodeClass: Variable
+BrowseName: 1:recipe_picker_table
+DisplayName: en|recipe_picker_table
+Description: en|recipe_picker_table
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

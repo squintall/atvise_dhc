@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoPozo.ip
+NodeClass: Variable
+BrowseName: 1:ip
+DisplayName: en|ip
+Description: en|ip
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

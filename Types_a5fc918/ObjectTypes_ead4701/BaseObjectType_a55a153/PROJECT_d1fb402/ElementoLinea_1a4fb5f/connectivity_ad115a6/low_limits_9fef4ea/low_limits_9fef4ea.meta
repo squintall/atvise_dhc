@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.connectivity.low_limits
+NodeClass: Object
+BrowseName: 1:low_limits
+DisplayName: en|low_limits
+Description: en|low_limits
+EventNotifier: 0
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

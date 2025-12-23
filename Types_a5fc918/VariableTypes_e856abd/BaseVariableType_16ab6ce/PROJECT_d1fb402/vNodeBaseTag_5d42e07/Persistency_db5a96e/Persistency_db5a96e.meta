@@ -1,0 +1,10 @@
+NodeId: ns=1;s=VariableTypes.PROJECT.1073.Persistency
+NodeClass: Variable
+BrowseName: 1:Persistency
+DisplayName: en|Persistency
+Description: en|Persistency
+DataType: Byte
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition PropertyType

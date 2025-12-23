@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AR.AR_SOL_CAR_FINAL.Nivel.AR_SOL_CAR_FINAL_T1_NivelMAlto.EURange
+NodeClass: Object
+BrowseName: 1:EURange
+DisplayName: en|EU range of this tag
+Description: en|EURange
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=VariableTypes.PROJECT.2373.FalseState
+NodeClass: Variable
+BrowseName: 1:FalseState
+DisplayName: en|FalseState
+Description: en|FalseState
+DataType: LocalizedText
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition PropertyType

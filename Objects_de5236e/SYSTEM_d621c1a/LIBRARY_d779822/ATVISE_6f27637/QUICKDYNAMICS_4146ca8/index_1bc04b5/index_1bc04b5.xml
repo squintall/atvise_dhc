@@ -1,0 +1,2304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png"></icon>
+    <visible>0</visible>
+    <title>Index Extension</title>
+    <description>Javascript extension for index.htm.</description>
+  </metadata>
+  <parameter behavior="hidden" defaultvalue="SYSTEM.GLOBALS.atvFontColor" name="globalFontColor" valuetype="global"/>
+  <parameter behavior="hidden" defaultvalue="SYSTEM.GLOBALS.atvFillColor" name="globalFillColor" valuetype="global"/>
+  <parameter behavior="hidden" defaultvalue="SYSTEM.GLOBALS.atvFillColor2" name="globalFillColor2" valuetype="global"/>
+  <parameter behavior="hidden" defaultvalue="SYSTEM.GLOBALS.atvBorderColor" name="globalBorderColor" valuetype="global"/>
+  <code><![CDATA[var root = webMI.rootWindow;
+if (!root.currentLanguage) root.currentLanguage = { value: null };
+if (!root.firstConnect) root.firstConnect = { value: true, defaultFrameName: "", defaultUrl: "" };
+if (!root.currentFrame) root.currentFrame = [];
+
+var currentLanguage = root.currentLanguage;
+var currentFrame = root.currentFrame;
+var lastUserDisplay = null;
+var childwindowsDiv = null;
+var extensionsDiv = null;
+var displaysJs = null;
+var currentUser = "";
+var mobile =
+	/mobile|android|blackberry|fennec|iemobile|ip(hone|ad|od)|opera m(ob|in)i|playbook|silk|windows (ce|phone)/i.test(
+		navigator.userAgent
+	);
+var firefox_svg = webMI.getConfig("frame.displaytype") != "xhtml" && navigator.userAgent.indexOf("Firefox") > -1;
+var isIOSDevice = /(iPod|iPhone|iPad)/.test(navigator.userAgent);
+var iOSVersion = null;
+var pointerEventsOn = window.PointerEvent !== undefined;
+var windowStorage = {};
+
+var isStartHTML = location.search.indexOf("startHTML") > -1;
+var isRedirected = webMI.query["redirected"];
+var locationPort = location.port == "" ? "80" : location.port;
+var locationHost = location.host.indexOf(":") == -1 ? location.host + ":" + locationPort : location.host;
+var isFQDN =
+	/a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z/i.test(location.host) && location.host.split(".").length > 2;
+var initialStatus = null;
+var lastHostName = null;
+var lastServerState = null;
+var errorscreen = "Standard";
+var indexHtmWindow = window;
+if (indexHtmWindow.isRootDisplay) {
+	try {
+		while (top != indexHtmWindow && indexHtmWindow.parent.webMI) indexHtmWindow = indexHtmWindow.parent;
+	} catch (ex) {
+		// do nothing
+	}
+}
+var scaleType = webMI.getConfig("frame.scaletype");
+var alarmManagementGlobal = webMI.getConfig("alarm.management.global");
+var globalParameters = {
+	font: base.globalFontColor,
+	fill: base.globalFillColor,
+	fill2: base.globalFillColor2,
+	border: base.globalBorderColor
+};
+
+var popupOutLineTemplate;
+var unscaledBorderWidth = 2.0;
+if(scaleType === "transform")
+	root.onresize = (e) =>
+	{
+		const mainContainer = root.document.querySelector("#mainContainer");
+		const popups = root.document.querySelectorAll("#popup_main");
+		const scaling = Number(mainContainer.style.transform.substring(6, mainContainer.style.transform.length-1));
+		if(popups.length > 0 && popupOutLineTemplate === undefined)
+			popupOutLineTemplate = popups[0].style.outline.substring(0, popups[0].style.outline.indexOf("solid")+6);
+		for(const popup of popups) {
+			var borderWidth = (unscaledBorderWidth/scaling) < unscaledBorderWidth ? unscaledBorderWidth : parseInt(unscaledBorderWidth/scaling);
+			popup.style.outline = popupOutLineTemplate + borderWidth + "px";
+		}
+	}
+
+webMI.addEvent(webMI.data, "serverstatechange", function (e) {
+	if (initialStatus == null && e["active-exists"] == false) return;
+
+	if (initialStatus == null) initialStatus = e.status;
+
+	var state = false;
+	if (e.status == "Sop" || e.status == "Snop")
+		state = e.active["connection-status"].primary || e.active["connection-status"].secondary;
+	else
+		state =
+			e["active-exists"] == true && (e.active["connection-status"].primary || e.active["connection-status"].secondary);
+
+	//redirect if server is passive on visu start
+	if (initialStatus == "Passive") {
+		console.warn("Connected to Passive - Redirect to Active");
+		webMI.trigger.fire("com.atvise.RedundancyRedirect", e);
+		//redirect if server gets snop with startHTML
+	} else if (e.status == "Snop" && isStartHTML && (isRedirected != "Snop" || initialStatus != "Snop")) {
+		console.warn("Connected to Snop - Redirect to Sop");
+		e.toPassive = true;
+		if (location.host != e.active.currentHostName) {
+			e.toPassive = false;
+		}
+		webMI.trigger.fire("com.atvise.RedundancyRedirect", e);
+		//redirect if redu mode is switched on
+	} else if (lastServerState == "Snop" && (e.status == "Active" || e.status == "Passive")) {
+		webMI.trigger.fire("com.atvise.RedundancyRedirect", e);
+	}
+	lastServerState = e.status;
+
+	//redirect if firefox and ips
+	if (firefox_svg || !isFQDN) {
+		var currentActiveHostName = e.active.currentHostName;
+		if (currentActiveHostName != lastHostName && lastHostName != null)
+			webMI.trigger.fire("com.atvise.RedundancyRedirect", e);
+
+		var hostIndex = e.active.hostNames.indexOf(currentActiveHostName);
+		var connectionStatus = e.active["connection-status"];
+		connectionStatus = hostIndex == 0 ? connectionStatus.primary : connectionStatus.secondary;
+		if (connectionStatus) lastHostName = currentActiveHostName;
+	}
+
+	//define error screens for redundancy environment
+	var isSplit = e.status == "Sop" || e.status == "Snop";
+	var errorBox = document.createElement("div");
+	var errorBoxInner = document.createElement("div");
+	var errorrow1 = document.createElement("span");
+	var errorrow2 = document.createElement("span");
+	errorBox.appendChild(errorBoxInner);
+	errorBoxInner.appendChild(errorrow1);
+	errorBoxInner.appendChild(errorrow2);
+	errorBox.id = "errorbox";
+	errorrow1.id = "errorrow1";
+	errorrow2.id = "errorrow2";
+
+	if (errorrow1 == null) return;
+
+	errorscreen = isSplit ? "Split" : "Redundancy";
+
+	if (errorscreen === "Redundancy") {
+		errorrow1.innerHTML = "Waiting for active server ...";
+		errorrow1.parentNode.style.marginTop = "35px";
+		errorrow1.style.color = "#0096e1";
+
+		errorBox.style.backgroundImage =
+			"url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgwAAABiCAMAAAALOXs+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAqUExURf///wAAAP7+/v7+/iCj5YTM8cfo+f///////1O46////////wCW4f7//w9I/GkAAAAMdFJOU94A49P8+/efHfptQwuZvxgAAAZqSURBVHja7V3t1qMsDHQNWrV6/7f7tn708QtIAJFXJudsd7ftH3E6zIQkFv8c4/X58y4QjwpHLHRl90UE1g9g+NdQSc33LywgwNCV5UgNHRYwezA0xQcMxYca/oEasgfDq/wGNCTA8EFAOcX7pyEpsRcq8CJ6cQcDzWCgccdAPCDIFQxduQTsZe7bREM/MMBe5g6GV/kXL9jLrMHQrLCwtpepKCFa74J4sS+Vj4CciaEqYS+zZ4bZVlZ9tbeXyWljxNVuYlKPhepVAXuZOTN0CzH0CzUkdUQBShAuFXmAYbaV1H+DfhqySUVDaq4WL8aVcgTDrB7bEQwt7OWTSEIKhlk91v0U9Z+GpAQvDXGpZpiJQc1gUMnaSwDicjC8/9TjFFXiRxTAhGlh6PCOk61cYm0v79Vrp+IYuUiGfCQ3Zuj2xPDTkKiAy22baIqNelxryBQr4LBFXAmGja3cUUNKGhIocF4yV1vZH+3l6+aLIUDDS0MKwLCzlf3WXtKPGlLJpkFCXpeBPFGPCdtLAitcqBmag638BaVUAYf777NkMmJoj1jAEcVzEOFhKxOxlzbtALJgr5mHrdTZy8i5SN5dh2hkSG4fW5mUvdTddgRfY0laqJQGDAoNVvm4Ca2t/L+cXiJ49CCtdTuPm+0l6WUD9gtBFsZXPZ7by8QykJCQ1uVi1jM0ZvWYyuklgQ4iCEgGMaRcAYcIKCDfNvW40ZD320sQghOP8sCgP5TYUsNtDVbkkZ3MfmOQMUPHIwZNg1VcPcSDBeSjdr38beVRQzbRf5AkgD9Cu4Ah1GOap5cARGAB+ebYyj6pBitgwFE9WsGwqXVrB120N9pLAjycVoukzLC1lTYwnB5R3Kse6TQFC/WoWSWBrbSC4dhghS3iMZphbyuVLu5usCJgIsiPR1brpqpjKO0RBd1KBYCEeGVktrLV7xGpNljthgHmjBGrbJDZSjUMO14YBmWrgIuqh0iwLlnLx7MaEGGt2zDskgu7Nw4NVtHwbnYT2DM4CyE8lKiHbTJSDXWSFXC4+SHdhKaFqhoq4/+jVsDhjkdyE5oWKrXbFnaS4eYjCrtEzPlMm/QoICMYtLVu9YcK1Owj1IcYamsF3G3tM2RMwCL5yN4mtKeV6ouBdvaU6kgMse0lBfxWnnuD1U0YTitHMvg4yq9YqIcq5Qo4hPAHIq91qyc01PO/kmmwIlCBl5zSgcFY66bKkRRGelA3Nlg5Tu0BTGQZSEutm5pS0K0OCycjxi9WRGS6RtIyR77yUZOMc6l1a8ft4Vww6BusotEDfvsBk07WFqop2aAnhjTGQwInzGUx9k1Yi2ArGzPcUQFHzh/mggB71YdDC9UsHNUwVLc2WBGyDpdvE7YWqnYpYWiHoZU0WAUvQPS6tUg+MtyErYVqJgTVG7zl/U+woiM7gg/EbmK2lXr1OGWa1AgDTdbptMEqmmCAeNBfszDpZLeVaxiU+o0iyuklfu2+ZGByE9YWqrG6RdXDMNRqyTjwZ8BRLHowfwQMsdzEyzzXbbr71XyEXR0rn1j2MtwDr0MZrmc/7drRTTBsZbUqkW5PCxoiHVHo08yrNDROr9zdhHUyR/lRDOvuGXWokO21T7CiVNkxl3tNIjdhn8xxUh2tbE36Eeyl3EFQZkAQbxPGceFLkqHehgkMp0cUFPLqCIQgvmSmm7BP5rB1VHEr4K7Ip7kkl3LOO5rdBGcyh6HrNu6IcZ9TCAhJ+zZhGRd+2nV77L2N3mBFbHbIeKvgjWgQqEfrfIa0RoxTEG7JKh3JeQqVBxgODVZ0AQ8wQJ9d06VTYzLnKVQLGGpd8DRkF0w+UuhVy2vco9VN2G2lY0SvgKNA33l6hsHgJgQDH2VxfYMVcSw0ZAPjal0GPsriogo4km6NWRtKW8HHxk0wx4W7RNgR4+SC++yOq8jti8Jx4R7UsLaXlz5yRrhID5wNqb9gcyJGOi7cJYLP7+CdS5E7lTw4l2B1E5epx7AVcOHuKxLSWmZorlOPG3sZeMQ4FZJ6NsoeFHavxal189eQsRusKGeisPUVGt3EYivVdXFyeulczCdPtDIfmf18+cjYJubTyggRbn4HheHF7LwlGW3Fz1ZGCc8KOBYpyDrKMgAI/woXWxkngjdYkdsX4CZOV2NRj5HCyV665NOyPaYg/ieHN95l3MAMuITjRXFjtJeESDH+A0A63RFkySq6AAAAAElFTkSuQmCC)";
+		errorrow2.style.display = "none";
+	} else if (errorscreen === "Split") {
+		errorrow1.innerHTML = "A <b>connection error</b> may have occurred.";
+		errorrow1.parentNode.style.marginTop = "20px";
+		errorrow1.style.color = "#f25e00";
+
+		errorBox.style.backgroundImage =
+			"url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgwAAABiCAMAAAALOXs+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAwUExURf///wAAAP7+/v////NtGP////////indP////////rHp/aMSf3gzv7w6PJeAP///wM5Z7oAAAAOdFJOU94A49L6nx34bUPy+vLsv21lagAABMRJREFUeNrtndma2jAMRjN2NghJ3/9tCyELxEu8W8S/vq/Tm7lozamsM5Lc6s8xmuevW4W4VDiy0LP+RQTODzD8tZzx9vUbDhAw9IzNqaHHARYPQ1s9YaieqeEPqaF4GBr2CtSQgOFJAHvHDTUkYOALDHy+MYgGLrAkMPRsjV0vObUvFc0/FuEvTjC0fIMBell6ZmjYHg30smgY2g8WoJeFw7Akho5BL4uHYdHK+3SHXhYPw7t6rOqprujqJYdbpoBh0cpumqZu18uemMpVkEunY3PSynF6xbjVkNDLEjPDUj0OMwwD9LJkGJbq8TG946OGRGooDoavxDBNNfSyXBg2rZy+UwMm4AqEYake6w2Getz1ktBFwaGX0WH40Mo1BL0kpZWwS8uDs5x126vHdzzQoigyMxyqx+mol6ghy4FBqB4FvUQNWQwMS2KoDzDU+wQcidSAyyoBDL08MXzVkEgNZcDQClp51EtKLQq4ZVQYJFp5SA0NDb2EXFaxu5ZSrYRelpkZpFoJvSwShpuqeoRelgcDl2ulRC/zT8DhpooLg6Z6hF4WBoOglf/W2GiAXpYCQ3NMDCIMAxW9hF3G7Vq27KiVKwsj9LK0zCBq5SjCQEovgWMsGCRa+RBhoKKX4CAqDNsKlQjD5w8kKS9YIQLBINNKGQzSBSvEpWD4WqHargQZDNQWrKCWwWGQNiVWGO6qFkWfTecglz6HZ7VCpYUBC1YXzwzybmUnh4HMghVQjAGDolu5wtDJu5c5WxTgIBoMilk3FQxEF6wQIWBQdStVMFDVS4DpD4Ny1m1QwUCqRQGtDAmDctZthWE4n4AjI5ZwR4PTc5l1U8OACbiLZgb1rFuthiHvghVHiRAHhl49BLvCUGMCrgwY1CtUehgoLlghPGHQDsFqYBAXrAj4JKj0gqFlmhWq6TgCSVsvEZ4waFeo9DBIJuBIuCXk0VEtT1aoRh0MWfWSI0kEzwySWTcRhlG1YJV7Ag6fe0gYzlaoHpJBJ+jlNWHQaaUJDMQm4JAofGBoznYrz2Cg8MQ4EAgCg14r97m3u/obsuglBxHhYdBrpREMWbqXEEvf07PWSiMYMuolx6URMDOcaOWsC49XdJrvwILVJWA4fZnDLPJOwCERBIFBukLlEg/8D1Y/D8N59WgY+fWSI034wXA71UrjSFxD4iP3Pzuz58JdQrpgFVss8ZaPj5Rba6V1aqDRokDisL4mzpoSdqkh14IVBwMBYDDUSvUSzU8sWCFMYNA+F+4AQ84JOKQETxhMtdIYBjwx/ls+4VI9GsMg6CWP+7fhSBNeOdT8uXAXGKQLVnlalpDI81MzWqFyhiHDBBxHSnAurMxn3ZxgwILVTxaQFt1KCxjILFghLGAw1cr5n3v3jsGue5lOL5GD/GAI1q0ko5fcxDMQn2cVoymRvnuJDzxIFjWfdXNuUUgm4DKIJfzSVC0DzbrRXrBC5jCqGYLNuukWrBLpJT5yTxiiVY+ZJ+AAhj0MbbhZN61eJnxiHBi4HFOCxJC5ewkujE/oQyvreBFfL0/MAkQYXhNLtzJB7HqZyS2hk9pD27QySWACjnZmaHlCGFIsWHFcDc4wNCxloHtJ2SduLG3giXHC0fC0MeslR1CM/03U+W/32gJMAAAAAElFTkSuQmCC)";
+		errorrow2.innerHTML = "Waiting for online server.";
+		errorrow2.style.display = "inherit";
+	}
+
+	if (e.status == "Snop" && isStartHTML) errorrow1.innerHTML = "Connected to SNOP, redirecting to SOP.";
+
+	if (!state) {
+		errorScreenHandler.showError("redundancyError", errorBox);
+	} else {
+		errorScreenHandler.hideError("redundancyError");
+	}
+});
+
+webMI.trigger.connect("com.atvise.RedundancyRedirect", function (e) {
+	e = e.value;
+
+	var newHost = e.active.hostNames;
+	var connectionStatus = e.active["connection-status"];
+	if (e.toPassive) {
+		newHost = e.passive.hostNames;
+		connectionStatus = e.passive["connection-status"];
+	}
+
+	var hostIndexPrio1 = 0;
+	if (e.active.hostNames.indexOf(locationHost) > -1) hostIndexPrio1 = e.active.hostNames.indexOf(locationHost);
+	else if (e.passive.hostNames.indexOf(locationHost) > -1) hostIndexPrio1 = e.passive.hostNames.indexOf(locationHost);
+	var hostIndexPrio2 = hostIndexPrio1 == 0 ? 1 : 0;
+
+	var connectionPrio1 = hostIndexPrio1 == 0 ? connectionStatus.primary : connectionStatus.secondary;
+	var connectionPrio2 = hostIndexPrio2 == 0 ? connectionStatus.primary : connectionStatus.secondary;
+
+	var redirectPopup = false;
+	if ((mobile || firefox_svg || !isFQDN) && initialStatus != "Passive") redirectPopup = true;
+	if (e.status == "Snop") redirectPopup = "Snop";
+
+	var parameters = location.search;
+	if (redirectPopup != false) {
+		if (location.search == "") parameters = "?redirected=" + redirectPopup;
+		else if (location.search.indexOf("redirected=") == -1) parameters = parameters + "&redirected=" + redirectPopup;
+		else parameters = parameters.replace("redirected=" + isRedirected, "redirected=" + redirectPopup);
+	}
+
+	/**  Added a timeout because in some browser/OS combinations (e.g. FF on
+	 * Ubuntu) the browser tries to reload before the server is ready when
+	 * changing to redu mode while on the SNOP server visualization [AT-D-13449] */
+	if (connectionPrio1) {
+		setTimeout(() => {
+			indexHtmWindow.location.replace(location.protocol + "//" + newHost[hostIndexPrio1] + parameters);
+		});
+	} else if (connectionPrio2) {
+		setTimeout(() => {
+			indexHtmWindow.location.replace(location.protocol + "//" + newHost[hostIndexPrio2] + parameters);
+		});
+	}
+});
+
+webMI.trigger.connect("com.atvise.languages", (trigger) => {
+	const callback = trigger.value;
+	const { sort = false, order = [] } = webMI.getConfig("frame.languages");
+
+	// Ensure sort is boolean and order is an array
+	const isSortingEnabled = typeof sort === "boolean" ? sort : false;
+	const customOrder = Array.isArray(order) ? order : [];
+
+	// Early return if sorting is disabled
+	if (!isSortingEnabled) return callback(project.languages);
+
+	// Sort the languages based on custom order and fallback to alphabetical order
+	project.languages = Object.fromEntries(
+		Object.entries(project.languages).sort(([isoA, languageA], [isoB, languageB]) => {
+			const indexA = customOrder.indexOf(isoA);
+			const indexB = customOrder.indexOf(isoB);
+
+			if (indexA !== -1 && indexB !== -1) {
+				return indexA - indexB; // Sort by custom order position
+			}
+			if (indexA !== -1) {
+				return -1; // isoA is in the custom order, so it comes first
+			}
+			if (indexB !== -1) {
+				return 1; // isoB is in the custom order, so it comes first
+			}
+			return languageA.localeCompare(languageB); // Alphabetical sort for others
+		})
+	);
+
+	callback(project.languages);
+});
+
+webMI.trigger.connect("com.atvise.display_structure", function (e) {
+	var firstConnect = webMI.rootWindow.firstConnect;
+	var loadingscreen = document.getElementById("loadingscreen");
+	var excludePreloaded = webMI.query.excludePreload == null ? [] : webMI.query.excludePreload;
+	var includePreloaded = webMI.query.includePreload == null ? [] : webMI.query.includePreload;
+
+	if (typeof webMI.query.defaultdisplay !== "undefined" && displaysJs) {
+		for (var i = 0; i < displaysJs.menu.length; ++i) {
+			if (typeof displaysJs.menu[i] !== "undefined" && displaysJs.menu[i].name == webMI.query.defaultdisplay)
+				firstConnect.defaultUrl = webMI.display.createURL(displaysJs.menu[i].display);
+		}
+	} else if (typeof webMI.query.defaulturl !== "undefined") {
+		firstConnect.defaultUrl = webMI.query.defaulturl;
+	}
+
+	/*firstConnect.value -> set false in first fire*/
+	e.value(displaysJs, webMI.query.preload == "true", excludePreloaded, includePreloaded, loadingscreen, firstConnect);
+});
+
+var popup = null;
+var popupmenulist = null;
+var audio = null;
+var popupvisible = "hidden";
+var lastMenu = null;
+var lastValidMenu = null;
+var lastMenuTimestamp = 0;
+var popups = [];
+var greatestZIndex = 1000;
+
+/**
+ * get highest z-index
+ * @param id
+ * @returns {number}
+ */
+function parseIndexOfElements(tag) {
+	var elements = webMI.rootWindow.document.getElementsByTagName(tag);
+	var index = greatestZIndex;
+	var content = "";
+	for (var i = 0; i < elements.length; i++) {
+		try {
+			var zIndex = parseInt(elements[i].style.zIndex, 10);
+			if (zIndex > index && zIndex !== "auto") {
+				index = zIndex;
+				content = elements[i];
+			}
+		} catch (na) {
+			// do nothing
+		}
+	}
+
+	return { content: content, index: index + 1 };
+}
+
+function fillCurrentFrame(names, lang) {
+	webMI.rootWindow.firstConnect = { value: true, defaultFrameName: "", defaultUrl: "" };
+	var remaining = names.length;
+	for (var i = 0; i < names.length; i++) {
+		webMI.trigger.fire("getSource_" + names[i], function (e, currentDisplayWebMI) {
+			if (typeof currentDisplayWebMI != "undefined")
+				currentFrame[i] = { name: names[i], display: decodeURIComponent(e), query: currentDisplayWebMI.query };
+			else currentFrame[i] = { name: names[i], url: tabHandler.getIFrame(names[i]).src };
+
+			if (--remaining == 0) {
+				if (webMI.getCookieSupport()) {
+					localStorage.setItem("com.atvise.index.currentFrame", JSON.stringify(currentFrame));
+					localStorage.setItem("com.atvise.index.currentLanguage", lang);
+				}
+
+				tabHandler.renewGlobal();
+				switchLanguage(lang);
+			}
+		});
+	}
+}
+function checkPopupsTopParent(index) {
+	var isbodytop = false;
+	var elem = popups[index];
+	while (elem.parentNode && !isbodytop) {
+		isbodytop = elem.parentNode == document.body;
+		elem = elem.parentNode;
+	}
+	if (!isbodytop) {
+		popups.splice(index, 1);
+	}
+	return isbodytop;
+}
+
+function pushPopups(curPopup, onDemand) {
+	//(replace and remove) or push
+	var push_b = true;
+	for (var x = 0; x < popups.length; x++) {
+		if (popups[x].id == curPopup.id && popups[x].parentNode == curPopup.parentNode) {
+			if (popups[x].style) popups[x].style.visibility = "hidden";
+			if (onDemand) {
+				if (popups[x].parentNode) popups[x].parentNode.removeChild(popups[x]);
+			}
+			popups[x] = curPopup;
+			push_b = false;
+		}
+	}
+	push_b && popups.push(curPopup);
+}
+
+function contentDocumentOf(frame) {
+	try {
+		return frame.contentWindow.document;
+	} catch (ex) {
+		return null;
+	}
+}
+
+var mouseMoveFunctions = [];
+var mouseUpFunctions = [];
+
+webMI.addEvent(document, pointerEventsOn ? "pointermove" : isIOSDevice ? "touchmove" : "mousemove", function (e) {
+	if (!e) e = window.event;
+
+	if (isIOSDevice && e.touches) e = e.touches[0];
+
+	for (var i = 0; i < mouseMoveFunctions.length; ++i) mouseMoveFunctions[i].mouseMoveFunction(e);
+});
+
+webMI.addEvent(document, pointerEventsOn ? "pointerup" : isIOSDevice ? "touchend" : "mouseup", function (e) {
+	if (!e) e = window.event;
+
+	if (isIOSDevice && e.touches) e = e.touches[0];
+
+	for (var i = 0; i < mouseUpFunctions.length; ++i) mouseUpFunctions[i].mouseUpFunction(e);
+});
+
+webMI.trigger.connect("com.atvise.windowLoaded", function (e) {
+	var ret = {};
+	ret.openedWindow = e.value;
+
+	if (!this.isRootDisplay) {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", { action: "pushPopup", popup: ret });
+	} else {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Element Menu Manager");
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Element Menu");
+	}
+
+	var doc = ret.openedWindow.document;
+	var mainframe = doc.getElementById("mainframe");
+	webMI.addEvent(mainframe, "load", function () {
+		if (doc != null && doc.location.href != "about:blank") {
+			if (contentDocumentOf(mainframe) == null) return;
+			tabHandler.registerDisplay(contentDocumentOf(mainframe));
+			tabHandler.beforeFirstUse(contentDocumentOf(mainframe), true);
+
+			if (mainframe && mainframe.contentWindow && mainframe.contentWindow.webMI) {
+				mainframe.contentWindow.webMI.addOnfocus(function () {
+					if (mainframe.contentWindow != null) tabHandler.getFocused(contentDocumentOf(mainframe));
+				});
+				mainframe.contentWindow.webMI.addOnunload(function () {
+					if (mainframe.contentWindow != null) tabHandler.removeDoc(contentDocumentOf(mainframe));
+
+					if (!this.isRootDisplay)
+						webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", {
+							action: "removePopup",
+							popup: ret
+						});
+				});
+			}
+		}
+	});
+});
+
+function openWindow(features, offsetLeft, offsetTop, clientWidth, clientHeight) {
+	function addDefaults(obj, features) {
+		for (var i in features) if (!(i in obj)) obj[i] = features[i];
+		return obj;
+	}
+
+	function addCloseEvent(element) {
+		webMI.addEvent(element, "click", function () {
+			webMI.display.closeWindow(ret);
+		});
+		webMI.addEvent(element, "touchend", function (e) {
+			e.preventDefault();
+			if (deltaX <= 5 && deltaY <= 5) {
+				webMI.display.closeWindow(ret);
+			}
+			deltaX = 0;
+			deltaY = 0;
+		});
+		webMI.addEvent(element, "touchmove", function (e) {
+			var deltaXnew = e.changedTouches[0].clientX - clientX;
+			var deltaYnew = e.changedTouches[0].clientY - clientY;
+			if (deltaXnew > deltaX) deltaX = deltaXnew;
+			if (deltaYnew > deltaY) deltaY = deltaYnew;
+		});
+		webMI.addEvent(element, "touchstart", function (e) {
+			e.preventDefault();
+			clientX = e.touches[0].clientX;
+			clientY = e.touches[0].clientY;
+		});
+		//Prevent dragging of window when mouse is over close button
+		webMI.addEvent(element, ["pointerdown", "mousedown"], function (e) {
+			e.stopPropagation();
+		});
+	}
+
+	function disableDragStart(obj) {
+		webMI.addEvent(obj, "dragstart", function (e) {
+			if (!e) e = window.event;
+			if (e.preventDefault) e.preventDefault();
+		});
+		//prevent scrolling and resizing at same time
+		obj.style.touchAction = "none";
+		//iOS doesn't support touchAction fully right now
+		if (isIOSDevice)
+			obj.addEventListener(
+				"touchmove",
+				function (e) {
+					e.preventDefault();
+				},
+				{ passive: false }
+			);
+	}
+
+	function setVisibility(value) {
+		if (!value) {
+			childWindowTopZindex = parseIndexOfElements("*").index;
+			ret.main.style.zIndex = childWindowTopZindex;
+		}
+		ret.content.style.visibility = value ? "" : "hidden";
+	}
+
+	function addMouseOutTimer(element) {
+		ret.mouseOutTimer = null;
+		webMI.addEvent(element, pointerEventsOn ? "pointerleave" : "mouseout", function (e) {
+			if (ret.mouseOutTimer) {
+				clearTimeout(ret.mouseOutTimer);
+			}
+			ret.mouseOutTimer = setTimeout(function () {
+				for (var i = 0; i < mouseUpFunctions.length; ++i) mouseUpFunctions[i].mouseUpFunction(e);
+			}, 500);
+		});
+	}
+
+	function createDraggableDiv(resizeFunction, cursor) {
+		var draggableDiv = document.createElement("div");
+		draggableDiv.style.cursor = cursor;
+		draggableDiv.style.position = "absolute";
+		draggableDiv.style.width = resizeDragAreaSize + "px";
+		draggableDiv.style.height = resizeDragAreaSize + "px";
+		draggableDiv.style.borderRadius = "50%";
+		ret.main.appendChild(draggableDiv);
+		disableDragStart(draggableDiv);
+		addMouseOutTimer(draggableDiv);
+		addResizeEvent(draggableDiv, resizeFunction);
+		return draggableDiv;
+	}
+
+	function addResizeEvent(element, resizeFunction) {
+		webMI.addEvent(element, pointerEventsOn ? "pointerdown" : isIOSDevice ? "touchstart" : "mousedown", function (e) {
+			setVisibility();
+			if (!e) e = window.event;
+
+			if (isIOSDevice && e.touches) e = e.touches[0];
+
+			if (!features.modal) {
+				ret.backgroundDiv.style.width = "100%";
+				ret.backgroundDiv.style.height = "100%";
+			}
+
+			if (autofit) scaleFactor = webMI.gfx.getAbsoluteScaleFactor(true, mainContainerEl.childNodes[0]);
+
+			ret.mouseHandler = {
+				_function: resizeFunction,
+				x: e.clientX,
+				y: e.clientY,
+				startingValues: {
+					width: parseFloat(ret.main.style.width),
+					height: parseFloat(ret.main.style.height),
+					left: parseFloat(ret.main.style.left),
+					top: parseFloat(ret.main.style.top)
+				}
+			};
+		});
+	}
+
+	function resizeTopLeft(x, y, startingValues) {
+		ret.resizeTo(startingValues.width - x, startingValues.height - y);
+		ret.moveTo(startingValues.left + x, startingValues.top + y);
+		saveToStorage(startingValues.left + x, startingValues.top + y, startingValues.width - x, startingValues.height - y);
+	}
+
+	function resizeTopRight(x, y, startingValues) {
+		ret.resizeTo(startingValues.width + x, startingValues.height - y);
+		ret.moveTo(null, startingValues.top + y);
+		saveToStorage(null, startingValues.top + y, startingValues.width + x, startingValues.height - y);
+	}
+
+	function resizeBottomLeft(x, y, startingValues) {
+		ret.resizeTo(startingValues.width - x, startingValues.height + y);
+		ret.moveTo(startingValues.left + x, null);
+		saveToStorage(startingValues.left + x, null, startingValues.width - x, startingValues.height + y);
+	}
+
+	function resizeBottomRight(x, y, startingValues) {
+		ret.resizeTo(startingValues.width + x, startingValues.height + y);
+		saveToStorage(null, null, startingValues.width + x, startingValues.height + y);
+	}
+
+	function saveToStorage(x, y, w, h) {
+		if (typeof windowStorage[storageURL] == "undefined") windowStorage[storageURL] = {};
+
+		if (x) windowStorage[storageURL].x = x;
+		if (y) windowStorage[storageURL].y = y;
+		if (w) windowStorage[storageURL].w = w;
+		if (h) windowStorage[storageURL].h = h;
+	}
+
+	var styleDefaults = {
+		fill: "#ffffff",
+		headerFill: "#000000",
+		headerFontFill: "#ffffff",
+		headerFontFamily: "Arial",
+		headerFontSize: 16,
+		headerBackgroundImage: "url(headgd.png)"
+	};
+
+	if (globalParameters) {
+		styleDefaults.headerFill = globalParameters.font;
+		styleDefaults.headerFontFill = globalParameters.fill;
+		styleDefaults.headerBackgroundImage = "";
+	}
+	const mainContainer = root.document.querySelector("#mainContainer");
+	const scaling = Number(mainContainer.style.transform.substring(6, mainContainer.style.transform.length-1));
+	var borderWidth = (scaleType === "transform") ? (parseInt(unscaledBorderWidth/scaling) < unscaledBorderWidth ? unscaledBorderWidth : parseInt(unscaledBorderWidth/scaling)) : 1;
+	
+	features = addDefaults(features, {
+		url: "about:blank",
+		display: "",
+		query: {},
+		title: " ",
+		height: 0,
+		width: 0,
+		extern: false,
+		modal: false,
+		modalbackground: "gray",
+		name: "_blank",
+		position: "center",
+		resizable: true,
+		movable: true,
+		scrollbars: true,
+		menubar: false,
+		status: false,
+		titlebar: true,
+		toolbar: false,
+		close_on_esc: true,
+		style: styleDefaults
+	});
+
+	var ret = null;
+	var contentMultiplicator = webMI.getClientInfo() ? webMI.getClientInfo().deviceScaling.window.content : 1;
+	var titlebarMultiplicator = webMI.getClientInfo() ? webMI.getClientInfo().deviceScaling.window.titlebar : 1;
+	var h = (features.height - 20) * contentMultiplicator + 20 * titlebarMultiplicator; //Height of titlebar is fixed to 20px
+	var w = features.width * contentMultiplicator;
+	var spaceToBorder = 0;
+	var mainFrameWebMI = document.getElementById("mainframe").contentWindow.webMI;
+	var outerClientWidth = parseFloat(mainFrameWebMI.display.getInitialViewBox()[2]);
+	var outerClientHeight = parseFloat(mainFrameWebMI.display.getInitialViewBox()[3]);
+
+	/* Limit size and position of window to client size */
+	var ratio = w / h;
+	if (w > outerClientWidth - spaceToBorder) {
+		w = outerClientWidth - spaceToBorder;
+		h = w / ratio;
+	}
+
+	if (h > outerClientHeight - spaceToBorder) {
+		h = outerClientHeight - spaceToBorder;
+		w = h * ratio;
+	}
+
+	// Anchors must be between 0 and 1. Otherwise Achor is 0.
+
+	if (
+		features.anchorX == undefined ||
+		typeof features.anchorX != "number" ||
+		features.anchorX < 0 ||
+		features.anchorX > 1
+	)
+		features.anchorX = 0;
+
+	if (
+		features.anchorY == undefined ||
+		typeof features.anchorY != "number" ||
+		features.anchorY < 0 ||
+		features.anchorY > 1
+	)
+		features.anchorY = 0;
+
+	// Resize pop-up when reaching out of borders. definiteResizeFactor is smallest resizeFactor.
+
+	var definiteResizeFactor = 1;
+
+	var popUpLeftX = features.x - w * features.anchorX - borderWidth - spaceToBorder / 2;
+	if (popUpLeftX < 0 && features.anchorX != 0) {
+		var resizeFactor = (w + popUpLeftX / features.anchorX) / w;
+		if (resizeFactor > 0 && resizeFactor < definiteResizeFactor) definiteResizeFactor = resizeFactor;
+	}
+
+	var popUpRightX = features.x + w * (1 - features.anchorX) + borderWidth + spaceToBorder / 2;
+	if (popUpRightX > outerClientWidth) {
+		resizeFactor = (w - (popUpRightX - outerClientWidth) / (1 - features.anchorX)) / w;
+		if (resizeFactor > 0 && resizeFactor < definiteResizeFactor) definiteResizeFactor = resizeFactor;
+	}
+
+	var popUpTopY = features.y - h * features.anchorY - borderWidth - spaceToBorder / 2;
+	if (popUpTopY < 0 && features.anchorY != 0) {
+		resizeFactor = (h + popUpTopY / features.anchorY) / h;
+		if (resizeFactor > 0 && resizeFactor < definiteResizeFactor) definiteResizeFactor = resizeFactor;
+	}
+
+	var popUpBottomY = features.y + h * (1 - features.anchorY) + borderWidth + spaceToBorder / 2;
+	if (popUpBottomY > outerClientHeight) {
+		resizeFactor = (h - (popUpBottomY - outerClientHeight) / (1 - features.anchorY)) / h;
+		if (resizeFactor > 0 && resizeFactor < definiteResizeFactor) definiteResizeFactor = resizeFactor;
+	}
+
+	if (definiteResizeFactor < 1) {
+		w = w * definiteResizeFactor;
+		h = h * definiteResizeFactor;
+	}
+
+	// Position pop-up according to anchor
+
+	if (features.anchorX > 0 && features.anchorX <= 1) {
+		features.x = features.x - w * features.anchorX;
+	}
+
+	if (features.anchorY > 0 && features.anchorY <= 1) {
+		features.y = features.y - h * features.anchorY;
+	}
+
+	/*Bug in Windows 10 - invisible borders on programm windows
+	 * There is always an offset in x direction of 7 pixels
+	 * see https://msdn.microsoft.com/library/hh869301(v=vs.85).aspx
+	 * and  http://stackoverflow.com/questions/35259756/wpf-and-windows-10-invisible-border-around-windows
+	 */
+	var isWindows10 = window.navigator.appVersion.search("Windows NT 10.0") != -1;
+
+	var scaleFactor = 1;
+	var compatibilityModeFactor = 1;
+	var touchDevice = webMI.getClientInfo() ? webMI.getClientInfo().isTouchDevice : false;
+	var mainContainerEl = document.getElementById("mainContainer");
+	var mainContainerOffset = {};
+	mainContainerOffset.top = 0;
+	mainContainerOffset.left = 0;
+	if (autofit) {
+		scaleFactor = webMI.gfx.getAbsoluteScaleFactor(true, mainContainerEl.childNodes[0]);
+		if (scaleType !== "transform" && scaleType !== "zoom") {
+			compatibilityModeFactor = parseFloat(mainContainerEl.style.width) / mainFrameWebMI.display.getInitialViewBox()[2];
+		}
+		mainContainerOffset.top = webMI.gfx.getAbsoluteOffset("top", true, mainContainerEl);
+		mainContainerOffset.left = webMI.gfx.getAbsoluteOffset("left", true, mainContainerEl);
+	}
+
+	var x = 0,
+		y = 0;
+	if (features.extern) {
+		x =
+			typeof features.x == "number"
+				? screenX + (features.x * compatibilityModeFactor + offsetLeft) * scaleFactor + mainContainerOffset.left
+				: screenX + (window.innerWidth - w) / 2;
+		y =
+			typeof features.y == "number"
+				? screenY + (features.y * compatibilityModeFactor + offsetTop) * scaleFactor + mainContainerOffset.top
+				: screenY + (window.innerHeight - h) / 2;
+		if (isWindows10) {
+			x -= 7;
+		}
+		x = x > 0 ? x : 0;
+		y = y > 0 ? y : 0;
+	} else {
+		w *= compatibilityModeFactor;
+		h *= compatibilityModeFactor;
+		x = typeof features.x == "number" ? features.x * compatibilityModeFactor : (clientWidth - w - 2 * borderWidth) / 2;
+		y = typeof features.y == "number" ? features.y * compatibilityModeFactor : (clientHeight - h - 2 * borderWidth) / 2;
+	}
+
+	if (features.display != "") features.url = webMI.display.createURL(features.display);
+
+	// Overwrite position and size from storage
+	var storageURL = features.url.substr(0, 200);
+	var storageValues = windowStorage[storageURL];
+	if (storageValues && (features.remember == true || webMI.getConfig("frame.rememberwindows") == true)) {
+		if (storageValues.x) {
+			x = storageValues.x;
+			offsetLeft = 0;
+		}
+
+		if (storageValues.y) {
+			y = storageValues.y;
+			offsetTop = 0;
+		}
+
+		if (storageValues.w) w = storageValues.w;
+		if (storageValues.h) h = storageValues.h;
+	}
+
+	/*query add current language*/
+	features.query.language = currentLanguage.value;
+
+	features.url += "?";
+	var cnt = 0;
+	for (var i in features.query) {
+		if (cnt != 0) {
+			features.url += "&";
+		}
+		features.url += i + "=" + encodeURIComponent(features.query[i]);
+		cnt++;
+	}
+
+	if (features.extern && !features.modal) {
+		var href = location.href;
+
+		if (href.lastIndexOf("?") !== -1) {
+			href = href.substring(0, href.lastIndexOf("?"));
+		}
+
+		if (features.url.indexOf("about:blank") != 0)
+			features.url =
+				href +
+				"?defaulturl=" +
+				encodeURIComponent(features.url) +
+				"&language=" +
+				currentLanguage.value +
+				"&useSVGKeyboard=" +
+				webMI.query["useSVGKeyboard"];
+		else features.url = "";
+
+		if (features.modal && window.showModalDialog) {
+			var args = "dialogHeight:" + h + "px;dialogWidth:" + w + "px";
+
+			if (features.position != "default") args += ";dialogTop:" + y + "px;dialogLeft:" + x + "px";
+
+			var ids = { resizable: "resizable", scrollbars: "scroll", status: "status" };
+			for (let i in ids) args += ";" + ids[i] + ":" + (features[i] ? "yes" : "no");
+
+			window.showModalDialog(features.url, features.name, args);
+			return {};
+		} else {
+			args = "height=" + h + ",width=" + w;
+
+			if (features.position != "default") args += ",top=" + y + ",left=" + x;
+
+			ids = ["resizable", "scrollbars", "menubar", "status", "modal"];
+			for (let i in ids) args += "," + ids[i] + "=" + (features[ids[i]] ? "yes" : "no");
+
+			ret = {
+				openedWindow: window.open(features.url, features.name, args),
+
+				getContentDocument: function () {
+					var extPopupFrame = this.openedWindow.document.getElementById("mainframe");
+					if (extPopupFrame != null) return contentDocumentOf(extPopupFrame);
+				},
+
+				close: function () {
+					return this.openedWindow.close();
+				}
+			};
+
+			if (navigator.userAgent.indexOf("MSIE 7") != -1) {
+				webMI.addEvent(ret, "load", function () {
+					ret.resizeTo(w + 13, h + 31);
+					ret.resizeTo(w + 12, h + 31);
+				});
+			}
+			tabHandler.blurFocused();
+			tabHandler.renew();
+		}
+	} else {
+		var childWindowTopZindex = 1;
+
+		var headerheight = 20 * titlebarMultiplicator;
+		var touchCloseAreaSize = 50;
+		var resizeDragAreaSize = touchDevice ? 40 : 20;
+
+		if (!features.titlebar) {
+			headerheight = 0;
+			var transparentMoveAreaHeight = touchDevice ? 20 : 10;
+		}
+
+		ret = {};
+		ret.backgroundDiv = document.createElement("div");
+		ret.backgroundDiv.style.position = "fixed";
+		ret.backgroundDiv.style.left = 0;
+		ret.backgroundDiv.style.top = 0;
+		if (features.modal) {
+			ret.backgroundDiv.style.zIndex = parseIndexOfElements("*").index;
+			ret.backgroundDiv.style.backgroundColor = features.modalbackground;
+			ret.backgroundDiv.style.width = "100%";
+			ret.backgroundDiv.style.height = "100%";
+			ret.backgroundDiv.style.opacity = 0.5;
+			ret.backgroundDiv.style.filter = "alpha(opacity=50)";
+			if (features.extern)
+				console.warn("External-modal popups are no longer supported, please refer to the documentation.");
+		}
+		childwindowsDiv.appendChild(ret.backgroundDiv);
+
+		ret.main = document.createElement("div");
+		ret.main.id = "popup_main";
+		ret.main.style.position = "absolute";
+		ret.main.style.outline = borderWidth + "px solid " + features.style.headerFill;
+		ret.main.style.zIndex = parseIndexOfElements("*").index;
+		ret.bgiframe = document.createElement("iframe");
+		ret.bgiframe.id = "popup_bgiframe";
+		ret.bgiframe.frameBorder = 0;
+		ret.bgiframe.style.position = "absolute";
+		ret.bgiframe.style.top = "0px";
+		ret.bgiframe.style.left = "0px";
+		ret.bgiframe.style.width = "100%";
+		ret.bgiframe.style.height = "100%";
+		ret.main.appendChild(ret.bgiframe);
+		ret.bgdiv = document.createElement("div");
+		ret.bgdiv.id = "popup_bgdiv";
+		ret.bgdiv.style.position = "absolute";
+		ret.bgdiv.style.top = "0px";
+		ret.bgdiv.style.left = "0px";
+		ret.bgdiv.style.width = "100%";
+		ret.bgdiv.style.height = "100%";
+		ret.bgdiv.style.backgroundColor = features.style.fill;
+		ret.main.appendChild(ret.bgdiv);
+		ret.content = document.createElement("div");
+		ret.content.frameBorder = 0;
+		ret.content.style.position = "absolute";
+		ret.content.style.top = headerheight + "px";
+		ret.content.style.left = 0;
+		ret.content.style.overflow = "hidden";
+		ret.content.id = "popupcontent";
+		ret.main.appendChild(ret.content);
+		ret.iframe = document.createElement("iframe");
+		ret.iframe.id = "popup_iframe";
+		ret.iframe.frameBorder = 0;
+		ret.iframe.style.position = "absolute";
+		ret.iframe.style.top = 0;
+		ret.iframe.style.left = 0;
+		ret.iframe.style.width = "100%";
+		ret.iframe.style.height = "100%";
+		ret.iframe.style.overflow = "hidden";
+		ret.content.appendChild(ret.iframe);
+		ret.foreignObjectDiv = document.createElement("div");
+		ret.foreignObjectDiv.style.position = "absolute";
+		ret.content.appendChild(ret.foreignObjectDiv);
+		childwindowsDiv.appendChild(ret.main);
+		if (features.titlebar || features.movable) {
+			ret.head = document.createElement("div");
+			ret.head.style.position = "absolute";
+			ret.head.style.left = "0px";
+			ret.head.style.width = "100%";
+			if (features.titlebar) {
+				ret.head.style.top = "0px";
+				ret.head.style.height = headerheight + "px";
+				ret.head.style.lineHeight = headerheight + "px";
+				ret.head.style.backgroundColor = features.style.headerFill;
+				ret.head.style.backgroundImage = features.style.headerBackgroundImage;
+				ret.head.style.backgroundSize = "contain";
+				ret.head.style.fontSize = features.style.headerFontSize + "px";
+				ret.head.style.fontFamily = features.style.headerFontFamily;
+				ret.head.style.color = features.style.headerFontFill;
+				ret.head.style.boxSizing = "border-box";
+				ret.head.style.paddingLeft = "2px";
+			} else if (features.movable) {
+				//if titlebar is not visible, create a transparent div so the user can drag that to move the window
+				ret.head.style.top = -transparentMoveAreaHeight / 2 + "px";
+				ret.head.style.height = transparentMoveAreaHeight + "px";
+			}
+			ret.main.appendChild(ret.head);
+		}
+		if (features.titlebar) {
+			ret.title = document.createTextNode("");
+			ret.head.appendChild(ret.title);
+			ret.closea = document.createElement("div");
+			ret.closea.style.cursor = "pointer";
+			ret.closea.style.position = "absolute";
+			ret.closea.style.width = headerheight + "px";
+			ret.closea.style.height = headerheight + "px";
+			ret.closea.style.top = "0px";
+			ret.closea.style.right = "0px";
+			ret.closea.style.zIndex = "1";
+			addCloseEvent(ret.closea);
+			ret.head.appendChild(ret.closea);
+			ret.closeimg = document.createElement("img");
+			ret.closeimg.id = "popupclosepng";
+			ret.closeimg.src = "close.png";
+			ret.closeimg.width = headerheight * 0.9;
+			ret.closeimg.height = headerheight * 0.9;
+			ret.closeimg.style.border = "0";
+			ret.closeimg.style.display = "block";
+			ret.closeimg.style.margin = "auto";
+			ret.closeimg.style["image-rendering"] = "crisp-edges";
+			ret.closea.appendChild(ret.closeimg);
+			if (touchDevice) {
+				ret.touchCloseArea = document.createElement("div");
+				ret.touchCloseArea.style.cursor = "pointer";
+				ret.touchCloseArea.style.position = "absolute";
+				ret.touchCloseArea.style.width = touchCloseAreaSize + "px";
+				ret.touchCloseArea.style.height = touchCloseAreaSize + "px";
+				ret.touchCloseArea.style.top = (headerheight - touchCloseAreaSize) / 2 + "px";
+				ret.touchCloseArea.style.right = (headerheight - touchCloseAreaSize) / 2 + "px";
+				ret.touchCloseArea.style.borderRadius = "50%";
+				ret.touchCloseArea.style.zIndex = "1";
+				addResizeEvent(ret.touchCloseArea, resizeTopRight);
+				addCloseEvent(ret.touchCloseArea);
+				disableDragStart(ret.touchCloseArea);
+				ret.main.appendChild(ret.touchCloseArea);
+			}
+		}
+
+		var clientX,
+			clientY,
+			deltaX = 0,
+			deltaY = 0;
+
+		if (ret.head) disableDragStart(ret.head);
+
+		ret.resizeTo = function (w, h) {
+			ret.main.style.width = w + "px";
+			ret.main.style.height = h + "px";
+			ret.content.style.width = w + "px";
+			ret.content.style.height = h - headerheight + "px";
+		};
+
+		ret.moveTo = function (l, t) {
+			if (l < 0) l = 0;
+			if (t < 0) t = 0;
+
+			if (l != null) ret.main.style.left = l + "px";
+			if (t != null) ret.main.style.top = t + "px";
+		};
+
+		ret.setTitle = function (t) {
+			if (ret.title) ret.title.data = t;
+		};
+
+		ret.setURL = function (u) {
+			var isExternalHost = webMI.isExternalHost(u, location);
+			if (!isExternalHost) {
+				ret.iframe.scrolling = "no";
+			}
+			if (isIOSDevice) {
+				ret.content.style.overflow = "scroll";
+				ret.content.style["-webkit-overflow-scrolling"] = "touch";
+			}
+			webMI.frame.setSrc(ret.iframe, u);
+
+			if (!isExternalHost) {
+				webMI.addEvent(ret.iframe, "load", function () {
+					if (ret.closed) return;
+
+					webMI.addEvent(contentDocumentOf(ret.iframe), ["click", "keypress", "touchstart"], function () {
+						webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", { action: "restartTimer" });
+					});
+					webMI.addEvent(contentDocumentOf(ret.iframe), pointerEventsOn ? "pointerdown" : "touchstart", function (e) {
+						if (!pointerEventsOn || e.pointerType == "touch") {
+							ret.iframe.contentWindow.webMI.display.showPopup(0, 0, null);
+						}
+					});
+
+					if (!consistencyHandler) {
+						var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+					}
+
+					consistencyHandler.read();
+				});
+			}
+		};
+
+		ret.closed = false;
+		ret.close = function () {
+			if (!ret.closed) {
+				ret.closed = true;
+				try {
+					if (ret.iframe.contentWindow != null) tabHandler.removeDoc(contentDocumentOf(ret.iframe), true);
+				} catch (ex) {
+					// do nothing
+				}
+
+				ret.iframe.src = "";
+				childwindowsDiv.removeChild(ret.backgroundDiv);
+				childwindowsDiv.removeChild(ret.main);
+				webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", { action: "removePopup", popup: ret });
+
+				if (!consistencyHandler) {
+					var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+				}
+
+				consistencyHandler.pop();
+
+				for (var i = 0; i < mouseMoveFunctions.length; ++i) {
+					if (mouseMoveFunctions[i] != ret) continue;
+					mouseMoveFunctions.splice(i, 1);
+					mouseUpFunctions[i].mouseUpFunction();
+					mouseUpFunctions.splice(i, 1);
+					break;
+				}
+			}
+		};
+
+		ret.getFrame = function () {
+			return ret.iframe;
+		};
+
+		ret.getForeignObjectContainer = function () {
+			return ret.foreignObjectDiv;
+		};
+
+		ret.getContentDocument = function () {
+			try {
+				return contentDocumentOf(ret.iframe);
+			} catch (ex) {
+				return null;
+			}
+		};
+		ret.getContentWindowWebMI = function () {
+			try {
+				if (ret.iframe.contentWindow.webMI) {
+					return ret.iframe.contentWindow.webMI;
+				}
+				return null;
+			} catch (ex) {
+				return null;
+			}
+		};
+
+		if (features.movable) {
+			ret.head.style.cursor = "move";
+			ret.head.style.touchAction = "none";
+			//iOS doesn't support touchAction fully right now
+			if (isIOSDevice)
+				ret.head.addEventListener(
+					"touchmove",
+					function (e) {
+						e.preventDefault();
+					},
+					{ passive: false }
+				);
+
+			webMI.addEvent(
+				ret.head,
+				pointerEventsOn ? "pointerdown" : isIOSDevice ? "touchstart" : "mousedown",
+				function (e) {
+					setVisibility();
+					if (!e) e = window.event;
+
+					if (isIOSDevice && e.touches) e = e.touches[0];
+
+					if (!features.modal) {
+						ret.backgroundDiv.style.width = "100%";
+						ret.backgroundDiv.style.height = "100%";
+					}
+
+					if (autofit) scaleFactor = webMI.gfx.getAbsoluteScaleFactor(true, mainContainerEl.childNodes[0]);
+
+					ret.mouseHandler = {
+						_function: ret.moveTo,
+						x: e.clientX - parseFloat(ret.main.style.left) * scaleFactor,
+						y: e.clientY - parseFloat(ret.main.style.top) * scaleFactor
+					};
+				}
+			);
+
+			addMouseOutTimer(ret.head);
+			webMI.addEvent(ret.head, pointerEventsOn ? "pointerup" : isIOSDevice ? "touchend" : "mouseup", function (e) {
+				for (var i = 0; i < mouseUpFunctions.length; ++i) mouseUpFunctions[i].mouseUpFunction(e);
+			});
+		}
+
+		if (features.resizable) {
+			var offset = -resizeDragAreaSize / 2;
+			//Draggable div top left corner
+			ret.rsTopLeft = createDraggableDiv(resizeTopLeft, "nwse-resize");
+			ret.rsTopLeft.style.top = offset + "px";
+			ret.rsTopLeft.style.left = offset + "px";
+			//Draggable div top right corner
+			ret.rsTopRight = createDraggableDiv(resizeTopRight, "nesw-resize");
+			ret.rsTopRight.style.top = offset + "px";
+			ret.rsTopRight.style.right = offset + "px";
+			//Draggable div bottom left corner
+			ret.rsBottomLeft = createDraggableDiv(resizeBottomLeft, "nesw-resize");
+			ret.rsBottomLeft.style.bottom = offset + "px";
+			ret.rsBottomLeft.style.left = offset + "px";
+			//Draggable div bottom right corner
+			ret.rsBottomRight = createDraggableDiv(resizeBottomRight, "nwse-resize");
+			ret.rsBottomRight.style.bottom = offset + "px";
+			ret.rsBottomRight.style.right = offset + "px";
+		}
+
+		ret.mouseMoveFunction = function (e) {
+			if (ret.mouseOutTimer) clearTimeout(ret.mouseOutTimer);
+
+			var obj = ret.mouseHandler;
+
+			if (obj != null && obj != undefined && obj._function != undefined) {
+				var l = (e.clientX - obj.x) * (1 / scaleFactor);
+				var t = (e.clientY - obj.y) * (1 / scaleFactor);
+				obj._function(l, t, obj.startingValues);
+
+				if (!obj.startingValues) saveToStorage(l, t);
+			}
+		};
+
+		ret.mouseUpFunction = function () {
+			if (ret.mouseHandler) {
+				setVisibility(1);
+				ret.mouseHandler = null;
+				if (!features.modal) {
+					ret.backgroundDiv.style.width = 0;
+					ret.backgroundDiv.style.height = 0;
+				}
+			}
+		};
+
+		mouseMoveFunctions.push(ret);
+		mouseUpFunctions.push(ret);
+
+		if (!webMI.isExternalHost(features.url, location)) {
+			webMI.addEvent(ret.iframe, "load", function () {
+				var docAct, webMIAct;
+				if (ret.iframe.contentWindow) {
+					if ((docAct = ret.getContentDocument()) != null) {
+						if (docAct.location.href != "about:blank") {
+							tabHandler.registerDisplay(docAct);
+							tabHandler.beforeFirstUse(docAct, true);
+							if ((webMIAct = ret.getContentWindowWebMI()) != null) {
+								webMIAct.addOnfocus(function () {
+									tabHandler.getFocused(docAct);
+								});
+								features.close_on_esc &&
+									webMIAct.keys.addCombinationListener(0, 27, function () {
+										if (tabHandler.isFocused(docAct) && tabHandler.getAcceptKeys()) {
+											webMI.display.closeWindow(ret);
+										}
+									});
+							}
+						}
+						if (isIOSDevice && docAct.documentElement) {
+							// MobileSafari sometimes expands the normal size of the iframe
+							// to the size of width / height svg attributes. Avoid this by
+							// removing the attributes so the document will fit automatically.
+
+							if (iOSVersion != null && parseInt(iOSVersion[1], 10) >= 8) return;
+
+							docAct.documentElement.removeAttribute("width");
+							docAct.documentElement.removeAttribute("height");
+						}
+					}
+				}
+			});
+		}
+
+		ret.resizeTo(w, h);
+		ret.moveTo(x + offsetLeft, y + offsetTop);
+		ret.setTitle(features.title);
+		ret.setURL(features.url);
+
+		if (!consistencyHandler) {
+			var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+		}
+
+		consistencyHandler.push();
+		tabHandler.blurFocused();
+		tabHandler.renew(features.modal);
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", { action: "pushPopup", popup: ret });
+	}
+
+	return ret;
+}
+
+function switchUser(uData) {
+	var userChanged = false;
+	var userDisplayChanged = false;
+	lastUserDisplay = webMI.rootWindow.currentContentDisplay;
+
+	function userReload() {
+		if (webMI.getLoginMethod() == "form") location.reload();
+		else switchLanguage(lang);
+		/* Optional message dialog instead of automatic reload */
+		/* setErrorscreen("T{User changed}! T{Please} <a href='#' onclick='window.location.reload()'><b>T{refresh}</b></a> T{to}",
+			" T{apply changes}. <span style='font-size: 50%'><a href='#' onclick='hideErrorscreen()'>T{Hide this message}.</a></span>"); */
+	}
+
+	if ("defaultdisplay" in uData && uData.defaultdisplay != "") {
+		userDisplayChanged = true;
+		webMI.rootWindow.currentDefaultDisplay = uData.defaultdisplay;
+	} else if ("username" in uData && uData.username == "" && webMI.rootWindow.currentDefaultDisplay != null) {
+		userDisplayChanged = true;
+		webMI.rootWindow.currentDefaultDisplay = null;
+	}
+
+	if ("contentdisplay" in uData && uData.contentdisplay != "") {
+		userDisplayChanged = true;
+		webMI.rootWindow.currentContentDisplay = uData.contentdisplay;
+	} else if ("username" in uData && uData.username == "" && webMI.rootWindow.currentContentDisplay != null) {
+		userDisplayChanged = true;
+		webMI.rootWindow.currentContentDisplay = null;
+	}
+
+	if ("username" in uData && currentUser != uData.username) {
+		userChanged = true;
+		currentUser = uData.username;
+	}
+
+	if ("reload" in uData && uData.reload == false) return;
+
+	/** Reload functions for cookie support **/
+	// login
+	if (
+		webMI.getCookieSupport() &&
+		userChanged &&
+		(webMI.getLoginMethod() == "http" || webMI.getLoginMethod() == "ntlm")
+	) {
+		userReload();
+	}
+
+	// global login event in different browser tab
+	if ("event" in uData && uData.event == "userLoggedIn") {
+		if (webMI.getCookieSupport()) userReload();
+		return;
+	}
+
+	// logout
+	if (webMI.getCookieSupport() && uData.username == "" && userChanged) {
+		//logout
+		userReload();
+	}
+
+	// switch display on custom default or content display or language change
+	if (webMI.display.isRoot() && webMI.getCookieSupport() && userChanged && tabHandler && "username" in uData) {
+		var lang = uData.preferredlanguage ? uData.preferredlanguage : currentLanguage.value;
+		var mainframe = document.getElementById("mainframe");
+		var isAuthPage = false;
+
+		if (mainframe && mainframe.src && mainframe.src.indexOf("authentication.htm") > -1) isAuthPage = true;
+
+		if (
+			userDisplayChanged ||
+			(isAuthPage && uData.username != "") ||
+			("preferredlanguage" in uData &&
+				uData.username != "" &&
+				uData.preferredlanguage != "" &&
+				uData.preferredlanguage != currentLanguage.value)
+		) {
+			if (tabHandler.getIFrameNames().length == 0) {
+				switchLanguage(lang);
+			} else {
+				fillCurrentFrame(tabHandler.getIFrameNames(), lang);
+			}
+		}
+	}
+
+	//** Switch functions without cookie support **/
+	if (webMI.display.isRoot() && !webMI.getCookieSupport() && userChanged && tabHandler && "username" in uData) {
+		lang = uData.preferredlanguage ? uData.preferredlanguage : currentLanguage.value;
+
+		// login with access control, login required or custom user displays
+		if (
+			webMI.getAccessControlSupport() ||
+			webMI.hasLoginRequired(true) ||
+			userDisplayChanged ||
+			("reload" in uData && uData.reload == true) ||
+			("preferredlanguage" in uData &&
+				uData.username != "" &&
+				uData.preferredlanguage != "" &&
+				uData.preferredlanguage != currentLanguage.value)
+		) {
+			if (tabHandler.getIFrameNames().length == 0) {
+				switchLanguage(lang);
+			} else {
+				fillCurrentFrame(tabHandler.getIFrameNames(), lang);
+			}
+		}
+	}
+}
+
+var addedClosePopUpEvents = [];
+var displayPopupOpen = {};
+var isDisplayMenu;
+var clickAreaId;
+var oldClickAreaId;
+
+function showPopup(x, y, menu) {
+	function getPath(target) {
+		var path = [];
+		var currentElem = target;
+		while (currentElem) {
+			path.push(currentElem);
+			currentElem = currentElem.parentElement;
+		}
+		if (path.indexOf(window) === -1 && path.indexOf(document) === -1) path.push(document);
+		if (path.indexOf(window) === -1) path.push(window);
+		return path;
+	}
+
+	function closePopups(e) {
+		lastValidMenu = null;
+		if (typeof menu.style == "undefined") return;
+
+		if (e.composedPath() == undefined) var path = getPath(e.target);
+		else path = e.composedPath();
+
+		var isConcernedButton =
+			path.filter(function (v) {
+				return typeof v.id != "undefined" && v.id.indexOf(clickAreaId) != -1;
+			})[0] != undefined;
+
+		if (
+			(isConcernedButton == false && (e.currentTarget.id == undefined || e.currentTarget.id == "")) ||
+			(e.currentTarget.id == "popup_1_main" && menu.style.closeOnMouseout == "true")
+		) {
+			/* [AT-D-7194]: Prevent Popup closing on touch on show previous/next button in IE and Edge */
+			if (pointerEventsOn && e.type == "pointerleave" && e.pointerType == "touch") {
+				return;
+			}
+
+			webMI.trigger.fire("com.atvise.popup_status", { menu: menu, opened: false });
+
+			window.setTimeout(function () {
+				for (var x = 0; x < popups.length; x++) {
+					popups[x].style.visibility = "hidden";
+				}
+			}, style.closeTime);
+			lastMenu = null;
+
+			for (let key in displayPopupOpen) {
+				displayPopupOpen[key] = false;
+			}
+		}
+	}
+
+	function createEntry(
+		parent,
+		menuElement,
+		menuAction,
+		menuElementFn,
+		level,
+		listPos,
+		onDemand,
+		textAlign,
+		menuPosition
+	) {
+		var listEntryEl = document.createElement("div");
+		listEntryEl.setAttribute("listPos", listPos);
+		if (menuElement == "") {
+			/*empty row*/
+			listEntryEl.innerHTML = "&nbsp;";
+			applyStyleToListItem(listEntryEl);
+			parent.appendChild(listEntryEl);
+			return;
+		}
+		if (level && level < 0) {
+			/*scroller*/
+			if (/\.(gif|jpg|jpeg|tiff|png)$/i.test(menuElement)) {
+				var img = document.createElement("img");
+				img.src = menuElement;
+
+				if (style.itemHeight) img.style.height = style.itemHeight + "px";
+				else img.style.height = fontPix + padding + "px";
+
+				img.style.width = "40px";
+				listEntryEl.appendChild(img);
+
+				listEntryEl.setDisabled = function () {
+					img.style.opacity = 0.4;
+					img.style.filter = "alpha(opacity=40)";
+				};
+				listEntryEl.setEnabled = function () {
+					img.style.opacity = 1;
+					img.style.filter = "alpha(opacity=100)";
+				};
+			} else {
+				listEntryEl.innerHTML = menuElement;
+
+				listEntryEl.setDisabled = function () {
+					listEntryEl.style.color = "#c1c1c1";
+				};
+				listEntryEl.setEnabled = function () {
+					listEntryEl.style.color = style.fontFill;
+				};
+			}
+
+			applyStyleToListItem(listEntryEl);
+			listEntryEl.style.textAlign = "center";
+		} else {
+			applyStyleToListItem(listEntryEl);
+			var newDiv = document.createElement("div");
+			var divStyle = "display: inline-block; word-break: break-word; overflow: hidden; vertical-align: middle";
+			newDiv.setAttribute("style", divStyle);
+			newDiv.style.lineHeight = fontPix + padding + "px";
+			newDiv.style.maxHeight = fontPix + padding + "px";
+			if (style.itemHeight > (fontPix + padding) * 2) newDiv.style.maxHeight = (fontPix + padding) * 2 + "px";
+
+			newDiv.innerHTML = menuElement;
+			listEntryEl.appendChild(newDiv);
+			if (textAlign) listEntryEl.style.textAlign = textAlign;
+			if (menuPosition) listEntryEl.menuPosition = menuPosition;
+			if (!onDemand) /*wegen onDemand and iPad onmouseover*/ webMI.addEvent(listEntryEl, "click", closePopups);
+			webMI.addEvent(listEntryEl, "mouseover", getHover(style.hoverFill, style.hoverFontFill));
+			webMI.addEvent(listEntryEl, "mouseout", getHover(style.itemFill ? style.itemFill : style.fill, style.fontFill));
+		}
+		parent.appendChild(listEntryEl);
+		for (var i = 0; i < menuAction.length; ++i) {
+			webMI.addEvent(listEntryEl, menuAction[i], menuElementFn[i]);
+		}
+	}
+	function applyStyleToListItem(listEntryEl) {
+		var a_style = "text-decoration: none; color: #000000; cursor: pointer;";
+		listEntryEl.setAttribute("style", a_style);
+		listEntryEl.style.color = style.fontFill;
+
+		var itemHeight = style.itemHeight;
+
+		var heightMultiplicator = webMI.getClientInfo() ? webMI.getClientInfo().deviceScaling.contextmenu.rowheight : 1;
+		if (itemHeight) {
+			if (itemHeight < fontPix + padding) {
+				itemHeight += padding * heightMultiplicator;
+			}
+
+			listEntryEl.style.height = itemHeight + "px";
+		} else {
+			listEntryEl.style.height = (fontPix + padding) * heightMultiplicator + "px";
+		}
+
+		listEntryEl.style.lineHeight = listEntryEl.style.height;
+		if (style.itemFill) listEntryEl.style.background = style.itemFill;
+		if (style.itemBorder) listEntryEl.style.border = style.itemBorder;
+		if (style.itemPadding) listEntryEl.style.padding = style.itemPadding + "px";
+		if (style.itemMargin) {
+			listEntryEl.style.marginTop = style.itemMargin + "px";
+			listEntryEl.style.marginBottom = style.itemMargin + "px";
+		}
+		if (style.itemBorderRadius) listEntryEl.style.borderRadius = style.itemBorderRadius + "px";
+	}
+	function closeAndOpenPopup(parent, level, i, listPos) {
+		for (var p in popups) {
+			var parts = popups[p].id.split("_");
+			if (parts[1] != undefined) {
+				var lev = parseFloat(parts[1]);
+				if (i && popups[p].id == "popup_" + level + "_" + i && popups[p].parentNode == parent) {
+					popups[p].style.visibility = "visible";
+					listPos && popups[p].topCorrection(listPos);
+				} else if (lev >= level) {
+					popups[p].style.visibility = "hidden";
+				}
+			}
+		}
+	}
+
+	function createMenu(menu, parent, offset, name, level, onDemand) {
+		function getFn(id) {
+			return function () {
+				fillCurrentFrame(tabHandler.getIFrameNames(), id);
+			};
+		}
+
+		function getChangeFn(_i, level) {
+			return function () {
+				closeAndOpenPopup(curPopup, level + 1);
+			};
+		}
+
+		function getOpenFn1(i, fn, startAdress, level, offset, onclick) {
+			var clickAdded = false;
+			return function (e) {
+				var listEntryEl = e.currentTarget ? e.currentTarget : e.srcElement;
+				var listPos = Number(listEntryEl.getAttribute("listPos") || "0");
+				fn(startAdress, function (tmpObj) {
+					createMenu(tmpObj, curPopup, offset, i, level, true);
+					closeAndOpenPopup(curPopup, level, i, listPos);
+					/*wegen onDemand and iPad onmouseover*/
+					if (!clickAdded) {
+						webMI.addEvent(listEntryEl, "click", closePopups);
+						webMI.addEvent(listEntryEl, "click", onclick);
+						clickAdded = true;
+					}
+				});
+			};
+		}
+
+		function getOpenFn2(i, level) {
+			return function (e) {
+				var listEntryEl = e.currentTarget ? e.currentTarget : e.srcElement;
+				var listPos = Number(listEntryEl.getAttribute("listPos") || "0");
+				closeAndOpenPopup(curPopup, level, i, listPos);
+			};
+		}
+
+		var onD = onDemand || false;
+		var curPopup = parent ? document.createElement("DIV") : popup;
+		var p_style = "position: absolute; visibility: hidden; width: 160px; border: 2px solid #000; padding: 0; margin: 0";
+		var curMenulist = parent ? document.createElement("DIV") : popupmenulist;
+		var pm_style = "list-style: none; margin: 0; padding: 3px; margin-left: 0px";
+
+		curPopup.setAttribute("style", p_style);
+		curMenulist.setAttribute("style", pm_style);
+
+		var entries = 0;
+		var showMenu = 0;
+
+		function showNext(list, step) {
+			function deltaPos(e) {
+				return e >= 0 ? 1 : 0;
+			}
+			function appendOrRemoveSpacer(showMenu, entries, append) {
+				var lC, nB;
+				if (showMenu <= entries) return;
+				if (curMenulist.lastChild.menuPosition == "bottom") list.removeChild((nB = list.lastChild.previousSibling));
+				list.removeChild((lC = list.lastChild));
+				if (append) for (var i = 0; i < showMenu - entries; i++) createEntry(list, "");
+				else for (let i = 0; i < showMenu - entries; i++) list.removeChild(list.lastChild);
+				if (nB) list.appendChild(nB);
+				list.appendChild(lC);
+			}
+			return function () {
+				var dP;
+				if (((dP = deltaPos(step)) == 1 && showMenu >= entries) || (dP == 0 && showMenu <= showCount)) return;
+
+				var fixedTopItem = 0;
+				var fixedBottomItem = 0;
+				var stepCorr = step;
+				var showCountCorr = showCount;
+				if (curMenulist.firstChild.menuPosition == "top") {
+					if (showMenu > 0) list.firstChild.nextSibling.setEnabled();
+					fixedTopItem = 1;
+					stepCorr = step < 0 ? step + 1 : step - 1;
+					showCountCorr--;
+				} else {
+					if (showMenu > 0) list.firstChild.setEnabled();
+				}
+
+				if (curMenulist.lastChild.menuPosition == "bottom") {
+					if (showMenu >= entries) list.lastChild.previousSibling.setEnabled();
+					fixedBottomItem = 1;
+					stepCorr = step < 0 ? step + 1 : step - 1;
+					showCountCorr--;
+				} else {
+					if (showMenu >= entries) list.lastChild.setEnabled();
+				}
+
+				appendOrRemoveSpacer(showMenu, entries - fixedTopItem - fixedBottomItem, false);
+				if (dP == 1) showMenu += stepCorr;
+				var lb,
+					corr = (lb = showMenu - showCountCorr + deltaPos(-stepCorr) * stepCorr) < 0 ? Math.abs(lb) : 0;
+				for (var i = 1 + fixedTopItem; i < list.childNodes.length - 1 - fixedBottomItem; i++) {
+					list.childNodes[i].style.display =
+						i - 1 - fixedTopItem >= lb + corr && i - 1 - fixedTopItem < lb + showCountCorr + corr ? "block" : "none";
+					list.childNodes[i].setAttribute("listPos", i - lb + corr + 1);
+				}
+				if (dP == 0) showMenu += stepCorr;
+				appendOrRemoveSpacer(showMenu, entries - fixedTopItem - fixedBottomItem, true);
+
+				if (curMenulist.firstChild.menuPosition == "top") {
+					if (showMenu <= showCount) list.firstChild.nextSibling.setDisabled();
+				} else {
+					if (showMenu <= showCount) list.firstChild.setDisabled();
+				}
+
+				if (curMenulist.lastChild.menuPosition == "bottom") {
+					if (showMenu >= showCount) list.lastChild.previousSibling.setDisabled();
+				} else {
+					if (showMenu >= showCount) list.lastChild.setDisabled();
+				}
+			};
+		}
+
+		createEntry(curMenulist, "<i class='fas fa-chevron-up'></i>", ["click"], [showNext(curMenulist, -showCount)], -1); // '/prev.png'
+		for (var i in menu) {
+			if (i == "tooltip") {
+				var listEntryEl = document.createElement("div");
+				listEntryEl.style.whiteSpace = "nowrap";
+				listEntryEl.style.color = style.fontFill;
+				listEntryEl.innerHTML = webMI.secureString(menu.text);
+				//listEntryEl.appendChild(document.createTextNode(menu.text));
+				curMenulist.appendChild(listEntryEl);
+				entries++;
+				break;
+			} else if (i == "languagemenu") {
+				for (var id in project.languages) {
+					createEntry(
+						curMenulist,
+						project.languages[id],
+						["click"],
+						[getFn(id)],
+						level,
+						entries + 1,
+						undefined,
+						style.textAlign ? style.textAlign : undefined
+					);
+					entries++;
+				}
+				break;
+			} else if (i != "style" && i != "itemsCount") {
+				if (menu[i].sub == undefined) {
+					var html = menu[i].text;
+					if (menu[i].icon) {
+						var fav = menu[i].icon.fav;
+						var right = menu[i].icon.align === "right";
+						html = (!right ? fav + " " : "") + html + (right ? " " + fav : "");
+					}
+					var textAlign = style.textAlign ? style.textAlign : null;
+					if (menu[i].textAlign) textAlign = menu[i].textAlign;
+
+					var menuPosition = null;
+					if (menu[i].menuPosition) menuPosition = menu[i].menuPosition;
+
+					createEntry(
+						curMenulist,
+						html,
+						["mouseover", "click"],
+						[getChangeFn(i, level), menu[i].value],
+						level,
+						entries + 1,
+						null,
+						textAlign,
+						menuPosition
+					);
+					entries++;
+				} else if (typeof menu[i].sub == "function") {
+					var subLevel = level + 1;
+
+					createEntry(
+						curMenulist,
+						i + " >",
+						["mouseover"],
+						[getOpenFn1(i, menu[i].sub, menu[i].base, subLevel, entries, menu[i].value)],
+						level,
+						entries + 1,
+						true,
+						style.textAlign ? style.textAlign : undefined
+					);
+					entries++;
+				} else {
+					subLevel = level + 1;
+					createMenu(menu[i].sub, curPopup, entries, i, subLevel);
+
+					createEntry(
+						curMenulist,
+						i + " >",
+						["mouseover", "click"],
+						[getOpenFn2(i, subLevel), menu[i].value],
+						level,
+						entries + 1,
+						null,
+						style.textAlign ? style.textAlign : undefined
+					);
+					entries++;
+				}
+			}
+		}
+		createEntry(curMenulist, "<i class='fas fa-chevron-down'></i>", ["click"], [showNext(curMenulist, showCount)], -1); // '/next.png'
+
+		if (entries > 0) {
+			//sort entries -> top item on top, bottom item to bottom
+			var items = curMenulist.children;
+			var topItem, bottomItem;
+			for (let i in items) {
+				if (items[i].menuPosition == "top") topItem = items[i];
+				else if (items[i].menuPosition == "bottom") bottomItem = items[i];
+			}
+
+			if (topItem) curMenulist.insertBefore(topItem, curMenulist.childNodes[0]);
+			if (bottomItem) curMenulist.appendChild(bottomItem);
+
+			var mainContainer = document.getElementById("mainContainer");
+			var height;
+			var heightMultiplicator = webMI.getClientInfo() ? webMI.getClientInfo().deviceScaling.contextmenu.rowheight : 1;
+
+			var entryHeight =
+				style.itemHeight && style.itemHeight > fontPix ? style.itemHeight : (fontPix + padding) * heightMultiplicator;
+			if (style.itemPadding) entryHeight = entryHeight + 2 * style.itemPadding;
+			if (style.itemMargin) entryHeight = entryHeight + style.itemMargin;
+			if (style.itemBorder) {
+				var borderPx = style.itemBorder.match(/\d+\s*/g);
+				if (borderPx) {
+					borderPx = parseInt(borderPx[0].replace("px", "").trim());
+					entryHeight = entryHeight + borderPx * 2;
+				}
+			}
+			//entryHeight = entryHeight + padding;
+
+			if (entries <= showCount) height = entryHeight * entries + 6;
+			else height = entryHeight * (showCount + 2) + 6;
+			if (style.itemMargin) height = height - style.itemMargin;
+			curPopup.id = "popup_" + level + "_" + name;
+			curPopup.appendChild(curMenulist);
+			var top = 0;
+			var left = 0;
+			var innerWidth = parseFloat(mainContainer.style.width);
+			var innerHeight = parseFloat(mainContainer.style.height);
+			var startLeft = 0;
+
+			startLeft = x + style.width >= innerWidth ? innerWidth - style.width - style.strokeWidth : x;
+
+			if (parent) {
+				top = (fontPix + padding) * offset;
+				/*no window scrolling horizontally*/
+				var dir = 1;
+				if (style.showType == "right") {
+					for (var lev = 0; lev < level; lev++) {
+						startLeft += style.width * dir;
+						if (startLeft > innerWidth - 10) {
+							dir = -1;
+							startLeft -= 2 * style.width;
+						}
+						if (startLeft - style.width < 0) {
+							dir = 1;
+							startLeft += 2 * style.width;
+						}
+					}
+				} else if (style.showType == "alternate")
+					if (x + 2 * style.width <= innerWidth - style.altSize) {
+						dir = level % 2 == 0 ? 1 : -1;
+					} else {
+						startLeft = true;
+						dir = level % 2 == 0 ? -1 : 1;
+					}
+
+				left = dir * style.width;
+
+				//substract border of first and second directory only for first folder - if direction goes left
+				if (dir === -1) {
+					left -= 2 * style.strokeWidth;
+				}
+
+				curPopup.style.top = -innerHeight + "px";
+			} else {
+				if (!style.elementHight) {
+					top = y + height >= innerHeight - 5 ? innerHeight - 2 * height : y;
+				} else {
+					top = y + height >= innerHeight - 5 ? y - height - style.elementHight : y;
+				}
+
+				left = startLeft;
+				curPopup.style.top = top + "px";
+			}
+			var onlyOnce = false;
+			curPopup.topCorrection = function (listPos) {
+				/*if is scrollable DIV then topCorrection need once*/
+				if (entries <= showCount && onlyOnce) return;
+				/*mouseover && scrollable -> calculate pos*/
+				var heightMultiplicator = webMI.getClientInfo() ? webMI.getClientInfo().deviceScaling.contextmenu.rowheight : 1;
+				var entryHeight =
+					style.itemHeight && style.itemHeight > fontPix ? style.itemHeight : (fontPix + padding) * heightMultiplicator;
+				if (style.itemPadding) entryHeight = entryHeight + 2 * style.itemPadding;
+				if (style.itemMargin) entryHeight = entryHeight + style.itemMargin;
+				if (style.itemBorder) {
+					var borderPx = style.itemBorder.match(/\d+\s*/g);
+					if (borderPx) {
+						borderPx = parseInt(borderPx[0].replace("px", "").trim());
+						entryHeight = entryHeight + borderPx * 2;
+					}
+				}
+
+				top = listPos != 0 ? entryHeight * (listPos - 1) : top;
+				/*no window scrolling  vertically part*/
+				curPopup.totalOffset = (parent.totalOffset ? parent.totalOffset : parent.offsetTop) + top;
+				if (curPopup.totalOffset + height > innerHeight - 10) {
+					top = top - (curPopup.totalOffset + height - innerHeight) - 30;
+					curPopup.totalOffset = (parent.totalOffset ? parent.totalOffset : parent.offsetTop) + top;
+					if (curPopup.totalOffset < 0) {
+						top = top - curPopup.totalOffset;
+						curPopup.totalOffset = (parent.totalOffset ? parent.totalOffset : parent.offsetTop) + top;
+					}
+				}
+				onlyOnce = true;
+				curPopup.style.top = top + "px";
+			};
+			curPopup.style.left = left + "px";
+			if (typeof style.width == "string" && style.width == "auto") {
+				curPopup.style.width = "auto";
+			} else if (typeof style.width == "object" && style.width.length == 2 && style.width[0] == "auto") {
+				curPopup.style.width = style.width[0];
+				if (curPopup.clientWidth < style.width[1]) {
+					curPopup.style.width = style.width[1] + "px";
+				}
+			} else if (typeof style.width == "number") {
+				curPopup.style.width = style.width + "px";
+			}
+
+			//alternate box size for better visibility
+			if (style.showType == "alternate") {
+				if (startLeft == true) {
+					if (level % 4 == 2) curPopup.style.width = parseInt(curPopup.style.width) + style.altSize + "px";
+					if (level % 4 == 2 || level % 4 == 3)
+						curPopup.style.left = parseInt(curPopup.style.left) + style.altSize * dir + "px";
+				} else if (level % 4 == 0 || (level % 4 == 3 && x > style.altSize)) {
+					curPopup.style.width = parseInt(curPopup.style.width) + style.altSize + "px";
+					if (x > style.altSize) curPopup.style.left = parseInt(curPopup.style.left) + style.altSize * dir + "px";
+				}
+			} else if (level > 2 && dir == -1) {
+				curPopup.style.width = parseInt(curPopup.style.width) - style.altSize + "px";
+				curPopup.style.left = parseInt(curPopup.style.left) - style.altSize * dir + "px";
+			}
+
+			curPopup.style.fontSize = fontPix + "px";
+			curPopup.style.fontFamily = style.fontFamily;
+			if (style.fill != 0) curPopup.style.backgroundColor = style.fill;
+			if (style.borderRadius) curPopup.style.borderRadius = style.borderRadius + "px";
+			curPopup.style.border = style.strokeWidth + "px solid " + style.stroke;
+			curPopup.style.visibility = parent ? "hidden" : "visible";
+			curPopup.style.zIndex = Math.max(style.zIndex, parseIndexOfElements("*").index);
+			curPopup.style.boxShadow = style.boxShadow;
+
+			if (parent) {
+				parent.appendChild(curPopup);
+			}
+			pushPopups(curPopup, onD);
+
+			if (typeof menu.style != "undefined" && menu.style.closeOnMouseout == "false" && !mobile) {
+				var list = document.querySelectorAll("iframe");
+
+				for (let i = 0; i < list.length; i++) {
+					if (addedClosePopUpEvents.indexOf(list[i]) == -1) {
+						webMI.addEvent(list[i].contentDocument, "click", closePopups);
+						addedClosePopUpEvents.push(list[i]);
+					}
+				}
+
+				if (pointerEventsOn) {
+					curPopup.onpointerleave = {};
+				} else {
+					curPopup.onmouseleave = {};
+				}
+			} else {
+				/* Add event without webMI.addEvent, because this section will be called mulitply times and webMI.addEvent always adds a new event.
+				 * Use Pointer Events if enabled according to issue [AT-D-7194] */
+				if (pointerEventsOn) {
+					curPopup.onpointerleave = closePopups;
+				} else {
+					curPopup.onmouseleave = closePopups;
+				}
+			}
+
+			if (curPopup.style.width == "auto") {
+				var corLeft = x + curPopup.offsetWidth >= innerWidth ? innerWidth - (curPopup.offsetWidth + 50) : x;
+				curPopup.style.left = corLeft + "px";
+			}
+			/*First use Scroller*/
+			if (entries <= showCount) {
+				if (curMenulist.firstChild.menuPosition == "top") curMenulist.removeChild(curMenulist.firstChild.nextSibling);
+				else curMenulist.removeChild(curMenulist.firstChild);
+
+				if (curMenulist.lastChild.menuPosition == "bottom")
+					curMenulist.removeChild(curMenulist.lastChild.previousSibling);
+				else curMenulist.removeChild(curMenulist.lastChild);
+			} else {
+				showNext(curMenulist, showCount).call();
+			}
+		} else {
+			popupvisible = "hidden";
+		}
+		return curPopup;
+	}
+	if (menu == -1) addedClosePopUpEvents = [];
+
+	oldClickAreaId = clickAreaId;
+
+	if (menu != null && menu != -1 && typeof menu.style != "undefined") {
+		clickAreaId = menu.style.clickAreaId;
+		if (oldClickAreaId != undefined && oldClickAreaId != clickAreaId) displayPopupOpen[oldClickAreaId] = false;
+		isDisplayMenu = menu.style.isDisplayMenu;
+	}
+
+	if (typeof isDisplayMenu != "undefined" && isDisplayMenu == true) {
+		if (typeof displayPopupOpen[clickAreaId] == "undefined" || displayPopupOpen[clickAreaId] == false)
+			displayPopupOpen[clickAreaId] = true;
+		else displayPopupOpen[clickAreaId] = false;
+	}
+
+	var showCount = 10000;
+
+	function getHover(colorFill, colorFont) {
+		return function (e) {
+			var element = e.currentTarget != undefined ? e.currentTarget : e.srcElement;
+			element.style.backgroundColor = colorFill;
+			element.style.color = colorFont;
+		};
+	}
+
+	function compareMenu(lastMenu, menu) {
+		var same = true;
+		if (
+			lastMenu != null &&
+			lastMenu != -1 &&
+			menu != undefined &&
+			Object.keys(menu).length == Object.keys(lastMenu).length
+		) {
+			for (var i in menu) {
+				if (i != "style" && i != "itemsCount" && lastMenu[i]) {
+					same = same && lastMenu[i].text == menu[i].text;
+				} else if (!lastMenu[i]) {
+					same = false;
+				}
+			}
+		} else {
+			same = false;
+		}
+		return same;
+	}
+
+	var sameMenu = compareMenu(lastMenu, menu);
+
+	/* Prevent double actions of click and touch */
+	var now = new Date();
+	if (webMI.getClientInfo().isTouchDevice && now - lastMenuTimestamp < 500) {
+		return;
+	}
+
+	/* Close on second click */
+	var popupelement = document.getElementById("popup_1_main");
+	if (popupelement != null && popupelement.style.visibility == "hidden" && menu == null) lastValidMenu = null;
+
+	if (lastMenu && lastValidMenu)
+		// webMI trigger last menu status
+		webMI.trigger.fire("com.atvise.popup_status", { menu: lastValidMenu, opened: false });
+
+	if (compareMenu(lastValidMenu, menu) && menu != null) {
+		menu = null;
+		lastValidMenu = null;
+		lastMenuTimestamp = new Date();
+	}
+
+	if (menu)
+		// webMI trigger current menu status
+		webMI.trigger.fire("com.atvise.popup_status", { menu: menu, opened: true });
+
+	if (menu != null && menu != -1) {
+		lastValidMenu = menu;
+		lastMenuTimestamp = new Date();
+	}
+	/* Close on second click - End */
+
+	if (menu != null && menu != -1 && !sameMenu && !menu.mouseout) {
+		if ("itemsCount" in menu && Number(menu.itemsCount) != 0) showCount = Number(menu.itemsCount);
+
+		lastMenu = menu;
+		popupvisible = "visible";
+
+		var styleDefaults = {
+			maxRows: 10,
+			fontSize: 12,
+			fontFamily: "Arial",
+			fontFill: "#000000",
+			width: 140,
+			fill: "#ffffff",
+			stroke: "#000000",
+			strokeWidth: 2,
+			hoverFill: "#efefef",
+			hoverFontFill: "#000000",
+			boxShadow: "1px 1px 5px rgba(0,0,0,0.1)",
+			closeTime: 500,
+			zIndex: 100,
+			showType: "right",
+			altSize: 10
+		};
+		var style = menu.style != undefined ? menu.style : {};
+		for (var i in styleDefaults) {
+			if (style[i] == undefined) style[i] = styleDefaults[i];
+		}
+
+		var fontMultiplicator = webMI.getClientInfo()
+			? webMI.getClientInfo().deviceScaling.contextmenu.fontsize
+				? webMI.getClientInfo().deviceScaling.contextmenu.fontsize
+				: 1
+			: 1;
+
+		var padding = 3;
+		var fontPix = parseFloat(style.fontSize) * fontMultiplicator;
+
+		if (popupmenulist != undefined) {
+			while (popupmenulist.hasChildNodes()) {
+				popupmenulist.removeChild(popupmenulist.lastChild);
+			}
+		}
+		if (popup != undefined) {
+			while (popup.hasChildNodes()) {
+				popup.removeChild(popup.lastChild);
+			}
+		}
+
+		createMenu(menu, null, null, "main", 1);
+		for (var p = popups.length; p > 0; p--) {
+			checkPopupsTopParent(p - 1);
+		}
+	} else if (menu == null || sameMenu || !menu.mouseout) {
+		popupvisible = "hidden";
+		for (let i = 0; i < popups.length; i++) {
+			popups[i].style.visibility = "hidden";
+		}
+		lastMenu = null;
+	}
+
+	popup.style.visibility = popupvisible;
+}
+function setSoundHandler() {
+	var loopTimeout = {};
+	if (audio != undefined) {
+		while (audio.hasChildNodes()) {
+			audio.removeChild(audio.lastChild);
+		}
+	}
+
+	function iterArray(arr, fn) {
+		for (var i = 0; i < arr.length; i++) fn(arr[i], i);
+	}
+	function iterObject(arr, fn) {
+		for (var obj in arr) fn(arr[obj], obj);
+	}
+	function createElementWithAttrs(nodeName, attrs) {
+		var elem = webMI.dom.createElement("http://www.w3.org/1999/xhtml", nodeName);
+		iterObject(attrs, function (val, key) {
+			elem.setAttribute(key, val);
+		});
+		return elem;
+	}
+	function play(myAudio, playcount, loop, URL) {
+		if (loop != undefined && (loop == 0 || loop == 1)) {
+			myAudio.loop = loop == 0;
+			myAudio.play();
+		} else if (loop != undefined && playcount < loop) {
+			if (!myAudio.ended) {
+				loopTimeout[URL || myAudio.src] = window.setTimeout(function () {
+					play(myAudio, playcount, loop);
+				}, 1500);
+			} else {
+				myAudio.play();
+				loopTimeout[URL || myAudio.src] = window.setTimeout(function () {
+					play(myAudio, playcount + 1, loop);
+				}, 500);
+			}
+		}
+	}
+	function stop(myAudio, URL) {
+		myAudio.pause();
+		clearTimeout(loopTimeout[URL || myAudio.src]);
+	}
+	audio.appendObject = function (src, loop) {
+		var object = null;
+		var audioTagSupport = !!document.createElement("audio").canPlayType;
+		if (audioTagSupport) {
+			var myAudio = createElementWithAttrs("audio", { style: "display:none", controls: "true", autoplay: "true" });
+			if (
+				typeof myAudio.canPlayType === "function" &&
+				myAudio.canPlayType("audio/mp4") !== "" &&
+				src.indexOf(".m4a") != -1
+			) {
+				myAudio.src = src;
+				audio.appendChild(myAudio);
+				play(myAudio, 1, loop);
+			} else if (
+				typeof myAudio.canPlayType === "function" &&
+				myAudio.canPlayType("audio/ogg") !== "" &&
+				src.indexOf(".ogg") != -1
+			) {
+				myAudio.src = src;
+				audio.appendChild(myAudio);
+				play(myAudio, 1, loop);
+			} else if (
+				typeof myAudio.canPlayType === "function" &&
+				myAudio.canPlayType('audio/wav; codecs="1"') !== "" &&
+				src.indexOf(".wav") != -1
+			) {
+				myAudio.src = src;
+				audio.appendChild(myAudio);
+				play(myAudio, 1, loop);
+			} else {
+				object = createElementWithAttrs("object", { width: "0", height: "0", type: "audio/x-wav", data: src });
+				object.appendChild(createElementWithAttrs("param", { name: "src", value: src }));
+				if (loop == 0)
+					object.appendChild(createElementWithAttrs("param", { name: "loop", value: "true", valuetype: "data" }));
+				else object.appendChild(createElementWithAttrs("param", { name: "playcount", value: loop }));
+				audio.appendChild(object);
+			}
+		}
+	};
+	audio.appendEmbed = function (src, loop) {
+		var embed = null;
+		if (loop == 0) {
+			embed = createElementWithAttrs("embed", { src: src, hidden: "true", loop: "true" });
+		} else {
+			embed = createElementWithAttrs("embed", { src: src, hidden: "true", playcount: loop });
+		}
+		audio.appendChild(embed);
+		return embed;
+	};
+	audio.removeAudio = function (url) {
+		if (url == undefined) {
+			iterArray(audio.childNodes, function (child) {
+				if (child.nodeName.toLowerCase() == "audio") stop(child);
+				audio.removeChild(child);
+			});
+		} else {
+			var obs = [];
+			iterArray(audio.childNodes, function (child) {
+				if (child.nodeName.toLowerCase() == "object") {
+					if (/MSIE/.test(navigator.userAgent)) {
+						if (RegExp(url + "$").test(child.URL)) {
+							obs[obs.length] = child;
+						}
+					}
+					iterArray(child.childNodes, function (subchild) {
+						if (subchild.nodeName.toLowerCase() == "param" && subchild.getAttribute("value") == url) {
+							obs[obs.length] = child;
+						}
+					});
+				}
+				if (
+					(child.nodeName.toLowerCase() == "embed" && child.getAttribute("src") == url) ||
+					(child.nodeName.toLowerCase() == "audio" && RegExp(url + "$").test(child.getAttribute("src")))
+				) {
+					obs[obs.length] = child;
+				}
+			});
+			if (obs.length > 0) {
+				iterArray(obs, function (ob) {
+					if (ob.nodeName.toLowerCase() == "audio") stop(ob);
+					audio.removeChild(ob);
+				});
+			}
+		}
+	};
+	webMI.sound.setHandler(audio.appendObject, audio.removeAudio);
+}
+
+webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+	switchUser(e);
+});
+
+//initialize quick dynamics
+webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Configuration", {
+	action: "init",
+	indexParameters: webMI.query
+});
+
+webMI.addOnunload(function () {
+	fillCurrentFrame(tabHandler.getIFrameNames(), currentLanguage.value);
+});
+
+return function (type, v1, v2, v3, v4, v5) {
+	if (!extensionsDiv) {
+		extensionsDiv = document.getElementById("extensions");
+
+		if (extensionsDiv) {
+			childwindowsDiv = extensionsDiv.appendChild(document.createElement("div"));
+			childwindowsDiv.style.left = 0;
+			childwindowsDiv.style.position = "absolute";
+			childwindowsDiv.style.top = 0;
+			childwindowsDiv.style.width = "100%";
+			childwindowsDiv.style.height = "100%";
+
+			popup = extensionsDiv.appendChild(document.createElement("div"));
+			popupmenulist = popup.appendChild(document.createElement("div"));
+			audio = extensionsDiv.appendChild(document.createElement("div"));
+		}
+	}
+
+	if (type == "addedforeignobject" && "scrolling" in webMI.query) {
+		var children = v1.children;
+
+		for (var i = 0; i < children.length; ++i) {
+			var child = children[i];
+			var nodeName = child.nodeName;
+
+			if (nodeName.toLowerCase() == "iframe") child.scrolling = webMI.query["scrolling"];
+		}
+	}
+	if (type == "openwindow") return openWindow(v1, v2, v3, v4, v5);
+	if (type == "showpopup") return showPopup(v1, v2, v3);
+	if (type == "loadeddisplaysjs") displaysJs = v1;
+	if (type == "loadedmainframe") {
+		if ("scrolling" in webMI.query) v1.scrolling = webMI.query["scrolling"];
+
+		if (webMI.isExternalHost(v1.src, location)) {
+			return;
+		}
+		if (webMI.display.isRoot()) {
+			setSoundHandler();
+			if (alarmManagementGlobal) webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Alarmmanagement", { id: "" });
+			webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoReconnect", {
+				activated: "true",
+				interval: "5",
+				defaultconfiguration: true
+			});
+		}
+
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", { action: "restartTimer" });
+
+		webMI.addEvent(contentDocumentOf(v1), pointerEventsOn ? "pointerdown" : "touchstart", function (e) {
+			if (!pointerEventsOn || e.pointerType == "touch") {
+				v1.contentWindow.webMI.display.showPopup(0, 0, null);
+			}
+			tabHandler.getFocused(e.currentTarget);
+		});
+
+		if (typeof v1.contentWindow.webMI == "undefined") {
+			webMI.query.preload = false;
+		}
+
+		var localStorageCurrentFrame = localStorage.getItem("com.atvise.index.currentFrame");
+		if (localStorageCurrentFrame != null) {
+			if (webMI.getCookieSupport()) {
+				try {
+					currentFrame = JSON.parse(localStorageCurrentFrame);
+				} catch (ex) {
+					// do nothing
+				}
+			}
+			localStorage.removeItem("com.atvise.index.currentFrame");
+			localStorage.removeItem("com.atvise.index.currentLanguage");
+		}
+
+		if (currentFrame.length > 0) {
+			for (let i = 0; i < currentFrame.length; i++) {
+				/**
+				 * If any popups were implicitly closed due to a reload, we'll have some stale objects in the currentFrame array.
+				 * We query the tabHandler to see which iframes are actually still present and throw away all other entries.
+				 * Fixes [AT-D-16587]
+				 */
+				function filterObjectsByName(objects, names) {
+					return objects.filter((object) => names.includes(object.name));
+				}
+				
+				let actuallyPresentIframes = tabHandler.getIFrameNames();
+				currentFrame = filterObjectsByName(currentFrame, actuallyPresentIframes);
+
+				/** open display only if current farme is not equal with the frame before switch language occured */
+				webMI.trigger.fire("getSource_" + currentFrame[i].name, function (e) {
+					if (
+						typeof currentFrame[i].display == "undefined" ||
+						currentFrame[i].display.replace(displaysJs["postfix"], "") == lastUserDisplay
+					)
+						return;
+
+					function concatQuery(a, b) {
+						return { ...a, ...b };
+					}
+
+					if (webMI.display.isRoot() && currentFrame[i].display != e) {
+						if (currentFrame[i].url) {
+							webMI.display.openUrl(currentFrame[i].url, currentFrame[i].name);
+						} else {
+							webMI.display.openDisplay(
+                                // "split" related to AT-D-17259 > remove query items
+								currentFrame[i].display.split('?')[0].replace(displaysJs["postfix"], ""),
+								concatQuery(webMI.query, currentFrame[i].query),
+								currentFrame[i].name
+							);
+						}
+					}
+				});
+			}
+		}
+	} else if (type == "switchedlanguage") {
+		currentLanguage.value = v1;
+	}
+};]]></code>
+</script>

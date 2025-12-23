@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="320" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter defaultvalue="5" desc="Lineas por pagina" name="perPage" valuetype="number"/>
+  <atv:parameter defaultvalue="60" desc="Limite duro por seguridad" name="maxTotal" valuetype="number"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <!-- Encabezado -->
+ <!-- Contenedor HTML -->
+ <foreignObject height="317.151" id="fo_root" width="1920" x="0" y="1.281">
+  <div id="fo_root_host" style="width:100%;height:100%;overflow:hidden;" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <!-- Overlay debug -->
+ <text atv:refpx="1217.5" atv:refpy="22" fill="#ffffff" font-family="Consolas" font-size="12" id="dbg_text" visibility="hidden" x="1200" y="26">debug</text>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.caudalimetros.main" atv:name="main" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.caudalimetros.list" atv:name="list" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.caudalimetros.card" atv:name="card" atv:type="text/ecmascript"/>
+
+</svg>

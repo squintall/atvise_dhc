@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_CV.Carcamo_Central_Vallarta.Equipos.Caudalimetro.L1.Umbrales.Caudal.WarnHigh
+NodeClass: Variable
+BrowseName: 1:WarnHigh
+DisplayName: en|WarnHigh
+Description: en|WarnHigh
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

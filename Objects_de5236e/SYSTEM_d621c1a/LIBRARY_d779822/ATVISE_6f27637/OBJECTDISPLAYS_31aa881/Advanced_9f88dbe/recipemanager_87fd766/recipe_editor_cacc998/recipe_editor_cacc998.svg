@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="680" version="1.2" width="1280" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <rect atv:refpx="640" atv:refpy="43.848" fill="$FILLCOLOR$" height="90" id="id_4" stroke="none" stroke-width="2" width="1280" x="0" y="0"/>
+ <rect atv:refpx="1002.5" atv:refpy="45" fill="#ffffff" height="90" id="id_13" stroke="none" stroke-width="1" width="5" x="1000" y="0"/>
+ <rect atv:refpx="237.5" atv:refpy="45" fill="#ffffff" height="90" id="id_14" stroke="none" stroke-width="1" width="5" x="235" y="0"/>
+ <desc>Editor for recipes of a recipe template.</desc>
+ <title>Recipe Editor</title>
+ <metadata>
+  <atv:parameter behavior="mandatory" defaultvalue="AGENT.OBJECTS.recipes" desc="config node" name="configNode" valuetype="address"/>
+  <atv:parameter behavior="mandatory" defaultvalue="" desc="template name" name="templateName" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="recipe name" name="recipeName" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.RecipeManager.recipe_editor.Columns" desc="configuration" group="Columns" name="columns" valuetype="global"/>
+  <atv:parameter behavior="mandatory" defaultvalue="atvise_parameter" desc="table ID" group="Table" name="tableID" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="35" desc="table header height" group="Table" name="header_height" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="40" desc="table row height" group="Table" name="row_height" valuetype="number"/>
+  <atv:parameter behavior="optional" config="Arial;Courier;Tahoma;Verdana" defaultvalue="Arial" desc="font family" group="Font" name="font_family" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" group="Font" name="globalFontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="18" desc="table header font size" group="Font" name="header_font_size" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="18" desc="table row font size" group="Font" name="row_font_size" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="12" desc="table detail font size" group="Font" name="detail_font_size" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="12" desc="table footer font size" group="Font" name="footer_font_size" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvBorderColor" desc="border color" group="Appearance" name="globalBorderColor" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Appearance" name="globalFillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="10" width="10"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <svg atv:refpx="639.977" atv:refpy="412.523" height="640" id="id_0" transform="matrix(2,0,0,0.8359,0,0)" width="640" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.slickgrid.table" y="173.465">
+  <atv:argument name="header_height" prefix="header_height" value=""/>
+  <atv:argument name="row_height" prefix="row_height" value=""/>
+  <atv:argument name="row_text_size" prefix="row_font_size" value=""/>
+  <atv:argument name="multiselect" value="false"/>
+  <atv:argument name="tableID" prefix="tableID" value=""/>
+  <atv:argument name="header_text_size" prefix="header_font_size" value=""/>
+  <atv:argument name="detail_text_size" prefix="detail_font_size" value=""/>
+  <atv:argument name="footer_text_size" prefix="footer_font_size" value=""/>
+  <atv:argument name="font_family" prefix="font_family"/>
+  <atv:argument name="globalBorderColor" prefix="globalBorderColor" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="globalFillColor" prefix="globalFillColor" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="globalFontColor" prefix="globalFontColor" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="header_text_horizontal" value="center"/>
+ </svg>
+ <text atv:refpx="669.563" atv:refpy="71" fill="#575757" font-family="Arial" font-size="20" id="id_1" x="630" y="75.5">T{Description}:</text>
+ <svg atv:refpx="882.498" atv:refpy="67.497" height="30" id="inoutRecipeDescription" transform="matrix(1.4063,0,0,1.1667,0,0)" width="160" x="547.556" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="42.856">
+  <atv:argument name="validation" value="String"/>
+  <atv:overwrite id="input_label" transform="matrix(0.7111,0,0,0.8571,0,0)" x="217.055" y="21.966"/>
+  <atv:overwrite height="27.001" id="blinking_frame" transform="matrix(0.7111,0,0,0.8571,0,0)" width="217"/>
+  <atv:overwrite height="31.001" id="focus_frame" transform="matrix(0.7111,0,0,0.8571,0,0)" width="221"/>
+  <atv:overwrite height="27.001" id="input_bg" transform="matrix(0.7111,0,0,0.8571,0,0)" width="217"/>
+  <atv:overwrite height="33.001" id="id_1" transform="matrix(0.7111,0,0,0.8571,0,0)" width="223"/>
+  <atv:overwrite height="35.001" id="id_0" transform="matrix(0.7111,0,0,0.8571,0,0)" width="225"/>
+ </svg>
+ <svg atv:refpx="1212.501" atv:refpy="67.499" height="30" id="btnSave" transform="matrix(1.5625,0,0,1.1667,0,0)" width="80" x="736" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="42.857">
+  <atv:argument name="label" value="T{Save}"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+  <atv:overwrite height="33.001" id="id_6" transform="matrix(0.64,0,0,0.8571,0,0)" width="123"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.64,0,0,0.8571,0,0)" x="62.5" y="29.001"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.64,0,0,0.8571,0,0)" x="62.5" y="14.001"/>
+  <atv:overwrite id="button_label" transform="matrix(0.64,0,0,0.8571,0,0)" x="62.5" y="22.001"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.384,0,0,0.5143,0,0)" x="94" y="30.46"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.384,0,0,0.5143,0,0)" x="94" y="9.127"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.64,0,0,0.8571,0,0)" x="52.5" y="7.501"/>
+  <atv:overwrite height="31.001" id="button_stroke" transform="matrix(0.64,0,0,0.8571,0,0)" width="121"/>
+  <atv:overwrite height="33.001" id="button_bg" transform="matrix(0.64,0,0,0.8571,0,0)" width="123"/>
+  <atv:overwrite height="35.001" id="outer_frame" transform="matrix(0.64,0,0,0.8571,0,0)" width="125"/>
+ </svg>
+ <svg atv:refpx="1212.502" atv:refpy="117.499" height="30" id="btnValuesFromProcess" transform="matrix(1.5625,0,0,1.1667,0,0)" width="80" x="736" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="85.712">
+  <atv:argument name="label" value="T{Values from process}"/>
+  <atv:overwrite height="33.001" id="id_6" transform="matrix(0.64,0,0,0.8571,0,0)" width="123"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.64,0,0,0.8571,0,0)" x="62.5" y="29.001"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.64,0,0,0.8571,0,0)" x="62.5" y="14.001"/>
+  <atv:overwrite id="button_label" transform="matrix(0.64,0,0,0.8571,0,0)" x="62.5" y="22.001"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.384,0,0,0.5143,0,0)" x="94" y="30.46"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.384,0,0,0.5143,0,0)" x="94" y="9.127"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.64,0,0,0.8571,0,0)" x="52.5" y="7.501"/>
+  <atv:overwrite height="31.001" id="button_stroke" transform="matrix(0.64,0,0,0.8571,0,0)" width="121"/>
+  <atv:overwrite height="33.001" id="button_bg" transform="matrix(0.64,0,0,0.8571,0,0)" width="123"/>
+  <atv:overwrite height="35.001" id="outer_frame" transform="matrix(0.64,0,0,0.8571,0,0)" width="125"/>
+ </svg>
+ <text atv:refpx="342.5" atv:refpy="21" fill="#575757" font-family="Arial" font-size="20" id="id_2" x="255" y="28.5">T{Recipe template}:</text>
+ <text atv:refpx="253.308" atv:refpy="68" fill="#575757" font-family="Arial" font-size="20" id="txtTemplateName" x="254" y="75.5"/>
+ <svg atv:refpx="882.5" atv:refpy="22.496" height="30" id="cboRecipes" transform="matrix(1.4063,0,0,1.1667,0,0)" width="160" x="547.556" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.combobox" y="4.286">
+  <atv:overwrite height="31.001" id="focus_frame" transform="matrix(0.7111,0,0,0.8571,0,0)" width="221"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.7111,0,0,0.8571,0,0)" x="200" y="7.501"/>
+  <atv:overwrite id="id_7" transform="matrix(0.7111,0,0,0.8571,0,0)" x="200" y="8.501"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.7111,0,0,0.8571,0,0)" x="200" y="7.501"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.7111,0,0,0.8571,0,0)" x="190.5" y="22.001"/>
+  <atv:overwrite height="27.001" id="blinking_frame" transform="matrix(0.7111,0,0,0.8571,0,0)" width="193"/>
+  <atv:overwrite height="27.001" id="combobox_bg" transform="matrix(0.7111,0,0,0.8571,0,0)" width="193"/>
+  <atv:overwrite height="33.001" id="id_1" transform="matrix(0.7111,0,0,0.8571,0,0)" width="223"/>
+  <atv:overwrite height="35.001" id="id_0" transform="matrix(0.7111,0,0,0.8571,0,0)" width="225"/>
+ </svg>
+ <rect atv:refpx="640" atv:refpy="412.5" fill="none" height="535" id="id_11" stroke="$FILLCOLOR$" stroke-width="1" width="1280" x="0" y="145"/>
+ <svg atv:refpx="117.5" atv:refpy="45" height="90" id="id_9" width="235" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.recipe_navigation" y="0">
+  <atv:argument name="buttonToHighlight" value="Recipes"/>
+ </svg>
+ <rect atv:refpx="617.5" atv:refpy="45" fill="#ffffff" height="90" id="id_8" stroke="none" stroke-width="1" width="5" x="615" y="0"/>
+ <text atv:refpx="657.615" atv:refpy="24" fill="#575757" font-family="Arial" font-size="20" id="id_10" x="630" y="28.5">T{Recipe}:</text>
+ <text atv:refpx="9" atv:refpy="118" fill="#ff0000" font-family="Arial" font-size="20" id="lblMessages" x="9" y="125.5"/>
+ <svg atv:refpx="10" atv:refpy="-40" height="20" id="symbolInfo" width="20" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.info" y="-50"/>
+ <svg atv:refpx="1077.501" atv:refpy="67.498" height="30" id="btn_save_as" transform="matrix(1.5625,0,0,1.1667,0,0)" width="80" x="649.6" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="42.856">
+  <atv:argument name="label" value="T{Save as}"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+  <atv:overwrite height="33.001" id="id_6" transform="matrix(0.64,0,0,0.8571,0,0)" width="123"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.64,0,0,0.8571,0,0)" x="62.5" y="29.001"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.64,0,0,0.8571,0,0)" x="62.5" y="14.001"/>
+  <atv:overwrite id="button_label" transform="matrix(0.64,0,0,0.8571,0,0)" x="62.5" y="22.001"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.384,0,0,0.5143,0,0)" x="94" y="30.46"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.384,0,0,0.5143,0,0)" x="94" y="9.127"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.64,0,0,0.8571,0,0)" x="52.5" y="7.501"/>
+  <atv:overwrite height="31.001" id="button_stroke" transform="matrix(0.64,0,0,0.8571,0,0)" width="121"/>
+  <atv:overwrite height="33.001" id="button_bg" transform="matrix(0.64,0,0,0.8571,0,0)" width="123"/>
+  <atv:overwrite height="35.001" id="outer_frame" transform="matrix(0.64,0,0,0.8571,0,0)" width="125"/>
+ </svg>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.recipemanager.validation_handling" atv:name="" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.recipemanager.global_list_handling" atv:name="" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.recipemanager.update_structure" atv:name="" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.recipemanager.recipe_editor" atv:name="" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

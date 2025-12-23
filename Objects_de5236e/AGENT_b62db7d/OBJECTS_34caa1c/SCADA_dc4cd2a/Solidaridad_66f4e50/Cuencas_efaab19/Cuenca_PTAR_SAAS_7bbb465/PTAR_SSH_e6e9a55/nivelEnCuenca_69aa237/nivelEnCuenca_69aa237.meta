@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.PTAR_SSH.nivelEnCuenca
+NodeClass: Variable
+BrowseName: 1:nivelEnCuenca
+DisplayName: en|nivelEnCuenca
+Description: en|nivelEnCuenca
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

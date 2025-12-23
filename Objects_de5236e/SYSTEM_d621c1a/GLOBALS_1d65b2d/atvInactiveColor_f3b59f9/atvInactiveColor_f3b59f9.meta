@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvInactiveColor
+NodeClass: Variable
+BrowseName: 1:atvInactiveColor
+DisplayName: en|atvInactiveColor
+Description: en|atvInactiveColor
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

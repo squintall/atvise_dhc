@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * This script handles validation of the table.
+ * This is implemented by giving each field which should be validated a [fieldname]-valid property 
+ * A function validateRow(item, tableController) needs to be implemented individually for the used table
+ */
+
+var gValidData = {};
+
+/*validates all rows of the table*/
+function validataTable(tableController){
+	var tableData = tableController.getData();
+	
+	for(var rowIdx in tableData){
+		validateRow(tableData[rowIdx], tableController);
+	}	
+	
+}
+
+/*checks the whole table data for invalid fileds and returns all errrors*/
+function validateTableData(){
+	var valid=true;
+	var errors=[];
+
+	for(var rowIdx in gValidData){
+		row = gValidData[rowIdx];
+		
+		for(var fieldName in row){
+			if(row[fieldName].valid == false){
+				valid=false;
+				for(var i=0; i < row[fieldName].errors.length; i++){
+					errors.push(row.parameterName + ": " + row[fieldName].errors[i]);
+				}
+			}
+		}
+	}
+	
+	return {valid:valid, errors:errors};
+}
+
+/*if field has a gValidData[row-id][fieldname] property with valid=false -> format it*/
+function fieldValidFormatter(row, cell, value, columnDef, dataContext) {
+	if(gValidData.hasOwnProperty(dataContext.id) && gValidData[dataContext.id].hasOwnProperty(columnDef.field )){
+		var valid = gValidData[dataContext.id][columnDef.field];	
+	
+		if(valid.valid == false){
+			var errorText = valid.errors.join("&#013;");
+			
+			var symbolInfo = document.getElementById("symbolInfo");
+			var iconHTML = "";
+			
+			if (symbolInfo) {
+				var icon = document.getElementById("symbolInfo").cloneNode(true);
+				icon.removeAttribute("id");
+				icon.querySelectorAll("[id]").forEach(function (node) {
+					node.removeAttribute("id");
+				});
+				iconHTML = "<div>" + icon.outerHTML + "</div>";
+			}
+			
+			return "<div class='invalid-value' title='" + errorText + "'>" + value + iconHTML + "</div>";
+		}		
+	}
+	
+	return value;
+}
+
+/*opens an popUp showing up to NUM_DISPLAYED_ERRORS error messages*/
+function openErrorPopup(errors){
+	const NUM_DISPLAYED_ERRORS = 3; //ammount of errors the popUp can display
+	var displayedErrors = {};
+	
+	for(var i=0; i < errors.length && i < NUM_DISPLAYED_ERRORS; i++){
+		displayedErrors["error" + i] = errors[i];
+	}
+	
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.error_popup",
+		query: displayedErrors,
+		height: 320, width: 600, remember: true,
+		modal: true, resizable: false, movable: true,
+		scrollbars: true, menubar: false, status: false, toolbar: false
+	});
+}]]></code>
+</script>

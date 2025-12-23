@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AP.AP_IM_CAR_AEROPUERTO.Bombas.AP_IM_CAR_AEROPUERTO_VB1_HorasOperacion.Remote.MirrorInputOutput
+NodeClass: Variable
+BrowseName: 1:MirrorInputOutput
+DisplayName: en|MirrorInputOutput
+Description: en|MirrorInputOutput
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.InputOutput

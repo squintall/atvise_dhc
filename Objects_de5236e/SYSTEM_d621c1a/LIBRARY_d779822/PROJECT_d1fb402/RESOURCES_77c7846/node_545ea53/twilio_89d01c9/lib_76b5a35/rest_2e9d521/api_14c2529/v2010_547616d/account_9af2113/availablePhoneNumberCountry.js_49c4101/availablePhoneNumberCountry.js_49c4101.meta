@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/api/v2010/account/availablePhoneNumberCountry.js
+NodeClass: Variable
+BrowseName: 1:availablePhoneNumberCountry.js
+DisplayName: en|availablePhoneNumberCountry.js
+Description: en|availablePhoneNumberCountry.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

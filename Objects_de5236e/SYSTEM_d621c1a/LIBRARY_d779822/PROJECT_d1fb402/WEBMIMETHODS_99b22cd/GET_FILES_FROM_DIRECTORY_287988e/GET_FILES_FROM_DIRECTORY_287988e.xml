@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[
+var fs = new FileSystem();
+var dir = request.postvalues["path"];
+var dirContent = fs.listDirectory(dir);
+var fileNames = [];
+var returnObject = [];
+
+dirContent = dirContent.filter(function(e){
+	return e.isFile && e.name.indexOf(".pdf") >= 0;
+});
+
+for(var i=0;i<dirContent.length;i++) {
+	returnObject[dirContent.length-(i+1)] = {value:dir+"/"+ dirContent[i].name, text: dirContent[i].name.replace(".pdf","")};
+}
+
+return returnObject;]]></code>
+</script>

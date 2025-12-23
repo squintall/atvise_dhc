@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Equipos.Amp_Freq_STS
+NodeClass: Variable
+BrowseName: 1:Amp_Freq_STS
+DisplayName: en|Amp_Freq_STS
+Description: en|Amp_Freq_STS
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

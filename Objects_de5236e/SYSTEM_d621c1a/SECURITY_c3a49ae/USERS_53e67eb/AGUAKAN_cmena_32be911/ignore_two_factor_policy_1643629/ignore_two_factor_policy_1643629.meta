@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\cmena.ignore_two_factor_policy
+NodeClass: Variable
+BrowseName: 1:ignore_two_factor_policy
+DisplayName: en|ignore_two_factor_policy
+Description: en|ignore_two_factor_policy
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

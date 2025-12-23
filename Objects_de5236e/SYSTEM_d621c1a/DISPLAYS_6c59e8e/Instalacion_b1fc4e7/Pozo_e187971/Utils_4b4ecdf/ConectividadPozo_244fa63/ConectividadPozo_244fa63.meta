@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Pozo.Utils.ConectividadPozo
+NodeClass: Variable
+BrowseName: 1:ConectividadPozo
+DisplayName: en|ConectividadPozo
+Description: en|ConectividadPozo
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

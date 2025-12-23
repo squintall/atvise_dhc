@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="triggerDailyAt23oClock" type="timer" trigger="false" relative="false" value="" starttime="23:00:00" repeat="01:00:00"/>
+  <parameter name="smtpServer" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="sender" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="recipient" type="string" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/**
+ * Certificate and Email Automation Script
+ *
+ * This script demonstrates how to use the environment's certificate and email
+ * functionalities to:
+ * - Collect certificates that are about to expire within 48 hours and send an alert.
+ * - Generate and send a monthly report of all installed certificates.
+ *
+ * Functions:
+ * - sendEmail: Helper function to send emails using a specified SMTP server
+ *   that has been configured with the atvise builder.
+ * - getStoreName, getCertTypeName, getIssuerTypeName: Helper functions to map
+ *   certificate properties to human-readable names.
+ * - collectExpiringCertificates: Gathers certificates that are about to expire soon.
+ * - sendExpiryAlert: Sends an alert email for expiring certificates.
+ * - generateMonthlyReport: Generates and sends a monthly report of all certificates.
+ *
+ * Usage:
+ * - The parameters for sender, recipient, and SMTP server have to set, and the
+ *   daily trigger parameter has to be activated (checked).
+ */
+
+// Constants for email notification as defined in this script's parameters.
+const SMTP_SERVER = smtpServer;
+const SENDER_EMAIL = sender;
+const RECIPIENT_EMAIL = recipient;
+const EMAIL_SUBJECT_ALERT = "Certificate Expiry Warning";
+const EMAIL_SUBJECT_MONTHLY_REPORT = "Monthly Certificate Report";
+const ALERT_THRESHOLD_HOURS = 48; // Threshold in hours for expiring certificates alert
+
+// Convert Unix timestamp to Date object
+const convertTimestampToDate = (timestamp) => new Date(timestamp);
+
+// Helper function to send an email
+const sendEmail = (from, to, subject, body) => {
+	call("Mail.SendMail", {
+		smtpserver: SMTP_SERVER,
+		from: from,
+		to: to,
+		subject: subject,
+		body: body
+	});
+};
+
+// Helper function to get store name from server.certificates
+const getStoreName = (store) => {
+	const storeNames = {
+		[server.certificates.STORE_HTTPS]: "HTTPS",
+		[server.certificates.STORE_MIRROR]: "Mirror",
+		[server.certificates.STORE_SERVER]: "Server"
+	};
+	return storeNames[store] || "Unknown";
+};
+
+// Helper function to get certificate type name from server.certificates
+const getCertTypeName = (type) => {
+	const certTypes = {
+		[server.certificates.TYPE_ISSUER]: "Issuer",
+		[server.certificates.TYPE_OWN]: "Own",
+		[server.certificates.TYPE_REJECTED]: "Rejected",
+		[server.certificates.TYPE_TRUSTED]: "Trusted",
+		[server.certificates.TYPE_USERS_ISSUER]: "User Issuer",
+		[server.certificates.TYPE_USERS_OWN]: "User Own",
+		[server.certificates.TYPE_USERS_REJECTED]: "User Rejected",
+		[server.certificates.TYPE_USERS_TRUSTED]: "User Trusted"
+	};
+	return certTypes[type] || "Unknown Type";
+};
+
+// Helper function to get issuer type name from server.certificates
+const getIssuerTypeName = (issuerType) => {
+	const issuerTypes = {
+		[server.certificates.ITYPE_END]: "End",
+		[server.certificates.ITYPE_INTERMEDIATE]: "Intermediate",
+		[server.certificates.ITYPE_ROOT]: "Root"
+	};
+	return issuerTypes[issuerType] || "Unknown Issuer Type";
+};
+
+// Helper function to format certificate details into a readable format
+const formatCertificateDetails = (cert) => {
+	return (
+		`- Certificate Name: ${cert.name}\n` +
+		`  Store: ${cert.store}\n` +
+		`  Type: ${cert.type}\n` +
+		`  Issuer Type: ${cert.issuerType}\n` +
+		`  Issuer: ${cert.issuer}\n` +
+		`  Subject: ${cert.subject}\n` +
+		`  Expiry Date: ${cert.expiryDate.toISOString().slice(0, 19).replace("T", " ")} UTC\n` +
+		`\n`
+	);
+};
+
+// Helper function to check and collect certificates that are about to expire
+const collectExpiringCertificates = () => {
+	const currentDate = new Date();
+	let certificatesExpiringSoon = [];
+
+	const stores = [server.certificates.STORE_HTTPS, server.certificates.STORE_MIRROR, server.certificates.STORE_SERVER];
+	const types = [
+		server.certificates.TYPE_ISSUER,
+		server.certificates.TYPE_OWN,
+		server.certificates.TYPE_REJECTED,
+		server.certificates.TYPE_TRUSTED,
+		server.certificates.TYPE_USERS_ISSUER,
+		server.certificates.TYPE_USERS_OWN,
+		server.certificates.TYPE_USERS_REJECTED,
+		server.certificates.TYPE_USERS_TRUSTED
+	];
+
+	// Loop through stores and types to fetch certificates and check expiry
+	stores.forEach((store) => {
+		types.forEach((type) => {
+			const certificates = server.certificates.list(store, [type]);
+			certificates.result.forEach((cert) => {
+				const expiryDate = convertTimestampToDate(cert.data.fields.validTo);
+				const timeLeft = (expiryDate - currentDate) / (1000 * 60 * 60); // Calculate time left in hours
+
+				// Check if certificate is expiring soon (within ALERT_THRESHOLD_HOURS)
+				if (timeLeft < ALERT_THRESHOLD_HOURS && timeLeft >= 0) {
+					certificatesExpiringSoon.push({
+						name: cert.name,
+						expiryDate,
+						issuer: cert.data.issuer.commonName,
+						subject: cert.data.subject.commonName,
+						store: getStoreName(store),
+						type: getCertTypeName(type),
+						issuerType: getIssuerTypeName(cert.issuerType)
+					});
+				}
+			});
+		});
+	});
+
+	return certificatesExpiringSoon;
+};
+
+// Helper function to send an email alert for expiring certificates
+const sendExpiryAlert = (certificatesExpiringSoon) => {
+	let emailBody = "The following certificates are about to expire within 48 hours:\n\n";
+
+	// Use the formatCertificateDetails function to format the certificates
+	certificatesExpiringSoon.forEach((cert) => {
+		emailBody += formatCertificateDetails(cert);
+	});
+
+	sendEmail(SENDER_EMAIL, RECIPIENT_EMAIL, EMAIL_SUBJECT_ALERT, emailBody);
+};
+
+// Helper function to generate a monthly report of all certificates
+const generateMonthlyReport = () => {
+	let emailBody = "Here is the full list of installed certificates:\n\n";
+
+	// Loop through stores and types to generate a report for all certificates
+	const stores = [server.certificates.STORE_HTTPS, server.certificates.STORE_MIRROR, server.certificates.STORE_SERVER];
+	const types = [
+		server.certificates.TYPE_ISSUER,
+		server.certificates.TYPE_OWN,
+		server.certificates.TYPE_REJECTED,
+		server.certificates.TYPE_TRUSTED,
+		server.certificates.TYPE_USERS_ISSUER,
+		server.certificates.TYPE_USERS_OWN,
+		server.certificates.TYPE_USERS_REJECTED,
+		server.certificates.TYPE_USERS_TRUSTED
+	];
+
+	stores.forEach((store) => {
+		types.forEach((type) => {
+			const certificates = server.certificates.list(store, [type]);
+			certificates.result.forEach((cert) => {
+				emailBody += formatCertificateDetails({
+					name: cert.name,
+					expiryDate: convertTimestampToDate(cert.data.fields.validTo),
+					issuer: cert.data.issuer.commonName,
+					subject: cert.data.subject.commonName,
+					store: getStoreName(store),
+					type: getCertTypeName(type),
+					issuerType: getIssuerTypeName(cert.issuerType)
+				});
+			});
+		});
+	});
+
+	sendEmail(SENDER_EMAIL, RECIPIENT_EMAIL, EMAIL_SUBJECT_MONTHLY_REPORT, emailBody);
+};
+
+// Main script execution
+const main = () => {
+	const currentDay = new Date().getDate();
+
+	// Check for certificates expiring within the next 48 hours
+	const certificatesExpiringSoon = collectExpiringCertificates();
+	if (certificatesExpiringSoon.length > 0) {
+		sendExpiryAlert(certificatesExpiringSoon);
+	}
+
+	// Run the monthly report only on the first day of the month
+	if (currentDay === 1) {
+		generateMonthlyReport();
+	}
+};
+
+// Execute the main function to run the script
+main();
+]]></code>
+</script>

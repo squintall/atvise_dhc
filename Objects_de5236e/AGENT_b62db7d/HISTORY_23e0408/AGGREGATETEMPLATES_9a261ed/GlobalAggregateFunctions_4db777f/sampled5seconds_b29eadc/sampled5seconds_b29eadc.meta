@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.HISTORY.AGGREGATETEMPLATES.GlobalAggregateFunctions.sampled5seconds
+NodeClass: Object
+BrowseName: 1:sampled5seconds
+DisplayName: en|sampled5seconds
+Description: en|sampled5seconds
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AggregateFunction
+Reference: forward HasComponent ns=1;s=Sampled

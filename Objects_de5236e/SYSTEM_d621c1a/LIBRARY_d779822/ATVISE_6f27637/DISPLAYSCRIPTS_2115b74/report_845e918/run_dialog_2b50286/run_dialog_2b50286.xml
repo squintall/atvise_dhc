@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the run_dialog object display
+ * -------------------------------------------
+ * This control allows to enter a date/time combination and start the report generation.
+ *
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var fontColor = webMI.query.fontColor;
+var configurations = webMI.query.configurations.split(",");
+var reportTime = new Date();
+reportTime.setMilliseconds(0);
+reportTime.setSeconds(0);
+
+/**
+ * RUNTIME SECTION
+ */
+
+webMI.trigger.fire("setValue", reportTime,"time_picker");
+
+if (configurations.length > 1)
+	webMI.gfx.setText("configuration_label", configurations.length + " T{configurations selected}");
+else
+	webMI.gfx.setText("configuration_label", configurations);
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setMessage(msg, error) {
+	if (typeof msg == "undefined")
+		msg = "";
+
+	if (error)
+		webMI.gfx.setFill("message", "#FF0000");
+	else 
+		webMI.gfx.setFill("message", fontColor);
+	
+	webMI.gfx.setText("message", msg);
+}
+
+setMessage();
+
+/**
+ * TRIGGERS
+ */
+
+webMI.trigger.connect("valuechanged", function (e) {
+	reportTime = e.value;
+	
+	setMessage();
+	webMI.trigger.fire("com.atvise.setActive", true, "generate_button");
+},"time_picker");
+
+webMI.trigger.connect("clicked", function() {
+	webMI.trigger.fire("com.atvise.setActive", false, "generate_button");	
+	var error = "";
+
+	for (var i=0; i < configurations.length; i++) {
+		webMI.data.call("ReportRunConfiguration", {configuration: configurations[i], reportTime: reportTime}, function(e) {
+			if (e.error)
+				error = e.errorstring ? e.errorstring : "T{Unknown error}";	
+					
+			if (error)
+				setMessage("T{Error}: " + error, true);
+			else
+				setMessage("T{Report generation started.}");
+		});
+	}
+}, "generate_button");
+
+webMI.trigger.connect("clicked", function () {
+	webMI.display.closeWindow();	
+},"close_button");
+]]></code>
+</script>

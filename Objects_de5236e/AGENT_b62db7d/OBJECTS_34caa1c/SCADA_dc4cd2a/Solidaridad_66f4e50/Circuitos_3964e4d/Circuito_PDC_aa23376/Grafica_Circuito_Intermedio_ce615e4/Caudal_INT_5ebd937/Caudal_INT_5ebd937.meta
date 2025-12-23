@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Grafica_Circuito_Intermedio.Caudal_INT
+NodeClass: Variable
+BrowseName: 1:Caudal_INT
+DisplayName: en|Caudal_INT
+Description: en|Caudal_INT
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

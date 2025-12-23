@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_El_table.cummulative
+NodeClass: Variable
+BrowseName: 1:cummulative
+DisplayName: en|cummulative
+Description: en|cummulative
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.cummulative.high_limits
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.cummulative.low_limits
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

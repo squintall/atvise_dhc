@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Scrubber.Sensor3
+NodeClass: Variable
+BrowseName: 1:Sensor3
+DisplayName: en|Sensor3
+Description: en|Sensor3
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

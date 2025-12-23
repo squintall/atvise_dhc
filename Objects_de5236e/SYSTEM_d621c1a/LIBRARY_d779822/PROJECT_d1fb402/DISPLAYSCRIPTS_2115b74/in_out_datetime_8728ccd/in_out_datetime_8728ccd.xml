@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the in_out_datetime object display
+ * -------------------------------------------
+ * This control allows to enter a whole date/time combination.
+ * In addition the trigger "valuechanged" will be fired.
+ */
+
+
+/**
+ *    IMPORTS
+ */
+var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+/**
+ * DECLARATION SECTION
+ */
+
+/** parameters **/
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var consistencyGroup = webMI.query["consistencyGroup"] ? webMI.query["consistencyGroup"] : "";
+var outputNode = webMI.query["outputNode"] ? webMI.query["outputNode"] : webMI.query["base"];
+
+/** style & colors **/
+var lockInputEvents = false;
+var lockReadEvents = false;
+var lockMouseEvents = false;
+var lockMouseTimeout = null;
+var trigger = true;
+
+/** data **/
+var _internalDateValue = new Date().getTime();
+
+var runTimeNodeConfig = {
+	base: {value: null, address: base, paramValue: "", read: true, write: true, aggregate: false},
+	outputNode: {value: null, address: outputNode, paramValue: "", read: true, write: true}
+};
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: document.getElementById("outer_border").id,
+	rights: [
+		{nodeId: webMI.query["base"], rights: "read", disable: true, notify: false},
+		{nodeId: outputNode, rights: "write", disable: true, notify: false},
+		{nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true}
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: {activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"]},
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: webMI.query["right"],
+	editable: webMI.query["editable"] != "No"
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+if (typeof updateRunTimeNodeConfig === "function") {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+} else {
+	initialize(runTimeNodeConfig);
+}
+
+if (base != "" && consistencyGroup)
+	consistencyHandler.register(consistencyGroup, base, updateDate);
+	
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * read or subscribe data by runtime node configuration
+ * @param nodeCfg
+ */
+function initialize(nodeCfg) {
+	/* init alarm indication */
+	if (typeof alarmToSubscribe != "undefined" && typeof updateAlarmIndication === "function") {
+		updateAlarmIndication(alarmToSubscribe);
+	}
+
+	/* init values */
+	if (consistencyGroup && nodeCfg.base.read) {
+		//handled in runtime section
+		//consistencyHandler.register(consistencyGroup, nodeCfg.base.address, updateDate);
+	} else if (nodeCfg.base.address && nodeCfg.base.read) {
+		if (!nodeCfg.base.subscribe) {
+			nodeCfg.base.subscribe = true;
+
+			webMI.data.subscribe(nodeCfg.base.address, function (result) {
+				if (typeof result.status != "undefined" && typeof updateStatusIndication === "function") {
+					updateStatusIndication(result.status);
+				}
+
+				var millis = 0;
+
+				//check if a value is given
+				if (result.value) {
+					millis = result.value;
+				}
+				updateDate(millis);
+			});
+		}
+	} else if (nodeCfg.base.address && !nodeCfg.base.read) {
+		updateDate(0);
+	} else {
+		updateDate();
+	}
+
+	/* init rights */
+	if (nodeCfg.base.address && !nodeCfg.base.read) {
+		_setLockForReadValues(true);
+		_setLockForInputFields(true);
+	} else if (nodeCfg.outputNode.address && !nodeCfg.outputNode.write) {
+		_setLockForReadValues(false);
+		_setLockForInputFields(true);
+	} else {
+		_setLockForReadValues(false);
+		_setLockForInputFields(false);
+	}
+
+}
+
+/**
+ * switch to active layout
+ */
+function setActiveLayout() {
+	if (runTimeNodeConfig.base.address)
+		_setLockForReadValues(false);
+	if (runTimeNodeConfig.outputNode.address)
+		_setLockForInputFields(false);
+	updateDisplay();
+}
+
+/**
+ * switch to inactive layout
+ */
+function setInactiveLayout() {
+	if (runTimeNodeConfig.base.address)
+		_setLockForReadValues(false);
+	if (runTimeNodeConfig.outputNode.address)
+		_setLockForInputFields(true);
+	updateDisplay();
+}
+
+/**
+ * update on ac right changes
+ */
+function fetchCurrentRightsAndUpdate() {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+}
+
+/**
+ * update internal date with limits
+ */
+function updateDate(millis) {
+	//if not number, try to parse
+	if (typeof millis != "number") {
+		millis = parseInt(millis, 10);
+
+		if (isNaN(millis)) {
+			millis = 0;
+		}
+	}
+					
+	_internalDateValue = new Date(millis >= 0 ? millis : _internalDateValue).getTime();
+	updateDisplay();
+}
+
+/**
+ * update display values
+ */
+function updateDisplay() {
+	webMI.trigger.fire("setValue", _internalDateValue, "date");
+	webMI.trigger.fire("setValue", _internalDateValue, "time");
+	trigger = true;
+}
+
+/**
+ * set day, month or year fields by set value trigger
+ * @param value
+ * @param button
+ * @private
+ */
+function setValues(millis) {
+	if (lockReadEvents || lockInputEvents)
+		return;
+
+	var tmpDate = new Date(millis ? millis : 0).getTime();
+
+	if (tmpDate != _internalDateValue) {
+		updateDate(tmpDate);
+		writeToNodeOrConsistencyGroup();
+	}
+}
+
+/**
+ * set day, month or year fields by button
+ * @param value
+ * @param button
+ * @private
+ */
+function setValuesByInput(value, button) {
+	if (lockReadEvents || lockInputEvents || !trigger)
+		return;
+
+	// convert to number if not
+	if (typeof value != "number" || isNaN(value)) {
+		value = parseInt(value, 10);
+
+		if (isNaN(value)) {
+			value = 0;
+		}
+	}
+
+	var tmpDate = {}
+	tmpDate.date = new Date(value);
+	tmpDate.time = tmpDate.date.getTime();
+
+	if (tmpDate.time != _internalDateValue) {
+		trigger = false;
+		updateDate(tmpDate.time);
+		writeToNodeOrConsistencyGroup();
+	}
+}
+
+/**
+ * write value to node or consistency group
+ * @param fireTrigger
+ */
+function writeToNodeOrConsistencyGroup() {
+	if (consistencyGroup) {
+		consistencyHandler.set(consistencyGroup, base, _internalDateValue);
+	} else if (runTimeNodeConfig.outputNode.address && runTimeNodeConfig.outputNode.write) {
+		webMI.data.write(runTimeNodeConfig.outputNode.address, _internalDateValue);
+	}
+
+	webMI.trigger.fire("valuechanged", _internalDateValue, "");
+}
+
+/**
+ * set write lock
+ * e.g. node not writeable
+ * @param lock
+ * @private
+ */
+function _setLockForInputFields(lock) {
+	lockInputEvents = lock;
+	webMI.trigger.fire("setWrite", !lock, "date");
+	webMI.trigger.fire("setWrite", !lock, "time");
+}
+
+/**
+ * set read lock
+ * e.g. node not readable
+ * @private
+ */
+function _setLockForReadValues(lock) {
+	lockReadEvents = lock;
+	_setLockForInputFields(lock);
+	if (lock) {
+		webMI.trigger.fire("setRead", !lock, "date");
+		webMI.trigger.fire("setRead", !lock, "time");
+	}
+}
+
+
+/**
+ * TRIGGERS
+ */
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		setValuesByInput(e.value, "date");
+	},
+	"date"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		setValuesByInput(e.value, "time");
+	},
+	"time"
+);
+
+webMI.trigger.connect("setValue", function (e) {
+	setValues(e.value);
+});
+
+]]></code>
+</script>

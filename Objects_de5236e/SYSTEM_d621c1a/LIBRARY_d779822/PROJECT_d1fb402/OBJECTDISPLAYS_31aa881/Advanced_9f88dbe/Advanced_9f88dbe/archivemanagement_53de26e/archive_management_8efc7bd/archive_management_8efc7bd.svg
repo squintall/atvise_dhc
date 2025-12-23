@@ -1,0 +1,380 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="680" version="1.2" width="1280" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <rect atv:refpx="640" atv:refpy="340" fill="none" height="680" id="background_rect" stroke="#0000ff" stroke-width="0" width="1280" x="0" y="0"/>
+ <desc>Overview and management of archives and their files.</desc>
+ <title>Archive Management</title>
+ <metadata>
+  <atv:parameter behavior="optional" config="move;copy" defaultvalue="move" desc="mode for backup operation" name="backup_mode" substitute="$BACKUPMODE$" valuetype="enum"/>
+  <atv:parameter behavior="mandatory" defaultvalue="AGENT.OBJECTS.ATVISE.AutoSchedulerConfig" desc="node for auto-scheduler config" name="auto_scheduler_config_node" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Appearance" name="globalFillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor2" desc="section background color" group="Appearance" name="globalFillColor2" substitute="$FILLCOLOR2$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="color" group="Font" name="globalFontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="section color" group="Font" name="globalFontColor2" substitute="$FONTCOLOR2$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="70" desc="history warning from (%)" group="Thresholds" name="threshold_historydir_warning" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="90" desc="history critical from (%)" group="Thresholds" name="threshold_historydir_critical" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="70" desc="swapin warning from (%)" group="Thresholds" name="threshold_swapin_warning" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="90" desc="swapin critical from (%)" group="Thresholds" name="threshold_swapin_critical" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="70" desc="backup warning from (%)" group="Thresholds" name="threshold_backup_warning" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="90" desc="backup critical from (%)" group="Thresholds" name="threshold_backup_critical" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="70" desc="restore warning from (%)" group="Thresholds" name="threshold_restore_warning" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="90" desc="restore critical from (%)" group="Thresholds" name="threshold_restore_critical" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="#32cd32" desc="history info color" group="Appearance" name="color_historydir_info" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffa500" desc="history warning color" group="Appearance" name="color_historydir_warning" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ff0000" desc="history critical color" group="Appearance" name="color_historydir_critical" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#32cd32" desc="swapin info color" group="Appearance" name="color_swapin_info" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffa500" desc="swapin warning color" group="Appearance" name="color_swapin_warning" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ff0000" desc="swapin critical color" group="Appearance" name="color_swapin_critical" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#32cd32" desc="backup info color" group="Appearance" name="color_backup_info" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffa500" desc="backup warning color" group="Appearance" name="color_backup_warning" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ff0000" desc="backup critical color" group="Appearance" name="color_backup_critical" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#32cd32" desc="restore info color" group="Appearance" name="color_restore_info" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffa500" desc="restore warning color" group="Appearance" name="color_restore_warning" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ff0000" desc="restore critical color" group="Appearance" name="color_restore_critical" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#b7b7b7" desc="color for free space" group="Appearance" name="color_background_bar" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show data archives" group="Default filter" name="checkbox_data" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show aggregated archives" group="Default filter" name="checkbox_aggr" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show event archives" group="Default filter" name="checkbox_event" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show system database" group="Default filter" name="checkbox_systemdb" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show history directory" group="Default filter" name="checkbox_historydir" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show swapin directory" group="Default filter" name="checkbox_swapin" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show backup directory" group="Default filter" name="checkbox_backup" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show restore directory" group="Default filter" name="checkbox_restore" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="show conflict only" group="Default filter" name="checkbox_conflict" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="keep archives together" group="Default filter" name="group_archives" substitute="" valuetype="bool"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security: auto-scheduler" name="auto-scheduler_right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security: auto-scheduler" name="auto-scheduler_activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security: auto-scheduler" name="auto-scheduler_activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security: delete" name="delete_right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security: delete" name="delete_activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security: delete" name="delete_activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security: system database" name="systemdb_right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security: system database" name="systemdb_activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security: system database" name="systemdb_activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security: actions" name="actions_right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security: actions" name="actions_activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security: actions" name="actions_activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="atvise" desc="group if error" group="Logger" name="logger_group_error" substitute="" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="Error" desc="subgroup if error" group="Logger" name="logger_subgroup_error" substitute="" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="Archive Management" desc="label if error" group="Logger" name="logger_label_error" substitute="" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="atvise" desc="group if info" group="Logger" name="logger_group_info" substitute="" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="Info" desc="subgroup if info" group="Logger" name="logger_subgroup_info" substitute="" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="Archive Management" desc="label if info" group="Logger" name="logger_label_info" substitute="" valuetype="string"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <svg atv:refpx="500.009" atv:refpy="379.937" height="640" id="archive_files_table" transform="matrix(1.5625,0,0,0.9219,0,0)" width="640" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.slickgrid.table" y="92.201">
+  <atv:argument name="tableID" value="atvise_table_archive_files"/>
+  <atv:argument name="multiselect" value="false"/>
+  <atv:argument name="header_text_horizontal" value="center"/>
+ </svg>
+ <svg atv:refpx="1216.497" atv:refpy="134" height="30" id="button_swapin" transform="matrix(1.5875,0,0,1,0,0)" width="80" x="726.299" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="119">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.check"/>
+  <atv:argument name="label" value="T{To swapin}"/>
+  <atv:argument name="right" prefix="actions_right"/>
+  <atv:argument name="activeNode" prefix="actions_activeNode"/>
+  <atv:argument name="activeValue" prefix="actions_activeValue"/>
+  <atv:overwrite id="id_6" transform="matrix(0.6299,0,0,1,0,0)" width="125"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.378,0,0,0.6,0,0)" x="95.667"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.378,0,0,0.6,0,0)" x="95.667"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6299,0,0,1,0,0)" x="53.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6299,0,0,1,0,0)" width="123"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6299,0,0,1,0,0)" width="125"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.6299,0,0,1,0,0)" width="127"/>
+ </svg>
+ <svg atv:refpx="1216.5" atv:refpy="174" height="30" id="button_backup" transform="matrix(1.5875,0,0,1,0,0)" width="80" x="726.299" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="159">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.check"/>
+  <atv:argument name="label" value="T{To backup}"/>
+  <atv:argument name="right" prefix="actions_right"/>
+  <atv:argument name="activeNode" prefix="actions_activeNode"/>
+  <atv:argument name="activeValue" prefix="actions_activeValue"/>
+  <atv:overwrite id="id_6" transform="matrix(0.6299,0,0,1,0,0)" width="125"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.378,0,0,0.6,0,0)" x="95.667"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.378,0,0,0.6,0,0)" x="95.667"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6299,0,0,1,0,0)" x="53.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6299,0,0,1,0,0)" width="123"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6299,0,0,1,0,0)" width="125"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.6299,0,0,1,0,0)" width="127"/>
+ </svg>
+ <svg atv:refpx="1073.48" atv:refpy="174" height="30" id="button_auto_scheduler" transform="matrix(1.5875,0,0,1,0,0)" width="80" x="636.231" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="159">
+  <atv:argument name="label" value="T{Auto-scheduler}"/>
+  <atv:argument name="right" prefix="auto-scheduler_right"/>
+  <atv:argument name="activeValue" prefix="auto-scheduler_activeValue"/>
+  <atv:argument name="activeNode" prefix="auto-scheduler_activeNode"/>
+  <atv:overwrite id="id_6" transform="matrix(0.6299,0,0,1,0,0)" width="125"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.378,0,0,0.6,0,0)" x="95.667"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.378,0,0,0.6,0,0)" x="95.667"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6299,0,0,1,0,0)" x="53.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6299,0,0,1,0,0)" width="123"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6299,0,0,1,0,0)" width="125"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.6299,0,0,1,0,0)" width="127"/>
+ </svg>
+ <svg atv:refpx="1073.499" atv:refpy="130.977" height="30" id="refreshButton" transform="matrix(1.5875,0,0,1,0,0)" width="80" x="636.229" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="119">
+  <atv:argument name="label" value="T{Refresh}"/>
+  <atv:overwrite height="31.892" id="id_2" transform="matrix(1,0,0,0.8023,0,0)"/>
+  <atv:overwrite height="36.892" id="id_0" transform="matrix(1,0,0,0.8023,0,0)"/>
+  <atv:overwrite id="id_6" transform="matrix(0.6299,0,0,1,0,0)" width="125"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.378,0,0,0.6,0,0)" x="95.667"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.378,0,0,0.6,0,0)" x="95.667"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6299,0,0,1,0,0)" x="53.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6299,0,0,1,0,0)" width="123"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6299,0,0,1,0,0)" width="125"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.6299,0,0,1,0,0)" width="127"/>
+ </svg>
+ <rect atv:refpx="1145" atv:refpy="285" fill="$FILLCOLOR2$" height="24" id="storageOverviewHeaderBackground" stroke="none" stroke-width="2" width="270" x="1010" y="283"/>
+ <text atv:refpx="1082.5" atv:refpy="295" fill="$FONTCOLOR2$" font-family="Arial" font-size="14" font-weight="bold" id="storageOverviewHeader" x="1019" y="300">T{Storage overview}</text>
+ <foreignObject height="70" id="id_1" width="270" x="1010" y="317">
+  <div class="storageOverviewEntry" id="info_historydir" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <rect atv:refpx="640" atv:refpy="38.976" fill="$FILLCOLOR$" height="80" id="id_12" stroke="none" stroke-width="2" width="1280" x="0" y="0"/>
+ <svg atv:refpx="260" atv:refpy="20" height="30" id="type_data" transform="matrix(0.875,0,0,1,0,0)" width="160" x="217.143" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="5">
+  <atv:argument name="valueOn" value="1"/>
+  <atv:argument name="outputValueOn" value="1"/>
+  <atv:argument name="outputValueOff" value="0"/>
+  <atv:argument name="label" value="T{Data archive}"/>
+  <atv:overwrite id="checkbox_bg2" transform="matrix(0.9143,0,0,1.0319,0,0)" y="3.037"/>
+  <atv:overwrite id="id_5" transform="matrix(0.9143,0,0,1.0319,0,0)" y="2.037"/>
+  <atv:overwrite height="23.573" id="id_2" transform="matrix(0.9143,0,0,1.0319,0,0)" width="142.992"/>
+  <atv:overwrite height="28.573" id="id_0" transform="matrix(0.9143,0,0,1.0319,0,0)" width="174.492"/>
+  <atv:argument name="fontSize" value="10"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(1.1429,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="430" atv:refpy="20" height="30" id="type_event" transform="matrix(0.875,0,0,1,0,0)" width="160" x="411.429" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="5">
+  <atv:argument name="valueOn" value="1"/>
+  <atv:argument name="outputValueOn" value="1"/>
+  <atv:argument name="outputValueOff" value="0"/>
+  <atv:argument name="label" value="T{Event archive}"/>
+  <atv:overwrite id="checkbox_bg2" transform="matrix(0.9143,0,0,1.0319,0,0)" y="3.037"/>
+  <atv:overwrite id="id_5" transform="matrix(0.9143,0,0,1.0319,0,0)" y="2.037"/>
+  <atv:overwrite height="23.573" id="id_2" transform="matrix(0.9143,0,0,1.0319,0,0)" width="142.992"/>
+  <atv:overwrite height="28.573" id="id_0" transform="matrix(0.9143,0,0,1.0319,0,0)" width="174.492"/>
+  <atv:argument name="fontSize" value="10"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(1.1429,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="260" atv:refpy="60" height="30" id="type_aggr" transform="matrix(0.875,0,0,1,0,0)" width="160" x="217.143" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="45">
+  <atv:argument name="valueOn" value="1"/>
+  <atv:argument name="outputValueOn" value="1"/>
+  <atv:argument name="outputValueOff" value="0"/>
+  <atv:argument name="label" value="T{Aggregated archive}"/>
+  <atv:overwrite id="checkbox_bg2" transform="matrix(0.9143,0,0,1.0319,0,0)" y="3.037"/>
+  <atv:overwrite id="id_5" transform="matrix(0.9143,0,0,1.0319,0,0)" y="2.037"/>
+  <atv:overwrite height="23.573" id="id_2" transform="matrix(0.9143,0,0,1.0319,0,0)" width="142.992"/>
+  <atv:overwrite height="28.573" id="id_0" transform="matrix(0.9143,0,0,1.0319,0,0)" width="174.492"/>
+  <atv:argument name="fontSize" value="10"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(1.1429,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="430" atv:refpy="60" height="30" id="type_systemdb" transform="matrix(0.875,0,0,1,0,0)" width="160" x="411.429" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="45">
+  <atv:argument name="valueOn" value="1"/>
+  <atv:argument name="outputValueOn" value="1"/>
+  <atv:argument name="outputValueOff" value="0"/>
+  <atv:argument name="label" value="T{System database}"/>
+  <atv:overwrite id="checkbox_bg2" transform="matrix(0.9143,0,0,1.0319,0,0)" y="3.037"/>
+  <atv:overwrite id="id_5" transform="matrix(0.9143,0,0,1.0319,0,0)" y="2.037"/>
+  <atv:overwrite height="23.573" id="id_2" transform="matrix(0.9143,0,0,1.0319,0,0)" width="142.992"/>
+  <atv:overwrite height="28.573" id="id_0" transform="matrix(0.9143,0,0,1.0319,0,0)" width="174.492"/>
+  <atv:argument name="fontSize" value="10"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(1.1429,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="630" atv:refpy="20" height="30" id="dir_historydir" transform="matrix(0.875,0,0,1,0,0)" width="160" x="640" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="5">
+  <atv:argument name="valueOn" value="1"/>
+  <atv:argument name="outputValueOn" value="1"/>
+  <atv:argument name="outputValueOff" value="0"/>
+  <atv:argument name="label" value="T{History directory}"/>
+  <atv:overwrite id="checkbox_bg2" transform="matrix(0.9234,0,0,1.0365,0,0)" y="2.972"/>
+  <atv:overwrite id="id_5" transform="matrix(0.9234,0,0,1.0365,0,0)" y="1.972"/>
+  <atv:overwrite height="23.444" id="id_2" transform="matrix(0.9234,0,0,1.0365,0,0)" width="141.28"/>
+  <atv:overwrite height="28.444" id="id_0" transform="matrix(0.9234,0,0,1.0365,0,0)" width="172.78"/>
+  <atv:argument name="fontSize" value="10"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(1.1429,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="630" atv:refpy="60" height="30" id="dir_swapin" transform="matrix(0.875,0,0,1,0,0)" width="160" x="640" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="45">
+  <atv:argument name="valueOn" value="1"/>
+  <atv:argument name="outputValueOn" value="1"/>
+  <atv:argument name="outputValueOff" value="0"/>
+  <atv:argument name="label" value="T{Swapin directory}"/>
+  <atv:overwrite id="checkbox_bg2" transform="matrix(0.9234,0,0,1.0365,0,0)" y="2.972"/>
+  <atv:overwrite id="id_5" transform="matrix(0.9234,0,0,1.0365,0,0)" y="1.972"/>
+  <atv:overwrite height="23.444" id="id_2" transform="matrix(0.9234,0,0,1.0365,0,0)" width="141.28"/>
+  <atv:overwrite height="28.444" id="id_0" transform="matrix(0.9234,0,0,1.0365,0,0)" width="172.78"/>
+  <atv:argument name="fontSize" value="10"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(1.1429,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="800" atv:refpy="20" height="30" id="dir_backup" transform="matrix(0.875,0,0,1,0,0)" width="160" x="834.286" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="5">
+  <atv:argument name="valueOn" value="1"/>
+  <atv:argument name="outputValueOn" value="1"/>
+  <atv:argument name="outputValueOff" value="0"/>
+  <atv:argument name="label" value="T{Backup directory}"/>
+  <atv:overwrite id="checkbox_bg2" transform="matrix(0.9193,0,0,1.0365,0,0)" y="2.972"/>
+  <atv:overwrite id="id_5" transform="matrix(0.9193,0,0,1.0365,0,0)" y="1.972"/>
+  <atv:overwrite height="23.444" id="id_2" transform="matrix(0.9193,0,0,1.0365,0,0)" width="142.048"/>
+  <atv:overwrite height="28.444" id="id_0" transform="matrix(0.9193,0,0,1.0365,0,0)" width="173.548"/>
+  <atv:argument name="fontSize" value="10"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(1.1429,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="800" atv:refpy="60" height="30" id="dir_restore" transform="matrix(0.875,0,0,1,0,0)" width="160" x="834.286" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="45">
+  <atv:argument name="valueOn" value="1"/>
+  <atv:argument name="outputValueOn" value="1"/>
+  <atv:argument name="outputValueOff" value="0"/>
+  <atv:argument name="label" value="T{Restore directory}"/>
+  <atv:overwrite id="checkbox_bg2" transform="matrix(0.9168,0,0,1.0365,0,0)" y="2.972"/>
+  <atv:overwrite id="id_5" transform="matrix(0.9168,0,0,1.0365,0,0)" y="1.972"/>
+  <atv:overwrite height="23.444" id="id_2" transform="matrix(0.9168,0,0,1.0365,0,0)" width="142.512"/>
+  <atv:overwrite height="28.444" id="id_0" transform="matrix(0.9168,0,0,1.0365,0,0)" width="174.012"/>
+  <atv:argument name="fontSize" value="10"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(1.1429,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="969.125" atv:refpy="20" height="30" id="conflict" transform="matrix(0.875,0,0,1,0,0)" width="160" x="1028.571" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="5">
+  <atv:argument name="valueOn" value="1"/>
+  <atv:argument name="outputValueOn" value="1"/>
+  <atv:argument name="outputValueOff" value="0"/>
+  <atv:argument name="label" value="T{Conflict only}"/>
+  <atv:overwrite id="checkbox_bg2" transform="matrix(0.9143,0,0,1.0319,0,0)" y="3.037"/>
+  <atv:overwrite id="id_5" transform="matrix(0.9143,0,0,1.0319,0,0)" y="2.037"/>
+  <atv:overwrite height="23.573" id="id_2" transform="matrix(0.9143,0,0,1.0319,0,0)" width="142.992"/>
+  <atv:overwrite height="28.573" id="id_0" transform="matrix(0.9143,0,0,1.0319,0,0)" width="174.492"/>
+  <atv:argument name="fontSize" value="10"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(1.1429,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(1.1429,0,0,1,0,0)"/>
+ </svg>
+ <text atv:refpx="61.9" atv:refpy="24" fill="$FONTCOLOR$" font-family="Arial" font-size="22" id="title" text-anchor="start" x="7" y="31.5">T{Archive}</text>
+ <foreignObject height="70" id="id_7" width="270" x="1010" y="387">
+  <div class="storageOverviewEntry" id="info_swapin" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <foreignObject height="70" id="id_16" width="270" x="1010" y="457">
+  <div class="storageOverviewEntry" id="info_backup" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <foreignObject height="70" id="id_20" width="270" x="1010" y="527">
+  <div class="storageOverviewEntry" id="info_restore" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <rect atv:refpx="1145.5" atv:refpy="97" fill="$FILLCOLOR2$" height="24" id="id_24" stroke="none" stroke-width="2" width="270" x="1010.5" y="85"/>
+ <text atv:refpx="1051.5" atv:refpy="97" fill="$FONTCOLOR2$" font-family="Arial" font-size="14" font-weight="bold" id="id_25" x="1019.5" y="102">T{Control}</text>
+ <rect atv:refpx="1145.5" atv:refpy="617" fill="$FILLCOLOR2$" height="24" id="id_8" stroke="none" stroke-width="2" width="270" x="1010.5" y="605"/>
+ <text atv:refpx="1049.154" atv:refpy="617" fill="$FONTCOLOR2$" font-family="Arial" font-size="14" font-weight="bold" id="id_10" x="1019" y="622">T{Details}</text>
+ <text atv:refpx="1088.54" atv:refpy="646" fill="$FONTCOLOR$" font-family="Arial" font-size="14" font-weight="normal" id="id_13" x="1015" y="651">T{File(s) selected}:</text>
+ <text atv:refpx="1112.004" atv:refpy="665" fill="$FONTCOLOR$" font-family="Arial" font-size="14" font-weight="normal" id="id_15" x="1015" y="670">T{Size of selected file(s)}:</text>
+ <text atv:refpx="1194.5" atv:refpy="646" fill="$FONTCOLOR$" font-family="Arial" font-size="14" font-weight="normal" id="lbl_count" x="1195" y="651"/>
+ <text atv:refpx="1194.79" atv:refpy="665" fill="$FONTCOLOR$" font-family="Arial" font-size="14" font-weight="normal" id="lbl_size" x="1195" y="670"/>
+ <svg atv:refpx="1175" atv:refpy="20" height="30" id="chk_group_archives" width="160" x="1095" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="5">
+  <atv:argument name="label" value="T{Keep archive(s) together}"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:argument name="fontSize" value="10"/>
+ </svg>
+ <rect atv:refpx="162.5" atv:refpy="40" fill="#ffffff" height="80" id="id_4" stroke="none" stroke-width="1" width="5" x="160" y="0"/>
+ <rect atv:refpx="531" atv:refpy="40" fill="#ffffff" height="70" id="id_14" stroke="none" stroke-width="1" width="2" x="530" y="5"/>
+ <rect atv:refpx="1067.5" atv:refpy="40" fill="#ffffff" height="80" id="id_17" stroke="none" stroke-width="1" width="5" x="1065" y="0"/>
+ <text atv:refpx="1137.5" atv:refpy="256" fill="#ef0001" font-family="Arial" font-size="13" font-weight="bold" id="lbl_status" text-anchor="middle" x="1146.5" y="261"/>
+ <svg atv:refpx="575" atv:refpy="20" height="20" id="icon_historydir" style="cursor:pointer" transform="matrix(1.25,0,0,1.25,0,0)" width="20" x="450" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.historydir" y="6"/>
+ <svg atv:refpx="575" atv:refpy="60" height="20" id="icon_swapin" style="cursor:pointer" transform="matrix(1.25,0,0,1.25,0,0)" width="20" x="450" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.swapin" y="38"/>
+ <svg atv:refpx="745" atv:refpy="20" height="20" id="icon_backup" style="cursor:pointer" transform="matrix(1.25,0,0,1.25,0,0)" width="20" x="586" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.backup" y="6"/>
+ <svg atv:refpx="745" atv:refpy="60" height="20" id="icon_restore" style="cursor:pointer" transform="matrix(1.25,0,0,1.25,0,0)" width="20" x="586" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.restore" y="38"/>
+ <svg atv:refpx="915" atv:refpy="20" height="20" id="icon_conflict" style="cursor:pointer" transform="matrix(1.25,0,0,1.25,0,0)" width="20" x="722" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.conflict" y="6"/>
+ <svg atv:refpx="375" atv:refpy="20" height="20" id="icon_event" style="cursor:pointer" transform="matrix(1.25,0,0,1.25,0,0)" width="20" x="290" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.event" y="6"/>
+ <svg atv:refpx="205" atv:refpy="60" height="20" id="icon_aggr" style="cursor:pointer" transform="matrix(1.25,0,0,1.25,0,0)" width="20" x="154" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.aggregate" y="38"/>
+ <svg atv:refpx="205" atv:refpy="20" height="20" id="icon_data" style="cursor:pointer" transform="matrix(1.25,0,0,1.25,0,0)" width="20" x="154" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.data" y="6"/>
+ <svg atv:refpx="375" atv:refpy="60" height="20" id="icon_systemdb" style="cursor:pointer" transform="matrix(1.25,0,0,1.25,0,0)" width="20" x="290" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.systemdb" y="38"/>
+ <rect atv:refpx="500" atv:refpy="380" fill="none" height="590" id="id_11" stroke="$FILLCOLOR$" stroke-width="1" width="1000" x="0" y="85"/>
+ <text atv:refpx="85.666" atv:refpy="56" fill="$FONTCOLOR$" font-family="Arial" font-size="22" id="id_19" text-anchor="start" x="7" y="63.5">T{management}</text>
+ <svg atv:refpx="1172.5" atv:refpy="60" height="30" id="id_18" transform="matrix(1.9375,0,0,1,0,0)" width="80" x="565.161" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.logger.logger_button" y="45">
+  <atv:argument name="errorGroup" prefix="logger_group_error"/>
+  <atv:argument name="errorSubgroup" prefix="logger_subgroup_error"/>
+  <atv:argument name="errorLabel" prefix="logger_label_error"/>
+  <atv:argument name="label" value="T{View log}"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.5161,0,0,1,0,0)" width="155"/>
+  <atv:overwrite id="id_6" transform="matrix(0.5161,0,0,1,0,0)" width="153"/>
+  <atv:overwrite id="button_label" transform="matrix(0.5161,0,0,1,0,0)" x="77.5"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5161,0,0,1,0,0)" x="67.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.5161,0,0,1,0,0)" width="151"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.5161,0,0,1,0,0)" width="153"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.5161,0,0,1,0,0)" width="155"/>
+ </svg>
+ <svg atv:refpx="39.309" atv:refpy="-5" height="30" id="button_delete" transform="matrix(1.5875,0,0,1,0,0)" width="80" x="726.299" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="199">
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.check"/>
+  <atv:argument name="label" value="T{Delete}"/>
+  <atv:argument name="right" prefix="delete_right"/>
+  <atv:argument name="activeNode" prefix="delete_activeNode"/>
+  <atv:argument name="activeValue" prefix="delete_activeValue"/>
+  <atv:overwrite id="id_6" transform="matrix(0.6299,0,0,1,0,0)" width="125"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6299,0,0,1,0,0)" x="63.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.378,0,0,0.6,0,0)" x="95.667"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.378,0,0,0.6,0,0)" x="95.667"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6299,0,0,1,0,0)" x="53.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6299,0,0,1,0,0)" width="123"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6299,0,0,1,0,0)" width="125"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.6299,0,0,1,0,0)" width="127"/>
+ </svg>
+ <rect atv:refpx="1145" atv:refpy="174" fill="$FILLCOLOR$" height="110" id="id_22" stroke="none" stroke-width="1" width="2" x="1144" y="119"/>
+ <svg atv:refpx="10" atv:refpy="-30" height="20" id="icon_hand" width="20" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.hand" y="-40"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.common.rights_handling" atv:name="rights_handling" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.archivemanagement.archive_management" atv:name="" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <text atv:refpx="504" atv:refpy="375.5" fill="#ff0004" font-family="Arial" font-size="18" font-weight="bold" id="not_authorized_message" text-anchor="middle" visibility="hidden" x="510.492" y="380.5"/>
+</svg>

@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="680" version="1.2" width="1280" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Displays a minimal variant of the alarm list.</desc>
+ <title>Alarmlist Log</title>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="base" desc="base for displays" group="" name="displays_base" valuetype="string"/>
+  <atv:parameter behavior="optional" config="all;alarms;shelved;suppressed;disabled" defaultvalue="alarms" desc="start view" name="view" valuetype="enum"/>
+  <atv:parameter behavior="hidden" defaultvalue="" desc="table ID of parent" name="parentID" valuetype="string"/>
+  <atv:parameter behavior="mandatory" defaultvalue="alarm_table" desc="table ID" group="Table" name="tableID" substitute="$TABLEID$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Alarm list}" desc="table title" group="Table" name="title" valuetype="tstring"/>
+  <atv:parameter behavior="optional" defaultvalue="67" desc="table header height" group="Table" name="header_height" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="56" desc="table row height" group="Table" name="row_height" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.Alarmlist.Columns.Alarm" desc="columns alarms view" group="Columns" name="columnsAlarm" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.Alarmlist.Columns.Alarmlog" desc="columns alarmlog" group="Columns" name="columnsAlarmlog" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.Alarmlist.Columns.All" desc="columns all view" group="Columns" name="columnsAll" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.Alarmlist.Columns.Disabled" desc="columns disabled view" group="Columns" name="columnsDisabledView" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.Alarmlist.Columns.Shelved" desc="columns shelved view" group="Columns" name="columnsShelvedView" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.Alarmlist.Columns.Suppressed" desc="columns suppressed view" group="Columns" name="columnsSuppressedView" valuetype="global"/>
+  <atv:parameter behavior="optional" config="Arial;Courier;Tahoma;Verdana" defaultvalue="Arial" desc="font family" group="Font" name="font_family" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" group="Font" name="globalFontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="27" desc="table header font size" group="Font" name="header_font_size" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="26" desc="table row font size" group="Font" name="row_font_size" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="26" desc="table detail font size" group="Font" name="detail_font_size" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="26" desc="table footer font size" group="Font" name="footer_font_size" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvBorderColor" desc="border color" group="Appearance" name="globalBorderColor" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Appearance" name="globalFillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="symbol color" group="Appearance" name="globalSymbolColor" substitute="$SYMBOLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvObjectDisplays.Tables.ColorConfig" desc="global color config" group="Appearance" name="globalColorConfig" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvAlarmIndication" desc="alarm indication appearance" group="Appearance" name="alarmIndication" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="atviseTheme" desc="custom theme" group="Appearance" name="theme" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.shelve" desc="shelve symbol" group="Appearance" name="shelveSymbol" substitute="$SHELVE$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.shelveOnce" desc="shelve once symbol" group="Appearance" name="shelveOnceSymbol" substitute="$SHELVEONCE$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.shelveTime" desc="timed shelve symbol" group="Appearance" name="shelveTimeSymbol" substitute="$SHELVETIME$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.suppress" desc="suppress symbol" group="Appearance" name="suppressSymbol" substitute="$SUPPRESS$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.enabled" desc="enable symbol" group="Appearance" name="enableSymbol" substitute="$ENABLE$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.acknowledge" desc="acknowledge symbol" group="Appearance" name="acknowledgeSymbol" substitute="$ACKNOWLEDGE$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.confirm" desc="confirm symbol" group="Appearance" name="confirmSymbol" substitute="$CONFIRM$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.acknowledge_comment" desc="acknowledge with comment symbol" group="Appearance" name="acknowledgeCommentSymbol" substitute="$ACKNOWLEDGE_COMMENT$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.confirm_comment" desc="confirm with comment symbol" group="Appearance" name="confirmCommentSymbol" substitute="$CONFIRM_COMMENT$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.acknowledge" desc="acknowledge inactive symbol" group="Appearance" name="acknowledgeSymbolInactive" substitute="$ACKNOWLEDGE_INACTIVE$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.confirm" desc="confirm inactive symbol" group="Appearance" name="confirmSymbolInactive" substitute="$CONFIRM_INACTIVE$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.acknowledge_comment" desc="acknowledge with comment inactive symbol" group="Appearance" name="acknowledgeCommentSymbolInactive" substitute="$ACKNOWLEDGE_COMMENT_INACTIVE$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.confirm_comment" desc="confirm with comment inactive symbol" group="Appearance" name="confirmCommentSymbolInactive" substitute="$CONFIRM_COMMENT_INACTIVE$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.action" desc="action button symbol" group="Appearance" name="actionButtonSymbol" substitute="$ACTION$" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="query filter" group="Options" name="query_filter" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="paging" group="Options" name="paging" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="filter bar enabled" group="Options" name="filterBar" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="filter regular expressions" group="Options" name="filterRegExp" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="filter use placeholder" group="Options" name="filterStar" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="filter case sensitive" group="Options" name="filterCaseSensitive" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="1" desc="filter min. input length" group="Options" name="filterMinInputLength" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="stick parent and child together" group="Options" name="parentChildStickTogether" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="cell linebreak" group="Options" name="linebreak" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="columns reorderable" group="Options" name="columnReorder" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="multiselect on cell click" group="Options" name="multicellselect" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show menu" group="Menu options" name="showMenu" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Export CSV}" desc="custom menu title" group="Menu options" name="showMenuCustomTitle" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="Show/Hide" desc="picker menu title" group="Menu options" name="showPickerMenuTitle" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show picker menu" group="Menu options" name="showPickerMenu" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="250" desc="menu width" group="Menu options" name="menuWidth" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="300" desc="menu height" group="Menu options" name="menuHeight" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="0" desc="min. priority" group="Default filter" name="priority" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="display" group="Default filter" name="display" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="group" group="Default filter" name="group" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="alarm source" group="Default filter" name="alarm_source" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="alarm condition" group="Default filter" name="alarm_condition" valuetype="address"/>
+  <atv:parameter behavior="optional" config="All=all;On Unacknowledged=1;On Acknowledged=2;Off Unacknowledged=3;On Off Unacknowledged=5" defaultvalue="" desc="acknowledge status" group="Default filter" name="ackn_status" valuetype="enum"/>
+  <atv:parameter behavior="optional" desc="user" group="Default filter" name="user" valuetype="string"/>
+  <atv:parameter behavior="optional" desc="event text" group="Default filter" name="eventtext" valuetype="string"/>
+  <atv:parameter behavior="optional" desc="comment" group="Default filter" name="comment" valuetype="string"/>
+  <atv:parameter behavior="optional" config="All=all;Alarm=alarm;Condition=condition" defaultvalue="" desc="alarm or condition" group="Default filter" name="alarm_or_condition" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="All=all;Alarms=active;Suppressed=suppressed;OneShotShelved=shelvedOnce;TimeShelved=shelvedTime" defaultvalue="" desc="state" group="Default filter" name="state" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="right for acknowledge" group="Security" name="rightAcknowledge" valuetype="address"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="right for confirm" group="Security" name="rightConfirm" valuetype="address"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="right for (un)shelve" group="Security" name="rightShelve" valuetype="address"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="right for unsuppress" group="Security" name="rightSuppress" valuetype="address"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="right for disable/enable" group="Security" name="rightDisableEnable" valuetype="address"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="right for CSV export" group="Security" name="rightExport" valuetype="address"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <svg atv:refpx="640" atv:refpy="345" height="680" id="alarmlog" width="1280" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist" y="5">
+  <atv:argument name="filterBar" value="false"/>
+  <atv:argument name="font_family" value="Arial"/>
+  <atv:argument name="showMenu" value="false"/>
+  <atv:argument name="tableID" value="alarmlog_table"/>
+  <atv:argument name="theme" value="atviseTheme"/>
+  <atv:argument name="title" value="Alarmlog"/>
+  <atv:argument name="alarmlog" value="true"/>
+  <atv:argument name="header_height" value="25"/>
+  <atv:argument name="header_font_size" value="16"/>
+  <atv:argument name="globalFillColor" value="SYSTEM.GLOBALS.atvFillColor"/>
+  <atv:argument name="globalFontColor" value="SYSTEM.GLOBALS.Colors.Negro"/>
+  <atv:argument name="alarm_condition" value="AGENT.OBJECTS.SCADA.Solidaridad.Cuencas"/>
+  <atv:argument name="eventtext" value="nivel"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

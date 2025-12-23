@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Caudalimetro.graph_pressure
+NodeClass: Variable
+BrowseName: 1:graph_pressure
+DisplayName: en|graph_pressure
+Description: en|graph_pressure
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Tanque.Utils.plus_code_display
+NodeClass: Variable
+BrowseName: 1:plus_code_display
+DisplayName: en|plus_code_display
+Description: en|plus_code_display
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

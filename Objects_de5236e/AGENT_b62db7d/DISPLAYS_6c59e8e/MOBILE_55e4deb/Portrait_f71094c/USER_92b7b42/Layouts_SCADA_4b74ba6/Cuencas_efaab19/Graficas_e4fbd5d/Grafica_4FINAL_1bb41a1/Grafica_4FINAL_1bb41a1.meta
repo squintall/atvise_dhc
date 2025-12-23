@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA.Cuencas.Graficas.Grafica_4FINAL
+NodeClass: Variable
+BrowseName: 1:Grafica_4FINAL
+DisplayName: en|Grafica_4FINAL
+Description: en|Grafica_4FINAL
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

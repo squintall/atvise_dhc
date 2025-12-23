@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.Colors.Azul-AP
+NodeClass: Variable
+BrowseName: 1:Azul-AP
+DisplayName: en|Azul-AP
+Description: en|Azul-AP
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

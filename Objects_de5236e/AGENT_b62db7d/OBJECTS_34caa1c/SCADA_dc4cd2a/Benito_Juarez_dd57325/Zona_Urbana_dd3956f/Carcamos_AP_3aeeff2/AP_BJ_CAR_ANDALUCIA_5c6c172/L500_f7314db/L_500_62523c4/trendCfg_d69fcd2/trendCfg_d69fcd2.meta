@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_ANDALUCIA.L500.L_500.trendCfg
+NodeClass: Variable
+BrowseName: 1:trendCfg
+DisplayName: en|trendCfg
+Description: en|trendCfg
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

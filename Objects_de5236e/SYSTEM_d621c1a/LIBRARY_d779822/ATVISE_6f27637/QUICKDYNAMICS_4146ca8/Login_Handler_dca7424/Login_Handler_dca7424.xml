@@ -1,0 +1,617 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAYCAYAAACbU/80AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAFzSURBVEiJ7ZY9L0RBFIafWeu6m/gIQTSS1YkGldItJToJU1Io/Yj9ETrNKq2EbKPeLUVDSFRio6AQQnCNO3vvUVihEma2UOxJTmZycj6enJniVVrrCE8zxhxXq9UHl9p8GhQ27qcWnkkFrEWMhSSBNwuJJbMpmAQSi+pWr7nZyUL++fFKgiBIg8LY0NlBbxiyCdRcAHIAvxmOtWAz5OmVLI7Jrm8hTqDZdJn7tYGuJB4eOd07+zEraDnAxfln1PBAA1QEyh0ApLazs1tybaD1cskTwNdyZWOM0wf0AtBaRyJSBmmEYQ9ar/y5hwhFrw08TczV7maWVuXFILGB1ikvLf8ea2Yn4fridHZzty1pVuwaH50fPNja9gLouzyM+huH9R+TuoGB1n2/XgeKABxRFyHyAlBKyr4fOOcD0A7rAHQAOgB5EbWm9UrkUFtqC0ClUim6FLZDScE/eIIOgKcgUdGHInKvdwYwxhyHYVjykWNA7R0WX7Nf1LKVyQAAAABJRU5ErkJggk6+wMAApP9/A+KvUAxkw8SAUXyRPdlb/9/ztwsZ/v1TYJIRsxfaPnshCyXBx3v/xIOt7YWMpOmSR3hi3S3Ki4IBz4dD3gGgNJAAbUCQChqo4gBgFlQgNxcMiygg2ILFEwICQMqAUgcAAMhpkulR42b0AAAAAElFTkSuQmCC</icon>
+    <visible>1</visible>
+    <title>Login Handler</title>
+    <description>Helper for clientvariableschange response</description>
+  </metadata>
+  <parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.dialogs.message_dialog_small" name="message_display" valuetype="display"/>
+  <parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.dialogs.user_editor" name="user_display" valuetype="display"/>
+  <parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.dialogs.pw_editor" name="password_display" valuetype="display"/>
+  <code><![CDATA[/**
+ * This quick dynamic helps to handle the response of the "clientvariableschange" event
+ *
+ */
+var self = this;
+
+if (self.initialized == undefined) {
+	self.initialized = true;
+	self.message_dialog = null;
+	self.password_dialog = null;
+	self.timeFormat = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Time Formats");
+	
+	webMI.trigger.connect(
+		"com.atvise.loginhandler.changepassword",
+		function (e) {
+			if(self.message_dialog) {
+				self.message_dialog.close();
+				self.message_dialog = null;
+			}
+
+			if (self.password_dialog == null) {
+				self.password_dialog = webMI.display.openWindow({
+					display: base.password_display,
+					extern: false,
+					height: 520,
+					menubar: false,
+					modal: false,
+					movable: true,
+					resizable: false,
+					scrollbars: false,
+					status: false,
+					title: "T{Password Editor}",
+					toolbar: false,
+					width: 430,
+					query: {username: e.username, fullname: e.fullname}
+				});
+				
+				self.password_dialog.cuba = function () {
+					self.password_dialog = null;
+				};
+			}
+		}
+	);
+	
+	webMI.trigger.connect("com.atvise.loginhandler.changepassword_closed", () => {
+		self.password_dialog = null;
+	});
+}
+
+var loginHandler = new (function () {
+	/**
+	 * DECLARATIONS
+	 */
+	var handler = this;
+	var initialized = false;
+	var loggedin = false;
+	var validateMethodRight = true;
+	var serverpolicy;
+	var mailpolicy;
+	var messageTimeoutID;
+	var validationTimeoutID;
+	var textBlocks = {
+		"Cancel": "T{Cancel}",
+		"ChangeFailed": "T{Error}: T{Couldn't change user password.}",
+		"ChangePassword": "T{Change password}",
+		"ChangeSuccessfull": "T{Password changed successfully.}",
+		"character": "T{character}",
+		"Contains": "T{Contains}",
+		"CurrentPassword": "T{Current password}",
+		"Error": "T{Error}",
+		"ErrorRequirements": "T{Error}: T{Not all requirements are fulfilled!}",
+		"ErrorRoot": "T{Error}: T{Password of root cannot be changed!}",
+		"ErrorUserOrPassword": "T{Error}: T{User or password not specified!}",
+		"Login": "T{Login}",
+		"missing": "T{missing}",
+		"NewPassword": "T{New password}",
+		"Password": "T{Password}",
+		"Requirements": "T{Requirements}",
+		"RememberUser": "T{Remember username}",
+		"TwoFactorCode": "T{Authentication code}",
+		"TwoFactorCodeInvalid": "T{Authentication code invalid}",
+		"TwoFactorSendMail": "T{Send code via e-mail}",
+		"TwoFactorSetQR": "T{Show QR code}",
+		"TwoFactorSetApp": "T{Scan QR code in authenticator app to use app authentication.}",
+		"TwoFactorSetAppError": "T{App authentication not configured.}",
+		"TwoFactorUserMail": "T{Authentication e-mail address}",
+		"TwoFactorSentMail": "T{Authentication e-mail sent}",
+		"TwoFactorSentMailFailed": "T{E-mail transmission failed}",
+		"TwoFactorMissingMail": "T{E-mail address not defined or invalid}",
+		"TwoFactorEnterMail": "T{E-mail address not configured. Please enter e-mail address}",
+		"Username": "T{Username}",
+		"Verify": "T{Verify}",
+		"response_delayed": ["T{Too many attempts! Please wait} "," T{second(s)}."],
+		"response_indelay": ["T{Request delayed! Please try again later.}"],
+		"response_failed": ["T{Login data wrong or permission missing!}"],
+		"response_locked": ["T{User account locked. Please contact your administrator.}"],
+		"response_locktime": ["T{User temporarily locked for} "," T{minute(s)}."],
+		"response_success": ["T{User log in successful!}"],
+		"response_tries": ["T{Username or Password wrong!} "," T{retries left!}"],
+		"response_validity": ["T{Password expires in} "," T{day(s)}. T{Please change your password.}"],
+		"response_expired": ["T{Password expired. Please change your password to unlock the account.}"],
+		"policy_min_length": ["T{Min.}","T{characters}"],
+		"policy_max_age": ["T{Day(s)}","T{Unlimited}"],
+		"policy_surrounding_white_space": ["T{no leading or trailing spaces}"],
+		"policy_require_new_password": ["T{New and old password must be different}"],
+		"policy_require_name_exclusion": ["T{Must not contain user name}","T{Must not contain part of full name}","T{Must not contain user name or part of full name}"],
+		"policy_require_lower_case": ["T{lower case}"],
+		"policy_require_upper_case": ["T{upper case}"],
+		"policy_require_digit": ["T{digit(s)}"],
+		"policy_require_special_char": ["T{Special character(s)} ( .:',;\"~!?@#$%^&*_-+=/|\\(){}[]<>)"],
+		"policy_require_other_unicode": ["T{Other unicode character(s)}"],
+		"policy_mail_disallow_custom": ["T{Setting custom e-mail is disabled}"],
+		"policy_mail_failed": ["T{E-Mail could not be saved}"],
+		"policy_mail_domain_invalid": ["T{E-mail address has invalid domain}"],
+		"policy_mail_missing_at": ["T{E-mail address has no domain specified}"]
+	}
+
+	/**
+	 * FUNCTIONS
+	 */
+	const accessControlManager = webMI.getAccessControlSupport() ? webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager") : false;
+	if(accessControlManager) {
+		accessControlManager.getRights(["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.ValidateUserPassword", "AGENT.OPCUA.METHODS.validateUserPassword"], ["execute", "execute"], function (e) {
+			validateMethodRight = e.result[0].value && e.result[1].value;
+		});
+	}
+	 
+	/**
+	 * Internal function called by public showMessageDialog function
+	 * @param {e}
+	 */
+	function messageDialog(e) {
+		var responseText = handler.getResponseText(e);
+		if (responseText == "")
+			return;
+
+		if (self.message_dialog == null) {
+			self.message_dialog = webMI.display.openWindow({
+				display: base.message_display,
+				extern: false,
+				height: 160,
+				menubar: false,
+				modal: true,
+				movable: true,
+				resizable: false,
+				scrollbars: false,
+				status: false,
+				title: "T{Login Information}",
+				toolbar: false,
+				width: 400,
+				query: {"headline": e.username == "" ? "T{Login failed}!" : "T{Attention}!", "message": responseText, "action_btn1": (typeof e.passwordvalidity != "undefined")? "com.atvise.loginhandler.changepassword" : "" }
+			});
+	
+			self.message_dialog.cuba = function () {
+				self.message_dialog = null;
+			};
+		}
+	}	
+
+	/**
+	 * Returns translated text blocks
+	 * @param {e} Optional string for specify a text block
+	 * @returns {string}
+	 */
+	this.getTextBlocks = function(e) {
+		if (e) {
+			if(textBlocks[e])
+				return textBlocks[e];
+			else
+				return "";
+		} else {
+			return textBlocks;
+		}
+	}
+
+	/**
+	 * Returns a type for the server response
+	 * @param {e} Object of "clientvariableschange" event
+	 * @returns {string}
+	 */
+	this.getResponseType = function(e) {
+		var ret = "";
+		
+		if (typeof e["twofactor-state"] != "undefined")
+			return "twofactor";
+
+		if (!e || typeof e.username == "undefined") {
+			initialized = true;
+			return "";
+		}
+
+		if (e.username == "") {
+			/** Login failed or logout **/
+			if (initialized && !loggedin) {
+				if (e.locktime == -1) {
+					ret = "locked";
+				} else if (e.locktime > 0) {
+					ret = "locktime";
+				} else if (e.passwordvalidity <= 0) {
+					ret = "expired";
+				} else if (e.tries > 0) {
+					ret = "tries";
+				} else if (e.logindelayed > 0) {
+					ret = "delayed";
+				} else {
+					ret = "failed";
+				}
+			}
+
+			loggedin = false;
+		} else {
+			/** Login passed **/
+			loggedin = true;
+			if (e.passwordvalidity > 0)
+				ret = "validity";
+			else
+				ret = "success";
+		}
+	
+		initialized = true;
+		return ret;	
+	}
+
+	/**
+	 * Transforms the server response to a readable string 
+	 * @param {e} Object of "clientvariableschange" event
+	 * @returns {string}
+	 */
+	this.getResponseText = function(e) {	
+		const type = handler.getResponseType(e);
+		var ret = "";
+
+		switch(type) {
+			case "expired":
+				ret = textBlocks.response_expired[0];
+				break;
+			case "failed":
+				ret = textBlocks.response_failed[0];
+				break;
+			case "locked":
+				ret = textBlocks.response_locked[0];
+				break;
+			case "locktime":
+				ret = textBlocks.response_locktime[0] + self.timeFormat.splitTimeToString(e.locktime, {filter: "hhmmss", limit: 1, round: 0});
+				break;
+			case "tries":
+				ret = textBlocks.response_tries[0] + e.tries + textBlocks.response_tries[1];
+				break;
+			case "delayed":
+				ret = textBlocks.response_delayed[0] + self.timeFormat.splitTimeToString(e.logindelayed, {filter: "hhmmss", limit: 1, round: 0});
+				break;
+			case "validity":
+				ret = textBlocks.response_validity[0] + e.passwordvalidity + textBlocks.response_validity[1];
+				break;
+			case "success":
+				ret = textBlocks.response_success[0];
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Transforms the error response of the changepassword function to a readable string 
+	 * @param {e} Errorstring of "changepassword" function
+	 * @returns {string}
+	 */	
+	this.getErrorText = function(e) {
+		var error;
+		if (typeof e == "string" && e.indexOf("Error ") == 0)
+			error = parseInt(e.replace("Error ", ""));
+			
+		if (typeof error != "number")
+			return e; 
+
+		const policy = serverpolicy;
+		const errorBits = {
+			"none": 0x0000,
+			"active": 0x0001,
+			"minLength": 0x0002,
+			"requireLowerCase": 0x0004,
+			"requireUpperCase": 0x0008,
+			"requireDigit": 0x0010,
+			"requireSpecialChar": 0x0020,
+			"requireNewPw": 0x0040,
+			"requireNameExclusion": 0x0080,
+			"requireFullnameExclusion": 0x0100,
+			"invalidUser": 0x0200,
+			"invalidOldPassword": 0x0400,
+			"hasSurroundingWhiteSpace": 0x0800,
+			"inDelay": 0x1000,
+			"userLocked": 0x2000
+		};
+
+		for (var i in errorBits)
+			if (error & errorBits[i]) {
+				var ret = textBlocks.ChangeFailed
+				switch(i) {
+					case "requireLowerCase":
+						ret = textBlocks.Error + ": " + policy[i].text + " " + textBlocks.character + " " + textBlocks.missing;
+						break;
+					case "requireUpperCase":
+						ret = textBlocks.Error + ": " + policy[i].text + " " + textBlocks.character + " " + textBlocks.missing;
+						break;
+					case "requireDigit":
+						ret = textBlocks.Error + ": " + policy[i].text + " " + textBlocks.missing;
+						break;
+					case "requireSpecialChar":
+						ret = textBlocks.Error + ": " + policy[i].text + " " + textBlocks.missing;
+						break;
+					case "requireOtherUnicode":
+						ret = textBlocks.Error + ": " + policy[i].text + " " + textBlocks.missing;
+						break;
+					case "requireNewPw":
+						ret = textBlocks.Error + ": " + policy[i].text;
+						break;
+					case "requireNameExclusion":
+						ret = textBlocks.Error + ": " + policy[i].text;
+						break;
+					case "requireFullnameExclusion":
+						ret = textBlocks.Error + ": " + policy[i].text;
+						break;
+					case "invalidUser":
+						ret = textBlocks.response_failed;
+						break;
+					case "invalidOldPassword":
+						ret = textBlocks.response_failed;
+						break;
+					case "hasSurroundingWhiteSpace":
+						ret = textBlocks.Error + ": " + policy[i].text;
+						break;
+					case "inDelay":
+						ret = textBlocks.response_indelay;
+						break;
+					case "userLocked":
+						ret = textBlocks.response_locked;
+						break;
+				}
+				
+				return ret;
+			}
+
+        return false;
+	}
+	
+	/**
+	 * Transforms the twofactor response of the "clientvariableschange" event to a readable object
+	 * @param {e} Object of "clientvariableschange" event
+	 * @returns {object}
+	 */	
+	this.handleTwoFactorResponse = function(e) {
+		var ret = {	email: e.email ? e.email : "",
+					ignoreemailpolicy: e.ignoreemailpolicy ? e.ignoreemailpolicy : false,
+					type: {}, state: {}, error: {}
+					};
+
+		var states = {
+			"invalid": 0x0001,
+			"login": 0x0002,
+			"loginFailed": 0x0004,
+			"loginSucceded": 0x0008
+		}
+
+		var types = {
+			"deactivated": 0x0000,
+			"app": 0x0001,
+			"email": 0x0002
+		}
+
+		var errors = {
+			"ok": 0x0001,
+			"emailMissing": 0x0002,
+			"emailInvalid": 0x0004,
+			"appNotConfigured": 0x0008			
+		}
+
+		if (typeof e["twofactor-state"] != "undefined") {
+			for (var i in states)
+				ret.state[i] = !!(e["twofactor-state"] & states[i]) ? true : false;
+		}
+
+		if (typeof e["twofactor-type"] != "undefined") {
+			for (var i in types)
+				ret.type[i] = !!(e["twofactor-type"] & types[i]) ? true : false;
+		}
+		
+		if (typeof e["twofactor-error"] != "undefined") {
+			for (var i in errors)
+				ret.error[i] = !!(e["twofactor-error"] & errors[i]) ? true : false;
+		}
+
+		return ret;
+	}
+	
+	/**
+	 * Builds a enhanced password policy object with text blocks
+	 * @returns {object}
+	 */
+	this.handlePolicy = function(policy) {
+		if (serverpolicy) {
+			//add info response parameters when missing in ua method response (e.g. maxAgeDays)
+			if (typeof policy["maxAgeDays"] == "undefined")
+				policy["maxAgeDays"] = serverpolicy["maxAgeDays"].value;
+			if (typeof policy["minLength"] == "boolean")
+				policy["minLength"] = serverpolicy["minLength"].value;
+		}
+
+		var ret = {
+			minLength: {
+				fulfilled: null,
+				value: policy["minLength"] ? policy["minLength"] : 0,
+				text:  textBlocks.policy_min_length[0] + " " + (policy["minLength"] ? policy["minLength"] : 0) + " " + textBlocks.policy_min_length[1]
+			},
+			maxAgeDays: {
+				fulfilled: true,
+				value: policy["maxAgeDays"] ? policy["maxAgeDays"] : 0,
+				text: (policy["maxAgeDays"] && policy["maxAgeDays"] > 0) ? (policy["maxAgeDays"] + " " + textBlocks.policy_max_age[0]) : textBlocks.policy_max_age[1]
+			},
+			requireNewPw: {
+				fulfilled: null,
+				value: policy["requireNewPw"] ? policy["requireNewPw"] : false,
+				text: textBlocks.policy_require_new_password[0]
+			},
+			hasSurroundingWhiteSpace: {
+				fulfilled: null,
+				value: policy["hasSurroundingWhiteSpace"] ? policy["hasSurroundingWhiteSpace"] : true,
+				text: textBlocks.policy_surrounding_white_space[0]
+			},
+			requireNameExclusion: {
+				fulfilled: null,
+				value: policy["requireNameExclusion"] ? policy["requireNameExclusion"] : false,
+				text: textBlocks.policy_require_name_exclusion[0]
+			},
+			requireFullnameExclusion: {
+				fulfilled: null,
+				value: policy["requireFullnameExclusion"] ? policy["requireFullnameExclusion"] : false,
+				text: textBlocks.policy_require_name_exclusion[2]
+			},
+			requireLowerCase: {
+				fulfilled: null,
+				value: policy["requireLowerCase"] ? policy["requireLowerCase"] : false,
+				text: textBlocks.policy_require_lower_case[0]
+			},
+			requireUpperCase: {
+				fulfilled: null,
+				value: policy["requireUpperCase"] ? policy["requireUpperCase"] : false,
+				text: textBlocks.policy_require_upper_case[0]
+			},
+			requireDigit: {
+				fulfilled: null,
+				value: policy["requireDigit"] ? policy["requireDigit"] : false,
+				text: textBlocks.policy_require_digit[0]
+			},
+			requireSpecialChar: {
+				fulfilled: null,
+				value: policy["requireSpecialChar"] ? policy["requireSpecialChar"] : false,
+				text: textBlocks.policy_require_special_char[0]
+			},	
+			requireOtherUnicode: {
+				fulfilled: null,
+				value: policy["requireOtherUnicode"] ? policy["requireOtherUnicode"] : false,
+				text: textBlocks.policy_require_other_unicode[0]
+			}
+		}
+		
+		//if policy is not active all requirements (except white space) get deactivated
+		if(policy.active === false) {
+			for (var i in ret) {
+				if (i != "hasSurroundingWhiteSpace")
+					ret[i].value = false;
+			}
+		}	
+
+		return ret;
+	}
+	
+	
+	/**
+	 * Returns the enhanced password policy object with text blocks
+	 * @returns {object}
+	 */
+	this.getPasswordPolicy = function(username, callback) {
+		if(webMI.getMethodSupport && webMI.getMethodSupport().indexOf("ValidateUserPassword")  > -1 && validateMethodRight && username && username != "") {
+			webMI.data.call("ValidateUserPassword", {"username": username}, function(result) {
+				if(result.error) {
+					if (result.errorstring) console.warn(result.errorstring);
+					callback(serverpolicy);
+				} else {
+					var ret = handler.handlePolicy(result);
+					callback(ret);
+				}
+			});
+		} else {
+			callback(serverpolicy);
+		}
+	}
+
+	/**
+	 * Returns a validated password policy object with text blocks
+	 * @param {username} String of username for password validation
+	 * @param {newpassword} String of newpassword to validate
+	 * @returns {object}
+	 */
+	this.validateUserPassword = function(username, newpassword, callback) {
+		clearTimeout(validationTimeoutID);
+		
+		validationTimeoutID = setTimeout(function() {
+			var ret = serverpolicy;
+	
+			if(webMI.getMethodSupport && webMI.getMethodSupport().indexOf("ValidateUserPassword")  > -1 && validateMethodRight) {
+				webMI.data.call("ValidateUserPassword", {"username": username, "newpassword": newpassword}, function(result) {
+					const validation = result;
+					for (var i in validation) {
+						if(ret[i])
+							ret[i].fulfilled = validation[i] == false ? true : false;
+					}
+					
+					callback(ret);
+				});
+			} else {
+				callback(ret);
+			}
+		}, 250);
+	}
+	
+	/**
+	 * Returns the mail policy object with text blocks
+	 * @returns {object}
+	 */
+	this.getMailPolicy = function(callback) {
+		mailpolicy = webMI.getMailPolicy ? webMI.getMailPolicy() : false;
+		
+		//convert to lower case only
+		if (mailpolicy["whitelist"]) {
+			for (var i in mailpolicy["whitelist"])
+				mailpolicy["whitelist"][i] = mailpolicy["whitelist"][i].toLowerCase();
+		}
+		
+		if (typeof callback == "function")
+			callback(mailpolicy);
+			
+		return mailpolicy;
+	}
+	
+	/**
+	 * Returns a validated mail policy object with text blocks
+	 * @param {mail} String of new mail address to validate
+	 * @returns {object}
+	 */
+	this.validateUserMail = function(mail, callback) {
+		handler.getMailPolicy(function() {
+			mail = mail ? mail.toLowerCase() : "";
+			var charAt = mail.indexOf("@");
+			var allow = mailpolicy["allowCustomEmail"] ? mailpolicy["allowCustomEmail"] : !mailpolicy ? true : false;
+			var validdomain = false;
+
+			if (mailpolicy && mailpolicy["whitelist"] && mailpolicy["whitelist"].length > 0) {
+				if (charAt > 0) {
+					var domain = mail.substring(charAt + 1);
+					if (mailpolicy["whitelist"].indexOf(domain) > -1)
+						validdomain = true;
+				}
+			} else {
+				validdomain = true;
+			}
+
+			var ret = {
+				allowCustomEmail: {
+					fulfilled: allow,
+					value: allow,
+					text:  allow ? "" : textBlocks.policy_mail_disallow_custom[0]
+				},
+				domainWhitelist: {
+					fulfilled: validdomain,
+					value: mailpolicy["whitelist"] ? mailpolicy["whitelist"] : "",
+					text:  validdomain ? "" : textBlocks.policy_mail_domain_invalid[0]
+				}
+			};
+
+			callback(ret);
+		});
+	}
+	
+	/**
+	 * Opens a popup for the server response
+	 * @param {e} Object of "clientvariableschange" event
+	 */
+	this.showMessageDialog = function(e) {
+		clearTimeout(messageTimeoutID);
+		var delay = (e && e.username != "") ? 1000 : 250;
+
+		messageTimeoutID = setTimeout(function() {
+			messageDialog(e);
+		}, delay);
+	}
+
+	serverpolicy = handler.handlePolicy(webMI.getPasswordPolicy());
+	handler.getPasswordPolicy("", function() {});
+	
+	webMI.addOnunload(function () {
+		clearTimeout(messageTimeoutID);
+		clearTimeout(validationTimeoutID);
+	});
+});
+
+return loginHandler;]]></code>
+</script>

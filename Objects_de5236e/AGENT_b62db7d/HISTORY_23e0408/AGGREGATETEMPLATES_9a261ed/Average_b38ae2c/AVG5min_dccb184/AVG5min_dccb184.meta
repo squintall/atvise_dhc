@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.HISTORY.AGGREGATETEMPLATES.Average.AVG5min
+NodeClass: Object
+BrowseName: 1:AVG5min
+DisplayName: en|AVG5min
+Description: en|AVG5min
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AggregateFunction
+Reference: forward HasComponent i=2342

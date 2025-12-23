@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.PTAR.AR_BJ_PLA_CHICHEN.Valvulas
+NodeClass: Object
+BrowseName: 1:Valvulas
+DisplayName: en|Valvulas
+Description: en|Valvulas
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts series line area object display
+ * ----------------------------------------
+ * This script supports the display to show and edit series options for the line area type.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var activeSeries = webMI.query.activeSeries;
+var chart = webMI.trendFactory.getTrendByName(webMI.query.chartname);
+var configHandler = new webMI.rootWindow.ConfigHandler();
+var inputDefaults = {
+	series_xAxis: 0,
+	series_yAxis: 0,
+	series_nonStop: false,
+	series_connectNulls: true,
+	series_marker_enabled: true,
+	series_color: "#000000",
+	series_fillColor: "#dddddd",
+	series_lineWidth: 1,
+	"series_dashStyle-Solid": "T{solid}",
+	"series_dashStyle-Dash": "T{dashed}",
+	"series_dashStyle-Dot": "T{dotted}"
+};
+var triggerEnabled = true;
+var xAxes = [];
+var yAxes = [];
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ * Triggers for every input element
+ */
+webMI.addOnload(function () {
+	for (var key in inputDefaults)
+		webMI.trigger.connect(
+			"valuechanged",
+			function (e) {
+				processInput(e.context, e.value, activeSeries);
+			},
+			key
+		);
+
+	/* Triggers for interpolation radio buttons */
+	webMI.trigger.connect(
+		"valuechanged",
+		function () {
+			/* Make sure series hasn't just been deleted and use last one if necessary */
+			if (typeof chart.chart.series[activeSeries] === "undefined") {
+				activeSeries = String(chart.chart.series.length - 1);
+			}
+
+			var type = chart.chart.series[activeSeries].type;
+
+			if (type == "line" || type == "spline") {
+				processInput("series_type", "line", activeSeries);
+			} else if (type == "area" || type == "areaspline") {
+				processInput("series_type", "area", activeSeries);
+			} else if (type == "arearange" || type == "areasplinerange") {
+				processInput("series_type", "arearange", activeSeries);
+			}
+			processInput("series_step", false, activeSeries);
+		},
+		"series_interpolation-linear"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function () {
+			/* Make sure series hasn't just been deleted and use last one if necessary */
+			if (typeof chart.chart.series[activeSeries] === "undefined") {
+				activeSeries = String(chart.chart.series.length - 1);
+			}
+
+			var type = chart.chart.series[activeSeries].type;
+			if (type == "line" || type == "spline") {
+				processInput("series_type", "spline", activeSeries);
+			} else if (type == "area" || type == "areaspline") {
+				processInput("series_type", "areaspline", activeSeries);
+			} else if (type == "arearange" || type == "areasplinerange") {
+				processInput("series_type", "areasplinerange", activeSeries);
+			}
+		},
+		"series_interpolation-spline"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function () {
+			/* Make sure series hasn't just been deleted and use last one if necessary */
+			if (typeof chart.chart.series[activeSeries] === "undefined") {
+				activeSeries = String(chart.chart.series.length - 1);
+			}
+
+			var type = chart.chart.series[activeSeries].type;
+			if (type == "line" || type == "spline") {
+				processInput("series_type", "line", activeSeries);
+			} else if (type == "area" || type == "areaspline") {
+				processInput("series_type", "area", activeSeries);
+			} else if (type == "arearange" || type == "areasplinerange") {
+				processInput("series_type", "arearange", activeSeries);
+			}
+			processInput("series_step", true, activeSeries);
+		},
+		"series_interpolation-step"
+	);
+
+	readOptions();
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * Read options
+ */
+function readOptions() {
+	triggerEnabled = false;
+
+	/* Search configured axis */
+	xAxes = [];
+	yAxes = [];
+
+	let i = 0;
+
+	while (chart.chart.xAxis[i] !== undefined) {
+		const name = chart.chart.xAxis[i]?.options.title.text || `T{X-Axis} ${i}`;
+		xAxes.push(name);
+		webMI.trigger.fire("addItem", { text: name, value: i }, "series_xAxis");
+		i++;
+	}
+
+	i = 0; // Resetting i for the y-axis iteration
+
+	while (chart.chart.yAxis[i] !== undefined) {
+		const name = chart.chart.yAxis[i]?.options.title.text || `T{Y-Axis} ${i}`;
+		yAxes.push(name);
+		webMI.trigger.fire("addItem", { text: name, value: i }, "series_yAxis");
+		i++;
+	}
+
+	/* Set values for current series */
+	var curSeries = chart.chart.series[activeSeries];
+
+	if (typeof curSeries == "undefined") return;
+
+	if (curSeries.type == "line" || curSeries.type == "spline") {
+		webMI.gfx.setVisible("series_fillColor", false);
+		webMI.gfx.setVisible("series_fillColor_label", false);
+	} else {
+		webMI.gfx.setVisible("series_fillColor", true);
+		webMI.gfx.setVisible("series_fillColor_label", true);
+	}
+
+	webMI.trigger.fire(
+		"setSelectedItem",
+		curSeries.options.xAxis ? xAxes[curSeries.options.xAxis] : xAxes[0],
+		"series_xAxis"
+	);
+	webMI.trigger.fire(
+		"setSelectedItem",
+		curSeries.options.yAxis ? yAxes[curSeries.options.yAxis] : yAxes[0],
+		"series_yAxis"
+	);
+
+	if (
+		(curSeries.type == "line" || curSeries.type == "area" || curSeries.type == "arearange") &&
+		(typeof curSeries.options.step == "undefined" || curSeries.options.step == false)
+	)
+		webMI.trigger.fire("radioClicked_series_interpolation", { name: "T{linear}" });
+	else if (curSeries.type == "line" || curSeries.type == "area" || curSeries.type == "arearange")
+		webMI.trigger.fire("radioClicked_series_interpolation", { name: "T{step}" });
+	else if (curSeries.type == "spline" || curSeries.type == "areaspline" || curSeries.type == "areasplinerange")
+		webMI.trigger.fire("radioClicked_series_interpolation", { name: "T{spline}" });
+
+	webMI.trigger.fire("setChecked", curSeries.options.connectNulls, "series_connectNulls");
+	webMI.trigger.fire("setChecked", curSeries.options.nonStop, "series_nonStop");
+	if (curSeries.options.marker && typeof curSeries.options.marker.enabled != "undefined")
+		webMI.trigger.fire("setChecked", curSeries.options.marker.enabled, "series_marker_enabled");
+	webMI.trigger.fire("valuechanged_series_color", { hex: curSeries.color });
+	webMI.trigger.fire("valuechanged_series_fillColor", {
+		hex: curSeries.options.fillColor ? curSeries.options.fillColor : curSeries.color
+	});
+	webMI.trigger.fire("setValue", curSeries.options.lineWidth, "series_lineWidth");
+
+	var dashStyle =
+		inputDefaults["series_dashStyle-" + (curSeries.options.dashStyle ? curSeries.options.dashStyle : "Solid")];
+	webMI.trigger.fire("radioClicked_series_dashStyle", { name: dashStyle });
+
+	setTimeout(function waitForTrigger() {
+		triggerEnabled = true;
+	}, 500);
+}
+
+/**
+ * Write options
+ * @param key
+ * @param value
+ * @param identifier
+ */
+function setOptions(key, value, identifier) {
+	if (!triggerEnabled) return;
+
+	if (value === "true" || value === true) value = true;
+	if (value === "false" || value === false) value = false;
+
+	if (chart.chart.series[identifier]) {
+		var optionsObj = configHandler.createConfigObject(key.slice(7, key.length), value);
+
+		chart.chart.series[identifier].update(optionsObj);
+
+		chart.control.updated();
+	}
+}
+
+function processInput(key, value, identifier) {
+	if (typeof key == "undefined" || typeof value == "undefined") return;
+
+	if (!triggerEnabled) return;
+
+	setOptions(key, value, identifier);
+}
+
+this.window.addEventListener("keydown", (e) => {
+	if (e.key === "Escape") webMI.trigger.fire("com.atvise.highCharts.closeTrendConfigurator");
+});
+
+this.window.focus();
+]]></code>
+</script>

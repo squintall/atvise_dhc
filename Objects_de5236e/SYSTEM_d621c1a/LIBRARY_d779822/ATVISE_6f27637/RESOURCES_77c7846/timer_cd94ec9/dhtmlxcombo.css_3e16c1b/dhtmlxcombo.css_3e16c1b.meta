@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/timer/dhtmlxcombo.css
+NodeClass: Variable
+BrowseName: 1:dhtmlxcombo.css
+DisplayName: en|dhtmlxcombo.css
+Description: en|dhtmlxcombo.css
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Css
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Css.Compress

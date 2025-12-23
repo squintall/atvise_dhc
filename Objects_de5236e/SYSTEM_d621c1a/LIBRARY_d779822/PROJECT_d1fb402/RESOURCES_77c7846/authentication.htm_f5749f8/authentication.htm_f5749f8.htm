@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>atvise - next generation</title>
+	<meta charset="utf-8"/>
+	<meta name="viewport" id="viewport-meta" content="user-scalable=yes"/>
+	<link rel="shortcut icon" href="/favicon.ico?v=1" type="image/x-icon"/>
+	<link rel="stylesheet" type="text/css" href="/font/css/all.min.css">
+	<style type="text/css">
+		body {
+			border: 0;
+			margin: 0;
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			font-size: 20px;
+			font-family: Verdana, Arial, Helvetica, sans-serif;
+			background-image: url("/aguakan.jpg");
+			background-position: left;
+		}
+
+		html, body {
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+
+		.mainContainerDefaultStyle {
+			height: inherit;
+			width: inherit;
+			position: absolute;
+			overflow: hidden;
+			transform-origin: 0 0 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		#loginForm {
+			text-align: center;
+			padding: 20px;
+			background-color:rgba(255, 255, 255, 0.7);
+			border: #CCCCCC;
+			border-radius: 20px;
+			width: 400px;
+		}
+
+		#info {
+			text-align: center;
+			color: #FF0000;
+			padding: 10px;
+			height: 60px;
+		}
+		
+		#togglePassword, #toggleNewPassword {
+			margin-left: -55px;
+			cursor: pointer;
+		}
+		
+		#twofactor_info {
+			display: inline-block;
+			margin-top: 10px;
+		}
+		
+		.formInput {
+			text-align: center;
+			width: 280px;
+			padding-right: 20px;
+		}
+		
+		.formButtons {
+			padding: 10px 10px 0px 10px;
+			text-align: center;
+		}
+
+		.fas {
+			color: black;
+		}
+
+		.fa-sign-in-alt {
+			color: black;
+		}
+
+		input {
+			min-height: 30px;
+			font-size: 20px;
+			margin: 4px;
+			width: 100%;
+			border: none;
+			border-radius: 5px;
+			padding: 2px 10px 2px 10px;
+		}
+
+		button {
+			min-height: 34px;
+			font-size: 20px;
+			width: 80%;
+			border: none;
+			border-radius: 5px;
+			background-color: #FFFFFF;
+			color: #000000;
+			cursor: pointer;
+			display: block;
+			margin: 0 auto 0 auto;
+		}
+		
+		select {
+			min-height: 34px;
+			font-size: 20px;
+			margin: 4px;
+			width: 107%;
+			border: none;
+			border-radius: 5px;
+			padding: 2px 10px 2px 10px;
+		}
+		
+		#twofactor-code {
+			font-size: 50px;
+			text-align: center;
+		}
+
+		#newpassword_label, #twofactor_label {
+			margin: 4px;
+		}
+		
+		#twofactor_header, #twofactor_info {
+			font-size: 70%;
+		}
+
+		#remember_user {
+			width: 17px;
+			min-height: 17px;
+		}
+		
+		#requirements {
+			font-size: 55%;
+			text-align: left;
+			line-height: 140%;
+			width: 360px;
+			margin: 4px;
+		}
+
+		::-ms-reveal {
+			display: none;
+		}
+	</style>
+	<script src="webmicfg.js" type="text/javascript" atv:required="true"></script>
+	<script type="text/javascript">
+
+	var docDomain = true;
+	var displaytype = "xhtml";
+	if ("webMIConfig" in window) {
+		var config = window["webMIConfig"];
+		if ("frame.documentdomain" in config)
+			docDomain = config["frame.documentdomain"];
+		if ("frame.displaytype" in config)
+			displaytype = config["frame.displaytype"];
+	}
+	if (displaytype != "xhtml" && displaytype != "svg") {
+		displaytype = "xhtml"
+	}
+	if (docDomain == true) {
+		try {
+			if (displaytype == "svg" && navigator.userAgent.indexOf("Firefox") > -1)
+				throw false;
+
+			var domain = location["hostname"]
+				.split(".")
+				.slice(-2);
+
+			document.domain = domain.join(".");
+		} catch (e) {
+		}
+	}
+	</script>
+	<script src="webmi.js" type="text/javascript" atv:required="true"></script>
+	<script type="text/javascript">
+
+	/* Declarations */
+	var self = this;
+	var loginHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Login Handler");
+	var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+	var mailPolicy = webMI.getMailPolicy();
+	var textBlocks = loginHandler.getTextBlocks();
+	var activeForm = "login";
+	var ignoreNextResponse = false;
+	var loginResponse;
+	
+	tabHandler.setAcceptKeys(false);
+	
+	function addOption(element, text, value) {
+		var option = document.createElement('option');
+		option.text = text;
+		option.value = value ? value : text;
+		element.add(option);
+	}
+	
+	window.onunload = function () {
+		tabHandler.setAcceptKeys(true);
+	}
+	
+	window.onload = function () {
+		/* DOM elements */
+		var ele_info					= document.getElementById("info");
+		var ele_username				= document.getElementById("username");
+		var ele_togglePassword			= document.getElementById("togglePassword");
+		var ele_toggleNewPassword		= document.getElementById("toggleNewPassword");
+		var ele_password				= document.getElementById("current-password");
+		var ele_newPassword				= document.getElementById("new-password");
+		var ele_newPasswordLabel		= document.getElementById("newpassword_label")
+		var ele_requirements			= document.getElementById("requirements");
+		var ele_twoFactorLabel			= document.getElementById("twofactor_label");
+		var ele_twoFactorCode			= document.getElementById("twofactor-code")
+		var ele_twoFactorSendCode		= document.getElementById("twofactor_sendcode");
+		var ele_twoFactorSendCodeLabel	= document.getElementById("twofactor_sendcode_label");
+		var ele_twoFactorHeader			= document.getElementById("twofactor_header");
+		var ele_twoFactorMail			= document.getElementById("twofactor-mail");
+		var ele_twoFactorMailDomain		= document.getElementById("twofactor-maildomain");
+		var ele_twoFactorSendMail		= document.getElementById("twofactor_sendmail");
+		var ele_twoFactorSendMailLabel	= document.getElementById("twofactor_sendmail_label");
+		var ele_twoFactorInfo			= document.getElementById("twofactor_info");
+		var ele_rememberUser			= document.getElementById("remember_user");
+		var ele_rememberUserLabel		= document.getElementById("remember_user_label");
+		var ele_loginButton				= document.getElementById("login_button");
+		var ele_cancelButton			= document.getElementById("cancel_button");
+		var ele_loginLabel				= document.getElementById("login_label");
+		var ele_cancelLabel				= document.getElementById("cancel_label");
+
+		/* Set values */
+		try {
+			//Reset mainContainer style after logout
+			parent.document.getElementById("mainContainer").style = null;
+		} catch (ex) {}
+
+		var lastUsername = localStorage.getItem("com.atvise.login.lastUsername");
+		if (lastUsername) {
+			ele_username.value = lastUsername;
+			ele_rememberUser.checked = true;
+		}
+		
+		/* Set translated texts from quick dynamic */
+		ele_loginLabel.innerHTML				= webMI.secureString(textBlocks.Login);
+		ele_cancelLabel.innerHTML				= webMI.secureString(textBlocks.Cancel);
+		ele_newPasswordLabel.innerHTML			= webMI.secureString(textBlocks.NewPassword + ":");
+		ele_rememberUserLabel.innerHTML			= webMI.secureString(textBlocks.RememberUser);
+
+		ele_twoFactorLabel.innerHTML			= webMI.secureString(textBlocks.TwoFactorCode + ":");
+		ele_twoFactorSendMailLabel.innerHTML	= webMI.secureString(textBlocks.TwoFactorSendMail);
+		ele_requirements.innerHTML				= "";
+		
+		/* Two-factor add email domains */
+		if (mailPolicy.whitelist) {
+			for (var i in mailPolicy.whitelist)
+				addOption(ele_twoFactorMailDomain, "@" + mailPolicy.whitelist[i]);
+		}
+
+		/* Add events listeners */
+		ele_togglePassword.addEventListener("click", function (e) {
+			togglePasswordVisibility(ele_password, ele_togglePassword);
+		});
+		
+		ele_togglePassword.addEventListener("keypress", function (e) {
+			if (e.keyCode == 13 || e.keyCode == 32)
+				togglePasswordVisibility(ele_password, ele_togglePassword);
+		});
+
+		ele_toggleNewPassword.addEventListener("click", function () {
+			togglePasswordVisibility(ele_newPassword, ele_toggleNewPassword);
+		});
+		
+		ele_toggleNewPassword.addEventListener("keypress", function () {
+			if (e.keyCode == 13 || e.keyCode == 32)
+				togglePasswordVisibility(ele_newPassword, ele_toggleNewPassword);
+		});
+		
+		ele_loginButton.addEventListener("click", function (e) {
+			login();
+		});
+		
+		ele_cancelButton.addEventListener("click", function () {
+			if (activeForm == "twofactor") {
+				ignoreNextResponse = true;
+				webMI.data.logout();
+			}
+			ele_twoFactorInfo.innerHTML = "";
+			toggleInputs("login");
+		});
+
+		ele_username.addEventListener('input', function(e) {
+			loginHandler.validateUserPassword(ele_username.value, ele_newPassword.value, function(e) {
+				setRequirements(e);
+			});
+		});
+
+		ele_newPassword.addEventListener('input', function(e) {
+			loginHandler.validateUserPassword(ele_username.value, e.target.value, function(e) {
+				setRequirements(e);
+			});
+		});
+		
+		ele_twoFactorSendMail.addEventListener("click", function () {
+			if (ele_twoFactorMail.value) {
+				var email = ele_twoFactorMail.value + ele_twoFactorMailDomain.value;
+				loginHandler.validateUserMail(email, function(e) {
+					var result = e;
+					var error = false;
+					for (var i in result) {
+						if (result[i].fulfilled != true) {
+							ele_twoFactorInfo.innerHTML = webMI.secureString(result[i].text);
+							error = true;
+							break;
+						}			
+					}
+					
+					if (!error) {
+						webMI.data.changeemail(email, function(e) {
+							if (e[""].error || e.error) {
+								ele_twoFactorInfo.innerHTML = webMI.secureString(textBlocks.policy_mail_failed);
+							} else {
+								ele_info.innerHTML = "";	
+								send2FAMail();
+							}
+						});			
+					}
+				});	
+			} else {
+				send2FAMail();
+			}
+		});
+		
+		/* Password visibility function */
+		function togglePasswordVisibility(pw, toggle) {
+			var type = pw.getAttribute("type") === "password" ? "text" : "password";
+			pw.setAttribute("type", type);
+			toggle.className = (type != "text") ? "fas fa-eye-slash" : "fas fa-eye";	
+		}
+			
+		/* Change password functions */
+		function setRequirements(policy) {
+			var requirements_content = "";
+			var req_i = 1;
+
+			function setText(text, fulfilled, i) {
+				if (i == 1) {
+					requirements_content = "<b>" + textBlocks.Requirements.toUpperCase() + ":</b><br>&nbsp;";
+				}
+				requirements_content = requirements_content + (fulfilled ? "<i class='fas fa-check'></i> " : "<i class='fas fa-times'></i> ") + webMI.secureString(text) + "<br>&nbsp;";
+			}
+
+			if (policy.hasSurroundingWhiteSpace.value && policy.minLength.value)
+				setText(policy.minLength.text + " (" + policy.hasSurroundingWhiteSpace.text + ")",  policy.minLength.fulfilled && policy.hasSurroundingWhiteSpace.fulfilled, req_i++);
+			else if (policy.hasSurroundingWhiteSpace.value)
+				setText(policy.hasSurroundingWhiteSpace.text, policy.hasSurroundingWhiteSpace.fulfilled, req_i++);
+			else if (policy.minLength.value)
+				setText(policy.minLength.text, policy.minLength.fulfilled, req_i++);
+
+			var char_content = textBlocks.Contains + " ";
+			var char_content_fulfilled = null;
+			if (policy.requireLowerCase.value) {
+				char_content = char_content + policy.requireLowerCase.text;
+				char_content_fulfilled = policy.requireLowerCase.fulfilled
+			}
+			if (policy.requireLowerCase.value && policy.requireUpperCase.value) {
+				char_content = char_content + ", " + policy.requireUpperCase.text;
+				char_content_fulfilled = policy.requireLowerCase.fulfilled && policy.requireUpperCase.fulfilled;
+			} else if (policy.requireUpperCase.value) {
+				char_content = char_content + policy.requireUpperCase;
+				char_content_fulfilled = policy.requireUpperCase.fulfilled;	
+			}
+			if ((policy.requireLowerCase.value || policy.requireUpperCase.value) && policy.requireDigit.value) {
+				char_content = char_content + ", " + policy.requireDigit.text;
+				char_content_fulfilled = char_content_fulfilled && policy.requireDigit.fulfilled;
+			} else if (policy.requireDigit.value) {
+				char_content = char_content + policy.requireDigit.text;
+				char_content_fulfilled = policy.requireDigit.fulfilled;
+			}	
+			
+			if (policy.requireLowerCase.value || policy.requireUpperCase.value || policy.requireDigit.value)
+				setText(char_content, char_content_fulfilled, req_i++);
+		
+			if (policy.requireSpecialChar.value) setText(policy.requireSpecialChar.text, policy.requireSpecialChar.fulfilled, req_i++);	
+
+			if (policy.requireNameExclusion.value || policy.requireFullnameExclusion.value)
+				setText(policy.requireFullnameExclusion.text, policy.requireNameExclusion.fulfilled && policy.requireFullnameExclusion.fulfilled, req_i++);
+
+			if (policy.requireNewPw.value) {
+				setText(policy.requireNewPw.text, policy.requireNewPw.fulfilled, req_i++);
+			}
+			
+			if (ele_username.value)
+				ele_requirements.innerHTML = requirements_content;
+			else
+				ele_requirements.innerHTML = webMI.secureString(textBlocks.ErrorUserOrPassword);
+		}
+		
+		/* Toggle inputs */
+		function toggleInputs(show, options) {
+			activeForm = show ? show : "login";
+			var all = ["login","changepassword","twofactor"];
+			var info = document.getElementById("info");
+
+			for (var i in all) {
+				var elements = document.getElementsByClassName(all[i]);
+				var display = all[i] == activeForm ? "" : "none";
+				if (all[i] == "login" && activeForm == "changepassword")
+					display = "";
+		
+				for (var i = 0; i < elements.length; i++)
+					elements[i].style.display = display;
+			}
+
+			/* Login and cancel button modification */
+			if (activeForm == "changepassword") {
+				loginHandler.validateUserPassword(ele_username.value, ele_newPassword.value, function(e) {
+					setRequirements(e);
+					ele_loginLabel.innerHTML = webMI.secureString(textBlocks.ChangePassword);
+				});
+			} else if (activeForm == "twofactor") {
+				ele_twoFactorCode.focus();
+				ele_loginLabel.innerHTML = webMI.secureString(textBlocks.Verify) + " <i class='fas fa-sign-in-alt'>";
+			} else {
+				ele_username.focus();
+				ele_loginLabel.innerHTML = webMI.secureString(textBlocks.Login) + " <i class='fas fa-sign-in-alt'>";
+			}
+			
+			ele_cancelButton.style.display = activeForm == "login" ? "none" : "";
+	
+			/* Two factor options */
+			ele_twoFactorHeader.innerHTML			= "";
+			ele_twoFactorMail.style.display			= "none";
+			ele_twoFactorMailDomain.style.display	= "none";
+			ele_twoFactorSendMail.style.display		= "none";
+	
+			if (activeForm == "twofactor" && options) {
+				if (options.error.emailMissing || options.error.emailInvalid) {
+					var text = textBlocks.TwoFactorMissingMail + (options.email ? ": " + options.email : ".");
+					info.innerHTML = "<i class='fas fa-times-circle'></i> " + webMI.secureString(text);
+	
+					if (!mailPolicy || mailPolicy["allowCustomEmail"]) {
+						// show set mail form because mail is unconfigured
+						ele_twoFactorHeader.innerHTML = webMI.secureString("<br>" + textBlocks.TwoFactorEnterMail + ":");
+						ele_twoFactorMail.style.display = "";
+						ele_twoFactorSendMail.style.display = "";
+						
+						if(mailPolicy.whitelist && mailPolicy.whitelist.length > 0)
+							ele_twoFactorMailDomain.style.display = "";
+					}
+				} else if (options.error.appNotConfigured) {
+					// show qr code because app only is unconfigured
+					ele_twoFactorHeader.innerHTML = webMI.secureString("<br>" + textBlocks.TwoFactorSetAppError + " " + textBlocks.TwoFactorSetApp);
+					get2FAOTPAuth();
+				}
+
+				if (options.email && options.type && options.type.email) {
+					// email configured and show mail button
+					if(!options.type.app)
+						send2FAMail();
+					ele_twoFactorSendMail.style.display = "";
+					ele_twoFactorInfo.innerHTML = webMI.secureString(textBlocks.TwoFactorUserMail) + ":<br>" + webMI.secureString(options.email);
+				}
+			}
+		}
+
+		toggleInputs();
+
+		/* Handle login */
+		webMI.addEvent(webMI.data, "clientvariableschange", function(e) {
+			if(ignoreNextResponse) {
+				ignoreNextResponse = false;
+				return	
+			}
+
+			loginResponse = e;
+			var responseText = loginHandler.getResponseText(e);
+			var responseType = loginHandler.getResponseType(e);
+			var twoFactorResponse = loginHandler.handleTwoFactorResponse(e);
+			var info = document.getElementById("info");
+
+			if (responseType == "expired") {
+				if (info) info.innerHTML = "";
+				toggleInputs("changepassword");
+			} else if (responseType == "twofactor") {
+				if (info) info.innerHTML = "";
+				toggleInputs("twofactor", twoFactorResponse);
+			}
+
+			if (info && e.username == "" && responseText)
+				info.innerHTML = "<i class='fas fa-times-circle'></i> " + webMI.secureString(responseText);
+		});
+		
+		/* Twofactor mail login */
+		function send2FAMail() {
+			webMI.data.twofactorSendMail(function(e) {
+				if ((e[""] && [""].error) || e.error) {
+					ele_twoFactorInfo.innerHTML = webMI.secureString(textBlocks.TwoFactorSentMailFailed);
+				} else {
+					ele_twoFactorInfo.innerHTML = webMI.secureString(textBlocks.TwoFactorSentMail) + ".";
+				}
+			});
+		}
+		
+		/* Twofactor opt auth */
+		function get2FAOTPAuth() {
+			webMI.data.twofactorGetOTPAuth("0", function(e) {
+				if (e[""] && e[""].result && e[""].result[0] && e[""].result[0].data) { 
+					var img = document.createElement("img");
+					img.src = "data:image/svg+xml;base64," + e[""].result[0].data;
+					img.style.width = "150px";
+					img.style.height = "150px";	
+					ele_twoFactorInfo.appendChild(img);
+				}
+			});
+		}
+	}
+	
+	/* Login function */
+	function login() {
+		if (activeForm == "twofactor") {
+			var twofactor_code = document.auth.twofactor_code.value;
+			var info = document.getElementById("info");
+
+			if (twofactor_code.length != 6) {
+				info.innerHTML = "<i class='fas fa-times-circle'></i> " + webMI.secureString(textBlocks.TwoFactorCodeInvalid);
+				return;
+			}
+			webMI.data.twofactorLogin(twofactor_code, function(e) {
+				if ((e[""] && [""].error) || e.error)
+					info.innerHTML = "<i class='fas fa-times-circle'></i> " + webMI.secureString(textBlocks.TwoFactorCodeInvalid);
+			})
+			return;
+		}
+	
+		localStorage.setItem("com.atvise.login.lastUsername", "");
+
+		if (document.auth.remember_user.checked)
+			localStorage.setItem("com.atvise.login.lastUsername", document.auth.username.value);
+
+		setTimeout(function () {
+			var elements = document.getElementsByClassName('changepassword');
+			var change = elements[0].style.display != "none" ? true : false;
+			if (change) {
+				loginHandler.validateUserPassword(username, document.auth.new_password.value, function(e) {
+					var policy = e;
+					for (var i in policy) {
+						if (policy[i].fulfilled == false) {
+							info.innerHTML = "<i class='fas fa-times-circle'></i> " + webMI.secureString(textBlocks.ErrorRequirements);
+							return;
+						}
+					}
+					
+					webMI.data.changepassword(document.auth.username.value, document.auth.current_password.value, document.auth.new_password.value, function (e) {
+						if (e.error || (e[""] && e[""].error)) {
+							if (e.errorstring)
+								info.innerHTML = "<i class='fas fa-times-circle'></i> " + webMI.secureString(loginHandler.getErrorText(e.errorstring));
+							else if (e[""].errorstring)
+								info.innerHTML = "<i class='fas fa-times-circle'></i> " + webMI.secureString(loginHandler.getErrorText(e[""].errorstring));
+							else
+								info.innerHTML = "<i class='fas fa-times-circle'></i> " + webMI.secureString(textBlocks.ChangeFailed);
+						} else {
+							webMI.data.login(document.auth.username.value, document.auth.new_password.value, function (e) {});
+						}
+					});
+				});
+			} else {
+				webMI.data.login(document.auth.username.value, document.auth.current_password.value, function (e) {});
+			}	
+		}, 0);
+		return false;
+	}
+	</script>
+</head>
+
+<body>
+<div id="mainContainer" class="mainContainerDefaultStyle">
+	<form name="auth">
+		<table id="loginForm">
+			<tr><td>
+			<th>
+			<svg
+				   version="1.1"
+				   id="svg2"
+				   width="233.7413335"
+				   height="86.6666665"
+				   viewBox="0 0 467.48267 173.33333"
+				   sodipodi:docname="dhc-logo2016.ai"
+				   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+				   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+				   xmlns="http://www.w3.org/2000/svg"
+				   xmlns:svg="http://www.w3.org/2000/svg">
+				  <defs
+					 id="defs6">
+					<clipPath
+					   clipPathUnits="userSpaceOnUse"
+					   id="clipPath16">
+					  <path
+						 d="M 0,130 H 350.612 V 0 H 0 Z"
+						 id="path14" />
+					</clipPath>
+				  </defs>
+				  <sodipodi:namedview
+					 id="namedview4"
+					 pagecolor="#ffffff"
+					 bordercolor="#000000"
+					 borderopacity="0.25"
+					 inkscape:showpageshadow="2"
+					 inkscape:pageopacity="0.0"
+					 inkscape:pagecheckerboard="0"
+					 inkscape:deskcolor="#d1d1d1" />
+				  <g
+					 id="g8"
+					 inkscape:groupmode="layer"
+					 inkscape:label="dhc-logo2016"
+					 transform="matrix(1.3333333,0,0,-1.3333333,0,173.33333)">
+					<g
+					   id="g10">
+					  <g
+						 id="g12"
+						 clip-path="url(#clipPath16)">
+						<g
+						   id="g18"
+						   transform="translate(5.2529,104.791)">
+						  <path
+							 d="m 0,0 c 0.45,-0.105 1.209,-0.105 1.831,-0.105 4.803,-0.032 7.95,2.591 7.95,8.16 0,5.008 -2.838,7.39 -7.398,7.39 C 1.241,15.445 0.45,15.344 0,15.242 Z m -5.253,18.972 c 1.934,0.348 4.458,0.516 7.084,0.516 4.458,0 7.359,-0.723 9.57,-2.418 2.419,-1.793 3.942,-4.701 3.942,-8.845 0,-4.459 -1.625,-7.532 -3.84,-9.438 -2.45,-2.035 -6.216,-3.002 -10.779,-3.002 -2.728,0 -4.697,0.172 -5.977,0.345 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path20" />
+						</g>
+						<g
+						   id="g22"
+						   transform="translate(34.2792,111.2188)">
+						  <path
+							 d="M 0,0 C 0,1.241 -0.553,3.42 -2.939,3.42 -5.186,3.42 -6.083,1.382 -6.223,0 Z m -6.188,-3.594 c 0.176,-2.215 2.317,-3.252 4.771,-3.252 1.793,0 3.249,0.246 4.662,0.729 L 3.938,-9.68 c -1.73,-0.723 -3.836,-1.068 -6.118,-1.068 -5.735,0 -9.018,3.318 -9.018,8.639 0,4.285 2.696,9.021 8.536,9.021 5.46,0 7.531,-4.25 7.531,-8.432 0,-0.899 -0.102,-1.697 -0.169,-2.109 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path24" />
+						</g>
+						<g
+						   id="g26"
+						   transform="translate(42.2597,105.3789)">
+						  <path
+							 d="m 0,0 c 0.971,-0.588 2.974,-1.244 4.529,-1.244 1.589,0 2.242,0.519 2.242,1.385 0,0.892 -0.513,1.308 -2.446,1.968 -3.527,1.139 -4.877,3.074 -4.842,5.041 0,3.179 2.697,5.563 6.877,5.563 1.969,0 3.695,-0.478 4.736,-0.998 l -0.9,-3.594 c -0.76,0.381 -2.243,0.932 -3.663,0.932 -1.28,0 -2.004,-0.517 -2.004,-1.346 0,-0.83 0.657,-1.244 2.731,-1.973 3.21,-1.068 4.525,-2.728 4.56,-5.178 0,-3.179 -2.454,-5.495 -7.291,-5.495 -2.212,0 -4.181,0.516 -5.457,1.205 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path28" />
+						</g>
+						<g
+						   id="g30"
+						   transform="translate(66.2797,108.7998)">
+						  <path
+							 d="m 0,0 c -2.763,0 -4.908,-0.657 -4.908,-2.661 0,-1.348 0.9,-2.004 2.074,-2.004 1.28,0 2.384,0.865 2.729,1.936 C -0.035,-2.458 0,-2.142 0,-1.832 Z m 5.081,-3.905 c 0,-1.59 0.066,-3.145 0.277,-4.076 H 0.625 L 0.309,-6.29 H 0.211 c -1.111,-1.346 -2.834,-2.074 -4.838,-2.074 -3.424,0 -5.464,2.489 -5.464,5.185 0,4.389 3.939,6.463 9.919,6.463 v 0.203 c 0,0.901 -0.482,2.18 -3.077,2.18 -1.726,0 -3.558,-0.586 -4.662,-1.24 l -0.97,3.349 c 1.178,0.655 3.495,1.52 6.568,1.52 5.632,0 7.394,-3.316 7.394,-7.289 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path32" />
+						</g>
+						<g
+						   id="g34"
+						   transform="translate(75.5756,112.1504)">
+						  <path
+							 d="M 0,0 C 0,2.488 -0.036,4.113 -0.134,5.562 H 4.359 L 4.563,2.419 h 0.141 c 0.858,2.489 2.9,3.526 4.556,3.526 0.486,0 0.728,-0.035 1.112,-0.101 V 0.9 C 9.921,0.971 9.507,1.041 8.919,1.041 6.982,1.041 5.667,0.039 5.323,-1.625 5.252,-1.969 5.224,-2.349 5.224,-2.799 v -8.533 h -5.26 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path36" />
+						</g>
+						<g
+						   id="g38"
+						   transform="translate(88.6752,112.1504)">
+						  <path
+							 d="M 0,0 C 0,2.488 -0.035,4.113 -0.137,5.562 H 4.356 L 4.564,2.419 h 0.133 c 0.865,2.489 2.904,3.526 4.563,3.526 0.486,0 0.725,-0.035 1.108,-0.101 V 0.9 C 9.919,0.971 9.507,1.041 8.917,1.041 6.983,1.041 5.668,0.039 5.323,-1.625 5.253,-1.969 5.221,-2.349 5.221,-2.799 v -8.533 h -5.256 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path40" />
+						</g>
+						<g
+						   id="g42"
+						   transform="translate(109.4184,104.2051)">
+						  <path
+							 d="m 0,0 c 2.071,0 3.347,2.039 3.347,5.076 0,2.489 -0.967,5.049 -3.347,5.049 -2.489,0 -3.459,-2.56 -3.459,-5.084 C -3.459,2.18 -2.25,0 -0.039,0 Z m -0.105,-3.766 c -4.944,0 -8.741,3.245 -8.741,8.705 0,5.46 3.59,8.956 9.05,8.956 5.151,0 8.607,-3.563 8.607,-8.678 0,-6.153 -4.388,-8.983 -8.881,-8.983 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path44" />
+						</g>
+						<path
+						   d="m 121.478,125.353 h 5.252 v -24.537 h -5.252 z"
+						   style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+						   id="path46" />
+						<path
+						   d="m 130.946,125.353 h 5.252 v -24.537 h -5.252 z"
+						   style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+						   id="path48" />
+						<g
+						   id="g50"
+						   transform="translate(148.2958,104.2051)">
+						  <path
+							 d="m 0,0 c 2.075,0 3.351,2.039 3.351,5.076 0,2.489 -0.967,5.049 -3.351,5.049 -2.489,0 -3.459,-2.56 -3.459,-5.084 C -3.459,2.18 -2.246,0 -0.035,0 Z m -0.105,-3.766 c -4.94,0 -8.741,3.245 -8.741,8.705 0,5.46 3.594,8.956 9.054,8.956 5.15,0 8.603,-3.563 8.603,-8.678 0,-6.153 -4.388,-8.983 -8.881,-8.983 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path52" />
+						</g>
+						<g
+						   id="g54"
+						   transform="translate(160.3203,105.3789)">
+						  <path
+							 d="m 0,0 c 0.97,-0.588 2.974,-1.244 4.528,-1.244 1.589,0 2.247,0.519 2.247,1.385 0,0.892 -0.517,1.308 -2.451,1.968 -3.526,1.139 -4.876,3.074 -4.841,5.041 0,3.179 2.697,5.563 6.877,5.563 1.969,0 3.695,-0.478 4.736,-0.998 L 10.195,8.121 C 9.436,8.502 7.953,9.053 6.532,9.053 c -1.28,0 -2.004,-0.517 -2.004,-1.346 0,-0.83 0.658,-1.244 2.732,-1.973 3.217,-1.068 4.525,-2.728 4.56,-5.178 0,-3.179 -2.454,-5.495 -7.292,-5.495 -2.211,0 -4.18,0.516 -5.457,1.205 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path56" />
+						</g>
+						<g
+						   id="g58"
+						   transform="translate(6.3286,82.6387)">
+						  <path
+							 d="M 0,0 V -8.986 H 8.669 V 0 h 5.253 V -23.295 H 8.669 v 9.713 H 0 v -9.713 H -5.253 V 0 Z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path60" />
+						</g>
+						<path
+						   d="m 24.677,76.244 h 5.252 v -16.9 h -5.252 z m 2.591,2.211 c -1.757,0 -2.903,1.244 -2.903,2.799 0,1.592 1.174,2.801 2.974,2.801 1.8,0 2.904,-1.209 2.935,-2.801 0,-1.555 -1.135,-2.799 -2.97,-2.799 z"
+						   style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+						   id="path62" />
+						<g
+						   id="g64"
+						   transform="translate(45.2763,69.0537)">
+						  <path
+							 d="m 0,0 c 0,0.31 0,0.657 -0.07,0.97 -0.313,1.414 -1.449,2.556 -3.08,2.556 -2.412,0 -3.621,-2.14 -3.621,-4.802 0,-2.834 1.413,-4.634 3.593,-4.634 1.518,0 2.763,1.041 3.073,2.524 C -0.039,-3.038 0,-2.626 0,-2.208 Z M 5.253,14.829 V -4.662 c 0,-1.934 0.066,-3.902 0.133,-5.045 H 0.724 l -0.207,2.45 H 0.411 c -1.037,-1.863 -3.111,-2.834 -5.284,-2.834 -4.008,0 -7.225,3.422 -7.225,8.674 -0.032,5.672 3.527,8.986 7.57,8.986 2.109,0 3.698,-0.759 4.458,-1.902 H 0 v 9.162 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path66" />
+						</g>
+						<g
+						   id="g68"
+						   transform="translate(54.7763,70.6778)">
+						  <path
+							 d="M 0,0 C 0,2.489 -0.036,4.113 -0.134,5.566 H 4.359 L 4.563,2.422 h 0.141 c 0.858,2.486 2.903,3.523 4.556,3.523 0.485,0 0.728,-0.035 1.112,-0.101 V 0.9 C 9.921,0.971 9.506,1.041 8.919,1.041 6.982,1.041 5.667,0.039 5.323,-1.621 5.252,-1.969 5.224,-2.349 5.224,-2.798 v -8.533 h -5.26 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path70" />
+						</g>
+						<g
+						   id="g72"
+						   transform="translate(80.3144,83.5352)">
+						  <path
+							 d="M 0,0 -4.211,-5.252 H -7.805 L -4.837,0 Z m -3.452,-16.208 c -2.767,0 -4.908,-0.657 -4.908,-2.661 0,-1.344 0.9,-2.004 2.074,-2.004 1.276,0 2.384,0.865 2.728,1.937 0.071,0.278 0.106,0.587 0.106,0.897 z m 5.076,-3.905 c 0,-1.59 0.071,-3.144 0.278,-4.076 h -4.736 l -0.309,1.692 h -0.102 c -1.108,-1.347 -2.834,-2.075 -4.841,-2.075 -3.417,0 -5.457,2.49 -5.457,5.186 0,4.388 3.938,6.462 9.915,6.462 v 0.207 c 0,0.901 -0.482,2.176 -3.073,2.176 -1.73,0 -3.561,-0.586 -4.665,-1.24 l -0.967,3.349 c 1.174,0.659 3.487,1.52 6.564,1.52 5.636,0 7.393,-3.315 7.393,-7.288 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path74" />
+						</g>
+						<g
+						   id="g76"
+						   transform="translate(102.0566,64.7715)">
+						  <path
+							 d="m 0,0 c 0,-2.211 0.067,-4.012 0.14,-5.428 h -4.566 l -0.243,2.383 h -0.106 c -0.653,-1.033 -2.243,-2.764 -5.28,-2.764 -3.46,0 -5.949,2.145 -5.949,7.363 v 9.919 h 5.252 v -9.09 c 0,-2.453 0.798,-3.938 2.666,-3.938 1.448,0 2.313,0.999 2.622,1.829 0.141,0.31 0.211,0.693 0.211,1.143 V 11.473 H 0 Z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path78" />
+						</g>
+						<path
+						   d="m 106.268,83.883 h 5.253 V 59.347 h -5.253 z"
+						   style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+						   id="path80" />
+						<path
+						   d="m 115.74,76.244 h 5.252 v -16.9 h -5.252 z m 2.591,2.211 c -1.761,0 -2.901,1.244 -2.901,2.799 0,1.592 1.174,2.801 2.968,2.801 1.8,0 2.908,-1.209 2.939,-2.801 0,-1.555 -1.139,-2.799 -2.967,-2.799 z"
+						   style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+						   id="path82" />
+						<g
+						   id="g84"
+						   transform="translate(137.8896,59.7578)">
+						  <path
+							 d="m 0,0 c -0.928,-0.449 -2.693,-0.795 -4.697,-0.795 -5.46,0 -8.951,3.355 -8.951,8.674 0,4.943 3.389,8.986 9.675,8.986 1.385,0 2.904,-0.242 4.012,-0.657 l -0.834,-3.903 c -0.619,0.275 -1.554,0.517 -2.935,0.517 -2.768,0 -4.561,-1.968 -4.525,-4.736 0,-3.107 2.074,-4.767 4.627,-4.767 1.248,0 2.214,0.207 3.009,0.556 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path86" />
+						</g>
+						<g
+						   id="g88"
+						   transform="translate(148.2958,62.7324)">
+						  <path
+							 d="m 0,0 c 2.075,0 3.351,2.039 3.351,5.076 0,2.49 -0.967,5.049 -3.351,5.049 -2.489,0 -3.459,-2.559 -3.459,-5.076 C -3.459,2.18 -2.246,0 -0.035,0 Z m -0.105,-3.77 c -4.94,0 -8.741,3.249 -8.741,8.713 0,5.456 3.594,8.952 9.054,8.952 5.15,0 8.603,-3.566 8.603,-8.678 0,-6.153 -4.388,-8.987 -8.881,-8.987 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path90" />
+						</g>
+						<g
+						   id="g92"
+						   transform="translate(160.3203,63.9063)">
+						  <path
+							 d="m 0,0 c 0.97,-0.584 2.974,-1.244 4.528,-1.244 1.589,0 2.247,0.52 2.247,1.382 0,0.899 -0.517,1.315 -2.451,1.968 -3.526,1.142 -4.876,3.081 -4.841,5.048 0,3.179 2.697,5.563 6.877,5.563 1.969,0 3.695,-0.482 4.736,-1.002 L 10.195,8.122 c -0.759,0.38 -2.242,0.935 -3.663,0.935 -1.28,0 -2.004,-0.52 -2.004,-1.35 0,-0.83 0.658,-1.244 2.732,-1.969 3.217,-1.068 4.525,-2.732 4.56,-5.185 0,-3.176 -2.454,-5.496 -7.292,-5.496 -2.211,0 -4.18,0.52 -5.457,1.21 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path94" />
+						</g>
+						<g
+						   id="g96"
+						   transform="translate(25.9467,27.585)">
+						  <path
+							 d="m 0,0 c 0,0.31 0,0.657 -0.07,0.967 -0.31,1.417 -1.449,2.559 -3.077,2.559 -2.415,0 -3.625,-2.144 -3.625,-4.802 0,-2.84 1.414,-4.633 3.594,-4.633 1.518,0 2.763,1.033 3.073,2.523 C -0.036,-3.041 0,-2.626 0,-2.212 Z M 5.253,14.826 V -4.665 c 0,-1.938 0.07,-3.906 0.14,-5.045 H 0.724 L 0.52,-7.261 H 0.415 c -1.041,-1.863 -3.112,-2.833 -5.288,-2.833 -4.008,0 -7.225,3.425 -7.225,8.677 -0.031,5.668 3.526,8.986 7.569,8.986 2.11,0 3.699,-0.759 4.459,-1.902 H 0 v 9.159 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path98" />
+						</g>
+						<g
+						   id="g100"
+						   transform="translate(45.642,28.2774)">
+						  <path
+							 d="M 0,0 C 0,1.238 -0.549,3.418 -2.936,3.418 -5.182,3.418 -6.079,1.379 -6.216,0 Z m -6.181,-3.594 c 0.169,-2.215 2.314,-3.252 4.768,-3.252 1.8,0 3.248,0.244 4.662,0.729 l 0.692,-3.562 c -1.726,-0.723 -3.836,-1.073 -6.117,-1.073 -5.735,0 -9.018,3.32 -9.018,8.639 0,4.29 2.696,9.025 8.536,9.025 5.464,0 7.531,-4.254 7.531,-8.437 0,-0.897 -0.098,-1.692 -0.172,-2.107 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path102" />
+						</g>
+						<g
+						   id="g104"
+						   transform="translate(77.8886,18.4961)">
+						  <path
+							 d="m 0,0 c -0.932,-0.449 -3.146,-1.005 -5.941,-1.005 -8.052,0 -12.201,5.048 -12.201,11.714 0,7.949 5.668,12.341 12.718,12.341 2.728,0 4.802,-0.552 5.734,-1.04 l -1.104,-4.143 c -1.037,0.448 -2.525,0.859 -4.423,0.859 -4.149,0 -7.398,-2.521 -7.398,-7.739 0,-4.665 2.764,-7.604 7.433,-7.604 1.621,0 3.351,0.316 4.423,0.766 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path106" />
+						</g>
+						<g
+						   id="g108"
+						   transform="translate(89.8564,25.8555)">
+						  <path
+							 d="m 0,0 c -2.767,0 -4.908,-0.654 -4.908,-2.662 0,-1.343 0.9,-2.004 2.075,-2.004 1.275,0 2.383,0.865 2.728,1.937 C -0.039,-2.451 0,-2.142 0,-1.832 Z m 5.077,-3.902 c 0,-1.594 0.071,-3.148 0.278,-4.078 H 0.619 L 0.31,-6.29 H 0.204 c -1.104,-1.347 -2.83,-2.074 -4.838,-2.074 -3.424,0 -5.46,2.493 -5.46,5.186 0,4.387 3.942,6.461 9.919,6.461 v 0.208 c 0,0.9 -0.482,2.179 -3.074,2.179 -1.729,0 -3.561,-0.59 -4.668,-1.244 l -0.967,3.351 c 1.178,0.657 3.491,1.518 6.567,1.518 5.636,0 7.394,-3.315 7.394,-7.287 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path110" />
+						</g>
+						<g
+						   id="g112"
+						   transform="translate(99.1171,29.3809)">
+						  <path
+							 d="m 0,0 c 0,2.11 -0.07,3.868 -0.137,5.387 h 4.56 L 4.666,3.041 h 0.102 c 0.693,1.107 2.383,2.729 5.217,2.729 3.459,0 6.047,-2.317 6.047,-7.288 v -9.988 h -5.253 v 9.361 c 0,2.18 -0.759,3.668 -2.657,3.668 -1.449,0 -2.314,-1.005 -2.697,-1.972 -0.137,-0.345 -0.172,-0.83 -0.172,-1.312 v -9.745 H 0 Z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path114" />
+						</g>
+						<g
+						   id="g116"
+						   transform="translate(132.0532,18.2852)">
+						  <path
+							 d="m 0,0 c -0.936,-0.449 -2.7,-0.794 -4.704,-0.794 -5.457,0 -8.944,3.355 -8.944,8.673 0,4.943 3.382,8.986 9.671,8.986 1.382,0 2.901,-0.242 4.012,-0.657 l -0.833,-3.902 c -0.619,0.274 -1.554,0.516 -2.936,0.516 -2.763,0 -4.563,-1.968 -4.528,-4.735 0,-3.108 2.075,-4.764 4.634,-4.764 1.244,0 2.211,0.204 3.003,0.552 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path118" />
+						</g>
+						<g
+						   id="g120"
+						   transform="translate(148.6059,42.0625)">
+						  <path
+							 d="M 0,0 -4.219,-5.252 H -7.812 L -4.838,0 Z m 2.278,-18.764 c 0,-2.211 0.07,-4.011 0.141,-5.423 h -4.564 l -0.239,2.382 H -2.49 c -0.657,-1.037 -2.246,-2.766 -5.287,-2.766 -3.456,0 -5.942,2.144 -5.942,7.362 v 9.922 h 5.253 v -9.092 c 0,-2.455 0.794,-3.938 2.657,-3.938 1.453,0 2.321,0.999 2.63,1.831 0.134,0.31 0.204,0.693 0.204,1.143 v 10.056 h 5.253 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path122" />
+						</g>
+						<g
+						   id="g124"
+						   transform="translate(155.103,29.3809)">
+						  <path
+							 d="m 0,0 c 0,2.11 -0.071,3.868 -0.138,5.387 h 4.56 L 4.665,3.041 h 0.106 c 0.692,1.107 2.38,2.729 5.213,2.729 3.46,0 6.051,-2.317 6.051,-7.288 v -9.988 h -5.252 v 9.361 c 0,2.18 -0.76,3.668 -2.661,3.668 -1.45,0 -2.314,-1.005 -2.698,-1.972 -0.136,-0.345 -0.172,-0.83 -0.172,-1.312 v -9.745 H 0 Z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path126" />
+						</g>
+						<g
+						   id="g128"
+						   transform="translate(341.5234,24.0694)">
+						  <path
+							 d="m 0,0 h 0.865 c 1.07,0 1.903,0.345 1.903,1.241 0,0.728 -0.517,1.28 -1.762,1.28 -0.449,0 -0.763,0 -1.006,-0.036 z M 0,-4.976 H -1.828 V 3.663 C -1.139,3.765 -0.375,3.902 0.936,3.902 2.42,3.902 3.32,3.663 3.91,3.213 4.392,2.83 4.67,2.247 4.67,1.347 4.67,0.31 3.941,-0.415 3.01,-0.657 V -0.728 C 3.77,-0.864 4.255,-1.558 4.392,-2.834 4.564,-4.181 4.736,-4.7 4.877,-4.976 H 2.975 c -0.207,0.311 -0.348,1.07 -0.517,2.245 -0.14,0.934 -0.692,1.31 -1.628,1.31 H 0 Z M 1.316,5.769 c -3.25,0 -5.876,-2.798 -5.876,-6.25 0,-3.496 2.626,-6.223 5.911,-6.223 3.284,-0.036 5.945,2.727 5.945,6.223 0,3.452 -2.661,6.25 -5.945,6.25 z m 0.07,1.554 c 4.282,0 7.703,-3.488 7.703,-7.773 0,-4.356 -3.421,-7.809 -7.738,-7.809 -4.287,0 -7.777,3.453 -7.777,7.809 0,4.285 3.49,7.773 7.777,7.773 z"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path130" />
+						</g>
+						<path
+						   d="m 193.551,9.145 h -8.353 V 130 h 8.353 z"
+						   style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+						   id="path132" />
+						<g
+						   id="g134"
+						   transform="translate(235.0908,82.0449)">
+						  <path
+							 d="m 0,0 h -5.917 v 38.132 h 6.603 c 3.79,0 16.657,-1.515 16.657,-18.23 C 17.343,3.182 4.476,0 0,0 m -0.827,47.938 c -11.324,0 -24.504,0.007 -24.504,0.007 v -8.164 c 3.786,0 6.265,-1.031 6.265,-5.021 V 3.951 c 0,-5.002 -6.265,-4.553 -6.265,-4.553 v -7.544 c 0,0 13.81,0.281 29.328,0.281 11.609,0 28.197,5.554 28.197,28.323 0,22.733 -16.398,27.48 -33.021,27.48"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path136" />
+						</g>
+						<g
+						   id="g138"
+						   transform="translate(324.9863,120.9366)">
+						  <path
+							 d="m 0,0 h 4.943 v 9.057 h -28.07 V 0 h 5.361 c 1.818,0 2.613,-1.287 2.613,-3.101 V -14.06 h -9.732 -1.572 -9.729 v 10.959 c 0,1.814 0.795,3.101 2.61,3.101 h 5.365 v 9.057 h -28.07 V 0 h 4.943 c 2.039,0 1.962,-1.36 1.962,-2.726 v -34.539 c 0,-1.585 -1.357,-2.418 -2.343,-2.418 h -4.562 v -7.359 h 28.07 v 7.359 h -5.062 c -1.366,0 -2.913,0.379 -2.913,2.345 v 13.454 h 9.729 1.572 9.732 v -13.454 c 0,-1.966 -1.548,-2.345 -2.915,-2.345 h -5.059 v -7.359 h 28.07 v 7.359 H 0.376 c -0.988,0 -2.346,0.833 -2.346,2.418 V -2.726 C -1.97,-1.36 -2.043,0 0,0"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path140" />
+						</g>
+						<g
+						   id="g142"
+						   transform="translate(251.0585,67.3164)">
+						  <path
+							 d="M 0,0 H 6.607 L 12.112,-20.236 4.68,-23.4 c 0,0 -6.553,16.158 -17.22,15.275 -12.27,-1.009 -17.79,-11.729 -14.352,-25.768 3.446,-14.041 23.037,-20.208 33.913,-2.312 l 6.604,-4.127 c 0,0 -7.018,-17.84 -28.629,-17.84 -18.174,0 -28.082,15.083 -27.396,31.467 0.546,12.973 6.744,23.812 22.027,26.705 13.69,2.588 20.236,-3.305 20.236,-3.305"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path144" />
+						</g>
+						<g
+						   id="g146"
+						   transform="translate(315.8271,12.3897)">
+						  <path
+							 d="m 0,0 c -9.707,-7.02 -23.481,-5.312 -28.699,0 -5.784,5.886 -4.546,16.411 3.094,26.168 7.639,9.761 11.563,15.544 11.563,15.544 0,0 9.292,-10.741 14.042,-17.141 C 4.75,18.17 9.707,7.021 0,0 m 0.411,34.275 c -7.432,9.292 -16.925,22.91 -16.925,22.91 0,0 -5.611,-7.749 -12.6,-17.125 -6.697,-8.987 -15.73,-18.202 -16.518,-28.082 -0.844,-10.519 5.91,-24.368 27.459,-24.368 20.029,0 30.77,12.594 30.77,22.301 0,9.703 -4.749,15.076 -12.186,24.364"
+							 style="fill:#415ca4;fill-opacity:1;fill-rule:nonzero;stroke:none"
+							 id="path148" />
+						</g>
+					  </g>
+					</g>
+				  </g>
+				  
+				</svg>
+				
+				</th>
+				<th>
+				<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+					<!-- Created with Inkscape (http://www.inkscape.org/) -->
+					
+					<svg
+					   version="1.1"
+					   id="svg2"
+					   width="248.91467"
+					   height="248.91467"
+					   viewBox="0 0 248.91467 248.91467"
+					   sodipodi:docname="agkn-logo2016.ai"
+					   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+					   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+					   xmlns="http://www.w3.org/2000/svg"
+					   xmlns:svg="http://www.w3.org/2000/svg">
+					  <defs
+						 id="defs6">
+						<clipPath
+						   clipPathUnits="userSpaceOnUse"
+						   id="clipPath16">
+						  <path
+							 d="M 0,186.686 H 186.686 V 0 H 0 Z"
+							 id="path14" />
+						</clipPath>
+					  </defs>
+					  <sodipodi:namedview
+						 id="namedview4"
+						 pagecolor="#ffffff"
+						 bordercolor="#000000"
+						 borderopacity="0.25"
+						 inkscape:showpageshadow="2"
+						 inkscape:pageopacity="0.0"
+						 inkscape:pagecheckerboard="0"
+						 inkscape:deskcolor="#d1d1d1" />
+					  <g
+						 id="g8"
+						 inkscape:groupmode="layer"
+						 inkscape:label="agkn-logo2016"
+						 transform="matrix(1.3333333,0,0,-1.3333333,0,248.91467)">
+						<g
+						   id="g10">
+						  <g
+							 id="g12"
+							 clip-path="url(#clipPath16)">
+							<g
+							   id="g18"
+							   transform="translate(77.5806,89.02)">
+							  <path
+								 d="M 0,0 C 2.744,2.156 1.792,-4.615 9.394,-8.192 6.712,-8.491 -2.084,-1.63 0,0 m 21.302,5.529 c -3.523,3.816 -3.095,4.129 -6.351,7.053 0,0 -1.882,-4.819 -6.344,-4.229 -4.469,0.585 -5.177,4.935 -5.177,4.935 0,0 -3.407,-0.941 -5.048,-3.995 C -7.15,1.067 0.614,-12.689 18.595,-11.635 36.582,-10.574 41.164,6.119 41.164,6.119 35.168,-2.697 24.777,1.76 21.302,5.529"
+								 style="fill:#1bb4c9;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path20" />
+							</g>
+							<g
+							   id="g22"
+							   transform="translate(83.791,102.061)">
+							  <path
+								 d="M 0,0 C 0.938,0.659 2.927,-1.913 1.925,-2.646 1.324,-3.084 -0.829,-0.66 0,0 m -1.957,0.602 c 0.823,-4.12 4.353,-5.525 7.409,-4.12 3.053,1.41 5.404,9.29 -4.233,13.05 -9.64,3.76 -14.927,-6.935 -14.927,-6.935 4.469,2.941 10.927,2.116 11.751,-1.995"
+								 style="fill:#6dc0e8;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path24" />
+							</g>
+							<g
+							   id="g26"
+							   transform="translate(95.6123,106.3311)">
+							  <path
+								 d="M 0,0 C 0.605,0.062 0.795,-1.026 1.394,-1.815 2.184,-2.844 2.76,-3.195 2.483,-3.754 2.303,-4.118 0.874,-3.711 0.241,-2.722 -0.304,-1.876 -0.513,-0.046 0,0 m -2.021,-0.498 c 0.699,-7.169 7.533,-6.973 9.522,-3.993 2.111,3.174 1.403,14.22 -10.699,18.925 -12.109,4.701 -21.275,-8.348 -21.275,-8.348 9.166,10.226 21.862,2.116 22.452,-6.584"
+								 style="fill:#0099d8;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path28" />
+							</g>
+							<g
+							   id="g30"
+							   transform="translate(108.4209,104.2632)">
+							  <path
+								 d="M 0,0 C 0.506,-0.39 0.872,-1.613 1.812,-3.014 2.813,-4.527 4.076,-5.177 3.095,-6.076 1.134,-7.879 -1.359,1.059 0,0 m -2.134,-0.195 c 0.117,-7.169 4.584,-9.159 6.817,-9.159 2.235,0 4.583,1.874 5.405,5.399 0.826,3.531 1.411,15.634 -9.64,23.159 -13.87,9.402 -27.268,1.053 -27.268,1.053 20.453,4.468 24.566,-13.278 24.686,-20.452"
+								 style="fill:#0053a0;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path32" />
+							</g>
+							<g
+							   id="g34"
+							   transform="translate(29.9512,72.5093)">
+							  <path
+								 d="m 0,0 c -6.388,0 -8.805,-2.549 -8.805,-4.875 v -8.66 h 5.471 v 9.159 c 0,0.989 0.807,1.793 3.334,1.793 2.522,0 3.363,-0.804 3.363,-1.793 v -1.786 h -5.328 v -2.58 h 5.328 v -4.793 h 5.475 v 8.66 C 8.838,-2.549 6.379,0 0,0"
+								 style="fill:#34342c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path36" />
+							</g>
+							<g
+							   id="g38"
+							   transform="translate(53.6162,64.3867)">
+							  <path
+								 d="M 0,0 H 6.809 C 6.319,-1.518 3.303,-2.828 0.25,-2.828 c -4.419,0 -7.473,1.917 -7.473,4.142 0,2.225 3.054,4.145 7.473,4.145 2.562,0 5.016,-0.645 6.348,-1.464 L 9.889,6.046 C 6.943,7.585 3.231,8.123 -0.167,8.123 c -7.334,0 -12.524,-3.14 -12.524,-6.887 0,-3.744 5.19,-6.874 12.524,-6.874 8.236,0 12.444,3.682 12.444,6.305 V 2.476 H 0 Z"
+								 style="fill:#34342c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path40" />
+							</g>
+							<g
+							   id="g42"
+							   transform="translate(80.3076,72.2808)">
+							  <path
+								 d="m 0,0 v -8.592 c 0,-1.787 -1.545,-2.207 -3.369,-2.207 -1.852,0 -3.401,0.42 -3.401,2.207 V 0 h -5.186 v -9.394 c 0,-2.07 2.73,-4.138 8.587,-4.138 5.856,0 8.594,2.068 8.594,4.138 L 5.189,0 Z"
+								 style="fill:#34342c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path44" />
+							</g>
+							<g
+							   id="g46"
+							   transform="translate(97.457,72.5093)">
+							  <path
+								 d="m 0,0 c -6.386,0 -8.805,-2.549 -8.805,-4.875 v -8.66 h 5.471 v 9.159 c 0,0.989 0.805,1.793 3.334,1.793 2.524,0 3.363,-0.804 3.363,-1.793 v -1.786 h -5.33 v -2.58 h 5.33 v -4.793 H 8.84 v 8.66 C 8.84,-2.549 6.379,0 0,0"
+								 style="fill:#34342c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path48" />
+							</g>
+							<g
+							   id="g50"
+							   transform="translate(123.7207,68.7803)">
+							  <path
+								 d="M 0,0 2.911,3.495 H -2.768 L -5.784,-0.321 C -6.454,-1.18 -6.875,-1.479 -9.33,-1.479 v 4.974 h -5.189 V -9.806 h 5.189 v 5.742 h 3.788 c 1.542,0 2.249,-0.381 2.249,-1.296 v -4.446 h 5.19 v 5.014 c 0,1.522 -2.178,2.532 -5.086,2.646 v 0.034 C -1.51,-1.786 -0.665,-0.815 0,0"
+								 style="fill:#34342c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path52" />
+							</g>
+							<g
+							   id="g54"
+							   transform="translate(136.6289,72.5093)">
+							  <path
+								 d="m 0,0 c -6.382,0 -8.803,-2.549 -8.803,-4.875 v -8.66 h 5.47 v 9.159 c 0,0.989 0.806,1.793 3.333,1.793 2.524,0 3.363,-0.804 3.363,-1.793 v -1.786 h -5.328 v -2.58 h 5.328 v -4.793 h 5.471 v 8.66 C 8.834,-2.549 6.382,0 0,0"
+								 style="fill:#34342c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path56" />
+							</g>
+							<g
+							   id="g58"
+							   transform="translate(162.6514,63.7446)">
+							  <path
+								 d="m 0,0 h -0.072 -0.04 l -6.03,6.823 c -0.806,0.914 -1.961,1.942 -4.454,1.942 -2.207,0 -3.574,-0.82 -3.574,-1.942 V -4.771 h 5.189 V 4.732 L -8.913,4.771 -1.971,-3 c 1.163,-1.276 2.076,-1.996 4.245,-1.996 2.211,0 2.915,0.891 2.915,1.917 V 8.531 L 0,8.531 Z"
+								 style="fill:#34342c;fill-opacity:1;fill-rule:nonzero;stroke:none"
+								 id="path60" />
+							</g>
+						  </g>
+						</g>
+					  </g>
+					</svg>
+				</th>
+			<!--
+				<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 519.42 141.73" style="enable-background:new 0 0 519.42 141.73;" xml:space="preserve">
+					<style type="text/css">.st0{fill:#FFFFFF;}</style>
+					<g id="logo">
+						<g>
+							<g>
+								<path class="st0" d="M14.01,0.03c7.48,0,13.51,6.05,13.51,13.5c0,7.47-6.03,13.51-13.51,13.51C6.56,27.04,0.5,21,0.5,13.53
+									C0.5,6.08,6.56,0.03,14.01,0.03"/>
+								<path class="st0" d="M14.01,37.17L14.01,37.17c7.48,0,13.51,6.04,13.51,13.5v40.52c0,7.47-6.03,13.5-13.51,13.5
+									c-7.45,0-13.5-6.04-13.5-13.5V50.67C0.5,43.22,6.56,37.17,14.01,37.17"/>
+								<path class="st0" d="M54.52,114.72c7.46,0,13.52,6.06,13.52,13.51c0,7.47-6.06,13.5-13.52,13.5c-7.45,0-13.5-6.04-13.5-13.5
+									C41.02,120.77,47.07,114.72,54.52,114.72"/>
+								<path class="st0" d="M54.52,37.07L54.52,37.07c7.46,0,13.52,6.05,13.52,13.5v40.52c0,7.46-6.06,13.51-13.52,13.51
+									c-7.45,0-13.5-6.05-13.5-13.51V50.57C41.02,43.12,47.07,37.07,54.52,37.07"/>
+							</g>
+							<g>
+								<path d="M135.36,105.87c-6.73,0-12.51-1.57-17.32-4.72c-4.81-3.15-8.48-7.37-11.02-12.66c-2.54-5.29-3.8-11.21-3.8-17.77
+									c0-6.64,1.4-12.61,4.2-17.9c2.79-5.29,6.8-9.47,12-12.53c5.2-3.06,11.39-4.59,18.56-4.59c6.91,0,12.87,1.53,17.9,4.59
+									c5.03,3.06,8.92,7.17,11.67,12.33c2.76,5.16,4.13,10.98,4.13,17.45v34.1h-9.05V89.21h-0.39c-1.23,2.62-3.06,5.23-5.51,7.81
+									c-2.45,2.58-5.44,4.7-8.98,6.36C144.22,105.04,140.09,105.87,135.36,105.87z M137.33,98c4.9,0,9.23-1.2,12.98-3.61
+									c3.76-2.41,6.73-5.68,8.92-9.84c2.19-4.15,3.24-8.86,3.15-14.1c0-5.16-1.01-9.75-3.02-13.77s-4.85-7.21-8.53-9.58
+									c-3.67-2.36-8.04-3.54-13.12-3.54c-5.25,0-9.75,1.2-13.51,3.6c-3.76,2.41-6.65,5.69-8.66,9.84s-3.02,8.86-3.02,14.1
+									c0,4.9,0.96,9.4,2.88,13.51c1.92,4.11,4.74,7.37,8.46,9.77C127.6,96.8,132.08,98,137.33,98z"/>
+								<path d="M226.09,45.27v-8h-24.79V20.48h-9.18v16.79v8v39.87c0,5.86,1.68,10.49,5.05,13.91c3.37,3.41,8.02,5.11,13.97,5.11h14.69
+									v-8h-12.86c-3.85,0-6.75-1.05-8.72-3.15c-1.97-2.1-2.95-5.07-2.95-8.92V45.27H226.09z"/>
+								<path d="M268.84,105.74c-2.62,0-4.92-0.77-6.88-2.29c-1.97-1.53-3.57-3.78-4.79-6.76L234.22,37.4h10.23l21.12,56.14
+									c0.52,1.14,1.05,1.97,1.57,2.49c0.52,0.52,1.14,0.79,1.84,0.79c0.61,0,1.16-0.26,1.64-0.79s0.94-1.35,1.38-2.49l21.38-56.14h10.1
+									l-23.22,59.42c-1.14,2.97-2.69,5.2-4.66,6.69C273.63,105,271.38,105.74,268.84,105.74z"/>
+								<path d="M316.85,104.17v-66.9h9.18v66.9H316.85z"/>
+								<path d="M344.79,104.17v-8h31.48c2.71,0,4.99-0.57,6.82-1.71c1.84-1.13,3.26-2.62,4.26-4.46c1.01-1.84,1.51-3.72,1.51-5.64
+									c0-1.92-0.44-3.69-1.31-5.31c-0.88-1.62-2.14-2.95-3.8-4c-1.66-1.05-3.76-1.57-6.3-1.57h-14.04c-4.28,0-7.98-0.72-11.08-2.16
+									c-3.11-1.45-5.47-3.52-7.08-6.23c-1.62-2.71-2.43-5.86-2.43-9.44c0-3.23,0.79-6.25,2.36-9.05c1.57-2.8,3.8-5.05,6.69-6.76
+									c2.89-1.7,6.25-2.56,10.1-2.56h30.3v8h-29.38c-3.41,0-6.08,1.03-8,3.08c-1.92,2.06-2.88,4.39-2.88,7.02
+									c0,2.54,0.96,4.81,2.88,6.82c1.92,2.01,4.81,3.02,8.66,3.02h13.12c4.72,0,8.68,0.79,11.87,2.36c3.19,1.57,5.6,3.76,7.22,6.56
+									c1.62,2.8,2.42,6.08,2.42,9.84c0,3.41-0.87,6.67-2.62,9.77c-1.75,3.11-4.13,5.62-7.15,7.54c-3.02,1.93-6.53,2.89-10.56,2.89
+									H344.79z"/>
+								<path d="M448.67,104.17c-7.17,0-13.58-1.33-19.22-4c-5.64-2.67-10.1-6.49-13.38-11.48c-3.28-4.98-4.92-10.97-4.92-17.97
+									c0-6.47,1.31-12.35,3.93-17.64c2.62-5.29,6.32-9.51,11.09-12.66c4.76-3.15,10.34-4.72,16.72-4.72c6.56,0,12.11,1.44,16.66,4.33
+									c4.55,2.88,8,6.78,10.36,11.67c2.36,4.9,3.54,10.41,3.54,16.53c0,0.87-0.05,1.84-0.13,2.89c-0.09,1.05-0.22,1.97-0.39,2.75
+									h-52.08c0.26,4.9,1.66,9.01,4.2,12.33c2.54,3.32,5.84,5.82,9.9,7.48c4.07,1.66,8.46,2.49,13.18,2.49h16.92v8H448.67z
+									 M420.86,67.31h43.28c0-1.75-0.17-3.69-0.52-5.84c-0.35-2.14-0.98-4.26-1.9-6.36c-0.92-2.1-2.18-4.02-3.8-5.77
+									c-1.62-1.75-3.67-3.17-6.16-4.27c-2.49-1.09-5.53-1.64-9.12-1.64c-3.32,0-6.34,0.7-9.05,2.1c-2.71,1.4-4.98,3.26-6.82,5.58
+									c-1.84,2.32-3.26,4.88-4.26,7.67C421.5,61.58,420.95,64.42,420.86,67.31z"/>
+								<path d="M501.48,55.76c-2.5,0-4.84-0.46-7.02-1.39c-2.18-0.93-4.09-2.21-5.72-3.85c-1.63-1.63-2.92-3.54-3.85-5.72
+									c-0.93-2.18-1.39-4.52-1.39-7.02c0-2.5,0.46-4.83,1.39-7c0.93-2.16,2.21-4.06,3.85-5.7c1.64-1.63,3.54-2.92,5.72-3.85
+									c2.18-0.93,4.52-1.39,7.02-1.39c2.5,0,4.83,0.46,7,1.39c2.16,0.93,4.07,2.21,5.72,3.85c1.65,1.64,2.93,3.54,3.85,5.7
+									s1.37,4.5,1.37,7c0,2.5-0.46,4.84-1.37,7.02c-0.91,2.18-2.2,4.09-3.85,5.72c-1.65,1.64-3.56,2.92-5.72,3.85
+									C506.32,55.29,503.99,55.76,501.48,55.76z M501.48,53.79c2.21,0,4.29-0.42,6.23-1.25c1.94-0.83,3.63-1.98,5.07-3.44
+									c1.44-1.46,2.58-3.16,3.41-5.1c0.83-1.94,1.25-4.02,1.25-6.23c0-2.21-0.42-4.28-1.25-6.2c-0.83-1.92-1.97-3.62-3.41-5.07
+									c-1.44-1.46-3.14-2.6-5.07-3.44c-1.94-0.83-4.02-1.25-6.23-1.25c-2.21,0-4.29,0.42-6.23,1.25c-1.94,0.83-3.64,1.98-5.1,3.44
+									c-1.46,1.46-2.6,3.15-3.42,5.07c-0.82,1.92-1.23,3.99-1.23,6.2c0,2.21,0.41,4.29,1.23,6.23c0.82,1.94,1.95,3.64,3.42,5.1
+									c1.46,1.46,3.16,2.61,5.1,3.44C497.2,53.37,499.27,53.79,501.48,53.79z M494.94,47.05V28.83h7.84c1.15,0,2.2,0.26,3.13,0.77
+									c0.93,0.51,1.67,1.21,2.21,2.09s0.82,1.9,0.82,3.05c0,1.12-0.31,2.19-0.94,3.2c-0.63,1.01-1.58,1.74-2.86,2.19l2.31,4.19
+									c0.16,0.22,0.35,0.4,0.55,0.53c0.21,0.13,0.44,0.19,0.7,0.19h1.2v2.02h-1.49c-0.64,0-1.23-0.14-1.76-0.43
+									c-0.53-0.29-0.95-0.7-1.27-1.25l-2.55-4.66h-5.48v6.35H494.94z M497.35,38.54h5.24c1.03,0,1.94-0.34,2.74-1.01
+									c0.8-0.67,1.2-1.63,1.2-2.88c0-1.03-0.4-1.88-1.2-2.57c-0.8-0.69-1.73-1.03-2.79-1.03h-5.19V38.54z"/>
+							</g>
+						</g>
+					</g>
+				</svg> -->
+				
+			</td>
+			</tr>
+			<tr><td id="info" class="formInput" colspan="3"></td></tr>
+			<tr class="login"><td class="formSymbol"><i class="fas fa-user"></i></td><td class="formInput" colspan="2"><input type="text" id="username" name="username" required="true" tabindex="1"/></td></tr>
+			<tr class="login"><td class="formSymbol"><i class="fas fa-key"></i></td><td class="formInput" colspan="2"><input type="password" id="current-password" name="current_password" tabindex="2"/><i class="fas fa-eye-slash" id="togglePassword" tabindex="3"></i></td></tr>
+			<tr class="login"><td class="formSymbol"></td><td colspan="2" class="formInput"><input type="checkbox" id="remember_user" name="remember_user" tabindex="4"/> <label for="remember_user" id="remember_user_label">Remember username</label></td></tr>
+
+			<tr class="changepassword"><td class="formSymbol"></td><td class="formInput"><br><span id="newpassword_label">New password:</span></td></tr>
+			<tr class="changepassword"><td class="formSymbol"></td><td class="formInput"><input type="password" id="new-password" name="new_password" tabindex="5"/><i class="fas fa-eye-slash" id="toggleNewPassword"></i></td></tr>
+			<tr class="changepassword"><td class="formSymbol"></td><td class="formInput"><div id="requirements">Requirements</div></td></tr>
+
+			<tr class="twofactor" ><td class="formSymbol"></td><td colspan="2" class="formInput"><span id="twofactor_label">Two-Factor-Code:</span></td></tr>
+			<tr class="twofactor"><td class="formSymbol"><i class="fas fa-key"></i></td><td class="formInput" colspan="2"><input type="string" minlength="6" maxlength="6" autocomplete="false" id="twofactor-code" name="twofactor_code" tabindex="6"/></td></tr>
+			
+			<tr><td class="formSymbol"></td><td class="formInput formButtons" colspan="2" ><button id="login_button" type="button" tabindex="7"><span id="login_label">Login</span></button></td></tr>
+			<tr><td class="formSymbol"></td><td class="formInput formButtons" colspan="2" ><button id="cancel_button" type="button" tabindex="8"><span id="cancel_label">Cancel</span></button></td></tr>
+			
+			<tr class="twofactor"><td class="formSymbol"></td><td class="formInput"  colspan="3">
+				<span id="twofactor_header" ></span>
+				<input type="mail" id="twofactor-mail" name="twofactor_mail" tabindex="9"/>
+				<select id="twofactor-maildomain" name="twofactor_maildomain" tabindex="10"></select>
+			</td></tr>
+			<tr class="twofactor"><td class="formSymbol"></td><td class="formInput formButtons"  colspan="3">
+				<button id="twofactor_sendmail" type="button" tabindex="11"><span id="twofactor_sendmail_label" >Send code via e-mail</span></button>
+				<span id="twofactor_info" ></span>
+			</td></tr>
+		</table>
+	</form>
+</div>
+</body>
+</html>

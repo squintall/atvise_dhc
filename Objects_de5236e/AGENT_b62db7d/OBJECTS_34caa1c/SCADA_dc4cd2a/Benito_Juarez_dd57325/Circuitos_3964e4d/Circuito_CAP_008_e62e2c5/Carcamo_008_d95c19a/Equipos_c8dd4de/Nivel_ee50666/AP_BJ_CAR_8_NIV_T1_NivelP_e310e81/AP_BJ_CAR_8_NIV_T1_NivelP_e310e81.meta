@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_008.Equipos.Nivel.AP_BJ_CAR_8_NIV_T1_NivelP
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_8_NIV_T1_NivelP
+DisplayName: en|AP_BJ_CAR_8_NIV_T1_NivelP
+Description: en|AP_BJ_CAR_8_NIV_T1_NivelP
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

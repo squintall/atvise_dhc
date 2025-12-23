@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Circuito.Detalles_eficiencia
+NodeClass: Variable
+BrowseName: 1:Detalles_eficiencia
+DisplayName: en|Detalles_eficiencia
+Description: en|Detalles_eficiencia
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

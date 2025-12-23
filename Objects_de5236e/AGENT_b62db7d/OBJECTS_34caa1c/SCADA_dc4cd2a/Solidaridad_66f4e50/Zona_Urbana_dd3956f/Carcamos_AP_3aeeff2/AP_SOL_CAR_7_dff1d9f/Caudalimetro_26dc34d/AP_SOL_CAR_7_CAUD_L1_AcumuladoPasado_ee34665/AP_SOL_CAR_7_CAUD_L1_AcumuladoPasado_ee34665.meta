@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_7.Caudalimetro.AP_SOL_CAR_7_CAUD_L1_AcumuladoPasado
+NodeClass: Variable
+BrowseName: 1:AP_SOL_CAR_7_CAUD_L1_AcumuladoPasado
+DisplayName: en|AP_SOL_CAR_7_CAUD_L1_AcumuladoPasado
+Description: en|AP_SOL_CAR_7_CAUD_L1_AcumuladoPasado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

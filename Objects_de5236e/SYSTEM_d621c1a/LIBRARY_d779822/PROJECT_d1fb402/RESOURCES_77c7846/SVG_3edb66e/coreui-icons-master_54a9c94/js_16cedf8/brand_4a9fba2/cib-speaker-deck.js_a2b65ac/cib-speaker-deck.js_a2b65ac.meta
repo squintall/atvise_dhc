@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/SVG/coreui-icons-master/js/brand/cib-speaker-deck.js
+NodeClass: Variable
+BrowseName: 1:cib-speaker-deck.js
+DisplayName: en|cib-speaker-deck.js
+Description: en|cib-speaker-deck.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Desaladora_006.Equipos.AP_SOL_DES_6_ATIT_601_PH
+NodeClass: Variable
+BrowseName: 1:AP_SOL_DES_6_ATIT_601_PH
+DisplayName: en|AP_SOL_DES_6_ATIT_601_PH
+Description: en|AP_SOL_DES_6_ATIT_601_PH
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

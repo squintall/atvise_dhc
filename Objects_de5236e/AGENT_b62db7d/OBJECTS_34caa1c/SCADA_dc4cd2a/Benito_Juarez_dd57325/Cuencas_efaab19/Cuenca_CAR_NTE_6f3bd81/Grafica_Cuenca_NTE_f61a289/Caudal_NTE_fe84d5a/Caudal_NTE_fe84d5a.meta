@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Grafica_Cuenca_NTE.Caudal_NTE
+NodeClass: Variable
+BrowseName: 1:Caudal_NTE
+DisplayName: en|Caudal_NTE
+Description: en|Caudal_NTE
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

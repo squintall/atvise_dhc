@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Presiones_BJ.AP
+NodeClass: Variable
+BrowseName: 1:AP
+DisplayName: en|AP
+Description: en|AP
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

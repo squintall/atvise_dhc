@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Acknowledge Alarm
+NodeClass: Variable
+BrowseName: 1:Acknowledge Alarm
+DisplayName: en|Acknowledge Alarm
+Description: en|Acknowledge Alarm
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

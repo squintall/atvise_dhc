@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts button start end object display
+ * ----------------------------------------
+ * This script supports the display to set the time for axis
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var activeAxis = webMI.query["xAxisIndex"];
+var archiveSwitchProgress = false;
+var chartname = webMI.query["chartname"];
+var chart, chartUpdate, configHandler;
+var message_dialog_small = webMI.query["message_dialog_small"];
+
+var internal = {};
+
+internal.apply = false;
+
+/* store internal date/times to revert after start/stop */
+internal.current = {};
+internal.current.start = null;
+internal.current.end = null;
+internal.current.time = null;
+internal.current.unit = null;
+
+internal.historyLoading = {};
+internal.historyLoading.start = null;
+internal.historyLoading.ready = null;
+internal.historyLoading.inProgress = false;
+
+internal.lock = {};
+internal.lock.update = false;
+internal.lock.picker = false;
+
+internal.mode = {};
+internal.mode.live = -1;
+internal.mode.lock = false;
+
+internal.timeout = {};
+internal.timeout.chartTimeSpanUpdate = null;
+
+internal.update = {};
+internal.update.editable = {};
+internal.update.editable.start = true;
+internal.update.editable.end = true;
+internal.update.editable = {};
+internal.update.editable.time = true;
+internal.update.editable.unit = true;
+
+internal.value = {};
+internal.value.start = null;
+internal.value.end = null;
+internal.value.time = null;
+internal.value.unit = null;
+
+internal.zoom = null;
+internal.zoomLock = false;
+
+var timeSpanUnitMap = [
+	{ text: "T{second(s)}", value: "1" },
+	{ text: "T{minute(s)}", value: "60" },
+	{ text: "T{hour(s)}", value: "3600" },
+	{ text: "T{day(s)}", value: "86400" },
+	{ text: "T{week(s)}", value: "604800" },
+	{ text: "T{month(s)}", value: "2592000" }
+];
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+
+webMI.addOnload(function () {
+	initUI();
+	checkChart();
+	updateTimer();
+});
+
+webMI.addOnunload(function () {
+	if (chart && chart.control) chart.control.unregisterOnUpdatedCallback(chartUpdate);
+
+	if (chart && chart.chart) {
+		chart.chart.onHistoryLoadingUnregister(internal.historyLoading.start);
+		chart.chart.onHistoryReadyUnregister(internal.historyLoading.end);
+		chart.chart._setZoomExtremes = null;
+		chart.chart._configUpdates = null;
+	}
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * Set default values for ui elements
+ */
+function initUI() {
+	webMI.trigger.fire("setItems", timeSpanUnitMap, "xAxis_timeSpanUnit");
+}
+
+/**
+ * Check current chart option and set default values and define hooks
+ */
+function checkChart() {
+	chart = webMI.trendFactory.getTrendByName(chartname);
+
+	if (!chart) {
+		setTimeout(function () {
+			checkChart();
+		}, 250);
+		return;
+	}
+
+	var extremes = chart.chart.xAxis[activeAxis].getExtremes();
+
+	if (isNaN(extremes.min)) {
+		setTimeout(function () {
+			checkChart();
+		}, 100);
+		return;
+	}
+
+	/* update current timesettings */
+	updateTimeSettings(extremes);
+
+	/** init picker **/
+	internal.lock.update = true;
+
+	setDatePicker(internal.current);
+	setTimePicker(internal.current);
+
+	setVisual(true);
+
+	internal.lock.update = false;
+
+	/**
+	 * hook into history loading provided by highcharts
+	 * e.g. for handling lock states
+	 */
+	internal.historyLoading.start = chart.chart.onHistoryLoadingRegister(function disable() {
+		setVisual(true);
+		internal.historyLoading.inProgress = true;
+	});
+
+	internal.historyLoading.end = chart.chart.onHistoryReadyRegister(function enable() {
+		setTimeout(
+			function () {
+				try {
+					internal.historyLoading.inProgress = false;
+					setVisual();
+				} catch (ex) {
+					// console.error("chart already invalidated");
+				}
+			},
+			chart.chart._setZoomed ? 1000 : 1000
+		);
+	});
+
+	/**
+	 * hock chart updates provided by control
+	 * e.g. update of pickers or ui lock handling
+	 */
+	chartUpdate = chart.control.registerOnUpdatedCallback(updatePickerCallback);
+
+	function updatePickerCallback() {
+		if (internal.apply) {
+			internal.apply = false;
+		} else {
+			var extremes = chart.chart.xAxis[activeAxis].getExtremes();
+			updateTimeSettings(extremes);
+			setDatePicker(internal.current, true);
+			setTimePicker(internal.current, true);
+		}
+
+		if (!internal.zoomLock) {
+			setVisual();
+			showMainApplyButton(true);
+		}
+	}
+
+	/**
+	 * hock zooming event provided by highcharts
+	 * e.g. set or restore origins states on zoom settings changes
+	 */
+	if (typeof chart.chart._setZoomExtremes !== "function") {
+		chart.chart._setZoomExtremes = function (zoomActive) {
+			internal.zoomLock = true;
+
+			if (zoomActive) {
+				if (!internal.zoom) {
+					internal.zoom = JSON.parse(JSON.stringify(internal.current));
+				}
+
+				webMI.trigger.fire("com.atvise.setActive", false, "dp_start");
+				webMI.trigger.fire("com.atvise.setActive", false, "dp_end");
+				webMI.trigger.fire("com.atvise.setActive", false, "xAxis_timeSpan");
+				webMI.trigger.fire("com.atvise.setActive", false, "xAxis_timeSpanUnit");
+				webMI.trigger.fire("com.atvise.setActive", false, "cmd_apply");
+				webMI.trigger.fire("com.atvise.setActive", false, "cmd_apply_note");
+
+				if (chart.control.isLiveModeRunning()) {
+					setTimePicker(internal.current, true);
+				} else {
+					setTimeout(function () {
+						try {
+							if (zoomActive) {
+								var extremes = chart.chart.xAxis[activeAxis].getExtremes();
+								updateTimeSettings(extremes);
+								setDatePicker(internal.current, true);
+							}
+						} catch (ex) {
+							// console.log("chart already invalidated");
+						}
+					}, 250);
+				}
+			} else {
+				internal.value = JSON.parse(JSON.stringify(internal.zoom));
+				internal.zoom = null;
+
+				webMI.trigger.fire("com.atvise.setActive", true, "dp_start");
+				webMI.trigger.fire("com.atvise.setActive", true, "dp_end");
+				webMI.trigger.fire("com.atvise.setActive", true, "xAxis_timeSpan");
+				webMI.trigger.fire("com.atvise.setActive", true, "xAxis_timeSpanUnit");
+				webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply");
+				webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply_note");
+
+				setDatePicker(internal.value, true);
+				internal.zoomLock = false;
+
+				updateChartContent();
+			}
+		};
+	}
+
+	/**
+	 * hook into configurator
+	 * e.g. handle change in timespan/unit
+	 */
+	if (typeof chart.chart._configUpdates !== "function") {
+		chart.chart._configUpdates = function (options) {
+			updatePickerCallback(options);
+
+			if (internal.zoomLock) {
+				internal.zoom.time = internal.value.time;
+				internal.zoom.unit = internal.value.unit;
+			} else {
+				internal.value.time = options.time;
+				internal.value.unit = options.unit;
+				internal.value.start = options.start;
+				internal.value.end = options.end;
+
+				setTimePicker(internal.value, true);
+				setDatePicker(internal.value, true);
+
+				updateChartContent();
+			}
+		};
+	}
+}
+
+/**
+ * Set date picker values (timestamps)
+ * @param times
+ * @param lock
+ */
+function setDatePicker(times, lock) {
+	if (lock) internal.lock.update = true;
+
+	webMI.trigger.fire("com.atvise.datepicker_starttime" + chartname, times.start);
+	webMI.trigger.fire("com.atvise.datepicker_endtime" + chartname, times.end);
+
+	if (lock) internal.lock.update = false;
+}
+
+/**
+ * Set time picker values (time/unit)
+ * @param times
+ * @param lock
+ */
+function setTimePicker(times, lock) {
+	if (lock) internal.lock.update = true;
+
+	var index = 0;
+	while (timeSpanUnitMap[index] && timeSpanUnitMap[index].value != times.unit) index++;
+
+	if (index < timeSpanUnitMap.length)
+		webMI.trigger.fire("setSelectedItem", timeSpanUnitMap[index].text, "xAxis_timeSpanUnit");
+
+	webMI.trigger.fire("setValue", times.time, "xAxis_timeSpan");
+
+	if (lock) internal.lock.update = false;
+}
+
+/**
+ * Set UI visual state
+ * @param mode
+ * @param lock
+ */
+function setVisual(lock) {
+	if (internal.zoom || internal.historyLoading.inProgress) return;
+
+	internal.mode.lock = false;
+
+	var mode = chart.control.getMode();
+	var live = chart.control.isLiveModeRunning();
+
+	if (lock) {
+		webMI.trigger.fire("com.atvise.setActive", false, "xAxis_timeSpan");
+		webMI.trigger.fire("com.atvise.setActive", false, "xAxis_timeSpanUnit");
+		webMI.trigger.fire("com.atvise.setActive", false, "dp_start");
+		webMI.trigger.fire("com.atvise.setActive", false, "dp_end");
+		webMI.trigger.fire("com.atvise.setActive", false, "cmd_apply");
+		webMI.trigger.fire("com.atvise.setActive", false, "cmd_apply_note");
+	} else {
+		/* set visu elements */
+		if (!live) {
+			webMI.gfx.setText("labelUntil", "T{Until}");
+			webMI.gfx.setVisible("timeSpanContainer", false);
+			webMI.gfx.setVisible("timeStartContainer", true);
+			webMI.trigger.fire("com.atvise.setActive", false, "xAxis_timeSpan");
+			webMI.trigger.fire("com.atvise.setActive", false, "xAxis_timeSpanUnit");
+		} else {
+			webMI.gfx.setText("labelUntil", "T{Current}");
+			webMI.gfx.setVisible("timeSpanContainer", true);
+			webMI.gfx.setVisible("timeStartContainer", false);
+			webMI.trigger.fire("com.atvise.setActive", false, "dp_start");
+			webMI.trigger.fire("com.atvise.setActive", false, "dp_end");
+		}
+
+		/* set visu functions */
+		if (mode == "live" && live) {
+			webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply");
+			webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply_note");
+			webMI.trigger.fire("com.atvise.setActive", true, "xAxis_timeSpan");
+			webMI.trigger.fire("com.atvise.setActive", true, "xAxis_timeSpanUnit");
+		} else if (mode == "live" && !live) {
+			webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply");
+			webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply_note");
+			webMI.trigger.fire("com.atvise.setActive", true, "dp_start");
+			webMI.trigger.fire("com.atvise.setActive", true, "dp_end");
+		} else if (mode == "mixed" && live) {
+			webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply");
+			webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply_note");
+			webMI.trigger.fire("com.atvise.setActive", true, "xAxis_timeSpan");
+			webMI.trigger.fire("com.atvise.setActive", true, "xAxis_timeSpanUnit");
+		} else if (mode == "mixed" && !live) {
+			webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply");
+			webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply_note");
+			webMI.trigger.fire("com.atvise.setActive", true, "dp_start");
+			webMI.trigger.fire("com.atvise.setActive", true, "dp_end");
+		} else {
+			webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply");
+			webMI.trigger.fire("com.atvise.setActive", true, "cmd_apply_note");
+			webMI.trigger.fire("com.atvise.setActive", true, "dp_start");
+			webMI.trigger.fire("com.atvise.setActive", true, "dp_end");
+		}
+	}
+}
+
+/**
+ * Display message dialoge e.g. show configuration errors
+ * @param headline
+ * @param message
+ */
+function showMessageDialog(headline, message) {
+	webMI.display.openWindow({
+		display: message_dialog_small,
+		height: 160,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: headline,
+			message: message,
+			button: "T{OK}"
+		}
+	});
+}
+
+/**
+ * toggle between apply buttons
+ * @param value
+ */
+function showMainApplyButton(value) {
+	webMI.gfx.setVisible("cmd_apply", value);
+	webMI.gfx.setVisible("cmd_apply_note", !value);
+}
+
+/**
+ * apply data changes
+ * @param e
+ */
+function updateChartContent() {
+	if (internal.historyLoading.inProgress) return;
+
+	if (!chart || internal.zoomLock) return;
+
+	internal.apply = true;
+
+	if (chart.control.getMode() != "live") internal.historyLoading.inProgress = true;
+
+	internal.current = internal.value;
+
+	/* let current be internal */
+	if (chart.control.isLiveModeRunning()) {
+		chart.chart.xAxis[activeAxis].userOptions.timeSpan = internal.current.time;
+		chart.chart.xAxis[activeAxis].userOptions.timeSpanUnit = internal.current.unit;
+
+		let _seriesVisible = {};
+		for (var key in chart.chart.series) {
+			_seriesVisible[key] = chart.chart.series[key].visible;
+			chart.chart.series[key].hide();
+		}
+
+		chart.control.stopLiveMode(function () {
+			var min = internal.current.time * internal.current.unit * 1000;
+			var max = internal.current.end;
+
+			chart.chart.xAxis[activeAxis].setExtremes(min, max);
+
+			var optionsObj = configHandler.createConfigObject("min", min);
+			chart.chart.xAxis[activeAxis].update(optionsObj);
+
+			for (var key in chart.chart.series) {
+				if (_seriesVisible[key]) chart.chart.series[key].show();
+			}
+
+			setTimeout(function delayStart() {
+				chart.control.startLiveMode();
+			}, 500);
+		});
+	} else {
+		if (internal.current.start > internal.current.end) {
+			showMessageDialog("T{Invalid period}", "T{The specified start date is after the end date}!");
+			internal.historyLoading.inProgress = false;
+			return;
+		}
+
+		chart.chart.xAxis[activeAxis].userOptions.timeSlotStart = internal.current.start;
+		chart.chart.xAxis[activeAxis].userOptions.timeSlotEnd = internal.current.end;
+
+		chart.chart.xAxis[activeAxis].setExtremes(internal.current.start, internal.current.end);
+		chart.chart.xAxis[activeAxis].options.min = internal.current.start;
+		chart.chart.xAxis[activeAxis].options.max = internal.current.end;
+		chart.chart.xAxis[activeAxis].update({ min: internal.current.start, max: internal.current.end });
+
+		var oldMode = chart.chart.options.atviseOptions.mode;
+
+		chart.control.setMode("history");
+		chart.control.loadHistory();
+		chart.control.setMode(oldMode);
+	}
+
+	showMainApplyButton(true);
+}
+
+/**
+ * Update displayed time values or time span
+ */
+function updateTimer() {
+	if (!chart || archiveSwitchProgress || internal.historyLoading.inProgress) {
+		setTimeout(function () {
+			updateTimer();
+		}, 1000);
+		return;
+	}
+
+	if (!configHandler) configHandler = new webMI.rootWindow.ConfigHandler();
+
+	var extremes = chart.chart.xAxis[activeAxis].getExtremes();
+
+	/* update picker values */
+	if (chart.control.isLiveModeRunning()) {
+		internal.current.start = extremes.min;
+		internal.current.end = extremes.max;
+		setDatePicker(internal.current, true);
+	}
+
+	/* toggle ui live/history */
+	if (chart.control.isLiveModeRunning() != internal.mode.live) {
+		internal.mode.live = chart.control.isLiveModeRunning();
+		setVisual();
+		setTimePicker(internal.current, true);
+	}
+
+	setTimeout(function () {
+		if (chart) updateTimer();
+	}, 250);
+}
+
+/**
+ * update internal time settings
+ * @param extremes
+ */
+function updateTimeSettings(extremes) {
+	internal.current.start = extremes.min;
+	internal.current.end = extremes.max;
+	internal.current.time = chart.chart.xAxis[activeAxis].userOptions.timeSpan;
+	internal.current.unit = chart.chart.xAxis[activeAxis].userOptions.timeSpanUnit;
+	internal.value = JSON.parse(JSON.stringify(internal.current));
+}
+
+/**
+ * Update internal stored time span values
+ * @param timeSpan
+ * @param timeSpanUnit
+ */
+function updateTimeSpan(timeSpan, timeSpanUnit) {
+	if (internal.lock.update) return;
+
+	/** prepare timespan values **/
+	if (timeSpan !== false) internal.value.time = timeSpan;
+	if (timeSpanUnit !== false) internal.value.unit = parseInt(timeSpanUnit, 10);
+
+	showMainApplyButton(false);
+}
+
+/**
+ * Update internal stored time slot values
+ * @param timeStart
+ * @param timeEnd
+ */
+function updateTimeSlot(timeStart, timeEnd) {
+	if (internal.lock.update) return;
+
+	/** prepare timeslot values **/
+	if (timeStart !== false) internal.value.start = timeStart;
+	if (timeEnd !== false) internal.value.end = timeEnd;
+
+	showMainApplyButton(false);
+}
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent("cmd_apply", "click", function (e) {
+	if (internal.historyLoading.inProgress || internal.mode.lock) return;
+
+	updateChartContent(e);
+});
+
+webMI.addEvent("cmd_apply_note", "click", function (e) {
+	if (internal.historyLoading.inProgress || internal.mode.lock) return;
+
+	updateChartContent(e);
+});
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!internal.update.editable.start) {
+			internal.update.editable.start = true;
+			return;
+		}
+
+		var extremes = chart.chart.xAxis[activeAxis].getExtremes();
+		var limit = internal.value ? internal.value.end : extremes.max;
+
+		if (!internal.lock.update && e.value > limit) {
+			showMessageDialog("T{Invalid period}", "T{The specified start date is after the end date}!");
+		}
+
+		updateTimeSlot(e.value, false);
+	},
+	"dp_start"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!internal.update.editable.end) {
+			internal.update.editable.end = true;
+			return;
+		}
+
+		var extremes = chart.chart.xAxis[activeAxis].getExtremes();
+		var limit = internal.value ? internal.value.start : extremes.min;
+
+		if (!internal.lock.update && e.value < limit) {
+			showMessageDialog("T{Invalid period}", "T{The specified start date is after the end date}!");
+		}
+
+		updateTimeSlot(false, e.value);
+	},
+	"dp_end"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!internal.update.editable.time) {
+			internal.update.editable.time = true;
+			return;
+		}
+
+		updateTimeSpan(e.value, false);
+	},
+	"xAxis_timeSpan"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!internal.update.editable.unit) {
+			internal.update.editable.unit = true;
+			return;
+		}
+
+		updateTimeSpan(false, e.value);
+	},
+	"xAxis_timeSpanUnit"
+);
+
+webMI.trigger.connect("com.atvise.setActive", function (e) {
+	if (!chart) return;
+
+	setVisual(e.value);
+});
+
+webMI.trigger.connect("com.atvise.highCharts.archiveSwitchProgress", function (e) {
+	archiveSwitchProgress = e.value;
+});
+
+webMI.trigger.connect("com.atvise.highCharts.configChanged", function () {
+	internal.mode.live = -1;
+});
+]]></code>
+</script>

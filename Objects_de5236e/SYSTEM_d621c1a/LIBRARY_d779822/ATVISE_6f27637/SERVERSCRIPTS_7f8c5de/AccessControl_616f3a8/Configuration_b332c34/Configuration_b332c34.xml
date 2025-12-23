@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/** Utilies shared across exported functions */
+const utils = {
+	validPermissions: [
+		"browse",
+		"read",
+		"write",
+		"engineer",
+		"execute",
+		"accessControl",
+		"scriptConfig",
+		"alarmAdmin",
+		"alarmAcknowledge",
+		"alarmConfirm",
+		"remoteBrowse",
+		"remoteAlarms",
+		"remoteEvents"
+	],
+	validFunctions: [
+		"alarming",
+		"atviseLibrary",
+		"dataSources",
+		"displays",
+		"historyArchives",
+		"localEvents",
+		"objects",
+		"projectLibrary",
+		"redundancy",
+		"security",
+		"SMTPServer",
+		"translations",
+		"types",
+		"versionControlExport",
+		"versionControlImport",
+		"views",
+		"webMIServer",
+		"webServer",
+		"XMLExport",
+		"XMLImport"
+	],
+	rightsSorter: function (right1, right2) {
+		if (!utils.validPermissions.includes(right1)) {
+			throw new Error(`Right ${right1} is not supported by Access Control`);
+		}
+
+		if (!utils.validPermissions.includes(right2)) {
+			throw new Error(`Right ${right2} is not supported by Access Control`);
+		}
+
+		// Uses the order of utils.validPermissions
+		if (utils.validPermissions.indexOf(right1) < utils.validPermissions.indexOf(right2)) {
+			return -1;
+		} else if (utils.validPermissions.indexOf(right1) > utils.validPermissions.indexOf(right2)) {
+			return 1;
+		} else {
+			// In case the rights are sorted before being filtered to unique values
+			return 0;
+		}
+	},
+	getGroupNodeId: function (group) {
+		const groupNodeAddr = `SYSTEM.SECURITY.GROUPS.${group}`;
+		const groupNode = Ua.findNode(groupNodeAddr);
+		const groupNodeExist = Ua.Status(groupNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!groupNodeExist) {
+			throw new Error(`Group ${group} not found`);
+		}
+
+		return groupNodeAddr;
+	},
+	sortAndStringifyGroupPermissions: function (permissions) {
+		const updatedPermissions = {};
+
+		for (const func in permissions) {
+			if (!utils.validFunctions.includes(func)) {
+				throw new Error(`Function ${func} is not supported by Access Control`);
+			}
+
+			if (Array.isArray(permissions[func])) {
+				updatedPermissions[func] = utils.parseAndJoin(permissions[func]);
+			} else {
+				updatedPermissions[func] = permissions[func];
+			}
+		}
+
+		return JSON.stringify(updatedPermissions);
+	},
+	getSystemPermissionNode: function (group, createIfMissing) {
+		const groupNodeAddr = `SYSTEM.SECURITY.GROUPS.${group}`;
+		const groupNode = Ua.findNode(groupNodeAddr);
+		const groupNodeExist = Ua.Status(groupNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!groupNodeExist) {
+			throw new Error(`Group with name ${group} does not exist`);
+		}
+
+		const systemPermissionAddr = groupNode.result.nodeId + `.SystemPermission`;
+		let systemPermissionNode = Ua.findNode(systemPermissionAddr);
+
+		const permissionsNodeExist = Ua.Status(systemPermissionNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!permissionsNodeExist && createIfMissing) {
+			Ua.createNode(systemPermissionAddr, {
+				nodeClass: Ua.NodeClass.VARIABLE,
+				parent: groupNodeAddr,
+				typeDefinition: "VariableTypes.ATVISE.AccessControl.System",
+				dataType: Ua.DataType.STRING,
+				value: "{}"
+			});
+
+			systemPermissionNode = Ua.findNode(systemPermissionAddr);
+		}
+
+		return systemPermissionNode;
+	},
+	getNodePermissionNode: function (nodeId) {
+		const baseNodeAddr = nodeId;
+		const baseNode = Ua.findNode(baseNodeAddr);
+		const baseNodeExist = Ua.Status(baseNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!baseNodeExist) {
+			throw new Error(`Node with ID ${nodeId} does not exist`);
+		}
+
+		const nodePermissionAddr = baseNodeAddr + `.NodePermission`;
+		let nodePermissionNode = Ua.findNode(nodePermissionAddr);
+
+		return nodePermissionNode;
+	},
+	sortAndStringifyNodePermissions: function (permissions) {
+		const updatedPermissions = {};
+
+		for (const groupName in permissions) {
+			const groupNodeAddr = `SYSTEM.SECURITY.GROUPS.${groupName}`;
+			const groupNode = Ua.findNode(groupNodeAddr);
+			const groupNodeExist = Ua.Status(groupNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+			if (!groupNodeExist) {
+				throw new Error(`Group ${groupName} does not exist`);
+			}
+
+			if (Array.isArray(permissions[groupName])) {
+				updatedPermissions[groupName] = utils.parseAndJoin(permissions[groupName]);
+			} else {
+				updatedPermissions[groupName] = permissions[groupName];
+			}
+		}
+
+		return JSON.stringify(updatedPermissions);
+	},
+	parseAndSplit: function (json) {
+		let parsedJSON = JSON.parse(json);
+
+		for (const property in parsedJSON) {
+			if (parsedJSON[property] === "") {
+				parsedJSON[property] = [];
+			} else if (parsedJSON[property].split(",").length) {
+				parsedJSON[property] = parsedJSON[property].split(",");
+			}
+		}
+
+		return parsedJSON;
+	},
+	parseAndJoin: function (array) {
+		return [...new Set(array)].sort(utils.rightsSorter).join(",");
+	}
+};
+
+/**
+ * Get permissions from group
+ * @param {string} group - Name of the group to get permissions object from
+ * @returns {string|undefined} JSON-String containing permissions of group or undefined
+ */
+function getPermissionsForGroup(group) {
+	utils.getGroupNodeId(group); // !!! for error handling !!!
+
+	const permissionsNode = utils.getSystemPermissionNode(group);
+	const permissionsNodeExist = Ua.Status(permissionsNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (permissionsNodeExist) {
+		return utils.parseAndSplit(permissionsNode.result.value);
+	} else {
+		return;
+	}
+}
+
+/**
+ * Set permissions for group
+ * @param {string} group - Name of the group to set permissions on
+ * @param {object} permissions - Object literal containing updated permissions
+ */
+function setPermissionsForGroup(group, permissions) {
+	const permissionsNode = utils.getSystemPermissionNode(group, true);
+	const permissionsString = utils.sortAndStringifyGroupPermissions(permissions);
+
+	permissionsNode.result.value = permissionsString;
+}
+
+/**
+ * Delete permissions from group
+ * @param {string} group - Name of the group to be deleted
+ * @returns {object|boolean}
+ */
+function deletePermissionsFromGroup(group) {
+	utils.getGroupNodeId(group);
+
+	const permissionsNode = utils.getSystemPermissionNode(group);
+	const permissionsNodeExist = Ua.Status(permissionsNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (permissionsNodeExist) {
+		return permissionsNode.result.remove();
+	} else {
+		return true;
+	}
+}
+
+/**
+ * Get permissions for node
+ * @param {string} nodeId - node address to get permissions object from
+ * @returns {string|undefined} JSON-String containing permissions of node or undefined
+ */
+function getPermissionsForNode(nodeId) {
+	const permissionsNode = utils.getNodePermissionNode(nodeId);
+	const permissionsNodeExist = Ua.Status(permissionsNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (permissionsNodeExist) {
+		return utils.parseAndSplit(permissionsNode.result.value);
+	} else {
+		return;
+	}
+}
+
+/**
+ * Get runtime permissions for node
+ * @param {string} nodeId - node address to get permissions object from
+ * @returns {object|undefined} Object containing permissions of node or undefined if node doesn't exist
+ */
+function getRuntimePermissionsForNode(nodeId) {
+	const baseNodeAddr = nodeId;
+	const baseNode = Ua.findNode(baseNodeAddr);
+	const baseNodeExist = Ua.Status(baseNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (!baseNodeExist) {
+		return undefined;
+	}
+
+	return baseNode.result.permissions;
+}
+
+/**
+ * Set permissions for node
+ * @param {string} nodeId - node address to set permissions on
+ * @param {object} permissions - Object literal containing updated permissions
+ */
+function setPermissionsForNode(nodeId, permissions) {
+	var permissionsAddr = nodeId + `.NodePermission`;
+	var permissionsNode = utils.getNodePermissionNode(nodeId);
+	var permissionsNodeExist = Ua.Status(permissionsNode) != Ua.Status.BADNODEIDUNKNOWN;
+	var permissionsString = utils.sortAndStringifyNodePermissions(permissions);
+
+	if (!permissionsNodeExist) {
+		Ua.createNode(permissionsAddr, {
+			nodeClass: Ua.NodeClass.VARIABLE,
+			parent: nodeId,
+			typeDefinition: "VariableTypes.ATVISE.AccessControl.Node",
+			dataType: Ua.DataType.STRING,
+			value: "{}"
+		});
+
+		permissionsNode = utils.getNodePermissionNode(nodeId);
+	}
+
+	permissionsNode.result.value = permissionsString;
+}
+
+/**
+ * Delete permissions from node address
+ * @param {string} group - node address to delete permissions from
+ * @returns {object|boolean}
+ */
+function deletePermissionsFromNode(nodeId) {
+	const permissionsNode = utils.getNodePermissionNode(nodeId);
+	const permissionsNodeExist = Ua.Status(permissionsNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (permissionsNodeExist) {
+		return permissionsNode.result.remove();
+	} else {
+		return true;
+	}
+}
+
+return {
+	getPermissionsForGroup: getPermissionsForGroup,
+	setPermissionsForGroup: setPermissionsForGroup,
+	deletePermissionsFromGroup: deletePermissionsFromGroup,
+	getPermissionsForNode: getPermissionsForNode,
+	getRuntimePermissionsForNode: getRuntimePermissionsForNode,
+	setPermissionsForNode: setPermissionsForNode,
+	deletePermissionsFromNode: deletePermissionsFromNode
+};
+]]></code>
+</script>

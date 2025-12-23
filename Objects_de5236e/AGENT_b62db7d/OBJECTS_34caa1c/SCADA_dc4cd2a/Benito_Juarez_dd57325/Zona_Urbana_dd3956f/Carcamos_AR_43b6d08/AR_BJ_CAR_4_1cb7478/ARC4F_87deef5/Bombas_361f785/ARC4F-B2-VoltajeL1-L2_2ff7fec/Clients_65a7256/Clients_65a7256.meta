@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AR.AR_BJ_CAR_4.ARC4F.Bombas.ARC4F-B2-VoltajeL1-L2.Clients
+NodeClass: Variable
+BrowseName: 1:Clients
+DisplayName: en|Monitoring clients number
+Description: en|Clients
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Clients.RelMirrorInputOutput

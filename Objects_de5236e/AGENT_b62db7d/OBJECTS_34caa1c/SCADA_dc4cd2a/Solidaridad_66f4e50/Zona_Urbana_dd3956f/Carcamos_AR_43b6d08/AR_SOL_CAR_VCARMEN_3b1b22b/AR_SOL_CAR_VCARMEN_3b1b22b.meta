@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AR.AR_SOL_CAR_VCARMEN
+NodeClass: Object
+BrowseName: 1:AR_SOL_CAR_VCARMEN
+DisplayName: en|AR_SOL_CAR_VCARMEN
+Description: en|AR_SOL_CAR_VCARMEN
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

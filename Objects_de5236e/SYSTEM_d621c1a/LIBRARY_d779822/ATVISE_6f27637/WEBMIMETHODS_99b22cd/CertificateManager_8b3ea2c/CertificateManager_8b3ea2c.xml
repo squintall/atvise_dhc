@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+    <fireevent>1</fireevent>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/**
+ * Certificate Management Interface
+ *
+ * This script serves as an interface for accessing the methods of
+ * `server.certificates`.
+ *
+ * Supported actions:
+ * - list: Retrieve a list of certificates from the specified store.
+ * - upload: Upload new certificates to the specified store.
+ * - delete: Remove certificates from the specified store.
+ * - create: Create a new certificate in the specified store.
+ * - trust: Trust a specified certificate.
+ * - reject: Reject a specified certificate.
+ * - read: Read details of a specified certificate.
+ * - defaults: Retrieve default values for certificates from cert.ini
+ */
+
+const certificates = server.certificates;
+const { certificateName, action, certificateFile, commonName, fileContent } = request.postvalues;
+
+function removeFileExtension(filename) {
+	return filename.substring(0, filename.lastIndexOf(".")) || filename;
+}
+
+const STORE = {
+	HTTPS: certificates.STORE_HTTPS,
+	MIRROR: certificates.STORE_MIRROR,
+	SERVER: certificates.STORE_SERVER
+};
+
+// Server constants using enums
+const ITYPE = {
+	END: certificates.ITYPE_END,
+	INTERMEDIATE: certificates.ITYPE_INTERMEDIATE,
+	ROOT: certificates.ITYPE_ROOT
+};
+
+// Add mapping for other direction
+for (const key in ITYPE) {
+	ITYPE[ITYPE[key]] = key;
+}
+
+const TYPE = {
+	ISSUER: certificates.TYPE_ISSUER,
+	OWN: certificates.TYPE_OWN,
+	REJECTED: certificates.TYPE_REJECTED,
+	TRUSTED: certificates.TYPE_TRUSTED,
+	USERS_ISSUER: certificates.TYPE_USERS_ISSUER,
+	USERS_OWN: certificates.TYPE_USERS_OWN,
+	USERS_REJECTED: certificates.TYPE_USERS_REJECTED,
+	USERS_TRUSTED: certificates.TYPE_USERS_TRUSTED
+};
+
+let parsedType;
+
+// Add mapping for other direction
+for (const key in TYPE) {
+	TYPE[TYPE[key]] = key;
+}
+
+// Map types to the corresponding certificate type
+function mapTypes(typesParameter) {
+	if (Array.isArray(typesParameter)) {
+		return typesParameter.map((t) => {
+			const parsed = parseFloat(t);
+			return !isNaN(parsed) && String(parsed) === t ? parsed : TYPE[t];
+		});
+	}
+	return null;
+}
+
+const store = STORE[request.postvalues.store];
+
+// Determines the appropriate type from request.postvalues.type.
+// If the type is a string that can be parsed to a valid number without modification,
+// it is treated as a number. Otherwise, it maps the string to the corresponding
+// certificate type in certificates.
+const type =
+	typeof request.postvalues.type === "string" &&
+	!isNaN((parsedType = parseFloat(request.postvalues.type))) &&
+	String(parsedType) === request.postvalues.type
+		? parsedType
+		: TYPE[request.postvalues.type];
+
+const types = mapTypes(request.postvalues.types);
+
+function checkParameters(requiredParams) {
+	for (const [paramName, paramValue] of Object.entries(requiredParams)) {
+		if (paramValue === undefined || paramValue === null || paramValue === "undefined") {
+			return { error: -1, errorstring: `Certificates: Missing parameter - ${paramName}` };
+		}
+	}
+	return null;
+}
+
+if (action === undefined || action === null) {
+	return { error: -1, errorstring: "Certificates: Missing parameter - action" };
+}
+
+let result;
+
+switch (action) {
+	case "list":
+		result = checkParameters({ store, types });
+		if (!result) result = certificates.list(store, types);
+		break;
+
+	case "trust":
+		result = checkParameters({ store, type, certificateName });
+		if (!result) result = certificates.trust(store, type, removeFileExtension(certificateName));
+		break;
+
+	case "reject":
+		result = checkParameters({ store, type, certificateName });
+		if (!result) result = certificates.reject(store, type, removeFileExtension(certificateName));
+		break;
+
+	case "create":
+		result = checkParameters({ store, certificateName, commonName });
+		if (!result) result = certificates.create(store, certificateName, commonName);
+		break;
+
+	case "read":
+		result = checkParameters({ store, type, certificateName });
+		if (!result) result = certificates.read(store, type, certificateName);
+		break;
+
+	case "defaults":
+		result = checkParameters({ store });
+		if (!result) result = certificates.defaults(store);
+		break;
+
+	case "delete":
+		result = checkParameters({ store, type, certificateName });
+		if (!result) result = certificates.delete(store, type, removeFileExtension(certificateName));
+		break;
+
+	case "upload":
+		result = checkParameters({ store, type, certificateName, fileContent });
+		if (!result) result = certificates.upload(store, type, certificateName, fileContent);
+		break;
+		
+	case "syncStores":
+		result = certificates.syncStores();
+		break;
+
+	default:
+		result = { error: -1, errorstring: `Certificates: Unknown action - ${action}` };
+}
+
+// Replace type and issuer type numbers with strings.
+if (Array.isArray(result.result)) {
+	result.result.forEach((item) => {
+		if (item.type in TYPE) {
+			item.type = TYPE[item.type];
+		}
+
+		if (item.issuerType in ITYPE) {
+			item.issuerType = ITYPE[item.issuerType];
+		}
+	});
+}
+
+return JSON.stringify(result);]]></code>
+</script>

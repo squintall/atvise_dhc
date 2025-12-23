@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[alarmIndication = webMI.query.alarmIndication;
+initAlarm(webMI.query.base + ".alarm.AlarmConfiguration.active");]]></code>
+</script>

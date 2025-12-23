@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_13.Bombas.Bomba_1_Pozo.display_name
+NodeClass: Variable
+BrowseName: 1:display_name
+DisplayName: en|display_name
+Description: en|display_name
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[// VARIABLE DECLARATION
+var data = {};
+data.value = webMI.query.info;
+data.address = webMI.query.address;
+data.id = webMI.query.id;
+
+// TRIGGER
+webMI.trigger.connect("valuechanged", function(e){
+	data.value = e.value;
+}, "txt_info");
+
+webMI.trigger.connect("clicked", function(e){
+	webMI.trigger.fire("setWatchTableInfo", data);
+	webMI.display.closeWindow();
+},"btn_ok");
+
+setTimeout(function () {
+	var info = ((data.value!="undefined")? data.value : " ");
+	webMI.trigger.fire("setValue", info ,"txt_info" );
+}, 100);]]></code>
+</script>

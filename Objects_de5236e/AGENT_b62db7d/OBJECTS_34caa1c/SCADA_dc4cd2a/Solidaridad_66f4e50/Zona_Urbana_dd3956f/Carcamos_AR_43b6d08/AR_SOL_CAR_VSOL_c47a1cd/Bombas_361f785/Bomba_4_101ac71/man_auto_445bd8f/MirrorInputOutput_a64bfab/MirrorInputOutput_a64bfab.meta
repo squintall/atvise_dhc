@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AR.AR_SOL_CAR_VSOL.Bombas.Bomba_4.man_auto.MirrorInputOutput
+NodeClass: Variable
+BrowseName: 1:MirrorInputOutput
+DisplayName: en|MirrorInputOutput
+Description: en|MirrorInputOutput
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.InputOutput

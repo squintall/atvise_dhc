@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Prado_Norte_2.Equipos.Presion
+NodeClass: Object
+BrowseName: 1:Presion
+DisplayName: en|Presion
+Description: en|Presion
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

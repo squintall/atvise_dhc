@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvObjectDisplays.CustomButtonsMenu.LayoutButtonAlarmsPortrait
+NodeClass: Variable
+BrowseName: 1:LayoutButtonAlarmsPortrait
+DisplayName: en|LayoutButtonAlarmsPortrait
+Description: en|LayoutButtonAlarmsPortrait
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

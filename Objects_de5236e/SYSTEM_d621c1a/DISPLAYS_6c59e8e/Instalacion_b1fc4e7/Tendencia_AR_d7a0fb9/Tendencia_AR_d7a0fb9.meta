@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Tendencia_AR
+NodeClass: Variable
+BrowseName: 1:Tendencia_AR
+DisplayName: en|Tendencia_AR
+Description: en|Tendencia_AR
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

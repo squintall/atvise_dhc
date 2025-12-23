@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Popups.popup_deletePDF
+NodeClass: Variable
+BrowseName: 1:popup_deletePDF
+DisplayName: en|popup_deletePDF
+Description: en|popup_deletePDF
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

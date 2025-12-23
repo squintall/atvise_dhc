@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Caudalimetro.historizacion_00_05
+NodeClass: Variable
+BrowseName: 1:historizacion_00_05
+DisplayName: en|historizacion_00_05
+Description: en|historizacion_00_05
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

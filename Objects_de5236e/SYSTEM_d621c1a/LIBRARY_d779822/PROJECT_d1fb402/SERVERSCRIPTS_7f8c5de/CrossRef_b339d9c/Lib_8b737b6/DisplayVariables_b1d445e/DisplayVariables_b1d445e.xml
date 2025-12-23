@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="ua" type="uainput" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* Parse a display and collect referenced variables
+Input (members of ua):
+	-node:ua.nodeid{mandatory} Specifies the nodeid(s) of the display(s) to parse. It can be an array.
+	-base:ua.nodeid{optional, default=null} Specifies the base nodeid of the display
+	-server:ua.nodeid{optional, default=null} If not null, specifies the server where the object folder is checked for variables not used in the parsed displays.
+		If server is defined, absolut adresses will be searched in scripts as well.
+	-recursive:bool{optional, default=false} If true collect all descendant otherwise only the specified display
+Output (return value):
+	from:[ua.nodeid[]] Array of parent display histories
+	to:[string] Array of node addresses of referenced variables
+	exists:[bool] Array of flags that signals if the node name exists. If exists, the to[i] is of type Ua.Node otherwise String
+	unused:[ua.nodeid] Array of variables not used in the displays. Filled if objects is not null.
+	parent:[ua.nodeid] Array of guessed parents, where the referenced variable can be searched.
+If no variables are referenced empty arrays are returned.
+*/
+function isArray(x) {
+	return typeof x == "object" && x instanceof Array;
+}
+
+var recursive = ua.recursive;
+var xlink = "http://www.w3.org/1999/xlink";
+var atv = "http://webmi.atvise.com/2007/svgext";
+var from = [];
+var parent = [];
+var to = [];
+var exists = [];
+var displayNodes = ua.node;
+var displaysToParse = [];
+
+if (isArray(displayNodes)) {
+	for (var i = 0; i < displayNodes.length; ++i) {
+		var display = Ua.findNode(displayNodes[i].nodeId.address);
+		var displayExist = Ua.Status(display) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (displayExist) {
+			displaysToParse.push(display.result);
+		} else {
+			throw new Error("Display:" + displayNodes + " does not exist.");
+		}
+	}
+} else {
+	var display = Ua.findNode(displayNodes);
+	var displayExist = Ua.Status(display) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (displayExist) displaysToParse.push(display.result);
+}
+
+var parsingDisplays = {};
+var usedVariables = {};
+
+var server = Ua.findNode(ua.server.result.nodeId.address);
+var serverExist = Ua.Status(server) != Ua.Status.BADNODEIDUNKNOWN;
+
+var objectsFolder = "";
+
+if (serverExist) {
+	objectsFolder = server.result.nodeId.address + ".OBJECTS";
+}
+
+var objects = Ua.findNode(objectsFolder);
+var objectsExist = Ua.Status(objects) != Ua.Status.BADNODEIDUNKNOWN;
+
+if (objectsExist) {
+	var excludeTypes = [];
+
+	var result = Ua.findNode("ObjectTypes.ATVISE").result.browse({
+		nodeClass: Ua.NodeClass.OBJECT,
+		recursive: true
+	}).result;
+
+	for (var i = 0; i < result.length; ++i) {
+		excludeTypes.push(result[i].node.nodeId.address);
+	}
+
+	var result = Ua.findNode("VariableTypes.ATVISE").result.browse({
+		nodeClass: Ua.NodeClass.VARIABLE,
+		recursive: true
+	}).result;
+	
+	for (var i = 0; i < result.length; ++i) {
+		excludeTypes.push(result[i].node.nodeId.address);
+	}
+
+	var result = objects.result.browse({
+		nodeClass: Ua.NodeClass.VARIABLE,
+		recursive: true,
+		exclude: excludeTypes
+	}).result;
+	
+	for (var i = 0; i < result.length; ++i) {
+		usedVariables[result[i].node.nodeId.address] = false;
+	}
+}
+
+function quote(str) {
+	return str.replace(/([.?*+^$[\]\\(){}-])/g, "\\$1");
+}
+
+function collectDisplayVariables(display, params, parentDisplayHistory) {
+	try {
+		var xmlDoc = new XMLDoc(display.value);
+	} catch (e) {
+		throw e;
+	}
+
+	parsingDisplays[display] = true;
+
+	var displayHistory = parentDisplayHistory.slice();
+	displayHistory.push(display);
+
+	var parameters = {
+		base: params["base"]
+	};
+
+	for (var meta = xmlDoc.root.first("metadata"); meta; meta = meta.next("metadata")) {
+		for (var param = meta.first("parameter", atv); param; param = param.next("parameter", atv)) {
+			if (param.attribute("valuetype") == "address") {
+				var name = param.attribute("name");
+				if (!name) continue;
+
+				if (params[name]) parameters[name] = params[name];
+				else if (param.attribute("defaultvalue")) parameters[name] = param.attribute("defaultvalue");
+
+				if (parameters[name]) {
+					var paramNode = Ua.findNode(parameters[name]);
+
+					var paramNodeExist = Ua.Status(paramNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+					if (paramNodeExist) {
+						usedVariables[paramNode.result.nodeId.address] = true;
+						exists.push(true);
+						to.push(paramNode.result.nodeId.address);
+					} else {
+						exists.push(false);
+						to.push(parameters[name]);
+					}
+
+					from.push(displayHistory);
+
+					if (displayHistory.length > 1) parent.push(displayHistory[displayHistory.length - 2]);
+					else parent.push(display);
+				}
+			}
+		}
+	}
+	
+	if (!recursive) return;
+
+	if (objectsExist)
+		for (var script = xmlDoc.root.first("script"); script; script = script.next("script")) {
+			for (var cdata = script.first(XMLDoc.CDATA_SECTION_NODE); cdata; cdata = cdata.next(XMLDoc.CDATA_SECTION_NODE)) {
+				var content = cdata.content;
+				for (var varNodeId in usedVariables) {
+					var regExp = new RegExp("[\"']" + quote(varNodeId) + "[\"']");
+					if (regExp.test(content)) {
+						usedVariables[varNodeId] = true;
+						from.push(displayHistory);
+						to.push(varNodeId);
+						exists.push(true);
+						parent.push(display);
+					}
+					var base = params["base"];
+					if (base && varNodeId.length > base.length && varNodeId.slice(0, base.length) == base) {
+						var regExp = new RegExp(quote('["base"] + "' + varNodeId.slice(base.length) + '"'));
+						if (regExp.test(content)) {
+							usedVariables[varNodeId] = true;
+							from.push(displayHistory);
+							to.push(varNodeId);
+							exists.push(true);
+							if (displayHistory.length > 1) parent.push(displayHistory[displayHistory.length - 2]);
+							else parent.push(display);
+						}
+					}
+				}
+			}
+		}
+
+	for (var svg = xmlDoc.root.first("svg"); svg; svg = svg.next("svg")) {
+		var child = Ua.findNode(unescape(svg.attribute("href", xlink)));
+		var childExist = Ua.Status(child) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (childExist && !parsingDisplays[child.result.nodeId.address]) {
+			var childArguments = {};
+			for (var arg = svg.first("argument", atv); arg; arg = arg.next("argument", atv)) {
+				var name = arg.attribute("name");
+				if (!name) continue;
+				if (name in parameters) {
+					var value = "";
+					var x;
+					if ((x = arg.attribute("prefix")) && parameters[x]) value += parameters[x];
+					if ((x = arg.attribute("value"))) value += x;
+					if ((x = arg.attribute("postfix")) && parameters[x]) value += parameters[x];
+					childArguments[name] = value;
+				}
+			}
+
+			collectDisplayVariables(child.result, childArguments, displayHistory);
+		}
+	}
+	delete parsingDisplays[display];
+}
+
+for (var i = 0; i < displaysToParse.length; ++i) {
+	var params = {};
+	if (ua.base) params["base"] = ua.base;
+
+	parsingDisplays = {};
+
+	collectDisplayVariables(displaysToParse[i], params, []);
+}
+
+var unused = [];
+
+if (objectsExist) {
+	for (var n in usedVariables)
+		if (!usedVariables[n]) {
+			var tmp = Ua.findNode(n);
+			var tmpExist = Ua.Status(tmp) != Ua.Status.BADNODEIDUNKNOWN;
+
+			if (tmpExist) {
+				unused.push(tmp.result);
+			}
+		}
+}
+
+var result = {
+	server: server,
+	from: from,
+	to: to,
+	exists: exists,
+	parent: parent,
+	unused: unused
+};
+
+var hook = Ua.findNode("SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.CrossRef.Lib.DisplayVariablesHook");
+var hookExist = Ua.Status(hook) != Ua.Status.BADNODEIDUNKNOWN;
+
+/* Hook of referenced and unused variables
+The hook must have one input paramter named 'ua' of the type 'uainput'
+Input of hook (members of ua):
+	server:[Ua.Node] Specifies the nodeid of the server
+	from:[Ua.Node[]] Array of parent display histories (E.g. disp1->disp2->disp3)
+	to:[String] Array of node addresses (names) of referenced variables
+	exists:[Bool] Array of flags that signals if the node name exists. If exists, the to[i] is of type Ua.Node otherwise String
+	unused:[Ua.Node] Array of variables not used in the displays.
+	parent:[Ua.Node] Array of guessed parents, where the referenced variable can be searched.
+Output of hook (return value):
+	Must have the same structure as the input.
+
+Example: simple hook to return 1-1 the input
+
+return ua;
+*/
+
+if (hookExist)
+	result = call(hook.result, {
+		ua: result
+	});
+
+return result;
+]]></code>
+</script>

@@ -1,0 +1,28 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.GROUPS.Eficiencia_Energetica
+NodeClass: Object
+BrowseName: 1:Eficiencia_Energetica
+DisplayName: en|Eficiencia_Energetica
+Description: en|Eficiencia_Energetica
+EventNotifier: 0
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\aguzman
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\cbroggi
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\ccanto
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\dflores
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\eavila
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\ereyes
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\fvelazquez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\gmdelaguardia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\gsacramento
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jcilia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\lcastro
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\marias
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\prangel
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\rortiz
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\rsalvador
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\rvalencia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\squintal
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\thernandez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.ccanto
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.root
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.squintal
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.Group

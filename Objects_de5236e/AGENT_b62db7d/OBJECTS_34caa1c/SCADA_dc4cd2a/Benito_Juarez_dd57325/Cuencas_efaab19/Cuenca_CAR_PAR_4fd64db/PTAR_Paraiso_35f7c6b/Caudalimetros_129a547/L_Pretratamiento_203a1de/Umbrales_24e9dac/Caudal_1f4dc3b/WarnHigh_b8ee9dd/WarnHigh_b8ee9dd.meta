@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PAR.PTAR_Paraiso.Caudalimetros.L_Pretratamiento.Umbrales.Caudal.WarnHigh
+NodeClass: Variable
+BrowseName: 1:WarnHigh
+DisplayName: en|WarnHigh
+Description: en|WarnHigh
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

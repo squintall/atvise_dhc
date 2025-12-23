@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Basculasdecloro.Bascula_cl_2.Graficacloro
+NodeClass: Variable
+BrowseName: 1:Graficacloro
+DisplayName: en|Graficacloro
+Description: en|Graficacloro
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

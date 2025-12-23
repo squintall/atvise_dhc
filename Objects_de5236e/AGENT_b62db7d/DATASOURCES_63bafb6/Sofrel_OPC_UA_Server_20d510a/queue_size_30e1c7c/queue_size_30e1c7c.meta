@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server.queue_size
+NodeClass: Variable
+BrowseName: 1:queue_size
+DisplayName: en|queue_size
+Description: en|queue_size
+DataType: Int32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

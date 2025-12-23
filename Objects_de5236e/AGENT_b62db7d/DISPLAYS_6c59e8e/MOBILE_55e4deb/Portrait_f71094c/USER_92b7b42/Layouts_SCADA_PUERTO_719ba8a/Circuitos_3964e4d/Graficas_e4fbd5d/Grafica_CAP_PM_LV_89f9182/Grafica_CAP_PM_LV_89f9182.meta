@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA_PUERTO.Circuitos.Graficas.Grafica_CAP_PM_LV
+NodeClass: Variable
+BrowseName: 1:Grafica_CAP_PM_LV
+DisplayName: en|Grafica_CAP_PM_LV
+Description: en|Grafica_CAP_PM_LV
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

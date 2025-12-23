@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="session" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var mode = session.postvalues.mode;
+var result = "";
+var check = "";
+var writeToLogger = true;
+
+if(session.postvalues.hasOwnProperty("logMessages")){
+	writeToLogger = session.postvalues.logMessages == "true";
+}
+if(session.postvalues.hasOwnProperty("check")){
+	check = session.postvalues.check;
+}
+
+
+var UserGroupManager = call("SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.UserManagement.UserGroupManager", {"dataRootAddress" : "SYSTEM.SECURITY", "mode": mode, "writeToLogger": writeToLogger, "check": check});
+
+if(mode == "Group"){
+	result = UserGroupManager.GroupList();
+}
+if(mode == "User"){
+	result = UserGroupManager.UserList();
+}
+
+if (mode == "Add" || mode == "Edit" || mode == "New") { 
+	const username = session.postvalues.username;
+	const password = session.postvalues.password;
+	const fullname = session.postvalues.fullname;
+	const defaultdisplay = session.postvalues.defaultdisplay;
+	const contentdisplay = session.postvalues.contentdisplay;
+	const description = session.postvalues.description;
+	const language = session.postvalues.language;
+	const superuser = session.postvalues.superuser;
+	const opcua = session.postvalues.opcua;
+	const webmi = session.postvalues.webmi;
+	const password_policy = session.postvalues.password_policy;
+	const userNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username);
+	const userNodeExist = Ua.Status(userNode) != Ua.Status.BADNODEIDUNKNOWN;
+	if (!userNodeExist && mode == "Edit"){
+		return {"error": "User node does not exist."+userNodeExist+" ! "+mode};
+	} else if(mode == "Add"){
+		if (userNodeExist){
+			return {"error": "User node already exists."+userNodeExist+" !"+mode};
+		} else {
+			Ua.createNode("SYSTEM.SECURITY.USERS." + username, {
+				nodeClass: Ua.NodeClass.OBJECT,
+				parent: "SYSTEM.SECURITY.USERS",
+				typeDefinition: "ObjectTypes.ATVISE.User"
+			});
+		}
+	} else if (mode == "New") { 
+		if (userNodeExist) {
+			return { "error": "User node already exists." + userNodeExist + " !" + mode };
+		} else {
+			Ua.createNode("SYSTEM.SECURITY.USERS." + username, {
+				nodeClass: Ua.NodeClass.OBJECT,
+				parent: "SYSTEM.SECURITY.USERS",
+				typeDefinition: "ObjectTypes.ATVISE.User"
+			});
+			return;
+		}
+	}
+	/** Write user data **/
+	const superuserNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".superuser");
+	superuserNode.result.value = parseInt(superuser);
+	const login_opcua = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".login_opcua");
+	login_opcua.result.value = parseInt(opcua);
+	const login_webmi = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".login_webmi");
+	login_webmi.result.value = parseInt(webmi);
+	if(typeof password_policy !== "undefined"){
+		const passwordPolicyNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".ignore_password_policy");
+		passwordPolicyNode.result.value = password_policy;
+	}
+	
+	if (typeof fullname !== "undefined") {
+		const fullnameNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".name");
+		fullnameNode.result.value = fullname;
+	}
+	
+	if (typeof defaultdisplay !== "undefined") {
+		const defaultdisplayNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".display_default");
+		defaultdisplayNode.result.value = defaultdisplay;
+	}
+	
+	if (typeof contentdisplay !== "undefined") {
+		const contentdisplayNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".display_content");
+		contentdisplayNode.result.value = contentdisplay;
+	}
+	
+	if (typeof description !== "undefined") {
+		const descriptionNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".description");
+		descriptionNode.result.value = description;
+	}
+	
+	if (typeof language !== "undefined") {
+		console.log("language", language);
+		const languageNode = Ua.findNode("SYSTEM.SECURITY.USERS." + username + ".language");
+		languageNode.result.value = language;
+	}
+	
+	/** Set user password **/
+	if (typeof password != "undefined") {
+		const passwordNode = Ua.findNode("AGENT.OPCUA.METHODS.setUserPassword");
+		const passwordNodeExist = Ua.Status(passwordNode) != Ua.Status.BADNODEIDUNKNOWN;
+	
+		if (passwordNodeExist) {
+			const response = passwordNode.result.call({
+				object: "AGENT.OPCUA.METHODS",
+				input: [{"type": Ua.DataType.STRING, "value": username}, {"type": Ua.DataType.STRING, "value": password}]
+			});
+			if (response.result.error && response.result.error > 0)
+				return {"error": "Password could not be written."}
+		} else {
+			return {"error": "Method setUserPassword not found."};
+		}
+	}
+	
+	result = true;
+}
+
+if(mode == "saveUsers"){
+	var Groups = session.postvalues.groups;
+	result = UserGroupManager.GroupList();
+	var UserAddress = "SYSTEM.SECURITY.USERS."+check;
+	const userNode = Ua.findNode(UserAddress);
+	if(Groups){
+		for (var i = 0; i < result.length; i++) {
+			var GroupAddress = "SYSTEM.SECURITY.GROUPS."+result[i].name;
+			if(Groups.includes(result[i].name)){
+				if(result[i].usercheck == 0){
+					var target = Ua.findNode(GroupAddress);
+					var status = target.result.addReference(Ua.Reference.ORGANIZES,userNode.result.nodeId);
+				}
+			}else{
+				if(result[i].usercheck == 1){
+					var target = Ua.findNode(GroupAddress);
+					var status = target.result.deleteReference(Ua.Reference.ORGANIZES,userNode.result.nodeId);
+				}
+			}
+		}
+	}
+	else{
+		for (var i = 0; i < result.length; i++) {
+			var GroupAddress = "SYSTEM.SECURITY.GROUPS."+result[i].name;
+			var target = Ua.findNode(GroupAddress);
+			var status = target.result.deleteReference(Ua.Reference.ORGANIZES,userNode.result.nodeId);
+		}
+	}
+}
+
+if(mode == "saveGroups"){
+	var Users = session.postvalues.users;
+	result = UserGroupManager.UserList();
+	var GroupAddress = "SYSTEM.SECURITY.GROUPS."+check;
+	const GroupNode = Ua.findNode(GroupAddress);
+	if(Users){
+		for (var i = 0; i < result.length; i++) {
+			var UserAddress = "SYSTEM.SECURITY.USERS."+result[i].username;
+			if(Users.includes(result[i].username)){
+				if(result[i].usercheck == 0){
+					var userNode = Ua.findNode(UserAddress);
+					var status = GroupNode.result.addReference(Ua.Reference.ORGANIZES,userNode.result.nodeId);
+				}
+			}else{
+				if(result[i].usercheck == 1){
+					var userNode = Ua.findNode(UserAddress);
+					var status = GroupNode.result.deleteReference(Ua.Reference.ORGANIZES,userNode.result.nodeId);
+				}
+			}
+		}
+	}
+	else{
+		for (var i = 0; i < result.length; i++) {
+			var UserAddress = "SYSTEM.SECURITY.USERS."+result[i].username;
+			var userNode = Ua.findNode(UserAddress);
+			var status = GroupNode.result.deleteReference(Ua.Reference.ORGANIZES,userNode.result.nodeId);
+		}
+	}
+}
+
+if(mode == "Delete"){
+	const username = session.postvalues.username;
+	const useraddress = "SYSTEM.SECURITY.USERS." + username;
+	const userNode = Ua.findNode(useraddress);
+	var status = userNode.result.remove();
+	result = status.result;
+}
+
+
+
+return result;]]></code>
+</script>

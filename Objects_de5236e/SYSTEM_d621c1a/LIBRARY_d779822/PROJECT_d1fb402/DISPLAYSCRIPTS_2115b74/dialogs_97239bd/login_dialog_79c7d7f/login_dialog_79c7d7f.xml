@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the login dialog object display
+ * ----------------------------------------
+ * This Script supports the the display for handling user logins
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var password = "";
+var username = "";
+var rememberUsername = false;
+var keyboard = webMI.query["keyboard"];
+var keyboard_right = false;
+var setTextDelay;
+var trigger_username = "com.atvise.login.username";
+var trigger_password = "com.atvise.login.password";
+var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+var loginHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Login Handler");
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function (e) {
+	var lastUsername = localStorage.getItem("com.atvise.login.lastUsername");
+	if (lastUsername) {
+		webMI.trigger.fire("setValue", lastUsername, "username_input");
+		webMI.trigger.fire("setChecked", true, "remember_username_checkbox");
+	} else {
+		webMI.trigger.fire("setValue", "", "username_input");
+	}
+
+	webMI.trigger.fire("setValue", "", "password_input");
+
+	if (webMI.getAccessControlSupport() && accessControlManager) {
+		accessControlManager.getRights(keyboard, "read", function(e) {
+			keyboard_right = e.result;	
+			setTimeout(function() {
+				document.getElementById("fo_" + "username_input" + "_clickareaFO").click();	
+			},250);
+		});
+	} else {
+		setTimeout(function() {
+			document.getElementById("fo_" + "username_input" + "_clickareaFO").click();	
+		},250);
+	}
+	
+	webMI.addEvent(webMI.data, "clientvariableschange", function(e) {
+		const responseType = loginHandler.getResponseType(e);
+		if (["delayed","locktime","locked","tries"].indexOf(responseType) > -1)
+			setText(loginHandler.getResponseText(e), "", null);
+	});
+});
+
+function setText(msg1, msg2, symbol) {
+	clearTimeout(setTextDelay);
+	setTextDelay = setTimeout(function() {
+		webMI.gfx.setText("status_message", msg1);
+		webMI.gfx.setText("status_message2", msg2);
+		webMI.gfx.setVisible("status_symbol", symbol);
+	}, 100);
+}
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect("valuechanged", function (e) {
+	username = e.value;
+}, "username_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	password = e.value;
+}, "password_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	rememberUsername = e.value == "true" ? true : false;
+}, "remember_username_checkbox");
+
+webMI.trigger.connect(trigger_password, function (e) {
+	password = e.value;
+	webMI.trigger.fire("setValue", e.value, "password_input");
+});
+
+webMI.trigger.connect(trigger_username, function (e) {
+	username = e.value;
+	webMI.trigger.fire("setValue", e.value, "username_input");
+});
+
+webMI.trigger.connect("clicked", function (e) {
+	webMI.display.closeWindow();
+}, "cancel_button");
+
+webMI.trigger.connect("clicked", function (e) {
+	//put webMI login to the end of the callstack to receive correct data from triggers before
+	localStorage.setItem("com.atvise.login.lastUsername", "");
+	setTimeout(function () {
+		webMI.data.login(username, password, function (e) {
+			
+			if ((e[""].hasOwnProperty("username") && e[""].username) || Object.keys(e[""]).length == 0) {
+				if(rememberUsername)
+					localStorage.setItem("com.atvise.login.lastUsername", e[""].username ? e[""].username : username);
+				setText("", "", false);
+				webMI.display.closeWindow();
+			} else if (e[""].hasOwnProperty("username") || e[""].hasOwnProperty("error")) {
+				setText("T{Login failed! Username/password wrong}", "T{or permission missing.}", null);
+			} else {
+				webMI.display.closeWindow();
+			}
+		});
+	}, 0);
+}, "ok_button");
+
+webMI.trigger.connect("clicked", function (e) {
+	if(!keyboard_right)
+		return;
+
+	webMI.query.trigger = trigger_username;
+	webMI.query.password = "No";
+	webMI.query.value = "";
+	webMI.display.openWindow({
+		display: keyboard,
+		extern: false,
+		height: 300,
+		menubar: false,
+		modal: true,
+		movable: true,
+		resizable: false,
+		scrollbars: false,
+		status: false,
+		title: "T{Keyboard}",
+		toolbar: false,
+		width: 700,
+		query: webMI.query
+	});
+}, "username_keyboard");
+
+webMI.trigger.connect("clicked", function (e) {
+	if(!keyboard_right)
+		return;
+
+	webMI.query.trigger = trigger_password;
+	webMI.query.password = "Yes";
+	webMI.query.value = "";
+	webMI.display.openWindow({
+		display: keyboard,
+		extern: false,
+		height: 300,
+		menubar: false,
+		modal: true,
+		movable: true,
+		resizable: false,
+		scrollbars: false,
+		status: false,
+		title: "T{Keyboard}",
+		toolbar: false,
+		width: 700,
+		query: webMI.query
+	});
+}, "password_keyboard");]]></code>
+</script>

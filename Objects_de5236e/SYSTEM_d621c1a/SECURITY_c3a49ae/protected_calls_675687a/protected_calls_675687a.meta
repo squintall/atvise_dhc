@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.protected_calls
+NodeClass: Variable
+BrowseName: 1:protected_calls
+DisplayName: en|protected_calls
+Description: en|protected_calls
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

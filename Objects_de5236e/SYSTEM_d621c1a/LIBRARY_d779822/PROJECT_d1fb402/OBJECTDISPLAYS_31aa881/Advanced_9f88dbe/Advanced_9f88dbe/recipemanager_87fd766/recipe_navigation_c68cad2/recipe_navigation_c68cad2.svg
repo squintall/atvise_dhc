@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="90" version="1.2" width="235" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Navigation element to switch between templates and recipes.</desc>
+ <title>Switch Templates/Recipes</title>
+ <metadata>
+  <atv:parameter behavior="mandatory" config="Templates;Recipes" defaultvalue="" desc="current display" name="buttonToHighlight" substitute="" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Appearance" name="globalFillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" group="Font" name="globalFontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="#d7d7d7" desc="button background" group="Appearance" name="btn_button_bg" substitute="" valuetype="color"/>
+  <atv:parameter behavior="optional" desc="default navigation path" name="navEntryPoint" valuetype="address"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="10" width="10"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.recipemanager.recipe_navigation" atv:name="recipe_navigation" atv:type="text/ecmascript"/>
+ <rect atv:refpx="117.5" atv:refpy="43.848" fill="$FILLCOLOR$" height="90" id="id_4" stroke="none" stroke-width="2" width="235" x="0" y="0"/>
+ <svg atv:refpx="60" atv:refpy="72.499" height="30" id="btn_templates" transform="matrix(1.375,0,0,1.1667,0,0)" width="80" x="3.636" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="42.857">
+  <atv:argument name="label" value="T{Templates}"/>
+  <atv:argument name="tabIndex" value="1"/>
+  <atv:overwrite id="id_2" transform="matrix(0.8889,0,0,1,0,0)" width="84.5"/>
+  <atv:overwrite id="id_0" transform="matrix(0.8889,0,0,1,0,0)" width="89.5"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+  <atv:overwrite height="33" id="id_6" transform="matrix(0.7273,0,0,0.8571,0,0)" width="108"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.7273,0,0,0.8571,0,0)" x="55" y="29"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.7273,0,0,0.8571,0,0)" x="55" y="14"/>
+  <atv:overwrite id="button_label" transform="matrix(0.7273,0,0,0.8571,0,0)" x="55" y="22"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.4364,0,0,0.5143,0,0)" x="81.5" y="30.459"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.4364,0,0,0.5143,0,0)" x="81.5" y="9.126"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.7273,0,0,0.8571,0,0)" x="45" y="7.5"/>
+  <atv:overwrite height="31" id="button_stroke" transform="matrix(0.7273,0,0,0.8571,0,0)" width="106"/>
+  <atv:overwrite height="33" id="button_bg" transform="matrix(0.7273,0,0,0.8571,0,0)" width="108"/>
+  <atv:overwrite height="35" id="outer_frame" transform="matrix(0.7273,0,0,0.8571,0,0)" width="110"/>
+ </svg>
+ <svg atv:refpx="174.998" atv:refpy="72.499" height="30" id="btn_recipes" transform="matrix(1.375,0,0,1.1667,0,0)" width="80" x="87.273" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="42.857">
+  <atv:argument name="label" value="T{Recipes}"/>
+  <atv:argument name="tabIndex" value="2"/>
+  <atv:overwrite id="id_2" transform="matrix(0.8889,0,0,1,0,0)" width="84.5"/>
+  <atv:overwrite id="id_0" transform="matrix(0.8889,0,0,1,0,0)" width="89.5"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+  <atv:overwrite height="33" id="id_6" transform="matrix(0.7273,0,0,0.8571,0,0)" width="108"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.7273,0,0,0.8571,0,0)" x="55" y="29"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.7273,0,0,0.8571,0,0)" x="55" y="14"/>
+  <atv:overwrite id="button_label" transform="matrix(0.7273,0,0,0.8571,0,0)" x="55" y="22"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.4364,0,0,0.5143,0,0)" x="81.5" y="30.459"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.4364,0,0,0.5143,0,0)" x="81.5" y="9.126"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.7273,0,0,0.8571,0,0)" x="45" y="7.5"/>
+  <atv:overwrite height="31" id="button_stroke" transform="matrix(0.7273,0,0,0.8571,0,0)" width="106"/>
+  <atv:overwrite height="33" id="button_bg" transform="matrix(0.7273,0,0,0.8571,0,0)" width="108"/>
+  <atv:overwrite height="35" id="outer_frame" transform="matrix(0.7273,0,0,0.8571,0,0)" width="110"/>
+ </svg>
+ <text atv:refpx="125.9" atv:refpy="22" fill="$FONTCOLOR$" font-family="Arial" font-size="22" id="title" text-anchor="start" x="9" y="29.5">T{Recipe management}</text>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

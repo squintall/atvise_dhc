@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_7.Nivel.AP_SOL_CAR_7_NIV_T1_NivelPorcentajeBajo
+NodeClass: Variable
+BrowseName: 1:AP_SOL_CAR_7_NIV_T1_NivelPorcentajeBajo
+DisplayName: en|AP_SOL_CAR_7_NIV_T1_NivelPorcentajeBajo
+Description: en|AP_SOL_CAR_7_NIV_T1_NivelPorcentajeBajo
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Caudalimetro.Configuracion_Caudalimetro.Utils.Selector_Horario
+NodeClass: Variable
+BrowseName: 1:Selector_Horario
+DisplayName: en|Selector_Horario
+Description: en|Selector_Horario
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

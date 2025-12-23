@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.picker_interval
+NodeClass: Variable
+BrowseName: 1:picker_interval
+DisplayName: en|picker_interval
+Description: en|picker_interval
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

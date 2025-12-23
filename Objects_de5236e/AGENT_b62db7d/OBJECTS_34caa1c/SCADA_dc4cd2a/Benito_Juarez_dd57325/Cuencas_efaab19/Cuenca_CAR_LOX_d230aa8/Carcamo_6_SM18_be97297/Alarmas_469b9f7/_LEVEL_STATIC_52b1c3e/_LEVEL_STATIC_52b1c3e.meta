@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_6_SM18.Alarmas._LEVEL_STATIC
+NodeClass: Variable
+BrowseName: 1:_LEVEL_STATIC
+DisplayName: en|_LEVEL_STATIC
+Description: en|Nivel de C. 6 SM18
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Alarmas._LEVEL_STATIC.Nivel_estatico

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Carcamo_009.Equipos.Energia.PAC_1.nombre
+NodeClass: Variable
+BrowseName: 1:nombre
+DisplayName: en|nombre
+Description: en|nombre
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

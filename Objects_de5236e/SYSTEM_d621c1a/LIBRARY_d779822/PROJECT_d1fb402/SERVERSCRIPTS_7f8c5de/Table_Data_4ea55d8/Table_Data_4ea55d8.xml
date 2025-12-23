@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="Encabezado" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="Ref_Variables" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="from" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="to" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="periodicidad" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="Mult_Periodicidad" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="Metodo_Ajuste" type="number" trigger="false" relative="false" value=""/>
+  <code><![CDATA[//------------Adquisición y limpieza de datos------------//
+console.log("-------Nueva Iteración-------");
+
+var Enca_tabla=[{type: 'text', data: {text: Encabezado[0], fillColor: '#575757', color: 'white'}}];
+var Enca_Text_Est=['Variable','Promedio','Desviacion','Minimo','Maximo'];
+var Enca_tabla_Est= new Array();
+
+//Variables de tiempo de ejecución
+var crono_i= new Date();
+var T_ejecucion;
+
+//Variables de datos
+var addresses=new Array();
+var data=new Array();
+var data_last= new Array();
+var time=new Array();
+var data_default=0;
+var periodicidades_actual= new Array();
+
+//Variables para limpieza
+var timei=new Array();
+var datai=new Array();
+
+//Variables para Periodicidad Modificable
+var dataPM=new Array();
+
+//Variables de reduccion
+var multiplo_reductor = 1; //Reduzco la cantidad de datos a cada X dato (Mayor a 1)
+var threshold_reductor = 100; //Umbral desde el cual se reducen los datos
+
+
+///---------Ejecución-----------///	
+//-----------------------------//	
+	
+
+
+console.log("\n");
+console.log("-------**---Nueva Iteracion-----**-----");
+
+
+console.log("-------Parametros-------");
+console.log("Periodicidad: "+periodicidad);
+console.log("Mult_Periodicidad: "+Mult_Periodicidad);
+	
+
+
+///---------Preparo variables y filtro-----------///
+for (var h=0; h<Ref_Variables.length;h++){
+	//Direcciones para leer datos
+	addresses.push("g:"+Ref_Variables[h]);
+	Enca_tabla.push({type: 'text', data: {text: Encabezado[h+1], fillColor: '#575757', color: 'white'}})	
+	
+	//Creo arreglo vacío para contener los datos
+	data.push([]);
+	time.push([]);
+	datai.push([]);
+	timei.push([]);
+	dataPM.push([]);
+	data_last.push(0);
+}
+
+
+
+
+///---------Leo Datos-----------///
+var query = history.query({
+    type: ["v:1"], // data values
+    timestamp: ["n:>=" + from + "<" + to],
+    address: addresses
+});
+
+
+var result=query.result;
+
+
+
+if (result.length!=0){ //Array No vacío
+
+
+	///---------Determino Valores Iniciales-----------///
+	
+	for(var h=0; h<Ref_Variables.length; h++){ //Busco valor inicial para cada referencia
+	
+		var k=0; //Contador	que recorre todos los datos
+		var coincidencia=false;
+		
+		while (!coincidencia && k<result.length){
+			
+			if (result[k].address==Ref_Variables[h]){ //Encuentra referencia
+				 //Contador i recorre las referencias
+				data_last[h]=(result[k].value); //Defino el valor incial para data last				
+				coincidencia=true;
+			}
+			else if(result[k].address!=Ref_Variables[h]){ //No encuentra referencia
+				k++;
+			}			
+		}		
+	}
+
+	///---------Separo variables-----------///	
+	
+	for(var h=0; h<Ref_Variables.length; h++){ 	
+		for(var i=0; i<result.length; i++){ //Recorro todos los datos
+			if (result[i].address==Ref_Variables[h]){ 
+				datai[h].push(result[i].value); //Agrego los datos
+				timei[h].push(result[i].timestamp); //Agrego los timestamps
+			}
+		}	
+	}
+	
+	console.log("-------Datos Acomodados-------");
+	console.log("Tamano Todos los datos: "+result.length);
+	console.log("Tamano Columna 0: "+datai[0].length);
+	console.log(datai);
+	
+	///---------Ajusto multiplo reductor-----------///
+		
+	var tamano_max=datai[0].length
+	for(var h=0; h<datai.length; h++){
+		if(tamano_max<datai[h].length){
+			tamano_max=datai[h].length; //Encuentro la columna de datos más grande
+		}
+	}
+		
+	if (tamano_max>=1000 && tamano_max<10000){ //Si una columna tiene más de 1000 datos pero menos de 10000
+		multiplo_reductor=10;
+	}
+	else if (tamano_max>=10000){ //Si una columna tiene más de 10000 datos
+		multiplo_reductor=100;
+	}
+
+	
+	
+	///---------Reduzco Cantidad de datos-----------///	
+	
+	for(var h=0; h<Ref_Variables.length; h++){ 
+		
+		
+		//Solo si es mayor o igual al treshold	
+		if(datai[h].length>=threshold_reductor && multiplo_reductor>1){ 
+			
+			var dataii=new Array();
+			var timeii=new Array();
+			
+			for (var k=0; k<datai[h].length; k++){ //Introduzco datos cada multiplo_reductor
+				if((k) % multiplo_reductor === 0){ 			
+					dataii.push(datai[h][k]);			
+					timeii.push(timei[h][k]);  
+				}
+		    }
+		
+			datai[h]=dataii;
+			timei[h]=timeii;
+		}	
+		
+	}
+	
+	
+	
+	
+	console.log("-------Datos Reducidos-------");
+	console.log("Tamano Total data: "+datai[0].length);
+	console.log("Tamano Total tiempo: "+timei[0].length);
+	console.log(datai);
+	console.log(timei);
+	
+	
+	
+	///---------Determino las periodicidades-----------///		
+	
+	//Variables de tiempo
+	var tiempo_inicial=result[0].timestamp; //Primer timestamp
+	var tiempo_final=result[result.length-1].timestamp; //Ultimo timestamp
+	
+	////////////Periodicidad Normal
+	
+	if (Mult_Periodicidad<=0){  
+		console.log("-------Periodicidad Normal-------");
+		//Variable intermedia
+		var periodicidades_actualI= new Array();
+	
+		for(var i=0; i<result.length; i++){ //Recorro todos los datos
+			periodicidades_actualI.push(result[i].timestamp); //Agrego las valores de periodicidad
+		}
+		
+		//Limpio repetidos de periodicidades
+		periodicidades_actual = periodicidades_actualI.filter(function(item,index){
+		  return periodicidades_actualI.indexOf(item) === index;
+		});
+	
+	}
+	
+	////////////Periodicidad Modificada
+	else if(Mult_Periodicidad>0){ 
+		console.log("-------Periodicidad Modificable-------");
+		//No puede haber periodicidad modificable en tiempo real
+		if (periodicidad==0){
+			periodicidad=1;
+		}
+		
+		
+		//Creo los timestamps con Periodicidad Modificable	
+	
+		//Variables intermedia
+		var periodicidades_actualI=tiempo_inicial;
+		periodicidades_actual.push(periodicidades_actualI); //Agrego tiempo Inicial	
+		var k=0; //Numero de Iteración
+		
+		while (periodicidades_actualI<=tiempo_final){
+			
+			switch(periodicidad) {
+				case 1: //Segundos
+					periodicidades_actualI=periodicidades_actual[k]+(Mult_Periodicidad*1000);
+					break;	
+				case 2: //Minutos
+					periodicidades_actualI=periodicidades_actual[k]+(Mult_Periodicidad*60*1000);
+					break;			
+				case 3: //Horas
+					periodicidades_actualI=periodicidades_actual[k]+(Mult_Periodicidad*60*60*1000);
+					break;			
+				case 4: //Horas
+					periodicidades_actualI=periodicidades_actual[k]+(Mult_Periodicidad*24*60*60*1000);
+					break;			
+				}
+			
+			//Agreago el nuevo tiempo
+			periodicidades_actual.push(periodicidades_actualI);
+			
+			k++; //Aumento Iteración
+		}	
+	
+	}
+	
+	
+	console.log("-------Periodicidades-------");
+	console.log("Tamano "+periodicidades_actual.length);
+	console.log(periodicidades_actual);
+	
+	
+///---------Ajusto datos a la tabla-----------///	
+//Dos metodos, ultimo valor:0, elemento con diferencia minima:1
+
+	if (Metodo_Ajuste==0){  //Ultimo Valor
+	
+		for(var i=0; i<periodicidades_actual.length; i++){ 
+			
+			var time_actuali=Tiempo_actual(periodicidad,periodicidades_actual[i]); //Tiempo de periodicidad recorrida en el momento
+			
+			//Recorro cada una de las variables
+			for(var h=0; h<Ref_Variables.length; h++){ 								
+				var coincidencia = false; //Si hay coincidencia cambia		
+				
+				//Recorro todos los datos
+				for(var k=0; k<datai[h].length; k++){ 
+					
+					var time_actualk=Tiempo_actual(periodicidad,timei[h][k]); //Tiempo de dato crudos recorrido en el momento
+					
+					//Si el valor es igual al timestamp lo agrega
+								
+					if (time_actualk==time_actuali){ 
+					
+						//Ingreso valor 
+						data[h].push(Number((datai[h][k]).toFixed(2)));
+						time[h].push(time_actualk);
+						
+						//Actualizo data_last
+						data_last[h]=datai[h][k];
+						
+						//Actualizo coincidencia 
+						coincidencia = true;
+										
+						//Termino la iteración
+						break;					
+					}
+					
+					//No continue con valores mayores
+					if(time_actualk>time_actuali){ 
+						//Termino la iteración
+						break;
+					}
+				}	
+				
+				//Si no hubo coincidencia
+				if (!coincidencia){
+				
+					//Agrego ultimo dato
+					data[h].push(Number(data_last[h].toFixed(2)));
+					time[h].push(time_actuali);
+				}			
+			}
+		}
+	}	
+	else if (Metodo_Ajuste==1){  //Valor más cercano
+	
+		var diferencia; //Variable que guarda las diferencias
+		var jmd; //Indice que tiene la menor diferencia
+		
+		//Recorro cada una de las variables
+		for(var h=0; h<Ref_Variables.length; h++){ 	
+		
+			for (var i=0; i<periodicidades_actual.length; i++){ //Recorro todos los tiempos de periodicidad
+				diferencia=Math.abs(periodicidades_actual[i]-timei[h][0]); //Diferencia Incial
+				jmd=0;
+				//console.log("Periodicidad actual: "+periodicidades_actual[i]);
+				for (var j=0; j<timei[h].length; j++){ //Recorro todos los tiempos de cada variable
+					//console.log("Tiempo en comparacion: "+ timei[h][j]+" Diferencia: "+Math.abs(periodicidades_actual[i]-timei[h][j]) + " en j:"+j);
+					if (Math.abs(periodicidades_actual[i]-timei[h][j])<diferencia) { //La diferencia es menor
+						jmd=j; //Actualizo el indice con la menor dif
+						diferencia=Math.abs(periodicidades_actual[i]-timei[h][j]);
+					}		
+				}
+				
+				//Incerto el valor con la menor diferencia en tiempo
+				time[h].push(periodicidades_actual[i]);
+				data[h].push(Number((datai[h][jmd]).toFixed(2)));	
+			}
+		}
+	}
+	
+	else if (Metodo_Ajuste==2){  //Llena con ceros
+	
+		for(var i=0; i<periodicidades_actual.length; i++){ 
+			
+			var time_actuali=Tiempo_actual(periodicidad,periodicidades_actual[i]); //Tiempo de periodicidad recorrida en el momento
+			
+			//Recorro cada una de las variables
+			for(var h=0; h<Ref_Variables.length; h++){ 								
+				var coincidencia = false; //Si hay coincidencia cambia		
+				
+				//Recorro todos los datos
+				for(var k=0; k<datai[h].length; k++){ 
+					
+					var time_actualk=Tiempo_actual(periodicidad,timei[h][k]); //Tiempo de dato crudos recorrido en el momento
+					
+					//Si el valor es igual al timestamp lo agrega
+								
+					if (time_actualk==time_actuali){ 
+					
+						//Ingreso valor 
+						data[h].push(Number((datai[h][k]).toFixed(2)));
+						time[h].push(time_actualk);
+						
+						//Actualizo coincidencia 
+						coincidencia = true;
+										
+						//Termino la iteración
+						break;					
+					}
+					
+					//No continue con valores mayores
+					if(time_actualk>time_actuali){ 
+						//Termino la iteración
+						break;
+					}
+				}	
+				
+				//Si no hubo coincidencia
+				if (!coincidencia){
+				
+					//Agrego ultimo dato
+					data[h].push(0);
+					time[h].push(time_actuali);
+				}			
+			}
+		}
+	
+	}
+		
+	console.log("-------Datos Ajustados-------");
+	console.log("Tamano filas: "+data.length);
+	console.log("Tamano columnas: "+data[0].length);
+	console.log(data);
+
+}
+
+//Array de resultados Vacio
+else if (result.length==0){ 
+	for(var i=0; i<Ref_Variables.length; i++){ 
+		data[i].push(0);
+		time[i].push(0);		
+	}
+
+}
+
+//------------Función para calculo de tiempo en periodicidad------------//
+
+//Función encargada de definirme el tiempo
+function Tiempo_actual(periodicidad,tiempo){
+	
+	var tiempoi; //Variable de Tiempo Intermedio
+	
+	switch(periodicidad) {
+		case 0: //No periodicidad
+			return tiempo;
+			break;
+		case 1: //Segundos
+			tiempoi=(new Date(tiempo)).setMilliseconds(0); //Segundo Unico
+			return tiempoi;
+			break;
+		case 2:  //Minutos
+			tiempoi=(new Date(tiempo)).setMilliseconds(0); //Segundo Unico
+			tiempoi=(new Date(tiempoi)).setSeconds(0); //Minuto Unico
+			return tiempoi;
+			break;
+		case 3:  //Horas
+			tiempoi=(new Date(tiempo)).setMilliseconds(0); //Segundo Unico
+			tiempoi=(new Date(tiempoi)).setSeconds(0); //Minuto Unico
+			tiempoi=(new Date(tiempoi)).setMinutes(0); //Hora Unico
+			return tiempoi;
+		case 4:  //Dias
+			tiempoi=(new Date(tiempo)).setMilliseconds(0); //Segundo Unico
+			tiempoi=(new Date(tiempoi)).setSeconds(0); //Minuto Unico
+			tiempoi=(new Date(tiempoi)).setMinutes(0); //Hora Unico
+			tiempoi=(new Date(tiempoi)).setHours(0); //Dia Unico
+			return tiempoi;
+			break;	
+	}
+}
+
+
+
+//------------Generación de tabla Datos Estadisticos------------//
+
+var tableData_Est=[];
+tableData_Est.push(Enca_Text_Est)
+//Calculo estadisticos
+for(var i=0; i<data.length; i++){ //Recorro cada una de las referencias
+
+	var estadisticas = ((call("SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.Calculos_Estadisticos",{data:data[i]})));
+	tableData_Est.push([{type: 'text', data: {text: Encabezado[i+1], fillColor: '#575757', color: 'white'}},estadisticas[0],estadisticas[1],estadisticas[2],estadisticas[3]]);
+}
+
+
+//------------Generación de tabla Datos Generales------------//
+
+
+var tableData=[];
+tableData.push(Enca_tabla);
+
+var table_temp=[];
+
+for (var j=0; j<data[0].length; j++){
+
+	var date = new Date(time[0][j]); //Tomo el tiempo de la primera variable
+
+	var day = date.getDate();
+	var months = date.getMonth() + 1;
+	var year = date.getYear() + 1900;
+	var hour = date.getHours();
+	var minutes = date.getMinutes();
+	var seconds = date.getSeconds();	
+	
+	date = day + '.' + months + '.' + year;
+	if (seconds < 10) { seconds = '0' + seconds.toString(); }
+	if (minutes < 10) { minutes = '0' + minutes.toString(); }
+	if (day < 10) { day = '0' + day.toString(); }
+	if (months < 10) { months = '0' + months.toString(); }
+	
+	const timeStamp = date + ' ' + hour + ':' + minutes + ':' + seconds;
+	table_temp=[timeStamp];
+	
+	for(var i=0; i<Ref_Variables.length; i++){
+			table_temp.push(data[i][j]);
+	}		
+	tableData.push(table_temp);
+}
+
+T_ejecucion=new Date()-crono_i;
+
+console.log("Tiempo de ejecucion");
+console.log(T_ejecucion+"ms");
+
+console.log("Table Data Final");
+console.log(tableData);
+
+//Returno todo
+return([tableData,tableData_Est,data,time]);]]></code>
+</script>

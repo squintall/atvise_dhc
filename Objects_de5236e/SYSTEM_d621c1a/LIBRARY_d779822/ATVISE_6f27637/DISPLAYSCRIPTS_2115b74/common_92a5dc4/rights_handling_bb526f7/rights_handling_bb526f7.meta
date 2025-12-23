@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.common.rights_handling
+NodeClass: Variable
+BrowseName: 1:rights_handling
+DisplayName: en|rights_handling
+Description: en|rights_handling
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

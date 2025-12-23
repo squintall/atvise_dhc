@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[//----------------Inicializo variables -------------------//
+
+
+//Variable interna
+var Info_Windowact=false;
+var Markeract=false;
+var Markeractdc;
+var Markers= new Array();
+var Rutas= new Array();
+var Pos_origen;
+var Pos_destination;
+var WayPoints = new Array();
+
+var google = webMI.rootWindow.google; //Clase Principal
+var map; //Variable donde va a vivir el mapa
+var m,n;
+
+//Obtener el nombre en formato string del objeto base, haciendo una query al webMI 
+	var name = webMI.query.base;
+	//Parte de la función addOnload
+	var id = "";
+	var value = true;
+	
+					
+var infowindow = new google.maps.InfoWindow();;					
+var circuito_centro;
+const path_circulo = "M 4 1.5 A 2.5 2.5 90 1 0 4 6.5 A 2.5 2.5 90 0 0 4 1.5 Z";
+const path_cuadrado ="M 1.2843 0.9 h 4.9311 A 0.3843 0.3843 90 0 1 6.6 1.2843 v 4.9311 A 0.3846 0.3846 90 0 1 6.2154 6.6 H 1.2846 A 0.3846 0.3846 90 0 1 0.9 6.2154 V 1.2843 A 0.3843 0.3843 90 0 1 1.2843 0.9 z";
+const hoverSymbol =   {
+    path: path_circulo,
+    fillColor: "white",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+const symbolOK =   {
+    path: path_circulo,
+    fillColor: "green",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+const symbolNoCom =  {
+    path: path_circulo,
+    fillColor: "red",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+const symbolIdle =  {
+    path: path_circulo,
+    fillColor: "#7c1536",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+const symbolWriteError =  {
+    path: path_circulo,
+    fillColor: "#8b3db8",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+const symbolBadDevice =  {
+    path: path_circulo,
+    fillColor: "#b98f2d",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+ const symbolUndefined =  {
+    path: path_circulo,
+    fillColor: "gray",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+   const symbolBlack =  {
+    path: path_circulo,
+    fillColor: "black",
+    fillOpacity: 0.6,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+     const symbolBlackSquare =  {
+    path: path_cuadrado,
+    fillColor: "black",
+    fillOpacity: 0.6,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+
+
+//----------------Ejecución -------------------//
+
+
+
+//Determinación del dispositivo
+var infoCliente;
+infoCliente = new webMI.getClientInfo();
+
+//Preprocesamiento de variables
+
+//Calculo del Centro
+
+
+webMI.addOnload(function() {
+
+	
+	//Opciones del mapa
+	var myOptions = {
+		zoom: 3,
+		mapTypeId: google.maps.MapTypeId.ROADMAP,
+		styles: [ 
+					{ 
+					  "featureType": "poi", 
+					  "stylers": [ 
+						{ "visibility": "off" } 
+					  ] 
+					} 
+				  ] 		
+	};
+	
+
+	//Inicializo el mapa
+	map = new google.maps.Map(document.getElementById("mapa"), myOptions);
+	
+	
+		
+		
+	// Instantiate an info window to hold step text.
+	const stepDisplay = new google.maps.InfoWindow();
+	
+	//-------Inicializo Marcadores
+	
+	circuito_s.forEach(([position,title,object,order,type],i) =>{
+
+		const marker = new google.maps.Marker(
+			{
+				position, 
+				map,
+				icon: symbolBlack,
+				title: ` ${title}`,
+				optimized: false,
+			}
+		);
+		
+		webMI.data.subscribe(object + ".connectivity", function(e) {
+			var valor = e.value;
+			var status = e.status;
+			switch (status) {
+		case 0:
+			if (valor == true)
+				marker.setIcon(symbolOK);
+			else
+				marker.setIcon(symbolNoCom);
+			break;
+		case undefined:
+			marker.setIcon(symbolUndefined);
+			break;
+		case 2156593152:
+			marker.setIcon(symbolBadDevice);
+			break;
+		case 2150694912:
+			marker.setIcon(symbolNoCom);
+			break;
+		case 2150760448:
+			marker.setIcon(symbolIdle);
+			break;
+		case 1083179008:
+			marker.setIcon(symbolBlack);
+			break;
+		default:
+			marker.setIcon(symbolBlack);
+		break;
+			}
+		});	
+		marker.setMap(map);
+		//Agrego marcador a lista de marcadores
+		Markers.push(marker);
+	
+		//-------Listener de Marcadores
+		
+		//DOBLECLICK (Fija Carcamo)
+		google.maps.event.addListener(marker,'dblclick',function(event) {
+			map.panTo(this.getPosition());
+			map.setZoom(15);
+			if (type=="carcamoAR") {
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Reservorio_AR",
+			{base: object}, "content");	
+			} else {
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Reservorio",
+			{base: object}, "content");	
+					}
+			if (type=="pozo") {
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Instalacion.Pozo",
+			{base: object}, "content");	
+			}	
+
+			Markeract=true;
+			Markeractdc=marker;
+			Pos_origen=position;
+		
+			
+			//Limpio
+			Elimina_Ruta(Rutas);
+				
+		});
+	/*	map.addListener("zoom_changed", () => {
+    infowindow.setContent("Zoom: " + map.getZoom());
+  });*/
+		
+		var susID = null;
+		//CLICK (Abre Infowindow)
+		google.maps.event.addListener(marker,'click',function(event) {	
+			            
+            webMI.data.unsubscribe(susID);
+            if (infowindow) {
+            }   			
+			susID = null;
+			//Abro infowindow
+			
+			//Abro marcador
+			infowindow.open(marker.getMap,marker);
+			
+			
+			var susID = webMI.data.subscribeBlock(
+			[object +".level_percent",
+			object +".pressure",
+			object +".pressure2",
+			object +".pressure3",
+			object +".pressure4",
+			object +".pressure5",
+			object +".pressure6",
+			object +".pressure7",
+			object +".flow",
+			object +".flow2",
+			object +".flow3",
+			object +".flow4",
+			object +".flow5",
+			object +".flow6",
+			object +".flow7",
+			object + ".short_name",
+			object + ".cummulative"],
+			[],
+				function(e){
+				
+					if (type == 'pozo'){
+					infowindow.setContent(
+								'<div id="content">' +
+										'<h2 id="firstHeading" class="firstHeading">'+e[15].value+'</h2>' +
+										'<h3>'+'Lectura caudalímetro: '+ e[16].value.toLocaleString() +' M3</h3>' +
+										'<table>'+
+											 '<thead align="center">'+
+											  '<tr> <th> ID <th> Presion <th> <th> Flujo <th>'+
+											  '<tbody align="left">'+
+											  '<tr> <td>L1<td><b>'+e[1].value.toFixed(2)+'</b> kg/cm2<td> <td> <b>'+e[8].value.toFixed(2)+'</b> l/s'+
+											'</table>'+		
+									 '</div>');
+					}
+					
+					if (type == 'carcamoAR' || type == 'ptar'){
+					
+					infowindow.setContent(
+						'<div id="content">' +
+                            '<h2 id="firstHeading" class="firstHeading">'+e[15].value+'</h2>' +
+                            '<h3>'+'Nivel actual: '+ e[0].value.toFixed(2) +' %</h3>' +
+                         '</div>');
+					} else {
+						if (!(e[1]==undefined)){
+							infowindow.setContent(
+								'<div id="content">' +
+										'<h2 id="firstHeading" class="firstHeading">'+e[15].value+'</h2>' +
+										'<h3>'+'Nivel: '+ e[0].value.toFixed(2) +' %</h3>' +
+										'<table>'+
+											 '<thead>'+
+											  '<tr> <th> ID <th> Presion <th> Flujo <th>'+
+											  '<tbody>'+
+											  '<tr> <td>L1<td>'+e[1].value.toFixed(2)+'<td>'+e[8].value.toFixed(2)+
+											'</table>'+		
+									 '</div>');
+						}
+						if (!(e[2]==undefined)){
+							infowindow.setContent(
+								'<div id="content">' +
+										'<h2 id="firstHeading" class="firstHeading">'+e[15].value+'</h2>' +
+										'<h3>'+'Nivel: '+ e[0].value.toFixed(2) +' %</h3>' +
+										'<table>'+
+											 '<thead>'+
+											  '<tr> <th> ID <th> Presion <th> Flujo <th>'+
+											  '<tbody>'+
+											  '<tr> <td>L1<td>'+e[1].value.toFixed(2)+'<td>'+e[8].value.toFixed(2)+
+											  '<tr> <td>L2<td>'+e[2].value.toFixed(2)+'<td>'+e[9].value.toFixed(2)+
+											'</table>'+		
+									 '</div>');
+						}
+						if (!(e[3]==undefined)){
+							infowindow.setContent(
+								'<div id="content">' +
+										'<h2 id="firstHeading" class="firstHeading">'+e[15].value+'</h2>' +
+										'<h3>'+'Nivel: '+ e[0].value.toFixed(2) +' %</h3>' +
+										'<table>'+
+											 '<thead>'+
+											  '<tr> <th> ID <th> Presion <th> Flujo <th>'+
+											  '<tbody>'+
+											  '<tr> <td>L1<td>'+e[1].value.toFixed(2)+'<td>'+e[8].value.toFixed(2)+
+											  '<tr> <td>L2<td>'+e[2].value.toFixed(2)+'<td>'+e[9].value.toFixed(2)+
+											  '<tr> <td>L3<td>'+e[3].value.toFixed(2)+'<td>'+e[10].value.toFixed(2)+
+											'</table>'+		
+									 '</div>');
+						}
+						if (!(e[4]==undefined)){
+							infowindow.setContent(
+								'<div id="content">' +
+										'<h2 id="firstHeading" class="firstHeading">'+e[15].value+'</h2>' +
+										'<h3>'+'Nivel: '+ e[0].value.toFixed(2) +' %</h3>' +
+										'<table>'+
+											 '<thead>'+
+											  '<tr> <th> ID <th> Presion <th> Flujo <th>'+
+											  '<tbody>'+
+											  '<tr> <td>L1<td>'+e[1].value.toFixed(2)+'<td>'+e[8].value.toFixed(2)+
+											  '<tr> <td>L2<td>'+e[2].value.toFixed(2)+'<td>'+e[9].value.toFixed(2)+
+											  '<tr> <td>L3<td>'+e[3].value.toFixed(2)+'<td>'+e[10].value.toFixed(2)+
+											  '<tr> <td>L4<td>'+e[4].value.toFixed(2)+'<td>'+e[11].value.toFixed(2)+
+											'</table>'+		
+									 '</div>');
+						}
+						if (!(e[5]==undefined)){
+							infowindow.setContent(
+								'<div id="content">' +
+										'<h2 id="firstHeading" class="firstHeading">'+e[15].value+'</h2>' +
+										'<h3>'+'Nivel: '+ e[0].value.toFixed(2) +' %</h3>' +
+										'<table>'+
+											 '<thead>'+
+											  '<tr> <th> ID <th> Presion <th> Flujo <th>'+
+											  '<tbody>'+
+											  '<tr> <td>L1<td>'+e[1].value.toFixed(2)+'<td>'+e[8].value.toFixed(2)+
+											  '<tr> <td>L2<td>'+e[2].value.toFixed(2)+'<td>'+e[9].value.toFixed(2)+
+											  '<tr> <td>L3<td>'+e[3].value.toFixed(2)+'<td>'+e[10].value.toFixed(2)+
+											  '<tr> <td>L4<td>'+e[4].value.toFixed(2)+'<td>'+e[11].value.toFixed(2)+
+											  '<tr> <td>L5<td>'+e[5].value.toFixed(2)+'<td>'+e[12].value.toFixed(2)+
+											'</table>'+		
+									 '</div>');
+						}
+						if (!(e[6]==undefined)){
+						infowindow.setContent(
+							'<div id="content">' +
+									'<h2 id="firstHeading" class="firstHeading">'+e[15].value+'</h2>' +
+									'<h3>'+'Nivel: '+ e[0].value.toFixed(2) +' %</h3>' +
+									'<table>'+
+										 '<thead>'+
+										  '<tr> <th> ID <th> Presion <th> Flujo <th>'+
+										  '<tbody>'+
+										  '<tr> <td>L1<td>'+e[1].value.toFixed(2)+'<td>'+e[8].value.toFixed(2)+
+										  '<tr> <td>L2<td>'+e[2].value.toFixed(2)+'<td>'+e[9].value.toFixed(2)+
+										  '<tr> <td>L3<td>'+e[3].value.toFixed(2)+'<td>'+e[10].value.toFixed(2)+
+										  '<tr> <td>L4<td>'+e[4].value.toFixed(2)+'<td>'+e[11].value.toFixed(2)+
+										  '<tr> <td>L5<td>'+e[5].value.toFixed(2)+'<td>'+e[12].value.toFixed(2)+
+										  '<tr> <td>L6<td>'+e[6].value.toFixed(2)+'<td>'+e[13].value.toFixed(2)+
+										'</table>'+		
+								 '</div>');
+						}
+						if (!(e[7]==undefined)){
+					
+							infowindow.setContent(
+								'<div id="content">' +
+										'<h1 id="firstHeading" class="firstHeading">'+e[15].value+'</h1>' +
+										'<h3>'+'Nivel: '+ e[0].value.toFixed(2) +' %</h3>' +
+										'<table>'+
+											 '<thead>'+
+											  '<tr> <th> ID <th> Presion <th> Flujo <th>'+
+											  '<tbody>'+
+											  '<tr> <td>L1<td>'+e[1].value.toFixed(2)+'<td>'+e[8].value.toFixed(2)+
+											  '<tr> <td>L2<td>'+e[2].value.toFixed(2)+'<td>'+e[9].value.toFixed(2)+
+											  '<tr> <td>L3<td>'+e[3].value.toFixed(2)+'<td>'+e[10].value.toFixed(2)+
+											  '<tr> <td>L4<td>'+e[4].value.toFixed(2)+'<td>'+e[11].value.toFixed(2)+
+											  '<tr> <td>L5<td>'+e[5].value.toFixed(2)+'<td>'+e[12].value.toFixed(2)+
+											  '<tr> <td>L6<td>'+e[6].value.toFixed(2)+'<td>'+e[13].value.toFixed(2)+
+											  '<tr> <td>L7<td>'+e[7].value.toFixed(2)+'<td>'+e[14].value.toFixed(2)+
+											'</table>'+									
+									 '</div>');
+						}							
+
+					}
+				}		
+				);			
+		
+			
+			setTimeout(function() {
+                           
+                webMI.data.unsubscribe(susID);
+            }, 3000);
+					
+		});	
+			
+		
+		//MOUSEOVER
+		google.maps.event.addListener(marker, "mouseover", function(event){
+					
+		marker.setAnimation(google.maps.Animation.BOUNCE);
+		});	
+		
+		google.maps.event.addListener(marker, "mouseout", function(event){
+		marker.setAnimation(null);
+		});	
+		
+		
+		
+		
+	});	
+
+	/*	const markerCluster = new MarkerClusterer(map, Markers, {
+        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+    });*/
+		fitMarkers();
+		
+});
+
+function fitMarkers() {
+            const bounds = new google.maps.LatLngBounds();
+            Markers.splice(0,4);
+            Markers.forEach(marker => {
+                bounds.extend(marker.getPosition());
+            });
+           
+            map.fitBounds(bounds);
+        }
+]]></code>
+</script>

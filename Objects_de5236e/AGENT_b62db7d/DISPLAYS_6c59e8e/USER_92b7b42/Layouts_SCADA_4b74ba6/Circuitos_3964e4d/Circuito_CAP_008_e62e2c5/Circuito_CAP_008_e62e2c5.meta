@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_SCADA.Circuitos.Circuito_CAP_008
+NodeClass: Variable
+BrowseName: 1:Circuito_CAP_008
+DisplayName: en|Circuito_CAP_008
+Description: en|Circuito_CAP_008
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

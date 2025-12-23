@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.Layouts_DHC.Custom_tank
+NodeClass: Variable
+BrowseName: 1:Custom_tank
+DisplayName: en|Custom_tank
+Description: en|Custom_tank
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

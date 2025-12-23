@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.watch_table_config
+NodeClass: Variable
+BrowseName: 1:watch_table_config
+DisplayName: en|watch_table_config
+Description: en|watch_table_config
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

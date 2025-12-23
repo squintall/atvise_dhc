@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="890" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="Nombre cárcamo" desc="Nombre de la estación de rebombeo" name="pumping_station" substitute="$pumping_station$" valuetype="address"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="10" width="10"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <rect atv:refpx="710.5" atv:refpy="170.203" fill="#ffffff" height="338.407" id="id_28" stroke="#000000" stroke-width="2" width="1419" x="1" y="1"/>
+ <text atv:refpx="604.85" atv:refpy="38.431" fill="#000000" font-family="Arial" font-size="20" font-weight="bold" id="id_0" transform="matrix(1.377,0,0,1.2857,-213.382,-3.9998)" x="570.5" y="37.5">Nombre</text>
+ <text atv:refpx="598.554" atv:refpy="71.146" fill="#000000" font-family="Arial" font-size="22" id="id_4" transform="matrix(1.377,0,0,1.2857,-213.759,-12.979)" x="572" y="69.929">Clave:</text>
+ <rect atv:refpx="1670.521" atv:refpy="170.203" fill="#ffffff" height="338.407" id="id_29" stroke="#000000" stroke-width="2" width="495" x="1423" y="1"/>
+ <text atv:refpx="650.488" atv:refpy="157.572" fill="#000000" font-family="Arial" font-size="14" font-weight="bold" id="id_6" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-215.644,-41.7122)" x="576" y="163">Información de referencia</text>
+ <text atv:refpx="574.058" atv:refpy="217.788" fill="#000000" font-family="Arial" font-size="14" id="id_8" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-215.644,-57.6297)" x="577" y="218.714">Responsable: </text>
+ <text atv:refpx="575.825" atv:refpy="239.788" fill="#000000" font-family="Arial" font-size="14" id="id_5" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-215.644,-63.9151)" x="576.5" y="240.714">Responsable</text>
+ <text atv:refpx="574.872" atv:refpy="265.788" fill="#000000" font-family="Arial" font-size="14" id="id_11" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-214.8653,-71.3433)" x="575.434" y="266.714">Tel: 998 429 0151</text>
+ <svg atv:refpx="1669.759" atv:refpy="167.469" height="600" id="id_12" transform="matrix(0.6125,0,0,0.5417,0,0)" width="800" x="2326.53" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="9.231">
+  <atv:argument name="frameName" value="topo"/>
+ </svg>
+ <svg atv:refpx="1189.013" atv:refpy="197.501" height="228.36" id="id_13" transform="matrix(1.1338,0,0,1.2042,0,0)" width="405.71" x="845.828" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Tabla_Energia" y="49.826">
+  <atv:argument name="base" prefix="base"/>
+ </svg>
+ <svg atv:refpx="162.327" atv:refpy="177.458" height="600" id="id_18" transform="matrix(0.4063,0,0,0.5417,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="20.288">
+  <atv:argument name="frameName" value="entrada"/>
+ </svg>
+ <text atv:refpx="686.81" atv:refpy="71.146" fill="#000000" font-family="Arial" font-size="22" id="id_1" transform="matrix(1.377,0,0,1.2857,-248.066,-12.979)" x="662.5" y="69.929">Clave</text>
+ <text atv:refpx="773.658" atv:refpy="100.716" fill="#000000" font-family="Arial" font-size="22" id="id_15" transform="matrix(1.377,0,0,1.2857,-290.29,-21.4275)" x="775" y="99.5"/>
+ <svg atv:refpx="440.962" atv:refpy="177.426" height="600" id="id_16" transform="matrix(0.2775,0,0,0.5367,0,0)" width="800" x="1189.19" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="23.272">
+  <atv:argument name="frameName" value="tanque"/>
+  <atv:argument name="base" prefix="base"/>
+  <atv:argument name="display" value="ObjectTypes.PROJECT.ElementoLineaAR.Tanque"/>
+ </svg>
+ <svg atv:refpx="442.5" atv:refpy="191.322" height="400" id="id_2" transform="matrix(0.5625,0,0,0.975,0,0)" width="400" x="586.667" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.Advanced.highcharts.highcharts_mod" y="5.128">
+  <atv:argument name="base" prefix="base"/>
+  <atv:argument name="trendName" prefix="base" value=".historic_level_percent"/>
+  <atv:argument name="series1series_address" prefix="base" value=".level_percent"/>
+  <atv:argument name="series1series_name" value="T{Nivel}"/>
+  <atv:argument name="series1series_marker_enabled" value="false"/>
+  <atv:argument name="series1series_color" value="#000000"/>
+  <atv:argument name="yAxis1yAxis_id" value="level"/>
+  <atv:argument name="yAxis1yAxis_title_text" value="Nivel"/>
+  <atv:argument name="yAxis1yAxis_min" value="0"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="12"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="hour(s)"/>
+  <atv:argument name="xAxisxAxis_labels_enabled" value="false"/>
+  <atv:argument name="xAxisxAxis_tickInterval" value="10000000"/>
+  <atv:argument name="series1series_lineWidth" value="3"/>
+  <atv:argument name="series1series_tooltip_valueSuffix" value="%"/>
+  <atv:argument name="series1series_tooltip_valueDecimals" value="0"/>
+  <atv:argument name="zoomType" value="xy axis"/>
+  <atv:argument name="gshowExportMenu" value="false"/>
+  <atv:argument name="yAxis1yAxis_max" value="100"/>
+  <atv:argument name="yAxis1yAxis_visible" value="false"/>
+  <atv:argument name="yAxis1yAxis_labels_enabled" value="false"/>
+  <atv:argument name="xAxisxAxis_lineWidth" value="2"/>
+  <atv:argument name="gatviseOptions_disableDownSampling" value="false"/>
+  <atv:argument name="performance_update_interval" value="3000"/>
+  <atv:overwrite id="highchart_label" transform="matrix(1.7778,0,0,1.0256,0,0)" x="-58" y="206"/>
+  <atv:overwrite height="388" id="border" transform="matrix(1.7778,0,0,1.0256,0,0)" width="223"/>
+  <atv:overwrite height="390" id="id_3" transform="matrix(1.7778,0,0,1.0256,0,0)" width="225"/>
+ </svg>
+ <svg atv:refpx="958.857" atv:refpy="600.476" height="600" id="graphicsgroup" transform="matrix(2.4,0,0,0.925,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="362.162">
+  <atv:argument name="frameName" value="graficos"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="base" prefix="base"/>
+ </svg>
+ <svg atv:refpx="958.859" atv:refpy="509.975" height="600" id="flowmetergroup" transform="matrix(2.4,0,0,0.5833,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="574.319">
+  <atv:argument name="frameName" value="caudalimetros"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+ </svg>
+ <svg atv:refpx="442.442" atv:refpy="173.935" height="600" id="id_14" transform="matrix(0.2813,0,0,0.55,0,0)" width="800" x="1173.335" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="9.091">
+  <atv:argument name="frameName" value="clickarea"/>
+  <atv:argument name="base" prefix="base"/>
+ </svg>
+ <svg atv:refpx="657.434" atv:refpy="310" height="30" id="id_7" transform="matrix(2.1875,0,0,1,0,0)" width="80" x="260.541" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="295">
+  <atv:argument name="label" value="T{Mostrar gráfico}"/>
+  <atv:argument name="fontSize" value="18"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:argument name="fontWeight2" value="bold"/>
+  <atv:overwrite id="id_6" transform="matrix(0.4571,0,0,1,0,0)" width="173"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.4571,0,0,1,0,0)" x="87.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.4571,0,0,1,0,0)" x="88"/>
+  <atv:overwrite id="button_label" transform="matrix(0.4571,0,0,1,0,0)" x="88"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.2743,0,0,0.6,0,0)" x="135.667"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.2743,0,0,0.6,0,0)" x="135.667"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.4571,0,0,1,0,0)" x="77.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.4571,0,0,1,0,0)" width="171"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.4571,0,0,1,0,0)" width="173"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.4571,0,0,1,0,0)" width="175"/>
+ </svg>
+ <svg atv:refpx="837.498" atv:refpy="310" height="30" id="id_10" transform="matrix(2.1875,0,0,1,0,0)" width="80" x="342.857" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="295">
+  <atv:argument name="label" value="T{Recargar página}"/>
+  <atv:argument name="fontSize" value="18"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:argument name="fontWeight2" value="bold"/>
+  <atv:overwrite id="id_6" transform="matrix(0.4571,0,0,1,0,0)" width="173"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.4571,0,0,1,0,0)" x="87.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.4571,0,0,1,0,0)" x="88"/>
+  <atv:overwrite id="button_label" transform="matrix(0.4571,0,0,1,0,0)" x="88"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.2743,0,0,0.6,0,0)" x="135.667"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.2743,0,0,0.6,0,0)" x="135.667"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.4571,0,0,1,0,0)" x="77.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.4571,0,0,1,0,0)" width="171"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.4571,0,0,1,0,0)" width="173"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.4571,0,0,1,0,0)" width="175"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[// === FUNCIONES UTILITARIAS ===
+
+function readAndSetText(id, variablePath) {
+    webMI.data.read(variablePath, function(e) {
+        webMI.gfx.setText(id, e.value);
+    });
+}
+
+function readAndOpenDisplay(variablePath, target = "content") {
+    webMI.data.read(variablePath, function(e) {
+        webMI.display.openDisplay(e.value, webMI.query, target);
+    });
+}
+
+function getMunicipioDesdeRuta(ruta) {
+    const match = ruta.match(/SCADA\.([^.]+)\./);
+    if (match && match[1]) {
+        return match[1].replace(/_/g, " ");
+    }
+    return "Sin municipio";
+}
+
+
+
+
+// === ONLOAD ===
+webMI.addOnload(function() {
+    webMI.display.openDisplay("ObjectTypes.PROJECT.ElementoLineaAR.cliackarea", webMI.query, "clickarea");
+});
+
+// === LECTURAS DE TEXTO ===
+readAndSetText("id_0", webMI.query["base"] + ".name");
+readAndSetText("id_1", webMI.query["base"] + ".sap_name");
+readAndSetText("id_5", webMI.query["base"] + ".Responsable");
+readAndSetText("id_15", webMI.query["base"] + ".cap_util");
+
+// === LECTURAS QUE ABREN DISPLAYS ===
+readAndOpenDisplay(webMI.query["base"] + ".cuenca", "topo");
+readAndOpenDisplay(webMI.query["base"] + ".in_L1", "entrada");
+readAndOpenDisplay(webMI.query["base"] + ".caudalimetros_Display", "caudalimetros");
+
+// === EVENTOS DE USUARIO ===
+
+// === FUNCIÓN UTILITARIA ===
+// Abre una ventana con título dinámico basado en una variable
+function openWindowWithDynamicTitle(id, variablePath, displayPath, titlePrefix = "", windowOptions = {}) {
+    webMI.data.read(variablePath, function(res) {
+        const nombre = res.value || "Sin nombre";
+        const municipio = getMunicipioDesdeRuta(webMI.query["base"]);
+		const titulo = "T{" + titlePrefix + nombre + " - " + municipio + "}"; 
+		      
+        webMI.display.openWindow({
+            display: displayPath,
+            title: titulo,
+            query: webMI.query,
+            ...windowOptions
+        });
+    });
+}
+
+// === EVENTO DE TENDENCIA_AR CON TÍTULO BASADO EN .name ===
+webMI.addEvent("id_7", "click", function(e) {
+    openWindowWithDynamicTitle(
+        "id_7",
+        webMI.query["base"] + ".short_name",
+        "SYSTEM.DISPLAYS.Instalacion.Tendencia_AR",
+        "Tendencia de ",
+        {
+            extern: false,
+            height: 575,
+            menubar: false,
+            modal: false,
+            movable: true,
+            resizable: true,
+            scrollbars: false,
+            status: false,
+            toolbar: false,
+            width: 1920,
+            x: 0,
+            y: 430
+        }
+    );
+});
+
+
+webMI.addEvent("id_10", "click", function() {
+    webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Reservorio_AR", webMI.query, "content");
+});
+]]></script>
+</svg>

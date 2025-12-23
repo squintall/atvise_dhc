@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the alarm comment object display
+ * ----------------------------------------
+ * This script supports the display for entering the shelving time when doing a timed shelve.
+ */
+
+/**
+ * QUICK DYNAMICS
+ */
+const accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+/**
+ * DECLARATION SECTION
+ */
+var action = webMI.query["action"];
+var alarmId = webMI.query["alarmId"] == "undefined" ? "-" : webMI.query["alarmId"];
+var conditionAddress = null;
+if (webMI.query["conditionAddress"]) conditionAddress = JSON.parse(webMI.query["conditionAddress"]);
+var isClicked = false;
+var maxTimeShelved;
+var tableController;
+var tableID = webMI.query["tableID"];
+var time, unit;
+var timeSpanUnits = [
+	{ text: "T{second(s)}", value: "1" },
+	{ text: "T{minute(s)}", value: "60" },
+	{ text: "T{hour(s)}", value: "3600" },
+	{ text: "T{day(s)}", value: "86400" }
+	//{text: "T{week(s)}", value: "604800"},
+	//{text: "T{month(s)}", value: "2592000"}
+];
+var unit = timeSpanUnits[0].value;
+
+/**
+ * UI SETUP SECTION
+ */
+webMI.trigger.fire("setItems", timeSpanUnits, "unit");
+webMI.trigger.fire("setSelectedItem", timeSpanUnits[0].text, "unit");
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.table.waitReady(tableID, "controller", function () {
+	if (typeof conditionAddress == "string") getMaxTimeShelved(conditionAddress);
+
+	var alarmid_text, condition_address_text;
+	if (typeof conditionAddress == "string") {
+		alarmid_text = alarmId;
+		condition_address_text = conditionAddress.replace(/AGENT.OBJECTS./g, "");
+	} else {
+		alarmid_text = "T{multiple selection}";
+		condition_address_text = "T{multiple selection}";
+	}
+
+	webMI.gfx.setFill("background", webMI.query["bgColor"]);
+	webMI.gfx.setFill("alarm_id_label", webMI.query["fontColor"]);
+	webMI.gfx.setFill("alarm_id", webMI.query["fontColor"]);
+	webMI.gfx.setFill("condition_address_label", webMI.query["fontColor"]);
+	webMI.gfx.setFill("condition_address", webMI.query["fontColor"]);
+	webMI.gfx.setFill("time_label", webMI.query["fontColor"]);
+	webMI.gfx.setText("alarm_id", alarmid_text);
+	webMI.gfx.setText("condition_address", condition_address_text);
+	webMI.gfx.setText("shelve_button", webMI.query["action"]);
+
+	tableController = webMI.table.request(tableID, "controller");
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			webMI.gfx.setVisible("error", false);
+			webMI.gfx.setVisible("message", false);
+			time = e.value;
+		},
+		"time"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			webMI.gfx.setVisible("error", false);
+			webMI.gfx.setVisible("message", false);
+			unit = e.value;
+		},
+		"unit"
+	);
+
+	webMI.trigger.connect(
+		"clicked",
+		function (e) {
+			if (isClicked == false) {
+				isClicked = true;
+				onShelveButtonClicked();
+			} else {
+				isClicked = false;
+			}
+		},
+		"shelve_button"
+	);
+
+	webMI.addEvent("shelve_button", "click", function (e) {
+		if (isClicked == false) {
+			isClicked = true;
+			onShelveButtonClicked();
+		} else {
+			isClicked = false;
+		}
+	});
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+function showInfoDialog(headline, message) {
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+		height: 160,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: headline,
+			message: message,
+			button: "T{OK}"
+		}
+	});
+}
+
+/**
+ * onShelveButtonClicked
+ */
+function onShelveButtonClicked() {
+	if (isNaN(time)) {
+		webMI.gfx.setVisible("error", true);
+		webMI.gfx.setVisible("message", true);
+		webMI.gfx.setText("message", "T{Entered value is not a number}.");
+	} else if (typeof conditionAddress == "string" && time * unit * 1000 > maxTimeShelved) {
+		webMI.gfx.setVisible("error", true);
+		webMI.gfx.setVisible("message", true);
+
+		var unitname = "";
+		for (var i = 0; i < timeSpanUnits.length; i++) {
+			if (timeSpanUnits[i].value == unit) unitname = timeSpanUnits[i].text;
+		}
+
+		var text = (maxTimeShelved / 1000 / parseInt(unit)).toFixed(3) + " " + unitname;
+		webMI.gfx.setText("message", "T{Max. time is} " + text);
+	} else {
+		var time_ms = time * unit * 1000;
+		Timeshelve(conditionAddress, alarmId, time_ms);
+	}
+}
+
+/**
+ * Timeshelve
+ * @param conditionAddress
+ * @param alarmId
+ * @param time
+ * @constructor
+ */
+function Timeshelve(conditionAddress, alarmId, time) {
+	if (time == "") time = 0;
+	if (typeof conditionAddress == "string") {
+		webMI.data.call("AlarmShelve", { address: formatAddress(conditionAddress), time: time }, function (e) {
+			if (typeof e.result[0].errorstring != "undefined") {
+				tableController.setMessage(
+					"T{Error}: " + e.result[0].errorstring + " [T{Timed Shelve}: " + conditionAddress + "]"
+				);
+			}
+		});
+	} else {
+		var buffer = [];
+		var AdressesAndIds = conditionAddress;
+		for (var i = 0; i < AdressesAndIds.length; i++) {
+			buffer.push(AdressesAndIds[i]);
+			webMI.data.call(
+				"AlarmShelve",
+				{
+					address: formatAddress(AdressesAndIds[i].address),
+					time: time
+				},
+				function (e) {
+					if (typeof e.result[0].errorstring != "undefined") {
+						tableController.setMessage(
+							"T{Error}: " + e.result[0].errorstring + " [T{Timed Shelve}: " + AdressesAndIds[i].address + "]"
+						);
+						buffer.shift();
+					}
+				}
+			);
+		}
+	}
+	setTimeout(function () {
+		webMI.display.closeWindow();
+	}, 50);
+}
+
+/**
+ * Format address
+ * @param address
+ * @returns {*}
+ */
+function formatAddress(address) {
+	if (webMI.getMethodSupport().indexOf("AlarmAcknowledge") == -1 && address != undefined && address.indexOf("/") > -1)
+		address = "./" + address;
+	return address;
+}
+
+/**
+ *
+ * @param item
+ * @returns {boolean|*}
+ */
+function atviseVersion3(item) {
+	if (webMI.getMethodSupport().indexOf("AlarmConditions") != -1) {
+		isAtviseVersion3 = true;
+	} else {
+		isAtviseVersion3 = typeof item.ParentId !== "undefined";
+	}
+	return isAtviseVersion3;
+}
+
+/**
+ * removing alarm items
+ * @param item
+ */
+function removeAlarmItem(item) {
+	var isAtviseVersion3 = atviseVersion3(item);
+
+	if (isAtviseVersion3) {
+		if (typeof item.AlarmId != "undefined") {
+			var elementsHavingAddress = tableController.search("address", item.address, true);
+			for (var i = 0; i < elementsHavingAddress.length; i++) {
+				var hasAlarmId = typeof elementsHavingAddress[i].AlarmId != "undefined";
+				var hasParentId = typeof elementsHavingAddress[i].ParentId != "undefined";
+				var hasChild = typeof elementsHavingAddress[i].child != "undefined";
+				if (
+					!(
+						hasAlarmId &&
+						((hasParentId && elementsHavingAddress[i].ParentId == item.AlarmId) ||
+							(hasChild && elementsHavingAddress[i].child.AlarmId == item.AlarmId))
+					)
+				) {
+					tableController.delete("id", elementsHavingAddress[i].id, true);
+				}
+			}
+		} else {
+			tableController.delete("address", item.address, true);
+		}
+	}
+}
+
+/**
+ *
+ * @param ConditionAddress
+ * @returns {*}
+ */
+function getMaxTimeShelved(ConditionAddress) {
+	accessControlManager.getRights(["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmConfiguration"], ["execute"], (response) => {
+		if (response.result[0].value === true) {
+			webMI.data.call("AlarmConfiguration", { address: ConditionAddress }, function (e) {
+				maxTimeShelved = e.result[0].maxTimeShelved;
+			});
+		} else {
+			showInfoDialog("T{Permission missing}", "");
+		}
+	});
+}
+]]></code>
+</script>

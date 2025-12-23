@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.WEBACCESS.https1.auth_login_script
+NodeClass: Variable
+BrowseName: 1:auth_login_script
+DisplayName: en|auth_login_script
+Description: en|auth_login_script
+DataType: NodeId
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

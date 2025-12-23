@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmConfirm
+NodeClass: Variable
+BrowseName: 1:AlarmConfirm
+DisplayName: en|AlarmConfirm
+Description: en|AlarmConfirm
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

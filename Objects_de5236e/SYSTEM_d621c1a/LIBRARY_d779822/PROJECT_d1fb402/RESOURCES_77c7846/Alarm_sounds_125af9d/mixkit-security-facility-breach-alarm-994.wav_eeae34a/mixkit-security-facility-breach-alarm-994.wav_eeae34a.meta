@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/Alarm_sounds/mixkit-security-facility-breach-alarm-994.wav
+NodeClass: Variable
+BrowseName: 1:mixkit-security-facility-breach-alarm-994.wav
+DisplayName: en|mixkit-security-facility-breach-alarm-994.wav
+Description: en|mixkit-security-facility-breach-alarm-994.wav
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Wave

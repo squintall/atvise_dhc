@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEsWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS41LjAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iCiAgICB4bWxuczpleGlmPSJodHRwOi8vbnMuYWRvYmUuY29tL2V4aWYvMS4wLyIKICAgIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIKICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIgogICAgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIKICAgdGlmZjpJbWFnZUxlbmd0aD0iMzIiCiAgIHRpZmY6SW1hZ2VXaWR0aD0iMzIiCiAgIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiCiAgIHRpZmY6WFJlc29sdXRpb249IjcyLzEiCiAgIHRpZmY6WVJlc29sdXRpb249IjcyLzEiCiAgIGV4aWY6UGl4ZWxYRGltZW5zaW9uPSIzMiIKICAgZXhpZjpQaXhlbFlEaW1lbnNpb249IjMyIgogICBleGlmOkNvbG9yU3BhY2U9IjEiCiAgIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiCiAgIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIKICAgeG1wOk1vZGlmeURhdGU9IjIwMjMtMTEt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</icon>
+    <visible>1</visible>
+    <title>Time Formats</title>
+    <description>Functions for decomposition of a timestamp into its temporal components.</description>
+  </metadata>
+  <code><![CDATA[/**
+ * This Quick Dynamic offers timestamp decomposition functions, for example to display the time remaining until an event occurs in a readable manner.
+ *
+ */
+
+var TimeFormatQD = new (function () {
+	const dayInMilliseconds = 24 * 60 * 60 * 1000;
+
+	/**
+	 * Split timestamps into an object of temporal components
+	 * @param offset in ms
+	 * @param weeks
+	 * @returns {object}
+	 */
+	this.splitTime = function (offset, weeks) {
+		weeks = weeks ? weeks : false;
+
+		let filter = weeks ? "YYMMWWDDhhmmss" : "YYMMDDhhmmss";
+		let mapping = splitCalculation(offset, { filter: filter });
+		let result = { time: 0 };
+
+		for (var map in mapping) {
+			if (map != "WW" || (map == "WW" && weeks)) {
+				result[mapping[map].parse] = mapping[map].value;
+				result["time"] = offset;
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Split timestamps into a string of temporal components
+	 * @param offset in ms
+	 * @param Object options:
+	 * @param options.filter, containing string declaring components to return (must be part of "YYYYMMDDhhmmss")
+	 * @param options.limit, number of time components to return
+	 * @param options.format, object with custom time labels
+	 *                       "YY": "my year label",
+	 *                       "MM": "my month label",
+	 *                       "WW": "my week label",
+	 *                       "DD": "my day label",
+	 *                       "hh": "my hour label",
+	 *                       "mm": "my minute label",
+	 *                       "ss": "my second label"
+	 * @returns {string}
+	 */
+	this.splitTimeToString = function (offset, options) {
+		let filter = false;
+		let limit = false;
+
+		if (typeof options === "object") {
+			filter = Object.hasOwn(options, "filter") ? options.filter : false;
+			limit = Object.hasOwn(options, "limit") ? options.limit : false;
+		}
+
+		let mapping = splitCalculation(offset, options);
+		let parts = {};
+
+		for (var map in mapping) {
+			if (!filter || filter.indexOf(map) > -1) {
+				if (limit === false || (limit > 0 && mapping[map].value > 0)) {
+					parts[mapping[map].parse] = mapping[map].value + mapping[map].text;
+					limit = limit === false ? false : limit - 1;
+				}
+			}
+		}
+
+		let result = "";
+		for (var key in parts) result = result + (result ? " " : "") + parts[key];
+
+		return result;
+	};
+
+	/**
+	 * Calculates the temporal components of a timestamp
+	 * @param offset in ms
+	 * @param Object options:
+	 * @param options.filter, containing string declaring components to return (must be part of "YYYYMMDDhhmmss")
+	 * @param options.limit, number of time components to return
+	 * @param options.format, object with custom time labels
+	 *                       "YY": "my year label",
+	 *                       "MM": "my month label",
+	 *                       "WW": "my week label",
+	 *                       "DD": "my day label",
+	 *                       "hh": "my hour label",
+	 *                       "mm": "my minute label",
+	 *                       "ss": "my second label"
+	 * @returns {object}
+	 */
+	var splitCalculation = function (offset, options) {
+		let filter = false;
+		let defaultFilter = "YYMMDDhhmmss";
+		let format = {};
+
+		if (typeof options === "object") {
+			filter = Object.hasOwn(options, "filter") ? options.filter : false;
+			format = Object.hasOwn(options, "format") ? options.format : {};
+		}
+
+		/* get offset to 01.01.1970 */
+		let date = new Date(offset);
+		let refd = new Date(0);
+
+		/* get all time components */
+		let YY = date.getFullYear() - refd.getFullYear();
+		let MM = date.getMonth();
+		let WW = Math.floor((date.getDate() - 1) / 7);
+		let DD = date.getDate() - 1;
+		let hh = date.getHours() - 1;
+		let mm = date.getMinutes();
+		let ss = date.getSeconds();
+
+		/* eval filter settings */
+		if (!filter) filter = defaultFilter;
+
+		if (filter.indexOf("YY") == -1) {
+			MM = MM + YY * 12;
+			YY = 0;
+		}
+
+		if (filter.indexOf("YY") == -1 && filter.indexOf("MM") == -1) {
+			DD = Math.floor(offset / dayInMilliseconds);
+			MM = 0;
+		} else if (filter.indexOf("MM") == -1) {
+			DD = Math.floor(offset / dayInMilliseconds) - YY * 365;
+			MM = 0;
+		}
+
+		if (filter.indexOf("WW") != -1) {
+			WW = Math.floor(DD / 7);
+			DD = DD - WW * 7;
+		}
+
+		if (filter.indexOf("DD") == -1 && filter.indexOf("WW") == -1) {
+			hh = hh + DD * 24;
+			DD = 0;
+		} else if (filter.indexOf("DD") == -1) {
+			hh = hh + DD * 24;
+			DD = 0;
+		}
+
+		if (filter.indexOf("hh") == -1) {
+			mm = mm + hh * 60;
+			hh = 0;
+		}
+
+		if (filter.indexOf("mm") == -1) {
+			ss = ss + mm * 60;
+			mm = 0;
+		}
+
+		/* create mapping */
+		let mapping = {
+			YY: {
+				parse: "year",
+				text: " " + (Object.hasOwn(format, "YY") ? format.YY : "T{year(s)}"),
+				value: YY
+			},
+			MM: {
+				parse: "month",
+				text: " " + (Object.hasOwn(format, "MM") ? format.MM : "T{month(s)}"),
+				value: MM
+			},
+			WW: {
+				parse: "week",
+				text: " " + (Object.hasOwn(format, "WW") ? format.WW : "T{week(s)}"),
+				value: WW
+			},
+			DD: {
+				parse: "day",
+				text: " " + (Object.hasOwn(format, "DD") ? format.DD : "T{day(s)}"),
+				value: DD
+			},
+			hh: {
+				parse: "hour",
+				text: " " + (Object.hasOwn(format, "hh") ? format.hh : "T{hour(s)}"),
+				value: hh
+			},
+			mm: {
+				parse: "minute",
+				text: " " + (Object.hasOwn(format, "mm") ? format.mm : "T{minute(s)}"),
+				value: mm
+			},
+			ss: {
+				parse: "second",
+				text: " " + (Object.hasOwn(format, "ss") ? format.ss : "T{second(s)}"),
+				value: ss
+			}
+		};
+
+		return mapping;
+	};
+})();
+
+return TimeFormatQD;
+]]></code>
+</script>

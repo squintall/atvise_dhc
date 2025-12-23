@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.PTAR.AR_SOL_PLA_SAASTUN_HA.Caudalimetros.Pozo_4.Presion_Deseada_2
+NodeClass: Variable
+BrowseName: 1:Presion_Deseada_2
+DisplayName: en|Presion_Deseada_2
+Description: en|Presion_Deseada_2
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

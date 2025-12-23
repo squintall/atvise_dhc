@@ -1,0 +1,252 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="325" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <clipPath clipPathUnits="userSpaceOnUse" id="cp_entrada">
+   <rect height="155" width="396" x="28" y="142"/>
+  </clipPath>
+  <clipPath clipPathUnits="userSpaceOnUse" id="cp_tanque">
+   <rect height="240" width="240" x="468" y="54"/>
+  </clipPath>
+  <clipPath clipPathUnits="userSpaceOnUse" id="cp_trend">
+   <rect height="268" width="220" x="716" y="36"/>
+  </clipPath>
+  <clipPath clipPathUnits="userSpaceOnUse" id="cp_energy">
+   <rect height="117" width="416" x="980" y="180"/>
+  </clipPath>
+  <clipPath clipPathUnits="userSpaceOnUse" id="cp_nav">
+   <rect height="215" width="452" x="1440" y="82"/>
+  </clipPath>
+  <style type="text/css"><![CDATA[
+      .card{fill:#f8fafc;stroke:#e3e8ef}
+      .lbl{fill:#667;font-family:Arial;font-size:14px}
+      .slot{fill:none;stroke:#cbd5e1;stroke-dasharray:5 4}
+      .t1{fill:#111;font-family:Arial;font-size:20px;font-weight:bold}
+      .t2{fill:#666;font-family:Arial;font-size:13px}
+      .t3{fill:#333;font-family:Arial;font-size:13px}
+    ]]></style>
+ </defs>
+ <!-- ===== Defs: recortes por slot ===== -->
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <!-- Aportantes -->
+ <rect atv:refpx="226" atv:refpy="162.5" fill="#f8fafc" height="293" id="id_0" rx="12" ry="12" stroke="#e3e8ef" width="420" x="16" y="16"/>
+ <text atv:refpx="88" atv:refpy="37.5" class="lbl" id="id_1" x="32" y="42">Aportantes al tanque</text>
+ <!-- FO: selector + chips -->
+ <foreignObject height="84" id="ps_sel_fo" width="396" x="28" y="50">
+  <div style="font-family:Arial; font-size:12px; color:#111; width:100%; height:100%; overflow:hidden;" xmlns="http://www.w3.org/1999/xhtml">
+   <div style="display:flex; gap:6px; align-items:center;">
+    <select id="ps_sel_dd" style="flex:1; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px;"/>
+    <button id="ps_add" style="padding:6px 10px; border:1px solid #94a3b8; background:#e5e7eb; border-radius:6px; cursor:pointer;" type="button">
+          Aí±adir
+        </button>
+   </div>
+   <div id="ps_chips" style="margin-top:6px; max-height:40px; overflow:auto; border:1px dashed #e5e7eb; padding:4px; border-radius:6px;"/>
+  </div>
+ </foreignObject>
+ <!-- Botón Flechas removido: vista única de topografía -->
+ <!-- Slot: entrada (para tu display de caudalí­metros) -->
+ <!-- Slot entrada -->
+ <rect atv:refpx="226" atv:refpy="219.5" fill="none" height="155" id="id_2" stroke="#cbd5e1" stroke-dasharray="5 4" width="396" x="28" y="142"/>
+ <g atv:refpx="-186.865" atv:refpy="70.657" id="slot_entrada">
+  <g atv:refpx="-186.865" atv:refpy="70.657" id="id_15" transform="translate(28,142)">
+   <!-- pega aquí­ dentro tu <svg ...iframe...> y heredará la matrix -->
+   <g atv:refpx="-214.865" atv:refpy="-71.343" clip-path="url(#cp_entrada)" id="slot_entrada_content" transform="matrix(1.377,0,0,1.2857,-214.8651,-71.3433)"/>
+  </g>
+  <!-- Slot entrada -->
+  <rect atv:refpx="226" atv:refpy="219.5" fill="none" height="155" id="id_5" stroke="#cbd5e1" stroke-dasharray="5 4" width="396" x="28" y="142"/>
+ </g>
+ <!-- ===== Card: Tanque + Trend ===== -->
+ <!-- Tanque -->
+ <rect atv:refpx="702" atv:refpy="162.5" fill="#f8fafc" height="293" id="id_21" rx="12" ry="12" stroke="#e3e8ef" width="500" x="452" y="16"/>
+ <text atv:refpx="488" atv:refpy="37.5" class="lbl" id="id_4" x="468" y="42">Tanque</text>
+ <!-- Slot tanque -->
+ <rect atv:refpx="588" atv:refpy="174" fill="none" height="240" id="id_6" stroke="#cbd5e1" stroke-dasharray="5 4" width="240" x="468" y="54"/>
+ <!-- Slot conectividad -->
+ <rect atv:refpx="826" atv:refpy="170" fill="none" height="268" id="id_22" stroke="#cbd5e1" stroke-dasharray="5 4" width="220" x="716" y="36"/>
+ <!-- ===== Card: Info + acciones ===== -->
+ <rect atv:refpx="1188" atv:refpy="76.23" fill="#f8fafc" height="120.459" id="id_7" rx="12" ry="10.325" stroke="#e3e8ef" width="440" x="968" y="16"/>
+ <text atv:refpx="1053.5" atv:refpy="37.5" class="lbl" id="id_8" x="984" y="42">Información de referencia</text>
+ <text atv:refpx="990" atv:refpy="65.5" class="t1" id="hdr_name" x="984" y="70">-</text>
+ <text atv:refpx="990" atv:refpy="85.5" class="t2" id="hdr_key" x="984" y="90">-</text>
+ <text atv:refpx="990" atv:refpy="107.5" class="t3" id="hdr_resp" x="984" y="112">-</text>
+ <!-- FO Botones (los enlazas luego en JS) -->
+ <foreignObject height="30" id="id_9" width="224" x="1173" y="89">
+  <div style="display:flex; gap:8px;" xmlns="http://www.w3.org/1999/xhtml">
+   <button id="btn_graph" style="padding:6px 10px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer;" type="button">
+        Mostrar gráfico
+      </button>
+   <button id="btn_reload" style="padding:6px 10px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer;" type="button">
+        Recargar
+      </button>
+  </div>
+ </foreignObject>
+ <!-- FO: Conectividad (reusa el slot "tendencia") -->
+ <foreignObject height="268.047" id="id_3" width="218.048" x="716.643" y="35.415">
+  <div style="font-family:Arial; font-size:12px; color:#111; width:100%; height:100%;&#xa;            box-sizing:border-box; padding:8px; border:5px solid #e2e8f0; border-radius:8px; background:#fff;" xmlns="http://www.w3.org/1999/xhtml" id="conn_box">
+   <!-- Header -->
+   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+    <span class="lbl" style="color:#475569;">Conectividad</span>
+    <span id="conn_since" style="font-size:13px; color:#64748b;">-</span>
+   </div>
+   <!-- Pills (alimentación + LR/MA/Mtto) -->
+   <div style="display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px;">
+    <span style="display:inline-block; padding:2px 8px; border:1px solid #cbd5e1;&#xa;          border-radius:9999px; font-size:11px; line-height:1; background:#fff; color:#111;" id="chip_power">
+      CFE
+    </span>
+   </div>
+   <!-- Estado en texto (quedó como encabezado de situación) -->
+   <div id="conn_state" style="margin-bottom:8px; font-weight:bold;">-</div>
+   <!-- Datos clave -->
+   <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+    <div>
+     <div class="t2" style="color:#64748b;">IP</div>
+     <div class="t3" id="conn_ip">-</div>
+    </div>
+    <div>
+     <div class="t2" style="color:#64748b;">Calidad OPC</div>
+     <div class="t3" id="conn_quality">-</div>
+    </div>
+    <div>
+     <div class="t2" style="color:#64748b;">Valor</div>
+     <div class="t3" id="conn_value">-</div>
+    </div>
+    <div>
+     <div class="t2" style="color:#64748b;">Código</div>
+     <div class="t3" id="conn_code">-</div>
+    </div>
+   </div>
+   <!-- Hint / mensaje -->
+   <div id="conn_hint" style="margin-top:10px; font-size:11px; color:#64748b;">-</div>
+  </div>
+ </foreignObject>
+ <!-- ===== Card: Energí­a ===== -->
+ <!-- Energí­a -->
+ <rect atv:refpx="1188" atv:refpy="230.062" fill="#f8fafc" height="157.876" id="id_10" rx="12" ry="13.436" stroke="#e3e8ef" width="440" x="968" y="151.124"/>
+ <!-- Slot energí­a -->
+ <rect atv:refpx="1188" atv:refpy="238.5" fill="none" height="128" id="id_11" stroke="#cbd5e1" stroke-dasharray="5 4" width="416" x="980" y="165"/>
+ <g atv:refpx="765.135" atv:refpy="108.657" id="slot_energy">
+  <g atv:refpx="765.135" atv:refpy="108.657" id="id_18" transform="translate(980,180)">
+   <g atv:refpx="-214.865" atv:refpy="-71.343" clip-path="url(#cp_energy)" id="slot_energy_content" transform="matrix(1.377,0,0,1.2857,-214.8651,-71.3433)"/>
+  </g>
+ </g>
+ <!-- Navegación -->
+ <rect atv:refpx="1664" atv:refpy="162.5" fill="#f8fafc" height="293" id="id_12" rx="12" ry="12" stroke="#e3e8ef" width="480" x="1424" y="16"/>
+ <text atv:refpx="1503" atv:refpy="37.5" class="lbl" id="id_13" x="1440" y="42">Navegación del circuito</text>
+ <!-- FO Toggle Topologí­a/Mapa (XHTML válido) -->
+ <foreignObject height="28" id="nav_toggle_fo" width="300" x="1440" y="50">
+  <div style="font-family:Arial; font-size:12px; color:#111;" xmlns="http://www.w3.org/1999/xhtml">
+   <label style="margin-right:12px;">
+    <input checked="checked" name="navmode" type="radio" value="topo"/>
+    <span>Topologí­a</span>
+   </label>
+   <label style="margin-left:8px;">
+    <input name="navmode" type="radio" value="mapa"/>
+    <span>Mapa</span>
+   </label>
+  </div>
+ </foreignObject>
+ <!-- Slots: topo/mapa -->
+ <!-- Slot navegación -->
+ <rect atv:refpx="1666" atv:refpy="189.5" fill="none" height="215" id="id_14" stroke="#cbd5e1" stroke-dasharray="5 4" width="452" x="1440" y="82"/>
+ <!-- ===== Script: chips + toggle + textos básicos (sin iframes) ===== -->
+ <g atv:refpx="1225.135" atv:refpy="10.657" id="slot_nav" transform="matrix(1,0,0,1,491.275,22.9643)">
+  <g atv:refpx="1225.135" atv:refpy="10.657" id="id_19" transform="translate(1440,82)">
+   <g atv:refpx="-214.865" atv:refpy="-71.343" clip-path="url(#cp_nav)" id="slot_topo" transform="matrix(1.377,0,0,1.2857,-214.8651,-71.3433)"/>
+   <g atv:refpx="-214.865" atv:refpy="-71.343" clip-path="url(#cp_nav)" id="slot_mapa" transform="matrix(1.377,0,0,1.2857,-214.8651,-71.3433)" visibility="hidden"/>
+  </g>
+ </g>
+ <!-- === Tanque: historico + nivel actual (sin iframes) === -->
+ <foreignObject height="240" id="fo_tanque" width="240" x="468" y="54">
+  <div style="font-family:Arial; color:#111; width:100%; height:100%; box-sizing:border-box;" xmlns="http://www.w3.org/1999/xhtml">
+   <div style="position:relative; width:100%; height:100%; border:1px solid #cfd4dc; border-radius:10px; box-sizing:border-box; background:#f8fafc; overflow:hidden;">
+    <!-- agua -->
+    <div id="tk_fill" style="position:absolute; left:0; right:0; bottom:0; height:0; transition:height .6s ease; box-sizing:border-box; border-top-left-radius:15px; border-top-right-radius:15px;"/>
+    <!-- sparkline SVG atras del agua -->
+    <svg height="100%" id="tk_svg" preserveAspectRatio="none" style="position:absolute; inset:0; z-index:0; background:#ffffff; box-sizing:border-box;" viewBox="0 0 240 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+     <line stroke="#e5e7eb" x1="0" x2="240" y1="240" y2="240"/>
+     <path d="" fill="#33a3ff18" id="tk_area" stroke="none"/>
+     <path d="" fill="none" id="tk_line" stroke="#1976d2" stroke-width="2"/>
+     <circle cx="-10" cy="-10" fill="#1976d2" id="tk_dot" r="3"/>
+    </svg>
+    <!-- overlay info -->
+    <div style="position:absolute; inset:8px; display:flex; flex-direction:column; justify-content:space-between; z-index:3; pointer-events:none;">
+     <div style="display:flex; justify-content:flex-end;">
+      <div id="tk_pct" style="font-size:26px; font-weight:bold; background:#ffffffcc; padding:2px 6px; border:1px solid #e5e7eb; border-radius:6px;">--%</div>
+     </div>
+     <div style="display:flex; gap:8px; background:#ffffffcc; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; align-self:flex-start;">
+      <div style="font-size:12px;">Now: <span id="tk_now">-- %</span>
+      </div>
+      <div style="font-size:12px;">Min: <span id="tk_minv">-- %</span>
+      </div>
+      <div style="font-size:12px;">Max: <span id="tk_maxv">-- %</span>
+      </div>
+      <div style="font-size:12px;">Pts: <span id="tk_cnt">0</span>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </foreignObject>
+ <foreignObject height="130.613" id="id_16" width="415.958" x="979.964" y="166.74">
+  <div style="font-family:Arial; font-size:13px; color:#111; width:100%; height:100%;&#xa;            box-sizing:border-box; padding:8px; display:flex; flex-direction:column; gap:6px;" xmlns="http://www.w3.org/1999/xhtml">
+   <!-- Voltajes (3 columnas) -->
+   <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+     <span style="font-weight:700; color:#dc2626;">V L1-L2</span>
+     <span id="en_v12" style="text-align:right; font-variant-numeric:tabular-nums; min-width:3.6em; font-size:19px; font-weight:700;">-</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+     <span style="font-weight:700; color:#f59e0b;">V L2-L3</span>
+     <span id="en_v23" style="text-align:right; font-variant-numeric:tabular-nums; min-width:3.6em; font-size:19px; font-weight:700;">-</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+     <span style="font-weight:700; color:#0284c7;">V L3-L1</span>
+     <span id="en_v31" style="text-align:right; font-variant-numeric:tabular-nums; min-width:3.6em; font-size:19px; font-weight:700;">-</span>
+    </div>
+   </div>
+   <!-- Corrientes (3 columnas) -->
+   <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+     <span style="font-weight:700;">I L1</span>
+     <span id="en_i1" style="text-align:right; font-variant-numeric:tabular-nums; min-width:3.6em; font-size:17px; font-weight:600;">-</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+     <span style="font-weight:700;">I L2</span>
+     <span id="en_i2" style="text-align:right; font-variant-numeric:tabular-nums; min-width:3.6em; font-size:17px; font-weight:600;">-</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+     <span style="font-weight:700;">I L3</span>
+     <span id="en_i3" style="text-align:right; font-variant-numeric:tabular-nums; min-width:3.6em; font-size:17px; font-weight:600;">-</span>
+    </div>
+   </div>
+   <!-- Potencia y FP (2 columnas) -->
+   <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+     <span style="font-weight:700;">P Act</span>
+     <span id="en_p" style="font-size:15px; text-align:right; font-variant-numeric:tabular-nums; min-width:4.2em; font-weight:700;">-</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+     <span style="font-weight:700;">FP</span>
+     <span id="en_fp" style="font-size:15px; text-align:right; font-variant-numeric:tabular-nums; min-width:3.2em; font-weight:700;">-</span>
+    </div>
+   </div>
+   <!-- Botones -->
+   <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
+    <button id="btn_e_v" style="padding:3px 8px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer; font-size:12px;" type="button">Voltaje</button>
+    <button id="btn_e_i" style="padding:3px 8px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer; font-size:12px;" type="button">Corriente</button>
+    <button id="btn_e_p" style="padding:3px 8px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer; font-size:12px;" type="button">Potencia</button>
+    <button id="btn_e_fp" style="padding:3px 8px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer; font-size:12px;" type="button">FP</button>
+   </div>
+  </div>
+ </foreignObject>
+ <foreignObject height="215.262" id="nav_topo_fo" width="450.983" x="1440.123" y="81.835">
+  <div id="topo_root" style="width:100%;height:100%; position:relative; overflow:hidden;" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.header_instalacion.headerHandler" atv:name="headerHandler" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.header_instalacion.headerTrendHandler" atv:name="headerTrendHandler" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.header_instalacion.headerTopographyCore" atv:name="headerTopographyCore" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.header_instalacion.headerTopographyHandler" atv:name="headerTopographyHandler" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

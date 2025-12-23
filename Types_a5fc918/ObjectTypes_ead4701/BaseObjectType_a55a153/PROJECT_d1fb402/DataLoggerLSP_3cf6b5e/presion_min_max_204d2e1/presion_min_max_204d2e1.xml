@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="t" type="timer" trigger="true" relative="false" value="" starttime="00:00:00" repeat="00:00:00"/>
+  <code><![CDATA[var max = Ua.findNode(base + ".PresionMaxima");
+var min = Ua.findNode(base + ".PresionMinima");
+
+//map.result.value = estado.result.status;
+
+
+max.result.value = max.result.value;
+min.result.value = min.result.value;]]></code>
+</script>

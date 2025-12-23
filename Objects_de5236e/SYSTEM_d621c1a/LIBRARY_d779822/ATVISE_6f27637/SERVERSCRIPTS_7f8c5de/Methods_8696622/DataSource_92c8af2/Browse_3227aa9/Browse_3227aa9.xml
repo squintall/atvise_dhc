@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="datasource" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="address" type="stringarray" trigger="false" relative="false" value=""/>
+  <parameter name="continuationpoint" type="stringarray" trigger="false" relative="false" value=""/>
+  <parameter name="continuation" type="undefined" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/*
+atvise server wrapper for UA method "AGENT.MIRROR.METHODS.browse"
+This script is a standard atvise resource and must not be modified.
+For a description including an example see the atvise documentation.
+*/
+
+var cpResult = "continuationpoint";
+
+if (continuation && !continuationpoint) {
+	// compatibility with atvise older than v3.3.0
+	continuationpoint = continuation;
+	cpResult = "continuation";
+}
+
+if (continuationpoint === null || continuationpoint === undefined) continuationpoint = [];
+
+var browseMethod = Ua.findNode("AGENT.MIRROR.METHODS.browse").result;
+var response = browseMethod.call({
+	object: "AGENT.MIRROR.METHODS",
+	input: [
+		{ type: Ua.DataType.STRING, value: datasource },
+		{ type: Ua.DataType.STRING, value: address },
+		{ type: Ua.DataType.BYTESTRING, value: continuationpoint }
+	]
+});
+
+var result = {};
+
+if (response.error) {
+	result.error = response.error;
+	result.errorstring = Ua.Status(result.error).toString();
+
+	if (response.argumentError) {
+		var parameterNames = ["datasource", "address", "continuationpoint"];
+
+		for (var i = 0; i < response.argumentError.length; ++i)
+			if (response.argumentError[i])
+				result.errorstring += ", " + parameterNames[i] + ":" + Ua.Status(response.argumentError[i]).toString();
+	}
+} else if (response.result.length < 9) {
+	result.error = Ua.Status.BADUNEXPECTEDERROR;
+	result.errorstring = Ua.Status(result.error).toString();
+	result.errorstring += ", result.length < 9";
+} else if (response.result[0].length != address.length) {
+	result.error = Ua.Status.BADUNEXPECTEDERROR;
+	result.errorstring = Ua.Status(result.error).toString();
+	result.errorstring += ", InputArrayLength != ResultArrayLength";
+} else {
+	result.result = [];
+	result[cpResult] = response.result[6];
+
+	var browsedItemCount = response.result[0];
+	var i = 0;
+
+	for (var count = 0; count < browsedItemCount.length; ++count) {
+		result.result[count] = [];
+
+		for (var itemCount = 0; itemCount < browsedItemCount[count]; ++itemCount, ++i) {
+			result.result[count][itemCount] = {};
+			result.result[count][itemCount]["displayname"] = response.result[1][i];
+			result.result[count][itemCount]["browsename"] = response.result[2][i];
+			result.result[count][itemCount]["address"] = response.result[3][i];
+			result.result[count][itemCount]["datatype"] = response.result[4][i];
+			result.result[count][itemCount]["valuerank"] = response.result[5][i];
+			result.result[count][itemCount]["class"] = response.result[7][i];
+			result.result[count][itemCount]["type"] = response.result[8][i];
+		}
+	}
+}
+
+return result;
+]]></code>
+</script>

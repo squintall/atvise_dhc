@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Landscape.00_Menu_Carcamos_AP_PM
+NodeClass: Variable
+BrowseName: 1:00_Menu_Carcamos_AP_PM
+DisplayName: en|00_Menu_Carcamos_AP_PM
+Description: en|00_Menu_Carcamos_AP_PM
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Circuito.Reservorio_AR
+NodeClass: Variable
+BrowseName: 1:Reservorio_AR
+DisplayName: en|Reservorio_AR
+Description: en|Reservorio_AR
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

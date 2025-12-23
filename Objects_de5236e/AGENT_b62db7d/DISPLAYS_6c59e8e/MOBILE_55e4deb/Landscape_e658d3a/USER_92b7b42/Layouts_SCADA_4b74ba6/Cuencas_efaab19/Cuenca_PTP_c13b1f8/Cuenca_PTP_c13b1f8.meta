@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Landscape.USER.Layouts_SCADA.Cuencas.Cuenca_PTP
+NodeClass: Variable
+BrowseName: 1:Cuenca_PTP
+DisplayName: en|Cuenca_PTP
+Description: en|Cuenca_PTP
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

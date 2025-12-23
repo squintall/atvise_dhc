@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA.Circuitos.Alarmas.alarmlist_log_AP_CUN
+NodeClass: Variable
+BrowseName: 1:alarmlist_log_AP_CUN
+DisplayName: en|alarmlist_log_AP_CUN
+Description: en|alarmlist_log_AP_CUN
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

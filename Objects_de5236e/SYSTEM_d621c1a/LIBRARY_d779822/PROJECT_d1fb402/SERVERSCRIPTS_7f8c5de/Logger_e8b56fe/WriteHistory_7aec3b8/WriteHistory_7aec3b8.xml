@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <runcontext>owner</runcontext>
+  </metadata>
+  <parameter name="address" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="value" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="status" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="timestamp" type="timestamp" trigger="false" relative="false" value=""/>
+  <parameter name="user" type="session.user" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* write log history object */
+
+/**
+ * providing a simple uglify function with no encyrption
+ * use uglify.do to uglify a string
+ * use uglify.undo to prettify a string
+ */
+var uglify = new function () {
+	var characters = {};
+
+	for (var i = 0; i < 16; i++) {
+		characters[_decToBin(i)] = String.fromCharCode(i + 65) + (i + 81 < 91 ? String.fromCharCode(i + 81) : i - 9);
+	}
+
+	/**
+	 * simple decimal to binary string (length 4 chars) conversion
+	 * @param dec
+	 * @returns {*}
+	 * @private
+	 */
+	function _decToBin(dec) {
+		var bin = (dec >>> 0).toString(2);
+		while (bin.length < 4)
+			bin = "0" + bin;
+		return bin;
+	}
+
+	/**
+	 * uglifie a string
+	 * @param str
+	 * @returns {string}
+	 */
+	this.do = function (str) {
+		var res = str.split('').map(function (chars) {
+
+			var CC = chars.charCodeAt(0).toString(2);
+			if (CC.length == 6)
+				CC = "0" + CC;
+			if (CC.length == 7)
+				CC = "0" + CC;
+
+			return CC;
+		}).join('');
+
+		res = res.match(/.{1,4}/g);
+		res = res.map(function (asset) {
+			return characters[asset].charAt(Math.floor(Math.random() * characters[asset].length));
+		}).join("");
+
+		return res;
+	}
+
+	/**
+	 * prettifie a string
+	 * @param str
+	 * @returns {string}
+	 */
+	this.undo = function (str) {
+		var res = str.match(/.{1,1}/g);
+
+		res = res.map(function (asset) {
+			for (var key in characters)
+				if (characters[key].indexOf(asset) > -1)
+					return (key);
+		}).join('');
+
+		res = res.match(/.{1,8}/g).join(' ');
+		res = res.split(" ").map(function (chars) {
+			var CC = String.fromCharCode(parseInt(chars, 2));
+			return CC;
+		}).join('');
+
+		return res;
+	}
+}
+
+
+/**
+ * evaluate security settings for script caller
+ * find permission node, get permission settings
+ */
+var caller = script.caller;
+var utils = call("AccessControl.Configuration", {});
+
+var security = {
+	"Read": false,
+	"Write": false,
+	"Engineer": false
+}
+
+var permissionsAddr = address;
+var permissionsNode = Ua.findNode(permissionsAddr);
+var permissionsNodeExist = Ua.Status(permissionsNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+if (permissionsNodeExist) {
+	var permissions = utils.getRuntimePermissionsForNode(permissionsAddr);
+
+	var permissionsForUser = permissions.groups["Anonymous"];
+	if (caller)
+		permissionsForUser = permissions.users[caller];
+
+	if (permissions && permissionsForUser) {
+		if (permissionsForUser["read"])
+			security.Read = true;
+		if (permissionsForUser["write"])
+			security.Write = true;
+		if (permissionsForUser["engineer"])
+			security.Engineer = true;
+	}
+}
+
+if(!(security.Write || security.Engineer)) {
+	console.warn("Logger: " + (caller ? caller : "Anonymous") + " is not allowed to write to the " + permissionsAddr + " node!");
+	return false;
+}
+
+
+/**
+ * Create modified log object
+ * Parsing existing information
+ * and add new informations
+ */
+var modValue = JSON.parse(value);
+var event = modValue.event[0];
+var logUser = _validate(user) ? user : "";
+var logStatus = _validate(status) ? status : "undefined";
+
+/* get valid timestamp */
+var timestamp = parseFloat(parseFloat(timestamp) + 0.100);
+
+/* add new event to value */
+var newEvent = {
+	"occurance": Date.now(),
+	"user": logUser,
+	"status": logStatus,
+	"comment": ""
+};
+modValue.event.push(newEvent);
+value = JSON.stringify(modValue);
+
+
+/**
+ * Create new histroy object
+ */
+var historyObject = [{
+	node: permissionsNode.result,
+	value: value,
+	status: 0,
+	servertime: timestamp,
+	sourcetime: timestamp
+}];
+
+var historyCallback = {
+	onError: function (dataIdx, status, msg) {
+		console.log("Error at ", dataIdx, " error: ", status, " ", msg);
+	},
+	onReady: function (dataIdx, status, msg) {
+		var logNode = Ua.findNode("AGENT.OBJECTS.ATVISE.Logger");
+		logNode.result.value = uglify.do(value);
+	}
+};
+
+var historyOptions = {
+	ignoreDuplicate: false,
+	hidden: true
+};
+
+history.write(historyObject, historyCallback, historyOptions);
+
+return true;
+
+
+/**
+ * simple validation
+ * @param string
+ * @returns {string|*}
+ * @private
+ */
+function _validate(string) {
+	string = string ? string : "";
+	string = string != "" ? string : "";
+	string = string != "undefined" ? string : "";
+	return string;
+}
+
+/* end */]]></code>
+</script>

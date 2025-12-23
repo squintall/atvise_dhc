@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.Methods.GetTranslations
+NodeClass: Variable
+BrowseName: 1:GetTranslations
+DisplayName: en|GetTranslations
+Description: en|GetTranslations
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

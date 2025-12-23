@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.logger.logger_dialog
+NodeClass: Variable
+BrowseName: 1:logger_dialog
+DisplayName: en|logger_dialog
+Description: en|logger_dialog
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

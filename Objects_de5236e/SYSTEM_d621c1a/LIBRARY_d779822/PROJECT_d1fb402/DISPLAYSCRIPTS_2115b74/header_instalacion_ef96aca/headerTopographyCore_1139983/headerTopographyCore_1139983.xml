@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/* -*- coding: utf-8 -*- */
+/* CORE — HTML-only helpers. Tabs everywhere. */
+
+/* ===== Utils ===== */
+if (typeof clamp !== 'function') {
+    var clamp = function (n, a, b) { n = +n || 0; return n < a ? a : (n > b ? b : n); };
+}
+
+/* ===== Theme & level key ===== */
+if (typeof topoInferTheme !== 'function') {
+    var topoInferTheme = function (base) {
+        var b = String(base || '');
+        var isAP = /Circuito/i.test(b);
+        return { kind: isAP ? 'AP' : 'AR', accent: isAP ? '#1c7ed6' : '#2e7d32' };
+    };
+}
+if (typeof topoLevelKeyForBase !== 'function') {
+    var topoLevelKeyForBase = function (base) {
+        return topoInferTheme(base).kind === 'AP' ? 'nivelEnCircuito' : 'nivelEnCuenca';
+    };
+}
+
+/* ===== Node normalization ===== */
+if (typeof inferTopoNode !== 'function') {
+    var inferTopoNode = function (n) {
+        return {
+            id: n.id,
+            base: n.base || '',
+            pos: Array.isArray(n.pos) ? n.pos : null,
+            esForaneo: !!(n && (n.esForaneo === true || n.esForaneo === 1 || String(n.esForaneo).toLowerCase() === 'true')),
+            from: n.from, to: n.to
+        };
+    };
+}
+
+/* ===== Derive edges from from/to ===== */
+if (typeof topoEdgesFromNodes !== 'function') {
+    var topoEdgesFromNodes = function (nodes) {
+        var edges = [], seen = Object.create(null), idset = Object.create(null);
+        function list(v) { return !v ? [] : String(v).split(',').map(function (s) { return s.trim(); }).filter(Boolean); }
+        for (var i = 0; i < nodes.length; i++) if (nodes[i] && nodes[i].id) idset[nodes[i].id] = true;
+        for (var j = 0; j < nodes.length; j++) {
+            var nd = nodes[j] || {}, src = String(nd.id || ''); if (!src) continue;
+            list(nd.from).forEach(function (a) {
+                if (!idset[a]) return; var k = a + '>' + src; if (!seen[k]) { seen[k] = 1; edges.push({ from: a, to: src, style: nd.esForaneo ? 'dashed' : 'solid' }); }
+            });
+            list(nd.to).forEach(function (b) {
+                if (!idset[b]) return; var k = src + '>' + b; if (!seen[k]) { seen[k] = 1; edges.push({ from: src, to: b, style: nd.esForaneo ? 'dashed' : 'solid' }); }
+            });
+        }
+        return edges;
+    };
+}
+
+/* ===== Read levels per node (async) ===== */
+if (typeof topoReadLevelsForNodes !== 'function') {
+    var topoReadLevelsForNodes = function (nodes, cb) {
+        var levels = new Array(nodes.length).fill(null);
+        var pend = nodes.length; if (!pend) { try { cb(levels); } catch (_) { } return; }
+        for (var i = 0; i < nodes.length; i++) (function (idx) {
+            var b = nodes[idx] && nodes[idx].base; if (!b) { levels[idx] = null; if (--pend === 0) try { cb(levels); } catch (_) { } return; }
+            try {
+                var key = topoLevelKeyForBase(b);
+                webMI.data.read(String(b) + '.' + key, function (r) {
+                    var v = r && r.value, n = (v == null) ? null : Number(v);
+                    levels[idx] = (isFinite(n) ? n : null);
+                    if (--pend === 0) try { cb(levels); } catch (_) { }
+                });
+            } catch (_) { levels[idx] = null; if (--pend === 0) try { cb(levels); } catch (__) { } }
+        })(i);
+    };
+}
+
+/* ===== Tile content ===== */
+if (typeof topoCreateHtmlTile !== 'function') {
+    var topoCreateHtmlTile = function (doc, base, fallbackId) {
+        var theme = topoInferTheme(base);
+        var root = doc.createElement('div');
+        root.style.boxSizing = 'border-box';
+        root.style.width = '100%';
+        root.style.height = '100%';
+        root.style.fontFamily = 'Arial, Helvetica, sans-serif';
+        root.style.display = 'flex';
+        root.style.flexDirection = 'column';
+        root.style.gap = '2px';
+        root.style.padding = '6px';
+        root.style.userSelect = 'none';
+
+        var barWrap = doc.createElement('div');
+        barWrap.style.position = 'relative';
+        barWrap.style.height = '14px';
+        barWrap.style.background = '#e5e7eb';
+        barWrap.style.border = '1px solid #cbd5e1';
+        barWrap.style.borderRadius = '4px';
+        barWrap.style.overflow = 'hidden';
+
+        var barFill = doc.createElement('div');
+        barFill.style.position = 'absolute';
+        barFill.style.left = '0'; barFill.style.top = '0'; barFill.style.bottom = '0';
+        barFill.style.width = '0%';
+        barFill.style.background = theme.accent;
+        barFill.style.transition = 'width .2s ease';
+
+        var barPct = doc.createElement('div');
+        barPct.style.position = 'absolute';
+        barPct.style.left = '6px'; barPct.style.top = '50%';
+        barPct.style.transform = 'translateY(-50%)';
+        barPct.style.fontSize = '10px'; barPct.style.fontWeight = '700';
+        barPct.textContent = '--%';
+        barPct.style.textShadow = '-1px 0 #fff, 1px 0 #fff, 0 -1px #fff, 0 1px #fff';
+
+        barWrap.appendChild(barFill);
+        barWrap.appendChild(barPct);
+
+        var row = doc.createElement('div');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.gap = '6px';
+        row.style.minHeight = '16px';
+
+        var led = doc.createElement('div');
+        led.style.width = '10px'; led.style.height = '10px';
+        led.style.borderRadius = '50%';
+        led.style.border = '1px solid #94a3b8';
+        led.style.background = '#9ca3af';
+
+        var name = doc.createElement('div');
+        name.style.fontWeight = '700';
+        name.style.fontSize = '12px';
+        name.style.whiteSpace = 'nowrap';
+        name.style.overflow = 'hidden';
+        name.style.textOverflow = 'ellipsis';
+        name.textContent = fallbackId || '-';
+
+        row.appendChild(led);
+        row.appendChild(name);
+
+        root.appendChild(barWrap);
+        root.appendChild(row);
+
+        try { webMI.data.read(base + '.short_name', function (r) { if (r && r.value != null) name.textContent = r.value; }); } catch (_) { }
+        try {
+            webMI.data.read(base + '.level_percent', function (r) {
+                if (r && typeof r.value !== 'undefined') {
+                    var p = clamp(Math.round(+r.value), 0, 100);
+                    barFill.style.width = p + '%';
+                    barPct.textContent = p + '%';
+                    if (p >= 35) {
+                        barPct.style.color = '#fff';
+                        barPct.style.textShadow = '-1px 0 #111, 1px 0 #111, 0 -1px #111, 0 1px #111';
+                    }
+                }
+            });
+        } catch (_) { }
+        try {
+            webMI.data.read(base + '.connectivity', function (cn) {
+                var status = cn && cn.status, value = cn && cn.value;
+                var col = '#9ca3af';
+                if (status === 0) col = (value === true) ? '#1c7ed6' : '#ff8f05';
+                led.style.background = col;
+            });
+        } catch (_) { }
+
+        return root;
+    };
+}
+
+/* ===== CSS + overlay for arrows ===== */
+if (typeof ensureArrowCss !== 'function') {
+    var ensureArrowCss = function (doc) {
+        doc = doc || document;
+        try {
+            if (!doc.getElementById('topo-arrow-css') && doc.head) {
+                var css = [
+                    '.topo-arrows{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:0}',
+                    '.topo-arrow-line{position:absolute;box-sizing:border-box;pointer-events:none;color:inherit}',
+                    '.topo-arrow-head{position:absolute;width:0;height:0;pointer-events:none}',
+                    '.topo-node{position:absolute;background:#fff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.08);overflow:hidden;z-index:2}'
+                ].join('\n');
+                var style = doc.createElement('style');
+                style.id = 'topo-arrow-css';
+                style.type = 'text/css';
+                style.appendChild(doc.createTextNode(css));
+                doc.head.appendChild(style);
+            }
+        } catch (_) { }
+    };
+}
+if (typeof ensureArrowOverlay !== 'function') {
+    var ensureArrowOverlay = function (container) {
+        var doc = container.ownerDocument || document;
+        ensureArrowCss(doc);
+        var ov = container.querySelector('.topo-arrows');
+        if (!ov) {
+            ov = doc.createElement('div');
+            ov.className = 'topo-arrows';
+            ov.style.position = 'absolute';
+            ov.style.left = '0'; ov.style.top = '0';
+            ov.style.width = '100%'; ov.style.height = '100%';
+            ov.style.pointerEvents = 'none';
+            ov.style.zIndex = '0';
+            if (container.firstChild) container.insertBefore(ov, container.firstChild);
+            else container.appendChild(ov);
+            try {
+                var c = getComputedStyle(container).getPropertyValue('--topo-accent');
+                ov.style.color = (c && c.trim()) ? c : '#334155';
+            } catch (_) { ov.style.color = '#334155'; }
+        } else {
+            while (ov.firstChild) ov.removeChild(ov.firstChild);
+            ov.style.zIndex = '0';
+            if (container.firstChild !== ov) container.insertBefore(ov, container.firstChild);
+        }
+        return ov;
+    };
+}
+
+/* ===== Mount tile ===== */
+if (typeof mountTopoNode !== 'function') {
+    var mountTopoNode = function (layer, node, x, y, w, h) {
+        var doc = layer.ownerDocument || document;
+        var el = doc.createElement('div');
+        el.className = 'topo-node';
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.width = Math.max(1, w) + 'px';
+        el.style.height = Math.max(1, h) + 'px';
+
+        // --- [ADD] Clickability & data attrs ---
+        try {
+            el.dataset.id = String(node.id || '');
+            el.dataset.base = String(node.base || '');
+            el.title = el.dataset.id || '-';
+            el.style.cursor = 'pointer';
+            el.tabIndex = 0;
+
+            var fire = function () {
+                // 1) dispara eventos (si los usas para centrar/hover)
+                try {
+                    if (window.webMI && webMI.trigger && typeof webMI.trigger.fire === 'function') {
+                        webMI.trigger.fire('topoTileClick', { id: node.id, base: node.base });
+                    }
+                } catch (_) { }
+                try {
+                    var ev = new CustomEvent('topo:click', { detail: { id: node.id, base: node.base }, bubbles: true });
+                    el.dispatchEvent(ev);
+                } catch (_) { }
+
+                // 2) abre el display del equipo en el iframe "content" usando su base
+                try {
+                    var URL = "SYSTEM.DISPLAYS.Instalacion.Vista_Principal_V2";
+                    var IFRAME = "content";
+                    var baseStr = String(node.base || "");
+                    if (baseStr) {
+                        webMI.display.openDisplay(URL, { base: baseStr }, IFRAME);
+                    }
+                } catch (_) { }
+            };
+
+            el.addEventListener('click', fire);
+            el.addEventListener('keydown', function (e) {
+                if (!e) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                    try { e.preventDefault(); } catch (_) { }
+                    fire();
+                }
+            });
+        } catch (_) { }
+
+
+        var slot = doc.createElement('div');
+        slot.style.position = 'absolute';
+        slot.style.inset = '0';
+        el.appendChild(slot);
+
+        var ok = false;
+        try {
+            var content = topoCreateHtmlTile(doc, String(node.base || ''), String(node.id || '-'));
+            if (content) { slot.appendChild(content); ok = true; }
+        } catch (_) { }
+        if (!ok) {
+            var lab = doc.createElement('div');
+            lab.style.position = 'absolute'; lab.style.left = '8px'; lab.style.top = '8px';
+            lab.style.font = '500 12px system-ui,Arial'; lab.textContent = String(node.id || '');
+            slot.appendChild(lab);
+        }
+        layer.appendChild(el);
+        return { el: el };
+    };
+}
+
+/* ===== Arrow primitives (HTML) ===== */
+if (typeof drawLineDiv !== 'function') {
+    var drawLineDiv = function (overlay, x1, y1, x2, y2, color, widthPx, style) {
+        var d = overlay.ownerDocument || document;
+        var el = d.createElement('div');
+        el.className = 'topo-arrow-line';
+        color = color || 'currentColor'; widthPx = widthPx || 2; style = style || 'solid';
+
+        if (Math.abs(y2 - y1) < 0.5) {
+            var left = Math.min(x1, x2), w = Math.abs(x2 - x1);
+            el.style.left = left + 'px'; el.style.top = (y1 - widthPx / 2) + 'px';
+            el.style.width = w + 'px'; el.style.borderTop = widthPx + 'px ' + style + ' ' + color;
+        } else if (Math.abs(x2 - x1) < 0.5) {
+            var top = Math.min(y1, y2), h = Math.abs(y2 - y1);
+            el.style.left = (x1 - widthPx / 2) + 'px'; el.style.top = top + 'px';
+            el.style.height = h + 'px'; el.style.borderLeft = widthPx + 'px ' + style + ' ' + color;
+        } else {
+            // orthogonal split
+            drawLineDiv(overlay, x1, y1, x2, y1, color, widthPx, style);
+            drawLineDiv(overlay, x2, y1, x2, y2, color, widthPx, style);
+            return;
+        }
+        overlay.appendChild(el);
+    };
+}
+if (typeof drawHeadDiv !== 'function') {
+    var drawHeadDiv = function (overlay, x, y, dir, color, size) {
+        var d = overlay.ownerDocument || document;
+        var el = d.createElement('div');
+        el.className = 'topo-arrow-head';
+        color = color || 'currentColor'; size = size || 8;
+
+        if (dir === 'R') {
+            el.style.left = x + 'px'; el.style.top = (y - size) + 'px';
+            el.style.borderTop = size + 'px solid transparent';
+            el.style.borderBottom = size + 'px solid transparent';
+            el.style.borderLeft = size + 'px solid ' + color;
+        } else if (dir === 'L') {
+            el.style.left = (x - size) + 'px'; el.style.top = (y - size) + 'px';
+            el.style.borderTop = size + 'px solid transparent';
+            el.style.borderBottom = size + 'px solid transparent';
+            el.style.borderRight = size + 'px solid ' + color;
+        } else if (dir === 'B') {
+            el.style.left = (x - size) + 'px'; el.style.top = y + 'px';
+            el.style.borderLeft = size + 'px solid transparent';
+            el.style.borderRight = size + 'px solid transparent';
+            el.style.borderTop = size + 'px solid ' + color;
+        } else {
+            el.style.left = (x - size) + 'px'; el.style.top = (y - size) + 'px';
+            el.style.borderLeft = size + 'px solid transparent';
+            el.style.borderRight = size + 'px solid transparent';
+            el.style.borderBottom = size + 'px solid ' + color;
+        }
+        overlay.appendChild(el);
+    };
+}
+
+/* ===== Draw arrows ===== */
+if (typeof drawTopoArrowsHtml !== 'function') {
+    var drawTopoArrowsHtml = function (container, rectById, edges, opts) {
+        opts = opts || {};
+        var BUS = (opts.busOffset != null ? +opts.busOffset : 50); // separación del codo a la derecha de la columna
+
+        var ov = ensureArrowOverlay(container);
+        var color = opts.color || ov.style.color || '#334155';
+        var width = opts.width || 2;
+        var headSize = opts.headSize || 8;
+        var M = opts.margin || 8;
+
+        function cx(r) { return r.x + r.w / 2; }
+        function cy(r) { return r.y + r.h / 2; }
+        function anchorAutoFrom(a, b) {
+            var dx = cx(b) - cx(a), dy = cy(b) - cy(a);
+            if (Math.abs(dx) >= Math.abs(dy)) return dx >= 0 ? 'R' : 'L';
+            return dy >= 0 ? 'B' : 'T';
+        }
+        function anchorAutoTo(a, b, sameCol) {
+            if (sameCol) return (cy(b) >= cy(a)) ? 'T' : 'B';
+            return (cx(b) >= cx(a)) ? 'L' : 'R';
+        }
+        function pt(r, dir, m) {
+            if (dir === 'R') return { x: r.x + r.w + m, y: r.y + r.h / 2, dir: 'R' };
+            if (dir === 'L') return { x: r.x - m, y: r.y + r.h / 2, dir: 'L' };
+            if (dir === 'B') return { x: r.x + r.w / 2, y: r.y + r.h + m, dir: 'B' };
+            return { x: r.x + r.w / 2, y: r.y - m, dir: 'T' };
+        }
+        function beforeHead(p, dir, len) {
+            if (dir === 'R') return { x: p.x - len, y: p.y };
+            if (dir === 'L') return { x: p.x + len, y: p.y };
+            if (dir === 'B') return { x: p.x, y: p.y - len };
+            return { x: p.x, y: p.y + len };
+        }
+
+        for (var i = 0; i < edges.length; i++) {
+            var e = edges[i] || {};
+            var a = rectById[e.from], b = rectById[e.to];
+            if (!a || !b) continue;
+
+            var sameCol = Math.abs(a.x - b.x) < (a.w * 0.5);
+            // Forzar anclas: sale por la derecha (R), entra por la izquierda (L)
+            var fromDir = 'R';
+            var toDir = 'L';
+
+            var A = pt(a, fromDir, M);
+            var B = pt(b, toDir, M);
+            var Bline = beforeHead(B, toDir, headSize);
+
+            // "Bus" vertical compartido por columna del origen:
+            // como todas las tiles de la misma columna comparten x, este busX queda idéntico
+            var busX = a.x + a.w + BUS;
+
+            // Tramo 1: horizontal corto (sale por la derecha)
+            drawLineDiv(ov, A.x, A.y, busX, A.y, e.color || color, e.width || width, e.style || 'solid');
+
+            // Tramo 2: vertical por el MISMO codo (bus compartido)
+            drawLineDiv(ov, busX, A.y, busX, Bline.y, e.color || color, e.width || width, e.style || 'solid');
+
+            // Tramo 3: horizontal hacia el destino (entra por la izquierda)
+            drawLineDiv(ov, busX, Bline.y, Bline.x, Bline.y, e.color || color, e.width || width, e.style || 'solid');
+
+            // La cabeza debe apuntar HACIA el nodo (opuesto al lado de anclaje)
+            var headDir = (function (d) {
+                if (d === 'L') return 'R';
+                if (d === 'R') return 'L';
+                if (d === 'T') return 'B';
+                return 'T'; // 'B' -> 'T'
+            })(toDir);
+
+            drawHeadDiv(ov, B.x, B.y, headDir, e.color || color, headSize);
+        }
+        return ov;
+    };
+}
+
+/* ===== Column assignment with foreigners in previous column of their destination ===== */
+if (typeof topoAssignColumns !== 'function') {
+    var topoAssignColumns = function (nodes, levels, edges) {
+        nodes = Array.isArray(nodes) ? nodes : [];
+        levels = Array.isArray(levels) ? levels : new Array(nodes.length).fill(1);
+        edges = Array.isArray(edges) ? edges : [];
+        // id -> index
+        var idx = Object.create(null);
+        for (var i = 0; i < nodes.length; i++) if (nodes[i] && nodes[i].id) idx[nodes[i].id] = i;
+        // base cols from level (min 1)
+        var cols = new Array(nodes.length);
+        for (var j = 0; j < nodes.length; j++) {
+            var L = Number(levels[j]);
+            cols[j] = isFinite(L) && L >= 1 ? Math.floor(L) : 1;
+        }
+        // For foreigners: set to (min target level - 1) if applicable
+        var destLevelsById = Object.create(null);
+        for (var e = 0; e < edges.length; e++) {
+            var ed = edges[e]; if (!ed) continue;
+            var ia = idx[ed.from], ib = idx[ed.to];
+            if (ia == null || ib == null) continue;
+            var Lb = cols[ib];
+            var fromId = nodes[ia].id;
+            if (!destLevelsById[fromId]) destLevelsById[fromId] = Lb;
+            else destLevelsById[fromId] = Math.min(destLevelsById[fromId], Lb);
+        }
+        for (var k = 0; k < nodes.length; k++) {
+            if (nodes[k] && nodes[k].esForaneo) {
+                var dL = destLevelsById[nodes[k].id];
+                if (dL != null) {
+                    cols[k] = Math.max(1, dL - 1);
+                }
+            }
+        }
+        return cols;
+    };
+}
+
+/* ===== Grid positions from columns (foreigners top band) ===== */
+if (typeof topoPositionsFromColumns !== 'function') {
+    var topoPositionsFromColumns = function (nodes, cols, TW, TH, GX, GY) {
+        nodes = Array.isArray(nodes) ? nodes : [];
+        cols = Array.isArray(cols) ? cols : new Array(nodes.length).fill(1);
+        TW = +TW || 130; TH = +TH || 40; GX = +GX || 60; GY = +GY || 30;
+
+        // group indices by column
+        var byC = Object.create(null), maxC = 0;
+        for (var i = 0; i < nodes.length; i++) {
+            var c = Number(cols[i]); if (!isFinite(c) || c < 1) c = 1;
+            if (c > maxC) maxC = c; (byC[c] || (byC[c] = [])).push(i);
+        }
+        var order = []; for (var k = 1; k <= maxC; k++) if (byC[k] && byC[k].length) order.push(k);
+
+        var colW = TW + GX, rowH = TH + GY;
+        var pos = new Array(nodes.length);
+
+        for (var cidx = 0; cidx < order.length; cidx++) {
+            var C = order[cidx], idxs = byC[C] || [];
+            // split foreigners up
+            var tops = [], mains = [];
+            for (var j = 0; j < idxs.length; j++) {
+                var ix = idxs[j];
+                (nodes[ix].esForaneo ? tops : mains).push(ix);
+            }
+            var cursorY = 0;
+            // foreign band
+            for (var t = 0; t < tops.length; t++) { pos[tops[t]] = [(cidx * colW), cursorY]; cursorY += rowH; }
+            if (tops.length && mains.length) cursorY += GY; // separation
+            // main band
+            for (var m = 0; m < mains.length; m++) { pos[mains[m]] = [(cidx * colW), cursorY]; cursorY += rowH; }
+        }
+        return pos;
+    };
+}
+]]></code>
+</script>

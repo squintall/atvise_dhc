@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/supersim/v1/networkAccessProfile/networkAccessProfileNetwork.d.ts
+NodeClass: Variable
+BrowseName: 1:networkAccessProfileNetwork.d.ts
+DisplayName: en|networkAccessProfileNetwork.d.ts
+Description: en|networkAccessProfileNetwork.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

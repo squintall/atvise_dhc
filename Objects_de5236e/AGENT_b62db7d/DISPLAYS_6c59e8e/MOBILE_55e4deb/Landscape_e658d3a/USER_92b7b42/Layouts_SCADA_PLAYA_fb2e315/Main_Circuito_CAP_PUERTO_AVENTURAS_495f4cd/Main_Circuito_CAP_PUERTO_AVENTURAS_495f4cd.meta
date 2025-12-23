@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Landscape.USER.Layouts_SCADA_PLAYA.Main_Circuito_CAP_PUERTO_AVENTURAS
+NodeClass: Variable
+BrowseName: 1:Main_Circuito_CAP_PUERTO_AVENTURAS
+DisplayName: en|Main_Circuito_CAP_PUERTO_AVENTURAS
+Description: en|Main_Circuito_CAP_PUERTO_AVENTURAS
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

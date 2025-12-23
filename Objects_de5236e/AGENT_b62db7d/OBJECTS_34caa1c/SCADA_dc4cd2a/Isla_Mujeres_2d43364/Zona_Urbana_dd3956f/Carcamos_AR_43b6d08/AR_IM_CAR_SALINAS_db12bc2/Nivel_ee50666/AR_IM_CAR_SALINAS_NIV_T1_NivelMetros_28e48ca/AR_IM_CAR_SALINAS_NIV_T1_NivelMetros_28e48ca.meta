@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AR.AR_IM_CAR_SALINAS.Nivel.AR_IM_CAR_SALINAS_NIV_T1_NivelMetros
+NodeClass: Variable
+BrowseName: 1:AR_IM_CAR_SALINAS_NIV_T1_NivelMetros
+DisplayName: en|AR_IM_CAR_SALINAS_NIV_T1_NivelMetros
+Description: en|AR_IM_CAR_SALINAS_NIV_T1_NivelMetros
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

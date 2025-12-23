@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+ <metadata>
+  <priority>0</priority>
+ </metadata>
+ <code><![CDATA[/**
+ * Code for the layout element time object display
+ * ----------------------------------------
+ * This script supports the display by evaluation of the current time.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var timeFormat = webMI.query["timeFormat"];
+
+
+/**
+ * RUNTIME SECTION
+ */
+displayTime();
+
+
+/**
+ * FUNCTION SECTION
+ */
+function displayTime() {
+	var date = new Date();
+	var hours = ("0" + date.getHours()).slice(-2);
+	var minutes = ("0" + date.getMinutes()).slice(-2);
+	var seconds = ("0" + date.getSeconds()).slice(-2);
+
+	var timeString = timeFormat;
+	timeString = timeString.replace(/%H/i, hours);
+	timeString = timeString.replace(/%M/i, minutes);
+	timeString = timeString.replace(/%S/i, seconds);
+
+	webMI.gfx.setText("time", timeString);
+	setTimeout(displayTime, 500);
+}
+]]></code>
+</script>

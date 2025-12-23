@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.HISTORY.Carcamos_AR
+NodeClass: Object
+BrowseName: 1:Carcamos_AR
+DisplayName: en|Carcamos_AR
+Description: en|Carcamos_AR
+EventNotifier: 0
+Reference: forward HasModellingRule SharedExclusive
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.ArchiveGroup.Data

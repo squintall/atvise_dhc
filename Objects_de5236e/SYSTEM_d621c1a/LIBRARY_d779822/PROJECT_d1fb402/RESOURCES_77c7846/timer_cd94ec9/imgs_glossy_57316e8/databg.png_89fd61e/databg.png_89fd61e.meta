@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/timer/imgs_glossy/databg.png
+NodeClass: Variable
+BrowseName: 1:databg.png
+DisplayName: en|databg.png
+Description: en|databg.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

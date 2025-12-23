@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_CADU_II.Equipos.Bombas.Bomba_4.fault.Falla.REPLACEMENTS
+NodeClass: Object
+BrowseName: 1:REPLACEMENTS
+DisplayName: en|REPLACEMENTS
+Description: en|REPLACEMENTS
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Morelos_II.Equipos.Bombas.Bomba_2.status.STS.On_Off.prevention_script
+NodeClass: Variable
+BrowseName: 1:prevention_script
+DisplayName: en|prevention_script
+Description: en|prevention_script
+DataType: NodeId
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/SVG/coreui-icons-master/js/brand/cib-adobe-creative-cloud.js
+NodeClass: Variable
+BrowseName: 1:cib-adobe-creative-cloud.js
+DisplayName: en|cib-adobe-creative-cloud.js
+Description: en|cib-adobe-creative-cloud.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_004.MH2
+NodeClass: Variable
+BrowseName: 1:MH2
+DisplayName: en|MH2
+Description: en|MH2
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[function getDirectories(directoryTypes) {
+	var directories = [];
+	if (directoryTypes == null) {
+		directoryTypes = ["historydir", "swapin", "backup", "restore"];
+	} else {
+		directoryTypes = [].concat(directoryTypes);
+	}
+	var backupCfg = getNodeValue("AGENT.HISTORY.BackupPath", "backup");
+	directoryTypes.forEach(function (dirType) {
+		switch (dirType) {
+			case "historydir":
+				directories.push({type: dirType, path: addSlash(history.directory)});
+				break;
+			case "swapin":
+				directories.push({type: dirType, path: addSlash(history.swapin)});
+				break;
+			case "backup":
+				directories.push(backupCfg);
+				break;
+			case "restore":
+				var restoreCfg = getNodeValue("AGENT.HISTORY.RestorePath", dirType);
+
+				if (!directoryTypes.includes("backup") || "error" in restoreCfg || backupCfg.path != restoreCfg.path) {
+					restoreCfg.same = false;
+					directories.push(restoreCfg);
+				} else {
+					directories.push({error: -1, errorstring: "Same as backup", same: true, type: dirType, path: restoreCfg.path});
+				}
+				break;
+			default:
+				directories.push({error: -1, errorstring: "Unknown type request", type: dirType});
+		}
+	});
+
+	function getNodeValue(nodeAddr, dirType) {
+		var nodeNode = Ua.findNode(nodeAddr);
+		var nodeExist = Ua.Status(nodeNode) != Ua.Status.BADNODEIDUNKNOWN;
+		
+		var utils = call("AccessControl.Configuration", {});
+		var permissionsForNode = utils.getRuntimePermissionsForNode(nodeAddr);
+		var permitted = false;
+
+		if (script.executor === "root") {
+			permitted = permissionsForNode.users[script.caller] && permissionsForNode.users[script.caller].read
+		} else {
+			permitted = permissionsForNode.session.read;
+		}
+
+		if (permitted) {
+			if (nodeExist && nodeNode.result.value) {
+				var fs = new FileSystem();
+	
+				if (nodeNode.result.value.trim() == "") {
+					return {error: -1, errorstring: "Directory not configured", type: dirType};
+				} else if (!fs.isDirectory(nodeNode.result.value)) {
+					return {error: -1, errorstring: "Not a directory", type: dirType, path: nodeNode.result.value};
+				} else {
+					return {type: dirType, path: addSlash(nodeNode.result.value)};
+				}
+			} else {
+				return {error: -1, errorstring: "Node not found", type: dirType};
+			}
+		} else {
+			return {error: -1, errorstring: "Node not found", type: dirType};		
+		}
+	}
+
+	function addSlash(dir) {
+		return /\/$/.exec(dir) || /\\$/.exec(dir) ? dir : dir + "/";
+	}
+
+	return directories;
+}
+
+function getArchives(directoryTypes) {
+	var dirTypes = getDirectories(directoryTypes);
+	var fs = new FileSystem();
+	var archives = [];
+
+	dirTypes.forEach(function (dirType) {
+		// check if directory exists
+		if (!fs.isDirectory(dirType.path)) {
+			return;
+		}
+
+		var directoryItems = fs.listDirectory(dirType.path, {recursive: false});
+
+		directoryItems.forEach(function (item) {
+			// check if file and database
+			if (!item.isFile || /\.db-shm$/.exec(item.name) || /\.db-wal$/.exec(item.name)) {
+				return;
+			}
+
+			var archiveType;
+
+			// check if valid archive type
+			try {
+				archiveType = getArchiveType(item.name);
+			} catch (e) {
+				return;
+			}
+
+			var archiveName;
+
+			// check if valid archive name
+			try {
+				archiveName = getArchiveName(item.name);
+			} catch (e) {
+				return;
+			}
+
+			var directoryType;
+			var directoryPath;
+
+			// check if valid directory type
+			try {
+				directoryType = getDirectoryType(item.path, dirTypes);
+				directoryPath = dirTypes.find(function (dirType) {
+					return dirType.type == directoryType;
+				}).path;
+			} catch (e) {
+				return;
+			}
+
+			var found = archives.some(function (archive) {
+				return archive.name == archiveName && archive.type == archiveType;
+			});
+
+			// add file with properties to list
+			if (!found) {
+				archives.push({
+					name: archiveName,
+					type: archiveType
+				});
+			}
+		});
+	});
+
+	return archives;
+}
+
+function getArchiveFiles(directoryTypes, archiveTypes, archiveName) {
+	var fs = new FileSystem();
+	var filterDirTypes = getDirectories();
+	var filterArchiveTypes = ["data", "aggr", "event", "systemdb"];
+	var filterArchiveName = "";
+	var archiveFiles = [];
+
+	filterDirTypes = filterDirTypes.filter(function (type) {
+		return !("error" in type);
+	});
+
+	if (archiveTypes != null && [].concat(archiveTypes).includes("systemdb")) {
+		var path = server.database.directory + server.database.name;
+		archiveFiles.push({
+			path: path,
+			name: server.database.name,
+			archive: {name: getArchiveName(server.database.name), type: getArchiveType(server.database.name)},
+			directory: {type: "systemdb", path: server.database.directory},
+			size: getFileSize(path),
+			creationDate: getFileCreationDate(path),
+			modificationDate: getFileModificationDate(path),
+			current: true,
+			lck: false
+		});
+	}
+
+	var timestamp = new Date().getTime();
+	var currentFiles = {};
+
+	filterDirTypes.forEach(function (dirType) {
+		// check if directory exists
+		if (!fs.isDirectory(dirType.path)) {
+			return;
+		}
+
+		var directoryItems = fs.listDirectory(dirType.path, {recursive: false});
+
+		directoryItems.forEach(function (item) {
+			// check if file and database
+			if (!item.isFile || /\.db-shm$/.exec(item.name) || /\.db-wal$/.exec(item.name)) {
+				return;
+			}
+
+			var archiveType;
+
+			// check if valid archive type
+			try {
+				archiveType = getArchiveType(item.name);
+			} catch (e) {
+				return;
+			}
+
+			// check if archiveType is requested
+			if (!filterArchiveTypes.includes(archiveType)) {
+				return;
+			}
+
+			var archiveName;
+
+			// check if valid archive name
+			try {
+				archiveName = getArchiveName(item.name);
+			} catch (e) {
+				return;
+			}
+
+			// check if archiveName is requested
+			if (filterArchiveName.length > 0 && archiveName != filterArchiveName) {
+				return;
+			}
+
+			var directoryType;
+			var directoryPath;
+
+			// check if valid directory type
+			try {
+				directoryType = getDirectoryType(item.path, filterDirTypes);
+				directoryPath = filterDirTypes.find(function (dirType) {
+					return dirType.type == directoryType;
+				}).path;
+			} catch (e) {
+				return;
+			}
+
+			var current = false;
+			try {
+				if (!(archiveName in currentFiles)) {
+					currentFiles[archiveName] = call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Methods.ArchiveLocking.ArchiveName", {
+						archive: archiveName,
+						timestamp: timestamp
+					});
+					if ("result" in currentFiles[archiveName] && "archivename" in currentFiles[archiveName].result) {
+						currentFiles[archiveName].result.archivename = currentFiles[archiveName].result.archivename.replace(/\\/g, "/");
+					}
+				}
+				current = "result" in currentFiles[archiveName] && "archivename" in currentFiles[archiveName].result && currentFiles[archiveName].result.archivename == item.path;
+			} catch (e) {
+			}
+
+			// add file with properties to list
+			archiveFiles.push({
+				path: item.path,
+				name: item.name,
+				archive: {name: archiveName, type: archiveType},
+				directory: {type: directoryType, path: directoryPath},
+				size: getFileSize(item.path),
+				creationDate: getFileCreationDate(item.path),
+				modificationDate: getFileModificationDate(item.path),
+				current: current,
+				lck: fs.isFile(item.path + ".lck")
+			});
+		});
+	});
+
+	// update conflicts
+	archiveFiles.forEach(function (archiveFile) {
+		// check if there are conflicting files
+		var conflictingFiles = archiveFiles.filter(function (f) {
+			// files from systemdb are excepted from conflicts
+			if (f.directory.type == "systemdb" || archiveFile.directory.type == "systemdb") {
+				return false;
+			}
+
+			// files cause conflicts if file size is different
+			if (f.path != archiveFile.path && f.name == archiveFile.name && f.size != archiveFile.size) {
+				return true;
+			}
+
+			// files cause conflicts if files with same name exists in directories historydir and swapin
+			if ((f.directory.type == "historydir" || f.directory.type == "swapin") && (archiveFile.directory.type == "historydir" || archiveFile.directory.type == "swapin") &&
+				f.path != archiveFile.path && f.name == archiveFile.name) {
+				return true;
+			}
+
+			return false;
+		});
+		archiveFile.conflict = JSON.parse(JSON.stringify(conflictingFiles)).map(function (f) {
+			// delete conflict property to prevent dependency cycle
+			delete f.conflict;
+			return f;
+		});
+	});
+
+	filterArchiveTypes = archiveTypes != null ? [].concat(archiveTypes) : filterArchiveTypes;
+	filterArchiveName = archiveName != null ? archiveName : filterArchiveName;
+	filterDirTypes = getDirectories(directoryTypes).concat({type: "systemdb", path: server.database.directory});
+	filterDirTypes = filterDirTypes.filter(function (type) {
+		return !("error" in type);
+	});
+
+	// filter unnecessary files
+	archiveFiles = archiveFiles.filter(function (file) {
+		// check if directoryType of file is requested
+		if (!filterDirTypes.some(function (dirType) {
+			return dirType.type == file.directory.type;
+		})) {
+			return false;
+		}
+
+		// check if archiveType of file is requested
+		if (!filterArchiveTypes.includes(file.archive.type)) {
+			return false;
+		}
+
+		// check if archiveName is requested
+		if (filterArchiveName.length > 0 && file.archive.name != filterArchiveName) {
+			return false;
+		}
+
+		return true;
+	});
+
+	function getFileCreationDate(file) {
+		return fs.creationDate(file);
+	}
+
+	function getFileModificationDate(file) {
+		return fs.modificationDate(file);
+	}
+
+	function getFileSize(file) {
+		return fs.fileSize(file);
+	}
+
+	return archiveFiles;
+}
+
+function createFile(filePath) {
+	var fs = new FileSystem();
+	return fs.createFile(filePath);
+}
+
+function deleteFile(filePath) {
+	var fs = new FileSystem();
+	return fs.deleteFile(filePath);
+}
+
+function copyFile(source, destination) {
+	var fs = new FileSystem();
+	return fs.copy(source, destination);
+}
+
+function moveFile(source, destination) {
+	var fs = new FileSystem();
+	return fs.move(source, destination);
+}
+
+function isFile(filePath) {
+	var fs = new FileSystem();
+	return fs.isFile(filePath);
+}
+
+function getDirectoryType(file, filterDirTypes) {
+	var type = filterDirTypes.find(function (type) {
+		// generate an on-the-fly RegExp from real path of directoryType
+		return !!RegExp(
+			// use path of directoryType
+			type.path
+			// replace \ with /
+				.replace(/\\/g, "/")
+				// replace problematic characters for RegExp and escape them (prepend with \)
+				.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') +
+			// match everything from after the last / till the end
+			'([^\\/]*?)$')
+		// and execute this regular expression on the given file path
+			.exec(file);
+	});
+
+	if (type) {
+		return type.type;
+	}
+
+	throw "unknown directory type";
+}
+
+function matchData(name) {
+	return /^(.*?)_raw(_(19|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])_([01]\d|2[0-3])([0-5]\d))?\.db$/.exec(name);
+}
+
+function matchAggr(name) {
+	return /^(.*?)_proc(_(19|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])_([01]\d|2[0-3])([0-5]\d))?\.db$/.exec(name);
+}
+
+function matchSystemdb(name) {
+	var match = /^(.*)(\.db)$/.exec(server.database.name);
+	if (match == null || match.length != 3) {
+		// systemdb name is in an unexpected form; fallback to nodes.db
+		match = /^(.*)(\.db)$/.exec("nodes.db");
+	}
+	return new RegExp(
+		// parenthes to reference to the file name of systemdb
+		"(" +
+		// file name (without extension) of systemdb
+		match[1]
+		// replace problematic characters for RegExp and escape them (prepend with \)
+			.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') +
+		")" +
+		// match eventually present _backup string
+		"(_backup)?" +
+		// match eventually present timestamp in form _YYYYMMDD_hhmmss, eg _19001023_173820
+		"(_(19|20\\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])_([01]\\d|2[0-3])([0-5]\\d)([0-5]\\d))?" +
+		// file extension of systemdb (should usually be .db)
+		match[2]
+		// replace problematic characters for RegExp and escape them (prepend with \)
+			.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') +
+		"$").exec(name);
+}
+
+function matchEvent(name) {
+	return /^(.*?)(_(19|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])_([01]\d|2[0-3])([0-5]\d))?\.db$/.exec(name);
+}
+
+function getArchiveType(file) {
+	var match = matchData(file);
+	if (match != null) {
+		return "data";
+	}
+
+	match = matchAggr(file);
+	if (match != null) {
+		return "aggr";
+	}
+
+	match = matchSystemdb(file);
+	if (match != null) {
+		return "systemdb";
+	}
+
+	match = matchEvent(file);
+	if (match != null) {
+		return "event";
+	}
+
+	throw "unknown archive type";
+}
+
+function getArchiveName(file) {
+	var match = matchData(file);
+	if (match != null) {
+		return match[1];
+	}
+
+	match = matchAggr(file);
+	if (match != null) {
+		return match[1];
+	}
+
+	match = matchSystemdb(file);
+	if (match != null) {
+		return match[1] + (match[2] != null ? match[2] : "");
+	}
+
+	match = matchEvent(file);
+	if (match != null) {
+		return match[1];
+	}
+
+	throw "unknown archive name";
+}
+
+
+return {
+	getDirectories: getDirectories,
+	getArchives: getArchives,
+	getArchiveFiles: getArchiveFiles,
+	createFile: createFile,
+	deleteFile: deleteFile,
+	copyFile: copyFile,
+	moveFile: moveFile,
+	isFile: isFile
+};]]></code>
+</script>

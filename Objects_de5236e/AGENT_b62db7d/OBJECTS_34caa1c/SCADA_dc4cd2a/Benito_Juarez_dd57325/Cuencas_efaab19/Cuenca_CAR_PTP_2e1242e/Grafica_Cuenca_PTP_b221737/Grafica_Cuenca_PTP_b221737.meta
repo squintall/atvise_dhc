@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Grafica_Cuenca_PTP
+NodeClass: Variable
+BrowseName: 1:Grafica_Cuenca_PTP
+DisplayName: en|Grafica_Cuenca_PTP
+Description: en|Grafica_Cuenca_PTP
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

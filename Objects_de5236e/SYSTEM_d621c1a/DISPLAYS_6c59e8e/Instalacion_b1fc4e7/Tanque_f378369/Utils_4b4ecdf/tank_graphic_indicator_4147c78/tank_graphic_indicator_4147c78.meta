@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Tanque.Utils.tank_graphic_indicator
+NodeClass: Variable
+BrowseName: 1:tank_graphic_indicator
+DisplayName: en|tank_graphic_indicator
+Description: en|tank_graphic_indicator
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

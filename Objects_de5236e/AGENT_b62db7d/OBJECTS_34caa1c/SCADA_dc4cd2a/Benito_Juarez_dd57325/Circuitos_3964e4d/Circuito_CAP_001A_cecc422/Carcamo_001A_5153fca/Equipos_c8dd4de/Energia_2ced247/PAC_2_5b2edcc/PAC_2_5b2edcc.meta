@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Equipos.Energia.PAC_2
+NodeClass: Object
+BrowseName: 1:PAC_2
+DisplayName: en|PAC_2
+Description: en|PAC_2
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.PAC_4200
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.PAC_4200.historizacion_00_05
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.PAC_4200.historizacion_01_00

@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="65" version="1.2" width="357" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <title>Language Box (357x65)</title>
+ <desc>Contains the elements for showing and changing the language.</desc>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="background color" name="fillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" config="Arial;Courier;Tahoma;Verdana" defaultvalue="Arial" desc="font family" group="Font" name="font_family" substitute="$FONTFAMILY$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="18" desc="font size" group="Font" name="font_size" substitute="$FONTSIZE$" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" group="Font" name="globalFontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" config="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.language" desc="symbol" group="Appearance" name="symbol" substitute="$SYMBOL$" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="symbol color" group="Appearance" name="symbolColor" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="context menu style" group="Appearance" name="contextMenuStyle" valuetype="string"/>
+  <atv:parameter behavior="optional" config="Arial;Courier;Tahoma;Verdana" defaultvalue="Arial" desc="font family" group="Context menu" name="context_menu_font_family" substitute="$CFONTFAMILY$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="18" desc="font size" group="Context menu" name="context_menu_font_size" substitute="$CFONTSIZE$" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor2" desc="font color" group="Context menu" name="context_menu_font_color" substitute="$CFONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="symbol color hover" group="Context menu" name="context_menu_font_color_hover" substitute="$CFONTCOLORHOVER$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor2" desc="background color" group="Context menu" name="context_menu_fill_color" substitute="$CFILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="hover color" group="Context menu" name="context_menu_hover_color" substitute="$CHOVERCOLOR$" valuetype="global"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <rect atv:refpx="457.25" atv:refpy="32.912" fill="$FILLCOLOR$" height="65" id="bg" stroke="" stroke-width="1" width="357" x="0" y="0"/>
+ <text atv:refpx="-724.92" atv:refpy="-191.685" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="$FONTSIZE$" id="language" x="19.5" y="39">Sprache: Deutsch</text>
+ <svg atv:refpx="308.309" atv:refpy="38.782" height="20" id="symbol" transform="matrix(3.2,0,0,3.2,0,0)" width="20" x="86" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.language" y="1.875">
+  <atv:argument name="symbolColor" prefix="symbolColor"/>
+ </svg>
+ <rect atv:refpx="457.251" atv:refpy="32.912" fill="$FILLCOLOR$" fill-opacity="0.0001" height="65" id="clickarea" stroke="" stroke-width="1" width="357" x="0" y="0"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.layoutelements.box_language" atv:name="box_language" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

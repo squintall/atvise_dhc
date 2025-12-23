@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Custom_bar_vertical
+NodeClass: Variable
+BrowseName: 1:Custom_bar_vertical
+DisplayName: en|Custom_bar_vertical
+Description: en|Custom_bar_vertical
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png">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</icon>
+	<visible>1</visible>
+	<title>Change Visibility and Blinking</title>
+	<description>Changes the visibility and blinking of an element by a node value.</description>
+  </metadata>
+  <parameter name="nodeId" description="node triggering the change" valuetype="address" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="minRange" description="min of range" valuetype="number" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="maxRange" description="max of range" valuetype="number" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="VisibilityBelowRange" description="visibility if value is below range" valuetype="enum" defaultvalue="Flash every 500ms" config="Visible;Flash every 250ms;Flash every 500ms;Flash every 750ms;Flash every 1500ms;Invisible" behavior="optional" group=""/>
+  <parameter name="VisibilityInRange" description="visibility if value is within range" valuetype="enum" defaultvalue="Visible" config="Visible;Flash every 250ms;Flash every 500ms;Flash every 750ms;Flash every 1500ms;Invisible" behavior="optional" group=""/>
+  <parameter name="VisibilityAboveRange" description="visibility if value is above range" valuetype="enum" defaultvalue="Flash every 1500ms" config="Visible;Flash every 250ms;Flash every 500ms;Flash every 750ms;Flash every 1500ms;Invisible" behavior="optional" group=""/>
+  <code><![CDATA[// This Quick Dynamic changes the visibility (including flashing) of the applied graphical element if the value of the node defined by "nodeId" lies within or out of the range defined
+// by "minRange" and "maxRange".
+// Parameters:
+//	nodeId:					node triggering this Quick Dynamic
+//	minRange:				lower bound of the range where the node's value should lie in
+//	maxRange:				upper bound of the range where the node's value should lie in; if not specified it will be set to "minRange", i.e. the quick dynamic will be triggered at a
+//							discrete value (minRange=maxRange=value) only and not for a range
+//	VisibilityBelowRange:	visibility to be set if the node's value is below the defined range; can be "Visible", "Invisible" or one of the specified flash rates
+//	VisibilityInRange:		visibility to be set if the node's value is within the defined range; can be "Visible", "Invisible" or one of the specified flash rates
+//	VisibilityAboveRange:	visibility to be set if the node's value is above the defined range; can be "Visible", "Invisible" or one of the specified flash rates
+var AggregateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Aggregate Manager");
+webMI.addOnunload(function unloadAggregateManager() {
+	AggregateManager.destroy();
+	AggregateManager = null;
+});
+
+AggregateManager.subscribeNodeOrAggregate(base.nodeId, handleResult);
+
+function handleResult(e) {
+	var value = e.value;
+	var flash250 = {0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false};
+	var flash500 = {0:true,2:false,4:true,6:false,8:true,10:false};
+	var flash750 = {0:true,3:false,6:true,9:false};
+	var flash1500 = {0:true,6:false};
+	var maxRange = 0;
+
+	if (String(base.maxRange) == "") {
+		maxRange=base.minRange; // If no maxRange is specified, the visibility will only be changed at a discrete value (value = minRange = maxRange)
+	} else {
+		maxRange = parseFloat(base.maxRange);
+	}
+
+	if (value < base.minRange && String(base.VisibilityBelowRange) != "") {
+		switch (base.VisibilityBelowRange)
+		{
+			case "Visible" : webMI.gfx.setVisible(base.id, true); break;
+			case "Flash every 250ms" : webMI.gfx.setVisible(base.id, flash250); break;
+			case "Flash every 500ms" : webMI.gfx.setVisible(base.id, flash500); break;
+			case "Flash every 750ms" : webMI.gfx.setVisible(base.id, flash750); break;
+			case "Flash every 1500ms" : webMI.gfx.setVisible(base.id, flash1500); break;
+			case "Invisible" : webMI.gfx.setVisible(base.id, false); break;
+		}
+	}
+	if (value >= base.minRange && value <= maxRange && String(base.VisibilityInRange) != "") {
+		switch (base.VisibilityInRange)
+		{
+			case "Visible" : webMI.gfx.setVisible(base.id, true); break;
+			case "Flash every 250ms" : webMI.gfx.setVisible(base.id, flash250); break;
+			case "Flash every 500ms" : webMI.gfx.setVisible(base.id, flash500); break;
+			case "Flash every 750ms" : webMI.gfx.setVisible(base.id, flash750); break;
+			case "Flash every 1500ms" : webMI.gfx.setVisible(base.id, flash1500); break;
+			case "Invisible" : webMI.gfx.setVisible(base.id, false); break;
+		}
+	}
+	if (value > maxRange && String(base.VisibilityAboveRange) != "") {
+		switch (base.VisibilityAboveRange)
+		{
+			case "Visible" : webMI.gfx.setVisible(base.id, true); break;
+			case "Flash every 250ms" : webMI.gfx.setVisible(base.id, flash250); break;
+			case "Flash every 500ms" : webMI.gfx.setVisible(base.id, flash500); break;
+			case "Flash every 750ms" : webMI.gfx.setVisible(base.id, flash750); break;
+			case "Flash every 1500ms" : webMI.gfx.setVisible(base.id, flash1500); break;
+			case "Invisible" : webMI.gfx.setVisible(base.id, false); break;
+		}
+	}
+}
+]]></code>
+</script>

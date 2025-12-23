@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.Sectorizacion.01_Grafica_Sectorizacion
+NodeClass: Variable
+BrowseName: 1:01_Grafica_Sectorizacion
+DisplayName: en|01_Grafica_Sectorizacion
+Description: en|01_Grafica_Sectorizacion
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="language" type="string" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var methodCall = Ua.findNode("AGENT.GENERATOR.METHODS.translations").result;
+
+var response = methodCall.call({
+	object: "AGENT.GENERATOR.METHODS",
+	input: [
+		{ type: Ua.DataType.STRING, value: language ? language : "en" }
+	]
+});
+
+var result = {};
+
+if (response.error) {
+	result.error = response.error;
+	result.errorstring = Ua.Status(result).toString();
+
+	if (response.argumentError) {
+		var parameterNames = ["language"];
+
+		for (var i = 0; i < response.argumentError.length; ++i)
+			if (response.argumentError[i]) {
+				result.errorstring += ", " + parameterNames[i] + ":" + Ua.Status(response.argumentError[i]).toString();
+			}
+	}
+} else {
+	result.result = {};
+
+	if (response.result.length > 0)
+		result.result = response.result[0];
+}
+
+return result;]]></code>
+</script>

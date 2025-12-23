@@ -1,0 +1,941 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for picker_value object display
+ * ------------------------------------
+ * This button increments or decrements the value of an address like the button increment/decrement.
+ * In addition the trigger "valuechanged" with the new value (=incremented or decremented value) will be fired.
+ * An additional border indicates the current value's negative state or an additionally defined alarm. The colors and blinking intervals are defined in global lists.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var stepInc = parseFloat(webMI.query["stepInc"]);
+var stepDec = parseFloat(webMI.query["stepDec"]);
+var decimalFraction = parseInt(webMI.query["decimalFraction"], 10);
+var leadingZeros = parseInt(webMI.query["leadingZeros"], 10);
+var postDecimal = parseInt(webMI.query["postDecimal"], 10);
+var decimalFactor = 1;
+var sign = webMI.query["sign"] == "true";
+var unit = webMI.query["unit"];
+var min = webMI.query["min"] == undefined ? "" : parseFloat(webMI.query["min"]);
+var max = webMI.query["max"] == undefined ? "" : parseFloat(webMI.query["max"]);
+var interval = parseFloat(webMI.query["interval"]);
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+var keyboard = webMI.query["keyboard"];
+var number_keyboard = webMI.query["number_keyboard"];
+var message_dialog_small = webMI.query["message_dialog_small"];
+var fontColor = webMI.query["fontColor"];
+var inputFill = typeof webMI.query["fill"] != "undefined" ? webMI.query["fill"] : webMI.query["inputFill"];
+var inputFillInactive =
+	typeof webMI.query["fillColorInactive"] != "undefined"
+		? webMI.query["fillColorInactive"]
+		: webMI.query["inputFillInactive"];
+var fillColor = typeof webMI.query["buttonFill"] != "undefined" ? webMI.query["buttonFill"] : webMI.query["fillColor"];
+var buttonStrokePressed = webMI.query["buttonStrokePressed"];
+var consistencyGroup = webMI.query["consistencyGroup"];
+var right = webMI.query["right"] == undefined ? "" : webMI.query["right"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var curValue = 0;
+var CONST_NUMBER_FORMAT = "[^-0-9.]";
+var format = CONST_NUMBER_FORMAT;
+var lockInputEvents = false;
+var isSetActive = true; // isSetActive is set by the com.atvise.setActive trigger
+var isPressed = false;
+var isRunning = false;
+var activeTimer;
+var isTouch = navigator.userAgent.indexOf("Mobi") > -1;
+var useSVGKeyboard = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Configuration", {
+	action: "existsIndexParameter",
+	parameterName: "useSVGKeyboard"
+});
+if (useSVGKeyboard == "true") {
+	isTouch = true;
+}
+var isActivationNodeSet = activeNode != "" && String(activeValue) != "";
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+if (!isNaN(decimalFraction) && decimalFraction > 0) {
+	decimalFactor = Math.pow(10, decimalFraction);
+}
+
+stepInc *= decimalFactor;
+stepDec *= decimalFactor;
+if (min !== "") min *= decimalFactor;
+if (max !== "") max *= decimalFactor;
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: document.getElementById("bg").id,
+	rights: [
+		{ nodeId: base, rights: "read", disable: true, notify: false },
+		{ nodeId: base, rights: "write", disable: true, notify: false },
+		{ nodeId: alarmToSubscribe, rights: "alarmRead", disable: false, notify: true },
+		{ nodeId: keyboard, rights: "read", disable: false, notify: true },
+		{ nodeId: number_keyboard, rights: "read", disable: false, notify: true },
+		{ nodeId: message_dialog_small, rights: "read", disable: true, notify: true },
+		{ nodeId: activeNode, rights: "read", disable: true, notify: true }
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: { activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"] },
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: right
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+/* AC set n/a on read denie */
+if (webMI.getAccessControlSupport() && base != "") {
+	var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+	var compareRights = [{ node: webMI.query["base"], right: "read" }];
+
+	fetchCurrentRightsAndUpdate();
+} else if (base != "") {
+	readGranted();
+}
+
+setLabelValue(curValue);
+
+var storedEvent = { keyCode: null, shiftKey: false };
+var foreignObject;
+var inputActive = false;
+var inputFO = webMI.dom.createElement("http://www.w3.org/1999/xhtml", "input");
+inputFO.type = "number";
+inputFO.min = min;
+inputFO.max = max;
+inputFO.id = document.getElementById("input_clickarea").id + "_html_input";
+inputFO.className = "hideArrows";
+inputFO.style.width = "100%";
+inputFO.style.height = "100%";
+inputFO.style.borderWidth = "0px";
+inputFO.style.boxSizing = "border-box";
+inputFO.style.padding = "0px 5px 0px 0px";
+inputFO.style.textAlign = "right";
+inputFO.style.color = fontColor;
+inputFO.style.fontFamily = webMI.query["fontFamily"];
+inputFO.style.fontSize = parseFloat(webMI.query["fontSize"]) + "px";
+document.getElementById("input_clickarea").appendChild(inputFO);
+
+if (consistencyGroup)
+	var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+
+if (alarmToSubscribe != "") updateAlarmIndication(alarmToSubscribe);
+
+inputFO.onblur = blurHandler;
+
+if (tooltip != "") {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "input_clickarea",
+		text: tooltip
+	});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "clickarea_dec",
+		text: tooltip
+	});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "clickarea_inc",
+		text: tooltip
+	});
+}
+
+webMI.addOnload(function () {
+	var doc = document.getElementById("input_clickarea").ownerDocument;
+	tabHandler.register(tabIndex, keyHandler, doc);
+});
+
+if (base != "" && consistencyGroup) consistencyHandler.register(consistencyGroup, base, update);
+
+/**
+ * FUNCTION SECTION
+ */
+var baseSubscribed = false;
+
+function readGranted() {
+	if (base != "") {
+		if (consistencyGroup) {
+			//handled in runtime section
+		} else {
+			if (!baseSubscribed) {
+				baseSubscribed = true;
+				webMI.data.subscribe(base, function (e) {
+					curValue = parseFloat(e.value);
+
+					if (isNaN(curValue)) {
+						curValue = "-";
+					}
+
+					setLabelValue(curValue);
+
+					if (typeof e.status != "undefined" && typeof handleStatus === "function") handleStatus(e.status);
+				});
+			}
+		}
+	}
+}
+
+function setLabelValue(value) {
+	var formattedOutput = value;
+
+	if (!isNaN(formattedOutput)) {
+		formattedOutput = _formatInputFieldValue(formattedOutput);
+		formattedOutput = formattedOutput.toString();
+	}
+
+	webMI.gfx.setText("input_label", formattedOutput);
+}
+
+function readDenied() {
+	// console.error("read denied");
+	webMI.gfx.setText("input_label", "T{N/A}");
+}
+
+function setActiveLayout() {
+	webMI.gfx.setFill("input_bg", inputFill);
+	webMI.gfx.setFill("inc_bg", fillColor);
+	webMI.gfx.setFill("dec_bg", fillColor);
+	webMI.gfx.setVisible("inc_stroke", null);
+	webMI.gfx.setVisible("dec_stroke", null);
+
+	lockInputEvents = false;
+}
+
+function setInactiveLayout() {
+	webMI.gfx.setFill("input_bg", inputFillInactive);
+	webMI.gfx.setFill("inc_bg", inputFillInactive);
+	webMI.gfx.setFill("dec_bg", inputFillInactive);
+	webMI.gfx.setVisible("inc_stroke", false);
+	webMI.gfx.setVisible("dec_stroke", false);
+
+	if ((CRH && !CRH.state.accessControlState) || !CRH.state.activationTriggerState) {
+		lockInputEvents = true;
+	}
+
+	fetchCurrentRightsAndUpdate();
+}
+
+function fetchCurrentRightsAndUpdate() {
+	if (accessControlManager) {
+		var compareRights = [{ node: webMI.query["base"], right: "read" }];
+		accessControlManager.assist.handleWithPermissions(compareRights, readGranted, readDenied);
+	}
+}
+
+function update(value) {
+	curValue = value;
+
+	setLabelValue(curValue);
+	webMI.trigger.fire("valuechanged", value, "");
+}
+
+function focusTH() {
+	if (lockInputEvents) return;
+
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", webMI.query["focusStrokeColor"]);
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setStroke("input_bg", webMI.query["focusStrokeColor"]);
+	}
+}
+
+function blurTH() {
+	if (lockInputEvents) return;
+
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", "none");
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setStroke("input_bg", "none");
+	}
+}
+
+function getDisplayParameters() {
+	var communicationID = new Date().getTime().toString();
+	webMI.trigger.connect(communicationID, function (e) {
+		setCurrentValue(e.value);
+	});
+
+	var passObj = {};
+	for (var i in webMI.query) passObj[i] = webMI.query[i];
+	passObj["minValue"] = passObj["min"];
+	passObj["maxValue"] = passObj["max"];
+	passObj["trigger"] = communicationID;
+	if (!consistencyGroup) passObj["target"] = passObj["base"];
+	return passObj;
+}
+
+function applyTH() {
+	if (lockInputEvents) return;
+
+	var tmp = null;
+	if (useSVGKeyboard) {
+		var keyboard = "";
+		var size = format != undefined && format == CONST_NUMBER_FORMAT ? { w: 378, h: 328 } : { w: 700, h: 300 };
+
+		if (format != undefined && format == CONST_NUMBER_FORMAT) {
+			keyboard = number_keyboard;
+		}
+		var keyboardParam = getDisplayParameters();
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: size.h,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Keyboard}",
+			toolbar: false,
+			width: size.w,
+			query: keyboardParam
+		});
+	} else {
+		switchToInputMode();
+	}
+}
+
+function backTH() {}
+
+function arrowTH(dir) {
+	if (lockInputEvents) return;
+
+	if (dir == 38 || dir == 40) {
+		var step = dir == 40 ? stepDec * -1 : stepInc;
+		//Execute action once on mousedown
+		var newValue = curValue + step;
+		if ((String(max) == "" || newValue <= max) && (String(min) == "" || newValue >= min)) {
+			setCurrentValue(newValue);
+		}
+	}
+}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		focusTH();
+	} else if (keyTH == "blur") {
+		blurTH();
+	} else if (keyTH == "apply") {
+		applyTH();
+	} else if (keyTH == "space") {
+		applyTH();
+	} else if (keyTH == "back") {
+		backTH();
+	} else if (keyTH == "arrow") {
+		param2 == 38 && webMI.gfx.setFill("inc_stroke", "url(#linear_10)");
+		param2 == 40 && webMI.gfx.setFill("dec_stroke", "url(#linear_10)");
+		arrowTH(param2);
+	} else if (keyTH == "releaseClick") {
+		webMI.gfx.setFill("inc_stroke", "url(#linear_7)");
+		webMI.gfx.setFill("dec_stroke", "url(#linear_7)");
+	} else if (keyTH == "isActive") {
+		return param2(document.getElementById("input_clickarea").parentNode);
+	}
+}
+
+function stopPropagation(event) {
+	/*
+	 * If the ALT key is pressed together with one or more other keys on
+	 * Firefox (only Windows), there will be no keyup event when the ALT
+	 * key gets released. Since the ALT key is being used for paning in
+	 * atvise visualization, we have to make sure that key listeners in the
+	 * global document do not get triggered if someone is currently entering
+	 * something in the inputFO (like "someone@example.com").
+	 **/
+	if (event.altKey) {
+		if (event.stopPropagation) event.stopPropagation();
+		else event.cancelBubble = true;
+	}
+}
+
+function touchstartHandler(e) {
+	if (e.target !== inputFO && inputActive) {
+		blurHandler();
+	}
+}
+
+function blurHandler() {
+	switchToOutputMode();
+	tabHandler.setAcceptKeys(true);
+
+	if (storedEvent["keyCode"] != null) {
+		if (storedEvent["shiftKey"] && storedEvent["keyCode"] == "9") tabHandler.prevTab();
+		else if (storedEvent["keyCode"] == "9") tabHandler.nextTab();
+	}
+
+	if (storedEvent["keyCode"] != "27") {
+		//workaround: setTimeout for Chrome crash error (clicking out from the input field or clicking enter while holding a button pressed).
+		setTimeout(function () {
+			checkInput();
+		}, 0);
+	}
+
+	storedEvent["keyCode"] = null;
+}
+
+function checkInput() {
+	var tmpValue = parseFloat(inputFO.value.replace(",", "."));
+	if (inputFO.value.trim() == "" && inputFO.validity.valid) {
+		tmpValue = 0;
+	}
+	if (isNaN(tmpValue)) {
+		showInfoDialog("T{Invalid format!}", "T{Please enter only numeric values.}");
+	} else if (String(max) != "" && tmpValue > max / decimalFactor) {
+		showInfoDialog("T{Value too high!}", webMI.sprintf("T{Please enter a value less than or equal to %d.}", max / decimalFactor));
+	} else if (String(min) != "" && tmpValue < min / decimalFactor) {
+		showInfoDialog("T{Value too low!}", webMI.sprintf("T{Please enter a value greater than or equal to %d.}", min / decimalFactor));
+	} else {
+		setCurrentValue(tmpValue * decimalFactor);
+	}
+}
+
+function showInfoDialog(headline, message) {
+	webMI.display.openWindow({
+		display: message_dialog_small,
+		height: 160,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: headline,
+			message: message,
+			button: "T{OK}"
+		}
+	});
+}
+
+function switchToInputMode() {
+	tabHandler.setAcceptKeys(false);
+	inputFO.value = _formatInputFieldValue(curValue, true);
+	webMI.gfx.setVisible("input_clickarea", false);
+
+	var textboxGroup = document.getElementById("input_element");
+	foreignObject = webMI.gfx.addForeignObject(
+		{
+			x: 0,
+			y: 0,
+			width: 160,
+			height: 30,
+			id: "input_fo",
+			childNodes: [inputFO]
+		},
+		textboxGroup
+	);
+	foreignObject.style.width = foreignObject.style.width.replace("px", "") - 30 + "px";
+	foreignObject.style.outline = "2px solid black";
+	foreignObject.style.outlineOffset = "-2px";
+	inputFO.focus();
+	inputActive = true;
+}
+
+function switchToOutputMode() {
+	if (inputActive) {
+		inputActive = false;
+		webMI.gfx.setVisible("input_clickarea", null);
+
+		if (foreignObject) {
+			webMI.gfx.removeForeignObject(foreignObject);
+			foreignObject = undefined;
+		}
+	}
+}
+
+function setCurrentValue(newValue) {
+	if (base != "" && !consistencyGroup) {
+		webMI.data.write(base, newValue, function (e) {
+			if (e && e.error) {
+				if (e.error === -4) {
+					showInfoDialog("T{Access denied}", "");
+				} else {
+					showInfoDialog("T{Invalid format!}", "T{Please enter only numeric values.}");
+				}
+				webMI.data.read(base, function (e) {
+					curValue = e.value;
+					if (typeof e.status != "undefined" && typeof handleStatus === "function") handleStatus(e.status);
+				});
+			}
+		});
+	} else {
+		curValue = newValue;
+		setLabelValue(curValue);
+
+		if (consistencyGroup) consistencyHandler.set(consistencyGroup, base, newValue);
+	}
+
+	webMI.trigger.fire("valuechanged", newValue, "");
+}
+
+function buttonPressed(pressed, step) {
+	isPressed = pressed;
+	if (isPressed && step != undefined && curValue != undefined) {
+		//Execute action once on mousedown
+		var newValue = curValue + step;
+
+		//if ((String(max) != "") && (newValue > max)) newValue = max;
+		//if ((String(min) != "") && (newValue < min)) newValue = min;
+		if ((String(max) == "" || newValue <= max) && (String(min) == "" || newValue >= min)) {
+			setCurrentValue(newValue);
+		}
+
+		// Execute action while holding mousedown
+		if (interval > 0) {
+			isRunning = true;
+			var callFn = function () {
+				doInDecrement(step);
+			};
+			activeTimer = setTimeout(callFn, interval);
+		}
+	} else if (isRunning && activeTimer != undefined) {
+		isRunning = false;
+		clearTimeout(activeTimer);
+	}
+}
+
+function doInDecrement(step) {
+	if (isRunning && isPressed) {
+		var calcStep = (step < 0 ? -1 * step : step) - 1;
+		//		var steps = Math.floor(max / calcStep);
+		var newValue = curValue + step;
+
+		//if ((String(max) != "") && (newValue > max)) newValue = max;
+		//if ((String(min) != "") && (newValue < min)) newValue = min;
+		if ((String(max) == "" || newValue <= max) && (String(min) == "" || newValue >= min)) {
+			setCurrentValue(newValue);
+		}
+
+		if (!lockInputEvents) {
+			var callFn = function () {
+				doInDecrement(step);
+			};
+			activeTimer = setTimeout(callFn, interval);
+		} else if (activeTimer) {
+			clearTimeout(activeTimer);
+		}
+	}
+}
+
+function releaseInc() {
+	if (lockInputEvents) return;
+
+	webMI.gfx.setStroke("inc_stroke", "none");
+	buttonPressed(false, null);
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setFill("inc_bg", "url(#linear_7)");
+		webMI.gfx.setStroke("focus_frame", "none");
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setFill("inc_stroke", "url(#linear_7)");
+	}
+}
+
+function releaseDec() {
+	if (lockInputEvents) return;
+
+	webMI.gfx.setStroke("dec_stroke", "none");
+	buttonPressed(false, null);
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setFill("dec_bg", "url(#linear_7)");
+		webMI.gfx.setStroke("focus_frame", "none");
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setFill("dec_stroke", "url(#linear_7)");
+	}
+}
+
+/**
+ * Applies formatting options to value for input field
+ * @param {number} rawValue Value read from base node
+ * @param {boolean} fractionOnly Whether to skip leading zeroes, post decimals ...
+ * @returns {string} formatted value
+ */
+function _formatInputFieldValue(rawValue, fractionOnly) {
+	let formattedOutput = rawValue;
+	let fieldWidth = 0;
+	formattedOutput = formattedOutput / decimalFactor;
+
+	if (fractionOnly) return formattedOutput;
+
+	if (!isNaN(leadingZeros) && leadingZeros > 0) {
+		fieldWidth += leadingZeros;
+	}
+
+	if (!isNaN(postDecimal) && postDecimal > 0) {
+		if (postDecimal > 9) postDecimal = 9;
+		fieldWidth += postDecimal + 1;
+	}
+
+	if (!isNaN(leadingZeros) && !isNaN(postDecimal)) {
+		var formatString = (sign ? "%+" : "%") + "0" + fieldWidth + "." + postDecimal + "f";
+		formattedOutput = webMI.sprintf(formatString, formattedOutput);
+	}
+
+	if (typeof unit != "undefined" && unit != "") {
+		formattedOutput = formattedOutput + " " + unit;
+	}
+
+	return formattedOutput;
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent(inputFO, "keyup", stopPropagation);
+
+webMI.addEvent(inputFO, "keydown", function (e) {
+	var keyCode = e.keyCode;
+	if (/MSIE/.test(navigator.userAgent)) {
+		storedEvent["keyCode"] = e.keyCode;
+		storedEvent["shiftKey"] = e.shiftKey;
+	}
+	if (keyCode == "13" || keyCode == "9") {
+		inputFO.blur();
+		if (keyCode == "13") tabHandler.setAcceptKeysPrevent(true);
+	} else if (keyCode == "27") {
+		storedEvent["keyCode"] = "27";
+		tabHandler.setAcceptKeysPrevent(true);
+		inputFO.blur();
+	}
+
+	stopPropagation(e);
+});
+
+webMI.addEvent("clickarea_inc", "mousedown", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "clickarea_inc";
+		var value = true;
+		return (function (value) {
+			if (lockInputEvents) return;
+
+			tabHandler.setCurrentIndex(keyHandler);
+			buttonPressed(true, stepInc);
+			webMI.gfx.setStroke("inc_stroke", buttonStrokePressed);
+			if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+				webMI.gfx.setFill("inc_bg", "url(#linear_10)");
+			} else {
+				// only old styles (Standard, Steelblue)
+				webMI.gfx.setFill("inc_stroke", "url(#linear_10)");
+			}
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("clickarea_inc", "mouseup", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "clickarea_inc";
+		var value = true;
+		return (function (value) {
+			releaseInc();
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("clickarea_inc", "mouseout", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "clickarea_inc";
+		var value = true;
+		return (function (value) {
+			releaseInc();
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("clickarea_inc", "dragstart", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		if (e.preventDefault) {
+			e.preventDefault();
+		}
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("clickarea_dec", "mousedown", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "clickarea_dec";
+		var value = true;
+		return (function (value) {
+			if (lockInputEvents) return;
+
+			tabHandler.setCurrentIndex(keyHandler);
+			webMI.gfx.setStroke("dec_stroke", buttonStrokePressed);
+			buttonPressed(true, stepDec * -1);
+			if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+				webMI.gfx.setFill("dec_bg", "url(#linear_10)");
+			} else {
+				// only old styles (Standard, Steelblue)
+				webMI.gfx.setFill("dec_stroke", "url(#linear_10)");
+			}
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("clickarea_dec", "mouseup", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "clickarea_dec";
+		var value = true;
+		return (function (value) {
+			releaseDec();
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("clickarea_dec", "mouseout", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "clickarea_dec";
+		var value = true;
+		return (function (value) {
+			releaseDec();
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("clickarea_dec", "dragstart", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		if (e.preventDefault) {
+			e.preventDefault();
+		}
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("input_clickarea", "dragstart", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		if (e.preventDefault) {
+			e.preventDefault();
+		}
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("input_clickarea", "click", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "input_clickarea";
+		var value = true;
+		return (function (value) {
+			if (lockInputEvents) return;
+
+			tabHandler.setCurrentIndex(keyHandler);
+			var tmp = null;
+
+			if (useSVGKeyboard) {
+				var keyboard = "";
+				var size = format != undefined && format == CONST_NUMBER_FORMAT ? { w: 378, h: 328 } : { w: 700, h: 300 };
+
+				if (format != undefined && format == CONST_NUMBER_FORMAT) {
+					keyboard = number_keyboard;
+				}
+				var keyboardParam = getDisplayParameters();
+				webMI.display.openWindow({
+					display: keyboard,
+					extern: false,
+					height: size.h,
+					menubar: false,
+					modal: true,
+					movable: true,
+					resizable: false,
+					scrollbars: false,
+					status: false,
+					title: "T{Keyboard}",
+					toolbar: false,
+					width: size.w,
+					query: keyboardParam
+				});
+			} else {
+				switchToInputMode();
+			}
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect(
+	"setValue",
+	function (e) {
+		setCurrentValue(e.value);
+	},
+	""
+);
+
+webMI.trigger.connect("com.atvise.setBlinking", function (e) {
+	if (e.value == "none") {
+		delete activeIndicators["trigger"];
+	} else {
+		activeIndicators["trigger"] = { color: e.value, interval: 500 };
+	}
+	setIndicator();
+});
+
+webMI.trigger.connect("com.atvise.access_control_update", function (e) {
+	fetchCurrentRightsAndUpdate();
+});
+]]></code>
+</script>

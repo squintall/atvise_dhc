@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <runcontext>owner</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* begin */
+
+var group = request.postvalues.group;
+var subgroup = request.postvalues.subgroup;
+var label = request.postvalues.label;
+var message = request.postvalues.message;
+var user = request.postvalues.user;
+var status = request.postvalues.status;
+var comment = request.postvalues.comment;
+
+var result = call("Logger.WriteLog", {
+	"group": group,
+	"subgroup": subgroup,
+	"label": label,
+	"message": message,
+	"user": user,
+	"status": status,
+	"comment": comment
+});
+
+return result;
+
+/* end */]]></code>
+</script>

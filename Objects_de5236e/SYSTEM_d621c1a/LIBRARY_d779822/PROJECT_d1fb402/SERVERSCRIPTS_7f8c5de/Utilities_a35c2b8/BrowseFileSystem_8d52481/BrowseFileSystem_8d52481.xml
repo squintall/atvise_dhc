@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="startDirectory" type="string" trigger="false" relative="false" value="."/>
+  <parameter name="depth" type="number" trigger="false" relative="false" value="1"/>
+  <parameter name="onlyDirectories" type="boolean" trigger="false" relative="false" value="false"/>
+  <parameter name="meta" type="stringarray" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/** atvise server library script to browse the the file system.
+This script is a standard atvise resource and must not be modified.
+\example
+\code
+var result = call("Utilities.BrowseFileSystem", {
+  "startDirectory": "./versioncontrol",
+  "depth": 3,
+  "onlyDirectories": true,
+  "meta": ["BrowseName", "NodeId"]
+});
+if (result.error)
+	console.log(result.errorstring);
+else
+	console.log(result.result);
+\endcode
+
+\b Input:
+\params startDirectory {string} Specifies the start directory of browsing. Either absolute or relative to project directory that is defined by '.'.
+\params depth {number},{optional},{default=1} Specifies the levels of browsed hierarchy to return. 0 means all levels.
+\params onlyDirectories {boolean},{optional},{default=false} If true then only directories will be returned.
+\params meta {stringarray},{optional},{default=[]} Specifies the meta data to return.
+
+\b Output:
+\return {Object} A result object is returned with the following properties:
+- Object.error {number},{optional} Returns the error code of the call in case of an error. If no error occurred, it is undefined.
+- Object.errorstring {string},{optional} Returns the error string of the call in case of an error. If no error occurred, it is undefined.
+- Object.result {object},{optional} Returns the result of the call if no error occurred. It has the following properties:
+	- result.path {string} Absolute path of the item in the directory.
+	- result.name {string} Name of the file or directory item.
+	- result.isFile {boolean} If true then item is a file otherwise it is a directory.
+	- result.list {objectarray},{optional} If item is a directory, the sub items in the directory if requested.
+	- result["...meta_data_name..."] {string},{optional} If requested and exists, meta data like "BrowseName", "NodeId", etc. Meta data are stored for directories in dir_name.meta files.
+*/
+
+if (!startDirectory) startDirectory = ".";
+if (!meta) meta = [];
+
+var metaUpperCase = [];
+for (var i in meta) metaUpperCase[i] = meta[i].toUpperCase();
+
+var fs = new FileSystem();
+
+if (startDirectory.trim() == "") return { error:-2, errorstring: "Start directory is not defined" };
+if (fs.isFile(startDirectory)) return { error:-3, errorstring: "Start directory is not a directory: " + startDirectory };
+if (!fs.isDirectory(startDirectory)) return { error:-4, errorstring: "Start directory does not exist: " + startDirectory };
+
+function pickAfter(s, separator) { var pos = s.indexOf(separator); return pos == -1 ? s : s.substr(pos + 1); }
+function unifyPathSeparator(path) { return path.replace('\\', '/'); }
+function adjustPath(path) { var p = unifyPathSeparator(path); return p.endsWith('/.') ||  p.endsWith(':.') ? p.slice(0, -1) : p; }
+function isAbsolutePath(path) { return path.length > 1 && path[1] == ':' || path.length > 0 && unifyPathSeparator(path)[0] == '/'; }
+function getAbsolutePath(path) { return isAbsolutePath(path) ?  adjustPath(path) : adjustPath(server.database.directory + path); }
+function getFileName(path) { var p = getAbsolutePath(path).split('/'); var rv = p.pop(); if (rv.length == 0) rv = p.pop(); return rv; }
+function fileExists(path) { try { return fs.isFile(path); } catch(err) { return false;} }
+function getMetaData(path) {
+	var metaResult = {};
+	var unifiedPath = unifyPathSeparator(path);
+	var metaFileName =  unifiedPath + (unifiedPath.slice(-1) == '/' ? '' : '/') + getFileName(path) + ".meta";
+	if (meta.length && fileExists(metaFileName)) {
+		var ifs = new InputFileStream(metaFileName, "utf8");
+		for(; ifs.good && !ifs.eof;) {
+			var line = ifs.readLine().trimLeft(); // Trailing spaces in meta items e.g. node ids are allowed
+			if (line.length > 0)
+			{
+				var items = line.split(/:(.+)/);
+				if (items.length > 1)
+				{
+					var metaItemName = items[0].trim().toUpperCase();
+					for (var i in metaUpperCase) {
+						if (metaItemName == metaUpperCase[i]) {
+							var metaItemValue = items[1].trimLeft();
+							if (metaItemName == "BROWSENAME") metaItemValue = pickAfter(metaItemValue, ':');
+							if (metaItemName == "DISPLAYNAME" || metaItemName == "DESCRIPTION") metaItemValue = pickAfter(metaItemValue, '|');
+							metaResult[meta[i]] = metaItemValue;
+							break;
+						}
+					}
+				}
+			}
+		}
+		ifs.close();
+	}
+	return metaResult;
+}
+function browseDirectory(folder, currentDepth) {
+	var list = [];
+	if (currentDepth <= depth || depth == 0) {
+		var items = [];
+		try { items = fs.listDirectory(folder); } catch(err) { /*console.log(err);*/ }
+		for (var i in items) {
+			var item = items[i];
+			//item.depth = currentDepth;
+			if (!item.isFile || !onlyDirectories) {
+				var itemMetaInfo = getMetaData(item.path);
+				for (var attrname in itemMetaInfo) item[attrname] = itemMetaInfo[attrname];
+				if (!item.isFile) {
+					var itemList = browseDirectory(item.path, currentDepth + 1);
+					if (itemList.length > 0) item.list = itemList;
+				}
+				list.push(item);
+			}
+		}     
+	}
+	return list;
+}
+
+var result = {};
+var p = getAbsolutePath(startDirectory);
+result["path"] = p.slice(-1) == '/' ? p : p + '/';
+result["name"] = getFileName(startDirectory);
+result["isFile"] = false;
+var metaInfo = getMetaData(startDirectory);
+for (var attrname in metaInfo) result[attrname] = metaInfo[attrname];
+var resultList = browseDirectory(startDirectory, 1);
+if (resultList.length > 0) result["list"] = resultList;
+
+return { result: result };
+]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.PTAR_Sur.Equipos.Pac´s.CCM_BGrafica_EficienciaEnegetica.Energía
+NodeClass: Variable
+BrowseName: 1:Energía
+DisplayName: en|Energía
+Description: en|Energía
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

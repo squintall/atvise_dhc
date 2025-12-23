@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.WEBACCESS.http1.cookie_support
+NodeClass: Variable
+BrowseName: 1:cookie_support
+DisplayName: en|cookie_support
+Description: en|cookie_support
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

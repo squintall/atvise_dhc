@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[webMI.trigger.connect("clicked", function(e){
+	webMI.display.openDisplay("SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.recipe_template_manager", webMI.query);
+}, "btn_templates");
+
+webMI.trigger.connect("clicked", function(e){
+	webMI.display.openDisplay("SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.recipe_manager", webMI.query);
+}, "btn_recipes");
+
+webMI.addOnload(function(e) {
+	var toHighlight = webMI.query["buttonToHighlight"];
+	
+	if (toHighlight == "Templates") {
+		webMI.gfx.setFill("btn_templates_button_bg", webMI.query["btn_button_bg"]);
+	} else if (toHighlight == "Recipes") {
+		webMI.gfx.setFill("btn_recipes_button_bg", webMI.query["btn_button_bg"]);
+	}
+});]]></code>
+</script>

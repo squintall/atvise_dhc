@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/font/css/regular.min.css
+NodeClass: Variable
+BrowseName: 1:regular.min.css
+DisplayName: en|regular.min.css
+Description: en|regular.min.css
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Css
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Css.Compress

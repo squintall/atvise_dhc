@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="100" version="1.2" width="100" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Simple Background with customizable title text.</desc>
+ <title>Background Area</title>
+ <metadata>
+  <atv:parameter behavior="hidden" desc="base" name="base" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#3c3c3c" desc="fill" name="fill" substitute="$FILL$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#c8c8c8" desc="stroke" name="stroke" substitute="$STROKE$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#c8c8c8" desc="font color" name="fontColor" substitute="$FONTCOLOR$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{area description}" desc="area description" name="text" substitute="$TEXT$" valuetype="trstring"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="5" width="5"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <rect atv:bindbr="0,0" atv:bindtl="0,0" atv:refpx="50" atv:refpy="15.75" fill="$FILL$" height="28.5" id="id_5" rx="6" ry="6" stroke="$STROKE$" stroke-width="1" width="98" x="1" y="1.5"/>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="50" atv:refpy="57.5" fill="$FILL$" height="83" id="id_0" rx="6" ry="6" stroke="$STROKE$" stroke-width="1" width="98" x="1" y="16"/>
+ <rect atv:bindbr="0,0" atv:bindtl="0,0" atv:refpx="50" atv:refpy="16.25" fill="$FILL$" height="28.5" id="id_6" rx="5.939" ry="6" stroke="none" stroke-width="1" width="97" x="1.5" y="2"/>
+ <text atv:bindbr="0,0" atv:bindtl="0,0" atv:refpx="50" atv:refpy="9.5" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_4" text-anchor="middle" x="50" y="14">$TEXT$</text>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

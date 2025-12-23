@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="30" version="1.2" width="160" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_1" x1="1" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+   <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_2" x1="1" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+   <stop offset="1" stop-color="#ffffff" stop-opacity="0.35"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_0" x1="1" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+   <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+ </defs>
+ <title>Button/Display Login</title>
+ <desc>Opens the login dialog and displays the logged in user.</desc>
+ <metadata>
+  <atv:parameter behavior="hidden" desc="base" name="base" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Login}" desc="login text" name="loginText" substitute="$LOGINTEXT$" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.login_dialog" desc="login dialog display" name="login_dialog" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.user_editor" desc="user display" name="user_dialog" valuetype="display"/>
+  <atv:parameter behavior="optional" config="Arial;Courier;Verdana" defaultvalue="Arial" desc="family" group="Font" name="fontFamily" substitute="$FONTFAMILY$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="12" desc="size" group="Font" name="fontSize" substitute="$FONTSIZE$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="color" group="Font" name="fontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.login" desc="symbol login" group="Appearance" name="symbolLogin" substitute="$SYMBOLLOGIN$" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="symbol color login" group="Appearance" name="symbolColor" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.logout" desc="symbol logout" group="Appearance" name="symbolLogout" substitute="$SYMBOLLOGOUT$" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="symbol color logout" group="Appearance" name="symbolColorLogout" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Appearance" name="fill" substitute="$FILL$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvInactiveColor" desc="fill color when inactive" group="Appearance" name="fillColorInactive" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvBorderColor" desc="border color" group="Appearance" name="borderColor" substitute="$BORDERCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="stroke color when pressed" group="Appearance" name="strokePressed" valuetype="color"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="5" width="5"/>
+  <atv:snapconfig enabled="false" height="5" width="5"/>
+ </metadata>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80.25" atv:refpy="15.5" fill="$FILL$" height="29.5" id="id_4" rx="3" ry="3" stroke="$BORDERCOLOR$" stroke-width="0.5" width="159.5" x="0.25" y="0.25"/>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="153.5" atv:refpy="-12.25" fill="none" height="24.5" id="id_5" rx="3" ry="3" stroke="none" stroke-width="0.5" width="128" x="2.5" y="2.75"/>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="156.5" atv:refpy="22.5" fill="#ffffff" height="22.5" id="input_bg" rx="3" ry="3" stroke="none" stroke-width="0.5" width="126" x="3.5" y="3.75"/>
+ <text atv:bindbr="0,0.5" atv:bindtl="0,0.5" atv:dynamic="true" atv:refpx="28" atv:refpy="15" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="$FONTSIZE$" id="user_label" x="6.5" y="21">$LOGINTEXT$</text>
+ <g atv:refpx="144.75" atv:refpy="15" id="button_clickarea">
+  <rect atv:bindbr="1,0.5" atv:bindtl="1,0.5" atv:refpx="542.25" atv:refpy="-6.5" fill="$BORDERCOLOR$" height="24.5" id="id_6" rx="3" ry="3" stroke="none" stroke-width="0.5" width="24.5" x="132.5" y="2.75"/>
+  <rect atv:bindbr="1,0.5" atv:bindtl="1,0.5" atv:refpx="411.75" atv:refpy="30" fill="$FILL$" height="22.5" id="button_bg" rx="3" ry="3" stroke="none" stroke-width="2" width="22.5" x="133.5" y="3.75"/>
+  <rect atv:bindbr="1,0.5" atv:bindtl="1,0.5" atv:refpx="411.75" atv:refpy="-6.046" fill="url(#linear_1)" height="22.5" id="button_stroke" rx="2.755" ry="2.755" stroke="none" stroke-width="0.5" width="22.5" x="133.5" y="3.75"/>
+  <svg atv:bindbr="1,0.5" atv:bindtl="1,0.5" atv:refpx="549" atv:refpy="25" height="20" id="button_symbol_login" width="20" x="134.75" xlink:href="$SYMBOLLOGIN$" y="5">
+   <atv:argument name="symbolColor" prefix="symbolColor"/>
+  </svg>
+  <svg atv:bindbr="1,0.5" atv:bindtl="1,0.5" atv:refpx="549" atv:refpy="25" height="20" id="button_symbol_logout" visibility="hidden" width="20" x="134.75" xlink:href="$SYMBOLLOGOUT$" y="5">
+   <atv:argument name="symbolColor" prefix="symbolColorLogout"/>
+  </svg>
+ </g>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.hmi.button_display_login" atv:name="button_display_login" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <rect atv:refpx="167.554" atv:refpy="15.335" cursor="pointer" fill="#3ccc2c" fill-opacity="0" height="29.118" id="user_clickarea" stroke="" stroke-width="0" width="130.694" x="0.161" y="0.593"/>
+</svg>

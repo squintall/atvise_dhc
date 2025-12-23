@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="205" version="1.2" width="400" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Dialog for entering shelving time.</desc>
+ <title>Timed Shelve Dialog</title>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <rect atv:refpx="200" atv:refpy="102.5" fill="none" height="205" id="background" stroke="none" stroke-width="0" width="400" x="0" y="0"/>
+ <text atv:refpx="41.5" atv:refpy="21.5" fill="#000000" font-family="Arial" font-size="12" font-weight="bold" id="alarm_id_label" x="19.5" y="26">T{Alarm ID}:</text>
+ <text atv:refpx="41.5" atv:refpy="41.5" fill="#000000" font-family="Arial" font-size="12" id="alarm_id" x="19.5" y="46">AlarmId</text>
+ <text atv:refpx="41.5" atv:refpy="66.5" fill="#000000" font-family="Arial" font-size="12" font-weight="bold" id="condition_address_label" x="19.5" y="71">T{Condition address}:</text>
+ <text atv:refpx="41.5" atv:refpy="86.5" fill="#000000" font-family="Arial" font-size="12" id="condition_address" x="19.5" y="91">Condition address</text>
+ <text atv:refpx="32.793" atv:refpy="111.5" fill="#000000" font-family="Arial" font-size="12" font-weight="bold" id="time_label" x="19.5" y="116">T{Shelving duration}:</text>
+ <svg atv:refpx="129.183" atv:refpy="140" height="30" id="time" transform="matrix(1.3773,0,0,1,0,0)" width="160" x="13.796" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.in_out_value" y="125">
+  <atv:argument name="validation" value="String"/>
+  <atv:argument name="tabIndex" value="1"/>
+  <atv:overwrite id="input_label" transform="matrix(0.7273,0,0,1,0,0)" x="211.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.7273,0,0,1,0,0)" width="213"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.7273,0,0,1,0,0)" width="212"/>
+  <atv:overwrite id="id_2" transform="matrix(0.7273,0,0,1,0,0)" width="214.5"/>
+  <atv:overwrite id="id_0" transform="matrix(0.7273,0,0,1,0,0)" width="219.5"/>
+ </svg>
+ <svg atv:refpx="326.5" atv:refpy="180" height="30" id="shelve_button" transform="matrix(1.3125,0,0,1,0,0)" width="80" x="209.524" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.button" y="165">
+  <atv:argument name="label" value="T{Shelve}"/>
+  <atv:argument name="tabIndex" value="3"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.7619,0,0,1,0,0)" width="97"/>
+  <atv:overwrite id="button_label" transform="matrix(0.7619,0,0,1,0,0)" x="52.5"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.7619,0,0,1,0,0)" x="42.5"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.7619,0,0,1,0,0)" width="97"/>
+  <atv:overwrite id="id_2" transform="matrix(0.7619,0,0,1,0,0)" width="99.5"/>
+  <atv:overwrite id="id_0" transform="matrix(0.7619,0,0,1,0,0)" width="104.5"/>
+ </svg>
+ <text atv:refpx="43.5" atv:refpy="170.173" fill="#ff0000" font-family="Arial" font-size="12" id="error" visibility="hidden" x="21.5" y="174.673">T{Error}:</text>
+ <text atv:refpx="43.5" atv:refpy="187.307" fill="#ff0000" font-family="Arial" font-size="12" id="message" visibility="hidden" x="21.5" y="191.807">Message</text>
+ <svg atv:refpx="312.946" atv:refpy="139.827" height="30" id="unit" transform="matrix(0.8409,0,0,1,0,0)" width="160" x="292.166" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.combobox" y="124.827">
+  <atv:argument name="statusEnabled" value="No"/>
+  <atv:argument name="tabIndex" value="2"/>
+  <atv:overwrite id="id_3" transform="matrix(1.1852,0,0,1,0,0)" x="109.75"/>
+  <atv:overwrite id="button_bg" transform="matrix(1.1852,0,0,1,0,0)" x="108.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(1.1852,0,0,1,0,0)" x="108.5"/>
+  <atv:overwrite id="id_5" transform="matrix(1.1852,0,0,1,0,0)" x="107.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.1852,0,0,1,0,0)" width="102"/>
+  <atv:overwrite id="combobox_label" transform="matrix(1.1852,0,0,1,0,0)" x="100.5"/>
+  <atv:overwrite id="combobox_bg" transform="matrix(1.1852,0,0,1,0,0)" width="101"/>
+  <atv:overwrite id="id_2" transform="matrix(1.1852,0,0,1,0,0)" width="103"/>
+  <atv:overwrite id="combobox_stroke" transform="matrix(1.1852,0,0,1,0,0)" width="134.5"/>
+ </svg>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.dialogs.alarm_timeshelve" atv:name="alarm_timeshelve" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

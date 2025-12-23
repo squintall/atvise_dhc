@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/Alarm_sounds/mixkit-interface-hint-notification-911.wav
+NodeClass: Variable
+BrowseName: 1:mixkit-interface-hint-notification-911.wav
+DisplayName: en|mixkit-interface-hint-notification-911.wav
+Description: en|mixkit-interface-hint-notification-911.wav
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Wave

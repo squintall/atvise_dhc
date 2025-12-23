@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.dashboard.chart_bar_tile
+NodeClass: Variable
+BrowseName: 1:chart_bar_tile
+DisplayName: en|chart_bar_tile
+Description: en|chart_bar_tile
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

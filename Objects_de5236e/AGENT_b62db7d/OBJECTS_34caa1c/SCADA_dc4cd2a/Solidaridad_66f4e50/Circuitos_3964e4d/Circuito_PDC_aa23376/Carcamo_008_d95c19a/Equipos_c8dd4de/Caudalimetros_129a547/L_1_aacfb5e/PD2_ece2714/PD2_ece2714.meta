@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_008.Equipos.Caudalimetros.L_1.PD2
+NodeClass: Variable
+BrowseName: 1:PD2
+DisplayName: en|PD2
+Description: en|PD2
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

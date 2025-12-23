@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Mail.Operator
+NodeClass: Variable
+BrowseName: 1:Operator
+DisplayName: en|Operator
+Description: en|Operator
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

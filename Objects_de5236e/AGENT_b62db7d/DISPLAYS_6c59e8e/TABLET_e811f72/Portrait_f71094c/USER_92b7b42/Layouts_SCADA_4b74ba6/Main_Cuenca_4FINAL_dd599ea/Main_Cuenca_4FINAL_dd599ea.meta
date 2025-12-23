@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.Layouts_SCADA.Main_Cuenca_4FINAL
+NodeClass: Variable
+BrowseName: 1:Main_Cuenca_4FINAL
+DisplayName: en|Main_Cuenca_4FINAL
+Description: en|Main_Cuenca_4FINAL
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

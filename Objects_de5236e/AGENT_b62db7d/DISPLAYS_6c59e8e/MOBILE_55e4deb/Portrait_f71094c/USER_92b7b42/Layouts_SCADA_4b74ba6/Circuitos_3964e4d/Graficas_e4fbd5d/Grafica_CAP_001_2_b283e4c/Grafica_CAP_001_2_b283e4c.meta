@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA.Circuitos.Graficas.Grafica_CAP_001_2
+NodeClass: Variable
+BrowseName: 1:Grafica_CAP_001_2
+DisplayName: en|Grafica_CAP_001_2
+Description: en|Grafica_CAP_001_2
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

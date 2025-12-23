@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Bomba.Asignar_LR
+NodeClass: Variable
+BrowseName: 1:Asignar_LR
+DisplayName: en|Asignar_LR
+Description: en|Asignar_LR
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

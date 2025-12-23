@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Landscape.USER.Layouts_SCADA_PUERTO.Mapa_Main
+NodeClass: Variable
+BrowseName: 1:Mapa_Main
+DisplayName: en|Mapa_Main
+Description: en|Mapa_Main
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

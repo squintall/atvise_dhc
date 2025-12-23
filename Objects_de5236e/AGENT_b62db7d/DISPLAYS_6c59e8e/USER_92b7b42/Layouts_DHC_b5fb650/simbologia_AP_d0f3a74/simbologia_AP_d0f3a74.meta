@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_DHC.simbologia_AP
+NodeClass: Variable
+BrowseName: 1:simbologia_AP
+DisplayName: en|simbologia_AP
+Description: en|simbologia_AP
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

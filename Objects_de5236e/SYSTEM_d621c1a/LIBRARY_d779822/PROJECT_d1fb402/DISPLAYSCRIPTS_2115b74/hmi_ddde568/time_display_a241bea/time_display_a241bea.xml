@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the time_display and time_display_advanced object displays
+ * -------------------------------------------------------------------
+ * This control displays the current client time (hours, minutes, seconds and milliseconds).
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var base = (webMI.query["base"] == undefined) ? "" : webMI.query["base"];
+
+/** time settings **/
+var secondsSet = webMI.gfx.getX("s");
+var millisecondsSet = webMI.gfx.getX("ms");
+var updateTime = (webMI.query["updateTime"] == undefined) ? 3000 : parseInt(webMI.query["updateTime"], 10);
+
+/** data **/
+var runTimeNodeConfig = {
+	base: {value: null, address: base, paramValue: "", read: true, write: false, aggregate: false}
+};
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+}
+
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (true) {
+	var notifierConfig = {
+		id: document.getElementById("bg_rect").id,
+		rights: [
+			{nodeId: webMI.query["base"], rights: "read", disable: true, notify: false}
+		],
+		menuLayout: menuLayout
+	};
+
+	var rightsHandlingProperties = {
+		notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+		editable: webMI.query["editable"] != "No"
+	};
+
+	if (typeof rightsHandling === "function")
+		rightsHandling(rightsHandlingProperties);
+
+	if (base != "" && typeof updateRunTimeNodeConfig === "function") {
+		updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+	} else {
+		initialize(runTimeNodeConfig);
+	}
+}
+
+function initialize(nodeCfg) {
+	if (base == "") {
+		setTime();
+		var updateInterval = setInterval(function () {
+			setTime();
+		}, updateTime);
+	} else if (nodeCfg.base.read) {
+		webMI.data.subscribe(base, function (e) {
+			setTime(e.value);
+		});
+	}
+}
+
+
+/**
+ * FUNCTION SECTION
+ */
+function setActiveLayout() {
+}
+
+function setInactiveLayout() {
+	webMI.gfx.setText("h", "--");
+	webMI.gfx.setText("m", "--");
+	webMI.gfx.setText("s", "--");
+	if (millisecondsSet) {
+		webMI.gfx.setText("ms", "---");
+	}
+}
+
+function setTime(time) {
+	var displayedTime = (time == undefined) ? new Date() : new Date(time);
+
+	var h = displayedTime.getHours();
+	webMI.gfx.setText("h", webMI.sprintf("%02d", h));
+
+	var m = displayedTime.getMinutes();
+	webMI.gfx.setText("m", webMI.sprintf("%02d", m));
+
+	if (secondsSet) {
+		var s = displayedTime.getSeconds();
+		webMI.gfx.setText("s", webMI.sprintf("%02d", s));
+	}
+
+	if (millisecondsSet) {
+		var ms = displayedTime.getMilliseconds();
+		webMI.gfx.setText("ms", webMI.sprintf("%03d", ms));
+	}
+}
+
+]]></code>
+</script>

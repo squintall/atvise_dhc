@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_11_ZH_PokTaPok.Equipos.Bombas.Bomba_1.arm_I11
+NodeClass: Variable
+BrowseName: 1:arm_I11
+DisplayName: en|arm_I11
+Description: en|arm_I11
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.arm_I11.DeadbandRel
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.arm_I11.SuppressFlicker
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

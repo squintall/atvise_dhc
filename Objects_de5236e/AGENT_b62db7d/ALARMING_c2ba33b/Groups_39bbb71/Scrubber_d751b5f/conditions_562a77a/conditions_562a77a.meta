@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.ALARMING.Groups.Scrubber.conditions
+NodeClass: Variable
+BrowseName: 1:conditions
+DisplayName: en|conditions
+Description: en|conditions
+DataType: NodeId
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

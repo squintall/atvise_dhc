@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Coral.Equipos.Bombas.Bomba_2.Hp
+NodeClass: Variable
+BrowseName: 1:Hp
+DisplayName: en|Hp
+Description: en|Hp
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

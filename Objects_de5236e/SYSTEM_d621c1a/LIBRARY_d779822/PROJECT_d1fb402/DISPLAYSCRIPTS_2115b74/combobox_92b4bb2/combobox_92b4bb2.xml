@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the clickarea object display
+ * -------------------------------------
+ * This control can be used as an overlay element which reacts on clicks.
+ * In addition, the following triggers are fired:
+ * - valuechanged: on MouseClick
+ * - valuechangedMouseUp: on MouseUp
+ * - valuechangedMouseDown: on MouseDown
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var outputNode = webMI.query["outputNode"] == undefined ? "" : webMI.query["outputNode"];
+outputNode = outputNode == "" ? base : outputNode;
+var fontSize = parseFloat(webMI.query["fontSize"]);
+var fontFamily = webMI.query["fontFamily"];
+var fontColor = webMI.query["fontColor"];
+var valueFieldFill =
+	typeof webMI.query["valueFieldFill"] != "undefined" ? webMI.query["valueFieldFill"] : webMI.query["fill"];
+var valueFieldFillInactive =
+	typeof webMI.query["valueFieldFillInactive"] != "undefined"
+		? webMI.query["valueFieldFillInactive"]
+		: webMI.query["fillColorInactive"];
+var fillColor = typeof webMI.query["fillColor"] != "undefined" ? webMI.query["fillColor"] : webMI.query["buttonFill"];
+var strokeFillPressed = webMI.query["strokePressed"];
+var focusStrokeColor = webMI.query["focusStrokeColor"];
+var borderColor = webMI.query["borderColor"];
+var itemsCount = webMI.query["itemsCount"];
+var consistencyGroup = webMI.query["consistencyGroup"];
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+var text1 = webMI.query["text1"];
+var text1value = webMI.query["text1value"] == undefined ? "" : webMI.query["text1value"];
+var text2 = webMI.query["text2"];
+var text2value = webMI.query["text2value"] == undefined ? "" : webMI.query["text2value"];
+var text3 = webMI.query["text3"];
+var text3value = webMI.query["text3value"] == undefined ? "" : webMI.query["text3value"];
+var text4 = webMI.query["text4"];
+var text4value = webMI.query["text4value"] == undefined ? "" : webMI.query["text4value"];
+var text5 = webMI.query["text5"];
+var text5value = webMI.query["text5value"] == undefined ? "" : webMI.query["text5value"];
+var enumList = webMI.query["enumList"] == undefined ? "" : webMI.query["enumList"];
+var right = webMI.query["right"] == undefined ? "" : webMI.query["right"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var mode = webMI.query["mode"];
+var lockInputEvents = false;
+var currentValue = null;
+var minWidth = 160;
+var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+var menuObj = {};
+var selectedIndex = -1;
+var selectedItem = null;
+var contextMenuStyle = {};
+
+if (typeof webMI.query["context_menu_font_family"] != "undefined")
+	contextMenuStyle.fontFamily = webMI.query["context_menu_font_family"];
+if (typeof webMI.query["context_menu_font_size"] != "undefined")
+	contextMenuStyle.fontSize = parseInt(webMI.query["context_menu_font_size"]);
+if (typeof webMI.query["context_menu_font_color"] != "undefined")
+	contextMenuStyle.fontFill = webMI.query["context_menu_font_color"];
+if (typeof webMI.query["context_menu_font_color_hover"] != "undefined")
+	contextMenuStyle.hoverFontFill = webMI.query["context_menu_font_color_hover"];
+if (typeof webMI.query["context_menu_fill_color"] != "undefined")
+	contextMenuStyle.fill = webMI.query["context_menu_fill_color"];
+if (typeof webMI.query["context_menu_hover_color"] != "undefined")
+	contextMenuStyle.hoverFill = webMI.query["context_menu_hover_color"];
+if (typeof webMI.query["contextMenuTextAlignment"] != "undefined")
+	contextMenuStyle.showType = webMI.query["contextMenuTextAlignment"];
+if (typeof webMI.query["contextStroke"] != "undefined") contextMenuStyle.stroke = webMI.query["contextStroke"];
+if (typeof webMI.query["contextStrokeWidth"] != "undefined")
+	contextMenuStyle.strokeWidth = parseInt(webMI.query["contextStrokeWidth"]);
+var isActivationNodeSet = activeNode != "" && String(activeValue) != "";
+
+/* eval enum list if is string */
+if (typeof enumList === "string" && enumList != "") {
+	var parseEnumList;
+	try {
+		parseEnumList = JSON.parse(enumList);
+	} catch (ex) {
+		parseEnumList = enumList;
+	}
+	enumList = parseEnumList;
+}
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: document.getElementById("combobox").id,
+	rights: [
+		{ nodeId: webMI.query["base"], rights: "read", disable: true, notify: false },
+		{ nodeId: webMI.query["alarm"], rights: "alarmRead", disable: false, notify: true },
+		{ nodeId: outputNode, rights: "write", disable: true, notify: false },
+		{ nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true }
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: { activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"] },
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: webMI.query["right"]
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+/* AC set n/a on read denie */
+if (webMI.getAccessControlSupport()) {
+	var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+webMI.gfx.setText("combobox_label", "");
+
+if (alarmToSubscribe != "") updateAlarmIndication(alarmToSubscribe);
+
+if (base != "") {
+	if (accessControlManager) {
+		var compareRights = [{ node: base, right: "read" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, readGranted, readDenied);
+	} else {
+		readGranted;
+	}
+	
+	if (consistencyGroup)
+		consistencyHandler.register(consistencyGroup, base, update);
+
+	function readGranted() {
+		if (consistencyGroup) {
+		} else {
+			webMI.data.subscribe(base, function (e) {
+				currentValue = e.value;
+				setValue(currentValue);
+				if (typeof e.status != "undefined" && typeof handleStatus === "function") handleStatus(e.status);
+			});
+		}
+	}
+
+	function readDenied() {
+		webMI.gfx.setText("combobox_label", "T{N/A}");
+	}
+}
+
+if (mode == "Text") {
+	var texts = [text1, text2, text3, text4, text5];
+	var textvals = [text1value, text2value, text3value, text4value, text5value];
+	for (var i = 0; i < 5; i++) {
+		if (texts[i] != undefined && textvals[i] != undefined) {
+			menuObj[i] = { text: texts[i], value: getFn(texts[i], textvals[i], i) };
+		}
+	}
+} else if (mode == "Boolean") {
+	menuObj = {
+		1: { text: "true", value: getFn("true", true, 0) },
+		2: { text: "false", value: getFn("false", false, 1) }
+	};
+} else if (mode == "Enum List" && enumList != "") {
+	var cnt = 0;
+	for (var i in enumList) {
+		if (enumList[i].text != undefined && enumList[i].value != undefined) {
+			menuObj[cnt] = { text: enumList[i].text, value: getFn(enumList[i].text, enumList[i].value, cnt) };
+			cnt++;
+		}
+	}
+}
+
+webMI.addOnload(function () {
+	var doc = document.getElementById("combobox_clickarea").ownerDocument;
+	tabHandler.register(tabIndex, keyHandler, doc);
+});
+
+if (tooltip != "") {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "combobox_clickarea",
+		text: tooltip
+	});
+}
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setActiveLayout() {
+	lockInputEvents = false;
+
+	webMI.gfx.setFill("combobox_bg", valueFieldFill);
+	webMI.gfx.setFill("button_bg", fillColor);
+}
+
+function setInactiveLayout() {
+	lockInputEvents = true;
+
+	webMI.gfx.setFill("combobox_bg", valueFieldFillInactive);
+	webMI.gfx.setFill("button_bg", valueFieldFillInactive);
+}
+
+function fetchCurrentRightsAndUpdateInputField() {
+	if (accessControlManager) {
+		var compareRights = [{ node: webMI.query["base"], right: "read" }];
+		accessControlManager.assist.handleWithPermissions(compareRights, readGranted, readDenied);
+	}
+}
+
+function setValue(currentValue) {
+	if (mode == "Text") {
+		var texts = [text1, text2, text3, text4, text5];
+		var textvals = [text1value, text2value, text3value, text4value, text5value];
+		webMI.gfx.setText("combobox_label", "");
+		for (var i = 0; i < 5; i++) {
+			if (texts[i] != undefined && textvals[i] != undefined && currentValue == textvals[i]) {
+				webMI.gfx.setText("combobox_label", texts[i]);
+			}
+		}
+	} else if (mode == "Boolean") {
+		if (currentValue == 0) {
+			webMI.gfx.setText("combobox_label", "false");
+		} else {
+			webMI.gfx.setText("combobox_label", "true");
+		}
+	} else if (mode == "Enum List" && enumList != "") {
+		webMI.gfx.setText("combobox_label", "");
+		for (var i in enumList) {
+			if (enumList[i].text != undefined && enumList[i].value != undefined && currentValue == enumList[i].value) {
+				webMI.gfx.setText("combobox_label", enumList[i].text);
+			}
+		}
+	} else if (mode == "Script") {
+		webMI.gfx.setText("combobox_label", "");
+		for (var i in menuObj) {
+			if (currentValue == menuObj[i]["originalValue"]) {
+				return webMI.gfx.setText("combobox_label", menuObj[i]["text"]);
+			}
+		}
+	}
+}
+
+function update(item) {
+	if (item == "") {
+		getFn("", "", null)(true);
+		return;
+	}
+	for (var i in menuObj) {
+		if (item == menuObj[i]["text"]) {
+			menuObj[i]["value"](1);
+			break;
+		}
+	}
+	setValue(item);
+}
+
+function getFn(text, value, idx) {
+	return function (e) {
+		webMI.trigger.fire("valuechanged", value, "");
+		webMI.gfx.setText("combobox_label", text);
+		if (outputNode != null && outputNode != "" && !consistencyGroup) {
+			webMI.data.write(outputNode, value);
+		}
+		selectedIndex = idx;
+		selectedItem = { text: text, value: value, idx: idx };
+
+		if (consistencyGroup && e !== 1) consistencyHandler.set(consistencyGroup, base, value);
+	};
+}
+
+function focusTH() {
+	if (lockInputEvents) return;
+
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", focusStrokeColor);
+	} else {
+		webMI.gfx.setStroke("combobox_bg", focusStrokeColor);
+	}
+}
+
+function blurTH() {
+	if (lockInputEvents) return;
+
+	backTH();
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", "none");
+	} else {
+		webMI.gfx.setStroke("combobox_bg", "none");
+	}
+}
+
+function applyTH() {
+	if (lockInputEvents) return;
+
+	var parameters = {
+		id: "combobox_clickarea",
+		onEvent: "immediately",
+		menuObj: menuObj,
+		outputNode: outputNode,
+		x: 0,
+		y: 30,
+		active: function () {
+			return !lockInputEvents;
+		},
+		itemsCount: itemsCount,
+		fontSize: fontSize,
+		minWidth: minWidth
+	};
+	if (typeof contextMenuStyle != "undefined") {
+		parameters.style = contextMenuStyle;
+	}
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", parameters);
+}
+
+function backTH() {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+		id: "",
+		onEvent: "immediately"
+	});
+}
+
+function arrowTH(dir) {}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		focusTH();
+	} else if (keyTH == "blur") {
+		blurTH();
+	} else if (keyTH == "apply") {
+		applyTH();
+	} else if (keyTH == "space") {
+		applyTH();
+	} else if (keyTH == "back") {
+		backTH();
+	} else if (keyTH == "arrow") {
+		arrowTH(param2);
+	} else if (keyTH == "isActive") {
+		return !lockInputEvents && param2(document.getElementById("combobox_clickarea").parentNode);
+	}
+}
+
+/*
+------------------
+---- EVENTS ----
+------------------
+*/
+
+webMI.addEvent("combobox_clickarea", ["click", "touchstart"], function (e) {
+	if (lockInputEvents) return;
+
+	var parameters = {
+		id: "combobox_clickarea",
+		onEvent: "immediately",
+		menuObj: menuObj,
+		outputNode: outputNode,
+		x: 0,
+		y: 30,
+		active: function () {
+			return !lockInputEvents;
+		},
+		itemsCount: itemsCount,
+		fontSize: fontSize,
+		minWidth: minWidth
+	};
+	if (typeof contextMenuStyle != "undefined") {
+		parameters.style = contextMenuStyle;
+	}
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", parameters);
+});
+
+webMI.addEvent("combobox_clickarea", "mousedown", function (e) {
+	if (lockInputEvents) return;
+
+	var id = "combobox_clickarea";
+	var value = true;
+	return (function (value) {
+		if (lockInputEvents) return;
+
+		tabHandler.setCurrentIndex(keyHandler);
+		if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+			webMI.gfx.setStroke("focus_frame", strokeFillPressed);
+			webMI.gfx.setFill("button_bg", "url(#linear_2)");
+		} else {
+			webMI.gfx.setStroke("combobox_bg", strokeFillPressed);
+		}
+		webMI.gfx.setStroke("button_stroke", strokeFillPressed);
+	})(value);
+});
+
+webMI.addEvent("combobox_clickarea", ["mouseup", "mouseout"], function (e) {
+	var id = "combobox_clickarea";
+	var value = true;
+	return (function (value) {
+		if (lockInputEvents) return;
+		if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+			webMI.gfx.setStroke("focus_frame", "none");
+			webMI.gfx.setFill("button_bg", "none");
+		} else {
+			webMI.gfx.setStroke("combobox_bg", "none");
+		}
+		webMI.gfx.setStroke("button_stroke", "none");
+	})(value);
+});
+
+webMI.addEvent("combobox_clickarea", "dragstart", function (e) {
+	if (e.preventDefault) {
+		e.preventDefault();
+	}
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect(
+	"setSelectedItem",
+	function (e) {
+		var item = e.value;
+		webMI.gfx.setText("combobox_label", item);
+		if (item == "") {
+			getFn("", "", null)();
+			return;
+		}
+		for (var i in menuObj) {
+			if (item == menuObj[i]["text"]) {
+				menuObj[i]["value"]();
+				break;
+			}
+		}
+	},
+	""
+);
+
+webMI.trigger.connect("setItems", function (e) {
+	var value = e.value;
+
+	for (var i in menuObj) delete menuObj[i];
+
+	var cnt = 0;
+	for (var i in value) {
+		if (currentValue == value[i].value) {
+			getFn(value[i].text, value[i].value, cnt)();
+		}
+
+		menuObj[cnt] = {
+			text: value[i].text,
+			value: getFn(value[i].text, value[i].value, cnt),
+			originalValue: value[i].value
+		};
+		cnt++;
+	}
+});
+
+webMI.trigger.connect("addItem", function (e) {
+	var value = e.value;
+	var cnt = 0;
+	for (var i in menuObj) {
+		cnt++;
+	}
+	menuObj[cnt + 1] = { text: value.text, value: getFn(value.text, value.value, cnt) };
+});
+
+webMI.trigger.connect("getSelectedItem", function (e) {
+	var id = "";
+	var value = e.value;
+	if (typeof value == "function") {
+		value(selectedItem);
+	} else {
+		webMI.trigger.fire("selectedItem", selectedItem, "");
+	}
+});
+
+webMI.trigger.connect("getItems", function (e) {
+	var items = [];
+	for (var i in menuObj) {
+		if (i != "style") {
+			items.push(menuObj[i]);
+		}
+	}
+	webMI.trigger.fire("items", items, "");
+});
+
+webMI.trigger.connect("com.atvise.access_control_update", function (e) {
+	fetchCurrentRightsAndUpdateInputField();
+});
+]]></code>
+</script>

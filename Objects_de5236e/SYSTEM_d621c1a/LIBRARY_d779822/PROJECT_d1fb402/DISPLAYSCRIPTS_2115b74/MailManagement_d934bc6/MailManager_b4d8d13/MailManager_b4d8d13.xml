@@ -1,0 +1,1248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the Mail manager object displays
+ * ----------------------------------------------------------
+ * The Mail manager list all configurations and can modifiy them.
+ *
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+
+var webMIQueryProperties = {};
+var tableID = (webMIQueryProperties.tableID = webMI.query["tableID"]);
+var priority = (webMIQueryProperties.priority = parseFloat(
+	webMI.query["priority"] != undefined ? webMI.query["priority"] : 0
+));
+var rightWrite = (webMIQueryProperties.rightWrite = webMI.query["rightWrite"]);
+var rightExport = (webMIQueryProperties.rightExport = webMI.query["rightExport"]);
+var rightGenerate = (webMIQueryProperties.rightGenerate = webMI.query["rightGenerate"]);
+var edit_display = (webMIQueryProperties.edit_display = webMI.query["edit_display"]);
+var header_height = (webMIQueryProperties.header_height = parseInt(webMI.query["header_height"]));
+var row_height = (webMIQueryProperties.row_height = parseInt(webMI.query["row_height"]));
+var font_family = (webMIQueryProperties.font_family = webMI.query["font_family"]);
+var header_font_size = (webMIQueryProperties.header_font_size = webMI.query["header_font_size"]);
+var detail_font_size = (webMIQueryProperties.detail_font_size = webMI.query["detail_font_size"]);
+var footer_font_size = (webMIQueryProperties.footer_font_size = webMI.query["footer_font_size"]);
+var row_font_size = (webMIQueryProperties.row_font_size = webMI.query["row_font_size"]);
+var theme_class = (webMIQueryProperties.theme_class = webMI.query["theme_class"]);
+var paging = (webMIQueryProperties.paging = webMI.query["paging"]);
+var filterBar = (webMIQueryProperties.filterBar = webMI.query["filterBar"]);
+var filterRegExp = (webMIQueryProperties.filterRegExp = webMI.query["filterRegExp"]);
+var filterStar = (webMIQueryProperties.filterRegExp = webMI.query["filterStar"]);
+var filterCaseSensitive = (webMIQueryProperties.filterCaseSensitive = webMI.query["filterCaseSensitive"]);
+var filterMinInputLength = (webMIQueryProperties.filterMinInputLength = webMI.query["filterMinInputLength"]);
+var linebreak = (webMIQueryProperties.linebreak = webMI.query["linebreak"]);
+var columnReorder = (webMIQueryProperties.columnReorder = webMI.query["columnReorder"]);
+var showMenu = (webMIQueryProperties.showMenu = webMI.query["showMenu"]);
+var showMenuCustomTitle = (webMIQueryProperties.showMenuCustomTitle = webMI.query["showMenuCustomTitle"]);
+var showPickerMenuTitle = (webMIQueryProperties.showPickerMenuTitle = webMI.query["showPickerMenuTitle"]);
+var showPickerMenu = (webMIQueryProperties.showPickerMenu = webMI.query["showPickerMenu"]);
+var menuWidth = (webMIQueryProperties.menuWidth = webMI.query["menuWidth"]);
+var menuHeight = (webMIQueryProperties.menuHeight = webMI.query["menuHeight"]);
+var multicellselect = (webMIQueryProperties.multicellselect = webMI.query["multicellselect"]);
+var globalFontConfig = (webMIQueryProperties.globalFontConfig = webMI.query["globalFontConfig"]);
+var globalColorConfig = (webMIQueryProperties.globalColorConfig = webMI.query["globalColorConfig"]);
+var globalBorderColor = (webMIQueryProperties.globalBorderColor = webMI.query["globalBorderColor"]);
+var globalFillColor = (webMIQueryProperties.globalFillColor = webMI.query["globalFillColor"]);
+var globalFontColor = (webMIQueryProperties.globalFontColor = webMI.query["globalFontColor"]);
+var globalSymbolColor = (webMIQueryProperties.globalSymbolColor = webMI.query["globalSymbolColor"]);
+
+var baseDir = "AGENT.OBJECTS.ATVISE.MailManagement";
+var config_rights = {};
+var node_rights = [];
+var nodes = [
+			"SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.MailReadConfiguration",
+			"SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.MailWriteConfiguration",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AddNode",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.CheckNodeExists",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.SetNodeValue",
+			baseDir,
+			baseDir + ".sendMailLog",
+			baseDir + ".sendMail"
+		];
+ 
+var enableConfigWrite = rightWrite == "";
+var enableExport = rightExport == "";
+var enableReportGenerate = rightGenerate == "";
+var topWindow = parent;
+
+var Tables, containerID, mainTableColumnsObject, mainTableColumnsFields, mainTableColumnTitlesDic;
+var slickStyler;
+var slickConfigurator;
+var tableLoaded = false;
+var tableLayer, tableLayerWidth;
+var currentScaleFactor = 1;
+var screenCTM = webMI.gfx.getScreenCTM(true);
+var heightTransformationFactor = screenCTM.d;
+var acknConfHeaderSpan1, acknConfCommentHeaderSpan1;
+var columnSettings;
+var deviceScaling = webMI.query["deviceScaling"] == "true";
+var maxColumnPriority;
+var fontMultiplicator;
+
+var contextMenuStyle = {};
+var fontSizeToTransformationFactor = 0.065;
+var offsetButtons1 = 0;
+var offsetButtons2 = 0;
+var columnDefinitions;
+var hasBrowseNodes = webMI.getMethodSupport().indexOf("BrowseNodes") !== -1;
+
+var dataController; 
+var tableController;
+
+var columns = [
+	{alignmentMain:"", columnName:"T{Edit}", field: "edit", filter: "false", fontSizeDetail: "", fontSizeMain: "", orderMain: "1", priority: "4", sortable: "true", textoption: "", type: "string", visibleMain: "true", widthMain: "50"},
+	{alignmentMain:"", columnName:"T{Name}", field: "name", filter: "true", fontSizeDetail: "", fontSizeMain: "", orderMain: "2", priority: "4", sortable: "true", textoption: "", type: "string", visibleMain: "true", widthMain: "100"},
+	{alignmentMain:"", columnName:"T{Active}", field: "active",	filter: "false", fontSizeDetail: "", fontSizeMain: "", orderMain: "4", priority: "4", sortable: "true", textoption: "", type: "bool", visibleMain: "true", widthMain: "50"},
+	{alignmentMain:"", columnName:"T{Weekday(s)}", field: "weekdays", filter: "true", fontSizeDetail: "", fontSizeMain: "", orderMain: "5", priority: "4", sortable: "true", textoption: "", type: "string", visibleMain: "true", widthMain: "250"},
+	{alignmentMain:"", columnName:"T{Time}", field: "time", filter: "true", fontSizeDetail: "", fontSizeMain: "",  orderMain: "7", priority: "4", sortable: "true", textoption: "", type: "time", visibleMain: "true", widthMain: "250"},
+	{alignmentMain:"", columnName:"T{Priority}", field: "priority", filter: "true", fontSizeDetail: "", fontSizeMain: "", orderMain: "8", priority: "4", sortable: "true", textoption: "", type: "string", visibleMain: "true", widthMain: "50"}
+	
+	];
+var countColumns = Object.keys(columns).length;
+
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager = false;
+
+function getNodeRights(callback) {
+	accessControlManager.getRights(nodes, (response) => {
+		node_rights = response.result;
+		
+		if(callback)
+			callback();
+	});
+}
+
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+	getNodeRights();
+}
+
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (deviceScaling) {
+	maxColumnPriority = webMI.getClientInfo()
+		? webMI.getClientInfo().isDesktop
+			? webMI.query["maxColumnPriority"]
+			: webMI.getClientInfo().isTablet
+				? 2
+				: 1
+		: webMI.query["maxColumnPriority"];
+	fontMultiplicator = webMI.getClientInfo()
+		? webMI.getClientInfo().deviceScaling.table.fontsize
+			? webMI.getClientInfo().deviceScaling.table.fontsize
+			: 1
+		: 1;
+	header_font_size = header_font_size * fontMultiplicator;
+	row_font_size = row_font_size * fontMultiplicator;
+	detail_font_size = detail_font_size * fontMultiplicator;
+	footer_font_size = footer_font_size * fontMultiplicator;
+}
+
+columnDefinitions = getColumnDefinitions(columns);
+
+contextMenuStyle = {
+	maxRows: 10,
+	fontFamily: "Arial",
+	fontSize: row_font_size,
+	fontFill: "#575757",
+	width: 17 * row_font_size,
+	fill: "#ffffff",
+	stroke: "#575757",
+	strokeWidth: 1,
+	hoverFill: "#e5e5e5",
+	closeTime: 0,
+	zIndex: 100,
+	showType: "right"
+};
+
+offsetButtons1 = 5;
+offsetButtons2 = 0;
+offsetButtons3 = 2;
+
+webMI.addOnload(function () {
+	if (webMI.getConfig("frame.scaletype") != "native") currentScaleFactor = webMI.frame.getCurrentScaleFactor();
+
+	tableLayer = document.getElementById(tableID).parentElement.parentElement;
+
+	tableLayerWidth = parseInt(tableLayer.style.width.replace("px", ""));
+	tablePanelHeight = parseInt(webMI.gfx.getHeight("table_panel"));
+
+	var footerHeight = parseInt(webMI.gfx.getHeight("table_footer"));
+
+	if (rightWrite == undefined || rightWrite == "") {
+	} else {
+		if (rightWrite.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1)
+			rightWrite = rightWrite.substring(23, rightWrite.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			enableWriting = webMI.hasRight(rightWrite);
+
+			if (enableWriting) {
+				activeButton.icon.style.cursor = "pointer";
+				inactiveButton.icon.style.cursor = "pointer";
+			} else {
+				activeButton.icon.style.cursor = "default";
+				inactiveButton.icon.style.cursor = "default";
+			}
+
+			var activeButtonElements = parent.document.getElementsByClassName("activeButton");
+			for (var i = 0; i < activeButtonElements.length; ++i) {
+				if (enableWriting) {
+					activeButtonElements[i].style.cursor = "pointer";
+				} else { 
+					activeButtonElements[i].style.cursor = "default";
+				}
+			}
+			var inactiveElements = parent.document.getElementsByClassName("inactiveButton");
+			for (var i = 0; i < inactiveButtonElements.length; ++i) {
+				if (enableWriting) {
+					inactiveButtonElements[i].style.cursor = "pointer";
+				} else {
+					inactiveButtonElements[i].style.cursor = "default";
+				}
+			}
+
+
+			if (tableController && tableController.grid) tableController.grid.resizeCanvas();
+		});
+	}
+
+	if (rightExport == "") {
+	} else {
+		if (rightExport.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1)
+			rightExport = rightExport.substring(23, rightExport.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			enableExport = webMI.hasRight(rightExport);
+			if (typeof tableController != "undefined") {
+				if (!enableExport) tableController.hideMenuEntriesByGroup("csv-commands");
+				else tableController.showMenuEntriesByGroup("csv-commands");
+			}
+
+			if (tableController && tableController.grid) tableController.grid.resizeCanvas();
+		});
+	}
+
+	var wasOffline = false;
+	webMI.addEvent(webMI.data, "serverstatechange", function (e) {
+		var state = e.active["connection-status"].primary || e.active["connection-status"].secondary;
+		if (!state) {
+			wasOffline = true;
+		} else if (wasOffline) {
+			wasOffline = false;
+			liveArray = [];
+			initLiveArray();
+		}
+	});
+
+	if (isNaN(priority)) priority = 0;
+
+	webMI.table.loadResources(function () {
+		/* special for ie11 */
+		function iconInnerHTML(icon, iconClass, dimensions) {
+			var newIcon = icon;
+			newIcon.setAttribute("visibility", "visible");
+			newIcon.setAttribute("viewbox", "0 0 " + icon.getAttribute("width") + " " + icon.getAttribute("height"));
+			if (dimensions) {
+				newIcon.setAttribute("width", dimensions.width);
+				newIcon.setAttribute("height", dimensions.height);
+			}
+			for (var ic in iconClass) {
+				webMI.rootWindow.jQuery(newIcon).addClass(iconClass[ic]);
+			}
+			return webMI.rootWindow.jQuery("<div>").append(webMI.rootWindow.jQuery(newIcon).clone()).html(); // webMI.rootWindow.jQuery(newIcon).outerHTML;
+		}
+
+		/**
+		 * Declaration of some ICONS
+		 * @type {HTMLElement | null}
+		 */
+
+		var iconSelected = initIcon(
+			"iconSelected",
+			"",
+			((fontSizeToTransformationFactor * 12.5) / 16) * header_font_size * heightTransformationFactor,
+			null,
+			null,
+			"selected"
+		);
+		iconSelected.span.innerHTML = iconSelected.icon.outerHTML;
+
+		var iconBurger = initIcon(
+			"iconBurger",
+			"",
+			fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+			null,
+			null,
+			"burger"
+		);
+		iconBurger.span.innerHTML = iconBurger.icon.outerHTML;
+
+		/* Differentiation between standard and scaled header */
+		var headerRowHeightFactor = (header_height ? header_height : 20) / 20;
+
+		var iconMessage = iconInnerHTML(document.getElementById("iconMessage"), [], {
+			width: 80 * headerRowHeightFactor,
+			height: 20 * headerRowHeightFactor
+		});
+
+		/* Scaling correction for external event listener **/
+		var tableElement = document.getElementById(tableID);
+		var scaleType = webMI.getConfig("frame.scaletype");
+		if (scaleType == "zoom") {
+			webMI.gfx.setScaledEvents(
+				tableElement.parentElement.parentElement,
+				false,
+				false,
+				tableElement.parentElement
+			);
+		}
+
+		containerID = document.getElementById(tableID).id;
+
+		var config = {};
+		config.mode = "once";
+		config.columns = columnDefinitions.mainTableColumns;
+		config.containerID = document.getElementById(tableID).id;
+		config.dataRequestFunction = {};
+		//config.bufferInterval = 25;
+		//config.renderInterval = 100;
+		config.rowFormatter = rowFormatter;
+
+		/* get settings from query param */
+		var settings = {};
+		var heightMultiplicator = 1;
+		if (deviceScaling) {
+			heightMultiplicator = webMI.getClientInfo() ? webMI.getClientInfo().deviceScaling.table.rowheight : 1;
+		}
+	
+		config.onClickCallback = function (e, clickinfo) {
+			clickHandler(clickinfo);
+		};
+
+		settings.multiselect = true;
+		settings.header_height = (header_height / currentScaleFactor) * heightMultiplicator * heightTransformationFactor;
+		settings.row_height = (row_height / currentScaleFactor) * heightMultiplicator * heightTransformationFactor;
+		settings.font_family = font_family;
+		settings.header_text_size = (header_font_size / currentScaleFactor) * heightTransformationFactor;
+		settings.detail_text_size = (detail_font_size / currentScaleFactor) * heightTransformationFactor;
+		settings.footer_text_size = (footer_font_size / currentScaleFactor) * heightTransformationFactor;
+		settings.row_text_size = (row_font_size / currentScaleFactor) * heightTransformationFactor;
+		settings.theme_class = theme_class;
+		settings.paging = paging;
+		settings.filterBar = filterBar;
+		settings.filterRegExp = filterRegExp;
+		settings.filterStar = filterStar;
+		settings.filterCaseSensitive = filterCaseSensitive;
+		settings.filterLength = filterMinInputLength;
+		settings.filterConversion = {
+			timestamp: ["datetime"]
+		};
+		settings.linebreak = linebreak;
+		settings.columnReorder = columnReorder;
+		settings.showMenu = showMenu;
+		settings.showMenuCustomTitle = showMenuCustomTitle;
+		settings.showPickerMenuTitle = showPickerMenuTitle;
+		settings.showPickerMenu = showPickerMenu;
+		settings.showMenuWidth = (menuWidth * row_font_size) / 12 / currentScaleFactor;
+		settings.showMenuHeight = menuHeight / currentScaleFactor;
+		settings.multicellselect = multicellselect;
+		settings.icons = [];
+		settings.icons.selector = typeof iconSelected == "undefined" ? false : iconSelected.icon.outerHTML;
+		settings.icons.burger = typeof iconBurger == "undefined" ? false : iconBurger.span.outerHTML;
+		settings.notification = document.getElementById("notification_area").getAttribute("id");
+		var translation = {
+			title_export: "T{Export}",
+			title_command: "T{Filter}",
+			title_picker: "T{Columns}",
+			export_csv: "T{All rows with displayed columns}",
+			export_csv_wh: "T{All rows with all columns}",
+			export_csv_m: "T{Marked rows with displayed columns}",
+			export_csv_mwh: "T{Marked rows with all columns}",
+			export_option_timestamp: "T{Export time as timestamp}",
+			export_option_milliseconds: "T{Precision in milliseconds}",
+			filter_show_hide: "T{Show or hide filter}",
+			filter_clear: "T{Reset filter}",
+			sort_clear: "T{Reset sorting}",
+			tooltip_details: "T{Action}",
+			tooltip_marks: "T{Set/Cancel marks}"
+		};
+		settings.translation = translation;
+
+		/* add globals to settings */
+		for (var key in globalFontConfig) {
+			var value = globalFontConfig[key];
+			if (typeof value.size != "undefined") settings[key] = value.size;
+		}
+		for (var key in globalColorConfig) {
+			var value = globalColorConfig[key];
+			if (typeof value.color != "undefined") settings[key] = value.color;
+		}
+
+		/* get custom styling */
+		var styling = webMI.table.request(tableID, "styling");
+		for (var key in styling) {
+			var value = styling[key];
+			if (typeof value != "undefined") settings[key] = value;
+		}
+
+		/* global fallback colors */
+		var fallbacks = {};
+		fallbacks.globalBorderColor = globalBorderColor;
+		fallbacks.globalFillColor = globalFillColor;
+		fallbacks.globalFontColor = globalFontColor;
+		fallbacks.globalSymbolColor = globalSymbolColor;
+
+		slickConfigurator = new webMI.rootWindow.SlickConfigurator(config, settings, fallbacks);
+		var tableConfig = slickConfigurator.getConfig();
+
+		webMI.table.register(tableID, "ControllerConfig", tableConfig);
+		webMI.table.setReady(tableID, "ControllerConfig");
+
+		webMI.table.waitReady(tableID, "ControllerConfig", function () {
+			dataController = new webMI.rootWindow.DataController();
+			tableController = new webMI.rootWindow.SlickController(dataController, tableConfig);
+
+			tableController.webMIQuery = webMIQueryProperties;
+
+			webMI.table.register(tableID, "controller", tableController);
+
+			/**
+			 * Add message icon to notification_area and configure listener
+			 */
+			webMI.rootWindow
+				.jQuery("#" + settings.notification)
+				.append(webMI.rootWindow.jQuery(iconMessage).clone())
+				.html();
+			webMI.addEvent("notification_area", "click", function (e) {
+				tableController.notification.handleEvent(e, null);
+			});
+
+			/**
+			 * Hide show notification button
+			 */
+			var panel = [];
+			panel.element = document.getElementById(tableID); // config.containerID);
+			panel.width = panel.element.offsetWidth;
+
+			var noteButton = [];
+			noteButton.element = document.getElementById("id_notification");
+
+			var topDefault = parseInt(noteButton.element.style.top.replace("px", ""), 10);
+			topDefault = topDefault - 1;
+			noteButton.top = topDefault + "px";
+			noteButton.icon = [];
+			noteButton.icon.id = document.getElementById("iconMessage").id;
+			noteButton.icon.container = noteButton.element.querySelector("#" + noteButton.icon.id);
+			noteButton.icon.width = noteButton.icon.container.width.baseVal.value;
+			noteButton.icon.height = noteButton.icon.container.height.baseVal.value;
+
+			noteButton.wrapper = [];
+			noteButton.wrapper.element = noteButton.icon.container.parentElement.parentElement.parentElement;
+			noteButton.wrapper.left = parseInt(noteButton.wrapper.element.style.left.replace("px", ""), 10);
+			noteButton.wrapper.element.style.left = noteButton.wrapper.left + 80 - 80 * headerRowHeightFactor + "px";
+			noteButton.wrapper.element.style.width = 80 * headerRowHeightFactor + "px";
+			noteButton.wrapper.element.style.height = 20 * headerRowHeightFactor + "px";
+
+			noteButton.element.style.width = 80 * headerRowHeightFactor + "px";
+			noteButton.element.style.height = 20 * headerRowHeightFactor + "px";
+
+			tableController.hideNotificatonButton = function () {
+				noteButton.element.style.top = "-100px";
+				noteButton.element.style.display = "none";
+			};
+			tableController.showNotificatonButton = function () {
+				noteButton.element.style.top = noteButton.top;
+				noteButton.element.style.display = "block";
+
+				/* correction for parent */
+				var header = [];
+				header.container = [];
+				header.container.content = document.getElementById(tableID);
+				header.container.top = parseInt(
+					header.container.content.parentElement.parentElement.style.top.replace("px", ""),
+					10
+				);
+				header.container.left = parseInt(
+					header.container.content.parentElement.parentElement.style.left.replace("px", ""),
+					10
+				);
+				header.container.height = parseInt(
+					header.container.content.parentElement.parentElement.style.height.replace("px", ""),
+					10
+				);
+
+				header.column = [];
+				header.column.content = header.container.content.getElementsByClassName("slick-header-columns")[0];
+				header.column.width = parseInt(header.column.content.style.width.replace("px", ""), 10);
+				header.column.left = parseInt(header.column.content.style.left.replace("px", ""), 10);
+				header.column.height = header.column.content.offsetHeight;
+				header.offset = header.container.left + header.column.left + header.column.width;
+
+				setTimeout(function () {
+					if (webMI.getConfig("frame.scaletype") === "zoom") {
+						var buttonElement = noteButton.element;
+						var origHeight = 20 * headerRowHeightFactor;
+						var origWidth = 80 * headerRowHeightFactor;
+						var transHeight = buttonElement.getClientRects()[0].height;
+						var transWidth = buttonElement.getClientRects()[0].width;
+
+						var heightFactor = transHeight / origHeight;
+						var widthFactor = transWidth / origWidth;
+
+						var scaleString = "scale(" + widthFactor + "," + heightFactor + ")";
+
+						buttonElement.style.transformOrigin = "0 0";
+						buttonElement.style.transform = scaleString;
+						buttonElement.style.width = origWidth + "px";
+						buttonElement.style.height = origHeight + "px";
+						buttonElement.style.float = null;
+
+						/* [AT-D-12385] wrapper */
+						buttonElement.children[0].children[0].style.float = null;
+					} else if (webMI.getConfig("frame.scaletype") === "transform") {
+						var filters = document.getElementById("filters_bg");
+						var container = filters.parentElement.parentElement;
+						var buttonElement = noteButton.element;
+						var noteArea = buttonElement.children[0].children[0];
+						var iconMessage = noteArea.children[0];
+						var widthFactor = container.getAttribute("transform") ? webMI.gfx.getScreenCTM().a : 1;
+						var heightFactor = container.getAttribute("transform") ? webMI.gfx.getScreenCTM().d : 1;
+
+						noteArea.style.width = 0;
+						noteArea.style.height = 0;
+						noteArea.style.float = null;
+
+						var scaleString = "scale(" + widthFactor + "," + heightFactor + ")";
+
+						iconMessage.style.transform = scaleString;
+						iconMessage.style.transformOrigin = "0 0";
+						iconMessage.style.width = origWidth + "px";
+						iconMessage.style.height = origHeight + "px";
+					}
+				});
+			};
+
+			tableController.hideNotificatonButton();
+
+			/**
+			 * init table
+			 */
+			tableController.init(function () {
+				/* apply custom css to all components */
+				slickStyler = new webMI.rootWindow.SlickStyler();
+				slickStyler.generate(tableConfig.containerID, tableConfig.style);
+
+				webMI.table.setReady(tableID, "controller");
+
+				if (!tableController || !tableController.grid) return;
+
+				var cols = tableController.grid.getColumns();
+
+				if (!enableExport) tableController.hideMenuEntriesByGroup("csv-commands");
+				tableController.grid.resizeCanvas();
+				tableLoaded = true;
+				
+				getConfigurations();
+			});
+		});
+	});
+});
+
+function clickHandler(clickinfo) {
+	var clickColumns = ["active", "edit"];
+
+	if (clickColumns.indexOf(clickinfo.column.id) < 0) {
+		return;
+	}
+
+	/* prevent double click events of fast changes */
+	if (typeof clicklock != "undefined" && clicklock) return;
+	else clicklock = true;
+
+	setTimeout(function preventDoubleClick() {
+		clicklock = false;
+	}, 250);
+	
+	var configuration = clickinfo.item.sortId;
+
+	/* handle active / inactive state click */
+	if (clickinfo.column.id == "active") {
+		/*		
+		if (clickinfo.item.advanced || (clickinfo.item.rights && !clickinfo.item.rights.write))
+			return;
+		*/
+		webMI.data.call("MailReadConfiguration", {configuration: configuration}, function(cfg) {
+			//toggle state
+			cfg.active = !cfg.active
+			
+			if (cfg.template) cfg.template = cfg.template.replaceAll("\\","\\\\");
+			if (cfg.xlsxReport) cfg.xlsxReport = cfg.xlsxReport.replaceAll("\\","\\\\");
+			if (cfg.pdfReport) cfg.pdfReport = cfg.pdfReport.replaceAll("\\","\\\\");
+			if (cfg.htmlReport) cfg.htmlReport = cfg.htmlReport.replaceAll("\\","\\\\");
+
+			//force inactive state without config check in config handler
+			if (!cfg.active)
+				cfg.force = true;
+
+			webMI.data.call("MailWriteConfiguration", {configuration: JSON.stringify(cfg)}, function(e) {
+				if (e.error) {
+					webMI.display.openWindow({
+						display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+						extern: false,
+						width: 400,
+						height: 140 + 20,
+						menubar: false,
+						modal: true,
+						movable: true,
+						resizable: false,
+						scrollbars: false,
+						status: false,
+						title: "T{Warning}",
+						toolbar: false,
+						query: {
+							btn1: "T{OK}",
+							message: e.errorstring ? e.errorstring : "T{Unknown error occured}.",
+							headline: "T{Error}",
+						}
+					});
+				} else {
+					getConfigurations();
+				}
+			});
+		})
+		return;
+	}
+
+	/* handle settings click */
+	if (clickinfo.column.id == "edit") {
+		/*		
+		if (clickinfo.item.advanced || (clickinfo.item.rights && !clickinfo.item.rights.write))
+			return;
+		*/
+		webMI.display.openWindow({
+			display: edit_display,
+			extern: false,
+			height: 700 + 20,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: true,
+			scrollbars: false,
+			status: false,
+			title: "T{Edit}",
+			toolbar: false,
+			width: 700,
+			query: { configuration: configuration }
+		});
+		return;
+	}
+}
+
+//cleanup subscriptions
+webMI.addOnunload(function () {
+	try {
+		webMI.table.register(tableID, "controller", null, true);
+	} catch (ex) {
+		/* already unregistered */
+	}
+
+	/* remove functions */
+	if (tableController) {
+		tableController.hideNotificatonButton();
+		tableController.showNotificatonButton = undefined;
+		tableController.hideNotificatonButton = undefined;
+	}
+
+	slickConfigurator = undefined;
+
+	try {
+		slickStyler.unload();
+		slickStyler = undefined;
+	} catch (ex) {
+		/* already unset */
+	}
+
+	try {
+		tableController.destroy();
+		tableController = undefined;
+	} catch (ex) {
+		/* already unset */
+	}
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+
+/**
+ * @async
+ * @param {string|Array<string>} methodNames webMI-method name to check execution right for
+ * @returns {Promise<boolean>}
+ */
+async function hasExecutionRightsFor(methodNames) {
+	if (typeof methodNames === "string") {
+		methodNames = [methodNames];
+	}
+
+	let methodAddresses = methodNames.map((methodNames) => {
+		return `SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.${methodNames}`;
+	});
+
+	let getRightsParam2 = methodNames.map(() => {
+		return "execute";
+	});
+
+	return new Promise((resolve) => {
+		accessControlManager.getRights(methodAddresses, getRightsParam2, (response) => {
+			if (
+				response.result
+					.map((r) => {
+						return r.value;
+					})
+					.includes(false)
+			) {
+				resolve(false);
+			} else {
+				resolve(true);
+			}
+		});
+	});
+}
+
+
+function initIcon(domId, title, transform, right, iconClass, iconType) {
+	var icon = document.getElementById(domId);
+	if (!icon) return;
+
+	var iconClickarea = document.getElementById(domId + "_clickarea");
+	if (iconClickarea && iconClass) iconClickarea.setAttribute("class", iconClass);
+	var transformFactor = transform / currentScaleFactor;
+
+	var originalButtonSize = parseInt(icon.height.baseVal.value);
+	var transformedButtonSize = transformFactor * originalButtonSize;
+	var buttonOffsetX = 0;
+	var buttonOffsetY = 0;
+
+	var iconGroup = document.getElementById(domId + "_group");
+	if (iconGroup) {
+		iconGroup.setAttribute(
+			"transform",
+			"matrix(" + transformFactor + ",0,0," + transformFactor + "," + buttonOffsetX + "," + buttonOffsetY + ")"
+		);
+	}
+	icon.style.height = originalButtonSize * transformFactor + "px";
+	icon.style.width = originalButtonSize * transformFactor + "px";
+
+	if (right) {
+		icon.style.cursor = "pointer";
+	}
+	icon.setAttribute("visibility", "visible");
+
+	var span = parent.document.createElement("span");
+	span.setAttribute("title", title);
+	span.style.display = "grid";
+	return {icon: icon, group: iconGroup, clickarea: iconClickarea, span: span};
+}
+
+
+function formatString(obj, attribute) {
+	if (obj[attribute]) {
+		let text = typeof obj[attribute] === "string" ? obj[attribute] : obj[attribute]["T{}"];
+		text = webMI.escapeHTML(text);
+
+		try {
+			return webMI.sprintf(text, obj, "T{}");
+		} catch (err) {
+			console.error(attribute + ": " + text + "\n error: " + err);
+		}
+	}
+	return "";
+}
+
+
+
+function getColumnDefinitions(columnSettings) {
+	var mainTableColumns = [];
+	var detailTableColumns = [];
+
+	for (var prop in columnSettings) {
+		// skip loop if the property is from prototype
+		if (!columnSettings.hasOwnProperty(prop)) continue;
+
+		var colParameters = columnSettings[prop];
+
+		var cPrio = parseInt(colParameters.priority, 10);
+		var mPrio = 10;
+
+		//main table columns
+		var column = {
+			id: colParameters.field,
+			name: colParameters.columnName,
+			field: colParameters.field,
+			alignment: colParameters.alignment,
+			filter: colParameters.filter == "true",
+			minWidth: 0,
+			order: parseInt(colParameters.orderMain),
+			sortable: colParameters.sortable == "true",
+			textoption: colParameters.textoption,
+			type: trimAndSplit(colParameters.type),
+			visible: colParameters.visibleMain == "true" && cPrio <= mPrio
+		};
+
+
+		if (parseInt(colParameters.widthMain) > 0) {
+			column.width = parseInt(colParameters.widthMain);
+		}
+
+		if (column.field == "lastCycle") {
+			column.formatter = TimeStampFormatter;
+		} else if (column.field == "active") {
+			column.className = "dt-body-center";
+			column.formatter = ActivationFormatter;
+			column.type = "button";
+		} else if (column.field == "cycleOffset") {
+			column.formatter = CycleoffsetFormatter;
+		} else if (column.field == "edit") {
+			column.className = "dt-body-center";
+			column.formatter = SettingsFormatter;
+			column.type = "button";
+		} else if (column.field == "actions") {
+			column.className = "dt-body-center";
+			column.sortable = false;
+		} else if (column.type == "bool" && column.field != "value") {
+			// !!! TAKE CARE! If some other boolean field, which is handled in the if clauses before it will not use this formatter
+			column.formatter = BooleanFormatter;
+		}else if (column.field == "weekdays" || column.field == "time" || column.field == "priority" || column.field == "name"){
+			column.formatter = stringFormatter;		
+		}
+
+		mainTableColumns.push(column);
+
+
+	}
+
+	mainTableColumns.sort(columnCompareFunction);
+	return {mainTableColumns: mainTableColumns};
+}
+
+//Custom compare function for Array.sort
+function columnCompareFunction(a, b) {
+	//The table colums are sorted by "order" and, if two ore more colums have the same "order", by "name".
+	if (a.order < b.order) return -1;
+	if (a.order > b.order) return 1;
+	//if a.order == b.order sort by name:
+	if (a.name.toUpperCase() < b.name.toUpperCase()) return -1;
+	if (a.name.toUpperCase() > b.name.toUpperCase()) return 1;
+	//if a.name.toUpperCase() == b.name.toUpperCase() return 0:
+	return 0;
+}
+
+function trimAndSplit(input) {
+	input = input.split(",");
+	for (var i in input) input[i] = input[i].trim();
+	return input;
+}
+
+/**
+ * Formatters
+ */
+function SettingsFormatter(row, cell, value, columnDef, dataContext) {
+	/*	
+	if (dataContext.advanced || !dataContext.rights.write || (node_rights && !node_rights[1].rights.execute)) {
+		return '<span style="width: 100%; text-align: center">-</span>';
+	} else {
+		return '<span style="width: 100%; text-align: center"><i class="fas fa-edit"></i></span>';
+	}
+	*/
+	return '<span style="width: 100%; text-align: center"><i class="fas fa-edit"></i></span>';
+}
+
+function TimeStampFormatter(row, cell, value, columnDef, dataContext) {
+	if (value) {
+		var datetime = new Date(value);
+			
+		if (datetime != 'Invalid Date')
+			return _makeConversions(["datetime","s"], datetime.getTime());
+	}
+	
+	return value;
+}
+
+function ActivationFormatter(row, cell, value, columnDef, dataContext) {
+	/*
+	if (dataContext.advanced || !dataContext.rights.write|| (node_rights && !node_rights[1].rights.execute)) {
+		return '<span style="width: 100%; text-align: center">' + (value ? 'T{true}' : 'T{false}') + '</span>';
+	} else {
+		return value
+			? '<span style="width: 100%; text-align: center;"><i class="fas fa-check-square"></i></span>'
+			: '<span style="width: 100%; text-align: center;"><i class="far fa-square"></i></span>';
+	}
+	*/
+	return value ? '<span style="width: 100%; text-align: center;"><i class="fas fa-check-square"></i></span>' : '<span style="width: 100%; text-align: center;"><i class="far fa-square"></i></span>';
+}
+
+function CycleoffsetFormatter(row, cell, value, columnDef, dataContext) {
+	if (typeof value == "undefined" || value === "")
+		value = "-";
+
+	return '<span style="width: 100%; text-align: center">' + value + " T{min.}" + '</span>';
+}
+
+function BooleanFormatter(row, cell, value, columnDef, dataContext) {
+	if (value == true) return "T{true}";
+	else if (value == false) return "T{false}";
+	else return value;
+}
+function stringFormatter(row, cell, value, columnDef, dataContext) {
+	return '<span style="width: 100%; text-align: center">' + value + '</span>';
+}
+function GenerateFormatter(row, cell, value, columnDef, dataContext) {
+	if (value == false) return "";
+	return (html =
+		'<span style="width: 100%; text-align: center"><i class="fas fa-file-export"></i></span>');
+}
+
+// add item to the list
+function addItem(item) {
+	var name = item.name;
+	var folder = item.name.split(".");
+	
+	item.sortId = name;
+	item.name = folder[folder.length - 1];
+	item.group = "";
+	if (folder.length > 1)
+		item.group = name.replace("." + item.name, "");
+
+	tableController.addData({result: [item]});
+}
+
+// get data
+var inProgress = null;
+function getConfigurations() {
+	if(webMI.getAccessControlSupport() && node_rights.length == 0) {
+		setTimeout(function() { getConfigurations() }, 100);
+		return;	
+	}
+		
+	if(inProgress != null)
+		return;
+
+	inProgress = true;
+	tableController.clearData();
+	
+	setTimeout(function() { 
+		getStatus(function(status) {
+			webMI.data.call("MailReadConfiguration", {}, function(e) {
+				accessControlManager.clearRightsStorage();
+
+				var configurations = e;
+				var noderigths = [];
+				
+				if (typeof e.error != "undefined") {
+					var errorstring = e.errorstring ? e.error + " (" + e.errorstring + ")" : e.error;
+					errorstring = e.address ? errorstring + " T{for node} " + e.address : errorstring;
+					tableController.setMessage("T{Error}: " + errorstring);
+				}
+				
+				function handleItem(item) {
+					item.lastCycle = "";
+					if (status && status.log && status.log[item.name]) {
+						if(status.log[item.name].result && status.log[item.name].result.success != true) {
+							item.lastCycle = "T{Error}: " + status.log[item.name].result.errorstring;
+						} else if (status.log[item.name].lastCycle) {
+							item.lastCycle = new Date(status.log[item.name].lastCycle);
+							item.lastCycle = item.lastCycle.getTime();
+						} else {
+							item.lastCycle = "-";
+						}
+					} else if (status == false) {
+						item.lastCycle = "T{No permission}";
+					} else {
+						item.lastCycle = "-";
+					}
+					
+					try {
+						var cycleTime = item.cycleTime;
+						var cycletext = "";
+						if (cycleTime.daysOfWeek.length > 0) {
+							if(cycletext.length > 0)
+								cycletext += "; ";
+							var weekdays = ""
+							if (cycleTime.daysOfWeek.indexOf(1) > -1) 
+								weekdays += "T{Mon.} ";
+							if (cycleTime.daysOfWeek.indexOf(2) > -1) 
+								weekdays += "T{Tue.} ";
+							if (cycleTime.daysOfWeek.indexOf(3) > -1) 
+								weekdays += "T{Wed.} ";
+							if (cycleTime.daysOfWeek.indexOf(4) > -1) 
+								weekdays += "T{Thu.} ";
+							if (cycleTime.daysOfWeek.indexOf(5) > -1) 
+								weekdays += "T{Fri.} ";
+							if (cycleTime.daysOfWeek.indexOf(6) > -1) 
+								weekdays += "T{Sat.} ";
+							if (cycleTime.daysOfWeek.indexOf(0) > -1 || cycleTime.daysOfWeek.indexOf(7) > -1) 
+								weekdays += "T{Sun.} ";
+							cycletext += weekdays;
+						}
+					} catch(ex) {
+					}
+					item.active = JSON.parse(item.active);
+					item.weekdays = cycletext;
+					item.time = timeFormat(item.start)+" - "+timeFormat(item.end);			
+					item.priority = item.prio.value;
+					addItem(item);
+				}
+				
+				if(webMI.getAccessControlSupport() && accessControlManager) {
+					for (var i = 0; i < configurations.length; i++) {
+						noderigths.push(baseDir + "." + configurations[i].name);
+					}
+					
+					if(noderigths.length > 0) {
+						accessControlManager.getRights(noderigths, (response) => {
+							for (var i = 0; i < configurations.length; i++) {
+								var item = configurations[i];
+								
+								if (!item)
+									continue;
+								
+								item.rights = response.result[i].rights;
+								
+								handleItem(item);
+							} 
+							setTimeout(function() { inProgress = null }, 250);
+						});	
+					} else {
+						setTimeout(function() { inProgress = null }, 250);
+					}		
+				} else {
+					for (var i = 0; i < configurations.length; i++) {
+						var item = configurations[i];
+						
+						if (!item)
+							continue;
+						
+						handleItem(item);
+					}
+					setTimeout(function() { inProgress = null }, 250);
+				}
+			});
+		});
+	}, 150);
+}
+function timeFormat(d){
+	d = Number(d) / 1000;
+	var h = Math.floor(d / 3600);
+	var m = Math.floor(d % 3600 / 60);
+	var s = Math.floor(d % 3600 % 60);
+	//h = h > 0 ? h + 1 : h;
+	var hDisplay = h >= 10 ? h + ":" : "0"+ h +":";
+	var mDisplay = m >= 10 ? m : "0"+ m;
+	return hDisplay + mDisplay; 
+}
+function getStatus(callback) {
+	if(!webMI.getAccessControlSupport() || !accessControlManager) {
+		callback(false);
+	} else {
+		getNodeRights(function() {
+			if(!node_rights[6].rights.read) {
+				callback(false);
+			} else {
+				webMI.data.read(baseDir + ".sendMailLog", function(e) {
+					callback(JSON.parse(e.value));
+				});
+			}
+		});
+	}
+}
+
+/**
+ * Internal conversation of datetime
+ * @param format
+ * @param value
+ * @returns {*}
+ * @private
+ */
+function _makeConversions(format, value, wrapIntoSlickDiv) {
+	if (typeof wrapIntoSlickDiv == "undefined") {
+		wrapIntoSlickDiv = true;
+	}
+	if (format[0] == "datetime") {
+		if (value) {
+			if (typeof value == "string" && value.indexOf("-") > -1)
+			//ignore already formatted values
+				return value;
+
+			var date = new Date(parseInt(value, 10));
+			value = webMI.sprintf(
+				"%d-%02d-%02d %02d:%02d:%02d.%03d",
+				date.getFullYear(),
+				date.getMonth() + 1,
+				date.getDate(),
+				date.getHours(),
+				date.getMinutes(),
+				date.getSeconds(),
+				date.getMilliseconds()
+			);
+
+			if (typeof format[1] != "undefined" && format[1] == "s") {
+				value = value.substring(0, value.indexOf("."));
+			}
+		} else {
+			value = "";
+		}
+	}
+	return wrapIntoSlickDiv ? '<div class="slick-cell-item">' + value + "</div>" : value;
+}
+
+function rowFormatter(item, rowIndex) {
+	if (item.rowStyle) {
+		return [item.rowStyle];
+	} else {
+		return [];
+	}
+}
+
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addOnresize(function () {
+	if (webMI.getConfig("frame.scaletype") != "native") return;
+	tableController.grid.resizeCanvas();
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		if (tableLoaded) {
+			getConfigurations();
+		}
+	},
+	"button_refresh"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.display.openWindow({
+			display: edit_display,
+			extern: false,
+			height: 700 + 20,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: true,
+			scrollbars: false,
+			status: false,
+			title: "T{Add}",
+			toolbar: false,
+			width: 700,
+			query: {}
+		});
+	},
+	"button_new"
+);
+
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		if (!tableController)
+			return;
+			
+		var tableData = tableController.getData();
+		var deleteItems = [];
+		var rightMissingItems = [];
+	
+		for (var i=0; i < tableData.length; i++) {
+			if (tableData[i].atvise_marker) {
+				if (tableData[i].rights.engineer && node_rights && node_rights[1].rights.execute)
+					deleteItems.push(tableData[i].group ? (tableData[i].group + "." + tableData[i].name) : tableData[i].name);
+				else
+					rightMissingItems.push(tableData[i].group ? (tableData[i].group + "." + tableData[i].name) : tableData[i].name);
+			}
+		}
+		
+		if (rightMissingItems.length == 0 && deleteItems.length == 0)
+			deleteItems = "\nT{No configuration(s) selected.}";
+		else if (deleteItems.length > 0)
+			deleteItems = "\nT{Configuration(s)}: " + deleteItems.toString().replaceAll(",",", ");
+		/*	
+		if (rightMissingItems.length > 0)
+			rightMissingItems = "\n\nT{Permission missing}: " + rightMissingItems.toString().replaceAll(",",", ");
+		*/	
+		webMI.display.openWindow({
+			display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog",
+			extern: false,
+			width: 400,
+			height: 240 + 20,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Delete}",
+			toolbar: false,
+			query: {
+				btn1: "T{OK}",
+				btn2: "T{Cancel}",
+				headline: "T{Delete all selected configurations}?",
+				msg1: deleteItems,
+				msg2: rightMissingItems,
+				action_btn1: "com.atvise.MailManager.deleteSelectedListEntries"
+			}
+		});
+	},
+	"button_delete"
+);
+
+webMI.trigger.connect("com.atvise.MailManager.deleteSelectedListEntries", function (e) {
+	var tableData = tableController.getData();
+	for (var i=0; i < tableData.length; i++) {
+		if (tableData[i].atvise_marker) {
+			webMI.data.call("MailDeleteConfiguration", {configuration: (tableData[i].group ? (tableData[i].group + "." + tableData[i].name) : tableData[i].name)}, function(result) {
+				getConfigurations();
+			});
+		}		
+	}
+	
+	e.value.close();
+});
+
+webMI.trigger.connect("com.atvise.MailManager.refreshList", function (e) {
+	if (tableLoaded) {
+		setTimeout(function() { getConfigurations() }, 250);
+	}
+});
+
+//disable CSV button for mobile devices
+if (
+	/mobile|android|blackberry|fennec|iemobile|ip(hone|ad|od)|opera m(ob|in)i|playbook|silk|windows (ce|phone)/i.test(
+		navigator.userAgent
+	)
+) {
+	webMI.trigger.fire("com.atvise.setActive", false, "csv");
+}]]></code>
+</script>

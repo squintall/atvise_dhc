@@ -1,0 +1,12 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Scrubber.Sensor2.Alarma
+NodeClass: Variable
+BrowseName: 1:Alarma
+DisplayName: en|Alarma
+Description: en|Alarma
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AR

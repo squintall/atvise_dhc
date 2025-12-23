@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.PTAR_SaastunHa.Con
+NodeClass: Variable
+BrowseName: 1:Con
+DisplayName: en|Con
+Description: en|Con
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

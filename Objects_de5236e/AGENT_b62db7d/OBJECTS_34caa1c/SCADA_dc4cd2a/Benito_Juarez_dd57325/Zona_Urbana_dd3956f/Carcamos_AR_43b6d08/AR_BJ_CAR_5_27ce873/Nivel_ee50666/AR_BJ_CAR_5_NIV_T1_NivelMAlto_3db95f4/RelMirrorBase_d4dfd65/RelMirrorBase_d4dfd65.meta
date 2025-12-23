@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AR.AR_BJ_CAR_5.Nivel.AR_BJ_CAR_5_NIV_T1_NivelMAlto.RelMirrorBase
+NodeClass: Variable
+BrowseName: 1:RelMirrorBase
+DisplayName: en|RelMirrorBase
+Description: en|RelMirrorBase
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.Relative.Base

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Carcamo AP.EstadoElectriciadadCarcamo
+NodeClass: Variable
+BrowseName: 1:EstadoElectriciadadCarcamo
+DisplayName: en|EstadoElectriciadadCarcamo
+Description: en|EstadoElectriciadadCarcamo
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

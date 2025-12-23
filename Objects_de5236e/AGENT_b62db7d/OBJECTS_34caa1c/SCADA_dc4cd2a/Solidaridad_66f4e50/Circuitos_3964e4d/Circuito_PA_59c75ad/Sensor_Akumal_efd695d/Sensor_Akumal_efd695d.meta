@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Sensor_Akumal
+NodeClass: Variable
+BrowseName: 1:Sensor_Akumal
+DisplayName: en|Sensor_Akumal
+Description: en|Sensor_Akumal
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

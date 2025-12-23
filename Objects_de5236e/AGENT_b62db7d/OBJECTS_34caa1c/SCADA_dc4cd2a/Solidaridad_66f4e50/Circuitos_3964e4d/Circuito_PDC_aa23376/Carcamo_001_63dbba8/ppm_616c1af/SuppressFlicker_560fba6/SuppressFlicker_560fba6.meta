@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_001.ppm.SuppressFlicker
+NodeClass: Variable
+BrowseName: 1:SuppressFlicker
+DisplayName: en|SuppressFlicker
+Description: en|SuppressFlicker
+DataType: Int32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Smoothing.SuppressFlicker

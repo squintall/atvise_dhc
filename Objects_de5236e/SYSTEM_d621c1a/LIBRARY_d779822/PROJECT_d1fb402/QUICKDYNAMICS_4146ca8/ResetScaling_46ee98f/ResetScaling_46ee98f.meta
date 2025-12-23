@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.QUICKDYNAMICS.ResetScaling
+NodeClass: Variable
+BrowseName: 1:ResetScaling
+DisplayName: en|ResetScaling
+Description: en|ResetScaling
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

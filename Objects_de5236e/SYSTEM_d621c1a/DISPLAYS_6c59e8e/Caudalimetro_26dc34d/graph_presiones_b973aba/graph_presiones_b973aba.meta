@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Caudalimetro.graph_presiones
+NodeClass: Variable
+BrowseName: 1:graph_presiones
+DisplayName: en|graph_presiones
+Description: en|graph_presiones
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

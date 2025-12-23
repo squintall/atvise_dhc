@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Presiones_Solidaridad.Acumulados_AP_BJ
+NodeClass: Variable
+BrowseName: 1:Acumulados_AP_BJ
+DisplayName: en|Acumulados_AP_BJ
+Description: en|Acumulados_AP_BJ
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

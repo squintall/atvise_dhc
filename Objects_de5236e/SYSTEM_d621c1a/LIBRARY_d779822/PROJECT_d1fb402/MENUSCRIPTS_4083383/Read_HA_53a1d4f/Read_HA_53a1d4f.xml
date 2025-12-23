@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="Parameters" type="http" trigger="false" relative="false" value=""/>
+  <code><![CDATA[function fetchHistoryData() {
+    // Definir el rango de tiempo dinámico (una hora antes hasta ahora)
+    var endTime = new Date();  // Tiempo actual
+    var startTime = new Date(endTime.getTime() - 60 * 60 * 1000);  // Una hora antes del tiempo actual
+
+    // Convertir las fechas a timestamps en milisegundos
+    var from = startTime.getTime();
+    var to = endTime.getTime();
+
+    // Realizar la consulta de historial
+    var result = history.query({
+        type: ["v:1"],  // Tipo de datos: valores
+        timestamp: ["n:>=" + from + "<" + to],  // Filtro de tiempo
+        address: ["AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_001.*"]  // Dirección del nodo
+    });
+
+    // Retornar el resultado de la consulta
+    return result;
+}
+
+// Llamada a la función para obtener los datos
+var data = fetchHistoryData();
+return data;]]></code>
+</script>

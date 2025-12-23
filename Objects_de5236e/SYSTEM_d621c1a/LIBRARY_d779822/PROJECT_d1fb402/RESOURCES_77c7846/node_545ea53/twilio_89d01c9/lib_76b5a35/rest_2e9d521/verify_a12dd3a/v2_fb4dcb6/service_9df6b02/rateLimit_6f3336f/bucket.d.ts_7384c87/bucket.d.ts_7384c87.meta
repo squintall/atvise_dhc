@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/verify/v2/service/rateLimit/bucket.d.ts
+NodeClass: Variable
+BrowseName: 1:bucket.d.ts
+DisplayName: en|bucket.d.ts
+Description: en|bucket.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

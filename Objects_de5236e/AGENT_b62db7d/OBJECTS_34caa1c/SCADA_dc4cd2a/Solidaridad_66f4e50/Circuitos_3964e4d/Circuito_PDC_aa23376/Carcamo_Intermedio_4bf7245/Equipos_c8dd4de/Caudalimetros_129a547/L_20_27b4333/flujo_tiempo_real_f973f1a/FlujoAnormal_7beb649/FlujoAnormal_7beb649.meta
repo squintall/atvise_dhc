@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Caudalimetros.L_20.flujo_tiempo_real.FlujoAnormal
+NodeClass: Object
+BrowseName: 1:FlujoAnormal
+DisplayName: en|FlujoAnormal
+Description: en|FlujoAnormal
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

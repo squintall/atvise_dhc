@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.Methods.DataSource.HistoryReadProcessed
+NodeClass: Variable
+BrowseName: 1:HistoryReadProcessed
+DisplayName: en|HistoryReadProcessed
+Description: en|HistoryReadProcessed
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

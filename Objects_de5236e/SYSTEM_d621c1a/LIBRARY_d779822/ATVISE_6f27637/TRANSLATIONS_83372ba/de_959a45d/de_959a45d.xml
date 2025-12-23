@@ -1,0 +1,4282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TS>
+  <context>
+    <message>
+      <source>delete</source>
+      <translation>löschen</translation>
+    </message>
+    <message>
+      <source>bottom</source>
+      <translation>unten</translation>
+    </message>
+    <message>
+      <source>Server logfile</source>
+      <translation>Server-Logdatei</translation>
+    </message>
+    <message>
+      <source>Remove recipe template parameter</source>
+      <translation>Rezeptvorlagenparameter entfernen</translation>
+    </message>
+    <message>
+      <source>ACTIVE!</source>
+      <translation>AKTIV!</translation>
+    </message>
+    <message>
+      <source>Value prefix</source>
+      <translation>Wert Präfix</translation>
+    </message>
+    <message>
+      <source>#</source>
+      <translation>#</translation>
+    </message>
+    <message>
+      <source>left</source>
+      <translation>links</translation>
+    </message>
+    <message>
+      <source>(IN)ACTIVE!</source>
+      <translation>(IN)AKTIV!</translation>
+    </message>
+    <message>
+      <source>Aborted</source>
+      <translation>Abgebrochen</translation>
+    </message>
+    <message>
+      <source>Yes</source>
+      <translation>Ja</translation>
+    </message>
+    <message>
+      <source>character</source>
+      <translation>Zeichen</translation>
+    </message>
+    <message>
+      <source>Abbr.</source>
+      <translation>Abk.</translation>
+    </message>
+    <message>
+      <source>Saving configuration in progress</source>
+      <translation>Speichern der Konfiguration läuft</translation>
+    </message>
+    <message>
+      <source>Alternative 3</source>
+      <translation>Alternative 3</translation>
+    </message>
+    <message>
+      <source>Special character(s)</source>
+      <translation>Sonderzeichen</translation>
+    </message>
+    <message>
+      <source>.</source>
+      <translation>.</translation>
+    </message>
+    <message>
+      <source>User temporarily locked for</source>
+      <translation>Benutzer temporär gesperrt für</translation>
+    </message>
+    <message>
+      <source>Value too high!</source>
+      <translation>Wert zu hoch!</translation>
+    </message>
+    <message>
+      <source>Address</source>
+      <translation>Adresse</translation>
+    </message>
+    <message>
+      <source>invalid name</source>
+      <translation>ungültiger Name</translation>
+    </message>
+    <message>
+      <source>Value, Event, Alarm</source>
+      <translation>Wert, Ereignis, Alarm</translation>
+    </message>
+    <message>
+      <source>Timer Scheduler</source>
+      <translation>Zeitplaner</translation>
+    </message>
+    <message>
+      <source>ACKNOWLEDGE</source>
+      <translation>QUITTIEREN</translation>
+    </message>
+    <message>
+      <source>Acknowledged</source>
+      <translation>Quittiert</translation>
+    </message>
+    <message>
+      <source>Display</source>
+      <translation>Display</translation>
+    </message>
+    <message>
+      <source>Recipe select</source>
+      <translation>Rezept selektieren</translation>
+    </message>
+    <message>
+      <source>Note: May require reload of the chart to be applied correctly.</source>
+      <translation>Anmerkung: Das Diagramm muss für eine korrekte Anzeige eventuell neu geladen werden.
+      </translation>
+    </message>
+    <message>
+      <source>Time format</source>
+      <translation>Zeitformat</translation>
+    </message>
+    <message>
+      <source>Time received</source>
+      <translation>Empfangszeit</translation>
+    </message>
+    <message>
+      <source>Line width</source>
+      <translation>Linienstärke</translation>
+    </message>
+    <message>
+      <source>Shelve time</source>
+      <translation>Beginn des Zurückstellens</translation>
+    </message>
+    <message>
+      <source>Action</source>
+      <translation>Aktion</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>Bestätigen</translation>
+    </message>
+    <message>
+      <source>Old password</source>
+      <translation>Altes Passwort</translation>
+    </message>
+    <message>
+      <source>Active</source>
+      <translation>Aktiv</translation>
+    </message>
+    <message>
+      <source>Series 15</source>
+      <translation>Serie 15</translation>
+    </message>
+    <message>
+      <source>Reset filter</source>
+      <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+      <source>Friday</source>
+      <translation>Freitag</translation>
+    </message>
+    <message>
+      <source>Marker 2 Y-Value</source>
+      <translation>Marker 2 Y-Wert</translation>
+    </message>
+    <message>
+      <source>Add new / edit events</source>
+      <translation>Ereignis hinzufügen/bearbeiten</translation>
+    </message>
+    <message>
+      <source>User changed</source>
+      <translation>Benutzerwechsel</translation>
+    </message>
+    <message>
+      <source>Inactive</source>
+      <translation>Inaktiv</translation>
+    </message>
+    <message>
+      <source>Password</source>
+      <translation>Passwort</translation>
+    </message>
+    <message>
+      <source>Action buttons disabled; space is critical</source>
+      <translation>Aktions-Buttons deaktiviert; Platz ist kritisch</translation>
+    </message>
+    <message>
+      <source>Checkbox</source>
+      <translation>Checkbox</translation>
+    </message>
+    <message>
+      <source>Source address</source>
+      <translation>Quelladresse</translation>
+    </message>
+    <message>
+      <source>Execute</source>
+      <translation>Ausführen</translation>
+    </message>
+    <message>
+      <source>Enabled state icon</source>
+      <translation>Eingeschaltet Status Symbol</translation>
+    </message>
+    <message>
+      <source>Resigned</source>
+      <translation>Storniert</translation>
+    </message>
+    <message>
+      <source>false</source>
+      <translation>nein</translation>
+    </message>
+    <message>
+      <source>Alarm</source>
+      <translation>Alarm</translation>
+    </message>
+    <message>
+      <source>End from</source>
+      <translation>Endzeitpunkt von</translation>
+    </message>
+    <message>
+      <source>Alarm list</source>
+      <translation>Alarmliste</translation>
+    </message>
+    <message>
+      <source>Please enter a value greater than or equal to %d.</source>
+      <translation>Bitte einen Wert größer oder gleich %d eingeben.</translation>
+    </message>
+    <message>
+      <source>INACTIVE!</source>
+      <translation>INAKTIV!</translation>
+    </message>
+    <message>
+      <source>Min.</source>
+      <translation>Min.</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>Abbrechen</translation>
+    </message>
+    <message>
+      <source>Value off</source>
+      <translation>Endwert</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>Anwenden</translation>
+    </message>
+    <message>
+      <source>Apply filter</source>
+      <translation>Filtern</translation>
+    </message>
+    <message>
+      <source>Marker 2</source>
+      <translation>Marker 2</translation>
+    </message>
+    <message>
+      <source>Read</source>
+      <translation>Lesen</translation>
+    </message>
+    <message>
+      <source>Data</source>
+      <translation>Daten</translation>
+    </message>
+    <message>
+      <source>SOP</source>
+      <translation>SOP</translation>
+    </message>
+    <message>
+      <source>Archive</source>
+      <translation>Archiv</translation>
+    </message>
+    <message>
+      <source>Timed Shelved</source>
+      <translation>Befristet zurückgestellt</translation>
+    </message>
+    <message>
+      <source>logarithmic</source>
+      <translation>logarithmisch</translation>
+    </message>
+    <message>
+      <source>Once</source>
+      <translation>Einmalig</translation>
+    </message>
+    <message>
+      <source>Major tick interval</source>
+      <translation>Intervall Hauptgitter</translation>
+    </message>
+    <message>
+      <source>First occ.</source>
+      <translation>Erstes Vork.</translation>
+    </message>
+    <message>
+      <source>Area</source>
+      <translation>Bereich</translation>
+    </message>
+    <message>
+      <source>to</source>
+      <translation>um die</translation>
+    </message>
+    <message>
+      <source>Waiting for timeout</source>
+      <translation>Warte auf Timeout</translation>
+    </message>
+    <message>
+      <source>Eventtext</source>
+      <translation>Ereignistext</translation>
+    </message>
+    <message>
+      <source>Event type</source>
+      <translation>Ereignistyp</translation>
+    </message>
+    <message>
+      <source>OneShotShelved</source>
+      <translation>Einmalig zurückgestellt</translation>
+    </message>
+    <message>
+      <source>The selection can be applied to all marked lines!</source>
+      <translation>Die Auswahl kann auf alle markierten Linien angewendet werden!</translation>
+    </message>
+    <message>
+      <source>Axis</source>
+      <translation>Achse</translation>
+    </message>
+    <message>
+      <source>Off Unacknowledged</source>
+      <translation>Geht unquittiert</translation>
+    </message>
+    <message>
+      <source>Label</source>
+      <translation>Beschriftung</translation>
+    </message>
+    <message>
+      <source>Basic</source>
+      <translation>Standard</translation>
+    </message>
+    <message>
+      <source>Month(s)</source>
+      <translation>Monat(e)</translation>
+    </message>
+    <message>
+      <source>Color</source>
+      <translation>Farbe</translation>
+    </message>
+    <message>
+      <source>Auto scale</source>
+      <translation>Auto. Skalierung</translation>
+    </message>
+    <message>
+      <source>Keep archive(s) together</source>
+      <translation>Halte Archiv(e) zusammen</translation>
+    </message>
+    <message>
+      <source>Source</source>
+      <translation>Quelle</translation>
+    </message>
+    <message>
+      <source>Mouse cursor</source>
+      <translation>Mauszeiger</translation>
+    </message>
+    <message>
+      <source>Confirmed</source>
+      <translation>Bestätigt</translation>
+    </message>
+    <message>
+      <source>From</source>
+      <translation>Von</translation>
+    </message>
+    <message>
+      <source>DD</source>
+      <translation>TT</translation>
+    </message>
+    <message>
+      <source>at the given resolution of the screen/chart</source>
+      <translation>Auflösung des Diagramms nicht wahrnehmen kann.</translation>
+    </message>
+    <message>
+      <source>Date</source>
+      <translation>Datum</translation>
+    </message>
+    <message>
+      <source>E-mail to</source>
+      <translation>E-Mail an</translation>
+    </message>
+    <message>
+      <source>Delete</source>
+      <translation>Entfernen</translation>
+    </message>
+    <message>
+      <source>arearange</source>
+      <translation>Reichweite</translation>
+    </message>
+    <message>
+      <source>Description</source>
+      <translation>Beschreibung</translation>
+    </message>
+    <message>
+      <source>Title</source>
+      <translation>Titel</translation>
+    </message>
+    <message>
+      <source>Behaviour of alternative URLs</source>
+      <translation>Verhalten der alternativen URLs</translation>
+    </message>
+    <message>
+      <source>Do you really want to set the value?</source>
+      <translation>Wollen Sie den Wert wirklich setzen?</translation>
+    </message>
+    <message>
+      <source>Save recipe template as</source>
+      <translation>Rezeptvorlage speichern unter</translation>
+    </message>
+    <message>
+      <source>Clear</source>
+      <translation>Löschen</translation>
+    </message>
+    <message>
+      <source>Points/Series</source>
+      <translation>Punkte/Serien</translation>
+    </message>
+    <message>
+      <source>Duration (min)</source>
+      <translation>Dauer (min)</translation>
+    </message>
+    <message>
+      <source>Ignore</source>
+      <translation>Ignorieren</translation>
+    </message>
+    <message>
+      <source>End to</source>
+      <translation>Endzeitpunkt bis</translation>
+    </message>
+    <message>
+      <source>Download configuration</source>
+      <translation>Download Konfiguration</translation>
+    </message>
+    <message>
+      <source>HH</source>
+      <translation>HH</translation>
+    </message>
+    <message>
+      <source>alignment</source>
+      <translation>Ausrichtung</translation>
+    </message>
+    <message>
+      <source>Replicating ?-&gt;?</source>
+      <translation>Abgleich ?-&gt;?</translation>
+    </message>
+    <message>
+      <source>Dest.</source>
+      <translation>Ziel</translation>
+    </message>
+    <message>
+      <source>Styling</source>
+      <translation>Styling</translation>
+    </message>
+    <message>
+      <source>Invalid format!</source>
+      <translation>Falsches Format!</translation>
+    </message>
+    <message>
+      <source>management</source>
+      <translation>verwaltung</translation>
+    </message>
+    <message>
+      <source>Language</source>
+      <translation>Sprache</translation>
+    </message>
+    <message>
+      <source>Last occ.</source>
+      <translation>Letztes Vork.</translation>
+    </message>
+    <message>
+      <source>Line</source>
+      <translation>Linie</translation>
+    </message>
+    <message>
+      <source>Selected aggregate</source>
+      <translation>Ausgewähltes Aggregat</translation>
+    </message>
+    <message>
+      <source>Remove favorite</source>
+      <translation>Favorit entfernen</translation>
+    </message>
+    <message>
+      <source>Please select recipe template in combobox to add recipe</source>
+      <translation>Bitte wählen Sie eine Rezeptvorlage in der Combobox um ein Rezept hinzuzufügen</translation>
+    </message>
+    <message>
+      <source>No write rights for variable</source>
+      <translation>Keine Schreibrechte für Variable</translation>
+    </message>
+    <message>
+      <source>live only</source>
+      <translation>nur Live</translation>
+    </message>
+    <message>
+      <source>Live</source>
+      <translation>Live</translation>
+    </message>
+    <message>
+      <source>OK</source>
+      <translation>OK</translation>
+    </message>
+    <message>
+      <source>STATUS</source>
+      <translation>STATUS</translation>
+    </message>
+    <message>
+      <source>Modified</source>
+      <translation>Geändert</translation>
+    </message>
+    <message>
+      <source>Login</source>
+      <translation>Anmelden</translation>
+    </message>
+    <message>
+      <source>Login failed! Username/password wrong</source>
+      <translation>Login fehlgeschlagen! Benutzername/Passwort falsch</translation>
+    </message>
+    <message>
+      <source>Config file required!</source>
+      <translation>Konfigurationsdatei benötigt!</translation>
+    </message>
+    <message>
+      <source>Suppressed state icon</source>
+      <translation>Unterdrückt Status Symbol</translation>
+    </message>
+    <message>
+      <source>or permission missing.</source>
+      <translation>oder Berechtigung fehlt.</translation>
+    </message>
+    <message>
+      <source>Switching in progress</source>
+      <translation>Umschaltung läuft</translation>
+    </message>
+    <message>
+      <source>Event archive</source>
+      <translation>Ereignisarchiv</translation>
+    </message>
+    <message>
+      <source>Value</source>
+      <translation>Wert</translation>
+    </message>
+    <message>
+      <source>Major grid color</source>
+      <translation>Farbe Hauptgitter</translation>
+    </message>
+    <message>
+      <source>Unsuppress</source>
+      <translation>Nicht unterdrücken</translation>
+    </message>
+    <message>
+      <source>Please login!</source>
+      <translation>Bitte einloggen!</translation>
+    </message>
+    <message>
+      <source>Load</source>
+      <translation>Laden</translation>
+    </message>
+    <message>
+      <source>Marker 2 X-Value</source>
+      <translation>Marker 2 X-Wert</translation>
+    </message>
+    <message>
+      <source>Combobox</source>
+      <translation>Combobox</translation>
+    </message>
+    <message>
+      <source>Visualization</source>
+      <translation>Visualisierung</translation>
+    </message>
+    <message>
+      <source>MM</source>
+      <translation>MM</translation>
+    </message>
+    <message>
+      <source>PREFERRED</source>
+      <translation>VORZUGSLAGE</translation>
+    </message>
+    <message>
+      <source>Please enter a configuration name!</source>
+      <translation>Bitte Konfigurationsnamen eingeben!</translation>
+    </message>
+    <message>
+      <source>Series 10</source>
+      <translation>Serie 10</translation>
+    </message>
+    <message>
+      <source>Weight</source>
+      <translation>Gewichtung</translation>
+    </message>
+    <message>
+      <source>Monday</source>
+      <translation>Montag</translation>
+    </message>
+    <message>
+      <source>Line type</source>
+      <translation>Linientyp</translation>
+    </message>
+    <message>
+      <source>Groups</source>
+      <translation>Gruppen</translation>
+    </message>
+    <message>
+      <source>One Shot Shelve</source>
+      <translation>Einmalig zurückstellen</translation>
+    </message>
+    <message>
+      <source>Data source</source>
+      <translation>Datenquelle</translation>
+    </message>
+    <message>
+      <source>User not logged in!</source>
+      <translation>Kein Benutzer angemeldet!</translation>
+    </message>
+    <message>
+      <source>Node</source>
+      <translation>Datenpunkt</translation>
+    </message>
+    <message>
+      <source>Node description</source>
+      <translation>Datenpunktbeschreibung</translation>
+    </message>
+    <message>
+      <source>Replicating S-&gt;P</source>
+      <translation>Abgleich S-&gt;P</translation>
+    </message>
+    <message>
+      <source>Refresh</source>
+      <translation>Neu laden</translation>
+    </message>
+    <message>
+      <source>Min</source>
+      <translation>Min</translation>
+    </message>
+    <message>
+      <source>min.</source>
+      <translation>Min.</translation>
+    </message>
+    <message>
+      <source>Ok</source>
+      <translation>Ok</translation>
+    </message>
+    <message>
+      <source>On Acknowledged</source>
+      <translation>Kommt quittiert</translation>
+    </message>
+    <message>
+      <source>Label distance</source>
+      <translation>Abstand Beschriftung</translation>
+    </message>
+    <message>
+      <source>On Off Unacknowledged</source>
+      <translation>Kommt Geht unquittiert</translation>
+    </message>
+    <message>
+      <source>On Unacknowledged</source>
+      <translation>Kommt unquittiert</translation>
+    </message>
+    <message>
+      <source>Default display</source>
+      <translation>Default-Display</translation>
+    </message>
+    <message>
+      <source>One Shot Shelved</source>
+      <translation>Einmalig zurückgestellt</translation>
+    </message>
+    <message>
+      <source>Acknowledge</source>
+      <translation>Quittieren</translation>
+    </message>
+    <message>
+      <source>Alarm ID</source>
+      <translation>Alarm-ID</translation>
+    </message>
+    <message>
+      <source>Vitality insufficient</source>
+      <translation>Vitalstatus unzureichend</translation>
+    </message>
+    <message>
+      <source>Period</source>
+      <translation>Periode</translation>
+    </message>
+    <message>
+      <source>In/Out Value</source>
+      <translation>Ein-/Ausgabeelement</translation>
+    </message>
+    <message>
+      <source>Do you still want to create the new configuration?</source>
+      <translation>Möchten Sie die neue Konfiguration dennoch erstellen?</translation>
+    </message>
+    <message>
+      <source>Permission missing</source>
+      <translation>Berechtigung fehlt</translation>
+    </message>
+    <message>
+      <source>Advanced filters</source>
+      <translation>Erweiterte Filter</translation>
+    </message>
+    <message>
+      <source>Acknowledge with comment</source>
+      <translation>Mit Kommentar quittieren</translation>
+    </message>
+    <message>
+      <source>Hand</source>
+      <translation>Hand</translation>
+    </message>
+    <message>
+      <source>Please enter a valid configuration name!</source>
+      <translation>Bitte geben Sie einen gültigen Konfigurationsnamen ein!</translation>
+    </message>
+    <message>
+      <source>Marker</source>
+      <translation>Datenpunkte</translation>
+    </message>
+    <message>
+      <source>Please enter username and password.</source>
+      <translation>Bitte geben Sie Benutzernamen und Passwort ein.</translation>
+    </message>
+    <message>
+      <source>Radiobutton</source>
+      <translation>Radiobutton</translation>
+    </message>
+    <message>
+      <source>Recurring</source>
+      <translation>Periode</translation>
+    </message>
+    <message>
+      <source>(IN)ACTIVE! unconf.</source>
+      <translation>(IN)AKTIV! unbest.</translation>
+    </message>
+    <message>
+      <source>Search</source>
+      <translation>Suchen</translation>
+    </message>
+    <message>
+      <source>Reset</source>
+      <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+      <source>Replicating History S-&gt;P</source>
+      <translation>Abgleich History S-&gt;P</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>Schließen</translation>
+    </message>
+    <message>
+      <source>SS</source>
+      <translation>SS</translation>
+    </message>
+    <message>
+      <source>Saturday</source>
+      <translation>Samstag</translation>
+    </message>
+    <message>
+      <source>Upper value address</source>
+      <translation>Adresse oberer Wert</translation>
+    </message>
+    <message>
+      <source>Set/Cancel marks</source>
+      <translation>Markierung setzen/aufheben</translation>
+    </message>
+    <message>
+      <source>Border color</source>
+      <translation>Rahmenfarbe</translation>
+    </message>
+    <message>
+      <source>Save</source>
+      <translation>Speichern</translation>
+    </message>
+    <message>
+      <source>Scheduler list</source>
+      <translation>Zeitschaltuhr Liste</translation>
+    </message>
+    <message>
+      <source>Delete selected</source>
+      <translation>Element löschen</translation>
+    </message>
+    <message>
+      <source>Set address</source>
+      <translation>Adresse setzen</translation>
+    </message>
+    <message>
+      <source>Save current configuration?</source>
+      <translation>Konfiguration speichern?</translation>
+    </message>
+    <message>
+      <source>SubscriptionPending</source>
+      <translation>Warten auf Verbindung</translation>
+    </message>
+    <message>
+      <source>Please select a chart or series to start configuration.</source>
+      <translation>Zum Konfigurieren bitte ein Diagramm/eine Serie markieren</translation>
+    </message>
+    <message>
+      <source>Start</source>
+      <translation>Start</translation>
+    </message>
+    <message>
+      <source>Start from</source>
+      <translation>Startzeitpunkt von</translation>
+    </message>
+    <message>
+      <source>Start time</source>
+      <translation>Startzeit</translation>
+    </message>
+    <message>
+      <source>End time</source>
+      <translation>Endzeit</translation>
+    </message>
+    <message>
+      <source>Start to</source>
+      <translation>Startzeitpunkt bis</translation>
+    </message>
+    <message>
+      <source>Columns</source>
+      <translation>Spalten</translation>
+    </message>
+    <message>
+      <source>Fill color</source>
+      <translation>Füllfarbe</translation>
+    </message>
+    <message>
+      <source>Do you want to delete the selected recipe template parameter?</source>
+      <translation>Wollen Sie den ausgewählten Rezeptvorlage-Parameter löschen?</translation>
+    </message>
+    <message>
+      <source>Status</source>
+      <translation>Status</translation>
+    </message>
+    <message>
+      <source>Configured parameters</source>
+      <translation>Konfigurierte Parameter</translation>
+    </message>
+    <message>
+      <source>Stop</source>
+      <translation>Stopp</translation>
+    </message>
+    <message>
+      <source>does not have sub-objects!</source>
+      <translation>hat keine weiteren Objekte!</translation>
+    </message>
+    <message>
+      <source>Path</source>
+      <translation>Pfad</translation>
+    </message>
+    <message>
+      <source>Please choose which action should be used for handling file(s) from restore</source>
+      <translation>Bitte wählen Sie die Aktion für Datei(en) aus dem Restore-Verzeichnis</translation>
+    </message>
+    <message>
+      <source>Source URL</source>
+      <translation>Quell-URL</translation>
+    </message>
+    <message>
+      <source>Username</source>
+      <translation>Benutzername</translation>
+    </message>
+    <message>
+      <source>CONNECTION</source>
+      <translation>VERBINDUNG</translation>
+    </message>
+    <message>
+      <source>Sunday</source>
+      <translation>Sonntag</translation>
+    </message>
+    <message>
+      <source>Minimum</source>
+      <translation>Minimum</translation>
+    </message>
+    <message>
+      <source>Invalid path</source>
+      <translation>Ungültiger Pfad</translation>
+    </message>
+    <message>
+      <source>Suppressed</source>
+      <translation>Unterdrückt</translation>
+    </message>
+    <message>
+      <source>Error opening variable</source>
+      <translation>Fehler beim Öffnen der Variable</translation>
+    </message>
+    <message>
+      <source>Points Threshold</source>
+      <translation>Punkte-Schwellenwert</translation>
+    </message>
+    <message>
+      <source>Export / Import configuration</source>
+      <translation>Export / Import Konfiguration</translation>
+    </message>
+    <message>
+      <source>Chart title</source>
+      <translation>Diagrammtitel</translation>
+    </message>
+    <message>
+      <source>splines</source>
+      <translation>Splines</translation>
+    </message>
+    <message>
+      <source>Create</source>
+      <translation>Erstellen</translation>
+    </message>
+    <message>
+      <source>Switched off</source>
+      <translation>Ausgeschaltet</translation>
+    </message>
+    <message>
+      <source>Switched on</source>
+      <translation>Eingeschaltet</translation>
+    </message>
+    <message>
+      <source>Default (SVG)</source>
+      <translation>Standard (SVG)</translation>
+    </message>
+    <message>
+      <source>Thursday</source>
+      <translation>Donnerstag</translation>
+    </message>
+    <message>
+      <source>Filter</source>
+      <translation>Filter</translation>
+    </message>
+    <message>
+      <source>Wednesday</source>
+      <translation>Mittwoch</translation>
+    </message>
+    <message>
+      <source>Output</source>
+      <translation>Ausgang</translation>
+    </message>
+    <message>
+      <source>to the visualization anymore. Do you really want to perform a Switch-Over?</source>
+      <translation>verloren gehen. Wollen Sie wirklich eine Umschaltung durchführen?</translation>
+    </message>
+    <message>
+      <source>Time</source>
+      <translation>Zeit</translation>
+    </message>
+    <message>
+      <source>Load / Save</source>
+      <translation>Laden / Speichern</translation>
+    </message>
+    <message>
+      <source>Time ack.</source>
+      <translation>Quitt. Zeit</translation>
+    </message>
+    <message>
+      <source>scatter</source>
+      <translation>Streuung</translation>
+    </message>
+    <message>
+      <source>Save recipe as</source>
+      <translation>Rezept speichern unter</translation>
+    </message>
+    <message>
+      <source>Time active</source>
+      <translation>Kam-Zeit</translation>
+    </message>
+    <message>
+      <source>History Replication Requested</source>
+      <translation>History Abgleich angefordert</translation>
+    </message>
+    <message>
+      <source>dotted</source>
+      <translation>gepunktet</translation>
+    </message>
+    <message>
+      <source>Time inactive</source>
+      <translation>Ging-Zeit</translation>
+    </message>
+    <message>
+      <source>File(s) from backup directory will be copied</source>
+      <translation>Datei(en) aus dem Backup-Verzeichnis werden kopiert</translation>
+    </message>
+    <message>
+      <source>Timestamp</source>
+      <translation>Zeitstempel</translation>
+    </message>
+    <message>
+      <source>To</source>
+      <translation>Bis</translation>
+    </message>
+    <message>
+      <source>Tooltip</source>
+      <translation>Tooltip</translation>
+    </message>
+    <message>
+      <source>Tuesday</source>
+      <translation>Dienstag</translation>
+    </message>
+    <message>
+      <source>E-mail address to send reports.</source>
+      <translation>E-Mail-Adresse für Meldungen.</translation>
+    </message>
+    <message>
+      <source>activ ack.</source>
+      <translation>aktiv quitt.</translation>
+    </message>
+    <message>
+      <source>Schedules</source>
+      <translation>Zeitpläne</translation>
+    </message>
+    <message>
+      <source>Type</source>
+      <translation>Typ</translation>
+    </message>
+    <message>
+      <source>ACTIVE! unconf.</source>
+      <translation>AKTIV! unbest.</translation>
+    </message>
+    <message>
+      <source>Split</source>
+      <translation>Split</translation>
+    </message>
+    <message>
+      <source>Please</source>
+      <translation>Bitte</translation>
+    </message>
+    <message>
+      <source>Unconfirmed</source>
+      <translation>Unbestätigt</translation>
+    </message>
+    <message>
+      <source>Unknown</source>
+      <translation>Unbekannt</translation>
+    </message>
+    <message>
+      <source>Quicksave</source>
+      <translation>Quicksave</translation>
+    </message>
+    <message>
+      <source>Schedule is not valid with current settings</source>
+      <translation>Zeitplan ist nicht gültig mit aktuellen Werten</translation>
+    </message>
+    <message>
+      <source>Alarms</source>
+      <translation>Alarme</translation>
+    </message>
+    <message>
+      <source>General</source>
+      <translation>Allgemein</translation>
+    </message>
+    <message>
+      <source>Unshelved</source>
+      <translation>Nicht zurückgestellt</translation>
+    </message>
+    <message>
+      <source>LostConnection</source>
+      <translation>Verbindung verloren</translation>
+    </message>
+    <message>
+      <source>Unsuppressed</source>
+      <translation>Nicht unterdrückt</translation>
+    </message>
+    <message>
+      <source>Entered value is not a number</source>
+      <translation>Eingegebener Wert ist keine Zahl</translation>
+    </message>
+    <message>
+      <source>User</source>
+      <translation>Benutzer</translation>
+    </message>
+    <message>
+      <source>Value on</source>
+      <translation>Startwert</translation>
+    </message>
+    <message>
+      <source>About</source>
+      <translation>Über</translation>
+    </message>
+    <message>
+      <source>Value too low!</source>
+      <translation>Wert zu niedrig!</translation>
+    </message>
+    <message>
+      <source>Sum alarm members of</source>
+      <translation>Unteralarme von</translation>
+    </message>
+    <message>
+      <source>CPU</source>
+      <translation>PROZESSOR</translation>
+    </message>
+    <message>
+      <source>YYYY</source>
+      <translation>JJJJ</translation>
+    </message>
+    <message>
+      <source>[All]</source>
+      <translation>[Alle]</translation>
+    </message>
+    <message>
+      <source>solid</source>
+      <translation>solid</translation>
+    </message>
+    <message>
+      <source>Time span</source>
+      <translation>Zeitspanne</translation>
+    </message>
+    <message>
+      <source>[none]</source>
+      <translation>[kein(e)]</translation>
+    </message>
+    <message>
+      <source>items</source>
+      <translation>Elementen</translation>
+    </message>
+    <message>
+      <source>Related y-axis</source>
+      <translation>Betroffene Y-Achse</translation>
+    </message>
+    <message>
+      <source>Value decimal places</source>
+      <translation>Wert Nachkommastellen</translation>
+    </message>
+    <message>
+      <source>Full name</source>
+      <translation>Vollständ. Name</translation>
+    </message>
+    <message>
+      <source>Y-Axis</source>
+      <translation>Y-Achse</translation>
+    </message>
+    <message>
+      <source>Suppressed state</source>
+      <translation>Unterdrückt Status</translation>
+    </message>
+    <message>
+      <source>Location</source>
+      <translation>Speicherort</translation>
+    </message>
+    <message>
+      <source>area description</source>
+      <translation>Bereich</translation>
+    </message>
+    <message>
+      <source>Permission</source>
+      <translation>Berechtigung</translation>
+    </message>
+    <message>
+      <source>Picker Value</source>
+      <translation>Eingabeelement Zahl</translation>
+    </message>
+    <message>
+      <source>Request delayed! Please try again later.</source>
+      <translation>Anfrage verzögert! Bitte später versuchen.</translation>
+    </message>
+    <message>
+      <source>Shelve</source>
+      <translation>Zurückstellen</translation>
+    </message>
+    <message>
+      <source>Read#past</source>
+      <translation>Gelesen</translation>
+    </message>
+    <message>
+      <source>Redundancy status has changed. Reload page to apply potential changes.</source>
+      <translation>Redundanzstatus wurde geändert. Neu laden um Änderungen anzuzeigen.</translation>
+    </message>
+    <message>
+      <source>Back</source>
+      <translation>Zurück</translation>
+    </message>
+    <message>
+      <source>Some status updates could not be carried out due to a rights restriction!</source>
+      <translation>Manche Status-Updates konnten aufgrund fehlender Rechte nicht durchgeführt werden!</translation>
+    </message>
+    <message>
+      <source>Password of root cannot be changed!</source>
+      <translation>Passwort von root kann nicht geändert werden!</translation>
+    </message>
+    <message>
+      <source>day(s)</source>
+      <translation>Tag(e)</translation>
+    </message>
+    <message>
+      <source>Forward</source>
+      <translation>Vorwärts</translation>
+    </message>
+    <message>
+      <source>Switch</source>
+      <translation>Umschalten</translation>
+    </message>
+    <message>
+      <source>Error</source>
+      <translation>Fehler</translation>
+    </message>
+    <message>
+      <source>File(s) from swapin directory will be copied</source>
+      <translation>Datei(en) aus dem Swapin-Verzeichnis werden kopiert</translation>
+    </message>
+    <message>
+      <source>Log</source>
+      <translation>Log</translation>
+    </message>
+    <message>
+      <source>hour(s)</source>
+      <translation>Stunde(n)</translation>
+    </message>
+    <message>
+      <source>New</source>
+      <translation>Neu</translation>
+    </message>
+    <message>
+      <source>Contains</source>
+      <translation>Enthält</translation>
+    </message>
+    <message>
+      <source>inactive</source>
+      <translation>inaktiv</translation>
+    </message>
+    <message>
+      <source>Series 18</source>
+      <translation>Serie 18</translation>
+    </message>
+    <message>
+      <source>loading...</source>
+      <translation>lädt ...</translation>
+    </message>
+    <message>
+      <source>Series 3</source>
+      <translation>Serie 3</translation>
+    </message>
+    <message>
+      <source>minute(s)</source>
+      <translation>Minute(n)</translation>
+    </message>
+    <message>
+      <source>Minute(s)</source>
+      <translation>Minute(n)</translation>
+    </message>
+    <message>
+      <source>mmm</source>
+      <translation>mmm</translation>
+    </message>
+    <message>
+      <source>Please select a configuration name!</source>
+      <translation>Bitte wählen Sie einen Konfigurationsnamen!</translation>
+    </message>
+    <message>
+      <source>weekday(s)</source>
+      <translation>Wochentag(e)</translation>
+    </message>
+    <message>
+      <source>Weekday(s)</source>
+      <translation>Wochentag(e)</translation>
+    </message>
+    <message>
+      <source>month(s)</source>
+      <translation>Monat(e)</translation>
+    </message>
+    <message>
+      <source>User Editor</source>
+      <translation>Benutzer-Editor</translation>
+    </message>
+    <message>
+      <source>now</source>
+      <translation>jetzt</translation>
+    </message>
+    <message>
+      <source>Unshelve</source>
+      <translation>Nicht zurückstellen</translation>
+    </message>
+    <message>
+      <source>Week(s)</source>
+      <translation>Woche(n)</translation>
+    </message>
+    <message>
+      <source>right</source>
+      <translation>rechts</translation>
+    </message>
+    <message>
+      <source>Visibility</source>
+      <translation>Sichtbarkeit</translation>
+    </message>
+    <message>
+      <source>Disabled</source>
+      <translation>Ausgeschaltet</translation>
+    </message>
+    <message>
+      <source>Template name</source>
+      <translation>Vorlagenname</translation>
+    </message>
+    <message>
+      <source>Password change unsupported.</source>
+      <translation>Passwortänderung nicht unterstützt.</translation>
+    </message>
+    <message>
+      <source>Undefined</source>
+      <translation>Undefiniert</translation>
+    </message>
+    <message>
+      <source>week(s)</source>
+      <translation>Woche(n)</translation>
+    </message>
+    <message>
+      <source>acknowledge</source>
+      <translation>quittieren</translation>
+    </message>
+    <message>
+      <source>Other unicode character(s)</source>
+      <translation>Andere Unicode-Zeich(en)</translation>
+    </message>
+    <message>
+      <source>Unshelve time</source>
+      <translation>Ende des Zurückstellens</translation>
+    </message>
+    <message>
+      <source>InputOutput</source>
+      <translation>EingangAusgang</translation>
+    </message>
+    <message>
+      <source>Replication Requested</source>
+      <translation>Abgleich angefordert</translation>
+    </message>
+    <message>
+      <source>Options</source>
+      <translation>Einstellungen</translation>
+    </message>
+    <message>
+      <source>Read alarms</source>
+      <translation>Alarme lesen</translation>
+    </message>
+    <message>
+      <source>Permission denied</source>
+      <translation>Berechtigung verweigert</translation>
+    </message>
+    <message>
+      <source>true</source>
+      <translation>ja</translation>
+    </message>
+    <message>
+      <source>dashed</source>
+      <translation>gestrichelt</translation>
+    </message>
+    <message>
+      <source>Crosshair color</source>
+      <translation>Farbe Fadenkreuz</translation>
+    </message>
+    <message>
+      <source>Preview (F2)</source>
+      <translation>Vorschau (F2)</translation>
+    </message>
+    <message>
+      <source>Minor grid width</source>
+      <translation>Stärke Hilfsgitter</translation>
+    </message>
+    <message>
+      <source>Complete</source>
+      <translation>abschließen</translation>
+    </message>
+    <message>
+      <source>The current configuration is not saved yet!</source>
+      <translation>Die aktuelle Konfiguration ist noch nicht gespeichert!</translation>
+    </message>
+    <message>
+      <source>Confirm with comment</source>
+      <translation>Mit Kommentar bestätigen</translation>
+    </message>
+    <message>
+      <source>Ready</source>
+      <translation>Bereit</translation>
+    </message>
+    <message>
+      <source>Current password</source>
+      <translation>Aktuelles Passwort</translation>
+    </message>
+    <message>
+      <source>X-Axis</source>
+      <translation>X-Achse</translation>
+    </message>
+    <message>
+      <source>retries left!</source>
+      <translation>Versuche übrig!</translation>
+    </message>
+    <message>
+      <source>Details show/hide</source>
+      <translation>Details anzeigen/ausblenden</translation>
+    </message>
+    <message>
+      <source>Series 17</source>
+      <translation>Serie 17</translation>
+    </message>
+    <message>
+      <source>Settings</source>
+      <translation>Einstellungen</translation>
+    </message>
+    <message>
+      <source>Interpolation</source>
+      <translation>Interpolation</translation>
+    </message>
+    <message>
+      <source>value exceeds max number of decimals</source>
+      <translation>Wert überschreitet maximale Anzahl an Dezimalstellen</translation>
+    </message>
+    <message>
+      <source>Event</source>
+      <translation>Ereignis</translation>
+    </message>
+    <message>
+      <source>Details</source>
+      <translation>Details</translation>
+    </message>
+    <message>
+      <source>Edit</source>
+      <translation>Ändern</translation>
+    </message>
+    <message>
+      <source>Replication in progress</source>
+      <translation>Abgleich läuft</translation>
+    </message>
+    <message>
+      <source>Labels</source>
+      <translation>Beschriftungen</translation>
+    </message>
+    <message>
+      <source>Enabled</source>
+      <translation>Eingeschaltet</translation>
+    </message>
+    <message>
+      <source>No aggregate selected</source>
+      <translation>Kein Aggregat ausgewählt</translation>
+    </message>
+    <message>
+      <source>Alternative 2</source>
+      <translation>Alternative 2</translation>
+    </message>
+    <message>
+      <source>Go to SOP server</source>
+      <translation>Weiter zum SOP Server</translation>
+    </message>
+    <message>
+      <source>From - Number of rows</source>
+      <translation>Von / Zeilenanzahl</translation>
+    </message>
+    <message>
+      <source>Year(s)</source>
+      <translation>Jahr(e)</translation>
+    </message>
+    <message>
+      <source>year(s)</source>
+      <translation>Jahr(e)</translation>
+    </message>
+    <message>
+      <source>Timed Shelve</source>
+      <translation>Befristet zurückstellen</translation>
+    </message>
+    <message>
+      <source>Daily</source>
+      <translation>Täglich</translation>
+    </message>
+    <message>
+      <source>Position of y-axis</source>
+      <translation>Position der y-Achse</translation>
+    </message>
+    <message>
+      <source>Weekly</source>
+      <translation>Wöchentlich</translation>
+    </message>
+    <message>
+      <source>Configuration node (sub-nodes will be created automatically)</source>
+      <translation>Konfigurationsnode (Unterknoten werden automatisch erstellt)</translation>
+    </message>
+    <message>
+      <source>Date/Time format</source>
+      <translation>Datum-Zeitformat</translation>
+    </message>
+    <message>
+      <source>Filtered</source>
+      <translation>Gefiltert</translation>
+    </message>
+    <message>
+      <source>Monthly</source>
+      <translation>Monatlich</translation>
+    </message>
+    <message>
+      <source>Alternative 1</source>
+      <translation>Alternative 1</translation>
+    </message>
+    <message>
+      <source>Yearly</source>
+      <translation>Jährlich</translation>
+    </message>
+    <message>
+      <source>Refresh list</source>
+      <translation>Liste aktualisieren</translation>
+    </message>
+    <message>
+      <source>Single node</source>
+      <translation>Datenpunkt</translation>
+    </message>
+    <message>
+      <source>Export configuration as json-file</source>
+      <translation>Exportiere Konfiguration als json-Datei</translation>
+    </message>
+    <message>
+      <source>Resigned History</source>
+      <translation>History storniert</translation>
+    </message>
+    <message>
+      <source>History directory</source>
+      <translation>History-Verzeichnis</translation>
+    </message>
+    <message>
+      <source>U</source>
+      <translation>U</translation>
+    </message>
+    <message>
+      <source>Redundancy status has changed. You are now connected to the active</source>
+      <translation>Redundanzstatus wurde geändert. Sie wurden zum aktiven Rechner weiter-</translation>
+    </message>
+    <message>
+      <source>gauge</source>
+      <translation>Gauge</translation>
+    </message>
+    <message>
+      <source>Parameter</source>
+      <translation>Parameter</translation>
+    </message>
+    <message>
+      <source>Choose chart to configure</source>
+      <translation>Zum Konfigurieren bitte ein Diagramm wählen</translation>
+    </message>
+    <message>
+      <source>Servers are not linked</source>
+      <translation>Server sind nicht verbunden</translation>
+    </message>
+    <message>
+      <source>Performance</source>
+      <translation>Leistung</translation>
+    </message>
+    <message>
+      <source>General configuration</source>
+      <translation>Allgemeine Konfiguration</translation>
+    </message>
+    <message>
+      <source>Render mode</source>
+      <translation>Rendermodus</translation>
+    </message>
+    <message>
+      <source>Done</source>
+      <translation>Fertig</translation>
+    </message>
+    <message>
+      <source>Picker Date</source>
+      <translation>Eingabeelement Datum</translation>
+    </message>
+    <message>
+      <source>ID</source>
+      <translation>ID</translation>
+    </message>
+    <message>
+      <source>readonly</source>
+      <translation>schreibgeschützt</translation>
+    </message>
+    <message>
+      <source>Picker Address</source>
+      <translation>Eingabeelement Adresse</translation>
+    </message>
+    <message>
+      <source>Scale type</source>
+      <translation>Skalierungstyp</translation>
+    </message>
+    <message>
+      <source>Keyboard</source>
+      <translation>Tastatur</translation>
+    </message>
+    <message>
+      <source>All</source>
+      <translation>Alle</translation>
+    </message>
+    <message>
+      <source>Valid period</source>
+      <translation>Gültigkeitsdauer</translation>
+    </message>
+    <message>
+      <source>Time active/inactive</source>
+      <translation>Kam-/Ging-Zeit</translation>
+    </message>
+    <message>
+      <source>Completed</source>
+      <translation>Abgeschlossen</translation>
+    </message>
+    <message>
+      <source>Spline</source>
+      <translation>Spline</translation>
+    </message>
+    <message>
+      <source>active ack.</source>
+      <translation>aktiv quitt.</translation>
+    </message>
+    <message>
+      <source>Missing data</source>
+      <translation>Fehlende Daten</translation>
+    </message>
+    <message>
+      <source>A</source>
+      <translation>A</translation>
+    </message>
+    <message>
+      <source>Changes saved successfully.</source>
+      <translation>Änderungen erfolgreich gespeichert.</translation>
+    </message>
+    <message>
+      <source>E</source>
+      <translation>E</translation>
+    </message>
+    <message>
+      <source>Message</source>
+      <translation>Nachricht</translation>
+    </message>
+    <message>
+      <source>Hide advanced</source>
+      <translation>Filter ausblenden</translation>
+    </message>
+    <message>
+      <source>inactiv ack.</source>
+      <translation>inaktiv quitt.</translation>
+    </message>
+    <message>
+      <source>File(s) from history directory will be moved</source>
+      <translation>Datei(en) aus dem History-Verzeichnis werden verschoben</translation>
+    </message>
+    <message>
+      <source>Group</source>
+      <translation>Gruppe</translation>
+    </message>
+    <message>
+      <source>Cannot read configuration node</source>
+      <translation>Lesen der Konfiguration nicht möglich</translation>
+    </message>
+    <message>
+      <source>Split mode</source>
+      <translation>Split-Betrieb</translation>
+    </message>
+    <message>
+      <source>Conflict emerges if transfering to swapin</source>
+      <translation>Konflikt tritt bei Transfer nach Swapin auf</translation>
+    </message>
+    <message>
+      <source>apply changes</source>
+      <translation>Änderungen anzuwenden</translation>
+    </message>
+    <message>
+      <source>Page</source>
+      <translation>Seite</translation>
+    </message>
+    <message>
+      <source>characters</source>
+      <translation>Zeichen</translation>
+    </message>
+    <message>
+      <source>Replicating History P-&gt;S</source>
+      <translation>Abgleich History P-&gt;S</translation>
+    </message>
+    <message>
+      <source>CCD exceeded!</source>
+      <translation>CCD überschritten!</translation>
+    </message>
+    <message>
+      <source>REPLICATION</source>
+      <translation>ABGLEICH</translation>
+    </message>
+    <message>
+      <source>Actual configuration name already exist.</source>
+      <translation>Aktueller Konfigurationsname exisitiert bereits.</translation>
+    </message>
+    <message>
+      <source>Open options</source>
+      <translation>Einstellungen öffnen</translation>
+    </message>
+    <message>
+      <source>Until</source>
+      <translation>Bis</translation>
+    </message>
+    <message>
+      <source>Vitality table</source>
+      <translation>Vitalstatustabelle</translation>
+    </message>
+    <message>
+      <source>WARNING</source>
+      <translation>WARNUNG</translation>
+    </message>
+    <message>
+      <source>DATASOURCE BEHAVIOUR</source>
+      <translation>DATENQUELLENVERHALTEN</translation>
+    </message>
+    <message>
+      <source>Timed shelve</source>
+      <translation>Befristetes Zurückstellen</translation>
+    </message>
+    <message>
+      <source>Passive</source>
+      <translation>Passiv</translation>
+    </message>
+    <message>
+      <source>Switching Mode</source>
+      <translation>Umschaltmodus</translation>
+    </message>
+    <message>
+      <source>SERVER DOWN</source>
+      <translation>SERVER DOWN</translation>
+    </message>
+    <message>
+      <source>Switch preferred</source>
+      <translation>Schalte Vorzugslage um</translation>
+    </message>
+    <message>
+      <source>Shelving state icon</source>
+      <translation>Zurückgestellt Status Symbol</translation>
+    </message>
+    <message>
+      <source>Reload</source>
+      <translation>Neu laden</translation>
+    </message>
+    <message>
+      <source>Append data on</source>
+      <translation>Fortlaufende Daten an</translation>
+    </message>
+    <message>
+      <source>Border line width</source>
+      <translation>Rahmenstärke</translation>
+    </message>
+    <message>
+      <source>Recipe</source>
+      <translation>Rezept</translation>
+    </message>
+    <message>
+      <source>Warning</source>
+      <translation>Warnung</translation>
+    </message>
+    <message>
+      <source>server. (This reload can be avoided by setting up a DNS server.)</source>
+      <translation>geleitet. (Dies kann durch einen DNS Server vermieden werden.)</translation>
+    </message>
+    <message>
+      <source>Redundancy status has changed. You are now connected to SNOP.</source>
+      <translation>Redundanzstatus wurde geändert. Sie sind mit dem SNOP verbunden.</translation>
+    </message>
+    <message>
+      <source>Attention: Changes will probably not be synchronized.</source>
+      <translation>Achtung: Änderungen werden möglicherweise nicht synchronisiert.</translation>
+    </message>
+    <message>
+      <source>Import configuration file (.json)</source>
+      <translation>Importiere Konfigurationsdatei (.json)</translation>
+    </message>
+    <message>
+      <source>OPERATING MODE</source>
+      <translation>BETRIEBSMODUS</translation>
+    </message>
+    <message>
+      <source>NO, only the current line!</source>
+      <translation>NEIN, nur die gewählte Zeile!</translation>
+    </message>
+    <message>
+      <source>Redundancy mode</source>
+      <translation>Redundanz-Betrieb</translation>
+    </message>
+    <message>
+      <source>Redundancy</source>
+      <translation>Redundanz</translation>
+    </message>
+    <message>
+      <source>MEMORY</source>
+      <translation>SPEICHER</translation>
+    </message>
+    <message>
+      <source>Change password</source>
+      <translation>Passwort ändern</translation>
+    </message>
+    <message>
+      <source>SNOP</source>
+      <translation>SNOP</translation>
+    </message>
+    <message>
+      <source>Please select a configuration!</source>
+      <translation>Bitte wählen Sie eine Konfiguration!</translation>
+    </message>
+    <message>
+      <source>Please enter a comment</source>
+      <translation>Bitte geben Sie einen Kommentar ein</translation>
+    </message>
+    <message>
+      <source>VITALITY</source>
+      <translation>VITALITÄT</translation>
+    </message>
+    <message>
+      <source>Not all requirements are fulfilled!</source>
+      <translation>Nicht alle Voraussetzungen sind erfüllt!</translation>
+    </message>
+    <message>
+      <source>Replicating P-&gt;S</source>
+      <translation>Abgleich P-&gt;S</translation>
+    </message>
+    <message>
+      <source>Abort</source>
+      <translation>Abbrechen</translation>
+    </message>
+    <message>
+      <source>Aborting</source>
+      <translation>Abbrechen aktiv</translation>
+    </message>
+    <message>
+      <source>Day(s)</source>
+      <translation>Tag(e)</translation>
+    </message>
+    <message>
+      <source>Initialize</source>
+      <translation>Initialisieren</translation>
+    </message>
+    <message>
+      <source>Listen</source>
+      <translation>Warten</translation>
+    </message>
+    <message>
+      <source>File(s) selected</source>
+      <translation>Datei(en) ausgewählt</translation>
+    </message>
+    <message>
+      <source>Prepare</source>
+      <translation>vorbereiten</translation>
+    </message>
+    <message>
+      <source>for node</source>
+      <translation>für Datenpunkt</translation>
+    </message>
+    <message>
+      <source>The address you entered can't be read by you or doesn't exist.</source>
+      <translation>Die eingegebene Adresse darf nicht gelesen werden oder existiert nicht.</translation>
+    </message>
+    <message>
+      <source>The import overwrites existing configurations!</source>
+      <translation>Der Import überschreibt bestehende Konfigurationen!</translation>
+    </message>
+    <message>
+      <source>Switched</source>
+      <translation>Umgeschaltet</translation>
+    </message>
+    <message>
+      <source>Prepared</source>
+      <translation>Vorbereitet</translation>
+    </message>
+    <message>
+      <source>Timeout</source>
+      <translation>Timeout</translation>
+    </message>
+    <message>
+      <source>local</source>
+      <translation>lokal</translation>
+    </message>
+    <message>
+      <source>Conn. / Total</source>
+      <translation>Verb. / Gesamt</translation>
+    </message>
+    <message>
+      <source>Conflict needs to be resolved by hand</source>
+      <translation>Konflikt muss händisch gelöst werden</translation>
+    </message>
+    <message>
+      <source>Data Source(s)</source>
+      <translation>Datenquelle(n)</translation>
+    </message>
+    <message>
+      <source>NotConnected</source>
+      <translation>Nicht verbunden</translation>
+    </message>
+    <message>
+      <source>Alarmlog</source>
+      <translation>Alarmlog</translation>
+    </message>
+    <message>
+      <source>Export time as timestamp</source>
+      <translation>Zeit als Zeitstempel exportieren</translation>
+    </message>
+    <message>
+      <source>Connected</source>
+      <translation>Verbunden</translation>
+    </message>
+    <message>
+      <source>Alarm condition</source>
+      <translation>Alarmbedingung</translation>
+    </message>
+    <message>
+      <source>Input</source>
+      <translation>Eingang</translation>
+    </message>
+    <message>
+      <source>Values from process</source>
+      <translation>Werte von Prozess</translation>
+    </message>
+    <message>
+      <source>Monitored</source>
+      <translation>Überwacht</translation>
+    </message>
+    <message>
+      <source>Shelving state</source>
+      <translation>Zurückgestellt Status</translation>
+    </message>
+    <message>
+      <source>TIME DELTA</source>
+      <translation>ZEIT DELTA</translation>
+    </message>
+    <message>
+      <source>Add schedule</source>
+      <translation>Zeitplan hinzufügen</translation>
+    </message>
+    <message>
+      <source>The server you want to switch is not available to you. You won't have access</source>
+      <translation>Der Server ist von diesem Clienten nicht erreichbar, der Visu-Zugriff wird</translation>
+    </message>
+    <message>
+      <source>Server is not available.</source>
+      <translation>Server ist nicht verfügbar.</translation>
+    </message>
+    <message>
+      <source>Yes, I know the risk</source>
+      <translation>Ja, das Risiko ist bekannt</translation>
+    </message>
+    <message>
+      <source>Aggregate</source>
+      <translation>Aggregat</translation>
+    </message>
+    <message>
+      <source>sec.</source>
+      <translation>Sek.</translation>
+    </message>
+    <message>
+      <source>refresh</source>
+      <translation>neuladen</translation>
+    </message>
+    <message>
+      <source>Hide this message</source>
+      <translation>Nachricht verbergen</translation>
+    </message>
+    <message>
+      <source>Size limit exceeded</source>
+      <translation>Größenlimit überschritten</translation>
+    </message>
+    <message>
+      <source>History</source>
+      <translation>Historische</translation>
+    </message>
+    <message>
+      <source>Series 5</source>
+      <translation>Serie 5</translation>
+    </message>
+    <message>
+      <source>Position of x-axis</source>
+      <translation>Position der x-Achse</translation>
+    </message>
+    <message>
+      <source>milliseconds</source>
+      <translation>Millisekunden</translation>
+    </message>
+    <message>
+      <source>millisec.(s)</source>
+      <translation>Millisek.</translation>
+    </message>
+    <message>
+      <source>Add</source>
+      <translation>Hinzufügen</translation>
+    </message>
+    <message>
+      <source>File(s) from swapin directory will be moved</source>
+      <translation>Datei(en) aus dem Swapin-Verzeichnis werden verschoben</translation>
+    </message>
+    <message>
+      <source>After the import you need to load the configuration on the left side</source>
+      <translation>Nach dem Import muss die Konfiguration links geladen werden.</translation>
+    </message>
+    <message>
+      <source>Attention: Unsaved changes will be lost!</source>
+      <translation>Achtung: Nicht gespeicherte Änderungen gehen verloren!</translation>
+    </message>
+    <message>
+      <source>Axis configuration</source>
+      <translation>Achsenkonfiguration</translation>
+    </message>
+    <message>
+      <source>Axis width</source>
+      <translation>Achsenbreite</translation>
+    </message>
+    <message>
+      <source>Recipe with same name already exists</source>
+      <translation>Rezept mit diesem Namen existiert bereits</translation>
+    </message>
+    <message>
+      <source>Chart Configuration</source>
+      <translation>Diagrammkonfiguration</translation>
+    </message>
+    <message>
+      <source>Chart theme</source>
+      <translation>Diagramm-Theme</translation>
+    </message>
+    <message>
+      <source>Column</source>
+      <translation>Spalte</translation>
+    </message>
+    <message>
+      <source>second(s)</source>
+      <translation>Sekunde(n)</translation>
+    </message>
+    <message>
+      <source>Config node required!</source>
+      <translation>Konfigurationsnode benötigt!</translation>
+    </message>
+    <message>
+      <source>ACTIVE! latched</source>
+      <translation>AKTIV! verriegelt</translation>
+    </message>
+    <message>
+      <source>Configuration node</source>
+      <translation>Konfigurationsnode</translation>
+    </message>
+    <message>
+      <source>Configuration file (in filesystem)</source>
+      <translation>Konfigurationsfile (im Dateisystem)</translation>
+    </message>
+    <message>
+      <source>Data mode</source>
+      <translation>Datenmodus</translation>
+    </message>
+    <message>
+      <source>node not configured</source>
+      <translation>Datenpunkt nicht konfiguriert</translation>
+    </message>
+    <message>
+      <source>Data set configuration</source>
+      <translation>Datensatzkonfiguration</translation>
+    </message>
+    <message>
+      <source>Data set to configure</source>
+      <translation>Datensatz</translation>
+    </message>
+    <message>
+      <source>Export menu</source>
+      <translation>Exportmenü</translation>
+    </message>
+    <message>
+      <source>Export date format</source>
+      <translation>Datumsformat für Export</translation>
+    </message>
+    <message>
+      <source>Import</source>
+      <translation>Import</translation>
+    </message>
+    <message>
+      <source>mixed</source>
+      <translation>Gesamt</translation>
+    </message>
+    <message>
+      <source>value is greater than defined maximum</source>
+      <translation>Wert ist größer als das definierte Maximum</translation>
+    </message>
+    <message>
+      <source>Interval</source>
+      <translation>Intervall</translation>
+    </message>
+    <message>
+      <source>Please enter a value less than or equal to %d.</source>
+      <translation>Bitte einen Wert kleiner oder gleich %d eingeben.</translation>
+    </message>
+    <message>
+      <source>Label alignment</source>
+      <translation>Textausrichtung</translation>
+    </message>
+    <message>
+      <source>Line color</source>
+      <translation>Farbe Linie</translation>
+    </message>
+    <message>
+      <source>Load or delete existing configuration from node</source>
+      <translation>Lade oder entferne vorhandene Konfiguration</translation>
+    </message>
+    <message>
+      <source>Precision in milliseconds</source>
+      <translation>Genauigkeit in Millisekunden</translation>
+    </message>
+    <message>
+      <source>Lower value address</source>
+      <translation>Adresse unterer Wert</translation>
+    </message>
+    <message>
+      <source>The status update could not be carried out due to a rights restriction!</source>
+      <translation>Das Status-Update konnte aufgrund fehlender Rechte nicht durchgeführt werden!</translation>
+    </message>
+    <message>
+      <source>Name</source>
+      <translation>Name</translation>
+    </message>
+    <message>
+      <source>Major grid width</source>
+      <translation>Stärke Hauptgitter</translation>
+    </message>
+    <message>
+      <source>Downsampled (SVG)</source>
+      <translation>Downsampling (SVG)</translation>
+    </message>
+    <message>
+      <source>Marker 1</source>
+      <translation>Marker 1</translation>
+    </message>
+    <message>
+      <source>Maximum</source>
+      <translation>Maximum</translation>
+    </message>
+    <message>
+      <source>Minor grid color</source>
+      <translation>Farbe Hilfsgitter</translation>
+    </message>
+    <message>
+      <source>at least one item is invalid for the selected data type</source>
+      <translation>mindestens ein Element ist für den gewählten Datentyp ungültig</translation>
+    </message>
+    <message>
+      <source>Minor tick interval</source>
+      <translation>Intervall Hilfsgitter</translation>
+    </message>
+    <message>
+      <source>Mouse cursor line type</source>
+      <translation>Lininentyp des Mauszeigers</translation>
+    </message>
+    <message>
+      <source>Non-stop</source>
+      <translation>Non-stop</translation>
+    </message>
+    <message>
+      <source>Related x/y-axis</source>
+      <translation>Bezugsachsen x/y</translation>
+    </message>
+    <message>
+      <source>Recipe management</source>
+      <translation>Rezepturverwaltung</translation>
+    </message>
+    <message>
+      <source>Save / Load configuration</source>
+      <translation>Konfiguration speichern / laden</translation>
+    </message>
+    <message>
+      <source>Search node by name</source>
+      <translation>Suche Node nach Name</translation>
+    </message>
+    <message>
+      <source>Password Editor</source>
+      <translation>Passwort-Editor</translation>
+    </message>
+    <message>
+      <source>archive only</source>
+      <translation>nur Archive</translation>
+    </message>
+    <message>
+      <source>Temporary removement of datapoints which are not visible to the user</source>
+      <translation>Ausblenden von Datenpunkten, welche der User bei der vorhandenen</translation>
+    </message>
+    <message>
+      <source>Value suffix</source>
+      <translation>Wert Suffix</translation>
+    </message>
+    <message>
+      <source>Data archive</source>
+      <translation>Datenarchiv</translation>
+    </message>
+    <message>
+      <source>Two-line area</source>
+      <translation>Bereich mit zwei Linien</translation>
+    </message>
+    <message>
+      <source>Type configuration</source>
+      <translation>Typkonfiguration</translation>
+    </message>
+    <message>
+      <source>UTC</source>
+      <translation>UTC</translation>
+    </message>
+    <message>
+      <source>Unit</source>
+      <translation>Einheit</translation>
+    </message>
+    <message>
+      <source>Activate settings for currently selected archive.</source>
+      <translation>Für aktuelles Archiv aktivieren.</translation>
+    </message>
+    <message>
+      <source>Data type</source>
+      <translation>Datentyp</translation>
+    </message>
+    <message>
+      <source>Server Status Changed</source>
+      <translation>Serverstatus geändert</translation>
+    </message>
+    <message>
+      <source>X-Axis to configure</source>
+      <translation>X-Achse wählen</translation>
+    </message>
+    <message>
+      <source>Y-Axis to configure</source>
+      <translation>Y-Achse wählen</translation>
+    </message>
+    <message>
+      <source>center</source>
+      <translation>zentriert</translation>
+    </message>
+    <message>
+      <source>Comment</source>
+      <translation>Kommentar</translation>
+    </message>
+    <message>
+      <source>enabled</source>
+      <translation>aktiviert</translation>
+    </message>
+    <message>
+      <source>From - To</source>
+      <translation>Zeitraum Von - Bis</translation>
+    </message>
+    <message>
+      <source>line</source>
+      <translation>Linie</translation>
+    </message>
+    <message>
+      <source>linear</source>
+      <translation>linear</translation>
+    </message>
+    <message>
+      <source>ms</source>
+      <translation>ms</translation>
+    </message>
+    <message>
+      <source>px</source>
+      <translation>px</translation>
+    </message>
+    <message>
+      <source>To swapin</source>
+      <translation>Nach Swapin</translation>
+    </message>
+    <message>
+      <source>spline</source>
+      <translation>Spline</translation>
+    </message>
+    <message>
+      <source>step</source>
+      <translation>abgestuft</translation>
+    </message>
+    <message>
+      <source>top</source>
+      <translation>oben</translation>
+    </message>
+    <message>
+      <source>visible</source>
+      <translation>sichtbar</translation>
+    </message>
+    <message>
+      <source>with</source>
+      <translation>mit</translation>
+    </message>
+    <message>
+      <source>z-index</source>
+      <translation>z-index</translation>
+    </message>
+    <message>
+      <source>Size</source>
+      <translation>Größe</translation>
+    </message>
+    <message>
+      <source>E-mail</source>
+      <translation>E-Mail</translation>
+    </message>
+    <message>
+      <source>Recipe templates</source>
+      <translation>Rezeptvorlagen</translation>
+    </message>
+    <message>
+      <source>Series</source>
+      <translation>Serie</translation>
+    </message>
+    <message>
+      <source>Series 1</source>
+      <translation>Serie 1</translation>
+    </message>
+    <message>
+      <source>Series 2</source>
+      <translation>Serie 2</translation>
+    </message>
+    <message>
+      <source>Series 4</source>
+      <translation>Serie 4</translation>
+    </message>
+    <message>
+      <source>Series 6</source>
+      <translation>Serie 6</translation>
+    </message>
+    <message>
+      <source>Report errors</source>
+      <translation>Fehler melden</translation>
+    </message>
+    <message>
+      <source>Series 7</source>
+      <translation>Serie 7</translation>
+    </message>
+    <message>
+      <source>INACTIVE! latched</source>
+      <translation>INAKTIV! verriegelt</translation>
+    </message>
+    <message>
+      <source>Series 8</source>
+      <translation>Serie 8</translation>
+    </message>
+    <message>
+      <source>Series 9</source>
+      <translation>Serie 9</translation>
+    </message>
+    <message>
+      <source>Series 11</source>
+      <translation>Serie 11</translation>
+    </message>
+    <message>
+      <source>Series 12</source>
+      <translation>Serie 12</translation>
+    </message>
+    <message>
+      <source>Request denied by Access Control. Please see error log for details.</source>
+      <translation>Request von der Zugriffskontrolle verweigert. Bitte konsultieren Sie den Fehler-Log.</translation>
+    </message>
+    <message>
+      <source>Series 13</source>
+      <translation>Serie 13</translation>
+    </message>
+    <message>
+      <source>Series 14</source>
+      <translation>Serie 14</translation>
+    </message>
+    <message>
+      <source>Permission(s) missing for archive management!</source>
+      <translation>Berechtigungsfehler für die Archivverwaltung!</translation>
+    </message>
+    <message>
+      <source>Series 16</source>
+      <translation>Serie 16</translation>
+    </message>
+    <message>
+      <source>Series 19</source>
+      <translation>Serie 19</translation>
+    </message>
+    <message>
+      <source>Series 20</source>
+      <translation>Serie 20</translation>
+    </message>
+    <message>
+      <source>Series 21</source>
+      <translation>Serie 21</translation>
+    </message>
+    <message>
+      <source>Series 22</source>
+      <translation>Serie 22</translation>
+    </message>
+    <message>
+      <source>Series 23</source>
+      <translation>Serie 23</translation>
+    </message>
+    <message>
+      <source>Remote alarms</source>
+      <translation>Remote Alarme</translation>
+    </message>
+    <message>
+      <source>Suppress</source>
+      <translation>Unterdrücken</translation>
+    </message>
+    <message>
+      <source>Marked rows with displayed columns</source>
+      <translation>Markierte Zeilen mit angezeigten Spalten</translation>
+    </message>
+    <message>
+      <source>Series 24</source>
+      <translation>Serie 24</translation>
+    </message>
+    <message>
+      <source>Series 25</source>
+      <translation>Serie 25</translation>
+    </message>
+    <message>
+      <source>Last active recipe</source>
+      <translation>Zuletzt aktives Rezept</translation>
+    </message>
+    <message>
+      <source>Measurement marker</source>
+      <translation>Messzeiger</translation>
+    </message>
+    <message>
+      <source>Are you sure you want to delete the selected file(s)</source>
+      <translation>Sind Sie sicher, dass Sie die gewählten Datei(en) löschen möchten</translation>
+    </message>
+    <message>
+      <source>Save as</source>
+      <translation>Speichern unter</translation>
+    </message>
+    <message>
+      <source>Marker 1 X-Value</source>
+      <translation>Marker 1 X-Wert</translation>
+    </message>
+    <message>
+      <source>Marker 1 Y-Value</source>
+      <translation>Marker 1 Y-Wert</translation>
+    </message>
+    <message>
+      <source>Marker X-Delta</source>
+      <translation>Marker X-Delta</translation>
+    </message>
+    <message>
+      <source>Marker Y-Delta</source>
+      <translation>Marker Y-Delta</translation>
+    </message>
+    <message>
+      <source>Permission(s) missing for recipe management!</source>
+      <translation>Berechtigungsfehler für die Rezepturverwaltung!</translation>
+    </message>
+    <message>
+      <source>Range filters</source>
+      <translation>Bereichsfilter</translation>
+    </message>
+    <message>
+      <source>Advanced Options</source>
+      <translation>Erweiterte Optionen</translation>
+    </message>
+    <message>
+      <source>Configuration</source>
+      <translation>Konfiguration</translation>
+    </message>
+    <message>
+      <source>Configuration name</source>
+      <translation>Name der Konfiguration</translation>
+    </message>
+    <message>
+      <source>Create new configuration</source>
+      <translation>Neue Konfiguration erstellen</translation>
+    </message>
+    <message>
+      <source>Actual configuration</source>
+      <translation>Aktuelle Konfiguration</translation>
+    </message>
+    <message>
+      <source>Do you want to overwrite the configuration?</source>
+      <translation>Wollen Sie die Konfiguration überschreiben?</translation>
+    </message>
+    <message>
+      <source>Tree View</source>
+      <translation>Baumansicht</translation>
+    </message>
+    <message>
+      <source>First axis can not be deleted!</source>
+      <translation>Erste Achse kann nicht gelöscht werden!</translation>
+    </message>
+    <message>
+      <source>There is an operation in progress. Please wait until it is completed.</source>
+      <translation>Es ist eine Operation im Gange. Bitte warten Sie, bis diese abgeschlossen ist.</translation>
+    </message>
+    <message>
+      <source>Overwrite</source>
+      <translation>Überschreiben</translation>
+    </message>
+    <message>
+      <source>Overwrite existing configuration?</source>
+      <translation>Exisitierende Konfiguration überschreiben?</translation>
+    </message>
+    <message>
+      <source>Received</source>
+      <translation>Empfangen</translation>
+    </message>
+    <message>
+      <source>Boost (WebGL)</source>
+      <translation>Boost (WebGL)</translation>
+    </message>
+    <message>
+      <source>The node</source>
+      <translation>Der Node</translation>
+    </message>
+    <message>
+      <source>Remote events</source>
+      <translation>Remote Ereignisse</translation>
+    </message>
+    <message>
+      <source>Scroll list down</source>
+      <translation>Liste nach unten scrollen</translation>
+    </message>
+    <message>
+      <source>Scroll list up</source>
+      <translation>Liste nach oben scrollen</translation>
+    </message>
+    <message>
+      <source>Update interval</source>
+      <translation>Aktualisierungsintervall</translation>
+    </message>
+    <message>
+      <source>File(s) from history directory will be copied</source>
+      <translation>Datei(en) aus dem History-Verzeichnis werden kopiert</translation>
+    </message>
+    <message>
+      <source>Alarm source</source>
+      <translation>Alarmquelle</translation>
+    </message>
+    <message>
+      <source>Must not contain user name or part of full name</source>
+      <translation>Kein Benutzer- bzw. Teil des vollen Namens enthalten</translation>
+    </message>
+    <message>
+      <source>Condition address</source>
+      <translation>Adresse der Alarmbedingung</translation>
+    </message>
+    <message>
+      <source>Shelved</source>
+      <translation>Zurückgestellt</translation>
+    </message>
+    <message>
+      <source>Advanced</source>
+      <translation>Erweitert</translation>
+    </message>
+    <message>
+      <source>Time value change</source>
+      <translation>Zeit Wertänderung</translation>
+    </message>
+    <message>
+      <source>Shelving duration</source>
+      <translation>Dauer des Zurückstellens</translation>
+    </message>
+    <message>
+      <source>Value process</source>
+      <translation>Wert Prozess</translation>
+    </message>
+    <message>
+      <source>Alarm state</source>
+      <translation>Alarmstatus</translation>
+    </message>
+    <message>
+      <source>Event text</source>
+      <translation>Ereignistext</translation>
+    </message>
+    <message>
+      <source>Enable</source>
+      <translation>Einschalten</translation>
+    </message>
+    <message>
+      <source>Disable</source>
+      <translation>Ausschalten</translation>
+    </message>
+    <message>
+      <source>File</source>
+      <translation>Datei</translation>
+    </message>
+    <message>
+      <source>Remote browse</source>
+      <translation>Remote durchsuchen</translation>
+    </message>
+    <message>
+      <source>archive file(s)</source>
+      <translation>Archivdatei(en)</translation>
+    </message>
+    <message>
+      <source>Max. time is</source>
+      <translation>Maximale Zeit ist</translation>
+    </message>
+    <message>
+      <source>Alarm or condition</source>
+      <translation>Alarm od. Alarmbedingung</translation>
+    </message>
+    <message>
+      <source>Flashtime ack.</source>
+      <translation>Blinkzeit Quitt.</translation>
+    </message>
+    <message>
+      <source>Input node</source>
+      <translation>Datenpunkt</translation>
+    </message>
+    <message>
+      <source>Ackn. / Conf.</source>
+      <translation>Quitt. / Best.</translation>
+    </message>
+    <message>
+      <source>with comment</source>
+      <translation>mit Kommentar</translation>
+    </message>
+    <message>
+      <source>Manually swapped archive file. Auto-scheduler will ignore these files.</source>
+      <translation>Von Hand ausgelagerte Archivdatei. Auto-Zeitplaner ignoriert diese Dateien.</translation>
+    </message>
+    <message>
+      <source>Confirmed state</source>
+      <translation>Bestätigt Status</translation>
+    </message>
+    <message>
+      <source>Enabled state</source>
+      <translation>Eingeschaltet Status</translation>
+    </message>
+    <message>
+      <source>State</source>
+      <translation>Status</translation>
+    </message>
+    <message>
+      <source>Confirmed state icon</source>
+      <translation>Bestätigt Status Symbol</translation>
+    </message>
+    <message>
+      <source>The current display can not be added to the favorites, because the config node would exceed its size limit.</source>
+      <translation>Das Display kann nicht zu den Favoriten hinzugefügt werden, da sonst das Größenlimit des Konfigurations-Nodes überschritten wird.</translation>
+    </message>
+    <message>
+      <source>Min. priority</source>
+      <translation>Min. Prio.</translation>
+    </message>
+    <message>
+      <source>Alarming</source>
+      <translation>Alarming</translation>
+    </message>
+    <message>
+      <source>All rows with all columns</source>
+      <translation>Alle Zeilen mit allen Spalten</translation>
+    </message>
+    <message>
+      <source>All rows with displayed columns</source>
+      <translation>Alle Zeilen mit angezeigten Spalten</translation>
+    </message>
+    <message>
+      <source>Export</source>
+      <translation>Export</translation>
+    </message>
+    <message>
+      <source>Export CSV</source>
+      <translation>Export CSV</translation>
+    </message>
+    <message>
+      <source>active conf.</source>
+      <translation>aktiv best.</translation>
+    </message>
+    <message>
+      <source>Marked rows with all columns</source>
+      <translation>Markierte Zeilen mit allen Spalten</translation>
+    </message>
+    <message>
+      <source>Number of rows</source>
+      <translation>Zeilenanzahl</translation>
+    </message>
+    <message>
+      <source>Reset sorting</source>
+      <translation>Sortierung zurücksetzen</translation>
+    </message>
+    <message>
+      <source>Show or hide filter</source>
+      <translation>Zeige / Verstecke Filter</translation>
+    </message>
+    <message>
+      <source>TimeShelved</source>
+      <translation>Befristet zurückgestellt</translation>
+    </message>
+    <message>
+      <source>Number of rows - To</source>
+      <translation>Zeilenanzahl / Bis</translation>
+    </message>
+    <message>
+      <source>multiple selection</source>
+      <translation>Mehrfachselektion</translation>
+    </message>
+    <message>
+      <source>Save in</source>
+      <translation>Speichern in</translation>
+    </message>
+    <message>
+      <source>settings</source>
+      <translation>Einstellungen</translation>
+    </message>
+    <message>
+      <source>update</source>
+      <translation>Update</translation>
+    </message>
+    <message>
+      <source>First run</source>
+      <translation>Erste Ausführung</translation>
+    </message>
+    <message>
+      <source>Do you want to delete the selected recipe template(s)?</source>
+      <translation>Wollen Sie die ausgewählte(n) Rezeptvorlage(n) löschen?</translation>
+    </message>
+    <message>
+      <source>Auto-scheduler active</source>
+      <translation>Zeitplaner aktiv</translation>
+    </message>
+    <message>
+      <source>Alarms and conditions</source>
+      <translation>Alarme und Konfigurationen</translation>
+    </message>
+    <message>
+      <source>(IN)ACTIVE! latched</source>
+      <translation>(IN)AKTIV! verriegelt</translation>
+    </message>
+    <message>
+      <source>INACTIVE! unconf.</source>
+      <translation>INAKTIV! unbest.</translation>
+    </message>
+    <message>
+      <source>list</source>
+      <translation>Liste</translation>
+    </message>
+    <message>
+      <source>of</source>
+      <translation>von</translation>
+    </message>
+    <message>
+      <source>Please enter a favorite name!</source>
+      <translation>Bitte Favoritennamen eingeben!</translation>
+    </message>
+    <message>
+      <source>more</source>
+      <translation>mehr</translation>
+    </message>
+    <message>
+      <source>View sum alarm members</source>
+      <translation>Unteralarme anzeigen</translation>
+    </message>
+    <message>
+      <source>Is sum alarm</source>
+      <translation>Ist Summenalarm</translation>
+    </message>
+    <message>
+      <source>Sum alarm members list</source>
+      <translation>Liste der Unteralarme</translation>
+    </message>
+    <message>
+      <source>Compression</source>
+      <translation>Kompression</translation>
+    </message>
+    <message>
+      <source>Multiple nodes</source>
+      <translation>Datenpunkten</translation>
+    </message>
+    <message>
+      <source>Filesystem</source>
+      <translation>Dateisystem</translation>
+    </message>
+    <message>
+      <source>Time unshelve</source>
+      <translation>Ende d. Zurückstellens</translation>
+    </message>
+    <message>
+      <source>confirm</source>
+      <translation>bestätigen</translation>
+    </message>
+    <message>
+      <source>Notification</source>
+      <translation>Notifikation</translation>
+    </message>
+    <message>
+      <source>Continuation Point Invalid</source>
+      <translation>Fortsetzungspunkt ungültig</translation>
+    </message>
+    <message>
+      <source>No Continuation Points</source>
+      <translation>Keine Fortsetzungspunkte</translation>
+    </message>
+    <message>
+      <source>Menü</source>
+      <translation>Menü</translation>
+    </message>
+    <message>
+      <source>Contact your administrator for permission changes.</source>
+      <translation>Kontaktieren Sie ihren Administrator für die Rechtevergabe.</translation>
+    </message>
+    <message>
+      <source>The filter result might be incomplete.</source>
+      <translation>Das Filterergebnis ist möglicherweise unvollständig.</translation>
+    </message>
+    <message>
+      <source>value is less than defined minimum</source>
+      <translation>Wert ist kleiner als das definierte Minimum</translation>
+    </message>
+    <message>
+      <source>Append data off</source>
+      <translation>Fortlaufende Daten aus</translation>
+    </message>
+    <message>
+      <source>Not logged in. Favorites data will be overwritten at login!</source>
+      <translation>Nicht eingeloggt. Favoritendaten werden beim Einloggen überschrieben!</translation>
+    </message>
+    <message>
+      <source>Remove</source>
+      <translation>Entfernen</translation>
+    </message>
+    <message>
+      <source>Connected to SNOP</source>
+      <translation>Verbunden mit SNOP</translation>
+    </message>
+    <message>
+      <source>Attention</source>
+      <translation>Achtung</translation>
+    </message>
+    <message>
+      <source>Change interval frequency.</source>
+      <translation>Intervallfrequenz ändern</translation>
+    </message>
+    <message>
+      <source>Hour(s)</source>
+      <translation>Stunde(n)</translation>
+    </message>
+    <message>
+      <source>Remove recipe</source>
+      <translation>Rezept entfernen</translation>
+    </message>
+    <message>
+      <source>Change interval period</source>
+      <translation>Intervallzeitraum ändern</translation>
+    </message>
+    <message>
+      <source>Confirm alarms</source>
+      <translation>Alarme bestätigen</translation>
+    </message>
+    <message>
+      <source>Source directory</source>
+      <translation>Quellverzeichnis</translation>
+    </message>
+    <message>
+      <source>Destination directory</source>
+      <translation>Zielverzeichnis</translation>
+    </message>
+    <message>
+      <source>Backup directory</source>
+      <translation>Backup-Verzeichnis</translation>
+    </message>
+    <message>
+      <source>To backup</source>
+      <translation>Nach Backup</translation>
+    </message>
+    <message>
+      <source>Auto-scheduler</source>
+      <translation>Auto-Zeitplaner</translation>
+    </message>
+    <message>
+      <source>Set as active recipe</source>
+      <translation>Als aktives Rezept setzen</translation>
+    </message>
+    <message>
+      <source>Remove recipe template</source>
+      <translation>Rezeptvorlage entfernen</translation>
+    </message>
+    <message>
+      <source>Storage overview</source>
+      <translation>Speicherübersicht</translation>
+    </message>
+    <message>
+      <source>Aggregated archive</source>
+      <translation>Aggregatarchiv</translation>
+    </message>
+    <message>
+      <source>System database</source>
+      <translation>Systemdatenbank</translation>
+    </message>
+    <message>
+      <source>Invalid JSON value assigned for variable</source>
+      <translation>Ungültiger JSON-Wert für Variable zugewiesen</translation>
+    </message>
+    <message>
+      <source>Swapin directory</source>
+      <translation>Swapin-Verzeichnis</translation>
+    </message>
+    <message>
+      <source>Restore directory</source>
+      <translation>Restore-Verzeichnis</translation>
+    </message>
+    <message>
+      <source>Conflict only</source>
+      <translation>Nur Konflikte</translation>
+    </message>
+    <message>
+      <source>Acknowledge alarms</source>
+      <translation>Alarme quittieren</translation>
+    </message>
+    <message>
+      <source>Control</source>
+      <translation>Steuerelemente</translation>
+    </message>
+    <message>
+      <source>Size of selected file(s)</source>
+      <translation>Größe gewählter Datei(en)</translation>
+    </message>
+    <message>
+      <source>E-mail from</source>
+      <translation>E-Mail von</translation>
+    </message>
+    <message>
+      <source>Activate Autobackup.</source>
+      <translation>Automatische Sicherung aktivieren.</translation>
+    </message>
+    <message>
+      <source>SMTP</source>
+      <translation>SMTP</translation>
+    </message>
+    <message>
+      <source>Are you sure you want to start the transfer of the selected file(s)</source>
+      <translation>Sind Sie sicher, dass Sie die Operationen der gewählten Datei(en) starten möchten</translation>
+    </message>
+    <message>
+      <source>Confirm action</source>
+      <translation>Aktion bestätigen</translation>
+    </message>
+    <message>
+      <source>move</source>
+      <translation>verschieben</translation>
+    </message>
+    <message>
+      <source>copy</source>
+      <translation>kopieren</translation>
+    </message>
+    <message>
+      <source>Current</source>
+      <translation>Aktuell</translation>
+    </message>
+    <message>
+      <source>Edit schedule</source>
+      <translation>Zeitplan bearbeiten</translation>
+    </message>
+    <message>
+      <source>Conflict file</source>
+      <translation>Konfliktdatei</translation>
+    </message>
+    <message>
+      <source>from</source>
+      <translation>von</translation>
+    </message>
+    <message>
+      <source>Configure access control</source>
+      <translation>Zugriffskontrolle konfigurieren</translation>
+    </message>
+    <message>
+      <source>Unknown error occured</source>
+      <translation>Unbekannter Fehler</translation>
+    </message>
+    <message>
+      <source>Not configured</source>
+      <translation>Nicht konfiguriert</translation>
+    </message>
+    <message>
+      <source>free of</source>
+      <translation>frei von</translation>
+    </message>
+    <message>
+      <source>Locked</source>
+      <translation>Gesperrt</translation>
+    </message>
+    <message>
+      <source>Created</source>
+      <translation>Erstellt</translation>
+    </message>
+    <message>
+      <source>Subgroup</source>
+      <translation>Untergruppe</translation>
+    </message>
+    <message>
+      <source>Log display</source>
+      <translation>Protokollanzeige</translation>
+    </message>
+    <message>
+      <source>Should all marked lines be set as read?</source>
+      <translation>Sollten alle markierten Zeilen als gelesen gesetzt werden?</translation>
+    </message>
+    <message>
+      <source>YES, mark all as read.</source>
+      <translation>JA, markiere alle als gelesen.</translation>
+    </message>
+    <message>
+      <source>No right to perform action for systemdb</source>
+      <translation>Kein Recht für Aktion für systemdb</translation>
+    </message>
+    <message>
+      <source>columnrange</source>
+      <translation>Reichweite Spalte</translation>
+    </message>
+    <message>
+      <source>File(s) older than</source>
+      <translation>Datei(en) älter als</translation>
+    </message>
+    <message>
+      <source>Capacity can't be determined</source>
+      <translation>Kapazität kann nicht bestimmt werden</translation>
+    </message>
+    <message>
+      <source>View log</source>
+      <translation>Protokoll anzeigen</translation>
+    </message>
+    <message>
+      <source>Older than</source>
+      <translation>Älter als</translation>
+    </message>
+    <message>
+      <source>Errors</source>
+      <translation>Fehler</translation>
+    </message>
+    <message>
+      <source>Configured path identical with Backup directory</source>
+      <translation>Konfigurierter Pfad identisch mit Backup-Verzeichnis</translation>
+    </message>
+    <message>
+      <source>Invalid configuration, please check settings</source>
+      <translation>Ungültige Konfiguration, bitte Einstellungen prüfen</translation>
+    </message>
+    <message>
+      <source>The specified start date is after the end date</source>
+      <translation>Das angegebene Startdatum ist nach dem Enddatum</translation>
+    </message>
+    <message>
+      <source>View Log</source>
+      <translation>Log anzeigen</translation>
+    </message>
+    <message>
+      <source>Access Control</source>
+      <translation>Zugriffskontrolle</translation>
+    </message>
+    <message>
+      <source>Can't write user information</source>
+      <translation>Benutzerinformationen können nicht geschrieben werden</translation>
+    </message>
+    <message>
+      <source>Access Log</source>
+      <translation>Access Log</translation>
+    </message>
+    <message>
+      <source>Clear Log</source>
+      <translation>Lösche Log</translation>
+    </message>
+    <message>
+      <source>Content display</source>
+      <translation>Content-Display</translation>
+    </message>
+    <message>
+      <source>Step size</source>
+      <translation>Schrittweite</translation>
+    </message>
+    <message>
+      <source>Prio.</source>
+      <translation>Prio.</translation>
+    </message>
+    <message>
+      <source>Edit user</source>
+      <translation>Benutzer editieren</translation>
+    </message>
+    <message>
+      <source>Command</source>
+      <translation>Befehl</translation>
+    </message>
+    <message>
+      <source>Write</source>
+      <translation>Schreiben</translation>
+    </message>
+    <message>
+      <source>Login Information</source>
+      <translation>Logininformationen</translation>
+    </message>
+    <message>
+      <source>Engineer</source>
+      <translation>Ändern</translation>
+    </message>
+    <message>
+      <source>Configure scripts</source>
+      <translation>Scripts konfigurieren</translation>
+    </message>
+    <message>
+      <source>Manage alarms</source>
+      <translation>Alarme verwalten</translation>
+    </message>
+    <message>
+      <source>Access denied</source>
+      <translation>Zugriff verweigert</translation>
+    </message>
+    <message>
+      <source>Please enter only numeric values.</source>
+      <translation>Bitte geben Sie nur numerische Werte ein.</translation>
+    </message>
+    <message>
+      <source>N/A</source>
+      <translation>N.V.</translation>
+    </message>
+    <message>
+      <source>missing</source>
+      <translation>fehlt</translation>
+    </message>
+    <message>
+      <source>Parameters of</source>
+      <translation>Parameter von</translation>
+    </message>
+    <message>
+      <source>Recipe template</source>
+      <translation>Rezeptvorlage</translation>
+    </message>
+    <message>
+      <source>Recipes</source>
+      <translation>Rezepte</translation>
+    </message>
+    <message>
+      <source>Default value</source>
+      <translation>Standardwert</translation>
+    </message>
+    <message>
+      <source>value is not in stepsize</source>
+      <translation>Wert ist nicht in Schrittweite</translation>
+    </message>
+    <message>
+      <source>Value recipe</source>
+      <translation>Wert Rezept</translation>
+    </message>
+    <message>
+      <source>Templates</source>
+      <translation>Vorlagen</translation>
+    </message>
+    <message>
+      <source>Max</source>
+      <translation>Max</translation>
+    </message>
+    <message>
+      <source>Add recipe template</source>
+      <translation>Rezeptvorlage hinzufügen</translation>
+    </message>
+    <message>
+      <source>Recipes of selected template(s) will be deleted too!</source>
+      <translation>Rezepte der selektierten Vorlage(n) werden ebenfalls gelöscht!</translation>
+    </message>
+    <message>
+      <source>Template with same name already exists</source>
+      <translation>Vorlage mit diesem Namen existiert bereits</translation>
+    </message>
+    <message>
+      <source>Do you want to delete the selected recipe(s)?</source>
+      <translation>Wollen Sie die ausgewählte(n) Rezepte löschen?</translation>
+    </message>
+    <message>
+      <source>Add recipe</source>
+      <translation>Rezept hinzufügen</translation>
+    </message>
+    <message>
+      <source>Decimals</source>
+      <translation>Dezimale</translation>
+    </message>
+    <message>
+      <source>invalid data type</source>
+      <translation>ungültiger Datentyp</translation>
+    </message>
+    <message>
+      <source>value is not allowed to have decimals</source>
+      <translation>Wert darf keine Dezimalstellen besitzen</translation>
+    </message>
+    <message>
+      <source>areasplinerange</source>
+      <translation>Reichweite Spline</translation>
+    </message>
+    <message>
+      <source>value is not in the list of options</source>
+      <translation>Wert ist nicht in der Liste der Einstellungen</translation>
+    </message>
+    <message>
+      <source>Too many attempts! Please wait</source>
+      <translation>Zu viele Versuche! Bitte warten Sie</translation>
+    </message>
+    <message>
+      <source>No read rights for variable</source>
+      <translation>Keine Leserechte für Variable</translation>
+    </message>
+    <message>
+      <source>Room 1</source>
+      <translation>Raum 1</translation>
+    </message>
+    <message>
+      <source>Importing configuration(s) in progress</source>
+      <translation>Import der Konfiguration(en) läuft</translation>
+    </message>
+    <message>
+      <source>AccessLog</source>
+      <translation>AccessLog</translation>
+    </message>
+    <message>
+      <source>Access Denied</source>
+      <translation>Zugriff verweigert</translation>
+    </message>
+    <message>
+      <source>Access Control Log</source>
+      <translation>Log für Zugriffskontrolle</translation>
+    </message>
+    <message>
+      <source>You do not have the required permissions.</source>
+      <translation>Sie besitzen nicht die benötigten Rechte.</translation>
+    </message>
+    <message>
+      <source>Favorites</source>
+      <translation>Favoriten</translation>
+    </message>
+    <message>
+      <source>invalid value</source>
+      <translation>ungültiger Wert</translation>
+    </message>
+    <message>
+      <source>Info</source>
+      <translation>Info</translation>
+    </message>
+    <message>
+      <source>Please check the current status of the entries.</source>
+      <translation>Bitte überprüfen Sie den aktuellen Status der Einträge.</translation>
+    </message>
+    <message>
+      <source>Please check the current status of the entry.</source>
+      <translation>Bitte überprüfen Sie den aktuellen Status des Eintrags.</translation>
+    </message>
+    <message>
+      <source>Information</source>
+      <translation>Information</translation>
+    </message>
+    <message>
+      <source>wait</source>
+      <translation>warten</translation>
+    </message>
+    <message>
+      <source>INVALID JSON</source>
+      <translation>JSON UNGÜLTIG</translation>
+    </message>
+    <message>
+      <source>area</source>
+      <translation>Bereich</translation>
+    </message>
+    <message>
+      <source>areaspline</source>
+      <translation>Bereich Spline</translation>
+    </message>
+    <message>
+      <source>column</source>
+      <translation>Spalte</translation>
+    </message>
+    <message>
+      <source>bar</source>
+      <translation>Balken</translation>
+    </message>
+    <message>
+      <source>pie</source>
+      <translation>Kuchen</translation>
+    </message>
+    <message>
+      <source>Invalid period</source>
+      <translation>Ungültiger Zeitraum</translation>
+    </message>
+    <message>
+      <source>New password</source>
+      <translation>Neues Passwort</translation>
+    </message>
+    <message>
+      <source>Requirements</source>
+      <translation>Anforderungen</translation>
+    </message>
+    <message>
+      <source>Change</source>
+      <translation>Ändern</translation>
+    </message>
+    <message>
+      <source>Must not contain user name</source>
+      <translation>Benutzername darf nicht enthalten sein</translation>
+    </message>
+    <message>
+      <source>lower case</source>
+      <translation>Kleinbuchstaben</translation>
+    </message>
+    <message>
+      <source>upper case</source>
+      <translation>Großbuchstaben</translation>
+    </message>
+    <message>
+      <source>Tick auto alignment</source>
+      <translation>Automatische Gitter-Ausrichtung</translation>
+    </message>
+    <message>
+      <source>Offset of y-axis</source>
+      <translation>Versatz y-Achse</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>Keiner</translation>
+    </message>
+    <message>
+      <source>Limit</source>
+      <translation>Limit</translation>
+    </message>
+    <message>
+      <source>Unlimited</source>
+      <translation>Unbegrenzt</translation>
+    </message>
+    <message>
+      <source>Couldn't change user password.</source>
+      <translation>Benutzerkennwort konnte nicht geändert werden.</translation>
+    </message>
+    <message>
+      <source>User or password not specified!</source>
+      <translation>Benutzer oder Passwort nicht angegeben!</translation>
+    </message>
+    <message>
+      <source>enable for all y-axis</source>
+      <translation>Für alle y-Achsen aktivieren</translation>
+    </message>
+    <message>
+      <source>Remember username</source>
+      <translation>Merke Benutzername</translation>
+    </message>
+    <message>
+      <source>Password changed successfully.</source>
+      <translation>Passwort erfolgreich geändert.</translation>
+    </message>
+    <message>
+      <source>Login data wrong or permission missing!</source>
+      <translation>Logindaten falsch oder keine Berechtigung!</translation>
+    </message>
+    <message>
+      <source>In/Out Password</source>
+      <translation>Ein-/Ausgabeelement Passwort</translation>
+    </message>
+    <message>
+      <source>User account locked. Please contact your administrator.</source>
+      <translation>Account gesperrt. Bitte an den Administrator wenden.</translation>
+    </message>
+    <message>
+      <source>User log in successful!</source>
+      <translation>Benutzer erfolgreich eingeloggt!</translation>
+    </message>
+    <message>
+      <source>Username or Password wrong!</source>
+      <translation>Benutzer oder Passwort falsch!</translation>
+    </message>
+    <message>
+      <source>Password expires in</source>
+      <translation>Passwortgültigkeit:</translation>
+    </message>
+    <message>
+      <source>Please change your password.</source>
+      <translation>Passwort bitte ändern.</translation>
+    </message>
+    <message>
+      <source>Password expired. Please change your password to unlock the account.</source>
+      <translation>Passwort abgelaufen. Zum Entsperren des Accounts bitte ein neues Passwort vergeben.</translation>
+    </message>
+    <message>
+      <source>no leading or trailing spaces</source>
+      <translation>keine Leerzeichen am Beginn/Ende</translation>
+    </message>
+    <message>
+      <source>New and old password must be different</source>
+      <translation>Neues und altes Passwort dürfen nicht identisch sein</translation>
+    </message>
+    <message>
+      <source>Must not contain part of full name</source>
+      <translation>Kein Teil des vollen Namens darf enthalten sein</translation>
+    </message>
+    <message>
+      <source>digit(s)</source>
+      <translation>Ziffer(n)</translation>
+    </message>
+    <message>
+      <source>snapping</source>
+      <translation>einrasten</translation>
+    </message>
+    <message>
+      <source>Login failed</source>
+      <translation>Login fehlgeschlagen</translation>
+    </message>
+    <message>
+      <source>Sampling factor</source>
+      <translation>Sampling-Faktor</translation>
+    </message>
+    <message>
+      <source>Series Threshold</source>
+      <translation>Serien-Schwellenwert</translation>
+    </message>
+    <message>
+      <source>Cannot read archive</source>
+      <translation>Archiv nicht lesbar</translation>
+    </message>
+    <message>
+      <source>Archive is locked</source>
+      <translation>Archiv ist gesperrt</translation>
+    </message>
+    <message>
+      <source>Loading history in progress</source>
+      <translation>Laden der Historie läuft</translation>
+    </message>
+    <message>
+      <source>Axis label format</source>
+      <translation>Beschriftungsformat</translation>
+    </message>
+    <message>
+      <source>Warning for imports!</source>
+      <translation>Warnung für Importe!</translation>
+    </message>
+    <message>
+      <source>Do you still want to start the import?</source>
+      <translation>Möchten Sie den Import dennoch starten?</translation>
+    </message>
+    <message>
+      <source>Automatic tick</source>
+      <translation>Automatische Gitter-</translation>
+    </message>
+    <message>
+      <source>alignment is active</source>
+      <translation>Ausrichtung ist aktiv</translation>
+    </message>
+    <message>
+      <source>Node &quot;#node_name&quot; for the data set &quot;#series_name [#series_index]&quot; is archived in &quot;#archive_name&quot; but its archive group is configured to &quot;#configured_archive&quot;, which is being used for the current plot. Please select the respective data set and click on the already highlighted source address. If the label had been changed previously, make sure to make the change again. Save the configuration to solve this issue permanently.</source>
+      <translation>Der Node &quot;#node_name&quot; für den Datensatz &quot;#series_name [#series_index]&quot; ist in &quot;#archive_name&quot; archiviert. In der Konfiguration ist er aber der Archivgruppe &quot;#configured_archive&quot; zugewiesen, welche für die aktuelle Darstellung verwendet wird. Bitte selektieren Sie den betroffenen Datensatz und klicken Sie die bereits markierte Quelladresse erneut an. Sofern eine eigene Beschriftung vergeben wurde, ist diese ebenfalls anzupassen. Speichern Sie die Konfiguration, um diese Zuordnung dauerhaft zu korrigieren.</translation>
+    </message>
+    <message>
+      <source>Unacknowledged</source>
+      <translation>Unquittiert</translation>
+    </message>
+    <message>
+      <source>In Service</source>
+      <translation>In Betrieb</translation>
+    </message>
+    <message>
+      <source>Out of Service</source>
+      <translation>Außer Betrieb</translation>
+    </message>
+    <message>
+      <source>Silenced</source>
+      <translation>Stumm</translation>
+    </message>
+    <message>
+      <source>Not Silenced</source>
+      <translation>Nicht Stumm</translation>
+    </message>
+    <message>
+      <source>Latched</source>
+      <translation>Verriegelt</translation>
+    </message>
+    <message>
+      <source>Unlatched</source>
+      <translation>Entriegelt</translation>
+    </message>
+    <message>
+      <source>LowLow</source>
+      <translation>LowLow</translation>
+    </message>
+    <message>
+      <source>Low</source>
+      <translation>Low</translation>
+    </message>
+    <message>
+      <source>High</source>
+      <translation>High</translation>
+    </message>
+    <message>
+      <source>HighHigh</source>
+      <translation>HighHigh</translation>
+    </message>
+    <message>
+      <source>HighHigh inactive</source>
+      <translation>HighHigh inaktiv</translation>
+    </message>
+    <message>
+      <source>HighHigh active</source>
+      <translation>HighHigh aktiv</translation>
+    </message>
+    <message>
+      <source>High inactive</source>
+      <translation>High inaktiv</translation>
+    </message>
+    <message>
+      <source>High active</source>
+      <translation>High aktiv</translation>
+    </message>
+    <message>
+      <source>LowLow inactive</source>
+      <translation>LowLow inaktiv</translation>
+    </message>
+    <message>
+      <source>LowLow active</source>
+      <translation>LowLow aktiv</translation>
+    </message>
+    <message>
+      <source>Low inactive</source>
+      <translation>Low inaktiv</translation>
+    </message>
+    <message>
+      <source>Low active</source>
+      <translation>Low aktiv</translation>
+    </message>
+    <message>
+      <source>TimedShelved</source>
+      <translation>Befristet zurückgestellt</translation>
+    </message>
+    <message>
+      <source>The axis has been assigned to series!</source>
+      <translation>Die Achse wurde einer Serie zugeordnet!</translation>
+    </message>
+    <message>
+      <source>Deleting an axis will also delete assigned series!</source>
+      <translation>Das Löschen einer Achse löscht auch die zugeordneten Serien!</translation>
+    </message>
+    <message>
+      <source>Do you really want to delete this axis?</source>
+      <translation>Möchten Sie diese Achse wirklich löschen?</translation>
+    </message>
+    <message>
+      <source>Connection Changed!</source>
+      <translation>Verbindung geändert!</translation>
+    </message>
+    <message>
+      <source>During the switchover there was an interruption in the live data query!</source>
+      <translation>Während der Umschaltung kam es zu einer Unterbrechung der Livedatenabfrage!</translation>
+    </message>
+    <message>
+      <source>Connection Changed!</source>
+      <translation>Verbindung geändert!</translation>
+    </message>
+    <message>
+      <source>Please reload the display if necessary!</source>
+      <translation>Bitte laden Sie die Anzeige ggf. neu!</translation>
+    </message>
+    <message>
+      <source>Metascript</source>
+      <translation>Metascript</translation>
+    </message>
+    <message>
+      <source>Template</source>
+      <translation>Vorlage</translation>
+    </message>
+    <message>
+      <source>XLSX report</source>
+      <translation>XLSX Report</translation>
+    </message>
+    <message>
+      <source>PDF report</source>
+      <translation>PDF Report</translation>
+    </message>
+    <message>
+      <source>HTML report</source>
+      <translation>HTML Report</translation>
+    </message>
+    <message>
+      <source>XLSX rep.</source>
+      <translation>XLSX Rep.</translation>
+    </message>
+    <message>
+      <source>PDF rep.</source>
+      <translation>PDF Rep.</translation>
+    </message>
+    <message>
+      <source>HTML rep.</source>
+      <translation>HTML Rep.</translation>
+    </message>
+    <message>
+      <source>Worksheets</source>
+      <translation>Arbeitsblätter</translation>
+    </message>
+    <message>
+      <source>Simplified cron syntax: numbers sperated with ','</source>
+      <translation>Vereinfachte Cron-Syntax: Zahlen mit ',' getrennt</translation>
+    </message>
+    <message>
+      <source>Edit report</source>
+      <translation>Report editieren</translation>
+    </message>
+    <message>
+      <source>Report time</source>
+      <translation>Reportzeit</translation>
+    </message>
+    <message>
+      <source>Generate</source>
+      <translation>Generieren</translation>
+    </message>
+    <message>
+      <source>Schedule</source>
+      <translation>Zeitplan</translation>
+    </message>
+    <message>
+      <source>Generate report immediately based on this time</source>
+      <translation>Report anhand dieser Zeit sofort generieren</translation>
+    </message>
+    <message>
+      <source>Configuration saved.</source>
+      <translation>Konfiguration gespeichert.</translation>
+    </message>
+    <message>
+      <source>Configuration deleted.</source>
+      <translation>Konfiguration gelöscht.</translation>
+    </message>
+    <message>
+      <source>Delete all selected configurations</source>
+      <translation>Lösche alle ausgewählten Konfigurationen</translation>
+    </message>
+    <message>
+      <source>Group folder doesn't exist or permission is missing.</source>
+      <translation>Gruppenordner existiert nicht oder die Berechtigung fehlt.</translation>
+    </message>
+    <message>
+      <source>No permission to write configuration node.</source>
+      <translation>Recht zum Schreiben der Konfiguration fehlt.</translation>
+    </message>
+    <message>
+      <source>Configuration already exist.</source>
+      <translation>Konfiguration existiert bereits.</translation>
+    </message>
+    <message>
+      <source>configurations selected</source>
+      <translation>Konfigurationen ausgewählt</translation>
+    </message>
+    <message>
+      <source>Configuration(s)</source>
+      <translation>Konfiguration(en)</translation>
+    </message>
+    <message>
+      <source>No configuration(s) selected.</source>
+      <translation>Keine Konfiguration(en) ausgewählt.</translation>
+    </message>
+    <message>
+      <source>No permission</source>
+      <translation>Kein Recht</translation>
+    </message>
+    <message>
+      <source>Schedule: last generated</source>
+      <translation>Zeitplan: zuletzt generiert</translation>
+    </message>
+    <message>
+      <source>Worksheet start</source>
+      <translation>Arbeitblatt Start</translation>
+    </message>
+    <message>
+      <source>Worksheet end</source>
+      <translation>Arbeitblatt Ende</translation>
+    </message>
+    <message>
+      <source>Worksheet selection for PDF reports</source>
+      <translation>Arbeitblattauswahl für den PDF Report</translation>
+    </message>
+    <message>
+      <source>Report generation started.</source>
+      <translation>Reportgenerierung gestartet.</translation>
+    </message>
+    <message>
+      <source>Examples: 'C:/project/template.xlsx', 'C:\project\template.xlsx' or './template.xlsx'</source>
+      <translation>Beispiele: 'C:/project/template.xlsx', 'C:\project\template.xlsx' or './template.xlsx'</translation>
+    </message>
+    <message>
+      <source>Unknown error</source>
+      <translation>Unbekannter Fehler</translation>
+    </message>
+    <message>
+      <source>Name is empty or invalid.</source>
+      <translation>Name ist leer oder ungültig.</translation>
+    </message>
+    <message>
+      <source>Maximal number of report configurations reached.</source>
+      <translation>Maximale Anzahl an Reportkonfigurationen erreicht.</translation>
+    </message>
+    <message>
+      <source>Cannot read mandatory status node.</source>
+      <translation>Status kann nicht gelesen werden.</translation>
+    </message>
+    <message>
+      <source>Cannot read mandatory configuration node.</source>
+      <translation>Konfiguration kann nicht gelesen werden.</translation>
+    </message>
+    <message>
+      <source>Data offset</source>
+      <translation>Datenversatz</translation>
+    </message>
+    <message>
+      <source>Offset</source>
+      <translation>Versatz</translation>
+    </message>
+    <message>
+      <source>Locale</source>
+      <translation>Lokalisierung</translation>
+    </message>
+    <message>
+      <source>Report Manager</source>
+      <translation>Report-Manager</translation>
+    </message>
+    <message>
+      <source>create new report configuration</source>
+      <translation>Reportkonfiguration erstellen</translation>
+    </message>
+    <message>
+      <source>mandatory field</source>
+      <translation>Pflichtfeld</translation>
+    </message>
+    <message>
+      <source>Mon.</source>
+      <translation>Mo.</translation>
+    </message>
+    <message>
+      <source>Tue.</source>
+      <translation>Di.</translation>
+    </message>
+    <message>
+      <source>Wed.</source>
+      <translation>Mi.</translation>
+    </message>
+    <message>
+      <source>Thu.</source>
+      <translation>Do.</translation>
+    </message>
+    <message>
+      <source>Fri.</source>
+      <translation>Fr.</translation>
+    </message>
+    <message>
+      <source>Sat.</source>
+      <translation>Sa.</translation>
+    </message>
+    <message>
+      <source>Sun.</source>
+      <translation>So.</translation>
+    </message>
+    <message>
+      <source>Setting custom e-mail is disabled</source>
+      <translation>Benutzerdefnierte E-Mail ist deaktiviert</translation>
+    </message>
+    <message>
+      <source>E-mail address has invalid domain</source>
+      <translation>E-Mail-Adresse hat ungültige Domain</translation>
+    </message>
+    <message>
+      <source>Title color</source>
+      <translation>Farbe Titel</translation>
+    </message>
+    <message>
+      <source>Label color</source>
+      <translation>Farbe Beschriftung</translation>
+    </message>
+    <message>
+      <source>E-Mail could not be saved</source>
+      <translation>Speichern der E-Mail fehlgeschlagen</translation>
+    </message>
+    <message>
+      <source>Seed reset failed!</source>
+      <translation>Zurücksetzten des Seeds fehlgeschlagen</translation>
+    </message>
+    <message>
+      <source>Send code via e-mail</source>
+      <translation>Code per E-Mail senden</translation>
+    </message>
+    <message>
+      <source>Authentication code</source>
+      <translation>Authentifizierungscode</translation>
+    </message>
+    <message>
+      <source>Authentication code invalid</source>
+      <translation>Authentifizierungscode ungültig</translation>
+    </message>
+    <message>
+      <source>Show QR code</source>
+      <translation>Zeige QR Code</translation>
+    </message>
+    <message>
+      <source>Authentication e-mail address</source>
+      <translation>Authentifizierungs-E-Mail-Adresse</translation>
+    </message>
+    <message>
+      <source>Authentication e-mail sent</source>
+      <translation>Authentifizierungs-E-Mail gesendet</translation>
+    </message>
+    <message>
+      <source>E-mail transmission failed</source>
+      <translation>E-Mail-Versand fehlgeschlagen</translation>
+    </message>
+    <message>
+      <source>E-mail address not defined or invalid</source>
+      <translation>E-Mail-Adresse nicht definiert oder ungültig</translation>
+    </message>
+    <message>
+      <source>E-mail address not configured. Please enter e-mail address</source>
+      <translation>E-Mail-Adresse nicht konfiguriert. Bitte E-Mail-Adresse angeben</translation>
+    </message>
+    <message>
+      <source>Verify</source>
+      <translation>Verifizieren</translation>
+    </message>
+    <message>
+      <source>E-mail address has no domain specified</source>
+      <translation>E-Mail-Adresse hat keine Domain</translation>
+    </message>
+    <message>
+      <source>Reset seed</source>
+      <translation>Seed zurücksetzen</translation>
+    </message>
+    <message>
+      <source>Two-factor authentication</source>
+      <translation>Zwei-Faktor-Authentifizierung</translation>
+    </message>
+    <message>
+      <source>App authentication not configured.</source>
+      <translation>App-Authentifizierung nicht konfiguriert.</translation>
+    </message>
+    <message>
+      <source>Scan QR code in authenticator app to use app authentication.</source>
+      <translation>QR-Code mit Authenticator-App scannen, um App-Authentifizierung zu benutzen.</translation>
+    </message>
+    <message>
+      <source>App login disabled.</source>
+      <translation>App-Login deaktiviert.</translation>
+    </message>
+    <message>
+      <source>Two-factor authentication code</source>
+      <translation>Zwei-Faktor-Authentifizierungscode</translation>
+    </message>
+    <message>
+      <source>V#Value</source>
+      <translation>W</translation>
+    </message>
+    <message>
+      <source>Template with name &apos;templates&apos; cannot be created</source>
+      <translation>Template mit dem Namen &apos;templates&apos; kann nicht erstellt werden</translation>
+    </message>
+    <message>
+      <source>can only appear once in a template</source>
+      <translation>kann in einer Vorlage nur einmal vorkommen</translation>
+    </message>
+    <message>
+      <source>does not exist</source>
+      <translation>existiert nicht</translation>
+    </message>
+    <message>
+      <source>include recipes</source>
+      <translation>enthaltene Rezepte</translation>
+    </message>
+    <message>
+      <source>maximum value is not in stepsize</source>
+      <translation>Maximum nicht in Schrittweite enthalten</translation>
+    </message>
+    <message>
+      <source>minimum value is greater than defined maximum</source>
+      <translation>Minimum ist größer als Maximum</translation>
+    </message>
+    <message>
+      <source>minimum value is not in stepsize</source>
+      <translation>Minimum ist nicht in Schrittweite enthalten</translation>
+    </message>
+    <message>
+      <source>Global setttings for e-mail notifications</source>
+      <translation>Globale Einstellungen für E-Mail Benachrichtigungen</translation>
+    </message>
+    <message>
+      <source>SMTP server</source>
+      <translation>SMTP Server</translation>
+    </message>
+    <message>
+      <source>Sender address</source>
+      <translation>Absenderadresse</translation>
+    </message>
+    <message>
+      <source>E-mail notifications</source>
+      <translation>E-Mail-Benachrichtigungen</translation>
+    </message>
+    <message>
+      <source>Toggle e-mail notification</source>
+      <translation>E-Mail-Benachrichtigungen umschalten</translation>
+    </message>
+    <message>
+      <source>Attachments</source>
+      <translation>Anhänge</translation>
+    </message>
+    <message>
+      <source>XLSX</source>
+      <translation>XLSX</translation>
+    </message>
+    <message>
+      <source>PDF</source>
+      <translation>PDF</translation>
+    </message>
+    <message>
+      <source>Script</source>
+      <translation>Script</translation>
+    </message>
+    <message>
+      <source>Parameters</source>
+      <translation>Parameter</translation>
+    </message>
+    <message>
+      <source>E-mail settings</source>
+      <translation>E-Mail-Einstellungen</translation>
+    </message>
+    <message>
+      <source>E-mail settings changed</source>
+      <translation>E-Mail-Einstellungen geändert</translation>
+    </message>
+    <message>
+      <source>Please save to apply</source>
+      <translation>Zum Übernehmen bitte speichern</translation>
+    </message>
+    <message>
+      <source>Specified by global settings</source>
+      <translation>Durch globale Einstellungen festgelegt</translation>
+    </message>
+    <message>
+      <source>E-Mail attachment is not from type 'array'</source>
+      <translation>E-Mal Anhang ist nicht vom Typ 'array'</translation>
+    </message>
+    <message>
+      <source>E-Mail attachment is no valid 'JSON' string</source>
+      <translation>E-Mail Anhang ist kein valider 'JSON' String</translation>
+    </message>
+    <message>
+      <source>E-Mail attachment array contains invalid items.</source>
+      <translation>Array für E-Mail Anhänge enthält ungültige Elemente.</translation>
+    </message>
+    <message>
+      <source>Available placeholders for subject, message and attachment inputs</source>
+      <translation>Verfügbare Platzhalter für Betreff-, Nachricht- und Anhangeingaben</translation>
+    </message>
+    <message>
+      <source>E-mail address has invalid format</source>
+      <translation>E-Mail-Adresse hat ungültiges Format</translation>
+    </message>
+    <message>
+      <source>Report-Viewer</source>
+      <translation>Report-Anzeige</translation>
+    </message>
+    <message>
+      <source>View</source>
+      <translation>Anzeigen</translation>
+    </message>
+    <message>
+      <source>Receiver(s)</source>
+      <translation>Empfänger</translation>
+    </message>
+    <message>
+      <source>Cc</source>
+      <translation>Cc</translation>
+    </message>
+    <message>
+      <source>Bcc</source>
+      <translation>Bcc</translation>
+    </message>
+    <message>
+      <source>Subject</source>
+      <translation>Betreff</translation>
+    </message>
+    <message>
+      <source>Attachment(s)</source>
+      <translation>Anhänge</translation>
+    </message>
+    <message>
+      <source>Reply address</source>
+      <translation>Antwortadresse</translation>
+    </message>
+    <message>
+      <source>Content type</source>
+      <translation>Content-Type</translation>
+    </message>
+    <message>
+      <source>Encoding</source>
+      <translation>Encoding</translation>
+    </message>
+    <message>
+      <source>XLSX attachment</source>
+      <translation>XLSX Anhang</translation>
+    </message>
+    <message>
+      <source>PDF attachment</source>
+      <translation>PDF Anhang</translation>
+    </message>
+    <message>
+      <source>Default</source>
+      <translation>Standard</translation>
+    </message>
+    <message>
+      <source>Custom parameters</source>
+      <translation>Benutzerparameter</translation>
+    </message>
+    <message>
+      <source>Inline</source>
+      <translation>Inline</translation>
+    </message>
+    <message>
+      <source>Home</source>
+      <translation>Home</translation>
+    </message>
+    <message>
+      <source>Admin dashboard</source>
+      <translation>Admin-Dashboard</translation>
+    </message>
+    <message>
+      <source>Base64 encoded</source>
+      <translation>Base64 encodiert</translation>
+    </message>
+    <message>
+      <source>Exponential</source>
+      <translation>Exponentiell</translation>
+    </message>
+    <message>
+      <source>Application URI</source>
+      <translation>Anwendungs-URI</translation>
+    </message>
+    <message>
+      <source>Organization (O)</source>
+      <translation>Organisation (O)</translation>
+    </message>
+    <message>
+      <source>Organizational unit (OU)</source>
+      <translation>Organisationseinheit (OU)</translation>
+    </message>
+    <message>
+      <source>Locality (L)</source>
+      <translation>Ort (L)</translation>
+    </message>
+    <message>
+      <source>State/Province (ST)</source>
+      <translation>Bundesland/Region (ST)</translation>
+    </message>
+    <message>
+      <source>Country (C)</source>
+      <translation>Land (C)</translation>
+    </message>
+    <message>
+      <source>Validity (years)</source>
+      <translation>Gültigkeitsdauer (Jahre)</translation>
+    </message>
+    <message>
+      <source>Key length (bits)</source>
+      <translation>Schlüssellänge (Bits)</translation>
+    </message>
+    <message>
+      <source>Valid from</source>
+      <translation>Gültig ab</translation>
+    </message>
+    <message>
+      <source>Common name (CN)</source>
+      <translation>Allgemeiner Name (CN)</translation>
+    </message>
+    <message>
+      <source>DNS names (DNS)</source>
+      <translation>DNS-Namen (DNS)</translation>
+    </message>
+    <message>
+      <source>IP addresses (IP)</source>
+      <translation>IP-Adressen (IP)</translation>
+    </message>
+    <message>
+      <source>Certificate Manager</source>
+      <translation>Zertifikatsverwaltung</translation>
+    </message>
+    <message>
+      <source>New Self-Signed Certificate</source>
+      <translation>Neues selbstsigniertes Zertifikat</translation>
+    </message>
+    <message>
+      <source>Permission(s) missing for certificate management!</source>
+      <translation>Berechtigung(en) für das Zertifikatsmanagement fehlen!</translation>
+    </message>
+    <message>
+      <source>Create Certificate</source>
+      <translation>Zertifikat erstellen</translation>
+    </message>
+    <message>
+      <source>Issuer Type</source>
+      <translation>Ausstellertyp</translation>
+    </message>
+    <message>
+      <source>Unknown certificate type</source>
+      <translation>Unbekannter Zertifikatstyp</translation>
+    </message>
+    <message>
+      <source>Certificate trusted successfully.</source>
+      <translation>Zertifikat erfolgreich vertraut.</translation>
+    </message>
+    <message>
+      <source>Certificate rejected successfully.</source>
+      <translation>Zertifikat erfolgreich zurückgewiesen.</translation>
+    </message>
+    <message>
+      <source>Certificate created successfully.</source>
+      <translation>Zertifikat erfolgreich erstellt.</translation>
+    </message>
+    <message>
+      <source>File uploaded successfully.</source>
+      <translation>Datei erfolgreich hochgeladen.</translation>
+    </message>
+    <message>
+      <source>Certificate deleted successfully.</source>
+      <translation>Zertifikat erfolgreich gelöscht.</translation>
+    </message>
+    <message>
+      <source>Delete Certificate</source>
+      <translation>Zertifikat löschen</translation>
+    </message>
+    <message>
+      <source>Please confirm that you want to delete the selected certificates!</source>
+      <translation>Bitte bestätigen Sie, dass das ausgewählte Zertifikat gelöscht werden soll!</translation>
+    </message>
+    <message>
+      <source>certificate description</source>
+      <translation>Zertifikatsbeschreibung</translation>
+    </message>
+    <message>
+      <source>path to store</source>
+      <translation>Pfad zum Speicher</translation>
+    </message>
+    <message>
+      <source>path to cert.ini</source>
+      <translation>Pfad zu cert.ini</translation>
+    </message>
+    <message>
+      <source>file type 1</source>
+      <translation>Dateityp 1</translation>
+    </message>
+    <message>
+      <source>file type 2</source>
+      <translation>Dateityp 2</translation>
+    </message>
+    <message>
+      <source>file 1 label</source>
+      <translation>Label für Datei 1</translation>
+    </message>
+    <message>
+      <source>file 2 label</source>
+      <translation>Label für Datei 2</translation>
+    </message>
+    <message>
+      <source>file name label</source>
+      <translation>Label für Dateiname</translation>
+    </message>
+    <message>
+      <source>Reject</source>
+      <translation>Zurückweisen</translation>
+    </message>
+    <message>
+      <source>Upload</source>
+      <translation>Hochladen</translation>
+    </message>
+    <message>
+      <source>Certificate stores successfully synchronized.</source>
+      <translation>Zertifikatspeicher erfolgreich synchronisiert.</translation>
+    </message>
+    <message>
+      <source>Syncing error</source>
+      <translation>Abgleichfehler</translation>
+    </message>
+    <message>
+      <source>Sync stores</source>
+      <translation>Speicherabgleich</translation>
+    </message>
+    <message>
+      <source>Trust</source>
+      <translation>Vertrauen</translation>
+    </message>
+    <message>
+      <source>OPC UA Server</source>
+      <translation>OPC UA-Server</translation>
+    </message>
+    <message>
+      <source>OPC UA Datasources</source>
+      <translation>OPC UA-Datenquellen</translation>
+    </message>
+    <message>
+      <source>HTTPS</source>
+      <translation>HTTPS</translation>
+    </message>
+    <message>
+      <source>Certificate</source>
+      <translation>Zertifikat</translation>
+    </message>
+    <message>
+      <source>cert.ini</source>
+      <translation>cert.ini</translation>
+    </message>
+    <message>
+      <source>Certificate Store</source>
+      <translation>Zertifikatspeicher</translation>
+    </message>
+    <message>
+      <source>Store</source>
+      <translation>Speicher</translation>
+    </message>
+    <message>
+      <source>Endpoint Certificate</source>
+      <translation>Endpunkt-Zertifikat</translation>
+    </message>
+    <message>
+      <source>Certificate Upload</source>
+      <translation>Zertifikat hochladen</translation>
+    </message>
+    <message>
+      <source>Required</source>
+      <translation>Erforderlich</translation>
+    </message>
+    <message>
+      <source>Choose File</source>
+      <translation>Datei auswählen</translation>
+    </message>
+    <message>
+      <source>No file selected.</source>
+      <translation>Keine Datei ausgewählt.</translation>
+    </message>
+    <message>
+      <source>Valid</source>
+      <translation>Gültig</translation>
+    </message>
+    <message>
+      <source>Invalid</source>
+      <translation>Ungültig</translation>
+    </message>
+    <message>
+      <source>Filename</source>
+      <translation>Dateiname</translation>
+    </message>
+    <message>
+      <source>Valid To</source>
+      <translation>Gültig bis</translation>
+    </message>
+    <message>
+      <source>Issuer</source>
+      <translation>Aussteller</translation>
+    </message>
+    <message>
+      <source>Issuer Link</source>
+      <translation>Aussteller-Link</translation>
+    </message>
+    <message>
+      <source>Certificate Details</source>
+      <translation>Zertifikatdetails</translation>
+    </message>
+    <message>
+      <source>OPC UA DER/PEM-Pair</source>
+      <translation>OPC UA DER/PEM-Paar</translation>
+    </message>
+    <message>
+      <source>Certificate (.der)</source>
+      <translation>Zertifikat (.der)</translation>
+    </message>
+    <message>
+      <source>Certificate (.pem)</source>
+      <translation>Zertifikat (.pem)</translation>
+    </message>
+    <message>
+      <source>Private Key (.pem)</source>
+      <translation>Privater Schlüssel (.pem)</translation>
+    </message>
+    <message>
+      <source>Shared Filename</source>
+      <translation>Gemeinsamer Dateiname</translation>
+    </message>
+    <message>
+      <source>OPC UA Client Certificate (DER)</source>
+      <translation>OPC UA-Clientzertifikat (DER)</translation>
+    </message>
+    <message>
+      <source>HTTPS Certificate (PEM)</source>
+      <translation>HTTPS-Zertifikat (PEM)</translation>
+    </message>
+    <message>
+      <source>Click on a key to show detail information</source>
+      <translation>Auf Key klicken um Detailinformationen zu zeigen</translation>
+    </message>
+    <message>
+      <source>Key</source>
+      <translation>Key</translation>
+    </message>
+    <message>
+      <source>Own</source>
+      <translation>Eigene</translation>
+    </message>
+    <message>
+      <source>Issuer Type</source>
+      <translation>Ausstellertyp</translation>
+    </message>
+    <message>
+      <source>Peers</source>
+      <translation>Gegenstellen</translation>
+    </message>
+    <message>
+      <source>Issuers</source>
+      <translation>Aussteller</translation>
+    </message>
+    <message>
+      <source>Users</source>
+      <translation>Benutzer</translation>
+    </message>
+    <message>
+      <source>User Issuers</source>
+      <translation>Benutzer-Aussteller</translation>
+    </message>
+    <message>
+      <source>Please provide the common name!</source>
+      <translation>Bitte den allgemeinen Namen angeben!</translation>
+    </message>
+    <message>
+      <source>Private key will be saved as</source>
+      <translation>Privater Schlüssel wird gespeichert als</translation>
+    </message>
+  </context>
+</TS>

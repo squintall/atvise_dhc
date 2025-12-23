@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Report.Scheduler
+NodeClass: Variable
+BrowseName: 1:Scheduler
+DisplayName: en|Scheduler
+Description: en|Scheduler
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

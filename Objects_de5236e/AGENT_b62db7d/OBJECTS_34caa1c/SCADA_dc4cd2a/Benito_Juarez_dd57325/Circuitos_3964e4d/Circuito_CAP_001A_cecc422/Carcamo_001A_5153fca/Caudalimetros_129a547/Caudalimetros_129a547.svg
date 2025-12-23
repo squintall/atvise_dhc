@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="350" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Caudalimetros]]></script>
+ <svg atv:refpx="960" atv:refpy="25" height="50" id="id_0" width="1920" x="0" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line" y="0">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Equipos.Caudalimetro.L1"/>
+ </svg>
+ <svg atv:refpx="320" atv:refpy="24.5" height="49" id="id_1" width="120" x="230" xlink:href="ObjectTypes.PROJECT.Bomba.bomba" y="0">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Equipos.Bombas.Variador_1"/>
+ </svg>
+ <svg atv:refpx="453" atv:refpy="24.5" height="49" id="id_2" width="120" x="348" xlink:href="ObjectTypes.PROJECT.Bomba.bomba" y="0">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Equipos.Bombas.Variador_2"/>
+ </svg>
+ <svg atv:refpx="555" atv:refpy="24.5" height="49" id="id_3" width="120" x="466" xlink:href="ObjectTypes.PROJECT.Bomba.bomba" y="0">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Equipos.Bombas.Variador_3"/>
+ </svg>
+ <svg atv:refpx="680" atv:refpy="24.5" height="49" id="id_4" width="120" x="584" xlink:href="ObjectTypes.PROJECT.Bomba.bomba" y="0">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Equipos.Bombas.Variador_4"/>
+ </svg>
+ <svg atv:refpx="802" atv:refpy="24.5" height="49" id="id_5" width="120" x="702" xlink:href="ObjectTypes.PROJECT.Bomba.bomba" y="0">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Equipos.Bombas.Variador_5"/>
+ </svg>
+ <svg atv:refpx="923" atv:refpy="24.5" height="49" id="id_6" width="120" x="820" xlink:href="ObjectTypes.PROJECT.Bomba.bomba" y="0">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Equipos.Bombas.Variador_6"/>
+ </svg>
+ <svg atv:refpx="997" atv:refpy="24.5" height="49" id="id_7" width="120" x="937" xlink:href="ObjectTypes.PROJECT.Bomba.bomba" y="0">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Equipos.Bombas.Variador_7"/>
+ </svg>
+</svg>

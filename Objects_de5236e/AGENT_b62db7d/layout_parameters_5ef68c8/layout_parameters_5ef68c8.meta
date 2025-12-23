@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.layout_parameters
+NodeClass: Variable
+BrowseName: 1:layout_parameters
+DisplayName: en|layout_parameters
+Description: en|layout_parameters
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

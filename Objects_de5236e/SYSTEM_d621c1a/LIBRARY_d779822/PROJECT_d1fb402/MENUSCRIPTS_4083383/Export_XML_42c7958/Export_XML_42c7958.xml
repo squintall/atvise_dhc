@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <code><![CDATA[/**
+ * Exports a list of nodes to individual XML files.
+ * Each file is named based on the last part of the node address + "_Export.xml".
+ * The files are saved in the atvise project's root directory unless a path is added.
+ *
+ * @param {string[]} nodeAddresses - An array of node address strings to export.
+ * @param {string} [exportDirectory=""] - Optional. A directory path (relative to the project or absolute)
+ *                                        to save the files in. Must end with '/'. Example: "Exports/".
+ *                                        If empty, files are saved in the project root.
+ * @param {boolean} [includeHierarchy=false] - Optional. Set to true to export the full hierarchy
+ *                                             starting from the node, false (default) to export only the node itself (flat).
+ */
+ 
+function exportNodesToSeparateFiles(nodeAddresses, exportDirectory, includeHierarchy) {
+    // --- Input Validation and Defaults ---
+    if (!Array.isArray(nodeAddresses)) {
+        console.error("Error: First argument 'nodeAddresses' must be an array of strings.");
+        return;
+    }
+    if (typeof exportDirectory !== 'string' && typeof exportDirectory !== 'undefined') {
+         console.warn("Warning: 'exportDirectory' should be a string. Using project root.");
+         exportDirectory = "";
+    }
+    if (exportDirectory && !exportDirectory.endsWith('/')) {
+        console.warn("Warning: 'exportDirectory' should ideally end with '/'. Appending it.");
+        exportDirectory += "/";
+    }
+    var exportDir = exportDirectory || ""; // Use empty string if undefined or null
+    var exportHierarchy = !!includeHierarchy; // Ensure boolean, default to false
+
+    console.log("Starting batch export...");
+    console.log("Exporting hierarchy: " + exportHierarchy);
+    console.log("Export directory: '" + (exportDir || "[Project Root]") + "'");
+
+    var successCount = 0;
+    var errorCount = 0;
+
+    // --- Loop through each address ---
+    nodeAddresses.forEach(function(address) {
+        if (typeof address !== 'string' || address.trim() === "") {
+            console.error("Skipping invalid or empty address entry.");
+            errorCount++;
+            return; // Skip this iteration
+        }
+
+        // --- Generate Filename ---
+        var parts = address.split('.');
+        var baseName = parts.pop(); // Get the last part
+        if (!baseName) {
+             console.error("Skipping address '" + address + "' - could not determine base name.");
+             errorCount++;
+             return; // Skip if address ends in '.' or is weird
+        }
+        var fileName = exportDir + baseName + "_Export.xml";
+
+        console.log("Attempting to export node '" + address + "' to file '" + fileName + "'...");
+
+        // --- Prepare Options for ExportNodesToFile ---
+        var options = {
+            address: [address], // API requires an array, even for a single node
+            withouthierarchy: !exportHierarchy, // Note: API uses 'withouthierarchy'
+            file: fileName
+        };
+
+        // --- Call the Export Method ---
+        var res = call("Methods.ExportNodesToFile", options);
+
+        // --- Handle Result ---
+        if (res.error) {
+            // Error occurred during the script call itself
+            console.error("  ERROR calling ExportNodesToFile for '" + address + "': " + res.errorstring + " (Code: " + res.error + ")");
+            errorCount++;
+        } else if (res.result && res.result.success === true) {
+            // Export successful
+            console.log("  SUCCESS: Node '" + address + "' exported to '" + fileName + "'.");
+            successCount++;
+        } else if (res.result && res.result.success === false) {
+            // Export failed, log specific errors if available
+            console.error("  FAILED to export node '" + address + "' to '" + fileName + "'.");
+            if (res.result.errors && res.result.errors.length > 0) {
+                res.result.errors.forEach(function(errDetail) {
+                    console.error("    - Detail: " + errDetail.errorstring + " (Code: " + errDetail.error + ")");
+                });
+            } else {
+                console.error("    - No specific error details provided in the result.");
+            }
+            errorCount++;
+        } else {
+            // Unexpected result format
+             console.error("  FAILED to export node '" + address + "' - Unexpected result format received: " + JSON.stringify(res));
+             errorCount++;
+        }
+    }); // End of forEach loop
+
+    // --- Summary ---
+    console.log("-------------------------------------");
+    console.log("Batch Export Summary:");
+    console.log("  Successfully exported: " + successCount);
+    console.log("  Failed exports:        " + errorCount);
+    console.log("-------------------------------------");
+}
+
+// --- Example Usage ---
+
+// 1. Define the list of nodes to export
+var myNodes = [
+    // FlatComponents
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.ActionButton",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Bar Vertical",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Checkbox",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.CircularSlider",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Clickarea",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Combobox",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Datepicker",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Datetimepicker",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.EditableLabel",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Picker Color",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Picker Date",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Picker DateTime",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Picker Number",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Rocker Switch",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.FlatComponents.Slider",
+
+    // popUpComponents
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.popUpComponents.ActionButton",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.popUpComponents.Clickarea",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.popUpComponents.Combobox",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.popUpComponents.Datepicker",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.popUpComponents.Datetimepicker",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.popUpComponents.EditableLabel",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.popUpComponents.Picker DateTime",
+
+    // Direct Advanced_Dashboard Elements
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Loading_Element",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Menu",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Menu_Classic",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Number_Element",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Number_Element_2",
+    "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Table_Element",
+    
+    //Server side Script
+     "SYSTEM.LIBRARY.PROJECT.RESOURCES/Advanced_Dashboard_Data_Creator",
+    
+];
+
+// 2. Call the export function
+// Example 1: Export only the specified nodes (flat) to the project root directory
+console.log("\n--- Running Example 1: Flat export to project root ---");
+exportNodesToSeparateFiles(myNodes,"C:/Demos/Demo_Advanced_Dashboard_Official/XML_Export_Master",true);
+
+// Example 2: Export the specified nodes AND their hierarchy to a subfolder named "MyNodeExports"
+//console.log("\n--- Running Example 2: Hierarchy export to subfolder 'MyNodeExports/' ---");
+// Make sure the directory "MyNodeExports" exists or the script has permissions to create it if necessary (depends on server setup)
+//exportNodesToSeparateFiles(myNodes, "MyNodeExports/", true);]]></code>
+</script>

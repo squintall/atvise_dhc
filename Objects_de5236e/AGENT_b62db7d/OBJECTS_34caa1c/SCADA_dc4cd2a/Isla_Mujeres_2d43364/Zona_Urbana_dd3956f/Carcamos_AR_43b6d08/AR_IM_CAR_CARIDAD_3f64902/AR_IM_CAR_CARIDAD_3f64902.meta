@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AR.AR_IM_CAR_CARIDAD
+NodeClass: Object
+BrowseName: 1:AR_IM_CAR_CARIDAD
+DisplayName: en|AR_IM_CAR_CARIDAD
+Description: en|AR_IM_CAR_CARIDAD
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/https-proxy-agent/dist/agent.js.map
+NodeClass: Variable
+BrowseName: 1:agent.js.map
+DisplayName: en|agent.js.map
+Description: en|agent.js.map
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

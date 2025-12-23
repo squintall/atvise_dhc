@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/timer/imgs_glossy/lightbox.png
+NodeClass: Variable
+BrowseName: 1:lightbox.png
+DisplayName: en|lightbox.png
+Description: en|lightbox.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

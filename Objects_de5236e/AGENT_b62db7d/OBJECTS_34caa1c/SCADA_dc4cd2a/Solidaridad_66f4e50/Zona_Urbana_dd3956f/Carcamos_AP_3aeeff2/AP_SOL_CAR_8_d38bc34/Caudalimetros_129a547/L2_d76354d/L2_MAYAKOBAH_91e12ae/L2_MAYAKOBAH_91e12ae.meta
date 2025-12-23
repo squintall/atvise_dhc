@@ -1,0 +1,18 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_8.Caudalimetros.L2.L2_MAYAKOBAH
+NodeClass: Object
+BrowseName: 1:L2_MAYAKOBAH
+DisplayName: en|L2_MAYAKOBAH
+Description: en|L2_MAYAKOBAH
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Caudalimetro
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.Alarmas
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.graph
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.graph_flow
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.graph_pressure
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_AR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_mini
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_mini_AR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_reduced
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_reduced_AR

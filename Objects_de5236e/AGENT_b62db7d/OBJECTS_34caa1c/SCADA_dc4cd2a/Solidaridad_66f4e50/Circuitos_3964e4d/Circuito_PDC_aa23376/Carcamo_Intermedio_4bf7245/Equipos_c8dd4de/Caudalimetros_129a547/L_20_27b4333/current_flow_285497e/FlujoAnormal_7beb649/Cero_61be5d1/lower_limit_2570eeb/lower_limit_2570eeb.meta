@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Caudalimetros.L_20.current_flow.FlujoAnormal.Cero.lower_limit
+NodeClass: Variable
+BrowseName: 1:lower_limit
+DisplayName: en|lower_limit
+Description: en|lower_limit
+DataType: BaseDataType
+ValueRank: -1
+AccessLevel: 103
+ValueType: Float
+Reference: forward HasTypeDefinition BaseVariableType

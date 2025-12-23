@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Configuracion_Tanque.Utils.Selector
+NodeClass: Variable
+BrowseName: 1:Selector
+DisplayName: en|Selector
+Description: en|Selector
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

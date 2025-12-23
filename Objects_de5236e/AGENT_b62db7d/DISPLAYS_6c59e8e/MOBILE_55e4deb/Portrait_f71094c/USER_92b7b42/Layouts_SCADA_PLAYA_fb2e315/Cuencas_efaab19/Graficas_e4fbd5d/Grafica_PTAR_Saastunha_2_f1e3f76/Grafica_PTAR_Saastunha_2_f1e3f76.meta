@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA_PLAYA.Cuencas.Graficas.Grafica_PTAR_Saastunha_2
+NodeClass: Variable
+BrowseName: 1:Grafica_PTAR_Saastunha_2
+DisplayName: en|Grafica_PTAR_Saastunha_2
+Description: en|Grafica_PTAR_Saastunha_2
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

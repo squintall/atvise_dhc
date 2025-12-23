@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.MENUSCRIPTS.Export_XML_2
+NodeClass: Variable
+BrowseName: 1:Export_XML_2
+DisplayName: en|Export_XML_2
+Description: en|Export_XML_2
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

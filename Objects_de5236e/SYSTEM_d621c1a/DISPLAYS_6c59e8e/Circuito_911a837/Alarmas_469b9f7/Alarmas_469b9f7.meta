@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Circuito.Alarmas
+NodeClass: Variable
+BrowseName: 1:Alarmas
+DisplayName: en|Alarmas
+Description: en|Alarmas
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

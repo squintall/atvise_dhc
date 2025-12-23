@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Desaladora_008.Desaladora
+NodeClass: Variable
+BrowseName: 1:Desaladora
+DisplayName: en|Desaladora
+Description: en|Desaladora
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

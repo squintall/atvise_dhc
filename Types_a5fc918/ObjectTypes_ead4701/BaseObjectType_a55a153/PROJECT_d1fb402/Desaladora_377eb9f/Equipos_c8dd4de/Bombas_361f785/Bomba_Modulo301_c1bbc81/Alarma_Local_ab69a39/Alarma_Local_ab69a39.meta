@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Desaladora.Equipos.Bombas.Bomba_Modulo301.Alarma_Local
+NodeClass: Variable
+BrowseName: 1:Alarma_Local
+DisplayName: en|Alarma_Local
+Description: en|Alarma_Local
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Alarma_Local.LR

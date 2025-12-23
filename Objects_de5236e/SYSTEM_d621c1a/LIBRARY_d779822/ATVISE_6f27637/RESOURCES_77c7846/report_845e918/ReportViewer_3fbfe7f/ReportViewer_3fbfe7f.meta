@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/report/ReportViewer
+NodeClass: Variable
+BrowseName: 1:ReportViewer
+DisplayName: en|ReportViewer
+Description: en|ReportViewer
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

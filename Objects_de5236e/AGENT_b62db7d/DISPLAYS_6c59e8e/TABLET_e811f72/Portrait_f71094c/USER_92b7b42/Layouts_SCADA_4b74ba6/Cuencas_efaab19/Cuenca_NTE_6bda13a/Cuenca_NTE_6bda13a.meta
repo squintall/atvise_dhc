@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.Layouts_SCADA.Cuencas.Cuenca_NTE
+NodeClass: Variable
+BrowseName: 1:Cuenca_NTE
+DisplayName: en|Cuenca_NTE
+Description: en|Cuenca_NTE
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.PTAR.AR_BJ_PLA_CARIBE_2000_CLORACION.Caudalimetros.Cloracion.AR_BJ_PLA_CARIBE_2000_CAUD_CLORACION_AcumuladoPasado
+NodeClass: Variable
+BrowseName: 1:AR_BJ_PLA_CARIBE_2000_CAUD_CLORACION_AcumuladoPasado
+DisplayName: en|AR_BJ_PLA_CARIBE_2000_CAUD_CLORACION_AcumuladoPasado
+Description: en|AR_BJ_PLA_CARIBE_2000_CAUD_CLORACION_AcumuladoPasado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

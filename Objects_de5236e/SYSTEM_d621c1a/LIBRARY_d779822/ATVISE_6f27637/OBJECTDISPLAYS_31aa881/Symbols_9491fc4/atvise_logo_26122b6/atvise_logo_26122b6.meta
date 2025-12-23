@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.atvise_logo
+NodeClass: Variable
+BrowseName: 1:atvise_logo
+DisplayName: en|atvise_logo
+Description: en|atvise_logo
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

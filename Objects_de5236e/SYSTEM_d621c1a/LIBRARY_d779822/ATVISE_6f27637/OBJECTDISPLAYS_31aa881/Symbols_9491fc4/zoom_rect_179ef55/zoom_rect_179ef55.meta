@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.zoom_rect
+NodeClass: Variable
+BrowseName: 1:zoom_rect
+DisplayName: en|zoom_rect
+Description: en|zoom_rect
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

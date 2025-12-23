@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_LUCIERNAGAS.Nivel.T1.Niv_Metros
+NodeClass: Variable
+BrowseName: 1:Niv_Metros
+DisplayName: en|Niv_Metros
+Description: en|Niv_Metros
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

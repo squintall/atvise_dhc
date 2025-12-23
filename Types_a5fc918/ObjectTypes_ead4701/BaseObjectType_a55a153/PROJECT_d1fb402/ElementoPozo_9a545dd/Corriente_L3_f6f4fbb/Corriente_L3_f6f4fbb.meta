@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Corriente_L3
+NodeClass: Variable
+BrowseName: 1:Corriente_L3
+DisplayName: en|Corriente_L3
+Description: en|Corriente_L3
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

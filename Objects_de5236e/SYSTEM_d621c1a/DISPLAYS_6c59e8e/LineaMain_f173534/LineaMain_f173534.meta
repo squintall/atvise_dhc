@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.LineaMain
+NodeClass: Variable
+BrowseName: 1:LineaMain
+DisplayName: en|LineaMain
+Description: en|LineaMain
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

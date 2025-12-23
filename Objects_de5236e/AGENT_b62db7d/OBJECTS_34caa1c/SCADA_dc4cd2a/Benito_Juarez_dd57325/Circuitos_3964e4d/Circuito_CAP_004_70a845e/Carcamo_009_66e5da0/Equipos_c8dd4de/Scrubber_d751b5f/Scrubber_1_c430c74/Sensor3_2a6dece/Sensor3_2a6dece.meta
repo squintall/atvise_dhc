@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Carcamo_009.Equipos.Scrubber.Scrubber_1.Sensor3
+NodeClass: Variable
+BrowseName: 1:Sensor3
+DisplayName: en|Sensor3
+Description: en|Sensor3
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Scrubber.Sensor3.Alarm
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Scrubber.Sensor3.sts

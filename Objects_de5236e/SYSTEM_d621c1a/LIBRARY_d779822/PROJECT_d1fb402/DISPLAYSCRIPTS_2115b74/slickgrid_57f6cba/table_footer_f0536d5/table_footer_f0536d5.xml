@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+    <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the table footer object display
+ * ----------------------------------------
+ * This script supports the display handling supplements the table with a status bar
+ * with page navigation and information about the current data status.
+ *
+ * This script requires jQuery > 1.7 and is currently shipped with jQuery > 3.3.x
+ * To avoid compatibility issues, the included jQuery version is only used if none already existing version is detected.
+ * Therefore, make sure that in this case a jQuery version > 1.7.x is used!
+ */
+
+
+/**
+ * RU section
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+
+	var activeInput = false;
+	var config = {};
+	var cssStyler;
+	var displayTimeouts = [];
+	var inputTimeout = null;
+	var pagingInputDelay = 250;
+	var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+	var tableController = {};
+
+	var tableID = webMI.query["tableID"];
+	var slick_table_footer = document.getElementById("slick_table_footer");
+
+	var pagingButtons = {
+		pagingFirstPage: document.getElementById("pagingFirstPage"),
+		pagingPreviousPage: document.getElementById("pagingPreviousPage"),
+		pagingPausePage: document.getElementById("pagingPausePage"),
+		pagingStopPage: document.getElementById("pagingStopPage"),
+		pagingNextPage: document.getElementById("pagingNextPage"),
+		pagingLastPage: document.getElementById("pagingLastPage"),
+		pagingLoadPage: document.getElementById("pagingLoadPage"),
+	};
+
+	pagingButtons.pagingFirstPage.innerHTML = webMI.query["fas_first_page"];
+	pagingButtons.pagingPreviousPage.innerHTML = webMI.query["fas_previous_page"];
+	pagingButtons.pagingPausePage.innerHTML = webMI.query["fas_pause_page"];
+	pagingButtons.pagingStopPage.innerHTML = webMI.query["fas_stop_page"];
+	pagingButtons.pagingNextPage.innerHTML = webMI.query["fas_next_page"];
+	pagingButtons.pagingLastPage.innerHTML = webMI.query["fas_last_page"];
+	pagingButtons.pagingLoadPage.innerHTML = webMI.query["fas_load_page"];
+
+	var pagingInfo = {
+		pagingGotoInput: document.getElementById("pagingGotoInput"),
+		pagingTextTotal: document.getElementById("pagingTextTotal"),
+	}
+
+	var dataInfo = {
+		dataFilteredItems: document.getElementById("dataFilteredItems"),
+		dataTotalItems: document.getElementById("dataTotalItems"),
+		dataDataMode: document.getElementById("dataDataMode"),
+	}
+
+	var iconButtons = {
+		/* data */
+		iconTruncateData: webMI.query["fas_truncate_icon"],
+		iconTriggeredData: webMI.query["fas_triggered_icon"],
+		iconContinueData: '<div style="display:inline-block">' + webMI.query["fas_continue_icon"] + '</div>',
+		iconManuallyData: webMI.query["fas_manually_icon"],
+		iconLiveData: '<div style="display:inline-block">' + webMI.query["fas_live_icon"] + '</div>',
+		iconDoneData: webMI.query["fas_done_icon"],
+		iconPauseData: webMI.query["fas_pause_page"],
+
+		/* icons */
+		iconCurrentMode: document.getElementById("iconCurrentMode"),
+		iconSearchIconBar1: document.getElementById("iconSearchIconBar1"),
+		iconSearchIconBar2: document.getElementById("iconSearchIconBar2"),
+	}
+
+	iconButtons.iconSearchIconBar1.innerHTML = webMI.query["fas_search_page"];
+	iconButtons.iconSearchIconBar2.innerHTML = webMI.query["fas_search_page"];
+
+	var search = {
+		fields: [],
+		input: document.getElementById("searchInput"),
+		filter: document.getElementById("cmd_filter_search"),
+		reset: document.getElementById("cmd_filter_reset"),
+	}
+	var multiSearchCriteria = {};
+	var options = {
+		multiSearch: {searchFields: search.fields},
+	};
+
+	/*
+	 * Load some resources
+	 */
+	webMI.table.loadResources(function () {
+		webMI.table.waitReady(tableID, "ControllerConfig", function () {
+			config = webMI.table.request(tableID, "ControllerConfig");
+
+			cssStyler = new webMI.rootWindow.SlickStyler();
+			var svgid = slick_table_footer.getAttribute("id");
+
+			cssStyler.generate(svgid, config.style, "footer");
+
+			if (config.feature["paging"]) {
+				var paging = document.getElementById("paging_area");
+				webMI.rootWindow.jQuery(paging).removeClass("hidden");
+			} else {
+				var paging = document.getElementById("paging_area");
+				webMI.rootWindow.jQuery(paging).addClass("hidden");
+			}
+
+			var footerWidth = document.getElementById("slick_table_footer");
+		});
+	});
+
+	/*
+	 * Wait for table ready
+	 */
+	webMI.table.waitReady(tableID, "controller", function () {
+		tableController = webMI.table.request(tableID, "controller");
+
+		/*
+		 * make some ui adjustments for small tables
+		 */
+		var footerWidth = document.getElementById("slick_table_footer");
+		var searchArea = document.getElementById("search_area");
+		var pagingArea = document.getElementById("paging_area");
+		var dataArea = document.getElementById("data_area");
+		var messageTextContainer = document.getElementById("messageTextContainer");
+		var modeArea = document.getElementById("mode_area");
+
+		if (!config.feature["paging"]) {
+			pagingArea.style.display = "none";
+		}
+
+		if (!config.feature["showMode"]) {
+			modeArea.style.display = "none";
+		}
+
+
+		/* resize small ui in 2 stages */
+		/* stage 1 < 800px gesammtbreite */
+		if (footerWidth.offsetWidth < 800) {
+			document.getElementById("pagingTextPages").innerHTML = "";
+			document.getElementById("pagingTextOf").innerHTML = "/";
+			document.getElementById("dataTextItems").innerHTML = "";
+			pagingArea.style.width = '250px';
+		}
+
+		/* stage 2 < 600px gesammtbreite */
+		if (footerWidth.offsetWidth < 600) {
+			var element = null;
+			element = document.getElementById("pagingFirstPage");
+			element.parentNode.removeChild(element);
+			element = document.getElementById("pagingPreviousPage");
+			element.parentNode.removeChild(element);
+			element = document.getElementById("pagingNextPage");
+			element.parentNode.removeChild(element);
+			element = document.getElementById("pagingLastPage");
+			element.parentNode.removeChild(element);
+			pagingArea.style.width = '100px';
+		}
+
+		/*
+		 * ADD Listener to paging buttons
+		 */
+		if (config.feature["paging"]) {
+			pagingButtons.pagingFirstPage.addEventListener("click", _handlePagingButtonClick);
+			pagingButtons.pagingPreviousPage.addEventListener("click", _handlePagingButtonClick);
+			pagingButtons.pagingNextPage.addEventListener("click", _handlePagingButtonClick);
+			pagingButtons.pagingLastPage.addEventListener("click", _handlePagingButtonClick);
+		}
+
+
+		/*
+		 * ADD Listener to input field for page numbers
+		 */
+		if (config.feature["paging"]) {
+			pagingInfo.pagingGotoInput.addEventListener("keyup", _handlePagingInputKeyUp);
+			pagingInfo.pagingGotoInput.addEventListener("blur", _handlePagingInputBlur);
+			pagingInfo.pagingGotoInput.addEventListener("focus", _handlePagingInputFocus);
+			pagingInfo.pagingGotoInput.onkeydown = _validateNumber;
+		}
+
+
+		/*
+		 * ADD Update function to controller
+		 */
+		tableController.updatePagingInformation = function (page) {
+			if (page.first) {
+				webMI.rootWindow.jQuery(pagingButtons.pagingFirstPage).addClass("disabled");
+				webMI.rootWindow.jQuery(pagingButtons.pagingPreviousPage).addClass("disabled");
+			} else {
+				webMI.rootWindow.jQuery(pagingButtons.pagingFirstPage).removeClass("disabled");
+				webMI.rootWindow.jQuery(pagingButtons.pagingPreviousPage).removeClass("disabled");
+			}
+			if (page.last) {
+				webMI.rootWindow.jQuery(pagingButtons.pagingNextPage).addClass("disabled");
+				webMI.rootWindow.jQuery(pagingButtons.pagingLastPage).addClass("disabled");
+			} else {
+				webMI.rootWindow.jQuery(pagingButtons.pagingLastPage).removeClass("disabled");
+				webMI.rootWindow.jQuery(pagingButtons.pagingNextPage).removeClass("disabled");
+			}
+
+			var mode = dataInfo.dataDataMode.textContent;
+			if (mode == "manually") {
+				webMI.rootWindow.jQuery(pagingButtons.pagingLoadPage).removeClass("disabled");
+			} else {
+				webMI.rootWindow.jQuery(pagingButtons.pagingLoadPage).addClass("disabled");
+			}
+			if (mode == "continue" || mode == "pause") {
+				webMI.rootWindow.jQuery(pagingButtons.pagingPausePage).removeClass("disabled");
+				webMI.rootWindow.jQuery(pagingButtons.pagingStopPage).removeClass("disabled");
+			} else {
+				webMI.rootWindow.jQuery(pagingButtons.pagingPausePage).addClass("disabled");
+				webMI.rootWindow.jQuery(pagingButtons.pagingStopPage).addClass("disabled");
+			}
+
+			if (!activeInput) {
+				if (page.last) pagingInfo.pagingGotoInput.value = page.total;
+				else pagingInfo.pagingGotoInput.value = page.current;
+			}
+			pagingInfo.pagingTextTotal.textContent = page.total;
+		}
+
+
+		/**
+		 * ADD search listener to search icon
+		 */
+		iconButtons.iconSearchIconBar1.addEventListener("click", _handleSearchButtonClick);
+		iconButtons.iconSearchIconBar2.addEventListener("click", _handleSearchButtonClick);
+		search.filter.addEventListener("click", _handleSearchFilterClick);
+		search.reset.addEventListener("click", _handleSearchResetClick);
+
+		/**
+		 * ADD listener to other componets
+		 */
+		pagingButtons.pagingPausePage.addEventListener("click", _handlePagingButtonClick);
+		pagingButtons.pagingStopPage.addEventListener("click", _handlePagingButtonClick);
+		pagingButtons.pagingLoadPage.addEventListener("click", _handlePagingButtonClick);
+
+
+		/**
+		 * ADD search over all columns
+		 */
+		for (var c in config.columns) {
+			var field = config.columns[c].field;
+			if (field != "" && field != "sel" && field != "atvise_marker")
+				search.fields.push(config.columns[c].field);
+		}
+		search.input.addEventListener("focus", _handleSearchInputFocus);
+		search.input.addEventListener("blur", _handleSearchInputBlur);
+		search.input.addEventListener("keyup", _handleSearchInputKeyUp);
+
+
+		/**
+		 * ADD pause listener to data info icon
+		 */
+		if (!config.feature["paging"])
+			iconButtons.iconCurrentMode.addEventListener("click", _handlePauseButtonClick);
+
+
+		/*
+		 * ADD data information subscribtion
+		 */
+		tableController.subscribeOnItemCountChange(function (itemCount) {
+			tableController.changeItemCount(itemCount);
+		});
+
+
+		var detectedMode = false;
+		tableController.changeItemCount = function (itemCount) {
+			dataInfo.dataFilteredItems.textContent = itemCount.itemsFiltered;
+			if (itemCount.itemsLoaded || itemCount.itemsLoaded === 0) {
+				dataInfo.dataTotalItems.textContent = itemCount.itemsLoaded == "more" ? "T{more}" : itemCount.itemsLoaded;
+			}
+			if (itemCount.mode)
+				dataInfo.dataDataMode.textContent = itemCount.mode;
+
+			/* use shortnames for if */
+			var a = dataInfo.dataFilteredItems.textContent;
+			var b = dataInfo.dataTotalItems.textContent;
+			var c = document.getElementById("dataTextReceived") ? document.getElementById("dataTextReceived").innerHTML : "";
+			if ((a == b || b == "T{more}") && c != "") {
+				document.getElementById("dataTextReceived").innerHTML = "T{Received}";
+			} else if (c != "") {
+				document.getElementById("dataTextReceived").innerHTML = "T{Filtered}:";
+			}
+
+			if (detectedMode != itemCount.mode) {
+				if (itemCount.mode == "DONE") {
+					webMI.rootWindow.jQuery(dataInfo.dataDataMode).removeClass("active");
+					iconButtons.iconCurrentMode.innerHTML = iconButtons.iconDoneData;
+				}
+				if (itemCount.mode == "triggered") {
+					webMI.rootWindow.jQuery(dataInfo.dataDataMode).addClass("active");
+					iconButtons.iconCurrentMode.innerHTML = iconButtons.iconTriggeredData;
+				}
+				if (itemCount.mode == "manually") {
+					webMI.rootWindow.jQuery(dataInfo.dataDataMode).addClass("active");
+					iconButtons.iconCurrentMode.innerHTML = iconButtons.iconManuallyData;
+				}
+				if (itemCount.mode == "continue") {
+					webMI.rootWindow.jQuery(dataInfo.dataDataMode).addClass("active");
+					iconButtons.iconCurrentMode.innerHTML = iconButtons.iconContinueData;
+				}
+				if (itemCount.mode == "live") {
+					webMI.rootWindow.jQuery(dataInfo.dataDataMode).addClass("active");
+					iconButtons.iconCurrentMode.innerHTML = iconButtons.iconLiveData;
+				}
+				if (itemCount.mode == "pause") {
+					webMI.rootWindow.jQuery(dataInfo.dataDataMode).removeClass("active");
+					iconButtons.iconCurrentMode.innerHTML = iconButtons.iconPauseData;
+				}
+				if (itemCount.truncate) {
+					webMI.rootWindow.jQuery(dataInfo.dataDataMode).removeClass("active");
+					iconButtons.iconCurrentMode.innerHTML = iconButtons.iconTruncateData;
+				}
+			}
+
+			if(itemCount.mode === "pause" && detectedMode != "pause")
+				oldMode = detectedMode;
+
+			detectedMode = itemCount.mode
+		};
+	});
+
+
+	/**
+	 * EVENT handeling
+	 */
+	function _handlePagingButtonClick(e) {
+		var targetEl = e.target;
+		while (targetEl != null && !targetEl.hasAttribute("data-cmd")) {
+			/* ie11 fix */
+			if (!targetEl.parentElement) {
+				targetEl = targetEl.parentNode;
+			} else {
+				targetEl = targetEl.parentElement;
+			}
+		}
+		var cmdName = targetEl.getAttribute("data-cmd");
+
+		switch (cmdName) {
+			case "firstPage":
+				tableController.gotoFirstPage();
+				break;
+			case "lastPage":
+				tableController.gotoLastPage();
+				break;
+			case "stopPage":
+				_handlePause();
+				document.getElementById("pagingStopPage").style.display = "none";
+				document.getElementById("pagingPausePage").style.display = "";
+				break;
+			case "pausePage":
+				_handlePause();
+				document.getElementById("pagingStopPage").style.display = "";
+				document.getElementById("pagingPausePage").style.display = "none";
+				break;
+			case "nextPage":
+				tableController.gotoNextPage();
+				break;
+			case "previousPage":
+				tableController.gotoPreviousPage();
+				break;
+			case "loadPage":
+				dataInfo.dataDataMode.textContent = "T{wait}";
+				webMI.rootWindow.jQuery(dataInfo.dataDataMode).removeClass("active");
+				tableController.continueDataRequest();
+				break;
+		}
+		pagingInfo.pagingGotoInput.value = tableController.getPagingInfo().pageNum + 1;
+	}
+
+	function _handlePagingInputKeyUp(e) {
+		if (inputTimeout) {
+			clearTimeout(inputTimeout);
+		}
+		var pageNumber = parseInt(e.target.value);
+		var pagingInfo = tableController.getPagingInfo();
+		var charCode = (e.which) ? e.which : e.keyCode;
+		inputTimeout = setTimeout(function () {
+			if (!tableController.gotoPageByNumber(pageNumber)) {
+				// e.target.value = pagingInfo.pagingGotoInput.value;
+			}
+		}, pagingInputDelay);
+		displayTimeouts.push(inputTimeout);
+	}
+
+	function _handlePagingInputBlur(e) {
+		activeInput = false;
+		tabHandler.setAcceptKeys(true);
+	}
+
+	function _handlePagingInputFocus(e) {
+		activeInput = true;
+		tabHandler.setAcceptKeys(false);
+	}
+
+	function _handleSearchButtonClick(e) {
+		var footerBar1 = document.getElementById("footerBar1");
+		var footerBar2 = document.getElementById("footerBar2");
+
+		function isVisible(elem) {
+			return elem.offsetWidth > 0 || elem.offsetHeight > 0;
+		}
+
+		if (isVisible(footerBar1)) {
+			footerBar1.style.display = "none";
+			footerBar2.style.display = "";
+		} else {
+			footerBar1.style.display = "";
+			footerBar2.style.display = "none";
+		}
+	}
+
+	function _handleSearchFilterClick(e) {
+		var mode = dataInfo.dataDataMode.textContent;
+		if (mode == "triggered") {
+			openDialogs = tableController.dialogs.triggered.filter();
+		} else if (mode == "continue") {
+			openDialogs = tableController.dialogs.continuation.filter();
+		} else {
+			if (search.input.value == "") {
+				webMI.rootWindow.jQuery(iconButtons.iconSearchIconBar1).removeClass("active");
+				webMI.rootWindow.jQuery(iconButtons.iconSearchIconBar2).removeClass("active");
+				tableController.clearFilterByID("multiSearchFilter");
+				multiSearchCriteria = {};
+			} else {
+				webMI.rootWindow.jQuery(iconButtons.iconSearchIconBar1).addClass("active");
+				webMI.rootWindow.jQuery(iconButtons.iconSearchIconBar2).addClass("active");
+			}
+			tableController.setFilter(JSON.parse(JSON.stringify(multiSearchCriteria)), "single", "multiSearchFilter");
+		}
+	}
+
+	function _handleSearchResetClick(e) {
+		var footerBar1 = document.getElementById("footerBar1");
+		var footerBar2 = document.getElementById("footerBar2");
+		webMI.rootWindow.jQuery(iconButtons.iconSearchIconBar1).removeClass("active");
+		webMI.rootWindow.jQuery(iconButtons.iconSearchIconBar2).removeClass("active");
+		tableController.clearFilterByID("multiSearchFilter");
+		multiSearchCriteria = {};
+		search.input.value = "";
+		footerBar1.style.display = "";
+		footerBar2.style.display = "none";
+	}
+
+	function _handleSearchInputFocus(e) {
+		tabHandler.setAcceptKeys(false);
+	}
+
+	function _handleSearchInputBlur(e) {
+		tabHandler.setAcceptKeys(true);
+	}
+
+	function _handleSearchInputKeyUp(e) {
+		var inputEl = e.target;
+		var searchString = inputEl.value;
+		if (searchString !== "") {
+			if (inputEl == search.input) {
+				search.fields = options.multiSearch.searchFields;
+				var searchCriteria = multiSearchCriteria;
+			}
+			for (var i = 0; i < search.fields.length; i++) {
+				searchCriteria[search.fields[i]] = searchString;
+			}
+		}
+	}
+
+	function _handlePauseButtonClick(e) {
+		var targetEl = e.target;
+		_handlePause();
+	}
+
+	function _handlePause() {
+		var mode = dataInfo.dataDataMode.textContent;
+		if (mode == "continue") {
+			document.getElementById("pagingStopPage").style.display = "none";
+			document.getElementById("pagingPausePage").style.display = "";
+			tableController.triggerPauseRequests();
+			dataInfo.dataDataMode.textContent = "pause";
+			oldMode = mode;
+		} else if (mode == "triggered") {
+			tableController.triggerPauseRequests();
+			dataInfo.dataDataMode.textContent = "pause";
+			webMI.rootWindow.jQuery(dataInfo.dataDataMode).removeClass("active");
+			iconButtons.iconCurrentMode.innerHTML = iconButtons.iconPauseData;
+			oldMode = mode;
+		} else if (mode == "manually") {
+			dataInfo.dataDataMode.textContent = "T{wait}";
+			webMI.rootWindow.jQuery(dataInfo.dataDataMode).removeClass("active");
+			tableController.continueDataRequest();
+		} else if (mode == "pause" && oldMode == "continue") {
+			document.getElementById("pagingStopPage").style.display = "";
+			document.getElementById("pagingPausePage").style.display = "none";
+			dataInfo.dataDataMode.textContent = oldMode;
+			tableController.triggerForceRequests();
+		} else if (mode == "pause" && oldMode == "triggered") {
+			webMI.rootWindow.jQuery(dataInfo.dataDataMode).addClass("active");
+			iconButtons.iconCurrentMode.innerHTML = iconButtons.iconTriggeredData.innerHTML;
+			dataInfo.dataDataMode.textContent = oldMode;
+			tableController.triggerTriggeredRequests();
+		}
+	}
+
+	function _validateNumber(e) {
+		var charCode = (e.which) ? e.which : e.keyCode;
+		if ((charCode >= 48 && charCode <= 57) || (charCode >= 96 && charCode <= 105) ||
+			(charCode >= 37 && charCode <= 40) || charCode == 8 || charCode == 46 || charCode == 13) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Add unload support for events and resources
+	 */
+	webMI.addOnunload(function () {
+
+		pagingButtons.pagingFirstPage.removeEventListener("click", _handlePagingButtonClick);
+		pagingButtons.pagingPreviousPage.removeEventListener("click", _handlePagingButtonClick);
+		pagingButtons.pagingPausePage.removeEventListener("click", _handlePagingButtonClick);
+		pagingButtons.pagingStopPage.removeEventListener("click", _handlePagingButtonClick);
+		pagingButtons.pagingNextPage.removeEventListener("click", _handlePagingButtonClick);
+		pagingButtons.pagingLastPage.removeEventListener("click", _handlePagingButtonClick);
+		pagingButtons.pagingLoadPage.removeEventListener("click", _handlePagingButtonClick);
+
+		pagingInfo.pagingGotoInput.removeEventListener("keyup", _handlePagingInputKeyUp);
+		pagingInfo.pagingGotoInput.removeEventListener("blur", _handlePagingInputBlur);
+		pagingInfo.pagingGotoInput.removeEventListener("focus", _handlePagingInputFocus);
+		pagingInfo.pagingGotoInput = null;
+
+		search.filter.removeEventListener("click", _handleSearchFilterClick);
+		search.reset.removeEventListener("click", _handleSearchResetClick);
+		search.input.removeEventListener("focus", _handleSearchInputFocus);
+		search.input.removeEventListener("blur", _handleSearchInputBlur);
+		search.input.removeEventListener("keyup", _handleSearchInputKeyUp);
+
+		iconButtons.iconSearchIconBar1.removeEventListener("click", _handleSearchButtonClick);
+		iconButtons.iconSearchIconBar2.removeEventListener("click", _handleSearchButtonClick);
+		iconButtons.iconCurrentMode.removeEventListener("click", _handlePauseButtonClick);
+
+		if(cssStyler)
+			cssStyler.unload();
+
+		for (var to in displayTimeouts) {
+			if (displayTimeouts[to] != null) {
+				clearTimeout(displayTimeouts[to]);
+			}
+		}
+
+		tabHandler = null;
+	});
+
+});
+]]></code>
+</script>

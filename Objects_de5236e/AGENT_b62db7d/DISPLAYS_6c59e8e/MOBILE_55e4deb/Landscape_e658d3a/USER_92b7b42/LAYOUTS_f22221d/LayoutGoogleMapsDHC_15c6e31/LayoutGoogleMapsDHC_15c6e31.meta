@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Landscape.USER.LAYOUTS.LayoutGoogleMapsDHC
+NodeClass: Variable
+BrowseName: 1:LayoutGoogleMapsDHC
+DisplayName: en|LayoutGoogleMapsDHC
+Description: en|LayoutGoogleMapsDHC
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

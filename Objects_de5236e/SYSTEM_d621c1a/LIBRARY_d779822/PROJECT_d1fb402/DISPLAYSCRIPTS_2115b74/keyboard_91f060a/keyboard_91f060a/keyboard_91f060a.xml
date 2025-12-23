@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the keyboard object display
+ * ----------------------------------------
+ * This script supports the display parsing inputs and switch language (DE/EN)
+ */
+
+
+/**
+ * KEY SETUP SECTION
+ */
+var keys = {
+	Caret: ['^', '°', ''],
+	One: ['1', '!', ''],
+	Two: ['2', '"', '²'],
+	Three: ['3', '§', '³'],
+	Four: ['4', '$', ''],
+	Five: ['5', '%', ''],
+	Six: ['6', '&', ''],
+	Seven: ['7', '/', '{'],
+	Eight: ['8', '(', '['],
+	Nine: ['9', ')', ']'],
+	Zero: ['0', '=', '}'],
+	HotS: ['ß', '?', '\\'],
+	Acute: ['´', '`', ''],
+	Q: ['q', 'Q', '@'],
+	W: ['w', 'W', ''],
+	E: ['e', 'E', '€'],
+	R: ['r', 'R', ''],
+	T: ['t', 'T', ''],
+	Y: ['z', 'Z', ''],
+	U: ['u', 'U', ''],
+	I: ['i', 'I', ''],
+	O: ['o', 'O', ''],
+	P: ['p', 'P', ''],
+	UE: ['ü', 'Ü', ''],
+	Plus: ['+', '*', '~'],
+	A: ['a', 'A', ''],
+	S: ['s', 'S', ''],
+	D: ['d', 'D', ''],
+	F: ['f', 'F', ''],
+	G: ['g', 'G', ''],
+	H: ['h', 'H', ''],
+	J: ['j', 'J', ''],
+	K: ['k', 'K', ''],
+	L: ['l', 'L', ''],
+	OE: ['ö', 'Ö', ''],
+	AE: ['ä', 'Ä', ''],
+	Hash: ['#', '\'', ''],
+	LT: ['<', '>', '|'],
+	Z: ['y', 'Y', ''],
+	X: ['x', 'X', ''],
+	C: ['c', 'C', ''],
+	V: ['v', 'V', ''],
+	B: ['b', 'B', ''],
+	N: ['n', 'N', ''],
+	M: ['m', 'M', 'µ'],
+	Colon: [',', ';', ''],
+	Period: ['.', ':', ''],
+	Dash: ['-', '_', '']
+};
+
+switch ("T{}") {
+	case "en":
+		keys.Caret = ['`', '~', ''];
+		keys.Two = ['2', '@', ''];
+		keys.Three = ['3', '#', ''];
+		keys.Six = ['6', '^', ''];
+		keys.Seven = ['7', '&', ''];
+		keys.Eight = ['8', '*', ''];
+		keys.Nine = ['9', '(', ''];
+		keys.Zero = ['0', ')', ''];
+		keys.HotS = ['-', '_', ''];
+		keys.Acute = ['=', '+', ''];
+		keys.Y = ['y', 'Y', ''];
+		keys.UE = ['[', '{', ''];
+		keys.Plus = [']', '}', ''];
+		keys.OE = [';', ':', ''];
+		keys.AE = ['\'', '"', ''];
+		keys.Hash = ['\\', '|', ''];
+		keys.LT = ['\\', '|', ''];
+		keys.Z = ['z', 'Z', ''];
+		keys.Colon = [',', '<', ''];
+		keys.Period = ['.', '>', ''];
+		keys.Dash = ['/', '?', ''];
+		setAllKeys();
+		break;
+}
+
+var specialKeys = [
+	'keyTab',
+	'keyCapslock',
+	'keyEnter',
+	'keyCancel',
+	'keyShiftLeft',
+	'keyShiftRight',
+	'keySpace'
+];
+
+
+/**
+ * DECLARATION SECTION
+ */
+var actualText;
+var altgr = false;
+var capslock = false;
+var delTimeout;
+var enteredTabs = [];
+var mouseDownOpacity = 0.75;
+var mouseUpOpacity = 0;
+var password = webMI.query["password"];
+var shift = false;
+var tabspace = new Array(parseInt(webMI.query["tabstop"])).join('\u00A0');
+var target = webMI.query["target"];
+var trigger = webMI.query["trigger"];
+var value = webMI.query["value"];
+var q = webMI.query;
+
+
+/**
+ * RUNTIME SECTION
+ */
+
+// ####
+//setText(value);
+setText0(q.value);
+// ####
+
+for (var i in keys) {
+	var key = 'key' + i;
+	mouseFunction('mousedown', key, mouseDownOpacity);
+	mouseFunction('mouseup', key, mouseUpOpacity);
+	mouseSetFunction(key, keys[i][0], keys[i][1], keys[i][2]);
+}
+
+for (var i in specialKeys) {
+	mouseFunction('mousedown', specialKeys[i], mouseDownOpacity);
+	mouseFunction('mouseup', specialKeys[i], mouseUpOpacity);
+}
+
+mouseSetFunction('keySpace', '\u00A0', '\u00A0');
+
+
+/**
+ * FUNCTION SECTION
+ */
+function setAllKeys() {
+	var j = altgr ? 2 : shift || capslock ? 1 : 0;
+
+	for (var i in keys)
+		webMI.gfx.setText(i, keys[i][j]);
+}
+
+function mouseFunction(mouseEvent, button, fillOpacity) {
+	var _function = function (e) {
+		webMI.gfx.setFillOpacity(button, fillOpacity);
+	};
+
+	webMI.addEvent(button, mouseEvent, _function);
+
+	if (mouseEvent == 'mouseup')
+		webMI.addEvent(button, 'mouseout', _function);
+}
+
+function makeStars(length) {
+	return new Array(length + 1).join("*");
+}
+
+function setText(text) {
+	actualText = text;
+
+	if (text !== undefined && password == "Yes")
+		text = makeStars(text.length - (tabspace.length - 1) * enteredTabs.length);
+
+	webMI.gfx.setText("textValue", text);
+}
+
+// ####
+function setText0(text) {
+
+	if(q.replaceText && q.replaceText=="false") {
+		actualText = text;
+	} else { actualText = ""; }
+
+	if (text !== undefined && password == "Yes")
+		text = makeStars(text.length - (tabspace.length - 1) * enteredTabs.length);
+
+	webMI.gfx.setText("textValue", text);
+}
+// ####
+
+function mouseSetFunction(button, value, shiftValue, altgrValue) {
+
+	webMI.addEvent(button, 'click', function (e) {
+		var text = actualText;
+
+		if (!text) text = '';
+		if (altgr) {
+			text += altgrValue;
+			setAllKeys();
+			altgrFunction();
+		} else if (shift || capslock) {
+			text += shiftValue;
+
+			if (!capslock) {
+				shift = false;
+				setAllKeys();
+			}
+		} else {
+			text += value;
+		}
+
+		// ####
+		//setText(text);
+		
+		// LIMITIERUNG maximale Zeichen bei Eingabe
+		if(text.length <= q.maxl) {
+			setText(text);
+			webMI.gfx.setText("id_minmaxVal_str", "");
+		} else {
+			webMI.gfx.setText("id_minmaxVal_str", "maximal length of "+ q.maxl +" characters reached");
+			return false;
+		}
+		// ####
+	});
+
+}
+
+function delMouseUp(e) {
+	webMI.gfx.setFillOpacity('keyDel', mouseUpOpacity);
+	clearTimeout(delTimeout);
+};
+
+function shiftFunction(e) {
+	if (!capslock) {
+		shift = !shift;
+	}
+	shiftCapslockFunction();
+};
+
+function shiftCapslockFunction(e) {
+	if (altgr) {
+		altgrFunction();
+	}
+	setAllKeys();
+};
+
+function okFunction(e) {
+	var text = actualText;
+	if (target) {
+		webMI.data.write(target, text);
+	}
+
+	webMI.trigger.fire("valuechanged", text, "");
+
+	if (trigger)
+		webMI.trigger.fire(trigger, text);
+
+	webMI.display.closeWindow();
+};
+
+function altgrFunction() {
+	altgr = !altgr;
+	webMI.gfx.setFillOpacity('keyAltGr', altgr ? mouseDownOpacity : mouseUpOpacity);
+	setAllKeys();
+}
+
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent('keyDel', 'mousedown', function (e) {
+	var removechars = 1;
+
+	if (enteredTabs.length && actualText.length == enteredTabs[enteredTabs.length - 1]) {
+		removechars = tabspace.length;
+		enteredTabs.pop();
+	}
+
+	var text = actualText.substring(0, actualText.length - removechars);
+	webMI.gfx.setFillOpacity('keyDel', mouseDownOpacity);
+
+	setText(text);
+	// ####
+	webMI.gfx.setText("id_minmaxVal_str", "");
+	// ####
+	delTimeout = setTimeout(function () {
+		enteredTabs = [];
+		setText('');
+	}, 1000);
+});
+
+webMI.addEvent('keyCapslock', 'click', function (e) {
+	shift = false;
+	capslock = !capslock;
+	shiftCapslockFunction();
+});
+
+webMI.addEvent('keyCancel', 'click', function (e) {
+	webMI.display.closeWindow();
+});
+
+webMI.addEvent('keyDel', 'mouseup', delMouseUp);
+
+webMI.addEvent('keyDel', 'mouseout', delMouseUp);
+
+webMI.addEvent('keyShiftLeft', 'click', shiftFunction);
+
+webMI.addEvent('keyShiftRight', 'click', shiftFunction);
+
+webMI.addEvent('keyAltGr', 'click', altgrFunction);
+
+webMI.addEvent('keyEnter', 'click', okFunction);
+
+webMI.addEvent('keyTab', 'click', function () {
+	var text = actualText + tabspace;
+	enteredTabs.push(text.length);
+	setText(text);
+});]]></code>
+</script>

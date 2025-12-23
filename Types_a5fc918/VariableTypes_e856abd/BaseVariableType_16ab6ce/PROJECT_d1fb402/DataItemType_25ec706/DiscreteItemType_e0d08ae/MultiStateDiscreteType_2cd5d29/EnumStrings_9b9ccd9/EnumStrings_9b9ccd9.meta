@@ -1,0 +1,10 @@
+NodeId: ns=1;s=VariableTypes.PROJECT.2376.EnumStrings
+NodeClass: Variable
+BrowseName: 1:EnumStrings
+DisplayName: en|EnumStrings
+Description: en|EnumStrings
+DataType: LocalizedText
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition PropertyType

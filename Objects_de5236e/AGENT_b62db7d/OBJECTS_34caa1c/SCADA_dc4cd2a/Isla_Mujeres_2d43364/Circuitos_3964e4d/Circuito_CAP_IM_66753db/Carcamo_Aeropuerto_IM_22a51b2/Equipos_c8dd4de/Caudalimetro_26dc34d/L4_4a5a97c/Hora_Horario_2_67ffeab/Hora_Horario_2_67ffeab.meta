@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Carcamo_Aeropuerto_IM.Equipos.Caudalimetro.L4.Hora_Horario_2
+NodeClass: Variable
+BrowseName: 1:Hora_Horario_2
+DisplayName: en|Hora_Horario_2
+Description: en|Hora_Horario_2
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

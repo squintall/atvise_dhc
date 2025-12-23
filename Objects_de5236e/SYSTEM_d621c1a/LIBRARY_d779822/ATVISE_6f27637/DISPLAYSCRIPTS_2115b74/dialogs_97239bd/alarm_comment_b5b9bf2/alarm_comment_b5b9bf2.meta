@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.dialogs.alarm_comment
+NodeClass: Variable
+BrowseName: 1:alarm_comment
+DisplayName: en|alarm_comment
+Description: en|alarm_comment
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

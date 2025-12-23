@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/timer/imgs_glossy/loading.gif
+NodeClass: Variable
+BrowseName: 1:loading.gif
+DisplayName: en|loading.gif
+Description: en|loading.gif
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Gif

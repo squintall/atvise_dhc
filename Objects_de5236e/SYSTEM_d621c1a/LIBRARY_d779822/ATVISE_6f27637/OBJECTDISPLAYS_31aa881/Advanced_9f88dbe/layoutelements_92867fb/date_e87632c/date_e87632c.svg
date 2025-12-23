@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="30" version="1.2" width="203" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Shows current date.</desc>
+ <title>Date Element</title>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="%d.%m.%Y" desc="date format" name="dateFormat" valuetype="string"/>
+  <atv:parameter behavior="optional" config="Arial;Courier;Tahoma;Verdana" defaultvalue="Arial" desc="font family" group="Font" name="font_family" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="18" desc="font size" group="Font" name="font_size" substitute="$FONTSIZE$" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" group="Font" name="globalFontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <text atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="114" atv:refpy="15" fill="$FONTCOLOR$" font-family="Arial" font-size="$FONTSIZE$" id="date" text-anchor="end" x="198.5" y="21.5">02.08.2019</text>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.layoutelements.date" atv:name="date" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

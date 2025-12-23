@@ -1,0 +1,1039 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts highcharts object display
+ * ----------------------------------------
+ * This script supports the display using the highcharts library
+ */
+
+const accessControlManager = webMI.getAccessControlSupport()
+	? webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager")
+	: false;
+
+webMI.libraryLoader.load(["other/lz-string.min.js"], [], function () {
+	webMI.gfx.setVisible("highchart_label", false);
+	webMI.gfx.setVisible("border", false);
+	var queryParams = webMI.query;
+	var skipModules = webMI.query["skipDefaultModules"] == "true" ? true : false;
+	var additionalModules = webMI.query["additionalModules"].split(",");
+
+	//Map input of saving method to parameter names
+	if (queryParams["gatviseOptions_saveMethod"] == "Multiple nodes")
+		queryParams["gatviseOptions_saveMethod"] = "multiple";
+	else if (queryParams["gatviseOptions_saveMethod"] == "File system")
+		queryParams["gatviseOptions_saveMethod"] = "filesystem";
+	else queryParams["gatviseOptions_saveMethod"] = "single";
+
+	var initialLoadingConfig = {
+		saveName:
+			webMI.query["gatviseOptions_saveMethod"] == "filesystem"
+				? webMI.query["gatviseOptions_configFile"]
+				: webMI.query["gatviseOptions_configNode"],
+		saveMethod: webMI.query["gatviseOptions_saveMethod"],
+		saveCompressed: webMI.query["gatviseOptions_saveCompressed"]
+	};
+
+	var chartDiv = document.getElementById("highcharts_container");
+	var trend;
+
+	var serverTimeOffset = 0;
+
+	var generalProperties = [
+		{ name: "title_text" },
+		{ name: "chart_animation", type: "boolean" },
+		{ name: "atviseOptions_configNode" },
+		{ name: "atviseOptions_configFile" },
+		{ name: "atviseOptions_configName" },
+		{ name: "atviseOptions_saveMethod" },
+		{ name: "atviseOptions_saveCompressed", type: "boolean" },
+		{ name: "atviseOptions_mode" },
+		{ name: "atviseOptions_source" },
+		{ name: "atviseOptions_sourceOptions" },
+		{ name: "atviseOptions_enableCursor1", type: "boolean" },
+		{ name: "atviseOptions_enableCursor2", type: "boolean" },
+		{ name: "navigation_buttonOptions_symbolStroke" },
+		{ name: "navigation_buttonOptions_theme_fill" },
+		{ name: "navigation_buttonOptions_theme_states_hover_fill" },
+		{ name: "navigation_buttonOptions_theme_states_select_fill" },
+		{ name: "navigation_menuStyle_background" },
+		{ name: "navigation_menuItemStyle_color" },
+		{ name: "navigation_menuItemHoverStyle_background" },
+		{ name: "navigation_menuItemHoverStyle_color" },
+		{ name: "exporting_csv_dateFormat" }
+	];
+
+	var yAxisProperties = [
+		{ name: "yAxis_id" },
+		{ name: "yAxis_title_text" },
+		{ name: "yAxis_title_style_color" },
+		{ name: "yAxis_visible", type: "boolean" },
+		{ name: "yAxis_min" },
+		{ name: "yAxis_max" },
+		{ name: "yAxis_lineWidth" },
+		{ name: "yAxis_lineColor" },
+		{ name: "yAxis_labels_enabled", type: "boolean" },
+		{ name: "yAxis_labels_align" },
+		{ name: "yAxis_labels_format" },
+		{ name: "yAxis_labels_style_color" },
+		{ name: "yAxis_labels_x" },
+		{ name: "yAxis_crosshair", type: "switch" },
+		{ name: "yAxis_crosshair_snap", type: "boolean" },
+		{ name: "yAxis_crosshair_width" },
+		{ name: "yAxis_crosshair_color" },
+		{ name: "yAxis_crosshair_dashStyle" },
+		{ name: "yAxis_gridLineWidth" },
+		{ name: "yAxis_gridLineColor" },
+		{ name: "yAxis_tickInterval" },
+		{ name: "yAxis_minorGridLineWidth" },
+		{ name: "yAxis_minorGridLineColor" },
+		{ name: "yAxis_minorTickInterval" },
+		{ name: "yAxis_opposite", type: "boolean" },
+		{ name: "yAxis_offset" }
+	];
+
+	var seriesOptionProperties = [
+		{ name: "series_address" },
+		{ name: "series_name" },
+		{ name: "series_dataArchive" },
+		{ name: "series_dataArchive2" },
+		{ name: "series_type" },
+		{ name: "series_step", type: "boolean" },
+		{ name: "series_lineWidth" },
+		{ name: "series_color" },
+		{ name: "series_dashStyle" },
+		{ name: "series_visible", type: "boolean" },
+		{ name: "series_yAxis" },
+		{ name: "series_marker_enabled", type: "boolean" },
+		{ name: "series_nonStop", type: "boolean" },
+		{ name: "series_aggregate_aggregate" },
+		{ name: "series_aggregate_interval" },
+		{ name: "series_aggregate_unit" },
+		{ name: "series_tooltip_valuePrefix", type: "string" },
+		{ name: "series_tooltip_valueDecimals", type: "string" },
+		{ name: "series_tooltip_valueSuffix", type: "string" },
+		{ name: "series_tooltip_valueExponential", type: "boolean" }
+	];
+
+	var xAxisProperties = [
+		{ name: "xAxis_title_text" },
+		{ name: "xAxis_title_style_color" },
+		{ name: "xAxis_timeSpan" },
+		{ name: "xAxis_timeSpanUnit" },
+		{ name: "xAxis_tickInterval" },
+		{ name: "xAxis_lineWidth" },
+		{ name: "xAxis_lineColor" },
+		{ name: "xAxis_labels_enabled", type: "boolean" },
+		{ name: "xAxis_labels_align" },
+		{ name: "xAxis_labels_style_color" },
+		{ name: "xAxis_crosshair", type: "switch" },
+		{ name: "xAxis_crosshair_snap", type: "boolean" },
+		{ name: "xAxis_crosshair_width" },
+		{ name: "xAxis_crosshair_color" },
+		{ name: "xAxis_crosshair_dashStyle" },
+		{ name: "xAxis_type" },
+		{ name: "xAxis_dateTimeLabelFormats_format" },
+		{ name: "xAxis_gridLineWidth" },
+		{ name: "xAxis_gridLineColor" },
+		{ name: "xAxis_minorGridLineWidth" },
+		{ name: "xAxis_minorGridLineColor" },
+		{ name: "xAxis_minorTickInterval" },
+		{ name: "xAxis_opposite", type: "boolean" }
+	];
+
+	var yAxisDefault = {
+		yAxis_title_text: "",
+		yAxis_visible: "false",
+		yAxis_lineWidth: "0",
+		yAxis_lineColor: "#ccd6eb",
+		yAxis_labels_enabled: "true",
+		yAxis_labels_align: "right",
+		yAxis_labels_format: "{value}",
+		yAxis_labels_x: "",
+		yAxis_crosshair: "false",
+		yAxis_crosshair_snap: "true",
+		yAxis_crosshair_dashStyle: "Solid",
+		yAxis_gridLineWidth: "1",
+		yAxis_gridLineColor: "#e6e6e6",
+		yAxis_minorGridLineWidth: "1",
+		yAxis_minorGridLineColor: "#f2f2f2",
+		yAxis_opposite: "left"
+	};
+
+	/* clean series probs */
+	var seriesStack = [];
+	for (let s = 1; s <= 15; s++) {
+		if (queryParams["series" + s + "series_address"] && queryParams["series" + s + "series_address"] != "") {
+			const seriesProps = {};
+
+			for (var key in seriesOptionProperties) {
+				var prop = seriesOptionProperties[key].name;
+				seriesProps[prop] = queryParams["series" + s + prop];
+			}
+
+			seriesStack.push(seriesProps);
+		}
+	}
+
+	for (let s = 1; s <= 15; s++) {
+		const seriesProps = seriesStack.shift();
+		if (seriesProps) {
+			for (const key in seriesOptionProperties) {
+				const prop = seriesOptionProperties[key].name;
+				queryParams["series" + s + prop] = seriesProps[prop];
+			}
+		} else {
+			for (const key in seriesOptionProperties) {
+				const prop = seriesOptionProperties[key].name;
+				queryParams["series" + s + prop] = "";
+			}
+		}
+	}
+
+	/* fix and rewrite parameter if id was removed AT-D-15135 */
+	var yAxisKey = 1;
+	var yAxisStore = {};
+
+	for (var i = 1; i < 5; i++) {
+		var yKey = "yAxis" + i;
+		var yAxisObj = {};
+
+		for (var k in yAxisProperties) {
+			var pKey = yAxisProperties[k].name;
+			yAxisObj[pKey] = queryParams[yKey + pKey];
+		}
+
+		if (yAxisObj["yAxis_id"]) {
+			yAxisStore["yAxis" + yAxisKey] = yAxisObj;
+			yAxisKey++;
+		}
+	}
+
+	for (let i = yAxisKey; i < 5; i++) {
+		yAxisStore["yAxis" + i] = yAxisDefault;
+	}
+
+	for (const yKey in yAxisStore) {
+		yAxisObj = yAxisStore[yKey];
+		for (const pKey in yAxisObj) queryParams[yKey + pKey] = yAxisObj[pKey];
+	}
+
+	// Is a series configured and a y-axis attached?
+	var activeYAxis = [];
+	var allAxisIds = [
+		queryParams["yAxis1yAxis_id"],
+		queryParams["yAxis2yAxis_id"],
+		queryParams["yAxis3yAxis_id"],
+		queryParams["yAxis4yAxis_id"]
+	];
+	var axisSetupError = [];
+
+	for (let s = 1; s <= 15; s++) {
+		if (queryParams["series" + s + "series_address"] && queryParams["series" + s + "series_yAxis"]) {
+			var yAxisSeries = queryParams["series" + s + "series_address"];
+			var yAxisId = queryParams["series" + s + "series_yAxis"];
+
+			if (allAxisIds.indexOf(yAxisId) != -1 && yAxisId != "" && yAxisId != undefined) {
+				activeYAxis.push(allAxisIds.indexOf(yAxisId));
+			} else if (yAxisId >= 0 && yAxisId <= 3) {
+				activeYAxis.push(parseInt(yAxisId));
+			} else {
+				queryParams["series" + s + "series_address"] = "";
+				axisSetupError.push({ series: yAxisSeries, yAxisId: yAxisId });
+			}
+		}
+	}
+
+	var timeRangeUnits = [
+		{ text: "second(s)", value: "1" },
+		{ text: "minute(s)", value: "60" },
+		{ text: "hour(s)", value: "3600" },
+		{ text: "day(s)", value: "86400" },
+		{ text: "week(s)", value: "604800" },
+		{ text: "month(s)", value: "2592000" }
+	];
+
+	/* Convert unit text to unit value */
+	var type = 0;
+	while (webMI.query["xAxisxAxis_timeSpanUnit"] != timeRangeUnits[type].text) type++;
+	webMI.query["xAxisxAxis_timeSpanUnit"] = timeRangeUnits[type].value;
+
+	/* fix for missing tick interval at x axis AT-D-16063 */
+	if (typeof queryParams["xAxisxAxis_tickInterval"] == "undefined" || queryParams["xAxisxAxis_tickInterval"] == "") {
+		var xsp = parseInt(queryParams["xAxisxAxis_timeSpan"], 10) * 1000;
+		var xsu = parseInt(queryParams["xAxisxAxis_timeSpanUnit"], 10);
+		queryParams["xAxisxAxis_tickInterval"] = (xsp * xsu) / 4;
+	}
+
+	var Configvar_Without_ID_Allowed_On_Parameter = [];
+	activeYAxis.forEach(function (item) {
+		Configvar_Without_ID_Allowed_On_Parameter["yAxis" + (item + 1) + "yAxis_id"] =
+			"yAxis" + (item + 1) + "yAxis_crosshair";
+	});
+
+	/* Translate AxisOpposite left = false, others = true */
+	/* and return highchart compatible boolan (=string)   */
+	var nAxisTranslate = [
+		{ name: "xAxisxAxis_opposite" },
+		{ name: "yAxis1yAxis_opposite" },
+		{ name: "yAxis2yAxis_opposite" },
+		{ name: "yAxis3yAxis_opposite" },
+		{ name: "yAxis4yAxis_opposite" }
+	];
+
+	function isAxisOpposite(axis) {
+		if (axis == "right" || axis == "top") {
+			return "true";
+		}
+		return "false";
+	}
+
+	for (const nAxis in nAxisTranslate) {
+		webMI.query[nAxisTranslate[nAxis].name] = isAxisOpposite(webMI.query[nAxisTranslate[nAxis].name]);
+	}
+
+	/** check export rights **/
+	var right = webMI.query["export_right"] == undefined ? "" : webMI.query["export_right"];
+	if (right.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1) {
+		right = right.substring(23, right.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+	}
+	var export_activeNode = webMI.query.export_activeNode;
+	var export_activeValue = webMI.query.export_activeValue;
+	var gshowExportMenu = webMI.query.gshowExportMenu === "true" ? true : false;
+
+	var hasRight = false;
+	var hasDynamicRight = false;
+	if (right != "") {
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			hasRight = false;
+			if ("username" in e && e.username != "") {
+				hasRight = webMI.hasRight(right);
+			}
+
+			updateExportEnabled();
+		});
+	} else {
+		hasRight = true;
+		updateExportEnabled();
+	}
+
+	if (export_activeNode) {
+		webMI.data.subscribe(export_activeNode, (e) => {
+			if (String(e.value) === export_activeValue) {
+				hasDynamicRight = true;
+			} else {
+				hasDynamicRight = false;
+			}
+			updateExportEnabled();
+		});
+	} else {
+		hasDynamicRight = true;
+	}
+
+	function updateExportEnabled() {
+		if (typeof trend != "undefined") {
+			if (hasRight && hasDynamicRight && gshowExportMenu) {
+				trend.chart.update({ exporting: { enabled: true } });
+			} else {
+				trend.chart.update({ exporting: { enabled: false } });
+			}
+		}
+	}
+
+	webMI.addEvent(webMI.data, "servertimeoffsetchanged", function (offset) {
+		serverTimeOffset = offset;
+	});
+
+	webMI.addOnload(function () {
+		webMI.data.loadScript("highcharts/helpers/confighandler.js", function () {
+			function checkSaveMethod(node, callback) {
+				if (initialLoadingConfig.saveMethod == "multiple") {
+					webMI.data.read(node, function (e) {
+						const index = e.value && e.value != "" ? saveJSONparse(e.value) : {};
+
+						if (!("highchartsConfigIndex" in index)) {
+							initialLoadingConfig.saveMethod = "single";
+						}
+						callback();
+					});
+				} else {
+					callback();
+				}
+			}
+
+			function loadConfiguration() {
+				configurator.readConfig(
+					initialLoadingConfig.saveName,
+					initialLoadingConfig.saveMethod,
+					trendConfig.atviseOptions.configName,
+
+					function (chartConfig) {
+						let existingConfig = Object.keys(chartConfig) ? true : false;
+						chartConfig = typeof chartConfig == "undefined" ? {} : chartConfig;
+
+						// disable notification at startup
+						if ("exporting" in chartConfig) chartConfig.exporting.buttons.notificationButton.enabled = false;
+
+						for (var item in trendConfig) {
+							if (!(item in chartConfig)) {
+								chartConfig[item] = trendConfig[item];
+							}
+						}
+
+						// fix for old config not having save method stored!
+						if ("atviseOptions" in chartConfig && !chartConfig.atviseOptions.saveMethod)
+							chartConfig.atviseOptions.saveMethod = initialLoadingConfig.saveMethod;
+
+						// use builder settings for configNode and configName
+						chartConfig.atviseOptions.configNode = trendConfig.atviseOptions.configNode;
+						// chartConfig.atviseOptions.configName = trendConfig.atviseOptions.configName; [Issue-ID: 10259]
+
+						//check marker for wrong initialization (old cfg / wrong setup)
+						for (const seriesNumber in chartConfig.series) {
+							chartConfig.series[seriesNumber].events = {
+								afterGeneratePoints: function () {
+									this.cleanUpIndices();
+								}
+							};
+							if (
+								typeof chartConfig.series[seriesNumber].marker.enabled === "undefined" ||
+								chartConfig.series[seriesNumber].marker.enabled === null
+							) {
+								chartConfig.series[seriesNumber].marker.enabled = false;
+							}
+						}
+
+						// set zoom && pann like zoom
+						chartConfig.chart.zoomType = zoomType;
+						chartConfig.chart.panning = {
+							enabled: true,
+							type: zoomType
+						};
+
+						try {
+							createTrend(chartConfig, existingConfig);
+						} catch (ex) {
+							console.error("Highcharts: Could not create Trend");
+						}
+					}
+				);
+			}
+			var configurator = new webMI.rootWindow.ConfigHandler();
+			configurator.addTranslation({ key: "Y-Axis", value: "T{Y-Axis}" });
+
+			// no highcharts setting found for: configurationId, enableCursor1, enableCursor2, showTooltip, showExportMenu, useLocalTime, disableDownSampling
+			var trendConfig = createConfig(configurator, "g", generalProperties, 1);
+
+			prepareSeries(15);
+			var seriesConfig = createConfig(configurator, "series", seriesOptionProperties, 15, "address");
+			if (seriesConfig.series && seriesConfig.series.length > 0) {
+				Object.assign(trendConfig, seriesConfig);
+			}
+
+			// no highcharts setting found for: xaxisPosition
+			var xAxisConfig = createConfig(configurator, "xAxis", xAxisProperties, 1);
+			Object.assign(trendConfig, xAxisConfig);
+
+			// no highcharts setting found for position
+			var yAxisConfig = createConfig(configurator, "yAxis", yAxisProperties, 4, "id");
+			if (yAxisConfig.yAxis && yAxisConfig.yAxis.length > 0) {
+				Object.assign(trendConfig, yAxisConfig);
+			}
+
+			// fix labels x position if not provided
+			for (var i in trendConfig.yAxis) {
+				if (trendConfig.yAxis[i].labels && trendConfig.yAxis[i].labels.x === "") delete trendConfig.yAxis[i].labels.x;
+			}
+
+			var zoomType = (webMI.query["zoomType"] ? webMI.query["zoomType"].replace("axis", "") : "x").trim();
+
+			if (initialLoadingConfig.saveName == "" || trendConfig.atviseOptions.configName == "") {
+				// add performance options
+				var performance_boost = webgl_supported()
+					? webMI.query["gatviseOptions_disableDownSampling"] === "true"
+					: false;
+				var performance_downsample = performance_boost
+					? false
+					: webMI.query["gatviseOptions_enableDownSampling"] === "true";
+
+				var performance_update_interval = parseInt(webMI.query["performance_update_interval"]);
+				var performance_sampling_factor = parseInt(webMI.query["performance_sampling_factor"]);
+				var performance_points_threshold = parseInt(webMI.query["performance_points_threshold"]);
+				var performance_series_threshold = parseInt(webMI.query["performance_series_threshold"]);
+
+				trendConfig.atviseOptions.disableDownSampling = !performance_downsample;
+				trendConfig.boost = {
+					enabled: performance_boost,
+					seriesThreshold: performance_series_threshold
+				};
+				trendConfig.atviseOptions.liveModeFrameRate = 1000 / performance_update_interval;
+				trendConfig.atviseOptions.downsamplingFactor = performance_sampling_factor;
+				trendConfig.atviseOptions.plotOptions = { series: { boostThreshold: performance_points_threshold } };
+
+				// set zoom && pann like zoom
+				trendConfig.chart.zoomType = zoomType;
+				trendConfig.chart.panning = {
+					enabled: true,
+					type: zoomType
+				};
+
+				// align y-axis ticks
+				trendConfig.chart.alignTicks = webMI.query["alignTicks"] === "true" ? true : false;
+
+				try {
+					createTrend(trendConfig, true);
+				} catch (ex) {
+					console.error("Highcharts: Could not create Trend");
+					// console.error(ex);
+				}
+			} else {
+				var isPureWebMIApp = webMI.rootWindow.webMIConfig["frame.displaytype"] === "svg";
+
+				if (accessControlManager && !isPureWebMIApp) {
+					let configNodeAddress = webMI.query.gatviseOptions_configNode;
+					let configParentAddress = configNodeAddress
+						.split(".")
+						.slice(0, configNodeAddress.split(".").length - 1)
+						.join(".");
+
+					accessControlManager.getRights([configNodeAddress, configParentAddress], ["read", "engineer"], (response) => {
+						const hasConfigReadRight = response.result[0].value;
+						const hasEngineeringRight = response.result[1].value;
+
+						if (!hasConfigReadRight && !hasEngineeringRight) {
+							const chartDivHeight = chartDiv.clientHeight;
+							chartDiv.innerHTML = `<p style="text-align: center; line-height: ${chartDivHeight}px; font-family: sans-serif; color: red; font-size: 1.25em;">T{Cannot read configuration node} <em>(${webMI.query.gatviseOptions_configNode})</em></p>`;
+							return;
+						}
+
+						// Display has been loaded for the first time. Initialize config node.
+						if (!hasConfigReadRight && hasEngineeringRight) {
+							accessControlManager.assist.addNode(
+								{
+									address: configNodeAddress,
+									typeDefinition: "i=62",
+									dataType: "STRING",
+									value: "{}",
+									nodeClass: "NODECLASS_VARIABLE",
+									writePolicy: 2
+								},
+								function () {
+									loadConfiguration();
+								},
+								function (error) {
+									console.error(configNodeAddress, error);
+								}
+							);
+						} else {
+							checkSaveMethod(webMI.query.gatviseOptions_configNode, function () {
+								loadConfiguration();
+							});
+						}
+					});
+				} else {
+					checkSaveMethod(webMI.query.gatviseOptions_configNode, function () {
+						loadConfiguration();
+					});
+				}
+			}
+		});
+	});
+
+	function combineTimeSpanWithUnit(options) {
+		var timeRange;
+		if (typeof options.trendConfig.xAxis[0] != "undefined") {
+			/* case of old config - ignore timeSpanUnit */
+			timeRange = options.trendConfig.xAxis[0].timeSpan;
+		} else {
+			timeRange = webMI.query["xAxisxAxis_timeSpan"] * webMI.query["xAxisxAxis_timeSpanUnit"];
+		}
+
+		if (
+			typeof options.trendConfig.xAxis[0] != "undefined" &&
+			typeof options.trendConfig.xAxis[0].timeSpanUnit != "undefined"
+		) {
+			timeRange = options.trendConfig.xAxis[0].timeSpan * options.trendConfig.xAxis[0].timeSpanUnit;
+		}
+		return timeRange;
+	}
+
+	function createTrend(trendConfig, existingConfig) {
+		var options = {
+			trendName: webMI.query.trendName,
+			trendGroup: webMI.query.trendGroup,
+			trendConfig: trendConfig
+		};
+
+		options["skipDefaultModules"] = skipModules;
+		if (additionalModules != "") options["additionalModules"] = additionalModules;
+
+		/* fix offsets with server offset */
+		var to = new Date().valueOf() + serverTimeOffset;
+		var from = to - combineTimeSpanWithUnit(options) * 1000;
+
+		trendConfig.xAxis.min = from;
+		trendConfig.xAxis.max = to;
+
+		/* remove old id´s, otherwise there could be missmatches in series handlings */
+		if (options.trendConfig.series && options.trendConfig.series.forEach) {
+			options.trendConfig.series.forEach((element) => {
+				element.id = null;
+			});
+		}
+
+		webMI.trendFactory.createTrend(chartDiv, options, function (trendInstance) {
+			trend = trendInstance;
+
+			if (!existingConfig) {
+				let configurator = new webMI.rootWindow.ConfigHandler();
+				configurator.writeConfig(
+					trend,
+					trend.chart.options.atviseOptions.configNode,
+					trend.chart.options.atviseOptions.configName,
+					function () {}
+				);
+			}
+
+			if (trendConfig.atviseOptions.mode !== "history") {
+				trendInstance.control.startLiveMode();
+			} else {
+				trendInstance.control.loadHistory();
+			}
+
+			var oldIsLegendEnabled = false;
+			if (
+				trendInstance.chart.legend != undefined &&
+				trendInstance.chart.legend.options != undefined &&
+				trendInstance.chart.legend.options.enabled == true
+			)
+				oldIsLegendEnabled = true;
+
+			trendInstance.chart.update({
+				exporting: {
+					enabled: true,
+					menuItemDefinitions: {
+						printChart: {
+							onclick: function () {
+								trendInstance.chart.update({ legend: { enabled: true } });
+								trendInstance.control.setExportOptions(trendInstance.chart.options);
+								trendInstance.chart.options.exporting.filename = "export_" + exportTime("_");
+								this.print();
+								trendInstance.control.unsetExportOptions(trendInstance.chart.options);
+								trendInstance.chart.update({ legend: { enabled: oldIsLegendEnabled } });
+							}
+						}
+					}
+				}
+			});
+			trendInstance.chart.update({
+				exporting: {
+					enabled: true,
+					menuItemDefinitions: {
+						downloadPNG: {
+							onclick: function () {
+								trendInstance.chart.update({ legend: { enabled: true } });
+								trendInstance.control.setExportOptions(trendInstance.chart.options);
+								trendInstance.chart.options.exporting.filename = "export_" + exportTime("_");
+								this.exportChartLocal();
+								trendInstance.control.unsetExportOptions(trendInstance.chart.options);
+								trendInstance.chart.update({ legend: { enabled: oldIsLegendEnabled } });
+							}
+						}
+					}
+				}
+			});
+			trendInstance.chart.update({
+				exporting: {
+					enabled: true,
+					menuItemDefinitions: {
+						downloadJPEG: {
+							onclick: function () {
+								trendInstance.chart.update({ legend: { enabled: true } });
+								trendInstance.control.setExportOptions(trendInstance.chart.options);
+								trendInstance.chart.options.exporting.filename = "export_" + exportTime("_");
+								this.exportChartLocal({ type: "image/jpeg" });
+								trendInstance.control.unsetExportOptions(trendInstance.chart.options);
+								trendInstance.chart.update({ legend: { enabled: oldIsLegendEnabled } });
+							}
+						}
+					}
+				}
+			});
+			trendInstance.chart.update({
+				exporting: {
+					enabled: true,
+					menuItemDefinitions: {
+						downloadPDF: {
+							onclick: function () {
+								trendInstance.chart.update({ legend: { enabled: true } });
+								trendInstance.control.setExportOptions(trendInstance.chart.options);
+								trendInstance.chart.options.exporting.filename = "export_" + exportTime("_");
+								this.exportChartLocal({ type: "application/pdf" });
+								trendInstance.control.unsetExportOptions(trendInstance.chart.options);
+								trendInstance.chart.update({ legend: { enabled: oldIsLegendEnabled } });
+							}
+						}
+					}
+				}
+			});
+			trendInstance.chart.update({
+				exporting: {
+					enabled: true,
+					menuItemDefinitions: {
+						downloadSVG: {
+							onclick: function () {
+								trendInstance.chart.update({ legend: { enabled: true } });
+								trendInstance.control.setExportOptions(trendInstance.chart.options);
+								trendInstance.chart.options.exporting.filename = "export_" + exportTime("_");
+								this.exportChartLocal({ type: "image/svg+xml" });
+								trendInstance.control.unsetExportOptions(trendInstance.chart.options);
+								trendInstance.chart.update({ legend: { enabled: oldIsLegendEnabled } });
+							}
+						}
+					}
+				}
+			});
+			trendInstance.chart.update({
+				exporting: {
+					enabled: true,
+					menuItemDefinitions: {
+						downloadCSV: {
+							onclick: function () {
+								trendInstance.chart.options.exporting.filename = "export_" + exportTime("_");
+								let preDownloadBoostSettings = trendInstance.chart.options.boost.enabled;
+								trendInstance.chart.options.boost.enabled = false;
+
+								function tryDownloadingCSV(self) {
+									// Highcharts need a bit of time to deactivate boost before we can download the data
+									try {
+										self.series.forEach((seriesArray) => {
+											// Replace null values with empty objects in seriesArray.data
+											// so that the export-data module can handle it [AT-D-14806]
+											seriesArray.data.forEach((seriesItem, index) => {
+												if (seriesItem === null) {
+													seriesArray.data[index] = {};
+												}
+											});
+										});
+
+										self.downloadCSV();
+
+										// Downloading worked, so we can turn boost back on
+										trendInstance.chart.options.boost.enabled = preDownloadBoostSettings;
+										return true;
+									} catch (ex) {
+										return false;
+									}
+								}
+
+								let startedTryingAt = Number(Date.now());
+
+								const tryCsvDownloadInterval = setInterval(() => {
+									// Wait for boost to deactivate for 2 seconds before giving up
+									if (Number(Date.now() - startedTryingAt > 2000)) {
+										clearInterval(tryCsvDownloadInterval);
+
+										// Try on last time and collect exception for reporting
+										try {
+											this.downloadCSV();
+										} catch (ex) {
+											if (trendInstance.chart.isBoosting)
+												trend.control.reportError("", ex + ": Exporting data failed. Try to turn off boost mode.");
+											else trend.control.reportError("", ex + ": Exporting data failed.");
+										}
+									}
+
+									// Try downloading CSV, and if successful, stop trying.
+									if (tryDownloadingCSV(this)) {
+										clearInterval(tryCsvDownloadInterval);
+									}
+								}, 10);
+							}
+						}
+					}
+				}
+			});
+			trendInstance.chart.update({
+				exporting: {
+					enabled: true,
+					menuItemDefinitions: {
+						downloadXLS: {
+							onclick: function () {
+								trendInstance.chart.options.exporting.filename = "export_" + exportTime("_");
+								let preDownloadBoostSettings = trendInstance.chart.options.boost.enabled;
+								trendInstance.chart.options.boost.enabled = false;
+
+								function tryDownloadingXLS(self) {
+									// Highcharts need a bit of time to deactivate boost before we can download the data
+									try {
+										self.downloadXLS();
+
+										// Downloading worked, so we can turn boost back on
+										trendInstance.chart.options.boost.enabled = preDownloadBoostSettings;
+										return true;
+									} catch (ex) {
+										return false;
+									}
+								}
+
+								let startedTryingAt = Number(Date.now());
+
+								const tryXslDownloadInterval = setInterval(() => {
+									// Wait for boost to deactivate for 2 seconds before giving up
+									if (Number(Date.now() - startedTryingAt > 2000)) {
+										clearInterval(tryXslDownloadInterval);
+
+										// Try on last time and collect exception for reporting
+										try {
+											this.downloadXLS();
+										} catch (ex) {
+											if (trendInstance.chart.isBoosting)
+												trend.control.reportError("", ex + ": Exporting data failed. Try to turn off boost mode.");
+											else trend.control.reportError("", ex + ": Exporting data failed.");
+										}
+									}
+
+									// Try downloading CSV, and if successful, stop trying.
+									if (tryDownloadingXLS(this)) {
+										clearInterval(tryXslDownloadInterval);
+									}
+								}, 10);
+							}
+						}
+					}
+				}
+			});
+
+			if (!webMI.getClientInfo().browserType.isIE11) {
+				if (trendInstance.chart.options.exporting.buttons.contextButton.menuItems.indexOf("downloadXLSX") == -1) {
+					trendInstance.chart.options.exporting.buttons.contextButton.menuItems.push("downloadXLSX");
+				}
+			}
+
+			trendInstance.chart.update({
+				exporting: {
+					enabled: true,
+					menuItemDefinitions: {
+						downloadXLSX: {
+							onclick: function () {
+								trendInstance.chart.options.exporting.filename = "export_" + exportTime("_");
+								let preDownloadBoostSettings = trendInstance.chart.options.boost.enabled;
+								trendInstance.chart.options.boost.enabled = false;
+
+								function tryDownloadingXLSX(self) {
+									// Highcharts need a bit of time to deactivate boost before we can download the data
+									try {
+										self.downloadXLSX();
+
+										// Downloading worked, so we can turn boost back on
+										trendInstance.chart.options.boost.enabled = preDownloadBoostSettings;
+										return true;
+									} catch (ex) {
+										return false;
+									}
+								}
+
+								let startedTryingAt = Number(Date.now());
+
+								const tryXslsDownloadInterval = setInterval(() => {
+									// Wait for boost to deactivate for 2 seconds before giving up
+									if (Number(Date.now() - startedTryingAt > 2000)) {
+										clearInterval(tryXslsDownloadInterval);
+
+										// Try on last time and collect exception for reporting
+										try {
+											this.downloadXLSX();
+										} catch (ex) {
+											if (trendInstance.chart.isBoosting)
+												trend.control.reportError("", ex + ": Exporting data failed. Try to turn off boost mode.");
+											else trend.control.reportError("", ex + ": Exporting data failed.");
+										}
+									}
+
+									// Try downloading CSV, and if successful, stop trying.
+									if (tryDownloadingXLSX(this)) {
+										clearInterval(tryXslsDownloadInterval);
+									}
+								}, 10);
+							}
+						}
+					}
+				}
+			});
+
+			/** check rights on export **/
+			function check_builderExportMenu() {
+				updateExportEnabled();
+			}
+
+			function check_configExportMenu() {
+				updateExportEnabled();
+			}
+
+			if (webMI.query["gshowExportMenu"] != "true") {
+				trendInstance.chart.update({ exporting: { enabled: false } });
+			} else if (typeof trendInstance.chart.userOptions.exporting != "undefined") {
+				check_configExportMenu(right != "" ? hasRight : true);
+			} else {
+				check_builderExportMenu(right != "" ? hasRight : true);
+			}
+
+			if (trend.chart.options.exporting) {
+				var items = trend.chart.options.exporting.buttons.contextButton.menuItems;
+				var index = items.indexOf("viewData");
+				if (index > -1) items.splice(index, 1);
+				index = items.indexOf("openInCloud");
+				if (index > -1) items.splice(index, 1);
+				index = items.indexOf("viewFullscreen");
+				if (index > -1) items.splice(index, 1);
+			}
+
+			// eslint-disable-next-line no-unused-vars
+			for (let _ in axisSetupError) {
+				trend.control.reportError("20106", `Series ${yAxisSeries} removed due to unknown y-axis configuration!`);
+			}
+		});
+	}
+
+	function createConfig(configurator, type, properties, nrObjects, identifier) {
+		var confObj = {};
+
+		if (!identifier) nrObjects = 1;
+
+		var keysToIgnore = getKeysToIgnore(type, properties, nrObjects);
+
+		for (var i = 1; i <= nrObjects; i++) {
+			var CrossQuery = false;
+			if (typeof Configvar_Without_ID_Allowed_On_Parameter[type + i + type + "_" + identifier] !== "undefined") {
+				CrossQuery = queryParams[Configvar_Without_ID_Allowed_On_Parameter[type + i + type + "_" + identifier]];
+			}
+
+			if (!identifier || queryParams[type + i + type + "_" + identifier] || CrossQuery !== false) {
+				var arrayIdx;
+				if (identifier) {
+					arrayIdx = i - 1;
+				}
+
+				for (var j = 0; j < properties.length; ++j) {
+					var key = properties[j].name;
+					var prefix = nrObjects > 1 ? type + i : type;
+					var keyOK = isKeyOK(prefix + key, keysToIgnore);
+
+					if (keyOK) {
+						var val =
+							nrObjects > 1 ? queryParams[type + i + properties[j].name] : queryParams[type + properties[j].name];
+						if (properties[j].type && (properties[j].type == "boolean" || properties[j].type == "switch")) {
+							val = val.toLowerCase() == "true";
+						} else if (properties[j].type != "string") {
+							if (val != "" && !isNaN(val)) {
+								val = parseFloat(val);
+							}
+						}
+
+						if (keysToIgnore.indexOf(key) == -1) {
+							if (val === "" && (key == "yAxis_min" || key == "yAxis_max" || key == "exporting_csv_dateFormat")) {
+								// ignore empty min max key for autoscale and empty csv export format
+							} else {
+								var confSubObj = configurator.createConfigObject(key, val);
+								configurator.merger(confObj, confSubObj, arrayIdx);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return confObj;
+	}
+
+	function getKeysToIgnore(type, properties, nrObjects) {
+		var keysToIgnore = [];
+		for (var i = 0; i < properties.length; ++i) {
+			if (properties[i].type == "switch") {
+				for (var j = 1; j <= nrObjects; ++j) {
+					var queryParamKey = nrObjects > 1 ? type + j + properties[i].name : type + properties[i].name;
+					var queryParamValue = queryParams[queryParamKey];
+					queryParamValue = queryParamValue.toLowerCase() == "true";
+					if (!queryParamValue) {
+						keysToIgnore.push(queryParamKey);
+					}
+				}
+			}
+		}
+		return keysToIgnore;
+	}
+
+	function isKeyOK(key, keysToIgnore) {
+		for (var i = 0; i < keysToIgnore.length; ++i) {
+			var ignoreKey = keysToIgnore[i];
+			if (key != ignoreKey && key.indexOf(ignoreKey) == 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function prepareSeries(nrObjects) {
+		for (var i = 1; i <= nrObjects; i++) {
+			var interpolation = queryParams["series" + i + "series_interpolation"].toLowerCase();
+			queryParams["series" + i + "series_type"] = interpolation;
+			queryParams["series" + i + "series_step"] = "false";
+
+			if (interpolation == "step") {
+				queryParams["series" + i + "series_type"] = "line";
+				queryParams["series" + i + "series_step"] = "true";
+			}
+		}
+	}
+
+	function exportTime(sp) {
+		const today = new Date();
+		var dd = today.getDate();
+		var mm = today.getMonth() + 1; //As January is 0.
+		var yyyy = today.getFullYear();
+		var hr = today.getHours();
+		var mn = today.getMinutes();
+		var se = today.getSeconds();
+
+		if (dd < 10) dd = "0" + dd;
+		if (mm < 10) mm = "0" + mm;
+		if (hr < 10) hr = "0" + hr;
+		if (mn < 10) mn = "0" + mn;
+		if (se < 10) se = "0" + se;
+
+		return yyyy + sp + mm + sp + dd + sp + hr + mn + se;
+	}
+
+	function webgl_supported() {
+		try {
+			var canvas = webMI.rootWindow.document.createElement("canvas");
+			return !!window.WebGLRenderingContext && (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
+		} catch (e) {
+			return false;
+		}
+	}
+
+	function saveJSONparse(value) {
+		let tmp = {};
+
+		if (typeof value === "string" || value instanceof String) {
+			try {
+				tmp = JSON.parse(value);
+			} catch (ex) {
+				// do nothing
+			}
+		}
+
+		return tmp;
+	}
+
+	webMI.trigger.connect("com.atvise.RedundancyConnectionChange", function () {
+		let currentChart = webMI.trendFactory.getTrendByName(webMI.query.trendName);
+		if (currentChart.control.isLiveModeRunning()) webMI.trigger.fire("com.atvise.RedundancyDataWarning", true);
+	});
+});
+]]></code>
+</script>

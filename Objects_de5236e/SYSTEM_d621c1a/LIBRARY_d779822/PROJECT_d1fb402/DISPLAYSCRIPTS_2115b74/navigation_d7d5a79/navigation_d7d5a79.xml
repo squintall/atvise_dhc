@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the 'navigation' object display
+ * ----------------------------------------
+ * This display generates a navigation bar. The navigation can be defined from the existing display structure,
+ * a user-defined JSON string or via the available display parameters for title and display.
+ * 
+ * Conditions:
+ * The navigation bar uses parts of the license-free Font Awesome library with version 5.11.2 (https://fontawesome.com/) to display symbols.
+ * In order to display "hover" effects, the "hover" detection must be natively supported by the browser (device) on which the navigation is carried out.
+ * This support is known to be limited for "multitouch" devices such as iPad, iPhone.
+ * The use of the Quick Dynamics of the same name is not recommended. Instead, the corresponding object display "navigation" should be used.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var container = webMI.query["navContainerID"];
+var navContainerID = webMI.query["navContainerID"];
+var navDelayVisibility = webMI.query["navDelayVisibility"];
+var navCustomTrigger = webMI.query["navCustomTrigger"];
+var waitForVisu = parseInt(navDelayVisibility, 10);
+var triggerMenu = "";
+var initializationCompleted = false;
+
+/* init navigation */
+var id = document.getElementById(container + "_background").id;
+var parameters = {
+	"customMenu": "",
+	"customEntry" : "",
+
+	// panel
+	"panelAlign" : "",
+	"visible" : "",
+	"animateType" : "",
+	"animateFactor" : "",
+	"panelBackgroundColor" : "",
+	"panelBorderColor" : "",
+	"panelBorderWidth" : "",
+	"panelBorderStyle" : "",
+	"itemBorderColor" : "",
+	"itemBorderRadius" : "",
+	"itemBorderWidth" : "",
+	"itemBorderStyle" : "",
+	"itemPadding" : "",
+
+	// home
+	"homeActive" : "",
+	"homeText" : "",
+	"homeDisplay" : "",
+	"homeAlignHorizontal" : "",
+	"homeAlignVertical" : "",
+	"homeBackground" : "",
+	"homeColor" : "",
+	"homeHeight" : "",
+	"homeWidth" : "",
+	"iconHomeActive" : "",
+
+	// arrow
+	"arrowActive" : "",
+	"arrowAlignHorizontal" : "",
+	"arrowAlignVertical" : "",
+	"arrowBackground" : "",
+	"arrowColor" : "",
+	"arrowWidth" : "",
+	"arrowHeight" : "",
+	"arrowIconHeight" : "",
+	"arrowIconWidth" : "",
+
+	// item
+	"itemCount" : "",
+	"itemAlignHorizontal" : "",
+	"itemAlignVertical" : "",
+	"itemBackgroundActive" : "",
+	"itemBackgroundHover" : "",
+	"itemBackgroundInactive" : "",
+	"itemHeightActive" : "",
+	"itemHeightInactive" : "",
+	"itemHeightSteady" : "",
+	"itemWidthActive" : "",
+	"itemWidthInactive" : "",
+	"itemWidthSteady" : "",
+	"itemIndentationActive" : "",
+	"itemIndentationInactive" : "",
+
+	// icon
+	"iconHomeIcon" : "",
+	"iconArrowDown" : "",
+	"iconArrowLeft" : "",
+	"iconArrowRight" : "",
+	"iconArrowUp" : "",
+	"iconFolderOpen" : "",
+	"iconFolderClose" : "",
+
+	// font
+	"fontType" : "",
+	"fontColorActive" : "",
+	"fontColorHover" : "",
+	"fontColorInactive" : "",
+	"fontSize" : "",
+
+	// options
+	"content" : "",
+	"containerZIndex" : "",
+	"scrollFactorGeneral" : "",
+	"scrollFactorMobile" : "",
+	"removeKeyFromQuery" : "",
+
+	// security
+	"securityRight" : "",
+	"activeNode" : "",
+	"activeValue" : "",
+
+}
+
+/**
+ * RUNTIME SECTION
+ */
+
+/* remove placeholder text */
+webMI.gfx.setText(container + "_description", "");
+
+/* wait for visu rendering the container */
+waitForVisu = waitForVisu ? waitForVisu : 0;
+
+/* draw navigation if no trigger is defined */
+if(!navCustomTrigger){
+	setTimeout(function() {
+		initMenu()
+	},	waitForVisu);
+}
+
+/**
+ * FUNCTION SECTION
+ */
+
+function buildConfig(parameters){
+	for(var key in parameters){
+		parameters[key] = webMI.query["nav" + ucFirst(key)];
+	}
+	/* rewrite connection for visibility changes */
+	parameters['connectToButton'] =  navContainerID;
+	return parameters;
+}
+
+function ucFirst(string) {
+	return string.substring(0, 1).toUpperCase() + string.substring(1);
+}
+
+function buildMenu() {
+	var menu = [];
+
+	function format(val){
+		return val < 10 ? "0"+val : val;
+	}
+
+	for(var i = 0; i<10; i++){
+		var name = webMI.query["navCustomTitle"+format(i+1)];
+		var display = webMI.query["navCustomDisplay"+format(i+1)];
+		if(name && display){
+			menu.push({"name":name,"display":display});
+		}
+	}
+	return JSON.stringify(menu);
+}
+
+/* draw navigation */
+function initMenu() {
+	/* fix z index of FO parent div */
+	document.getElementById(container + "_fo").parentElement.style.zIndex = "-1";
+
+	/* prevent multiple triggers */
+	if(initializationCompleted){
+		console.warn("The navigation is already initialized. Trigger is not processed!");
+		return;
+	} else {
+		initializationCompleted = true;
+	}
+
+	/* build config */
+	var config = buildConfig(parameters);
+	config["id"] = id;
+	config["setTop"] = document.getElementById(container + "_container").style.top;
+	config["setLeft"] = document.getElementById(container + "_container").style.left;
+	config["setWidth"] = document.getElementById(container + "_container").style.width;
+	config["setHeight"] = document.getElementById(container + "_container").style.height;
+
+	/* use single setting */
+	var menu = buildMenu();
+	if(menu != "[]"){
+		config["customMenu"] = menu;
+	}
+
+	/* use trigger menu */
+	if(triggerMenu) {
+		config["customMenu"] = triggerMenu;
+	}
+
+	/* call QD */
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Navigation", config);
+}
+
+/**
+ * TRIGGER SECTION
+ */
+
+/* connect for custom trigger menu */
+webMI.trigger.connect(navCustomTrigger, function (e) {
+	triggerMenu = e.value;
+	setTimeout(function() {
+		initMenu()
+	},	waitForVisu);
+});]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Andalucia.Equipos.L500.Caudalimetro.L_500.Hora_Horario_2
+NodeClass: Variable
+BrowseName: 1:Hora_Horario_2
+DisplayName: en|Hora_Horario_2
+Description: en|Hora_Horario_2
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

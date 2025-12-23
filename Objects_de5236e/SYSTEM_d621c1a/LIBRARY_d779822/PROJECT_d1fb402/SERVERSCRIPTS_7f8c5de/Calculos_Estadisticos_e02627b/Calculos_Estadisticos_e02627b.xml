@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="data" type="number" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/*********Funciones Estaditicas*********/
+
+/*
+		Libreria con funciones estadisticas
+		Funcion 1: Promedio
+		Función 2: Desviación Estandar
+		Funcion 3: Maximo
+		Función 4: Minimo
+		
+*/
+
+function Promedio (data) {
+
+	//Sumo todos los valores
+	var suma=0;
+	
+	for (var i=0; i<data.length; i++) {
+		suma = suma + data[i];
+	}
+	
+	return (suma/data.length);
+}
+
+function Desvest (data) {
+	
+	var pm = Promedio(data);
+	
+	//Sumo todos las diferencias cuadraticas
+	var suma=0;
+	
+	for (i=0; i<data.length; i++) {
+		suma = suma + Math.pow(data[i]-pm, 2);
+	}
+	
+	return (Math.sqrt(suma/data.length));
+	
+}
+
+
+function Mini (data) {
+	
+	//Variable Min
+	var Min_Value=data[0];
+	
+	for (i=0; i<data.length; i++) {				
+		if(data[i]<Min_Value)	{			
+			Min_Value=data[i];			
+			}
+	}
+	
+	return (Min_Value);	
+}
+
+function Maxi (data) {
+	
+	//Variable Max
+	var Max_Value=data[0];
+	
+	for (i=0; i<data.length; i++) {
+		if(data[i]>Max_Value)
+			Max_Value=data[i];
+	}
+	
+	return (Max_Value);	
+}
+
+return([Number((Promedio (data)).toFixed(2)),Number((Desvest (data)).toFixed(2)),Number((Mini (data)).toFixed(2)),Number((Maxi (data)).toFixed(2))]);]]></code>
+</script>

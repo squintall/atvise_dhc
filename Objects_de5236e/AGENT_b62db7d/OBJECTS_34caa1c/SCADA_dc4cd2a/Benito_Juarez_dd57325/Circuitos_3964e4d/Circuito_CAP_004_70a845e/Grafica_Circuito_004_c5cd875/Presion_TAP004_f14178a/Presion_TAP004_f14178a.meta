@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Grafica_Circuito_004.Presion_TAP004
+NodeClass: Variable
+BrowseName: 1:Presion_TAP004
+DisplayName: en|Presion_TAP004
+Description: en|Presion_TAP004
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

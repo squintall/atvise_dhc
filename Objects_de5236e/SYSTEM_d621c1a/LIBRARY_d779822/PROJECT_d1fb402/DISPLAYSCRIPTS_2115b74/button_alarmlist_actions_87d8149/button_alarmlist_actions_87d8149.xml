@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the button_alarmlist_actions object display
+ * ----------------------------------------------------
+ * This button provides actions for the items in the alarm list.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+
+var strokeNormal = "none";
+var strokePressed = webMI.query["strokePressed"];
+var extraBorderColor = webMI.query["extraBorderColor"];
+var focusStrokeColor = webMI.query["focusStrokeColor"];
+var fillColor = webMI.query["fillColor"];
+var fillColorInactive = webMI.query["fillColorInactive"];
+var display = webMI.query["display"];
+var consistencyGroup = webMI.query["consistencyGroup"];
+var consistencyFunction = webMI.query["consistencyFunction"];
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+var right = webMI.query["right"] == undefined ? "" : webMI.query["right"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var tableID = webMI.query["tableID"];
+var action = webMI.query["action"];
+var lockInputEvents = true;
+var contextMenuStyle = {
+	maxRows: 10,
+	fontFamily: "Arial",
+	fontSize: 11,
+	fontFill: "#575757",
+	width: 174,
+	fill: "#ffffff",
+	stroke: "#575757",
+	strokeWidth: 1,
+	hoverFill: "#e5e5e5",
+	closeTime: 0,
+	zIndex: 100,
+	showType: "right"
+};
+
+if (consistencyGroup)
+	var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var actionMap = {
+	Acknowledge: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmAcknowledge",
+	"Acknowledge with comment": "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmAcknowledge",
+	Confirm: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmConfirm",
+	"Confirm with comment": "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmConfirm",
+	"One shot shelve": "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmShelve",
+	"Timed shelve": "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmShelve",
+	Unshelve: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmUnshelve",
+	Unsuppress: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmUnsuppress",
+	Disable: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmDisable",
+	Enable: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AlarmEnable"
+};
+
+var notifierConfig = {
+	id: document.getElementById("button_clickarea").id,
+	rights: [
+		{ nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true },
+		{ nodeId: actionMap[action], rights: "execute", disable: true, notify: true }
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: { activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"] },
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: right
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+if (extraBorderColor != "none" && extraBorderColor != "") {
+	webMI.gfx.setStroke("button_stroke", extraBorderColor);
+}
+
+webMI.addOnload(function () {
+	var doc = document.getElementById("button_clickarea").ownerDocument;
+	tabHandler.register(tabIndex, keyHandler, doc);
+});
+
+if (tooltip != "") {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "button_clickarea",
+		text: tooltip
+	});
+}
+
+/* Alarm Action Button Functionality */
+
+if (action) webMI.gfx.setText("button_label", action);
+var tableController = null;
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setActiveLayout() {
+	lockInputEvents = false;
+
+	webMI.gfx.setFill("button_bg", fillColor);
+	webMI.gfx.setVisible("button_stroke", null);
+}
+
+function setInactiveLayout() {
+	lockInputEvents = true;
+
+	webMI.gfx.setFill("button_bg", fillColorInactive);
+	webMI.gfx.setVisible("button_stroke", false);
+}
+
+function release() {
+	webMI.gfx.setFill("button_stroke", "url(#linear_1)");
+
+	if (extraBorderColor == "none" || extraBorderColor == "") {
+		webMI.gfx.setStroke("button_stroke", strokeNormal);
+	} else {
+		webMI.gfx.setStroke("button_stroke", extraBorderColor);
+		webMI.gfx.setStrokeWidth("button_stroke", 1);
+	}
+}
+
+function focusTH() {
+	if (lockInputEvents) return;
+
+	webMI.gfx.setStroke("button_stroke", focusStrokeColor);
+	if (extraBorderColor != "none" && extraBorderColor != "") {
+		webMI.gfx.setStrokeWidth("button_stroke", 2);
+	}
+}
+
+function applyTH() {
+	if (lockInputEvents) return;
+
+	webMI.trigger.fire("clicked", true, "");
+
+	if (consistencyGroup)
+		consistencyFunction == "write"
+			? consistencyHandler.write(consistencyGroup)
+			: consistencyHandler.read(consistencyGroup);
+}
+
+function backTH() {}
+
+function arrowTH(dir) {}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		focusTH();
+	} else if (keyTH == "blur") {
+		release();
+	} else if (keyTH == "apply") {
+		webMI.gfx.setFill("button_stroke", "url(#linear_2)");
+		applyTH();
+	} else if (keyTH == "releaseClick") {
+		webMI.gfx.setFill("button_stroke", "url(#linear_1)");
+	} else if (keyTH == "back") {
+		backTH();
+	} else if (keyTH == "arrow") {
+		arrowTH(param2);
+	} else if (keyTH == "isActive") {
+		return param2(document.getElementById("button_clickarea").parentNode);
+	}
+}
+
+/* Alarm Action Button Functionality */
+
+function formatAddress(address) {
+	if (webMI.getMethodSupport().indexOf("AlarmAcknowledge") == -1 && address != undefined && address.indexOf("/") > -1)
+		address = "./" + address;
+	return address;
+}
+
+function getAlarmIds() {
+	var alarmIds = [];
+	tableController.grid.getSelectedRows().forEach(function (rowIndex) {
+		var dataItem = tableController.grid.getDataItem(rowIndex);
+		alarmIds.push(dataItem.AlarmId);
+	});
+	return alarmIds;
+}
+
+function getAddresses() {
+	var addresses = [];
+	tableController.grid.getSelectedRows().forEach(function (rowIndex) {
+		var dataItem = tableController.grid.getDataItem(rowIndex);
+		addresses.push(dataItem.address);
+	});
+	return addresses;
+}
+
+function getAlarmIdsAndAddresses() {
+	var alarmIdsAndAddresses = [];
+	tableController.grid.getSelectedRows().forEach(function (rowIndex) {
+		var dataItem = tableController.grid.getDataItem(rowIndex);
+		alarmIdsAndAddresses.push({ address: dataItem.address, AlarmId: dataItem.AlarmId });
+	});
+	return alarmIdsAndAddresses;
+}
+
+/*
+-----------------
+---- EVENTS ----
+-----------------
+*/
+
+webMI.addEvent("button_clickarea", "mousedown", function (e) {
+	if (lockInputEvents) return;
+
+	var id = "button_clickarea";
+	var value = true;
+	return (function (value) {
+		webMI.gfx.setFill("button_stroke", "url(#linear_2)");
+		webMI.gfx.setStroke("button_stroke", strokePressed);
+	})(value);
+});
+
+webMI.addEvent("button_clickarea", "mouseup", function (e) {
+	var id = "button_clickarea";
+	var value = true;
+	return (function (value) {
+		release();
+	})(value);
+});
+
+webMI.addEvent("button_clickarea", "mouseout", function (e) {
+	var id = "button_clickarea";
+	var value = true;
+	return (function (value) {
+		release();
+	})(value);
+});
+
+webMI.addEvent("button_clickarea", "click", function (e) {
+	if (lockInputEvents) return;
+
+	tabHandler.setCurrentIndex(keyHandler, function () {
+		webMI.trigger.fire("clicked", true, "");
+	});
+
+	if (consistencyGroup)
+		consistencyFunction == "write"
+			? consistencyHandler.write(consistencyGroup)
+			: consistencyHandler.read(consistencyGroup);
+});
+
+webMI.addEvent("button_clickarea", "dragstart", function (e) {
+	if (e.preventDefault) {
+		e.preventDefault();
+	}
+});
+
+/* Alarm Action Button Functionality */
+
+webMI.addEvent("button_clickarea", "click", function (e) {
+	if (lockInputEvents) return;
+
+	if (tableController == null) tableController = webMI.table.request(tableID, "controller");
+
+	if (action == "Acknowledge" && Object.keys(tableController.allAcknowledgeable).length > 0) {
+		var idsOrAddresses = webMI.getMethodSupport().indexOf("AlarmAcknowledge") != -1 ? getAlarmIds() : getAddresses();
+		tableController.Acknowledge(idsOrAddresses, typeof username != "undefined" ? username : "");
+	}
+
+	if (
+		action == "Acknowledge with comment" &&
+		Object.keys(tableController.allAcknowledgeable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmAcknowledge") != -1
+	) {
+		tableController.AcknowledgeWithComment(getAlarmIdsAndAddresses());
+	}
+
+	if (
+		action == "Confirm" &&
+		Object.keys(tableController.allConfirmable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmConfirm") != -1
+	) {
+		tableController.Confirm(getAlarmIds());
+	}
+
+	if (
+		action == "Confirm with comment" &&
+		Object.keys(tableController.allConfirmable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmConfirm") != -1
+	) {
+		tableController.ConfirmWithComment(getAlarmIdsAndAddresses());
+	}
+
+	if (
+		action == "One shot shelve" &&
+		Object.keys(tableController.allShelveableOnce).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmShelve") != -1
+	) {
+		tableController.Shelve(getAlarmIdsAndAddresses(), null);
+	}
+
+	if (
+		action == "Timed shelve" &&
+		Object.keys(tableController.allShelveableTime).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmShelve") != -1
+	) {
+		tableController.Shelve(getAlarmIdsAndAddresses(), null, true);
+	}
+
+	if (
+		action == "Unshelve" &&
+		Object.keys(tableController.allUnshelveable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmUnshelve") != -1
+	) {
+		tableController.Unshelve(getAlarmIdsAndAddresses());
+	}
+
+	if (
+		action == "Unsuppress" &&
+		Object.keys(tableController.allUnsuppressable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmUnsuppress") != -1
+	) {
+		tableController.Unsuppress(getAlarmIdsAndAddresses());
+	}
+
+	if (
+		action == "Disable" &&
+		Object.keys(tableController.allDisableable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmDisable") != -1
+	) {
+		tableController.Disable(getAlarmIdsAndAddresses());
+	}
+
+	if (
+		action == "Enable" &&
+		Object.keys(tableController.allEnableable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmEnable") != -1
+	) {
+		tableController.Enable(getAddresses());
+	}
+});
+]]></code>
+</script>

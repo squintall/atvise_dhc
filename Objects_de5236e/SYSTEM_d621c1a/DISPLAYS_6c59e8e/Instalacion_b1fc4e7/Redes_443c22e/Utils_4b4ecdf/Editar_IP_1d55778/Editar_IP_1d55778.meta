@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Redes.Utils.Editar_IP
+NodeClass: Variable
+BrowseName: 1:Editar_IP
+DisplayName: en|Editar_IP
+Description: en|Editar_IP
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

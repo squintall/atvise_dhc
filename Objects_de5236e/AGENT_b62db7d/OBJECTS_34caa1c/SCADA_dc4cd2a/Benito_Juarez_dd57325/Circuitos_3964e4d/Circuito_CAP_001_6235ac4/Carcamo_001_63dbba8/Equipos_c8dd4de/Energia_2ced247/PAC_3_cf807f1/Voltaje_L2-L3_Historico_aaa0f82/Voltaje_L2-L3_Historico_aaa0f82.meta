@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_001.Equipos.Energia.PAC_3.Voltaje_L2-L3_Historico
+NodeClass: Variable
+BrowseName: 1:Voltaje_L2-L3_Historico
+DisplayName: en|Voltaje_L2-L3_Historico
+Description: en|Voltaje_L2-L3_Historico
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AR

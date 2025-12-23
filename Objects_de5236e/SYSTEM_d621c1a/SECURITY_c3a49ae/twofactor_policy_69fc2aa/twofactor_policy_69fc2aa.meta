@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.twofactor_policy
+NodeClass: Variable
+BrowseName: 1:twofactor_policy
+DisplayName: en|twofactor_policy
+Description: en|twofactor_policy
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.AccessControl.TwoFactorPolicy

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Grafica_Puerto_Aventura.Nivel_Cuenca_PA
+NodeClass: Variable
+BrowseName: 1:Nivel_Cuenca_PA
+DisplayName: en|Nivel_Cuenca_PA
+Description: en|Nivel_Cuenca_PA
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

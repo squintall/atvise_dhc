@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.group_manager
+NodeClass: Variable
+BrowseName: 1:group_manager
+DisplayName: en|group_manager
+Description: en|group_manager
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_0+000.L16.Presion.AP_BJ_CAR_0+000_PRES_L16_Presion
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_0+000_PRES_L16_Presion
+DisplayName: en|AP_BJ_CAR_0+000_PRES_L16_Presion
+Description: en|AP_BJ_CAR_0+000_PRES_L16_Presion
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

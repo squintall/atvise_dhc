@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <code><![CDATA[var data = [
+	{
+		name: "Engine001",
+		description: "Internal petrol combustion engine (ESS)",
+		on: true,
+		rpm: 5500,
+		temperature: 230	
+	},
+	{
+		name: "Engine002",
+		description: "Diesel internal combustion engine (DSL)",
+		on: false,
+		rpm: 0,
+		temperature: 110	
+	},
+	{
+		name: "Engine003",
+		description: "Mild hybrid electric vehicle (MHEV)",
+		on: true,
+		rpm: 8000,
+		temperature: 30	
+	},
+	{
+		name: "Engine004",
+		description: "Hybrid electric vehicle (HEV)",
+		on: true,
+		rpm: 6000,
+		temperature: 34	
+	},
+	{
+		name: "Engine005",
+		description: "Plug-in hybrid electric vehicle (PHEV)",
+		on: false,
+		rpm: 0,
+		temperature: 21.5	
+	}
+]
+
+return data;]]></code>
+</script>

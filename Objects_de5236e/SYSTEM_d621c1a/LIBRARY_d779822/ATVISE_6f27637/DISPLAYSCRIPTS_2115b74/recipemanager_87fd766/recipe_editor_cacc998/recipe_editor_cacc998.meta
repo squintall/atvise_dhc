@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.recipemanager.recipe_editor
+NodeClass: Variable
+BrowseName: 1:recipe_editor
+DisplayName: en|recipe_editor
+Description: en|recipe_editor
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

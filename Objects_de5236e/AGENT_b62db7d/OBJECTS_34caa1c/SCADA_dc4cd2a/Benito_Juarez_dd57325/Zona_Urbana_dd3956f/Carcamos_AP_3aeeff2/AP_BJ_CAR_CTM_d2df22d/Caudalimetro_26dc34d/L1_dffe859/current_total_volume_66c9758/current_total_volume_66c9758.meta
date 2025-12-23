@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_CTM.Caudalimetro.L1.current_total_volume
+NodeClass: Variable
+BrowseName: 1:current_total_volume
+DisplayName: en|current_total_volume
+Description: en|Acumulado total de Carcamos_AP en L1
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Caudalimetros

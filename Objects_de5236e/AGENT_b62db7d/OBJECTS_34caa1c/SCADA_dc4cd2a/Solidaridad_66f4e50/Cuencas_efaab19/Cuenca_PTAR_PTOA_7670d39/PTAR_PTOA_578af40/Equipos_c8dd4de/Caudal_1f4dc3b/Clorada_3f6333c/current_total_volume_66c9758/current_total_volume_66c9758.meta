@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.PTAR_PTOA.Equipos.Caudal.Clorada.current_total_volume
+NodeClass: Variable
+BrowseName: 1:current_total_volume
+DisplayName: en|current_total_volume
+Description: en|Acumulado total de PTAR_PTOA en Clorada
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Caudalimetros

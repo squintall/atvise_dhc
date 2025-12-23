@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.User_management
+NodeClass: Variable
+BrowseName: 1:User_management
+DisplayName: en|User_management
+Description: en|User_management
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

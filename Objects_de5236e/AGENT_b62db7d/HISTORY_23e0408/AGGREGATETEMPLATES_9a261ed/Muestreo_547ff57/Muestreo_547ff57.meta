@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.HISTORY.AGGREGATETEMPLATES.Muestreo
+NodeClass: Object
+BrowseName: 1:Muestreo
+DisplayName: en|Muestreo
+Description: en|Muestreo
+EventNotifier: 0
+Reference: forward HasModellingRule SharedExclusive
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AggregateTemplate

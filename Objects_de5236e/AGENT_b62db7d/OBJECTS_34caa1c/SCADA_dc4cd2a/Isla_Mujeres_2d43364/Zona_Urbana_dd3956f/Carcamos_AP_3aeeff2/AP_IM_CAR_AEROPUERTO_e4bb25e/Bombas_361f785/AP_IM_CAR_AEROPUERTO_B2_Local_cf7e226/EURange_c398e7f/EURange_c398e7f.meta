@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AP.AP_IM_CAR_AEROPUERTO.Bombas.AP_IM_CAR_AEROPUERTO_B2_Local.EURange
+NodeClass: Object
+BrowseName: 1:EURange
+DisplayName: en|EU range of this tag
+Description: en|EURange
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

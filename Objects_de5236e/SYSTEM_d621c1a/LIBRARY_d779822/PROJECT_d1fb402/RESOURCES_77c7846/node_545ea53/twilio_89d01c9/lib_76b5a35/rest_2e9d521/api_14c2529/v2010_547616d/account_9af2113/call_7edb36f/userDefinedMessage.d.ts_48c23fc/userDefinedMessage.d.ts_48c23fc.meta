@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/api/v2010/account/call/userDefinedMessage.d.ts
+NodeClass: Variable
+BrowseName: 1:userDefinedMessage.d.ts
+DisplayName: en|userDefinedMessage.d.ts
+Description: en|userDefinedMessage.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

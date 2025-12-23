@@ -1,0 +1,819 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts opt yaxis object display
+ * ----------------------------------------
+ * This script supports the display to show and edit y-axis options for the chart.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var activeAxis = 0;
+var activeOffset = 0;
+var chart = webMI.trendFactory.getTrendByName(webMI.query.chartname);
+var configHandler = new webMI.rootWindow.ConfigHandler();
+var errors = [];
+errors[1] = "More then 10 y-axis are not supported.";
+errors[2] = "More then 10 y-axis are found in configuration.";
+var inputDefaults = {
+	yAxis_title_text: "T{Y-Axis}",
+	yAxis_min: -10,
+	yAxis_max: 10,
+	yAxis_labels_format: "{value}",
+	yAxis_autoscale: true,
+	yAxis_visible: true,
+	"yAxis_type-logarithmic": "T{logarithmic}",
+	"yAxis_type-linear": "T{linear}",
+	yAxis_tickInterval: 10,
+	yAxis_minorTickInterval: 0,
+	yAxis_crosshair_width: 0,
+	yAxis_crosshair_snap: true,
+	yAxis_labels_x: 0,
+	"yAxis_opposite-true": "T{right}",
+	"yAxis_opposite-false": "T{left}",
+	yAxis_labels_align: "center",
+	yAxis_lineColor: "#000000",
+	yAxis_crosshair_color: "#ff0000",
+	yAxis_gridLineColor: "#888888",
+	yAxis_minorGridLineColor: "#eeeeee",
+	yAxis_gridLineWidth: 1,
+	yAxis_minorGridLineWidth: 1,
+	"yAxis_crosshair_dashStyle-Dash": "T{dashed}",
+	"yAxis_crosshair_dashStyle-Dot": "T{dotted}",
+	"yAxis_crosshair_dashStyle-Solid": "T{solid}",
+	yAxis_lineWidth: 1,
+	yAxis_title_style_color: "#676767",
+	yAxis_labels_style_color: "#676767"
+};
+var minMaxStep = parseInt(webMI.query["minMaxStep"]);
+var numAxis = parseInt(webMI.query.num_axes) > 10 ? 10 : parseInt(webMI.query.num_axes);
+var options = chart.chart.options;
+var subdisplay = {};
+subdisplay.display_message = webMI.query.display_message;
+subdisplay.display_alert = webMI.query.display_message + "_small";
+var triggerEnabled = true;
+var updateEnabled = true;
+var yAxis = [];
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ * Triggers for every input element
+ */
+webMI.addOnload(function () {
+	for (var key in inputDefaults)
+		webMI.trigger.connect(
+			"valuechanged",
+			function (e) {
+				if (!triggerEnabled) return;
+
+				if (e.context === "yAxis_crosshair_width") {
+					webMI.trigger.fire("com.atvise.setActive", e.value, "yAxis_crosshair_snap");
+				}
+
+				processInput(e.context, e.value, activeAxis);
+			},
+			key
+		);
+
+	for (var i = 0; i < numAxis; i++) {
+		webMI.trigger.connect(
+			"valuechanged",
+			function (e) {
+				for (let axisIndex = 0; axisIndex < numAxis; axisIndex++) {
+					webMI.trigger.fire("com.atvise.setActive", false, "axisSelector" + axisIndex);
+				}
+
+				if (!triggerEnabled) {
+					/* Reset axis selector if clicked to fast */
+					if (parseInt(e.value) + activeOffset != activeAxis) {
+						setTimeout(function () {
+							webMI.trigger.fire("radioClicked_g0", {
+								name: webMI.gfx.getText("axisSelector" + (activeAxis - activeOffset) + "_radiobutton_label"),
+								value: activeAxis - activeOffset
+							});
+						}, 100);
+					}
+					return;
+				}
+
+				activeAxis = parseInt(e.value) + activeOffset;
+				readOptions();
+			},
+			"axisSelector" + i
+		);
+	}
+
+	readOptions();
+
+	var updateCb = chart.control.registerOnUpdatedCallback(function () {
+		if (!updateEnabled) return;
+
+		readOptions();
+	});
+
+	webMI.addOnunload(function () {
+		if (processTimer) {
+			clearTimeout(processTimer);
+			processTimer = null;
+		}
+
+		if (chart && chart.control) {
+			chart.control.unregisterOnUpdatedCallback(updateCb);
+		}
+	});
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * Axis functions
+ * @param options
+ */
+function alertInfo(headline, message) {
+	webMI.display.openWindow({
+		display: subdisplay.display_alert,
+		height: 160,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: headline,
+			message: message,
+			button: "T{OK}"
+		}
+	});
+}
+
+function addAxis(options) {
+	if (yAxis.length > 9) {
+		console.warn(errors[1]);
+		return;
+	}
+
+	if (typeof options == "undefined") options = {};
+
+	if (typeof options["title"] == "undefined") options["title"] = {};
+
+	if (typeof options["title"]["text"] == "undefined")
+		options["title"]["text"] = inputDefaults["yAxis_title_text"] + " " + yAxis.length;
+
+	var labelMin = 0;
+	var labelMax = 0;
+
+	for (var ax in chart.chart.yAxis) {
+		if (!chart.chart.yAxis[ax].opposite) {
+			if (labelMin > chart.chart.yAxis[ax].min) labelMin = chart.chart.yAxis[ax].min;
+			if (labelMax < chart.chart.yAxis[ax].max) labelMax = chart.chart.yAxis[ax].max;
+		}
+	}
+
+	yAxis.push(options["title"]["text"]);
+
+	var identifier = chart.chart.yAxis.length;
+	chart.chart.addAxis(options, false);
+	if (chart.chart.yAxis.length > chart.chart.options.yAxis.length) chart.chart.options.yAxis[identifier] = options;
+
+	chart.chart.yAxis[identifier].update({ min: labelMin });
+	chart.chart.yAxis[identifier].update({ max: labelMax });
+
+	updateEnabled = false;
+	chart.control.updated(function () {
+		updateEnabled = true;
+	});
+
+	if (yAxis.length > numAxis) scrollButtons(true);
+
+	activeAxis = yAxis.length - 1;
+	activeOffset = Math.max(yAxis.length - numAxis, 0);
+	webMI.gfx.setVisible("axisSelector" + (activeAxis - activeOffset), true);
+	webMI.gfx.setText("axisSelector" + (activeAxis - activeOffset) + "_radiobutton_label", options["title"]["text"]);
+
+	webMI.trigger.fire("radioClicked_g0", {
+		name: webMI.gfx.getText("axisSelector" + (activeAxis - activeOffset) + "_radiobutton_label"),
+		value: activeAxis - activeOffset
+	});
+}
+
+function removeAxis() {
+	if (yAxis.length == 1) return;
+
+	if (activeAxis == 0) {
+		alertInfo("T{Warning}", "T{First axis can not be deleted!}");
+		return;
+	}
+
+	if (chart.chart.yAxis[activeAxis].series && chart.chart.yAxis[activeAxis].series.length > 0) {
+		showConfirmDialog();
+	} else {
+		_removeAxis();
+	}
+}
+
+/**
+ * opening the confirmation for axis with assigned series
+ */
+function showConfirmDialog(activeAxis) {
+	var openedWindow = webMI.display.openWindow({
+		display: subdisplay.display_message,
+		height: 400,
+		width: 600,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: "T{The axis has been assigned to series!}",
+			msg1: "T{Deleting an axis will also delete assigned series!}",
+			msg2: "T{Do you really want to delete this axis?}",
+			btn1: "T{Yes}",
+			btn2: "T{Cancel}",
+			action_btn1: "com.atvise.highcharts.yaxis.delete",
+			action_btn2: "com.atvise.highcharts.yaxis.abort",
+			activeAxis: activeAxis
+		}
+	});
+
+	var doc = openedWindow.getContentDocument();
+	webMI.addEvent(doc, "keydown", function (e) {
+		if (e.keyCode == 27) {
+			openedWindow.close();
+		}
+	});
+}
+
+/**
+ * remove axis
+ * @private
+ */
+function _removeAxis() {
+	if (chart.chart.yAxis[activeAxis]) {
+		chart.chart.yAxis[activeAxis].remove();
+		if (options.yAxis[activeAxis]) options.yAxis.splice(activeAxis, 1);
+
+		if (activeAxis > 0) --activeAxis;
+		if (activeAxis > numAxis - 1) scrollAxis("up");
+		if (yAxis.length - 1 < numAxis + 1 && yAxis.length < 10) scrollButtons(false);
+
+		webMI.trigger.fire("radioClicked_g0", {
+			name: webMI.gfx.getText("axisSelector" + (activeAxis - activeOffset) + "_radiobutton_label"),
+			value: activeAxis - activeOffset
+		});
+		activeOffset = Math.max(activeOffset - 1, 0);
+
+		updateEnabled = false;
+		chart.control.updated(function () {
+			updateEnabled = true;
+		});
+	}
+}
+
+function axisManager(yAxis) {
+	if (yAxis.length > numAxis) {
+		scrollButtons(true);
+	} else {
+		scrollButtons(false);
+		activeOffset = 0;
+	}
+
+	for (var i = 0; i < numAxis; i++) {
+		var iOffset = i + activeOffset;
+		if (typeof yAxis[iOffset] != "undefined") {
+			webMI.gfx.setVisible("axisSelector" + i, true);
+
+			var name = yAxis[iOffset] != "" ? yAxis[iOffset] : "Axis";
+			webMI.gfx.setText("axisSelector" + i + "_radiobutton_label", name + " [" + iOffset + "]");
+		} else {
+			webMI.gfx.setVisible("axisSelector" + i, false);
+		}
+	}
+
+	webMI.trigger.fire("radioClicked_g0", {
+		name: webMI.gfx.getText("axisSelector" + (activeAxis - activeOffset) + "_radiobutton_label"),
+		value: activeAxis - activeOffset
+	});
+}
+
+function scrollAxis(direction) {
+	if (direction == "up" && activeOffset > 0) {
+		if (yAxis.length <= numAxis) activeOffset = 0;
+		else --activeOffset;
+	} else if (direction == "down" && activeOffset < yAxis.length - numAxis) {
+		++activeOffset;
+	}
+
+	axisManager(yAxis);
+}
+
+function scrollButtons(active) {
+	var isUp = activeOffset > 0;
+	var isDn = yAxis.length - activeOffset > numAxis;
+
+	webMI.trigger.fire("com.atvise.setActive", isUp ? active : false, "btn_up");
+	webMI.trigger.fire("com.atvise.setActive", isDn ? active : false, "btn_down");
+}
+
+/**
+ * Read options
+ */
+function readOptions() {
+	triggerEnabled = false;
+	var mappedOptions = configHandler.mapToAtviseId(options);
+	yAxis = [];
+
+	/* Search configured y-axis */
+	var i = 0;
+	while (typeof chart.chart.yAxis[i] != "undefined") {
+		if (chart.chart.yAxis[i].userOptions["title"] && chart.chart.yAxis[i].userOptions["title"]["text"]) {
+			var setTitle = chart.chart.yAxis[i].userOptions["title"]["text"];
+			yAxis.push(setTitle);
+			webMI.trigger.fire("setValue", setTitle, "yAxis_title_text");
+		} else {
+			yAxis.push(inputDefaults["yAxis_title_text"] + " " + i);
+		}
+		i++;
+	}
+
+	if (yAxis.length < numAxis + 1) scrollButtons(false);
+	else scrollButtons(true);
+
+	webMI.gfx.setVisible("tickAlignment", chart.chart.options.chart.alignTicks == true ? null : false);
+
+	/* Avoid logarithmic y-axis on initialization (can cause errors) */
+	if (typeof mappedOptions["yAxis" + activeAxis + "_yAxis_type"] == "undefined") {
+		mappedOptions["yAxis" + activeAxis + "_yAxis_type"] = "linear";
+		setOptions("yAxis_type", "linear", activeAxis);
+	}
+
+	/* Fix for configs with emtpy autoscale value */
+	if (typeof mappedOptions["yAxis" + activeAxis + "_yAxis_autoscale"] === "undefined") {
+		mappedOptions["yAxis" + activeAxis + "_yAxis_autoscale"] = true;
+		if (mappedOptions["yAxis" + activeAxis + "_yAxis_min"] != mappedOptions["yAxis" + activeAxis + "_yAxis_max"]) {
+			mappedOptions["yAxis" + activeAxis + "_yAxis_autoscale"] = false;
+		}
+	}
+
+	if (mappedOptions["yAxis" + activeAxis + "_yAxis_autoscale"]) {
+		webMI.trigger.fire("setChecked", true, "yAxis_autoscale");
+		webMI.trigger.fire("com.atvise.setActive", false, "yAxis_min");
+		webMI.trigger.fire("com.atvise.setActive", false, "yAxis_max");
+	} else {
+		webMI.trigger.fire("setChecked", false, "yAxis_autoscale");
+		webMI.trigger.fire("com.atvise.setActive", true, "yAxis_min");
+		webMI.trigger.fire("com.atvise.setActive", true, "yAxis_max");
+	}
+
+	var extremes = chart.chart.yAxis[activeAxis].getExtremes();
+
+	/* Set values for current active axis */
+	for (var key in inputDefaults) {
+		var value = inputDefaults[key];
+
+		/* build radio button group key */
+		var isRadio = false;
+		var keyValue = key.split("-");
+		if (keyValue.length == 2) {
+			isRadio = true;
+			key = keyValue[0];
+			keyValue = keyValue[1];
+		}
+
+		var optionsKey = key;
+		if (key.search("yAxis") > -1) optionsKey = "yAxis" + activeAxis + "_" + key;
+
+		if (isRadio) {
+			if (key == "yAxis_opposite" && typeof chart.chart.yAxis[activeAxis].userOptions["opposite"] != "undefined") {
+				value = chart.chart.yAxis[activeAxis].userOptions["opposite"] ? "T{right}" : "T{left}";
+				setOptions(key, chart.chart.yAxis[activeAxis].userOptions["opposite"], activeAxis);
+			} else {
+				if (typeof mappedOptions[optionsKey] != "undefined")
+					value = inputDefaults[key + "-" + mappedOptions[optionsKey]];
+				else setOptions(key, keyValue, activeAxis);
+			}
+
+			webMI.trigger.fire("radioClicked_" + key, { name: value });
+			continue;
+		}
+
+		if (key == "yAxis_labels_align") {
+			var map = { left: "T{left}", center: "T{center}", right: "T{right}" };
+
+			if (
+				chart.chart.yAxis[activeAxis].userOptions["labels"] &&
+				chart.chart.yAxis[activeAxis].userOptions["labels"]["align"]
+			) {
+				value = chart.chart.yAxis[activeAxis].userOptions["labels"]["align"];
+			} else {
+				value = inputDefaults[keyValue[0]];
+			}
+
+			setOptions(key, value, activeAxis);
+
+			webMI.trigger.fire("setSelectedItem", map[value], "yAxis_labels_align");
+			continue;
+		}
+
+		if (key == "yAxis_labels_x") {
+			if (
+				chart.chart.yAxis[activeAxis].userOptions["labels"] &&
+				typeof chart.chart.yAxis[activeAxis].userOptions["labels"]["x"] != "undefined"
+			) {
+				setOptions(key, chart.chart.yAxis[activeAxis].userOptions["labels"]["x"], activeAxis);
+			} else {
+				setOptions(key, inputDefaults["yAxis_labels_x"], activeAxis);
+			}
+			continue;
+		}
+
+		if (key == "yAxis_autoscale") {
+			if (extremes.userMax == null && extremes.userMin == null) mappedOptions[optionsKey] = true;
+			else mappedOptions[optionsKey] = false;
+
+			if (typeof chart.chart.yAxis[activeAxis].options["autoscale"] != "undefined")
+				mappedOptions[optionsKey] = chart.chart.yAxis[activeAxis].options["autoscale"];
+
+			webMI.trigger.fire("setChecked", mappedOptions[optionsKey], "yAxis_autoscale");
+			webMI.trigger.fire("com.atvise.setActive", !mappedOptions[optionsKey], "yAxis_min");
+			webMI.trigger.fire("com.atvise.setActive", !mappedOptions[optionsKey], "yAxis_max");
+		}
+
+		if (typeof mappedOptions[optionsKey] != "undefined") {
+			value = mappedOptions[optionsKey];
+		} else if (key == "yAxis_title_text") {
+			if (
+				chart.chart.yAxis[activeAxis].userOptions["title"] &&
+				chart.chart.yAxis[activeAxis].userOptions["title"]["text"]
+			) {
+				setOptions(key, chart.chart.yAxis[activeAxis].userOptions["title"]["text"], activeAxis);
+			} else {
+				setOptions(key, inputDefaults["yAxis_title_text"] + " " + activeAxis, activeAxis);
+			}
+		} else if (key != "yAxis_min" && key != "yAxis_max") {
+			setOptions(key, value, activeAxis);
+		}
+
+		if (key == "yAxis_crosshair_width") {
+			webMI.trigger.fire("setChecked", value, key);
+			webMI.trigger.fire("com.atvise.setActive", value, "yAxis_crosshair_snap");
+		} else if (key == "yAxis_crosshair_snap") {
+			webMI.trigger.fire("setChecked", value, key);
+		}
+
+		if (key.search(/color/gi) > -1) webMI.trigger.fire("valuechanged_" + key, { hex: value });
+		else if (key == "yAxis_min") webMI.trigger.fire("setValue", isNaN(extremes.min) ? 0 : extremes.min, key);
+		else if (key == "yAxis_max") webMI.trigger.fire("setValue", isNaN(extremes.max) ? 0 : extremes.max, key);
+		else webMI.trigger.fire("setValue", value, key);
+	}
+
+	/** TICKS parameter **/
+	if (chart.chart.options.chart.alignTicks) {
+		webMI.trigger.fire("com.atvise.setActive", false, "yAxis_tickInterval");
+		webMI.trigger.fire("com.atvise.setActive", false, "yAxis_minorTickInterval");
+	} else {
+		webMI.trigger.fire("com.atvise.setActive", true, "yAxis_tickInterval");
+		webMI.trigger.fire("com.atvise.setActive", true, "yAxis_minorTickInterval");
+	}
+
+	axisManager(yAxis);
+
+	/* wait for trigger fired */
+	setTimeout(function waitForTrigger() {
+		triggerEnabled = true;
+
+		for (let axisIndex = 0; axisIndex < numAxis; axisIndex++) {
+			webMI.trigger.fire("com.atvise.setActive", triggerEnabled, "axisSelector" + axisIndex);
+		}
+
+		webMI.trigger.fire("com.atvise.highCharts.configChanged");
+	}, 500);
+}
+
+/**
+ * Write options
+ * @param key
+ * @param value
+ * @param identifier
+ */
+function setOptions(key, value, identifier) {
+	if (value == "true") {
+		value = true;
+	} else if (value == "false") {
+		value = false;
+	}
+
+	if (chart.chart.yAxis[identifier]) {
+		if (chart.chart.yAxis[identifier].type == "logarithmic" && (key == "yAxis_min" || key == "yAxis_max") && value <= 0)
+			return readOptions();
+
+		/** SIMPLE parameter assignment **/
+		var optionsObj = chart.chart.yAxis[identifier].options;
+		var configObj = configHandler.createConfigObject(key.slice(6, key.length), value);
+		var configKey = Object.keys(configObj)[0];
+
+		if (typeof configObj[configKey] == "object") {
+			for (var subKey in configObj[configKey]) {
+				if (typeof optionsObj[configKey] == "undefined") {
+					optionsObj[configKey] = {};
+				}
+				optionsObj[configKey][subKey] = configObj[configKey][subKey];
+			}
+		} else {
+			optionsObj[configKey] = configObj[configKey];
+		}
+
+		/** TICKS parameter **/
+		if (chart.chart.options.chart.alignTicks) {
+			webMI.trigger.fire("com.atvise.setActive", false, "yAxis_tickInterval");
+			webMI.trigger.fire("com.atvise.setActive", false, "yAxis_minorTickInterval");
+			optionsObj["startOnTick"] = true;
+			optionsObj["endOnTick"] = true;
+			optionsObj["tickInterval"] = null;
+			optionsObj["minorTickInterval"] = null;
+		} else {
+			webMI.trigger.fire("com.atvise.setActive", true, "yAxis_tickInterval");
+			webMI.trigger.fire("com.atvise.setActive", true, "yAxis_minorTickInterval");
+			optionsObj["startOnTick"] = false;
+			optionsObj["endOnTick"] = false;
+			optionsObj["tickInterval"] = optionsObj["tickInterval"] ? optionsObj["tickInterval"] : 10;
+			optionsObj["minorTickInterval"] = optionsObj["minorTickInterval"] ? optionsObj["minorTickInterval"] : 0;
+		}
+
+		/* MIN / MAX and AUTOSCALES and invalid logarithmic y-axis */
+		if (optionsObj["type"] == "logarithmic") {
+			try {
+				let min = optionsObj.min || 0.0000001;
+				let max = optionsObj.max || 1;
+
+				min = min <= 0 ? Math.pow(10, min) : min;
+				max = max <= 0 ? Math.pow(10, max) : max;
+
+				optionsObj["min"] = min;
+				optionsObj["max"] = max;
+				optionsObj["autoscale"] = false;
+
+				chart.chart.yAxis[identifier].setExtremes(min, max);
+
+				/**
+				 * If the user has clicked the logarithmic radiobutton while the
+				 * input element of min or max was still shown, we need to wait
+				 * a moment or otherwise the value will be reset to the default
+				 * value. See Issue AT-D-16059.
+				 */
+				setTimeout(() => {
+					webMI.trigger.fire("setValue", max, "yAxis_max");
+					webMI.trigger.fire("setValue", min, "yAxis_min");
+				});
+
+				webMI.trigger.fire("com.atvise.setActive", true, "yAxis_min");
+				webMI.trigger.fire("com.atvise.setActive", true, "yAxis_max");
+				webMI.trigger.fire("setChecked", false, "yAxis_autoscale");
+				webMI.trigger.fire("com.atvise.setActive", false, "yAxis_autoscale");
+			} catch (e) {
+				optionsObj["type"] = "linear";
+				console.warn("Can't plot zero or subzero values on a logarithmic axis: " + e);
+			}
+		} else if (key == "yAxis_autoscale") {
+			if (value) {
+				optionsObj["autoscale"] = true;
+				optionsObj["min"] = null;
+				optionsObj["max"] = null;
+
+				webMI.trigger.fire("com.atvise.setActive", false, "yAxis_min");
+				webMI.trigger.fire("com.atvise.setActive", false, "yAxis_max");
+				webMI.trigger.fire("com.atvise.setActive", true, "yAxis_autoscale");
+
+				chart.chart.yAxis[identifier].setExtremes(null, null);
+			} else {
+				optionsObj["autoscale"] = false;
+				optionsObj["min"] = optionsObj["userMin"];
+				optionsObj["max"] = optionsObj["userMax"];
+
+				webMI.trigger.fire("com.atvise.setActive", true, "yAxis_min");
+				webMI.trigger.fire("com.atvise.setActive", true, "yAxis_max");
+				webMI.trigger.fire("com.atvise.setActive", true, "yAxis_autoscale");
+
+				chart.chart.yAxis[identifier].setExtremes(optionsObj["min"], optionsObj["max"]);
+			}
+		} else if (!optionsObj["autoscale"]) {
+			webMI.trigger.fire("com.atvise.setActive", true, "yAxis_autoscale");
+
+			var extremes = chart.chart.yAxis[identifier].getExtremes();
+
+			if (key == "yAxis_min") {
+				let max = isNaN(extremes.max) ? 0 : extremes.max;
+
+				if (optionsObj["min"] >= max) {
+					if (optionsObj["min"] > max) {
+						max = max + Math.floor((value - optionsObj["min"] + minMaxStep) / minMaxStep) * minMaxStep;
+					} else {
+						max = optionsObj["min"] + minMaxStep;
+					}
+
+					webMI.trigger.fire("setValue", max, "yAxis_max");
+				}
+
+				optionsObj["max"] = max;
+				optionsObj["userMax"] = max;
+				optionsObj["userMin"] = optionsObj["min"];
+				chart.chart.yAxis[identifier].setExtremes(optionsObj["min"], optionsObj["max"]);
+
+				if (chart.chart.options.chart.alignTicks == true)
+					webMI.trigger.fire("setValue", chart.chart.yAxis[identifier].min, "yAxis_min");
+			}
+
+			if (key == "yAxis_max") {
+				let min = isNaN(extremes.min) ? 0 : extremes.min;
+
+				if (optionsObj["max"] <= min) {
+					if (optionsObj["max"] < min) {
+						min = min - Math.floor((min - optionsObj["max"] + minMaxStep) / minMaxStep) * minMaxStep;
+					} else {
+						min = optionsObj["max"] - minMaxStep;
+					}
+
+					webMI.trigger.fire("setValue", min, "yAxis_min");
+				}
+
+				optionsObj["min"] = min;
+				optionsObj["userMin"] = min;
+				optionsObj["userMax"] = optionsObj["max"];
+				chart.chart.yAxis[identifier].setExtremes(optionsObj["min"], optionsObj["max"]);
+
+				if (chart.chart.options.chart.alignTicks == true)
+					webMI.trigger.fire("setValue", chart.chart.yAxis[identifier].max, "yAxis_max");
+			}
+		}
+
+		/** ADVANCED yAxis lable position **/
+		if (typeof optionsObj.title == "undefined") optionsObj.title = {};
+		if (typeof optionsObj.labels == "undefined") optionsObj.labels = {};
+
+		if (key == "yAxis_opposite-true") {
+			optionsObj.opposite = true;
+			optionsObj.title.rotation = 90;
+			optionsObj.labels.x = chart.chart.yAxis[activeAxis].userOptions["labels"]["x"] * -1;
+			webMI.trigger.fire("setValue", optionsObj.labels.x, "yAxis_labels_x");
+		} else if (key == "yAxis_opposite-false") {
+			optionsObj.opposite = false;
+			optionsObj.title.rotation = 270;
+			optionsObj.labels.x = chart.chart.yAxis[activeAxis].userOptions["labels"]["x"] * -1;
+			webMI.trigger.fire("setValue", optionsObj.labels.x, "yAxis_labels_x");
+		}
+
+		if (key == "yAxis_labels_x") {
+			if (optionsObj.opposite) {
+				if (
+					chart.chart.yAxis[activeAxis].userOptions["labels"] &&
+					typeof chart.chart.yAxis[activeAxis].userOptions["labels"]["x"] != "undefined"
+				) {
+					optionsObj.labels.x = value;
+				} else {
+					optionsObj.labels.x = 15;
+				}
+			} else {
+				if (
+					chart.chart.yAxis[activeAxis].userOptions["labels"] &&
+					typeof chart.chart.yAxis[activeAxis].userOptions["labels"]["x"] != "undefined"
+				) {
+					optionsObj.labels.x = value;
+				} else {
+					optionsObj.labels.x = -15;
+				}
+			}
+
+			webMI.trigger.fire("setValue", optionsObj.labels.x, "yAxis_labels_x");
+		}
+
+		chart.chart.options.yAxis[identifier] = optionsObj;
+		chart.chart.yAxis[identifier].update(optionsObj);
+	}
+}
+
+var processQueu = [];
+var processTimer = null;
+
+function processInput(key, value, identifier) {
+	if (!triggerEnabled) return;
+
+	for (var i = 0; i < numAxis; i++) webMI.trigger.fire("com.atvise.setActive", false, "axisSelector" + i);
+
+	processQueu[key] = {
+		value: value,
+		identifier: identifier
+	};
+
+	/** autoscale depencies **/
+	if (processQueu["yAxis_autoscale"] && processQueu["yAxis_autoscale"].value) {
+		delete processQueu["yAxis_min"];
+		delete processQueu["yAxis_max"];
+	} else if (key == "yAxis_min") {
+		delete processQueu["yAxis_autoscale"];
+	} else if (key == "yAxis_max") {
+		delete processQueu["yAxis_autoscale"];
+	}
+
+	if (processTimer) {
+		clearTimeout(processTimer);
+		processTimer = null;
+	}
+
+	/** start update queu **/
+	processTimer = setTimeout(function execute() {
+		for (var pQkey in processQueu) {
+			executeProcessInput(pQkey, processQueu[pQkey].value, processQueu[pQkey].identifier);
+		}
+		processQueu = [];
+	}, 1000);
+}
+
+function executeProcessInput(key, value, identifier) {
+	if (typeof key == "undefined" || typeof value == "undefined") return;
+
+	if (key == "yAxis_crosshair_width") {
+		if (value == "true") {
+			webMI.trigger.fire("com.atvise.setActive", true, "yAxis_crosshair_snap");
+		} else {
+			webMI.trigger.fire("com.atvise.setActive", false, "yAxis_crosshair_snap");
+		}
+	}
+
+	if (key == "yAxis_title_text") {
+		webMI.gfx.setText(
+			"axisSelector" + (activeAxis - activeOffset) + "_radiobutton_label",
+			value + " [" + identifier + "]"
+		);
+	}
+
+	setOptions(key, value, identifier);
+	webMI.trigger.fire("com.atvise.highcharts.updateQuickSave", { chart: webMI.query.chartname, active: true });
+	for (var i = 0; i < numAxis; i++) webMI.trigger.fire("com.atvise.setActive", true, "axisSelector" + i);
+}
+
+/**
+ * TRIGGER SECTION
+ */
+
+/* Triggers to add and remove y-axis */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		addAxis();
+	},
+	"btn_add"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		removeAxis();
+	},
+	"btn_delete"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		scrollAxis("up");
+	},
+	"btn_up"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		scrollAxis("down");
+	},
+	"btn_down"
+);
+
+webMI.trigger.connect("com.atvise.highcharts.yaxis.delete", function (e) {
+	_removeAxis();
+	e.value.webMI.display.closeWindow();
+});
+
+webMI.trigger.connect("com.atvise.highcharts.yaxis.abort", function (e) {
+	e.value.webMI.display.closeWindow();
+});
+
+this.window.addEventListener("keydown", (e) => {
+	if (e.key === "Escape") webMI.trigger.fire("com.atvise.highCharts.closeTrendConfigurator");
+});
+
+this.window.focus();
+]]></code>
+</script>

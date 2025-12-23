@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/timer/timer.html
+NodeClass: Variable
+BrowseName: 1:timer.html
+DisplayName: en|timer.html
+Description: en|timer.html
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Html
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Html.Compress

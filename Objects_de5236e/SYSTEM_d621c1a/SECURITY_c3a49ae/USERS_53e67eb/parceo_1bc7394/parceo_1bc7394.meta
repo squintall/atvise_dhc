@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.parceo
+NodeClass: Object
+BrowseName: 1:parceo
+DisplayName: en|parceo
+Description: en|parceo
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

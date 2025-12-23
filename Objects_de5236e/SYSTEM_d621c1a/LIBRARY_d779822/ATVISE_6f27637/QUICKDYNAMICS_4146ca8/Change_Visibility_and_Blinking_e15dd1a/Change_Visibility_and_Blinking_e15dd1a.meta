@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Change Visibility and Blinking
+NodeClass: Variable
+BrowseName: 1:Change Visibility and Blinking
+DisplayName: en|Change Visibility and Blinking
+Description: en|Change Visibility and Blinking
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoPozo.run_stop
+NodeClass: Variable
+BrowseName: 1:run_stop
+DisplayName: en|run_stop
+Description: en|run_stop
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+    <fireevent>1</fireevent>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* Report wrapper for report generation *
+ *
+ * HTTP post parameters:
+ *  configuration {string}	: Name of the configuration to be called from the visualization, e.g. 'MyConfigurationDemo'
+ *  reportTime {number}		: Optional report time as Javascipt timestamp in ms - is 'now' when not specified.
+ *
+ * Examples:
+ *   webMI.data.call("ReportGenerate", {configuration: "myOptionalFolder.MyConfigurationDemo"}, function(e) {})
+ *   webMI.data.call("ReportGenerate", {configuration: "myOptionalFolder.MyConfigurationDemo", reportTime: new Date(2023, 0, 1, 12, 0, 0)}, function(e) {})
+ *
+ */
+
+var baseDir = "AGENT.OBJECTS.ATVISE.Report";
+var name = request.postvalues["configuration"];
+var reportTime = request.postvalues["reportTime"];
+
+if (name) {
+	var cfgAddr = baseDir + "." + name;
+	var cfgNode = Ua.findNode(cfgAddr);
+	var cfgNodeExist = Ua.Status(cfgNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (cfgNodeExist) {
+		execute(cfgAddr, {reportTime: reportTime});
+		return {};
+	} else { 
+		return {error: -1, errorstring: "Report: Specified configuration not found."};
+	}
+} else {
+	return {error: -1, errorstring: "Report: No configuration specified."};
+}]]></code>
+</script>

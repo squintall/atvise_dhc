@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.PTAR_Norponiente_II.Equipos.PAC´s.PEmergencia
+NodeClass: Object
+BrowseName: 1:PEmergencia
+DisplayName: en|PEmergencia
+Description: en|PEmergencia
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.PAC_4200
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.PAC_4200.historizacion_00_05
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.PAC_4200.historizacion_01_00

@@ -1,0 +1,369 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="397" version="1.2" width="920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <svg atv:refpx="479.983" atv:refpy="239.991" height="640" id="id_0" transform="matrix(1.5,0,0,0.75,0,0)" width="640" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.slickgrid.table" y="0">
+  <atv:argument name="filterBar" value="false"/>
+  <atv:argument name="globalColorConfig" value="SYSTEM.GLOBALS.atvObjectDisplays.Tables.ColorConfig1"/>
+ </svg>
+ <foreignObject height="458.848" id="chart_container" width="960" x="960" y="0">
+  <div style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <script atv:desc="" atv:name="" type="text/ecmascript" xlink:href="../../highcharts/highcharts.js"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[// Función para solicitar la ubicación siempre que el usuario acceda a la plataforma
+function requestLocation() {
+  if (navigator.geolocation) {
+    const options = {
+      enableHighAccuracy: true,  // Intentar obtener la mayor precisión posible (usar GPS si está disponible)
+      timeout: 10000,            // Tiempo máximo para obtener la ubicación (en milisegundos)
+      maximumAge: 0              // No usar ubicaciones en caché, siempre obtener una nueva
+    };
+
+    // Solicita la ubicación
+    navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
+  } else {
+    console.error("La geolocalización no es soportada por este navegador.");
+  }
+}
+
+// Función de éxito, se ejecuta si se obtiene la ubicación
+function successCallback(position) {
+  const latitude = position.coords.latitude;   // Latitud obtenida
+  const longitude = position.coords.longitude; // Longitud obtenida
+  const accuracy = position.coords.accuracy;
+  console.log("Latitud: " + latitude);
+  console.log("Longitud: " + longitude);
+  console.log("Precisión: " + accuracy + " metros");
+  
+  // Aquí puedes proceder con la validación o lógica de tu plataforma, por ejemplo:
+  // validarUbicacion(latitude, longitude);
+}
+
+// Función de error, se ejecuta si ocurre un error al obtener la ubicación
+function errorCallback(error) {
+  switch(error.code) {
+    case error.PERMISSION_DENIED:
+      console.error("El usuario denegó el acceso a la geolocalización.");
+      break;
+    case error.POSITION_UNAVAILABLE:
+      console.error("No se pudo determinar la ubicación.");
+      break;
+    case error.TIMEOUT:
+      console.error("La solicitud de ubicación tardó demasiado.");
+      break;
+    default:
+      console.error("Ocurrió un error desconocido.");
+      break;
+  }
+}
+
+// Llama a la función para pedir la ubicación cada vez que se carga la página
+
+  requestLocation(); // Solicita la ubicación al cargar la página
+    console.log("Precisión: " + accuracy + " metros");
+
+
+
+
+webMI.table.loadResources(function() {
+    var config = [];
+
+    // Configuración de columnas sin el campo 'id'
+    config["columns"] = [
+        {id: "fecha_hora", name: "Fecha Hora", field: "fecha_hora"},
+        {id: "portillo_l1", name: "Portillo L1", field: "portillo_l1"},
+        {id: "portillo_l2", name: "Portillo L2", field: "portillo_l2"},
+        {id: "portillo_l3", name: "Portillo L3", field: "portillo_l3"},
+        {id: "portillo_l4", name: "Portillo L4", field: "portillo_l4"},
+    ];
+    config["mode"] = "once";
+
+    config["dataRequestFunction"] = function myRequest() {
+        var that = this;
+
+        // Consulta SQL modificada sin el campo 'id'
+        var query = "SELECT fecha_hora, portillo_l1, portillo_l2, portillo_l3, portillo_l4 FROM public.portillo ORDER BY fecha_hora DESC";
+
+        // Envía la consulta al servidor
+        webMI.data.call("FetchDataFromDB", { query: query }, function(response) {
+            try {
+                if (response.error) {
+                    console.error("Error al obtener los datos: " + response.error);
+                    return;
+                }
+
+                // Verifica si response y response.result están definidos y son arrays
+                if (response && Array.isArray(response.result)) {
+
+                    // Inicializa el array de datos vacío
+                    var data = { result: [] };
+
+                    // Recorre cada fila del resultado usando forEach
+                    response.result.forEach(function(row, index) {
+                        try {
+                            // Debugging: Verifica qué datos estás procesando
+                            
+                            // Verifica si los campos existen en cada fila y maneja datos undefined
+                            data.result.push({
+                                fecha_hora: row.fecha_hora || null,
+                                portillo_l1: row.portillo_l1 || null,
+                                portillo_l2: row.portillo_l2 || null,
+                                portillo_l3: row.portillo_l3 || null,
+                                portillo_l4: row.portillo_l4 || null
+                            });
+                            
+                            // Debugging: Verifica los datos que se van a insertar
+                        } catch (error) {
+                            console.error("Error al procesar la fila en el índice " + index + ": ", row, error.message);
+                            console.error("Error completo:", error);
+                        }
+                    });
+
+                    // Debugging: Verifica el array completo de datos antes de agregarlo a la tabla
+					console.log(data);
+                    // Agrega los datos a la tabla
+                    that.addData(data);
+                    // Llama a la función para crear la gráfica después de agregar los datos
+                    var chartDiv = document.getElementById("chart_container");
+                    crearGrafica(response.result,chartDiv);
+                } else {
+                    console.error("Datos no válidos o estructura de datos inesperada", response);
+                }
+            } catch (error) {
+                console.error("Error al procesar los datos: ", error.message);
+                console.error("Error completo:", error);
+            }
+        });
+    };
+
+    // Registra la tabla con el ID y configuración adecuados
+    webMI.table.register("atvise_table_1", "config", config);
+    webMI.table.setReady("atvise_table_1", "config");
+});
+
+
+function crearGrafica(datos,container) {
+
+    webMI.gfx.setScaledEvents(container);
+
+    // Procesar los datos para convertir los valores a números
+    var seriesDataL1 = datos.map(function(row) {
+        return [
+            new Date(row.fecha_hora).getTime(),  // Convertir la fecha a timestamp
+            parseFloat(row.portillo_l1) || 0     // Convertir el valor a número o usar 0 si es nulo
+        ];
+    });
+
+    var seriesDataL2 = datos.map(function(row) {
+        return [
+            new Date(row.fecha_hora).getTime(),  // Convertir la fecha a timestamp
+            parseFloat(row.portillo_l2) || 0     // Convertir el valor a número o usar 0 si es nulo
+        ];
+    });
+
+    var seriesDataL3 = datos.map(function(row) {
+        return [
+            new Date(row.fecha_hora).getTime(),  // Convertir la fecha a timestamp
+            parseFloat(row.portillo_l3) || 0     // Convertir el valor a número o usar 0 si es nulo
+        ];
+    });
+    
+    
+    var seriesDataL4 = datos.map(function(row) {
+        return [
+            new Date(row.fecha_hora).getTime(),  // Convertir la fecha a timestamp
+            parseFloat(row.portillo_l4) || 0     // Convertir el valor a número o usar 0 si es nulo
+        ];
+    });
+
+    Highcharts.chart(container, {
+        title: {
+            text: 'Datos de Portillos',
+            align: 'left'
+        },
+        subtitle: {
+            text: 'Fuente: Base de Datos',
+            align: 'left'
+        },
+        yAxis: {
+            title: {
+                text: 'Valores de Portillo'
+            }
+        },
+        xAxis: {
+            type: 'datetime',
+            accessibility: {
+                rangeDescription: 'Rango: Fechas de registros'
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+        plotOptions: {
+            series: {
+                label: {
+                    connectorAllowed: false
+                },
+                pointStart: 2010
+            }
+        },
+        series: [{
+            name: 'Portillo L1',
+            data: seriesDataL1
+        }, {
+            name: 'Portillo L2',
+            data: seriesDataL2
+        }, {
+            name: 'Portillo L3',
+            data: seriesDataL3
+        }, {
+            name: 'Portillo L4',
+            data: seriesDataL4
+        }],
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        }
+    });
+}
+/**
+ * Genera las series de datos para Highcharts basándose en los nombres de las columnas.
+ * @param {Array} datos - Array de objetos con los datos de la tabla.
+ * @param {Array} columnas - Array de nombres de las columnas para las cuales se deben crear las series.
+ * @returns {Object} - Objeto con las series de datos generadas.
+ */
+function generarSeriesDatos(datos, columnas) {
+    var seriesDatos = {};
+    
+    columnas.forEach(function(columna) {
+        seriesDatos[columna] = crearSeriesData(datos, columna);
+    });
+    
+    return seriesDatos;
+}
+
+function crearSeriesData(datos, columna) {
+    return datos.map(function(row) {
+        return [
+            new Date(row.fecha_hora).getTime(),  // Convertir la fecha a timestamp
+            parseFloat(row[columna]) || 0        // Convertir el valor de la columna a número o usar 0 si es nulo
+        ];
+    });
+}
+
+/*
+function crearGrafica(datos) {
+    var chartDiv = document.getElementById("chart_container");
+
+    webMI.gfx.setScaledEvents(chartDiv);
+
+    // Define las columnas de interés
+    var columnas = ['portillo_l1', 'portillo_l2', 'portillo_l3', 'portillo_l4'];
+
+    // Genera las series de datos
+    var seriesDatos = generarSeriesDatos(datos, columnas);
+
+    // Construye el gráfico
+    Highcharts.chart(chartDiv, {
+        title: {
+            text: 'Datos de Portillos',
+            align: 'left'
+        },
+        subtitle: {
+            text: 'Fuente: Base de Datos',
+            align: 'left'
+        },
+        yAxis: {
+            title: {
+                text: 'Valores de Portillo'
+            }
+        },
+        xAxis: {
+            type: 'datetime',
+            accessibility: {
+                rangeDescription: 'Rango: Fechas de registros'
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+        plotOptions: {
+            series: {
+                label: {
+                    connectorAllowed: false
+                },
+                pointStart: 2010
+            }
+        },
+        series: columnas.map(function(columna) {
+            return {
+                name: columna.replace(/_/g, ' ').toUpperCase(),
+                data: seriesDatos[columna]
+            };
+        }),
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        }
+    });
+}
+
+*/
+
+/**
+ * Extrae los nombres de las columnas de una consulta SQL.
+ * @param {string} consulta - Consulta SQL en formato de cadena.
+ * @returns {Array} - Array con los nombres de las columnas.
+ */
+function extraerColumnas(consulta) {
+    var columnas = [];
+    
+    // Expresión regular para extraer los nombres de columnas
+    var regex = /SELECT\s+([\w\s,]+)\s+FROM/i;
+    var resultado = regex.exec(consulta);
+    
+    if (resultado && resultado[1]) {
+        // Extraer nombres de columnas
+        columnas = resultado[1]
+            .split(',')
+            .map(col => col.trim())
+            .filter(col => col && col !== 'fecha_hora'); // Filtrar columna de fecha si es necesario
+    }
+    
+    return columnas;
+}
+var consultaSQL = "SELECT fecha_hora, portillo_l1, portillo_l2, portillo_l3, portillo_l4 FROM public.portillo ORDER BY fecha_hora DESC";
+
+var columnas = extraerColumnas(consultaSQL);
+
+
+]]></script>
+ <svg atv:refpx="480" atv:refpy="720" height="480" id="id_5" width="960" x="0" xlink:href="AGENT.DISPLAYS.USER.LAYOUTS.prueba_highcarts_manual" y="480"/>
+</svg>

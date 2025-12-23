@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.PTAR.AR_SOL_PLA_GONZALO_GUERRERO.Caudalimetros.Entrada.AR_SOL_PLA_GONZALO_GUERRERO_CAUD_ENTRADA_Acumulado
+NodeClass: Variable
+BrowseName: 1:AR_SOL_PLA_GONZALO_GUERRERO_CAUD_ENTRADA_Acumulado
+DisplayName: en|AR_SOL_PLA_GONZALO_GUERRERO_CAUD_ENTRADA_Acumulado
+Description: en|AR_SOL_PLA_GONZALO_GUERRERO_CAUD_ENTRADA_Acumulado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

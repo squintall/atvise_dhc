@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Test.PLC1200.Bool.Bomba_8
+NodeClass: Object
+BrowseName: 1:Bomba_8
+DisplayName: en|Bomba_8
+Description: en|Bomba_8
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Asignar_LR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Indicador_Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.button

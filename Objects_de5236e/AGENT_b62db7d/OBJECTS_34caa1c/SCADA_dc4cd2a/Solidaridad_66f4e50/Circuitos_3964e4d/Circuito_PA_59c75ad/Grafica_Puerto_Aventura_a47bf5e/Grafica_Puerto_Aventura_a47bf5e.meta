@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Grafica_Puerto_Aventura
+NodeClass: Variable
+BrowseName: 1:Grafica_Puerto_Aventura
+DisplayName: en|Grafica_Puerto_Aventura
+Description: en|Grafica_Puerto_Aventura
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

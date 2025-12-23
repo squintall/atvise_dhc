@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="348.88999999999999" version="1.2" width="474.11000000000001" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <g atv:insensitive="true" atv:refpx="0" atv:refpy="0" id="id_10" transform="matrix(1.4974,0,0,1.4942,0,0)">
+  <rect atv:refpx="158.31" atv:refpy="116.75" fill="#ebebeb" height="233.50" id="id_11" width="316.62" x="0" y="0"/>
+ </g>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+webMI.addEvent("id_14", "click", function(e) {
+var id = "id_14";
+var value = true;
+webMI.display.openWindow({display:"AGENT.DISPLAYS.USER.Layouts_SCADA.Cuencas.Grafica_ppm_cbe",extern:true,height:296,menubar:false,modal:true,movable:true,resizable:true,scrollbars:false,status:false,title:"T{Historico PPM}",toolbar:false,width:960,query:webMI.query});
+});]]></script>
+ <g atv:refpx="237.054" atv:refpy="174.447" id="id_13" transform="matrix(1.5123,0,0,1.5123,0,0)">
+  <rect atv:refpx="156.754" atv:refpy="50.361" fill="#d9d9d9" height="98.723" id="id_7" stroke="#000000" stroke-width="2" width="311.507" x="1" y="1"/>
+  <svg atv:refpx="43.444" atv:refpy="156.584" height="122.71" id="id_0" width="82" x="2.444" xlink:href="ObjectTypes.PROJECT.Scrubber.Sensor1.Alarm" y="106.578">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.PTAR_Caribe_2000.Equipos.Scrubber_CBE.Sensor1"/>
+  </svg>
+  <svg atv:refpx="156.754" atv:refpy="155.584" height="122.74" id="id_1" width="82" x="115.754" xlink:href="ObjectTypes.PROJECT.Scrubber.Sensor2.Alarm" y="105.578">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.PTAR_Caribe_2000.Equipos.Scrubber_CBE.Sensor2"/>
+  </svg>
+  <svg atv:refpx="270.982" atv:refpy="157.584" height="123.13" id="id_2" width="82.08" x="229.982" xlink:href="ObjectTypes.PROJECT.Scrubber.Sensor3.Alarm" y="107.578">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.PTAR_Caribe_2000.Equipos.Scrubber_CBE.Sensor3"/>
+  </svg>
+  <g atv:refpx="156.754" atv:refpy="48.361" id="id_12" transform="matrix(1,0,0,1,-4.4205,7.7685)">
+   <svg atv:refpx="80.695" atv:refpy="56.686" height="49" id="id_4" width="120" x="20.695" xlink:href="ObjectTypes.PROJECT.Bomba.bomba" y="32.186">
+    <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.PTAR_Caribe_2000.Equipos.Scrubber_CBE.Bombas.Bomba_1"/>
+   </svg>
+   <svg atv:refpx="241.653" atv:refpy="56.686" height="49" id="id_5" width="120" x="181.653" xlink:href="ObjectTypes.PROJECT.Bomba.bomba" y="32.186">
+    <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.PTAR_Caribe_2000.Equipos.Scrubber_CBE.Bombas.Extractor"/>
+   </svg>
+   <text atv:refpx="229.653" atv:refpy="17" fill="#000088" font-family="Arial" font-size="18" id="id_3" x="206.153" y="21.5">Extractor</text>
+   <text atv:refpx="72.695" atv:refpy="17" fill="#000088" font-family="Arial" font-size="18" id="id_6" x="53.195" y="21.5">Bomba</text>
+  </g>
+ </g>
+ <rect atv:refpx="237.644" atv:refpy="315.091" fill="#000088" fill-opacity="0" height="188.466" id="id_14" stroke="#000000" stroke-opacity="0" stroke-width="2" width="475.288" x="0" y="220.858"/>
+</svg>

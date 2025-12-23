@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/*
+ * Detalle de tarjeta: sparkline y tablas (flow/pressure/production)
+ * Usa CaudalGlobals (namespace global) y crea elementos XHTML.
+ */
+
+if (typeof CaudalDetail === 'undefined') { var CaudalDetail = {}; }
+
+(function(){
+  function x(doc, tag){ try{ return (doc||document).createElementNS(CaudalGlobals.UTILS.XHTML_NS, tag); }catch(_){ return (doc||document).createElement(tag); } }
+  function normalizeSeries(raw){
+    var arr=[]; if(!raw) return arr; var v=(typeof raw.value!=='undefined')? raw.value: raw;
+    if(Array.isArray(v)){
+      for(var i=0;i<v.length;i++){ var it=v[i];
+        if (it && typeof it==='object' && ('v' in it || 'value' in it)) arr.push({ t:(it.t||it.ts||it.time||i), v:+((it.v!=null)?it.v:it.value) });
+        else if (Array.isArray(it)) arr.push({ t:(it[0]!=null?it[0]:i), v:+it[1] });
+        else arr.push({ t:i, v:+it });
+      }
+    }
+    return arr;
+  }
+  function computeDeltas(series){ if(!series||series.length<2) return []; var out=[]; for(var i=1;i<series.length;i++){ var dv=+series[i].v-(+series[i-1].v); if(!isFinite(dv)) dv=0; out.push({ t: series[i].t, v: dv<0?0:dv }); } return out; }
+  function fmtTs(ts){ try{ return new Date(ts).toLocaleString(); }catch(_){ return String(ts); } }
+  function readHist(address, kind, cb){
+    var suffix = (kind==='flow')? '.historic_flow' : (kind==='pressure')? '.historic_pressure' : (kind==='hourly')? '.historic_hourly_production' : '.historic_daily_production';
+    var primary = address + suffix;
+    var fallback = address + '.Caudalimetro' + suffix;
+    try { webMI.data.read(primary, function(r){ var s=normalizeSeries(r); if (s && s.length) return cb(s); try{ webMI.data.read(fallback, function(r2){ cb(normalizeSeries(r2)); }); }catch(__){ cb([]);} }); }
+    catch(_){ try{ webMI.data.read(fallback, function(r2){ cb(normalizeSeries(r2)); }); }catch(__){ cb([]);} }
+  }
+  function buildSpark(doc, container, series, color){
+    var w=(container.clientWidth||640), h=120, pad=8; if (w<200) w=200;
+    var svg=x(doc,'svg'); svg.setAttribute('width', w); svg.setAttribute('height', h); svg.style.display='block'; container.appendChild(svg);
+    var path=x(doc,'path'); path.setAttribute('fill','none'); path.setAttribute('stroke', color||'#2563eb'); path.setAttribute('stroke-width','2'); svg.appendChild(path);
+    var area=x(doc,'path'); area.setAttribute('fill', (color==='#16a34a')? 'rgba(22,163,74,0.15)':'rgba(37,99,235,0.15)'); svg.appendChild(area);
+    if(!series.length){ path.setAttribute('d',''); area.setAttribute('d',''); return; }
+    var ys=series.map(function(p){return p.v;}); var xmax=Math.max(1,series.length-1), ymin=Math.min.apply(null,ys), ymax=Math.max.apply(null,ys); if (ymin===ymax){ ymin=0; }
+    function sx(i){ return pad + (w-2*pad) * (i/xmax); }
+    function sy(v){ return h-pad - (h-2*pad) * ((v - ymin)/(ymax - ymin)); }
+    var d='M'+sx(0)+','+sy(ys[0]); for (var i=1;i<ys.length;i++){ d+=' L'+sx(i)+','+sy(ys[i]); } path.setAttribute('d', d);
+    var da='M'+sx(0)+','+sy(ys[0]); for (var j=1;j<ys.length;j++){ da+=' L'+sx(j)+','+sy(ys[j]); } da+=' L'+sx(xmax)+','+(h-pad)+' L'+sx(0)+','+(h-pad)+' Z'; area.setAttribute('d', da);
+  }
+  function buildTable(doc, container, rows, headers){
+    var table=x(doc,'table'); table.style.width='100%'; table.style.borderCollapse='collapse'; table.style.fontSize='12px';
+    var thead=x(doc,'thead'); var trh=x(doc,'tr'); (headers||['Fecha','Valor']).forEach(function(hh){ var th=x(doc,'th'); th.textContent=hh; th.style.textAlign='left'; th.style.padding='6px 8px'; th.style.borderBottom='1px solid #e5e7eb'; trh.appendChild(th); }); thead.appendChild(trh); table.appendChild(thead);
+    var tbody=x(doc,'tbody'); (rows||[]).forEach(function(r){ var tr=x(doc,'tr'); r.forEach(function(c){ var td=x(doc,'td'); td.textContent=c; td.style.padding='6px 8px'; td.style.borderBottom='1px solid #f1f5f9'; tr.appendChild(td); }); tbody.appendChild(tr); }); table.appendChild(tbody);
+    container.appendChild(table);
+  }
+
+  function clear(el){ try{ el.innerHTML=''; }catch(_){}}
+
+  CaudalDetail.showFlow = function(detailWrap, address){ clear(detailWrap); var doc=detailWrap.ownerDocument||document; var title=x(doc,'div'); title.textContent='Tendencia de caudal'; title.style.fontWeight='600'; title.style.marginBottom='6px'; detailWrap.appendChild(title); var box=x(doc,'div'); detailWrap.appendChild(box); readHist(address,'flow', function(s){ buildSpark(doc, box, s, '#16a34a'); }); };
+  CaudalDetail.showPressure = function(detailWrap, address){ clear(detailWrap); var doc=detailWrap.ownerDocument||document; var title=x(doc,'div'); title.textContent='Tendencia de presión'; title.style.fontWeight='600'; title.style.marginBottom='6px'; detailWrap.appendChild(title); var box=x(doc,'div'); detailWrap.appendChild(box); readHist(address,'pressure', function(s){ buildSpark(doc, box, s, '#2563eb'); }); };
+  CaudalDetail.showProduction = function(detailWrap, address){ clear(detailWrap); var doc=detailWrap.ownerDocument||document; var head=x(doc,'div'); head.style.display='flex'; head.style.alignItems='center'; head.style.gap='8px'; head.style.marginBottom='6px'; var t=x(doc,'div'); t.textContent='Producción diaria'; t.style.fontWeight='600'; head.appendChild(t); var sp=x(doc,'div'); sp.style.flex='1'; head.appendChild(sp); var btnTab=x(doc,'button'); btnTab.textContent='Tabla'; btnTab.style.padding='4px 8px'; btnTab.style.border='1px solid #cbd5e1'; btnTab.style.borderRadius='6px'; btnTab.style.background='#fff'; head.appendChild(btnTab); var btnHist=x(doc,'button'); btnHist.textContent='Histograma'; btnHist.style.padding='4px 8px'; btnHist.style.border='1px solid #cbd5e1'; btnHist.style.borderRadius='6px'; btnHist.style.background='#fff'; head.appendChild(btnHist); detailWrap.appendChild(head); var body=x(doc,'div'); detailWrap.appendChild(body); function load(mode){ body.innerHTML=''; readHist(address,'daily', function(s){ if(mode==='hist'){ var ds=computeDeltas(s); buildSpark(doc, body, ds, '#2563eb'); } else { var rows=s.map(function(p){ return [fmtTs(p.t), CaudalGlobals.UTILS.fmt(p.v,0)]; }); buildTable(doc, body, rows, ['Fecha','Producción (m³)']); } }); } btnTab.addEventListener('click', function(){ load('table'); }); btnHist.addEventListener('click', function(){ load('hist'); }); load('table'); };
+})();
+
+]]></code>
+</script>

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Test.PokTaPok_Equipo_01.REAL
+NodeClass: Variable
+BrowseName: 1:REAL
+DisplayName: en|REAL
+Description: en|REAL
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

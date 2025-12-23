@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Internal.ListRootDirectories
+NodeClass: Variable
+BrowseName: 1:ListRootDirectories
+DisplayName: en|ListRootDirectories
+Description: en|ListRootDirectories
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

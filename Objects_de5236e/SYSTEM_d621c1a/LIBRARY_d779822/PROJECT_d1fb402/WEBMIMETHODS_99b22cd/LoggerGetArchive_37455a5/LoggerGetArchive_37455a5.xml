@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <runcontext>owner</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* begin */
+
+return call("Logger.GetArchive", {});
+
+/* end */]]></code>
+</script>

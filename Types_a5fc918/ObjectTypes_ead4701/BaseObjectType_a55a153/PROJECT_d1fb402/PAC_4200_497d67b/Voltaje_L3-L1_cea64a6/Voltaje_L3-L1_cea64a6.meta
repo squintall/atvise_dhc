@@ -1,0 +1,11 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.PAC_4200.Voltaje_L3-L1
+NodeClass: Variable
+BrowseName: 1:Voltaje_L3-L1
+DisplayName: en|Voltaje_L3-L1
+Description: en|Voltaje_L3-L1
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AR

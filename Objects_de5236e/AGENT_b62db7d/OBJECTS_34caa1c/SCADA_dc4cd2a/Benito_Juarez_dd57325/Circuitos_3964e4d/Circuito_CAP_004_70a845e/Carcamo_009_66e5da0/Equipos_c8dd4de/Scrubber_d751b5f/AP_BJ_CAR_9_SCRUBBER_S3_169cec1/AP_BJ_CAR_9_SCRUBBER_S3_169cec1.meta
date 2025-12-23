@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Carcamo_009.Equipos.Scrubber.AP_BJ_CAR_9_SCRUBBER_S3
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_9_SCRUBBER_S3
+DisplayName: en|AP_BJ_CAR_9_SCRUBBER_S3
+Description: en|AP_BJ_CAR_9_SCRUBBER_S3
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

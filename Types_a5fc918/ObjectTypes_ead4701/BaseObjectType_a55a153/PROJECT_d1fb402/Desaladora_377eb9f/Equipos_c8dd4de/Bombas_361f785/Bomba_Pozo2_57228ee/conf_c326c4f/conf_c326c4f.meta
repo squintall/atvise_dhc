@@ -1,0 +1,9 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Desaladora.Equipos.Bombas.Bomba_Pozo2.conf
+NodeClass: Variable
+BrowseName: 1:conf
+DisplayName: en|conf
+Description: en|conf
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

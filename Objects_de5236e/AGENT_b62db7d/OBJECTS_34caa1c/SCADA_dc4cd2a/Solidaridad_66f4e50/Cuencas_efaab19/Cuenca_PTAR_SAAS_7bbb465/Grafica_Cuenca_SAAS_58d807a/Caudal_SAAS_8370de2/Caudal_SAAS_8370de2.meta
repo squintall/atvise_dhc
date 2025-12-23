@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Grafica_Cuenca_SAAS.Caudal_SAAS
+NodeClass: Variable
+BrowseName: 1:Caudal_SAAS
+DisplayName: en|Caudal_SAAS
+Description: en|Caudal_SAAS
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

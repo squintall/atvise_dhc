@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_LV.Pozo_Nuevo_LV
+NodeClass: Object
+BrowseName: 1:Pozo_Nuevo_LV
+DisplayName: en|Pozo_Nuevo_LV
+Description: en|Pozo_Nuevo_LV
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.ElementoPozo
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Control
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Monitoreo IT
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.conectividad

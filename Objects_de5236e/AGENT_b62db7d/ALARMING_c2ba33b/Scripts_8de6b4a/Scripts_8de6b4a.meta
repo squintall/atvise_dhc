@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.ALARMING.Scripts
+NodeClass: Object
+BrowseName: 1:Scripts
+DisplayName: en|Scripts
+Description: en|Scripts
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

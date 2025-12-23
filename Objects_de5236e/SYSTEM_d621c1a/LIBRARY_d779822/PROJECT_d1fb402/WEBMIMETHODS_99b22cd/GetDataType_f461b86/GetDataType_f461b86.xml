@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var nodeId = request.postvalues.node;
+var node = Ua.findNode(nodeId);
+if (Ua.Status(node) != Ua.Status.BADNODEIDUNKNOWN) {
+	return 	node.result.dataType.toString();
+}
+
+return "not found";]]></code>
+</script>

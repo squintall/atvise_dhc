@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the in_out_time object display
+ * ---------------------------------------
+ * This control allows to enter a time.
+ * In addition the trigger "valuechanged" will be fired.
+ */
+
+/**
+ *    IMPORTS
+ */
+var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var consistencyGroup = webMI.query["consistencyGroup"] ? webMI.query["consistencyGroup"] : "";
+var min = webMI.query["min"];
+var max = webMI.query["max"];
+var outputNode = webMI.query["outputNode"] ? webMI.query["outputNode"] : webMI.query["base"];
+
+/** style & colors **/
+var lockInputEvents = false;
+var lockReadEvents = false;
+var lockMouseEvents = false;
+var lockMouseTimeout = null;
+
+/** data **/
+var now = new Date();
+var _internalDateValues = {
+	date: now,
+	time: now.getTime(),
+	day: now.getDate(),
+	month: now.getMonth(),
+	year: now.getFullYear(),
+	hours: now.getHours(),
+	minutes: now.getMinutes(),
+	seconds: now.getSeconds(),
+	millis: now.getMilliseconds()
+};
+
+var defaults = {
+	minTime: null,
+	maxTime: null
+};
+
+defaults.oneSecond = 1000;
+defaults.oneMinute = defaults.oneSecond * 60;
+defaults.oneHour = defaults.oneMinute * 60;
+
+var runTimeNodeConfig = {
+	base: {value: null, address: base, paramValue: "", read: true, write: true, aggregate: false},
+	outputNode: {value: null, address: outputNode, paramValue: "", read: true, write: true}
+};
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: document.getElementById("outer_border").id,
+	rights: [
+		{nodeId: webMI.query["base"], rights: "read", disable: true, notify: false},
+		{nodeId: outputNode, rights: "write", disable: true, notify: false},
+		{nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true}
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: {activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"]},
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: webMI.query["right"],
+	editable: webMI.query["editable"] != "No"
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+if (typeof updateRunTimeNodeConfig === "function") {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+} else {
+	initialize(runTimeNodeConfig);
+}
+
+if (base != "" && consistencyGroup)
+	consistencyHandler.register(consistencyGroup, base, updateDate);
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * read or subscribe data by runtime node configuration
+ * @param nodeCfg
+ */
+function initialize(nodeCfg) {
+	/* init alarm indication */
+	if (typeof alarmToSubscribe != "undefined" && typeof updateAlarmIndication === "function") {
+		updateAlarmIndication(alarmToSubscribe);
+	}
+
+	/* set min / max date values */
+	if (min) {
+		defaults.minTime = _parseTime(min);
+	}
+
+	if (max) {
+		defaults.maxTime = _parseTime(max);
+	}
+
+	if(consistencyGroup && nodeCfg.base.read) {
+		//handled in runtime section
+	} else if(nodeCfg.base.address && nodeCfg.base.read) {
+		if (!nodeCfg.base.subscribe) {
+			nodeCfg.base.subscribe = true;
+
+			webMI.data.subscribe(nodeCfg.base.address, function (result) {
+				if (typeof result.status != "undefined" && typeof updateStatusIndication === "function") {
+					updateStatusIndication(result.status);
+				}
+
+				var millis = 0;
+
+				//check if a value is given
+				if (result.value) {
+					millis = result.value;
+				}
+
+				updateDate(millis);
+			});
+		}
+	} else if(nodeCfg.base.address && !nodeCfg.base.read) {
+		updateDate(0);
+	} else {
+		updateDate();
+	}
+
+	/* init inputfields */
+	if(nodeCfg.base.address && !nodeCfg.base.read) {
+		_setLockForReadValues(true);
+		_setLockForInputFields(true);
+	} else if(nodeCfg.outputNode.address && !nodeCfg.outputNode.write) {
+		_setLockForReadValues(false);
+		_setLockForInputFields(true);
+	} else {
+		_setLockForReadValues(false);
+		_setLockForInputFields(false);
+	}
+}
+
+/**
+ * switch to active layout
+ */
+function setActiveLayout() {
+	if(runTimeNodeConfig.base.address)
+		_setLockForReadValues(false);
+	if(runTimeNodeConfig.outputNode.address)
+		_setLockForInputFields(false);
+	updateDisplay();
+}
+
+/**
+ * switch to inactive layout
+ */
+function setInactiveLayout() {
+	if(runTimeNodeConfig.base.address)
+		_setLockForReadValues(false);
+	if(runTimeNodeConfig.outputNode.address)
+		_setLockForInputFields(true);
+	updateDisplay();
+}
+
+/**
+ * update on ac right changes
+ */
+function fetchCurrentRightsAndUpdate() {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+}
+
+/**
+ * update internal date with limits
+ */
+function updateDate(millis) {
+	//if not number, try to parse
+	if (typeof millis != "number") {
+		millis = parseInt(millis, 10);
+
+		if (isNaN(millis)) {
+			millis = 0;
+		}
+	}
+
+	_internalDateValues.date = new Date(millis >= 0 ? millis : _internalDateValues.time);
+
+	var compareTime = {}
+	compareTime.date = new Date(
+		0,
+		0,
+		0,
+		_internalDateValues.date.getHours(),
+		_internalDateValues.date.getMinutes(),
+		_internalDateValues.date.getSeconds(),
+		_internalDateValues.date.getMilliseconds()
+	)
+	compareTime.time = compareTime.date.getTime();
+
+	/** check defout min max date **/
+	if (defaults.maxTime && compareTime.time > defaults.maxTime) {
+		compareTime.date = new Date(defaults.maxTime);
+	} else if (defaults.minTime && compareTime.time < defaults.minTime) {
+		compareTime.date = new Date(defaults.minTime);
+	}
+
+	compareTime.date.setFullYear(
+		_internalDateValues.date.getFullYear(),
+		_internalDateValues.date.getMonth(),
+		_internalDateValues.date.getDate()
+	);
+
+	_internalDateValues.date = compareTime.date;
+	_internalDateValues.time = _internalDateValues.date.getTime();
+	_internalDateValues.day = _internalDateValues.date.getDate();
+	_internalDateValues.month = _internalDateValues.date.getMonth();
+	_internalDateValues.year = _internalDateValues.date.getFullYear();
+	_internalDateValues.hours = _internalDateValues.date.getHours();
+	_internalDateValues.minutes = _internalDateValues.date.getMinutes();
+	_internalDateValues.seconds = _internalDateValues.date.getSeconds();
+	_internalDateValues.millis = _internalDateValues.date.getMilliseconds();
+
+	updateDisplay();
+}
+
+/**
+ * update display values
+ */
+function updateDisplay() {
+	webMI.trigger.fire("setValue", _internalDateValues.hours, "1_hours");
+	webMI.trigger.fire("setValue", _internalDateValues.minutes, "2_minutes");
+	webMI.trigger.fire("setValue", _internalDateValues.seconds, "3_seconds");
+	webMI.trigger.fire("setValue", _internalDateValues.millis, "4_millis");
+}
+
+/**
+ * set day, month or year fields by set value trigger
+ * @param value
+ * @param button
+ * @private
+ */
+function setValues(millis) {
+	var tmpDate = {}
+	tmpDate.date = new Date(millis ? millis : 0);
+
+	var compareTime = {}
+	compareTime.date = new Date(
+		0,
+		0,
+		0,
+		tmpDate.date.getHours(),
+		tmpDate.date.getMinutes(),
+		tmpDate.date.getSeconds(),
+		tmpDate.date.getMilliseconds()
+	)
+	compareTime.time = compareTime.date.getTime();
+
+	/** check defout min max date **/
+	if (defaults.maxTime && compareTime.time > defaults.maxTime) {
+		compareTime.date = new Date(defaults.maxTime);
+	} else if (defaults.minTime && compareTime.time < defaults.minTime) {
+		compareTime.date = new Date(defaults.minTime);
+	}
+
+	compareTime.date.setFullYear(
+		tmpDate.date.getFullYear(),
+		tmpDate.date.getMonth(),
+		tmpDate.date.getDate()
+	);
+
+	compareTime.time = compareTime.date.getTime();
+
+	if(compareTime.time != _internalDateValues.time) {
+		updateDate(compareTime.time);
+		writeToNodeOrConsistencyGroup();
+	}
+}
+
+/**
+ * set day, month or year fields by button
+ * @param value
+ * @param button
+ * @private
+ */
+function setValuesByInput(value, button) {
+	// convert to number if not
+	if (typeof value != "number" || isNaN(value)) {
+		value = parseInt(value, 10);
+
+		if (isNaN(value)) {
+			value = defaults[button];
+		}
+	}
+
+	var tmpDate = _internalDateValues.date;
+	tmpDate.time = _internalDateValues.date.getTime();
+	tmpDate.day = _internalDateValues.date.getDate();
+	tmpDate.month = _internalDateValues.date.getMonth();
+	tmpDate.year = _internalDateValues.date.getFullYear();
+	tmpDate.hours = _internalDateValues.date.getHours();
+	tmpDate.minutes = _internalDateValues.date.getMinutes();
+	tmpDate.seconds = _internalDateValues.date.getSeconds();
+	tmpDate.millis = _internalDateValues.date.getMilliseconds();
+
+	tmpDate[button] = value;
+
+	tmpDate.date = new Date(
+		tmpDate.year,
+		tmpDate.month,
+		tmpDate.day,
+		tmpDate.hours,
+		tmpDate.minutes,
+		tmpDate.seconds,
+		tmpDate.millis);
+	tmpDate.time = tmpDate.date.getTime();
+
+	if(tmpDate.time != _internalDateValues.time) {
+		updateDate(tmpDate.time);
+		writeToNodeOrConsistencyGroup();
+	}
+}
+
+/**
+ * write value to node or consistency group
+ * @param fireTrigger
+ */
+function writeToNodeOrConsistencyGroup() {
+	if (consistencyGroup) {
+		consistencyHandler.set(consistencyGroup, base, _internalDateValues.time);
+	} else if (runTimeNodeConfig.outputNode.address && runTimeNodeConfig.outputNode.write) {
+		webMI.data.write(runTimeNodeConfig.outputNode.address, _internalDateValues.time);
+	}
+
+	webMI.trigger.fire("valuechanged", _internalDateValues.time, "");
+}
+
+/**
+ * parse string to milliseconds
+ * @param str
+ * @returns {time in ms}
+ * @private
+ */
+function _parseTime(str) {
+	var time = 0;
+
+	if (typeof str == "string" && str) {
+		var match = str.match(/\d+/g);
+
+		if (match) {
+			var hours = match[0];
+			var minutes = match[1];
+			var seconds = match[2];
+			var millis = match[3];
+
+			if (!hours) {
+				hours = 0;
+			}
+			if (!minutes) {
+				minutes = 0;
+			}
+			if (!seconds) {
+				seconds = 0;
+			}
+			if (!millis) {
+				millis = 0;
+			}
+
+			time += hours * defaults.oneHour;
+			time += minutes * defaults.oneMinute;
+			time += seconds * defaults.oneSecond;
+			time += millis * 1;
+		}
+	}
+
+	return time;
+}
+
+/**
+ * set write lock
+ * e.g. node not writeable
+ * @param lock
+ * @private
+ */
+function _setLockForInputFields(lock) {
+	lockInputEvents = lock;
+	webMI.trigger.fire("com.atvise.setActive", !lock, "1_hours");
+	webMI.trigger.fire("com.atvise.setActive", !lock, "2_minutes");
+	webMI.trigger.fire("com.atvise.setActive", !lock, "3_seconds");
+	webMI.trigger.fire("com.atvise.setActive", !lock, "4_millis");
+}
+
+/**
+ * set read lock
+ * e.g. node not readable
+ * @private
+ */
+function _setLockForReadValues(lock) {
+	lockReadEvents = lock;
+	_setLockForInputFields(lock);
+	if (lock) {
+		webMI.trigger.fire("setValue", "T{N/A}", "1_hours");
+		webMI.trigger.fire("setValue", "T{N/A}", "2_minutes");
+		webMI.trigger.fire("setValue", "T{N/A}", "3_seconds");
+		webMI.trigger.fire("setValue", "T{N/A}", "4_millis");
+	}
+}
+
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		setValuesByInput(e.value, "hours");
+	},
+	"1_hours"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		setValuesByInput(e.value, "minutes");
+	},
+	"2_minutes"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		setValuesByInput(e.value, "seconds");
+	},
+	"3_seconds"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		setValuesByInput(e.value, "millis");
+	},
+	"4_millis"
+);
+
+// connect to updateDate-trigger
+webMI.trigger.connect("updateDate", function (e) {
+	var date = new Date(e.value);
+	_internalDateValues.day = date.getDate();
+	_internalDateValues.month = date.getMonth();
+	_internalDateValues.year = date.getFullYear();
+});
+
+// connect to setValue-trigger
+webMI.trigger.connect("setValue", function (e) {
+	setValues(e.value);
+});
+
+webMI.trigger.connect("setRead", function (e) {
+	_setLockForReadValues(!e.value);
+});
+
+webMI.trigger.connect("setWrite", function (e) {
+	_setLockForInputFields(!e.value);
+});
+
+]]></code>
+</script>

@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Mail
+NodeClass: Object
+BrowseName: 1:Mail
+DisplayName: en|Mail
+Description: en|Mail
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

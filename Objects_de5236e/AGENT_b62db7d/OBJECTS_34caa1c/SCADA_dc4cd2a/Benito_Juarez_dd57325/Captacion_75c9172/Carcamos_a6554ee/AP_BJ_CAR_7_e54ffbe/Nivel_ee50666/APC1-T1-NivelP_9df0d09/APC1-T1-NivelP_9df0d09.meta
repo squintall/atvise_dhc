@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Captacion.Carcamos.AP_BJ_CAR_7.Nivel.APC1-T1-NivelP
+NodeClass: Variable
+BrowseName: 1:APC1-T1-NivelP
+DisplayName: en|APC1-T1-NivelP
+Description: en|APC1-T1-NivelP
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAAEEfUpiAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAgVJREFUeNpikJWV/g8EDDCaEUQgAyY5ORkUESYQ8X0DG1wQIIDAeoHYAWYOphkMaIDp5xGu/8G2YnBlAAEEtx8XBhnhyIAHgBTs/32d9z/I6BAn8f/oClhAxJ+bPxn+vf3L8P8nN4YJAAEE88cBmD+Qwwarv7C5gcYKWP484P8P8sG/t38YONx+MGKYAJME0VitgEmCaGwAIIAIxgUhDPLEQQYKAMGAJhiM6ImWZBeAwgBXknv06MkBgvEEIu7u/Lj//zdgoHz/x/D/GwTHTBAAW0CUAeCkCtX4//t/MM3wmzifQQx48weuEeQKBhJCBSCAYGEA8zPcyWiB6wgLD6A4iLanSjSCLGFioBBQasBBylPigHoBGIgOlLpgP8VeYAE5A4fcBWDi+UAwJf5+wv8fkYkQGUo9U9SRmNzIhE0zAyg/EBsL2DSD+CQYgKkZzCY2L2DT/P/3f9K8QK5mEAAIMIrrBUowyG6KE+JAFycUA4qLoyEfAgPvAEqbFhSW56O5ANKyCQ2Q/A9uzcAxkPsPmQ8RA9HXH7EwfP7OSFRVQQRwBDtg+YRvDP///Ae3x8BF6W8GCP0HxkfQsRMFGE7dZaOK70GeADsAXCEQsBgixgAJGWpHAbgiIWAxXOwvVXMBegjgsRhEg6KJuiWnPTQE/hFhMY3qAuTmOTVSNbbcgd6kRwYABF1hea88tKAAAAAASUVORK5CYII=</icon>
+	<visible>1</visible>
+	<title>Scale</title>
+	<description>Scales an element according to a node value.</description>
+  </metadata>
+  <parameter name="nodeId" description="node triggering the change" valuetype="address" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="minValue" description="min value" valuetype="number" defaultvalue="0" config="" behavior="optional" group=""/>
+  <parameter name="maxValue" description="max value" valuetype="number" defaultvalue="100" config="" behavior="optional" group=""/>
+  <parameter name="startScaleX" description="start position for X-direction" valuetype="number" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="stopScaleX" description="stop position for X-direction" valuetype="number" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="startScaleY" description="start position for Y-direction" valuetype="number" defaultvalue="0" config="" behavior="optional" group=""/>
+  <parameter name="stopScaleY" description="stop position for Y-direction" valuetype="number" defaultvalue="1" config="" behavior="optional" group=""/>
+  <code><![CDATA[// This Quick Dynamic scales the applied graphical element in X- and/or Y-direction depending on the value of the defined node and the ranged defined by "minValue" and "maxValue", i.e. the
+// range defined by "minValue" and "maxValue" will be translated to the range defined by "startScaleX" and "stopScaleX" and/or to the range defined by "startScaleY" and
+// "stopScaleY".
+// The scale in X-direction will only be done if both "startScaleX" and "stopScaleX" are defined.
+// The scale in Y-direction will only be done if both "startScaleY" and "stopScaleY" are defined.
+// e.g.: the defined range of the value from 0 (=minValue) to 100 (=maxValue) will be translated to 0 (=startScaleX) to 10 (=stopScaleX) in X-direction
+// Parameters:
+//	nodeId:			this node triggers this Quick Dynamic
+//	minValue:		lower bound of the range where the node's value should lie in
+//	maxValue:		upper bound of the range where the node's value should lie in
+//	startScaleX:	start position for X-direction where "minValue" will be translated to
+//	stopScaleX:		stop position for X-direction where "maxValue" will be translated to
+//	startScaleY:	start position for Y-direction where "minValue" will be translated to
+//	stopScaleY:		stop position for Y-direction where "maxValue" will be translated to
+var AggregateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Aggregate Manager");
+webMI.addOnunload(function unloadAggregateManager() {
+	AggregateManager.destroy();
+	AggregateManager = null;
+});
+
+AggregateManager.subscribeNodeOrAggregate(base.nodeId, handleResult);
+
+function handleResult(e) {
+	var value = e.value;
+
+	if (base.startScaleX != "" && base.stopScaleX != "") {
+		webMI.gfx.setScaleX(base.id, webMI.translate(value, base.minValue, base.maxValue, base.startScaleX / 100, base.stopScaleX / 100));
+	}
+	if (base.startScaleY != "" && base.stopScaleY != "") {
+		webMI.gfx.setScaleY(base.id, webMI.translate(value, base.minValue, base.maxValue, base.startScaleY / 100, base.stopScaleY / 100));
+	}
+}
+]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.hmi.button_group_zoom
+NodeClass: Variable
+BrowseName: 1:button_group_zoom
+DisplayName: en|button_group_zoom
+Description: en|button_group_zoom
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

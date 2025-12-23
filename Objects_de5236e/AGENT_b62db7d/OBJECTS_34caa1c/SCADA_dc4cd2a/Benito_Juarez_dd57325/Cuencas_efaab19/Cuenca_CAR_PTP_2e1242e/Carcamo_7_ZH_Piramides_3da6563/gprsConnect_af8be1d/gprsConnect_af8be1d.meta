@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_7_ZH_Piramides.gprsConnect
+NodeClass: Variable
+BrowseName: 1:gprsConnect
+DisplayName: en|gprsConnect
+Description: en|gprsConnect
+DataType: Byte
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var nodeobj = Ua.findNode(request.postvalues["nodepath"]);
+var array = [];
+
+if(nodeobj.result){
+	var result = call("Utilities.BrowseNodes", {
+		"startAddress": request.postvalues["nodepath"],
+		"endLevel" : 1,
+		"mapping" : ["name:nodeid:splitnamespace"],
+		"vTypes": ["BaseVariableType", "VariableTypes.PROJECT"],
+		"includeStartAddress": false
+	});
+
+	for (var i in result){
+		array.push(result[i].name.replace("AGENT.OBJECTS.", ""));
+	};
+
+}	
+
+return array;]]></code>
+</script>

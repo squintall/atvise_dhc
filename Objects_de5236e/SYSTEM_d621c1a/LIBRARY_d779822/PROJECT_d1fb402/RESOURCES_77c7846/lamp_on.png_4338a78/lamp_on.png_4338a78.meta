@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/lamp_on.png
+NodeClass: Variable
+BrowseName: 1:lamp_on.png
+DisplayName: en|lamp_on.png
+Description: en|lamp_on.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

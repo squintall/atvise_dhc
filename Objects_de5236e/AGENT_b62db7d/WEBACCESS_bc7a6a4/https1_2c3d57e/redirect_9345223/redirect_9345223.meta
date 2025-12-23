@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.WEBACCESS.https1.redirect
+NodeClass: Variable
+BrowseName: 1:redirect
+DisplayName: en|redirect
+Description: en|redirect
+DataType: NodeId
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

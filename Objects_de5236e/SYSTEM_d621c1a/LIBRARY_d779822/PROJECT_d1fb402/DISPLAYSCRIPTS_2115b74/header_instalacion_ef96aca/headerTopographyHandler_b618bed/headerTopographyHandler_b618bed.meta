@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.header_instalacion.headerTopographyHandler
+NodeClass: Variable
+BrowseName: 1:headerTopographyHandler
+DisplayName: en|headerTopographyHandler
+Description: en|headerTopographyHandler
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

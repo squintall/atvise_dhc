@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.layoutelements.button_view_log
+NodeClass: Variable
+BrowseName: 1:button_view_log
+DisplayName: en|button_view_log
+Description: en|button_view_log
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

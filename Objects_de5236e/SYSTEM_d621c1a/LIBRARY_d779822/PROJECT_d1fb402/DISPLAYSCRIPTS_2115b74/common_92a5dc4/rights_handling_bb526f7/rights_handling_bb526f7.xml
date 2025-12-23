@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * This script is used for handling the user rights set by display paraemters and the server based access control rights.
+ * The in_out_value object display's right handling works slightly different and does not use this script.
+ */
+
+/**
+ * IMPORTS
+ */
+
+var AccessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+/**
+ * Common Right Handling Object
+ * @type {{right: {accessControlRights: null ...}, state: {accessControlState: boolean, ... }, debug ... }}
+ */
+var CRH = {
+	right: {
+		accessControlRights: null,
+		activationNodeSet: null,
+		activationTriggerName: null,
+		editable: false,
+		notifications: null,
+		userRight: null
+	},
+	state: {
+		accessControlState: false,
+		activationNodeState: false,
+		activationTriggerState: false,
+		editableState: false,
+		userState: false,
+		visibilityState: true
+	},
+	debug: false,
+	initialized: false,
+	lastSwitch: null,
+	triggerActive: false,
+}
+
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * init right handling
+ * @param rightsHandlingProperties
+ */
+function rightsHandling(rightsHandlingProperties) {
+	CRH.debug = rightsHandlingProperties.debug ? rightsHandlingProperties.debug : false;
+
+	CRH.right.activationNodeSet = rightsHandlingProperties.activationNodeSet;
+	CRH.right.editable = rightsHandlingProperties.editable;
+	CRH.right.notifications = rightsHandlingProperties.notifierConfiguration;
+	CRH.right.userRight = rightsHandlingProperties.userRight;
+
+	if (!CRH.right.activationTriggerName)
+		CRH.right.activationTriggerName = rightsHandlingProperties.activationTriggerName;
+
+	CRH.right.accessControlRights = CRH.right.notifications.rights;
+
+	if (!webMI.getAccessControlSupport()) {
+		CRH.initialized = true;
+		CRH.state.accessControlState = true;
+	}
+
+	activationNodeHandling();
+	activationTriggerHandling();
+	editableHandling();
+	userRightHandling();
+
+	if (webMI.getAccessControlSupport()) {
+		CRH.initialized = true;
+		accessControlHandling();
+	}
+}
+
+
+/**
+ * update for runtime node configurations
+ * @param runTimeNodeConfig
+ * @param configRights
+ * @returns {*}
+ */
+function updateRunTimeNodeConfig(runTimeNodeConfig, configRights, callback, debug) {
+	var hasNodes = false;
+	for (var key in configRights) {
+		hasNodes = !!configRights[key].nodeId
+		if (hasNodes)
+			break;
+	}
+
+	if (AccessControlManager && hasNodes) {
+		AccessControlManager.assist.getPermissions(configRights, function (response) {
+			for (var key in runTimeNodeConfig) {
+				var data = runTimeNodeConfig[key]
+				var node = data.aggregate ? data.address.replace(data.aggregate, "") : data.address;
+				var nodeResponse = response[node];
+
+				if (node && nodeResponse) {
+					runTimeNodeConfig[key]["read"] = true;
+					if (data.read && !nodeResponse.read)
+						runTimeNodeConfig[key]["read"] = false;
+
+					runTimeNodeConfig[key]["write"] = true;
+					if (data.write && !nodeResponse.write)
+						runTimeNodeConfig[key]["write"] = false;
+
+				} else {
+					runTimeNodeConfig[key]["read"] = false;
+					runTimeNodeConfig[key]["write"] = false;
+				}
+			}
+
+			callback(runTimeNodeConfig);
+		});
+	} else {
+		callback(runTimeNodeConfig);
+	}
+}
+
+
+/**
+ * handle activation trigger rights and changes
+ */
+function activationTriggerHandling(trigger) {
+	if (CRH.triggerActive)
+		return;
+
+	if (trigger)
+		CRH.right.activationTriggerName = trigger;
+
+	if (CRH.right.activationTriggerName) {
+		CRH.triggerActive = true;
+
+		webMI.trigger.connect(CRH.right.activationTriggerName, function (e) {
+			if ("value" in e) {
+				CRH.state.activationTriggerState = (e.value == true || e.value == "true") ? true : false;
+				switchLayout();
+			} else {
+				console.warn("Trigger error: " + e);
+			}
+		});
+	}
+
+	CRH.state.activationTriggerState = true;
+	switchLayout();
+}
+
+
+/**
+ * handle access control rights and changes
+ */
+function accessControlHandling() {
+	if (!AccessControlManager) {
+		CRH.state.accessControlState = true;
+		return;
+	}
+
+	if (CRH.right.notifications && CRH.right.notifications.id && Array.isArray(CRH.right.accessControlRights)) {
+		CRH.right.notifications.elementId = CRH.right.notifications.id;
+		accessControlElementNotifier = webMI.callExtension(
+			"SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Element Notifier",
+			CRH.right.notifications
+		);
+
+		if (typeof accessControlElementNotifier != "undefined" && accessControlElementNotifier)
+			CRH.right.accessControlRights.forEach((rightConfig) => {
+				if (rightConfig.nodeId && (rightConfig.notify || accessControlElementNotifier.showAll())) {
+					accessControlElementNotifier.addRights(rightConfig.nodeId, rightConfig.rights);
+				}
+			});
+	}
+
+	updateAccessControlRights();
+
+	function updateAccessControlRights() {
+		var compareRights = [];
+
+		for (var key in CRH.right.accessControlRights) {
+			var handleRights = CRH.right.accessControlRights[key];
+			if (handleRights.nodeId && handleRights.disable) {
+				compareRights.push({node: handleRights.nodeId, right: handleRights.rights});
+			}
+		}
+
+		if (compareRights.length > 0) {
+			AccessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+			AccessControlManager.assist.handleWithPermissions(
+				compareRights,
+				function setStateAllow() {
+					CRH.state.accessControlState = true;
+					switchLayout();
+				},
+				function setStateDenied() {
+					CRH.state.accessControlState = false;
+					switchLayout();
+				}
+			);
+		} else {
+			CRH.state.accessControlState = true;
+			switchLayout();
+		}
+	}
+
+	webMI.trigger.connect("com.atvise.access_control_update", function (e) {
+		if (e.value.notification === null)
+			return;
+
+		updateAccessControlRights();
+
+		if (typeof fetchCurrentRightsAndUpdate == "function")
+			fetchCurrentRightsAndUpdate();
+	});
+}
+
+
+/**
+ * handle activation node rights and changes
+ */
+function activationNodeHandling() {
+	var activeNode = _parseValue(CRH.right.activationNodeSet, "activeNode");
+	var activeValue = _parseValue(CRH.right.activationNodeSet, "activeValue");
+
+	if (activeNode && activeValue) {
+		webMI.data.subscribe(activeNode, function (e) {
+			var nodeActiveValue = e.value;
+
+			if (typeof nodeActiveValue == "boolean") {
+				CRH.state.activationNodeState = String(nodeActiveValue) == activeValue;
+			} else if (typeof nodeActiveValue == "number") {
+				try {
+					var temp = parseFloat(activeValue);
+					CRH.state.activationNodeState = nodeActiveValue == temp;
+				} catch (e) {
+					CRH.state.activationNodeState = false;
+				}
+			} else {
+				CRH.state.activationNodeState = nodeActiveValue == activeValue;
+			}
+
+			switchLayout();
+		});
+	} else {
+		CRH.state.activationNodeState = true;
+	}
+
+	switchLayout();
+}
+
+
+/**
+ * handle editable state
+ */
+function editableHandling() {
+	if (CRH.right.editable === false) {
+		CRH.state.editableState = false;
+	} else {
+		CRH.state.editableState = true;
+	}
+}
+
+
+/**
+ * handle active changes
+ * @param boolean visibility
+ */
+function activeHandling(visibility) {
+	if (visibility === false) {
+		CRH.state.visibilityState = false;
+	} else {
+		CRH.state.visibilityState = true;
+	}
+}
+
+
+/**
+ * handle user rights and changes
+ */
+function userRightHandling() {
+	right = (CRH.right.userRight == undefined) ? "" : CRH.right.userRight;
+
+	if (right != null) {
+		if (right.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1) {
+			right = right.substring(23, right.length); // remove "prefix" SYSTEM.SECURITY.RIGHTS.
+		}
+
+		if (right != "") {
+			webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+				hasRight = false;
+				if ("username" in e && e.username != "") {
+					hasRight = webMI.hasRight(right);
+				}
+				CRH.state.userState = hasRight ? true : false;
+				switchLayout();
+			});
+		} else {
+			CRH.state.userState = true;
+		}
+	} else {
+		CRH.state.userState = true;
+	}
+
+	switchLayout();
+}
+
+
+/**
+ * Switch layout by permissions
+ */
+function switchLayout() {
+	var securityState = Object.values(CRH.state).every((v) => v === true);
+
+	if (CRH.debug) {
+		console.warn("--- debug ---");
+		console.warn("CRH.initialized: " + CRH.initialized);
+		console.warn("CRH.lastSwitch: " + CRH.lastSwitch);
+		console.warn("CRH.state.accessControlState: " + CRH.state.accessControlState);
+		console.warn("CRH.state.activationNodeState: " + CRH.state.activationNodeState);
+		console.warn("CRH.state.activationTriggerState: " + CRH.state.activationTriggerState);
+		console.warn("CRH.state.editableState: " + CRH.state.editableState);
+		console.warn("CRH.state.userState: " + CRH.state.userState);
+		console.warn("CRH.visibilityState: " + CRH.visibilityState);
+	}
+
+	/* ignore switch with same security states */
+	if (!CRH.initialized || CRH.lastSwitch == securityState) {
+		return;
+	}
+
+	CRH.lastSwitch = securityState;
+
+	if (securityState) {
+		setActiveLayout();
+	} else {
+		setInactiveLayout();
+	}
+}
+
+
+/**
+ * Yet another parser
+ * @param value
+ * @param key
+ * @returns {null}
+ * @private
+ */
+function _parseValue(value, key) {
+	return typeof value != "undefined" ?
+		(value[key] != "undefined" ? value[key] : null) :
+		null;
+}
+
+]]></code>
+</script>

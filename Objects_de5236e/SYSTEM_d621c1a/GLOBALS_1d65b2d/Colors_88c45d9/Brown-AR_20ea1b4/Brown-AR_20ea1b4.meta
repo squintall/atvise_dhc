@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.Colors.Brown-AR
+NodeClass: Variable
+BrowseName: 1:Brown-AR
+DisplayName: en|Brown-AR
+Description: en|Brown-AR
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

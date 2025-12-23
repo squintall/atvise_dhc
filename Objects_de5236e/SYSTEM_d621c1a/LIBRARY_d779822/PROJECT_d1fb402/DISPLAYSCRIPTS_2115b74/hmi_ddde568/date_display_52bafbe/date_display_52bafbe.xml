@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the date_display object display
+ * ----------------------------------------
+ * This control displays the current date.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var base = (webMI.query["base"] == undefined) ? "" : webMI.query["base"];
+
+
+/** data **/
+var runTimeNodeConfig = {
+	base: {value: null, address: base, paramValue: "", read: true, write: false, aggregate: false}
+};
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+}
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (true) {
+	var notifierConfig = {
+		id: document.getElementById("bg_rect").id,
+		rights: [
+			{nodeId: webMI.query["base"], rights: "read", disable: true, notify: false}
+		],
+		menuLayout: menuLayout
+	};
+
+	var rightsHandlingProperties = {
+		notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+		editable: webMI.query["editable"] != "No",
+		debug: false
+	};
+
+	if (typeof rightsHandling === "function")
+		rightsHandling(rightsHandlingProperties);
+
+	if (base != "" && typeof updateRunTimeNodeConfig === "function") {
+		updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+	} else {
+		initialize(runTimeNodeConfig);
+	}
+}
+
+function initialize(nodeCfg) {
+	if (base == "") {
+		setDate();
+		var updateInterval = setInterval(function () {
+			setDate();
+		}, 10);
+	} else if (nodeCfg.base.read) {
+		webMI.data.subscribe(base, function (e) {
+			setDate(e.value);
+		});
+	}
+}
+
+
+/**
+ * FUNCTION SECTION
+ */
+function setActiveLayout() {
+}
+
+function setInactiveLayout() {
+	webMI.gfx.setText("y", "----");
+	webMI.gfx.setText("m", "--");
+	webMI.gfx.setText("d", "--");
+}
+
+function setDate(date) {
+	var displayedDate = (date == undefined) ? new Date() : new Date(date);
+
+	var y = displayedDate.getFullYear();
+	var m = displayedDate.getMonth() + 1;
+	var d = displayedDate.getDate();
+
+	webMI.gfx.setText("y", webMI.sprintf("%04d", y));
+	webMI.gfx.setText("m", webMI.sprintf("%02d", m));
+	webMI.gfx.setText("d", webMI.sprintf("%02d", d));
+
+}]]></code>
+</script>

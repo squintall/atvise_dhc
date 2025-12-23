@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <runcontext>owner</runcontext>
+  </metadata>
+  <parameter name="group" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="subgroup" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="path" type="string" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* begin */
+
+/**
+ * Define some vars from parameter
+ * and set default nodes for runtime
+ * @type {string}
+ */
+var atviseNode = "AGENT.OBJECTS.ATVISE";
+var filterGroup = group ? group : "";
+var filterSubgroup = subgroup ? subgroup : "";
+var filterPath = path == "true" ? true : false;
+var index = {};
+
+
+/**
+ * evaluate security settings for script caller
+ * find permission node, get permission settings
+ */
+var caller = script.caller;
+var utils = call("AccessControl.Configuration", {});
+
+
+/**
+ * setup environment
+ * define default nodes always to be created
+ * get archive node
+ * setup default nodes
+ */
+var archiveNode = call("Logger.GetArchive", {})["atvLogger"]["name"];
+
+var defaultCreateNodeList = {
+	"AGENT.OBJECTS.ATVISE": {folder: true, archive: false},
+	"AGENT.OBJECTS.ATVISE.Logger": {folder: false, archive: false},
+	"AGENT.OBJECTS.ATVISE.Logger.atvise": {folder: false, archive: false},
+	"AGENT.OBJECTS.ATVISE.Logger.atvise.Info": {folder: false, archive: true},
+	"AGENT.OBJECTS.ATVISE.Logger.atvise.Warning": {folder: false, archive: true},
+	"AGENT.OBJECTS.ATVISE.Logger.atvise.Error": {folder: false, archive: true},
+	"AGENT.OBJECTS.ATVISE.Status": {folder: false, archive: false}
+}
+
+for (var key in defaultCreateNodeList) {
+	if (!checkNodeExists(key)) {
+		if (defaultCreateNodeList[key].folder) {
+			_createFolder(key, "OBJECT", "i=61", "FOLDERTYPE");
+		} else if (defaultCreateNodeList[key].archive) {
+			_createNode(key, "VARIABLE", "i=62", "STRING", "", archiveNode);
+		} else {
+			_createNode(key, "VARIABLE", "i=62", "STRING", "", "");
+		}
+	}
+}
+
+
+/**
+ * get all reference node
+ * and check permission for user
+ */
+_indexNode(_browse(atviseNode)["ATVISE"]);
+
+var filterWithoutPermission = _filter(filterGroup, filterSubgroup, filterPath);
+var filterWithPermission = {};
+
+for (var permissionAddr in filterWithoutPermission) {
+	var permissionNode = Ua.findNode(permissionAddr);
+	var permissionNodeExist = Ua.Status(permissionNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (permissionNodeExist) {
+		var permissions = utils.getRuntimePermissionsForNode(permissionAddr);
+		var permissionsForUser = permissions.groups["Anonymous"];
+
+		if (caller)
+			permissionsForUser = permissions.users[caller];
+
+		if (permissionsForUser && permissionsForUser["read"]) {
+			filterWithPermission[permissionAddr] = filterWithoutPermission[permissionAddr];
+		}
+	}
+}
+
+return filterWithPermission;
+
+
+/**
+ * Check if node exists
+ * @param searchAddress
+ * @returns {boolean}
+ */
+function checkNodeExists(searchAddress) {
+	var searchNode = Ua.findNode(searchAddress);
+	var searchNodeExist = Ua.Status(searchNode) != Ua.Status.BADNODEIDUNKNOWN;
+	return searchNodeExist;
+}
+
+
+/**
+ * browse nodes to find valid logger nodes
+ * @param address
+ * @private
+ */
+function _browse(address) {
+	var node = call("Utilities.BrowseNodes", {
+		"startAddress": address,
+		"endLevel": 4,
+		"includeStartAddress": true
+	});
+	return node;
+}
+
+
+/**
+ * apply filter so only return mandatory nodes
+ * @param group
+ * @param subgroup
+ * @private
+ */
+function _filter(group, subgroup, path) {
+	var filter = {};
+
+	for (var key in index) {
+		if (key != "undefined") {
+			if (path) {
+				filter[key] = index[key];
+			} else if (key.split(".").length > 5) {
+				if (group && group == key.split(".")[4] && subgroup && subgroup == key.split(".")[5]) {
+					filter[key] = index[key];
+				} else if (group && group == key.split(".")[4] && !subgroup) {
+					filter[key] = index[key];
+				} else if (subgroup && subgroup == key.split(".")[5] && !group) {
+					filter[key] = index[key];
+				} else if (!group && !subgroup) {
+					filter[key] = index[key];
+				}
+			}
+		}
+	}
+
+	return filter;
+}
+
+
+/**
+ * evaluate browse node result
+ * @param browsed
+ * @private
+ */
+function _indexNode(browsed) {
+	if (!browsed)
+		return;
+	index[browsed.name] = true;
+	var childs = browsed.childs;
+	for (var key in childs) {
+		_indexNode(childs[key]);
+	}
+}
+
+
+/**
+ * create a folder node
+ * @param address
+ * @param nodeClass
+ * @param typeDefinition
+ * @param dataType
+ * @param value
+ */
+function _createFolder(address, nodeClass, typeDefinition, dataType, value) {
+	Ua.createNode(address, {
+		"nodeClass": Ua.NodeClass[nodeClass],
+		"parent": address.substring(0, address.lastIndexOf('.')),
+		"typeDefinition": typeDefinition,
+	});
+}
+
+
+/**
+ * create a node with optional archiv reference
+ * @param address
+ * @param nodeClass
+ * @param typeDefinition
+ * @param dataType
+ * @param value
+ * @param archiveNode
+ */
+function _createNode(address, nodeClass, typeDefinition, dataType, value, archiveNode) {
+	if (address == "AGENT.OBJECTS.ATVISE.Status") {
+		value = Date.now();
+	}
+
+	Ua.createNode(address, {
+		"nodeClass": Ua.NodeClass[nodeClass],
+		"parent": address.substring(0, address.lastIndexOf('.')),
+		"typeDefinition": typeDefinition,
+		"dataType": Ua.DataType[dataType],
+		"value": value
+	});
+
+	if (address != "AGENT.OBJECTS.ATVISE.Status") {
+		var searchNode = Ua.findNode("AGENT.OBJECTS.ATVISE.Status");
+		var searchNodeExist = Ua.Status(searchNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (searchNodeExist)
+			searchNode.result.value = Date.now();
+	}
+
+	if (archiveNode) {
+		var dataNode = Ua.findNode(address);
+		var historyNode = Ua.findNode(archiveNode);
+		dataNode.result.addReference(Ua.Reference.HASHISTORICALCONFIGURATION, historyNode.result);
+	}
+}
+
+/* end */
+]]></code>
+</script>

@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OPCUA
+NodeClass: Object
+BrowseName: 1:OPCUA
+DisplayName: en|OPCUA
+Description: en|OPCUA
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

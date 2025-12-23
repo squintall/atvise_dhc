@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Pozos.Pozo_2
+NodeClass: Object
+BrowseName: 1:Pozo_2
+DisplayName: en|Pozo_2
+Description: en|Pozo_2
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.ElementoPozo
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Control
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Monitoreo IT
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Principal
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.conectividad

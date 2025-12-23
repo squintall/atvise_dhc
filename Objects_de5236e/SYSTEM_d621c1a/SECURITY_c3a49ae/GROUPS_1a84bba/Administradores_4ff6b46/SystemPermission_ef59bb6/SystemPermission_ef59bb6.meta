@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.GROUPS.Administradores.SystemPermission
+NodeClass: Variable
+BrowseName: 1:SystemPermission
+DisplayName: en|SystemPermission
+Description: en|SystemPermission
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule SharedExclusive
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.AccessControl.System

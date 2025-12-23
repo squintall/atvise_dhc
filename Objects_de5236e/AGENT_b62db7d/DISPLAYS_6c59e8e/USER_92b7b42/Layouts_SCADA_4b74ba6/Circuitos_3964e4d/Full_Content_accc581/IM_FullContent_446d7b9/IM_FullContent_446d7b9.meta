@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_SCADA.Circuitos.Full_Content.IM_FullContent
+NodeClass: Variable
+BrowseName: 1:IM_FullContent
+DisplayName: en|IM_FullContent
+Description: en|IM_FullContent
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

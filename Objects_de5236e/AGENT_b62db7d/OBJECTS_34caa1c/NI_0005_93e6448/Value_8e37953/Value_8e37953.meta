@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.NI_0005.Value
+NodeClass: Variable
+BrowseName: 1:Value
+DisplayName: en|Value
+Description: en|Value
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseDataVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.1008.Value.RelMirrorInputOutput

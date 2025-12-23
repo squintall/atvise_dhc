@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_PASEOS_DEL_MAR
+NodeClass: Object
+BrowseName: 1:AP_BJ_CAR_PASEOS_DEL_MAR
+DisplayName: en|AP_BJ_CAR_PASEOS_DEL_MAR
+Description: en|AP_BJ_CAR_PASEOS_DEL_MAR
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

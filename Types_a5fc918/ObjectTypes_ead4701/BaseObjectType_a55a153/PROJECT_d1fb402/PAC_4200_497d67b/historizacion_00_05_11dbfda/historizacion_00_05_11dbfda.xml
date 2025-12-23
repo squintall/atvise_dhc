@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="trigger" type="timer" trigger="true" relative="false" value="" starttime="00:00:00" repeat="00:05:00"/>
+  <code><![CDATA[// Corriente L1
+var Corriente_L1 = Ua.findNode(base + ".Corriente_L1");
+var Corriente_L1_Historico = Ua.findNode(base + ".Corriente_L1_Historico");
+Corriente_L1_Historico.result.value = Corriente_L1.result.value;
+
+// Corriente L2
+var Corriente_L2 = Ua.findNode(base + ".Corriente_L2");
+var Corriente_L2_Historico = Ua.findNode(base + ".Corriente_L2_Historico");
+Corriente_L2_Historico.result.value = Corriente_L2.result.value;
+
+// Corriente L3
+var Corriente_L3 = Ua.findNode(base + ".Corriente_L3");
+var Corriente_L3_Historico = Ua.findNode(base + ".Corriente_L3_Historico");
+Corriente_L3_Historico.result.value = Corriente_L3.result.value;
+
+// Factor de Potencia (FP)
+var FP = Ua.findNode(base + ".FP");
+var FP_Historico = Ua.findNode(base + ".FP_Historico");
+FP_Historico.result.value = FP.result.value;
+
+// Potencia Activa
+var Potencia_Activa = Ua.findNode(base + ".Potencia_Activa");
+var Potencia_Activa_Historico = Ua.findNode(base + ".Potencia_Activa_Historico");
+Potencia_Activa_Historico.result.value = Potencia_Activa.result.value;
+
+// Voltaje L1-L2
+var Voltaje_L1_L2 = Ua.findNode(base + ".Voltaje_L1-L2");
+var Voltaje_L1_L2_Historico = Ua.findNode(base + ".Voltaje_L1-L2_Historico");
+Voltaje_L1_L2_Historico.result.value = Voltaje_L1_L2.result.value;
+
+// Voltaje L2-L3
+var Voltaje_L2_L3 = Ua.findNode(base + ".Voltaje_L2-L3");
+var Voltaje_L2_L3_Historico = Ua.findNode(base + ".Voltaje_L2-L3_Historico");
+Voltaje_L2_L3_Historico.result.value = Voltaje_L2_L3.result.value;
+
+// Voltaje L3-L1
+var Voltaje_L3_L1 = Ua.findNode(base + ".Voltaje_L3-L1");
+var Voltaje_L3_L1_Historico = Ua.findNode(base + ".Voltaje_L3-L1_Historico");
+Voltaje_L3_L1_Historico.result.value = Voltaje_L3_L1.result.value;
+]]></code>
+</script>

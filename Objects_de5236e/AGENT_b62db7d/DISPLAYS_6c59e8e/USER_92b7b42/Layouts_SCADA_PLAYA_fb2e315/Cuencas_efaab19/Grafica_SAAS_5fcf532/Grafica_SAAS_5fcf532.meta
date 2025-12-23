@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_SCADA_PLAYA.Cuencas.Grafica_SAAS
+NodeClass: Variable
+BrowseName: 1:Grafica_SAAS
+DisplayName: en|Grafica_SAAS
+Description: en|Grafica_SAAS
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

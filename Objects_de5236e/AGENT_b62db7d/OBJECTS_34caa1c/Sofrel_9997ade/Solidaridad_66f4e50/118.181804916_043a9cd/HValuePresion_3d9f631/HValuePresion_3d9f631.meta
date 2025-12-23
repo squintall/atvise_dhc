@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Solidaridad.118.181804916.HValuePresion
+NodeClass: Variable
+BrowseName: 1:HValuePresion
+DisplayName: en|HValuePresion
+Description: en|HValuePresion
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.Sofrel_HValue
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Sofrel

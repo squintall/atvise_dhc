@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.opcuxm01.user_map
+NodeClass: Variable
+BrowseName: 1:user_map
+DisplayName: en|user_map
+Description: en|user_map
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.UserMap

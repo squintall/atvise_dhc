@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[//----------------Inicializo variables -------------------//
+
+
+//Variable interna
+var Info_Windowact=false;
+
+var Markers= new Array();
+
+
+var google = webMI.rootWindow.google; //Clase Principal
+var map; //Variable donde va a vivir el mapa
+			
+var infowindow;
+
+const path_circulo = "M 4 1.5 A 2.5 2.5 90 1 0 4 6.5 A 2.5 2.5 90 0 0 4 1.5 Z";
+const path_triangulo = "M 3 0.9383 L 5.3878 5.0625 H 0.6122 L 3 0.9383 Z";
+
+
+const symbolSofrel =  {
+    path: path_triangulo,
+    fillColor: "blue",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+const symbolOK =   {
+    path: path_triangulo,
+    fillColor: "orange",
+    fillOpacity: 1,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+
+   const symbolBlack =  {
+    path: path_circulo,
+    fillColor: "black",
+    fillOpacity: 0.6,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 3,
+    anchor: new google.maps.Point(0, 0),
+  };
+
+
+//----------------Ejecución -------------------//
+
+
+
+//Determinación del dispositivo
+var infoCliente;
+infoCliente = new webMI.getClientInfo();
+
+webMI.addOnload(function() {
+	
+
+	//Opciones del mapa
+	var myOptions = {
+		zoom: 10,
+		mapTypeId: google.maps.MapTypeId.roadmap,
+		styles: [ 
+					{ 
+					  "featureType": "poi", 
+					  "stylers": [ 
+						{ "visibility": "off" } 
+					  ] 
+					} 
+				  ] 
+	};
+	
+
+	//Inicializo el mapa
+	map = new google.maps.Map(document.getElementById("mapa"), myOptions);
+	
+	
+		
+		
+	// Instantiate an info window to hold step text.
+	const stepDisplay = new google.maps.InfoWindow();
+	
+	//-------Inicializo Marcadores
+	
+	circuito_s.forEach(([position,title,object,order,type],i) =>{
+	
+		const marker = new google.maps.Marker({
+			position, 
+			map,
+			icon: symbolBlack,
+			title: ` ${title}`,
+			optimized: false,
+		});
+		
+			
+			switch (type) {
+		case "LS42":			
+			marker.setIcon(symbolOK);
+			break;
+		case "LSP":
+			marker.setIcon(symbolSofrel);
+			break;;
+		default:
+			marker.setIcon(symbolBlack);
+			break;
+			}
+	
+		marker.setMap(map);
+		//Agrego marcador a lista de marcadores
+		Markers.push(marker);
+	
+		//-------Listener de Marcadores
+		
+		//DOBLECLICK (Fija Carcamo)
+		google.maps.event.addListener(marker,'dblclick',function(event) {
+			map.panTo(this.getPosition());
+			map.setZoom(15);
+		
+			switch(type) {
+			case "carcamoAP":
+				webMI.data.subscribe( object +".short_name",
+					function(e){
+						webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Sectorizacion.Grafico_Sectorizacion_Tanque" ,
+						extern:false,height:537,menubar:false,modal:false,movable:true,resizable:true,scrollbars:false,status:false,
+						title:e.value,toolbar:false,x:0,y:50,width:1920,query:{base:object}});
+						}
+					);
+				break;
+			case "LSP":
+				webMI.data.subscribe( object +".DataloggerID",
+					function(e){
+						webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Sectorizacion.Grafico_Sectorizacion_Solo_Presion" ,
+						extern:false,height:770,menubar:false,modal:false,movable:true,resizable:true,scrollbars:false,status:false,
+						title:e.value,toolbar:false,x:1000, y:0, width:920,query:{base:object}});
+						
+						}
+					);
+				break;
+			case "LS42":
+			webMI.data.subscribe( object +".DataloggerID",
+				function(e){					
+					webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Sectorizacion.Grafico_Sectorizacion" ,
+					extern:false,height:880,menubar:false,modal:false,movable:true,resizable:true,scrollbars:false,status:false,
+					title:e.value,toolbar:false,x:200,y:0,width:1600,query:{base:object}});
+					}
+				);
+				break;
+			default:
+			break;
+						}
+				
+
+			Markeract=true;
+			Markeractdc=marker;
+			Pos_origen=position;
+		
+
+				
+		});
+
+		
+		var susID = null;
+		//CLICK (Abre Infowindow)
+		google.maps.event.addListener(marker,'click',function(event) {	
+			            
+            webMI.data.unsubscribe(susID);
+               			
+			susID = null;
+			
+			
+			
+			infowindow = new google.maps.InfoWindow();
+			//Abro marcador
+			infowindow.open(marker.getMap,marker);
+			
+			
+			if (type == 'LS42' || type == 'LSP'){
+				//Defino que objeto va a ser el seleccionado para mostrar su información
+				
+			susID = webMI.data.subscribe( object +".HValuePresion",
+				function(e){
+					infowindow.setContent(
+						'<div id="content">' +
+                            '<h2 id="firstHeading" class="firstHeading">'+title+'</h2>' +
+                            '<h3>'+'Presión: '+ e.value.toFixed(2) +' kg/cm2</h3>' +
+                         '</div>');
+					}
+				);
+			} 
+			setTimeout(function() {
+              infowindow.close();             
+                webMI.data.unsubscribe(susID);
+            }, 5000);
+		});	
+			
+		//MOUSEOVER
+		google.maps.event.addListener(marker, "mouseover", function(event){
+		});		
+	});	
+		fitMarkers();	
+});
+
+]]></code>
+</script>

@@ -1,0 +1,17 @@
+{
+    "security": {
+        "policy": "None",
+        "mode": "None",
+        "certificate": "",
+        "privateKey": "",
+        "validate": false,
+        "autotrust": true
+    },
+    "identity": {
+        "type": "Anonymous",
+        "username": "",
+        "password": "",
+        "certificate": "",
+        "privateKey": ""
+    }
+}

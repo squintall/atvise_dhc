@@ -1,0 +1,242 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="160" version="1.2" width="160" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Displays up to 25 values in a bar chart.</desc>
+ <title>Chart Bar Tile</title>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="" desc="base" name="base" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="alarm address" name="alarm" valuetype="address"/>
+  <!-- Output -->
+  <atv:parameter behavior="mandatory" defaultvalue="T{Title}" desc="title" group="View settings" name="title" substitute="$TITLE$" valuetype="trstring"/>
+  <atv:parameter behavior="optional" desc="unit" group="View settings" name="unit" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="0" desc="decimal places" group="View settings" name="postDecimals" valuetype="number"/>
+  <atv:parameter behavior="optional" config="Times New Roman=Times New Roman,Bodoni,Garamond,Minion Web,ITC Stone Serif,MS Georgia,Bitstream Cyberbit,serif;Arial=MS Trebuchet,ITC Avant Garde Gothic,MS Arial,MS Verdana,Univers,Futura,ITC Stone Sans,Gill Sans,Akzidenz Grotesk,Helvetica,sans-serif;Courier=Courier,MS Courier New,Prestige,Everson Mono,monospace;Zapf-Chancery=Caflisch Script,Adobe Poetica,Sanvito,Ex Ponto,Snell Roundhand,Zapf-Chancery,cursive;Alpha Geometrique=Alpha Geometrique,Critter,Cottonwood,FB Reactor,Studz,fantasy" defaultvalue="Arial" desc="font family title" group="View settings" name="fontFamilyTitle" substitute="$FONT_FAMILY_TITLE$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22" defaultvalue="12" desc="font size title" group="View settings" name="fontSizeTitle" substitute="$FONT_SIZE_TITLE$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="5" desc="displayed series (0 = all)" group="View settings" name="seriesCount" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="0" desc="minimum" group="View settings" name="min" substitute="$MIN$" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="100" desc="maximum" group="View settings" name="max" substitute="$MAX$" valuetype="number"/>
+  <atv:parameter behavior="optional" config="None;Ascending;Descending" defaultvalue="None" desc="sorting" group="View settings" name="seriesOrder" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="Horizontal;Vertical" defaultvalue="Horizontal" desc="orientation" group="View settings" name="seriesOrientation" valuetype="enum"/>
+  <!-- Behavior -->
+  <atv:parameter behavior="mandatory" defaultvalue="true" desc="enable click event" group="Behavior on click" name="enableClick" substitute="" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="enable click on content" group="Behavior on click" name="enableClickContent" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="targetdisplay" group="Behavior on click" name="display" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="linked element" group="Behavior on click" name="linkedElementID" substitute="" valuetype="string"/>
+  <!-- Notification -->
+  <atv:parameter behavior="optional" config="Yes;No" defaultvalue="Yes" desc="enable status monitoring" group="Status" name="statusEnabled" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="fire status trigger" group="Status" name="statusTrigger" valuetype="string"/>
+  <!-- Appearance -->
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="background color" group="Appearance" name="backgroundColor" substitute="$BACKGROUND_COLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="text color" group="Appearance" name="textColor" substitute="$TEXT_COLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvBorderColor" desc="border color" group="Appearance" name="borderColor" substitute="$BORDER_COLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvInactiveColor" desc="deactivation color" group="Appearance" name="colorInactive" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvStatusIndication" desc="status indication" group="Appearance" name="statusIndication" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvAlarmIndication" desc="alarm indication" group="Appearance" name="alarmIndication" valuetype="global"/>
+  <!-- Options -->
+  <atv:parameter behavior="optional" desc="tooltip" group="Options" name="tooltip" valuetype="trstring"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security" name="right" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="activation address" group="Security" name="activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="activation value" group="Security" name="activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show access control notification" group="Security" name="displayAcNotification" valuetype="bool"/>
+  <!-- Series -->
+  <atv:parameter behavior="optional" defaultvalue="T{Series 1}" desc="name" group="Series 1" name="series1Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 1" name="series1Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 1" name="series1Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 2}" desc="name" group="Series 2" name="series2Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 2" name="series2Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 2" name="series2Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 3}" desc="name" group="Series 3" name="series3Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 3" name="series3Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 3" name="series3Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 4}" desc="name" group="Series 4" name="series4Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 4" name="series4Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 4" name="series4Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 5}" desc="name" group="Series 5" name="series5Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 5" name="series5Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 5" name="series5Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 6}" desc="name" group="Series 6" name="series6Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 6" name="series6Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 6" name="series6Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 7}" desc="name" group="Series 7" name="series7Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 7" name="series7Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 7" name="series7Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 8}" desc="name" group="Series 8" name="series8Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 8" name="series8Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 8" name="series8Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 9}" desc="name" group="Series 9" name="series9Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 9" name="series9Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 9" name="series9Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 10}" desc="name" group="Series 10" name="series10Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 10" name="series10Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 10" name="series10Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 11}" desc="name" group="Series 11" name="series11Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 11" name="series11Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 11" name="series11Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 12}" desc="name" group="Series 12" name="series12Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 12" name="series12Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 12" name="series12Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 13}" desc="name" group="Series 13" name="series13Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 13" name="series13Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 13" name="series13Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 14}" desc="name" group="Series 14" name="series14Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 14" name="series14Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 14" name="series14Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 15}" desc="name" group="Series 15" name="series15Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 15" name="series15Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 15" name="series15Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 16}" desc="name" group="Series 16" name="series16Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 16" name="series16Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 16" name="series16Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 17}" desc="name" group="Series 17" name="series17Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 17" name="series17Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 17" name="series17Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 18}" desc="name" group="Series 18" name="series18Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 18" name="series18Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 18" name="series18Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 19}" desc="name" group="Series 19" name="series19Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 19" name="series19Address" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 19" name="series19Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 20}" desc="name" group="Series 20" name="series20Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 20" name="series20Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 20" name="series20Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 21}" desc="name" group="Series 21" name="series21Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 21" name="series21Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 21" name="series21Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 22}" desc="name" group="Series 22" name="series22Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 22" name="series22Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 22" name="series22Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 23}" desc="name" group="Series 23" name="series23Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 23" name="series23Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 23" name="series23Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 24}" desc="name" group="Series 24" name="series24Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 24" name="series24Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 24" name="series24Color" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Series 25}" desc="name" group="Series 25" name="series25Name" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" group="Series 25" name="series25Address" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="#7cb5ec" desc="color" group="Series 25" name="series25Color" valuetype="color"/>
+  <!-- menu -->
+  <atv:parameter behavior="optional" config="top-left;top-right;bottom-left;bottom-right" defaultvalue="" desc="menu positioning" group="Menu" name="elementPosition" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="Yes;No" defaultvalue="" desc="menu mouseover active" group="Menu" name="fadeInAtHover" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="menu symbol offset x" group="Menu" name="elementOffsetX" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="menu symbol offset y" group="Menu" name="elementOffsetY" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="context menu click frame" group="Menu" name="clickareaEnlargement" valuetype="number"/>
+  <!-- Config -->
+  <atv:gridconfig enabled="true" gridstyle="lines" height="10" width="10"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80" atv:refpy="80" fill="$BACKGROUND_COLOR$" height="158" id="background" rx="0" ry="0" stroke="$BORDER_COLOR$" stroke-width="2" width="158" x="1" y="1"/>
+ <text atv:bindbr="0.5,0" atv:bindtl="0.5,0" atv:refpx="80" atv:refpy="13" dominant-baseline="auto" fill="$TEXT_COLOR$" font-family="$FONT_FAMILY_TITLE$" font-size="$FONT_SIZE_TITLE$" id="title" text-anchor="middle" x="80" y="18">$TITLE$</text>
+ <svg atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80" atv:refpy="90" height="130" id="chart" transform="matrix(0.9933,0,0,0.9923,0,0)" width="150" x="5.537" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.bar" y="25.698">
+  <atv:argument name="series1Name" prefix="series1Name" value=""/>
+  <atv:argument name="series1Address" prefix="series1Address" value=""/>
+  <atv:argument name="series1Color" prefix="series1Color" value=""/>
+  <atv:argument name="series2Name" prefix="series2Name" value=""/>
+  <atv:argument name="series2Address" prefix="series2Address" value=""/>
+  <atv:argument name="series2Color" prefix="series2Color" value=""/>
+  <atv:argument name="series3Name" prefix="series3Name" value=""/>
+  <atv:argument name="series3Address" prefix="series3Address" value=""/>
+  <atv:argument name="series3Color" prefix="series3Color" value=""/>
+  <atv:argument name="series4Name" prefix="series4Name" value=""/>
+  <atv:argument name="series4Address" prefix="series4Address" value=""/>
+  <atv:argument name="series4Color" prefix="series4Color" value=""/>
+  <atv:argument name="series5Name" prefix="series5Name" value=""/>
+  <atv:argument name="series5Address" prefix="series5Address" value=""/>
+  <atv:argument name="series5Color" prefix="series5Color" value=""/>
+  <atv:argument name="series6Name" prefix="series6Name" value=""/>
+  <atv:argument name="series6Address" prefix="series6Address" value=""/>
+  <atv:argument name="series6Color" prefix="series6Color" value=""/>
+  <atv:argument name="series7Name" prefix="series7Name" value=""/>
+  <atv:argument name="series7Address" prefix="series7Address" value=""/>
+  <atv:argument name="series7Color" prefix="series7Color" value=""/>
+  <atv:argument name="series8Name" prefix="series8Name" value=""/>
+  <atv:argument name="series8Address" prefix="series8Address" value=""/>
+  <atv:argument name="series8Color" prefix="series8Color" value=""/>
+  <atv:argument name="series9Name" prefix="series9Name" value=""/>
+  <atv:argument name="series9Address" prefix="series9Address" value=""/>
+  <atv:argument name="series9Color" prefix="series9Color" value=""/>
+  <atv:argument name="series10Name" prefix="series10Name" value=""/>
+  <atv:argument name="series10Address" prefix="series10Address" value=""/>
+  <atv:argument name="series10Color" prefix="series10Color" value=""/>
+  <atv:argument name="series11Name" prefix="series11Name" value=""/>
+  <atv:argument name="series11Address" prefix="series11Address" value=""/>
+  <atv:argument name="series11Color" prefix="series11Color" value=""/>
+  <atv:argument name="series12Name" prefix="series12Name" value=""/>
+  <atv:argument name="series12Address" prefix="series12Address" value=""/>
+  <atv:argument name="series12Color" prefix="series12Color" value=""/>
+  <atv:argument name="series13Name" prefix="series13Name" value=""/>
+  <atv:argument name="series13Address" prefix="series13Address" value=""/>
+  <atv:argument name="series13Color" prefix="series13Color" value=""/>
+  <atv:argument name="series14Name" prefix="series14Name" value=""/>
+  <atv:argument name="series14Address" prefix="series14Address" value=""/>
+  <atv:argument name="series14Color" prefix="series14Color" value=""/>
+  <atv:argument name="series15Name" prefix="series15Name" value=""/>
+  <atv:argument name="series15Address" prefix="series15Address" value=""/>
+  <atv:argument name="series15Color" prefix="series15Color" value=""/>
+  <atv:argument name="series16Name" prefix="series16Name" value=""/>
+  <atv:argument name="series16Address" prefix="series16Address" value=""/>
+  <atv:argument name="series16Color" prefix="series16Color" value=""/>
+  <atv:argument name="series17Name" prefix="series17Name" value=""/>
+  <atv:argument name="series17Address" prefix="series17Address" value=""/>
+  <atv:argument name="series17Color" prefix="series17Color" value=""/>
+  <atv:argument name="series18Name" prefix="series18Name" value=""/>
+  <atv:argument name="series18Address" prefix="series18Address" value=""/>
+  <atv:argument name="series18Color" prefix="series18Color" value=""/>
+  <atv:argument name="series19Name" prefix="series19Name" value=""/>
+  <atv:argument name="series19Address" prefix="series19Address" value=""/>
+  <atv:argument name="series19Color" prefix="series19Color" value=""/>
+  <atv:argument name="series20Name" prefix="series20Name" value=""/>
+  <atv:argument name="series20Address" prefix="series20Address" value=""/>
+  <atv:argument name="series20Color" prefix="series20Color" value=""/>
+  <atv:argument name="series21Name" prefix="series21Name" value=""/>
+  <atv:argument name="series21Address" prefix="series21Address" value=""/>
+  <atv:argument name="series21Color" prefix="series21Color" value=""/>
+  <atv:argument name="series22Name" prefix="series22Name" value=""/>
+  <atv:argument name="series22Address" prefix="series22Address" value=""/>
+  <atv:argument name="series22Color" prefix="series22Color" value=""/>
+  <atv:argument name="series23Name" prefix="series23Name" value=""/>
+  <atv:argument name="series23Address" prefix="series23Address" value=""/>
+  <atv:argument name="series23Color" prefix="series23Color" value=""/>
+  <atv:argument name="series24Name" prefix="series24Name" value=""/>
+  <atv:argument name="series24Address" prefix="series24Address" value=""/>
+  <atv:argument name="series24Color" prefix="series24Color" value=""/>
+  <atv:argument name="series25Name" prefix="series25Name" value=""/>
+  <atv:argument name="series25Address" prefix="series25Address" value=""/>
+  <atv:argument name="series25Color" prefix="series25Color" value=""/>
+  <atv:argument name="unit" prefix="unit"/>
+  <atv:argument name="postDecimals" prefix="postDecimals" value=""/>
+  <atv:argument name="seriesOrder" prefix="seriesOrder"/>
+  <atv:argument name="series9Color" value="#90ed7d"/>
+  <atv:argument name="series6Address" prefix="series6Address"/>
+  <atv:argument name="displayAcNotification" value="false"/>
+  <atv:argument name="right" prefix="right"/>
+  <atv:argument name="activeNode" prefix="activeNode"/>
+  <atv:argument name="activeValue" prefix="activeValue" value=""/>
+  <atv:argument name="min" prefix="min"/>
+  <atv:argument name="max" prefix="max"/>
+  <atv:argument name="seriesOrientation" prefix="seriesOrientation"/>
+  <atv:argument name="seriesCount" prefix="seriesCount" value=""/>
+  <atv:argument name="alarmIndication" prefix="alarmIndication" value=""/>
+  <atv:argument name="colorInactive" prefix="colorInactive" value=""/>
+  <atv:argument name="alarm" prefix="alarm"/>
+  <atv:argument name="statusEnabled" prefix="statusEnabled"/>
+  <atv:argument name="statusTrigger" prefix="statusTrigger"/>
+  <atv:argument name="statusIndication" prefix="statusIndication" value=""/>
+  <atv:argument name="textColor" prefix="textColor" value=""/>
+  <atv:overwrite id="sub_label" transform="matrix(1.0067,0,0,1.0078,0,0)" visibility="hidden" x="74.5" y="81.873"/>
+  <atv:overwrite id="main_label" transform="matrix(1.0067,0,0,1.0078,0,0)" visibility="hidden" x="74.5" y="63.127"/>
+  <atv:overwrite height="127" id="fo_container" transform="matrix(1.0067,0,0,1.0078,0,0)" width="147"/>
+  <atv:overwrite height="128" id="border" transform="matrix(1.0067,0,0,1.0078,0,0)" visibility="hidden" width="148"/>
+ </svg>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80" atv:refpy="90" fill="#ffffff" height="130" id="content_frame" stroke="#000000" stroke-width="0" width="150" x="5" y="25"/>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80" atv:refpy="90" fill="#ffffff" height="130" id="content_frame" stroke="#000000" stroke-width="0" width="150" x="5" y="25"/>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80" atv:refpy="80" fill="#ffffff" fill-opacity="0" height="156" id="blinking_frame" stroke="#000000" stroke-width="2" width="156" x="2" y="2"/>
+ <text atv:bindbr="0.5,0.5" atv:bindtl="0.5,0.5" atv:refpx="80" atv:refpy="82.999" fill="#575757" font-family="Arial" font-size="20" id="main_label" text-anchor="middle" x="80" y="90.5">Dashboard</text>
+ <text atv:bindbr="0.5,0.5" atv:bindtl="0.5,0.5" atv:refpx="79.197" atv:refpy="103.247" fill="#575757" font-family="Arial" font-size="16" id="sub_label" text-anchor="middle" x="80" y="109.246">Chart bar tile</text>
+ <!-- clieck area -->
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80" atv:refpy="12.5" fill="#000088" fill-opacity="0" height="25" id="clickarea_title" stroke="#0000ff" stroke-width="0" width="160" x="0" y="0"/>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80" atv:refpy="92.5" fill="#000088" fill-opacity="0" height="135" id="clickarea_display" stroke="#0000ff" stroke-width="0" width="160" x="0" y="25"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.common.indicator_handling" atv:name="indicator_handling" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.common.rights_handling" atv:name="rights_handling" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.dashboard.chart_bar_tile" atv:name="chart_bar_tile" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

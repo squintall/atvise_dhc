@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Santa_Fe.ip_gtw
+NodeClass: Variable
+BrowseName: 1:ip_gtw
+DisplayName: en|ip_gtw
+Description: en|ip_gtw
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png"></icon>
+    <visible>1</visible>
+    <title></title>
+    <description></description>
+  </metadata>
+  <code><![CDATA[/**
+ * CertificateManager Quickdynamic
+ *
+ * Manages digital certificates in various storage locations: "SERVER", "MIRROR", and "HTTPS".
+ * Provides methods to list, check validity, trust, reject, create, read, get defaults, delete, and upload
+ * certificates.
+ *
+ * Valid store values: "SERVER", "MIRROR", "HTTPS".
+ * Valid type values: "OWN", "TRUSTED", "REJECTED", "ISSUER", "ALL".
+ *
+ * Each method returns a promise resolving with the result of the webMI call.
+ *
+ * Usage:
+ * const certManager = new CertificateManager();
+ * certManager.list("SERVER", ["OWN", "TRUSTED"])
+ *   .then(certificates => console.log(certificates))
+ *   .catch(error => console.error(error));
+ */
+class CertificateManager {
+	async callWebMI(action, params) {
+		return new Promise((resolve, reject) => {
+			webMI.data.call("CertificateManager", { action, ...params }, (response) => {
+				const parsedResult = JSON.parse(response.result);
+
+				if (parsedResult.error) {
+					reject(new Error(parsedResult.errorstring));
+				} else {
+					resolve(parsedResult.result);
+				}
+			});
+		});
+	}
+
+	_getFileExtension(filename) {
+		return filename.substring(filename.lastIndexOf(".") + 1) || "";
+	}
+
+	list(store, types) {
+		return this.callWebMI("list", { store, types });
+	}
+
+	checkValidity(store, type, certificateName) {
+		return this.callWebMI("checkValidity", { store, type, certificateName });
+	}
+
+	trust(store, type, certificateName) {
+		return this.callWebMI("trust", { store, type, certificateName });
+	}
+
+	reject(store, type, certificateName) {
+		return this.callWebMI("reject", { store, type, certificateName });
+	}
+
+	create(store, certificateName, commonName) {
+		return this.callWebMI("create", { store, certificateName, commonName });
+	}
+
+	read(store, type, certificateName) {
+		return this.callWebMI("read", { store, type, certificateName });
+	}
+
+	getDefaults(store) {
+		return this.callWebMI("defaults", { store });
+	}
+
+	delete(store, type, certificateName) {
+		return this.callWebMI("delete", { store, type, certificateName });
+	}
+
+	async upload(store, type, certificateFiles, sharedName) {
+		function readFile(file) {
+			return new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = () => {
+					// Extract Base64 content from the Data URL
+					const base64Content = reader.result.split(",")[1]; // Get the part after "data:...;base64,"
+					resolve({
+						name: file.name,
+						content: base64Content
+					});
+				};
+				reader.onerror = () => reject(new Error("File reading error"));
+
+				reader.readAsDataURL(file); // Read as Data URL to get Base64
+			});
+		}
+
+		// Process each file individually
+		for (const file of certificateFiles) {
+			if (typeof file === "undefined") break;
+
+			const fileData = await readFile(file);
+			const fileExtension = this._getFileExtension(fileData.name);
+			const certificateName = `${sharedName}.${fileExtension}`;
+			const fileContent = fileData.content;
+
+			// Send each file as a separate call
+			await this.callWebMI("upload", {
+				store,
+				type,
+				certificateName,
+				fileContent
+			});
+		}
+	}
+
+	async syncStores() {
+		await this.callWebMI("syncStores", {});
+	} 
+}
+
+return new CertificateManager();]]></code>
+</script>

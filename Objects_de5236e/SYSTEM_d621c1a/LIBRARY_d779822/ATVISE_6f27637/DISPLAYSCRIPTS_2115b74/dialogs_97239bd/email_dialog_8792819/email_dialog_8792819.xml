@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the generic email_dialog object display
+ * -------------------------------------------
+ * This display creates or edits report configurations.
+ *
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+const hasBrowseNodes = webMI.getMethodSupport().indexOf("BrowseNodes") !== -1;
+const encodinglist = ["", "BASE64", "QUOTED-PRINTABLE", "8BIT", "7BIT", "BINARY", "x-token"];
+const info = webMI.query["info"] ? webMI.query["info"] : "";
+let attachmentElement = {};
+let emailSettings = {};
+
+// Let the user either pass a complete settings object via
+// webMI.query.emailSettings, or use query parameters.
+try {
+	if (webMI.query.emailSettings) {
+		const parsedSettings = JSON.parse(webMI.query.emailSettings);
+
+		const requiredKeys = [
+			"active",
+			"smtp",
+			"from",
+			"to",
+			"cc",
+			"bcc",
+			"subject",
+			"body",
+			"attachment",
+			"reply",
+			"contenttype",
+			"encoding",
+			"custom"
+		];
+
+		const hasAllKeys = requiredKeys.every((key) => parsedSettings.hasOwnProperty(key));
+
+		if (!hasAllKeys) {
+			throw new Error("webMI.query.emailSettings is missing some required keys.");
+		}
+
+		emailSettings = parsedSettings;
+	}
+} catch (ex) {
+	/**
+	 * emailSettings is not a valid JSON object or missing necessary keys.
+	 * This should not happen, but it is handled gracefully by throwing
+	 * an error and leaving the emailSettings object empty.
+	 */
+	console.error(ex.message);
+	console.error("Using query parameters instead.");
+}
+
+if (Object.keys(emailSettings).length === 0) {
+	// Map settings from webMI.query.emailSettings one-to-one
+	emailSettings = {
+		active: webMI.query["active"] == "true" ? true : false,
+		smtp: webMI.query["smtp"] ? webMI.query["smtp"] : "",
+		from: webMI.query["from"] ? webMI.query["from"] : "",
+		to: webMI.query["to"] ? webMI.query["to"] : "",
+		cc: webMI.query["cc"] ? webMI.query["cc"] : "",
+		bcc: webMI.query["bcc"] ? webMI.query["bcc"] : "",
+		subject: webMI.query["subject"] ? webMI.query["subject"] : "",
+		body: webMI.query["body"] ? webMI.query["body"] : "",
+		attachment: webMI.query["attachment"] ? JSON.parse(webMI.query["attachment"]) : [],
+		reply: webMI.query["reply"] ? webMI.query["reply"] : "",
+		contenttype: webMI.query["contenttype"] ? webMI.query["contenttype"] : "",
+		encoding: webMI.query["encoding"] ? webMI.query["encoding"] : "",
+		custom: webMI.query["custom"] ? webMI.query["custom"] : ""
+	};
+}
+
+/**
+ * Checks the attachment array in the email settings, filters out invalid items, sets error message if any invalid items found, and filters the attachment array again.
+ */
+function checkAttachmentArray() {
+	if (!Array.isArray(emailSettings.attachment)) {
+		setMessage("T{Error}: T{E-Mail attachment is not from type 'array'}.", true);
+		emailSettings.attachment = [];
+	}
+
+	const invalidItems = emailSettings.attachment.filter((item) => !isAttachment(item));
+
+	if (invalidItems.length) {
+		setMessage("T{Error}: T{E-Mail attachment array contains invalid items.}");
+	}
+
+	emailSettings.attachment = emailSettings.attachment.filter(isAttachment);
+}
+
+checkAttachmentArray();
+
+const lock = {};
+lock.active = webMI.query["editable_active"] == "No" ? true : false;
+lock.smtp = webMI.query["editable_smtp"] == "No" ? true : false;
+lock.from = webMI.query["editable_from"] == "No" ? true : false;
+lock.to = webMI.query["editable_to"] == "No" ? true : false;
+lock.cc = webMI.query["editable_cc"] == "No" ? true : false;
+lock.bcc = webMI.query["editable_bcc"] == "No" ? true : false;
+lock.subject = webMI.query["editable_subject"] == "No" ? true : false;
+lock.body = webMI.query["editable_body"] == "No" ? true : false;
+lock.attachment = webMI.query["editable_attachment"] == "No" ? true : false;
+lock.reply = webMI.query["editable_reply"] == "No" ? true : false;
+lock.contenttype = webMI.query["editable_contenttype"] == "No" ? true : false;
+lock.encoding = webMI.query["editable_encoding"] == "No" ? true : false;
+lock.custom = webMI.query["editable_custom"] == "No" ? true : false;
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+let accessControlManager = false;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * FUNCTION SECTION
+ */
+function lockInputs(bool) {
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.active, "active_toggle");
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.smtp, "smtp_input");
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.from, "from_input");
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.to, "to_input");
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.cc, "cc_input");
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.bcc, "bcc_input");
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.subject, "subject_input");
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.body, "body_input");
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.reply, "reply_input");
+	webMI.trigger.fire(
+		"com.atvise.setActive",
+		typeof bool !== "undefined" ? !bool : !lock.contenttype,
+		"contenttype_input"
+	);
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.encoding, "encoding_input");
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.custom, "custom_input");
+
+	webMI.gfx.setVisible("attachment_apply", typeof bool !== "undefined" ? !bool : !lock.attachment);
+	webMI.trigger.fire(
+		"com.atvise.setActive",
+		typeof bool !== "undefined" ? !bool : !lock.attachment,
+		"attachment_remove"
+	);
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.attachment, "att_name_input");
+	webMI.trigger.fire(
+		"com.atvise.setActive",
+		typeof bool !== "undefined" ? !bool : !lock.attachment,
+		"att_contenttype_input"
+	);
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.attachment, "att_path_input");
+	webMI.trigger.fire("com.atvise.setActive", typeof bool !== "undefined" ? !bool : !lock.attachment, "att_type_input");
+	webMI.trigger.fire(
+		"com.atvise.setActive",
+		typeof bool !== "undefined" ? !bool : !lock.attachment,
+		"att_inline_input"
+	);
+	webMI.trigger.fire(
+		"com.atvise.setActive",
+		typeof bool !== "undefined" ? !bool : !lock.attachment,
+		"att_encoded_input"
+	);
+}
+
+/**
+ * Check if the variable is an object with specified properties for attachment settings
+ *
+ * @param {any} variable - The variable to check.
+ * @return {boolean} - True if the variable is an object with specified properties for attachment settings, false otherwise.
+ */
+function isAttachment(variable) {
+	if (typeof variable === "object" && variable !== null) {
+		return "type" in variable && "name" in variable && "content_type" in variable;
+	}
+	return false;
+}
+
+function handleAttachments(ele, select) {
+	if (!Array.isArray(ele)) return;
+
+	const list = [];
+	webMI.trigger.fire("setItems", {}, "attachment_input");
+
+	for (let i in ele) {
+		const item = ele[i];
+
+		if (typeof item == "object") {
+			if (item.name) {
+				list.push({ text: item.name, value: JSON.stringify(item) });
+			} else {
+				list.push({ text: JSON.stringify(item), value: JSON.stringify(item) });
+			}
+		} else if (typeof item == "string") {
+			list.push({ text: item, value: item });
+		}
+	}
+
+	webMI.trigger.fire("setItems", list, "attachment_input");
+	webMI.trigger.fire("setSelectedItem", select ? select : list.length > 0 ? list[0].text : "", "attachment_input");
+
+	if (list.length == 0) {
+		webMI.trigger.fire("setValue", "", "att_name_input");
+		webMI.trigger.fire("setValue", "", "att_contenttype_input");
+		webMI.trigger.fire("setValue", "", "att_path_input");
+	}
+}
+
+function setValues() {
+	webMI.trigger.fire("setValue", info, "info");
+	webMI.trigger.fire("setChecked", emailSettings.active, "active_toggle");
+	webMI.trigger.fire("setSelectedItem", emailSettings.smtp, "smtp_input");
+	webMI.trigger.fire("setValue", emailSettings.from, "from_input");
+	webMI.trigger.fire("setValue", emailSettings.to, "to_input");
+	webMI.trigger.fire("setValue", emailSettings.cc, "cc_input");
+	webMI.trigger.fire("setValue", emailSettings.bcc, "bcc_input");
+	webMI.trigger.fire("setValue", emailSettings.subject, "subject_input");
+	webMI.trigger.fire("setValue", emailSettings.body, "body_input");
+	webMI.trigger.fire("setValue", emailSettings.reply, "reply_input");
+	webMI.trigger.fire("setValue", emailSettings.contenttype, "contenttype_input");
+	webMI.trigger.fire("setValue", emailSettings.custom, "custom_input");
+	webMI.trigger.fire(
+		"setSelectedItem",
+		emailSettings.encoding ? emailSettings.encoding : "T{Default}",
+		"encoding_input"
+	);
+	handleAttachments(emailSettings.attachment);
+}
+
+function setMessage(msg, error) {
+	if (typeof msg == "undefined") msg = "";
+
+	if (error) webMI.gfx.setFill("message", "#FF0000");
+	else webMI.gfx.setFill("message", "#00BB30");
+
+	webMI.gfx.setText("message", msg);
+}
+
+function checkEmail(address) {
+	setMessage();
+	webMI.trigger.fire("com.atvise.setActive", true, "save_button");
+
+	if (address != "" && (address.indexOf("@") == -1 || address.indexOf(".") == -1)) {
+		webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+		setMessage("T{Error}: " + "T{E-mail address has invalid format}: " + address, true);
+		return false;
+	}
+	return true;
+}
+
+function browseSMTP() {
+	webMI.trigger.fire("addItem", { text: "T{[none]}", value: "" }, "smtp_input");
+	if (!hasBrowseNodes) {
+		return;
+	}
+
+	function browse(startAddress) {
+		webMI.data.call(
+			"BrowseNodes",
+			{
+				startAddress: startAddress,
+				vTypes: ["ns=1;s=ObjectTypes.ATVISE.SmtpServer"]
+			},
+			function (e) {
+				for (let i in e) {
+					if (typeof e[i].text == "undefined") continue;
+					webMI.trigger.fire("addItem", { text: e[i].text, value: e[i].text }, "smtp_input");
+				}
+			}
+		);
+	}
+
+	const startAddress = "AGENT.SMTPSERVERS";
+	if (accessControlManager) {
+		const compareRights = [
+			{ node: startAddress, right: "browse" },
+			{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes", right: "execute" }
+		];
+
+		accessControlManager.assist.handleWithPermissions(
+			compareRights,
+			function success() {
+				browse(startAddress);
+			},
+			function failure() {
+				return;
+			}
+		);
+	} else {
+		browse(startAddress);
+	}
+}
+
+/**
+ * RUNTIME SECTION
+ */
+for (let i in encodinglist) {
+	webMI.trigger.fire(
+		"addItem",
+		{ text: encodinglist[i] == "" ? "T{Default}" : encodinglist[i], value: encodinglist[i] },
+		"encoding_input"
+	);
+}
+
+webMI.gfx.setText("confirm_button_button_label", webMI.query["confirm"] ? webMI.query["confirm"] : "T{Confirm}");
+webMI.gfx.setText("cancel_button_button_label", webMI.query["cancel"] ? webMI.query["cancel"] : "T{Cancel}");
+
+webMI.addOnload(function () {
+	setMessage();
+	lockInputs();
+	browseSMTP();
+	setValues();
+});
+
+/**
+ * TRIGGERS
+ */
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		emailSettings.active = e.value == "true" ? true : false;
+	},
+	"active_toggle"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		emailSettings.smtp = e.value;
+	},
+	"smtp_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!checkEmail(e.value)) return;
+
+		emailSettings.from = e.value;
+	},
+	"from_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!checkEmail(e.value)) return;
+
+		emailSettings.to = e.value;
+	},
+	"to_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!checkEmail(e.value)) return;
+
+		emailSettings.cc = e.value;
+	},
+	"cc_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!checkEmail(e.value)) return;
+
+		emailSettings.bcc = e.value;
+	},
+	"bcc_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		emailSettings.subject = e.value;
+	},
+	"subject_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		emailSettings.body = e.value;
+	},
+	"body_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		attachmentElement.type = e.value;
+	},
+	"att_type_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		attachmentElement.name = e.value;
+
+		let isNew = true;
+		for (let i in emailSettings.attachment) {
+			if (emailSettings.attachment[i].name == e.value) isNew = false;
+		}
+
+		if (isNew) webMI.gfx.setText("attachment_apply_button_label", "T{Add}");
+		else webMI.gfx.setText("attachment_apply_button_label", "T{Edit}");
+	},
+	"att_name_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		attachmentElement.content_type = e.value;
+	},
+	"att_contenttype_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		attachmentElement.path = e.value;
+	},
+	"att_path_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		attachmentElement.inline = e.value;
+	},
+	"att_inline_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		attachmentElement.encoded = e.value;
+	},
+	"att_encoded_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (e.value === "") return;
+		let attachment = null;
+
+		try {
+			attachment = JSON.parse(e.value);
+			const type =
+				attachment.type == "SMTPClient.A_FILE" ? "T{File}" : attachment.type == "SMTPClient.A_DATA" ? "T{Data}" : "";
+			webMI.trigger.fire("setSelectedItem", type, "att_type_input");
+			webMI.trigger.fire("setValue", attachment.name ? attachment.name : "", "att_name_input");
+			webMI.trigger.fire("setValue", attachment.content_type ? attachment.content_type : "", "att_contenttype_input");
+
+			const path = attachment.file_path ? attachment.file_path : attachment.data_address ? attachment.data_address : "";
+			webMI.trigger.fire("setValue", path, "att_path_input");
+			webMI.trigger.fire("setChecked", attachment.inline == "true" ? true : false, "att_inline_input");
+			webMI.trigger.fire("setChecked", attachment.encoded == "true" ? true : false, "att_encoded_input");
+		} catch (ex) {
+			setMessage("T{Error}: " + ex.message, true);
+		}
+	},
+	"attachment_input"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		let isNew = true;
+		const newEle = {
+			type: attachmentElement.type,
+			name: attachmentElement.name,
+			content_type: attachmentElement.content_type,
+			inline: attachmentElement.inline,
+			encoded: attachmentElement.encoded
+		};
+
+		if (attachmentElement.type == "SMTPClient.A_FILE") {
+			newEle["file_path"] = attachmentElement.path;
+		} else if (attachmentElement.type == "SMTPClient.A_DATA") {
+			newEle["data_address"] = attachmentElement.path;
+		} else {
+			return;
+		}
+
+		for (let i in emailSettings.attachment) {
+			if (emailSettings.attachment[i].name == newEle.name) {
+				isNew = false;
+				emailSettings.attachment[i] = newEle;
+			}
+		}
+
+		if (isNew) emailSettings.attachment.push(newEle);
+		handleAttachments(emailSettings.attachment, newEle.name);
+	},
+	"attachment_apply"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.trigger.fire(
+			"getSelectedItem",
+			function (e) {
+				const items = emailSettings.attachment;
+
+				if (!Array.isArray(items)) return;
+
+				let index = null;
+				for (let i in items) {
+					if (typeof items[i] != "string" && JSON.stringify(items[i]) == e.value) {
+						index = i;
+					} else if (typeof items[i] == "string" && items[i] == e.value) {
+						index = i;
+					}
+				}
+
+				if (index != null) {
+					items.splice(index, 1);
+					emailSettings.attachment = items;
+				}
+
+				handleAttachments(emailSettings.attachment);
+			},
+			"attachment_input"
+		);
+	},
+	"attachment_remove"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!checkEmail(e.value)) return;
+
+		emailSettings.reply = e.value;
+	},
+	"reply_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		emailSettings.contenttype = e.value;
+	},
+	"contenttype_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		emailSettings.encoding = e.value;
+	},
+	"encoding_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		emailSettings.custom = e.value;
+	},
+	"custom_input"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.trigger.fire("valuechanged_" + webMI.query.name, emailSettings);
+
+		setTimeout(function () {
+			webMI.display.closeWindow();
+		}, 0);
+	},
+	"confirm_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.display.closeWindow();
+	},
+	"cancel_button"
+);
+]]></code>
+</script>

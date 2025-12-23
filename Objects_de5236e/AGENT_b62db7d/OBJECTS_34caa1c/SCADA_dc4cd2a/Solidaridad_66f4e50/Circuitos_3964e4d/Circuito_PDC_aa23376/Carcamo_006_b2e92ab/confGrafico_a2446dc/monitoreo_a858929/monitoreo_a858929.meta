@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_006.confGrafico.monitoreo
+NodeClass: Variable
+BrowseName: 1:monitoreo
+DisplayName: en|monitoreo
+Description: en|monitoreo
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

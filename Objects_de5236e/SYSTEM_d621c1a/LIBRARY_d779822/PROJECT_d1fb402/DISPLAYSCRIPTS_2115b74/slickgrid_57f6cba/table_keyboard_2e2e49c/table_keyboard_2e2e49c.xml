@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+    <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the table keyboard object display
+ * ----------------------------------------
+ * This script supports the display handling the table keyboard.
+ */
+
+
+/**
+ * Declaration Section
+ */
+var directKeyboardMode = webMI.query["allowDirectInput"] === "true";
+var inputTypes = ['text', 'password', 'number'];
+var keyboard = webMI.query["keyboard"];
+var tableID = webMI.query["tableID"];
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var style = webMI.query["style"];
+
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+	webMI.table.loadResources(function () {
+		webMI.table.waitReady(tableID, "ControllerConfig", function () {
+			var tableController = webMI.table.request(tableID, "controller");
+			var tableConfig = webMI.table.request(tableID, "ControllerConfig");
+
+			webMI.rootWindow.document.getElementById(tableConfig.containerID).addEventListener("click", _evalInputs);
+
+			function _evalInputs(e) {
+				var type;
+				try {
+					var type = e.target.getAttribute('type').toLowerCase();
+				} catch (ex) { /* not a valid type */
+				}
+				if (inputTypes.indexOf(type) < 0)
+					return;
+				switchToInputMode(e.target);
+			}
+		});
+	});
+});
+
+
+/**
+ * Function Section
+ */
+function switchToInputMode(target) {
+	var useSVGKeyboard = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Configuration", {
+		"action": "existsIndexParameter",
+		"parameterName": "useSVGKeyboard"
+	});
+
+	if (useSVGKeyboard == "true")
+		directKeyboardMode = false;
+
+	if (!directKeyboardMode) {
+		function getDisplayParameters() {
+			var communicationID = new Date().getTime().toString();
+			webMI.trigger.connect(communicationID, function (eKeybord) {
+
+				if (typeof eKeybord.value != "undefined") {
+					target.focus();
+					target.value = eKeybord.value;
+					target.blur();
+				}
+
+				var ev = parent.document.createEvent("HTMLEvents");
+				ev.initEvent("keyup", false, true);
+				target.dispatchEvent(ev);
+
+			});
+
+			var passObj = {};
+			for (var i in webMI.query)
+				passObj[i] = webMI.query[i];
+			passObj["trigger"] = communicationID;
+			passObj["value"] = target.value;
+			return passObj;
+		}
+
+		var size = {w: 550, h: 250};
+
+		if (!keyboard) {
+			keyboard = "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.keyboard.keyboard";
+		}
+
+		var keyboardParam = getDisplayParameters();
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: size.h,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Keyboard}",
+			toolbar: false,
+			width: size.w,
+			query: keyboardParam
+		});
+	}
+}]]></code>
+</script>

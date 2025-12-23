@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Caudalimetros.L_20.current_flow.FlujoAnormal.Cero.upper_limit_compare
+NodeClass: Variable
+BrowseName: 1:upper_limit_compare
+DisplayName: en|upper_limit_compare
+Description: en|upper_limit_compare
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

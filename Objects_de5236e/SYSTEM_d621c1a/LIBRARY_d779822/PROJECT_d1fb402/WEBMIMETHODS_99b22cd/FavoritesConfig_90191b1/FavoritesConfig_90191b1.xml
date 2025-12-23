@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>owner</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/** Helper for reading and writing favorite button configurations with root access */
+var address = request.postvalues.address;
+var value = request.postvalues.value;
+var caller = script.caller;
+
+if (caller == "")
+	return false;
+
+var parent_node = Ua.findNode(address);
+var user_node = Ua.findNode(address + "." + caller);
+var parent_exist = Ua.Status(parent_node) != Ua.Status.BADNODEIDUNKNOWN;
+var user_exist = Ua.Status(user_node) != Ua.Status.BADNODEIDUNKNOWN;
+
+/**
+ * Set value empty for new nodes
+ */
+if(!user_exist)
+	value = "";
+
+/**
+ * Check if parent address is a valid favorite button configuration node
+ * @returns {boolean}
+ */
+function checkParent() {
+	var ret = false;
+	if (parent_exist) {
+		var value = parent_node.result.value;
+		if (value != "") {
+			try {
+				var obj = JSON.parse(value);
+				if (typeof obj["buttonConfigIndex"] != "undefined")
+					ret = true;
+			} catch (ex) { console.warn("FavoritesConfig script @ checkParent: " + ex); }
+		}
+	}
+	return ret;
+}
+
+/**
+ * Check if value is valid for a favorite button configuration
+ * @returns {boolean}
+ */
+function checkValue(string) {
+	if(string == "")
+		return true;
+
+	var ret = false;
+	try {
+		var obj = JSON.parse(string);
+		if (obj.length > 0 && typeof obj[0].name == "string" && typeof obj[0].address == "string" && typeof obj[0].query == "string" )
+			ret = true;
+	} catch(ex) { console.warn("FavoritesConfig script @ checkValue: " + ex); }
+
+	return ret;
+}
+
+/**
+ * Read or write favorite button configuration
+ */
+if (typeof value != "undefined") {
+	/* try to write favorites configuration if a write value is defined */
+	if (checkValue(value)) {
+		var parent_created = false;
+		if (!parent_exist) {
+			/* add parent node when user has required permission */
+			var utils = call("AccessControl.Configuration", {});
+			var top_node = address.substring(0, address.lastIndexOf('.'));
+			var permissionsForNode = utils.getRuntimePermissionsForNode(top_node);
+
+			if (permissionsForNode.users[caller]) {
+				var permissionsForUser = permissionsForNode.users[caller];
+				if (permissionsForUser["write"] || permissionsForUser["engineer"]) {
+					Ua.createNode(address, {
+						"nodeClass": Ua.NodeClass["VARIABLE"],
+						"parent": top_node,
+						"typeDefinition": "i=62",
+						"dataType": Ua.DataType["STRING"],
+						"value": "{\"buttonConfigIndex\": \"\"}"
+					});
+
+					parent_created  = true;
+					utils.setPermissionsForNode(address, "");
+				}
+			}
+		}
+
+		if (checkParent() || parent_created) {
+			if (!user_exist) {
+				/* add and write user node if not exist and parent is valid*/
+				Ua.createNode(address + "." + caller, {
+					"nodeClass": Ua.NodeClass["VARIABLE"],
+					"parent": address,
+					"typeDefinition": "i=62",
+					"dataType": Ua.DataType["STRING"],
+					"value": value
+				});
+				return true;
+			} else  {
+				/* write configuration if node exist and parent is valid */
+				user_node.result.value = value;
+				return true;
+			}
+		}
+
+		return false;
+	}
+} else if (user_exist) {
+	/* read favorites configuration if write value is not defined and user node exist */
+	var result = user_node.result.value;
+	if (checkParent() && checkValue(result))
+		return result;
+}
+
+return false;
+
+]]></code>
+</script>

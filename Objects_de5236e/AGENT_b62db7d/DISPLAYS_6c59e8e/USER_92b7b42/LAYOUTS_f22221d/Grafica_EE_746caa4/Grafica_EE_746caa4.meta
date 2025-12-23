@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.LAYOUTS.Grafica_EE
+NodeClass: Variable
+BrowseName: 1:Grafica_EE
+DisplayName: en|Grafica_EE
+Description: en|Grafica_EE
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

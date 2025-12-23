@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="csvFile" type="textfilecontent" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/*
+	CsvDelete
+
+	Prerequisites:
+
+		You need a CSV file with only one header field
+		x) <NodeName>			[MANDATORY]		Node name, if the node is a folder or objects, all children nodes will automatically get deleted
+
+	How the script works:
+
+		1) Start the script by right clicking on your "OBJECTS" folder and choosing Node actions - ATVISE -> CsvDelete
+		2) Choose the CSV input file in the appearing dialog
+		3) The script reads the given CSV file line by line - it will delete folders/variables/objects
+		4) WAIT UNTIL THE DIALOG BOX "script finished succesfully" appears - atvise builder and project console can not be used while the import is running
+		5) Refresh your "OBJECTS" tree by right clicking it once
+		6) The script will print out a short summary of succesfully deleted nodes in the server log
+*/
+
+call("Csv.Delete")(csvFile);]]></code>
+</script>

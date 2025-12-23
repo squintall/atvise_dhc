@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/timer/imgs_glossy/second-top-days-bg.png
+NodeClass: Variable
+BrowseName: 1:second-top-days-bg.png
+DisplayName: en|second-top-days-bg.png
+Description: en|second-top-days-bg.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

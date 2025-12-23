@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var data = {};
+webMI.trigger.connect("clicked", function(e){
+	data.save = 1;
+	webMI.display.closeWindow();	
+	webMI.trigger.fire(webMI.query.triggerName, data);
+}, "save_button");
+
+webMI.trigger.connect("clicked", function(e){
+	data.save = 0;
+	webMI.display.closeWindow();
+	webMI.trigger.fire(webMI.query.triggerName, data);
+}, "cancel_button");]]></code>
+</script>

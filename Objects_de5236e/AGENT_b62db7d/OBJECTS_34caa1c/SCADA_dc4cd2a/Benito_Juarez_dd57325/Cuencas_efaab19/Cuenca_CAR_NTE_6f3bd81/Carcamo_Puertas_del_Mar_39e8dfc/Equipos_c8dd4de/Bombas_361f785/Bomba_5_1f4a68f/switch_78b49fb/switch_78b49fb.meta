@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Puertas_del_Mar.Equipos.Bombas.Bomba_5.switch
+NodeClass: Variable
+BrowseName: 1:switch
+DisplayName: en|switch
+Description: en|switch
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

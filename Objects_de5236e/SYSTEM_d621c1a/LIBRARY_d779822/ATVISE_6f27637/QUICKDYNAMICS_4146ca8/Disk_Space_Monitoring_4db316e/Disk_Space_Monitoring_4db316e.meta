@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Disk Space Monitoring
+NodeClass: Variable
+BrowseName: 1:Disk Space Monitoring
+DisplayName: en|Disk Space Monitoring
+Description: en|Disk Space Monitoring
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

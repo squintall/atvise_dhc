@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Tierra_Maya_1.Equipos.Caudalimetro.L1.HF2
+NodeClass: Variable
+BrowseName: 1:HF2
+DisplayName: en|HF2
+Description: en|HF2
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Scrubber.alarma_sonora
+NodeClass: Variable
+BrowseName: 1:alarma_sonora
+DisplayName: en|alarma_sonora
+Description: en|alarma_sonora
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

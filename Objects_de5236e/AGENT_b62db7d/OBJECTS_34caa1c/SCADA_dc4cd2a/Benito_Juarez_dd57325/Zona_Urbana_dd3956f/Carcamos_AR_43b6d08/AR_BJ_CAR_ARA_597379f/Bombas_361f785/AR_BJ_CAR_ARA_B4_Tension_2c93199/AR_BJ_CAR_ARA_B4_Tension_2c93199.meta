@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AR.AR_BJ_CAR_ARA.Bombas.AR_BJ_CAR_ARA_B4_Tension
+NodeClass: Variable
+BrowseName: 1:AR_BJ_CAR_ARA_B4_Tension
+DisplayName: en|AR_BJ_CAR_ARA_B4_Tension
+Description: en|AR_BJ_CAR_ARA_B4_Tension
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

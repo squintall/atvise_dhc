@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_11_ZH_PokTaPok.Equipos.Energia.PAC4200_General
+NodeClass: Object
+BrowseName: 1:PAC4200_General
+DisplayName: en|PAC4200_General
+Description: en|PAC4200_General
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.PAC_4200
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.PAC_4200.historizacion_00_05
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.PAC_4200.historizacion_01_00

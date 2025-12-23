@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.require_login
+NodeClass: Variable
+BrowseName: 1:require_login
+DisplayName: en|require_login
+Description: en|require_login
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

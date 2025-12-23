@@ -1,0 +1,69 @@
+<html>
+	<head>
+		<title>ResetScaling Quickdynamic</title>
+		<style>
+			span.param { font-weight: bold; padding-right: 5px; }
+			li { padding-bottom: 5px; }
+		</style>
+	</head>
+	<body>
+		<h1>ResetScaling</h1>
+		<p>
+			If an object display is embedded in another resetting the outer may deform the inner. 
+			With this Quickdynamic this can be prevented.
+		</p>
+		<h2>Parameters</h2>
+		<ul>
+			<li>
+				<span class="param">innerNode</span>DOMElement<br />
+				The node containing the deformed object display.
+			</li>
+			<li>
+				<span class="param">callback</span>function(originalSize: Size, renderedSize: Size, scale: Number, scaleInverse: Number)<br />
+			The callback in which the scaling can be reset. It's parameters are:
+				<ul>
+					<li>
+						<span class="param">originalSize</span>Size<br />
+						The original size.
+					</li>
+					<li>
+						<span class="param">renderedSize</span>Size<br />
+						The rendered size.
+					</li>
+					<li>
+						<span class="param">scale</span>Number<br />
+						The resulting scale factor.
+					</li>
+					<li>
+						<span class="param">scaleInverse</span>Number<br />
+						Inverse of the scale.
+					</li>
+				</ul>
+			</li>
+			<li>
+				<span class="param">originalWidth</span>Number<br />
+				The unscaled width of innerNode
+			</li>
+			<li>
+				<span class="param">originalHeight</span>Number<br />
+				The unscaled height of innerNode
+			</li>
+		</ul>
+		<h2>Usage Example</h2>
+		<p>
+			Assuming an element with the id 'button' with a size of 100 * 31 has a child element with the id 'button_label' that is stretched along the x axis. You could reset the deformation by calling:
+		</p>
+		<pre>
+			<code>
+webMI.callExtension("SYSTEM.LIBRARY.PROJECT.QUICKDYNAMICS.ResetScaling", {
+		callback: function(originalSize, renderedSize, scale, scaleInverse) {
+				webMI.gfx.setScaleX('button_button_label', scaleInverse.x);
+		},
+		originalWidth: 100,
+		originalHeight: 31,
+		innerNode: document.getElementById('button')
+});
+			</code>
+		</pre>
+	</body>
+</html>

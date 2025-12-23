@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.recipemanager.update_structure
+NodeClass: Variable
+BrowseName: 1:update_structure
+DisplayName: en|update_structure
+Description: en|update_structure
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

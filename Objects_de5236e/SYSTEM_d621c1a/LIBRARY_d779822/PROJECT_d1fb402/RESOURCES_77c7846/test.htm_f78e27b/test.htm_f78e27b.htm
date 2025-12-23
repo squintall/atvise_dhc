@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>webMI test</title>
+</head>
+<body>
+<table border="1">
+<tr><th>node</th><th>value</th><th>set</th></tr>
+<tr><td>int1</td><td id="td1"></td><td><a id="a1">SET</a></td></tr>
+<tr><td>int2</td><td id="td2"></td><td><a id="a2">SET</a></td></tr>
+<tr><td>int3</td><td id="td3"></td><td><a id="a3">SET</a></td></tr>
+</table>
+<script src="webmi.js" type="text/javascript"></script>
+<script type="text/javascript">
+/*----------subscribes-----------*/
+webMI.data.subscribe("AGENT.OBJECTS.int1",function(e){
+	var td = document.getElementById("td1");
+	td.innerHTML = e.value;
+});
+webMI.data.subscribe("AGENT.OBJECTS.int2",function(e){
+	var td = document.getElementById("td2");
+	td.innerHTML = e.value;
+});
+webMI.data.subscribe("AGENT.OBJECTS.int3",function(e){
+	var td = document.getElementById("td3");
+	td.innerHTML = e.value;
+});
+/*----------------------------*/
+
+/*----------click events-----------*/
+webMI.addEvent("a1", "click", function(e) {
+	var value = prompt("value?");
+	webMI.data.write("AGENT.OBJECTS.int1", value);
+});
+webMI.addEvent("a2", "click", function(e) {
+	var value = prompt("value?");
+	webMI.data.write("AGENT.OBJECTS.int2", value);
+});
+webMI.addEvent("a3", "click", function(e) {
+	var value = prompt("value?");
+	webMI.data.write("AGENT.OBJECTS.int3", value);
+});
+/*----------------------------*/
+</script>
+</body>
+</html>

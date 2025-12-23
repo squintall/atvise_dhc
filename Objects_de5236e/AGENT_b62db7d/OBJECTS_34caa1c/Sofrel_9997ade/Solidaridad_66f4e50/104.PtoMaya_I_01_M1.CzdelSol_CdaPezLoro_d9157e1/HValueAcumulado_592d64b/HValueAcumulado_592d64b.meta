@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Solidaridad.104.PtoMaya_I_01_M1.CzdelSol_CdaPezLoro.HValueAcumulado
+NodeClass: Variable
+BrowseName: 1:HValueAcumulado
+DisplayName: en|HValueAcumulado
+Description: en|Acumulado VAEA Cenote Chak Tun
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Sofrel

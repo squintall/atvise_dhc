@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var node = request.postvalues.node;
+
+var returnNodes = call("Utilities.BrowseNodes", {
+	"startAddress": node,
+	"endLevel": 0,
+	"includeStartAddress": false
+});
+
+var archives = {};
+for (var nodeElement in returnNodes) {
+	if (returnNodes[nodeElement].name.substr(0,14) == "AGENT.HISTORY.") archives[returnNodes[nodeElement].name.substr(14)] = {};
+}
+
+return archives;]]></code>
+</script>

@@ -1,0 +1,11 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Desaladora.Equipos.Caudalimetro.Salida.current_total_volume
+NodeClass: Variable
+BrowseName: 1:current_total_volume
+DisplayName: en|current_total_volume
+Description: en|Acumulado total de Desaladora en Salida
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.current_total_volume.DeadbandAbs
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Caudalimetros

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.SMTPSERVERS.Zimbra.user
+NodeClass: Variable
+BrowseName: 1:user
+DisplayName: en|user
+Description: en|user
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

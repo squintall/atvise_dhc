@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.024.181805059.HValuePresion.MirrorInputOutput
+NodeClass: Variable
+BrowseName: 1:MirrorInputOutput
+DisplayName: en|MirrorInputOutput
+Description: en|MirrorInputOutput
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.InputOutput

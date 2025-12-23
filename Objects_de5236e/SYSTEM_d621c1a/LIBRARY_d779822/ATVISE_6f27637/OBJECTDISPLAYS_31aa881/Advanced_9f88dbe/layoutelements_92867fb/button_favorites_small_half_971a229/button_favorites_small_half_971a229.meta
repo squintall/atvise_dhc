@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_favorites_small_half
+NodeClass: Variable
+BrowseName: 1:button_favorites_small_half
+DisplayName: en|button_favorites_small_half
+Description: en|button_favorites_small_half
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

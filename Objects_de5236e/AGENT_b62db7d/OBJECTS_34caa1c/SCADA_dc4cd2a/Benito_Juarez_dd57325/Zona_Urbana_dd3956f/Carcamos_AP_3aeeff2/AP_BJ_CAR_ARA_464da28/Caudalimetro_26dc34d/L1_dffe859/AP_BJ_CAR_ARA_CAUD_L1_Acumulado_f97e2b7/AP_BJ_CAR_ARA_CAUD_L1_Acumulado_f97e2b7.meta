@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_ARA.Caudalimetro.L1.AP_BJ_CAR_ARA_CAUD_L1_Acumulado
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_ARA_CAUD_L1_Acumulado
+DisplayName: en|AP_BJ_CAR_ARA_CAUD_L1_Acumulado
+Description: en|AP_BJ_CAR_ARA_CAUD_L1_Acumulado
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

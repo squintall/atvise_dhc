@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/trusthub/v1/customerProfiles/customerProfilesChannelEndpointAssignment.js
+NodeClass: Variable
+BrowseName: 1:customerProfilesChannelEndpointAssignment.js
+DisplayName: en|customerProfilesChannelEndpointAssignment.js
+Description: en|customerProfilesChannelEndpointAssignment.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Caudalimetro.send_water
+NodeClass: Variable
+BrowseName: 1:send_water
+DisplayName: en|send_water
+Description: en|send_water
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

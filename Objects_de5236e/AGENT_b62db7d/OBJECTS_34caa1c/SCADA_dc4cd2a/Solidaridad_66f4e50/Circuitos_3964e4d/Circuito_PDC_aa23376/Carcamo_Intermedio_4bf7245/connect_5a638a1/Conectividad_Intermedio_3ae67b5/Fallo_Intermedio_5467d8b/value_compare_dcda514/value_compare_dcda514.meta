@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.connect.Conectividad_Intermedio.Fallo Intermedio.value_compare
+NodeClass: Variable
+BrowseName: 1:value_compare
+DisplayName: en|value_compare
+Description: en|value_compare
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[if (!("fn" in request.getvalues)) {
+	throw "Function missing";
+}
+
+var fileOperations = call("Utilities.FileOperations");
+
+switch (request.getvalues.fn) {
+	case "GetArchiveFiles":
+		var result = fileOperations.getArchiveFiles(
+			request.getvalues.directoryTypes,
+			request.getvalues.archiveTypes,
+			request.getvalues.archiveName
+			);
+		result.forEach(function (r) {
+			// remove paths from result, so we DONT leak any server side file structures
+			delete r.path;
+			delete r.directory.path;
+		});
+		return result;
+	case "GetArchives":
+		return fileOperations.getArchives(request.getvalues.directoryTypes);
+	case "GetDirectories":
+		var result = fileOperations.getDirectories(request.getvalues.directoryTypes);
+		result.forEach(function (r) {
+			r.configuredProperly = "path" in r;
+			// remove paths from result, so we DONT leak any server side file structures
+			delete r.path;
+		});
+		return result;
+	case "GetFileSystemStatistics":
+		var result = [];
+		var fs = new FileSystem();
+		var dirs = fileOperations.getDirectories();
+		
+		dirs.forEach(function(dir) {
+			if (dir.error != -1) {
+				result.push({
+					dir: dir.type,
+					capacity: fs.capacity(dir.path),
+					freeSpace: fs.freeSpace(dir.path)
+				});
+			}
+		});
+		
+		return result;
+	default:
+		throw "Requested function unknown";
+}]]></code>
+</script>

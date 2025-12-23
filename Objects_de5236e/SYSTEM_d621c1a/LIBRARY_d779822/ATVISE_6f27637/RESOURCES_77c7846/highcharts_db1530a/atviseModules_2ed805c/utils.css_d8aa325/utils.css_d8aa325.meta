@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/highcharts/atviseModules/utils.css
+NodeClass: Variable
+BrowseName: 1:utils.css
+DisplayName: en|utils.css
+Description: en|utils.css
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Css
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Css.Compress

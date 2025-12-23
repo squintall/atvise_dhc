@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Vista_Real.Equipos.Bombas.Variador_4.loc_rem
+NodeClass: Variable
+BrowseName: 1:loc_rem
+DisplayName: en|loc_rem
+Description: en|loc_rem
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

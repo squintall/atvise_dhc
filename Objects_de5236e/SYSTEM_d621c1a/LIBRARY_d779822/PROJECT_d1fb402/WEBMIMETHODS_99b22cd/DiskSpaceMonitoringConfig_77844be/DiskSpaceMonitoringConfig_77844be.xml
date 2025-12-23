@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>owner</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/** Helper for reading and writing directory monitoring configurations with root access */
+var base = "SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig";
+var allowedSubnodes = ["active", "interval", "monitoringScript", "monitoringScript.scriptVersion",
+	"backup", "backup.exceeded_critical", "backup.exceeded_warning", "backup.threshold_critical", "backup.threshold_warning",
+	"historydir", "historydir.exceeded_critical", "historydir.exceeded_warning", "historydir.threshold_critical", "historydir.threshold_warning",
+	"restore", "restore.exceeded_critical", "restore.exceeded_warning", "restore.threshold_critical", "restore.threshold_warning",
+	"swapin", "swapin.exceeded_critical", "swapin.exceeded_warning", "swapin.threshold_critical", "swapin.threshold_warning"
+];
+var address = request.postvalues.address;
+var options = request.postvalues.options;
+var caller = script.caller;
+
+/* Run script for authenticated users only */
+if (caller == "")
+	return false;
+
+/* Run script for allowed nodes only */
+var validSubnode = false;
+for (var i = 0; i < allowedSubnodes.length; i++) {
+	if (address == base || address == base + "." + allowedSubnodes[i]) {
+		validSubnode = true;
+		break;
+	}
+}
+
+if (!validSubnode)
+	return false;
+
+/* Parse options */
+try {
+	options = JSON.parse(options);
+} catch (ex) {
+	console.log("Parse JSON @ DiskSpaceMonitoringConfig script: " + ex);
+	return false;
+}
+
+var node = Ua.findNode(address);
+var baseNode = Ua.findNode(base);
+var exist = Ua.Status(node) != Ua.Status.BADNODEIDUNKNOWN;
+var baseExist = Ua.Status(baseNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+/**
+ * Validate input
+ */
+if (!checkValue(address, options.value)) {
+	console.error("Value invalid @ DiskSpaceMonitoringConfig script: " + address + ": " + options.value);
+	return false;
+}
+
+/**
+ * Determine setValue for node
+ */
+var setValue = address == base + ".monitoringScript" ? buildScript(options.value) : options.value;
+
+if (!baseExist) {
+	Ua.createNode(address, {
+		"nodeClass": Ua.NodeClass["VARIABLE"],
+		"parent": base.substring(0, base.lastIndexOf('.')),
+		"typeDefinition": "i=62",
+		"dataType": Ua.DataType["STRING"],
+		"value": ""
+	});
+}
+
+if (!exist) {
+	var nodeParent = address.substring(0, address.lastIndexOf('.'));
+	if (options.dataType) {
+		if (options.typeDefinition === "i=68") {
+			setValue = Boolean(Number(setValue));
+		}
+
+		Ua.createNode(address, {
+			"nodeClass": Ua.NodeClass[options.nodeClass],
+			"parent": nodeParent,
+			"typeDefinition": options.typeDefinition,
+			"dataType": Ua.DataType[options.dataType],
+			"value": setValue
+		});
+	} else {
+		Ua.createNode(address, {
+			"nodeClass": Ua.NodeClass[options.nodeClass],
+			"parent": nodeParent,
+			"typeDefinition": options.typeDefinition
+		});
+	}
+} else {
+	if (typeof node.result.value === "boolean") {
+		setValue = Boolean(Number(setValue));
+	}
+	node.result.value = setValue;
+}
+
+
+/**
+ * Check if value is valid for the configuration
+ * @returns {boolean}
+ */
+function checkValue(address, value) {
+	var node = address.substring(address.lastIndexOf('.') + 1, address.length);
+
+	if (node == "active" && typeof(value) != "boolean" && typeof(parseInt(value)) != "number")
+		return false;
+	else if (node == "exceed_critical" && typeof(value) != "boolean")
+		return false;
+	else if (node == "exceed_warning" && typeof(value) != "boolean")
+		return false;
+	else if (node == "interval" && typeof(parseInt(value)) != "number")
+		return false;
+	else if (node == "threshold_critical" && typeof(parseInt(value)) != "number")
+		return false;
+	else if (node == "threshold_warning" && typeof(parseInt(value)) != "number")
+		return false;
+
+	if(typeof value == "object"){
+		var expected = JSON.stringify(value);
+		var actual = strip(expected);
+		if(actual != expected)
+			return false;
+	}
+
+	return true;
+}
+
+
+/**
+ * Remove code parts
+ * @param value
+ * @returns {*}
+ */
+function strip(value){
+	return value.replace( /(<([^>]+)>)/ig, '');
+}
+
+
+/**
+ * Build script code for monitoring script
+ * @param scriptOptions
+ * @returns {string}
+ */
+function buildScript(scriptOptions) {
+	var scriptNodeName = "monitoringScript";
+	var scriptVersion = "1.1"; // on change of scriptCode, increase this
+	var scriptCode =
+		'var configNodeAddr = "' +
+		scriptOptions.config_node +
+		'";\n' +
+		"\n" +
+		"if (interval && interval.trigger) {\n" +
+		'   var nodeAddress = configNodeAddr + ".' +
+		scriptNodeName +
+		'";\n' +
+		"	var node = Ua.findNode(nodeAddress);\n" +
+		'	var scriptXML = new XMLDoc(node.result.value, "string");\n' +
+		"	var repeatAsString = null;\n" +
+		"\n" +
+		"	if (interval.value < 1440 && interval.value > 0) {\n" +
+		"		var h = new String(Math.floor(interval.value / 60));\n" +
+		"		var m = new String(interval.value % 60);\n" +
+		'		repeatAsString = (h.length == 1 ? "0" : "") + h + ":" + (m.length == 1 ? "0" : "") + m + ":00";\n' +
+		"	}\n" +
+		"\n" +
+		'	for (var param = scriptXML.root.first("parameter"); param; param = param.next("parameter")) {\n' +
+		'		if (param.attribute("name") == "mytimer") {\n' +
+		'			param.setattribute("repeat", repeatAsString);\n' +
+		"			break;\n" +
+		"		}\n" +
+		"	}\n" +
+		"\n" +
+		"	node.result.assign({ value: scriptXML });	// use try/catch to write custom message into server log, if script is opened in atvise builder\n" +
+		"\n" +
+		"	return;\n" +
+		"}\n" +
+		"\n" +
+		"if (active === null || !active.value) {\n" +
+		"	return;\n" +
+		"}\n" +
+		"\n" +
+		'var fileOperations = call("Utilities.FileOperations");\n' +
+		"var dirTypes = fileOperations.getDirectories();\n" +
+		"var fs = new FileSystem();\n" +
+		"\n" +
+		"dirTypes.forEach(function(dir) {\n" +
+		'	if ("error" in dir && dir.error != 0) {\n' +
+		"		return;\n" +
+		"	}\n" +
+		"\n" +
+		"	var used = 100 - fs.freeSpace(dir.path) / fs.capacity(dir.path) * 100;\n" +
+		"\n" +
+		"	// exising method for used space\n" +
+		'	if (dir.type == "historydir") {\n' +
+		'		var usedPercParentAddress = "SYSTEM.INFORMATION.DIAGNOSTICS.DISK";\n' +
+		"		var usedPercParent = Ua.findNode(usedPercParentAddress);\n" +
+		"		var usedPercParentExist = Ua.Status(usedPercParent) != Ua.Status.BADNODEIDUNKNOWN;\n" +
+		"\n" +
+		"		if (!usedPercParentExist) {\n" +
+		'			Ua.createNode("SYSTEM.INFORMATION.DIAGNOSTICS.DISK", {\n' +
+		'				nodeClass: Ua.NodeClass["OBJECT"],\n' +
+		'				parent: usedPercParentAddress.substr(0, usedPercParentAddress.lastIndexOf(".")),\n' +
+		"				typeDefinition: Ua.ObjectType.FOLDERTYPE\n" +
+		"			});\n" +
+		"\n" +
+		"			var usedPercParent = Ua.findNode(usedPercParentAddress);\n" +
+		"		}\n" +
+		"\n" +
+		'		var usedPercAddress = usedPercParentAddress + ".atviseHistoryDriveUsedPercent";\n' +
+		"		var usedPerc = Ua.findNode(usedPercAddress);\n" +
+		"		var usedPercExist = Ua.Status(usedPerc) != Ua.Status.BADNODEIDUNKNOWN;\n" +
+		"\n" +
+		"		if (!usedPercExist) {\n" +
+		"			Ua.createNode(usedPercAddress, {\n" +
+		'				nodeClass: Ua.NodeClass["VARIABLE"],\n' +
+		"				parent: usedPercParentAddress,\n" +
+		'				typeDefinition: "i=68",\n' +
+		'				dataType: Ua.DataType["FLOAT"],\n' +
+		"				value: 0.0\n" +
+		"			});\n" +
+		"\n" +
+		"			var usedPerc = Ua.findNode(usedPercAddress);\n" +
+		"		}\n" +
+		"\n" +
+		"		usedPerc.result.value = used;\n" +
+		"	}\n" +
+		"\n" +
+		'	[ "warning", "critical" ].forEach(function(limit) {\n' +
+		"\n" +
+		'		var nodeThreshold = Ua.findNode(configNodeAddr + "." + dir.type + ".threshold_" + limit);\n' +
+		"		var nodeThresholdExist = Ua.Status(nodeThreshold) != Ua.Status.BADNODEIDUNKNOWN;\n" +
+		"\n" +
+		'		var nodeExceeded = Ua.findNode(configNodeAddr + "." + dir.type + ".exceeded_" + limit);\n' +
+		"		var nodeExceededExist = Ua.Status(nodeExceeded) != Ua.Status.BADNODEIDUNKNOWN;\n" +
+		"\n" +
+		"		if (Ua.Status(nodeThreshold).good != true || Ua.Status(nodeExceeded).good != true) {\n" +
+		"			return;\n" +
+		"		}\n" +
+		"\n" +
+		"		nodeExceeded.result.value = used >= nodeThreshold.result.value;\n" +
+		"	});\n" +
+		"});";
+
+	var nodeValue =
+		'<?xml version="1.0" encoding="UTF-8"?><script>' +
+		'<info>by geiv</info>' +
+		'<parameter name="mytimer" type="timer" trigger="true" relative="false" value="" starttime="00:00:00" repeat="' + scriptOptions.repeatAsString + '"/>' +
+		'<parameter name="active" type="node" trigger="false" relative="false" value="ns=1;s=' + scriptOptions.config_node + '.active"/>' +
+		'<parameter name="interval" type="node" trigger="true" relative="false" value="ns=1;s=' + scriptOptions.config_node + '.interval"/>';
+
+	for (var key in scriptOptions.dirTypes) {
+		var type = scriptOptions.dirTypes[key];
+		nodeValue +=
+			'<parameter name="threshold_' + type.type + '_critical" type="node" trigger="true" relative="false" value="ns=1;s=' + scriptOptions.config_node + "." + type.type + '.threshold_critical"/>' +
+			'<parameter name="threshold_' + type.type + '_warning" type="node" trigger="true" relative="false" value="ns=1;s=' + scriptOptions.config_node + "." + type.type + '.threshold_warning"/>';
+	}
+
+	nodeValue +=
+		'<code><![CDATA[' + scriptCode + ']]\></code></script>';
+
+	return nodeValue;
+}
+
+return true;
+
+]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Otoch_Paraiso.confGrafico
+NodeClass: Variable
+BrowseName: 1:confGrafico
+DisplayName: en|confGrafico
+Description: en|confGrafico
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="csvFile" type="textfilecontent" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/*
+	CsvImport
+
+	Prerequisites:
+
+		You need a CSV import file with the following header fields (example file below):
+		x) <NodeName>				[MANDATORY]		Node name in format FOLDER1.FOLDER2.nodeName, all specified folders will be automatically created under "AGENT.OBJECTS"
+		x) <DataType>				[MANDATORY]		Format: object, folder, boolean, int16, uint16, int32, uint32, int64, uint64, float, double, string, datetime, byte, sbyte
+		x) <NodeValue>				[OPTIONAL]		Numeric or string value for a variable
+		x) <Description>			[OPTIONAL]		Node description
+		x) <TypeDefinition>			[OPTIONAL]		Object type (e.g.: "MyType" or "ObjectTypes.PROJECT.MyType") or variable type (e.g. "MyVarType" or "VariableTypes.PROJECT.MyVarType")
+													Note: "ObjectTypes.PROJECT" or "VariableTypes.PROJECT" part can be ommited, and correct type will be used.
+		x) <HistoryGroups>			[OPTIONAL]		Specify one or more history groups in the following format: {group1, group2, group3}
+		x) <MirrorInput>			[OPTIONAL]		Specify the path to the mirrored input node. e.g. "s7/ns=1;s=OFFICE.ALARMS.alarm01"
+		x) <MirrorOutput>			[OPTIONAL]		Specify the path to the mirrored output node. e.g. "s7/ns=1;s=OFFICE.ALARMS.alarm01"
+		x) <MirrorInputOutput>		[OPTIONAL]		Specify the path to the mirrored input/output node. e.g. "s7/ns=1;s=OFFICE.ALARMS.alarm01"
+		x) <RelMirrorBase>			[OPTIONAL]		Specify the path to the mirror base. e.g. "s7/ns=1;s=OFFICE.ALARMS"
+		x) <RelMirrorInput>			[OPTIONAL]		Specify the relative mirror input path fragments. eg. {2:Lights, 2:Room01}
+		x) <RelMirrorOutput>		[OPTIONAL]		Specify the relative mirror output path fragments. eg. {2:Lights, 2:Room01}
+		x) <RelMirrorInputOutput>	[OPTIONAL]		Specify the relative mirror input/output path fragments. eg. {2:Lights, 2:Room01}
+		x) <OnDemand>				[OPTIONAL]		Determines if "On Demand" feature will be used (true/false)
+
+	Example file:
+		<NodeName>;<DataType>;<TypeDefinition>;<NodeValue>;<Description>;<HistoryGroups>;<MirrorInput>;<MirrorOutput>;<MirrorInputOutput>;<RelMirrorBase>;<RelMirrorInput>;<RelMirrorOutput>;<RelMirrorInputOutput>;<OnDemand>
+		int16;int16;;1;16 bit integer;;;;;;;;;
+		string;string;;atvise scada;string;;;;;;;;;
+		history;int32;;0;history;{datavalues};;;;;;;;
+		mirrorAbsolute;uint32;;0;mirrorAbsolute;;"s7/ns=5;s=RemoteVariable";;;;;;;
+		mirrorRelative;int16;;0;mirrorRelative;;;;;;"{1:test1,1:test2}";;;
+		ondemand;int16;;0;ondemand;;"s7/ns=5;s=remote.node";;;;;;;true
+		object;object;ObjectTypes.PROJECT.MyObjectType;;object;;;;;;;;;
+		variableType;int16;VariableTypes.PROJECT.MyVariableType;0;variableType;;;;;;;;;
+
+	How the script works:
+
+		1) Start the script by right clicking on your "OBJECTS" folder and choosing Node actions - ATVISE -> CsvImport
+		2) Choose the CSV input file in the appearing dialog
+		3) The script reads the given CSV file line by line - it will create folders/variables/objects OR update existing folders/variables/object if they already exist
+		4) If the script reaches an error, it will abort the operation and print the error message in log
+		4) WAIT UNTIL THE DIALOG BOX "script finished succesfully" appears - atvise builder and project console can not be used while the import is running
+		5) Refresh your "OBJECTS" tree by right clicking it once
+*/
+
+call("Csv.Import")(csvFile);]]></code>
+</script>

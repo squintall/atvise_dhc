@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Grafica_Cuenca_CBE.Nivel Cuenca CBE
+NodeClass: Variable
+BrowseName: 1:Nivel Cuenca CBE
+DisplayName: en|Nivel Cuenca CBE
+Description: en|Nivel Cuenca CBE
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

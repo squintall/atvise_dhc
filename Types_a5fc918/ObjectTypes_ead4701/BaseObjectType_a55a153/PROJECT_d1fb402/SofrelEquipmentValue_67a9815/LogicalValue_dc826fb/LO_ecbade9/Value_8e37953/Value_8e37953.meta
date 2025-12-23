@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.1004.Value
+NodeClass: Variable
+BrowseName: 1:Value
+DisplayName: en|Value
+Description: en|Value
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseDataVariableType

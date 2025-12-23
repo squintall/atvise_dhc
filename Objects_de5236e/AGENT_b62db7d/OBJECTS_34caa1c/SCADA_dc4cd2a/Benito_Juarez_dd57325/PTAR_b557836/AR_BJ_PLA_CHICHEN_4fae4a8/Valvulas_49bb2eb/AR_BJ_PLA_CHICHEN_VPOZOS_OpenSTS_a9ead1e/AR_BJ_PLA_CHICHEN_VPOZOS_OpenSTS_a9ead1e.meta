@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.PTAR.AR_BJ_PLA_CHICHEN.Valvulas.AR_BJ_PLA_CHICHEN_VPOZOS_OpenSTS
+NodeClass: Variable
+BrowseName: 1:AR_BJ_PLA_CHICHEN_VPOZOS_OpenSTS
+DisplayName: en|AR_BJ_PLA_CHICHEN_VPOZOS_OpenSTS
+Description: en|AR_BJ_PLA_CHICHEN_VPOZOS_OpenSTS
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Caudalimetros_JSON
+NodeClass: Variable
+BrowseName: 1:Caudalimetros_JSON
+DisplayName: en|Caudalimetros_JSON
+Description: en|Caudalimetros_JSON
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

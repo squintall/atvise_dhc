@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="ua" type="uainput" trigger="false" relative="false" value=""/>
+  <code><![CDATA[return JSON.stringify(call("Utilities.BrowseFileSystem", ua));]]></code>
+</script>

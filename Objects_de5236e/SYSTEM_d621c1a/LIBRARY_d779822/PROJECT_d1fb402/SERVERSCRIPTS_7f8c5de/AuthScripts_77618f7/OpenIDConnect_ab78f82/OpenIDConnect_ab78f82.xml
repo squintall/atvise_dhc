@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="username" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="password" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/*
+	ScriptLogin: OpenIDConnect Resource Owner Password Flow
+
+	Attention: If you want to use this example create a new script in the "Scripts" folder of the webserver and paste this source code into it.
+
+	username: OpenIDConnect user name
+	password: OpenIDConnect password in plain text
+	request: postvalues from client request including also user and (hashed) password sent from client
+*/
+
+// Generell connection properties
+const debugMode = false;
+const openidProtocol = "https";
+const openidServer = "0.0.0.0";
+const openidPort = 8080;
+const openidTimeout = 6;
+
+// User specific connection properties
+const openidTokenEndpoint = "/auth/realms/????/protocol/openid-connect/token";
+const openidClientID = "";
+const openidClientSecret = "";
+const openidAudience = "";
+const openidScope = "";
+
+// Admin session specific connection properties
+const openidAdminUser = "";
+const openidAdminPassword = "";
+const openidAdminTokenEndpoint = "/auth/realms/master/protocol/openid-connect/token";
+const openidAdminClientID = "admin-cli";
+const openidAdminClientSecret = "";
+const openidAdminAudience = "";
+const openidAdminScope = "";
+
+// Additional endpoints needed for information requests (Please do not change --userId-- and --roleclientid--, these are placeholders and will be replaced by the script
+const openidUsersEndpoint = "/auth/admin/realms/????/users?username=" + username;
+const openidRoleClientidEndpoint = "/auth/admin/realms/????/clients?clientId=" + openidClientID;
+const openidRoleUsersEndpoint = "/auth/admin/realms/????/users/--userId--/role-mappings/clients/--roleclientid--/composite";
+
+// Initialize the return structure with default values
+var returnValue = {												// Return structure to the webaccess modul (see atvise help). Unused values should be removed!
+	"success": false,											// true = login successful | false = login not successful
+	"userfallback": false,										// If success = false and user exists also as atvise user: try to login with the local user (password must be the same!)
+	"groups": [],												// Array of strings with all the returned groups/roles for the user
+	"name": "",													// Full name of the user
+	"authcontext": {"access_token": "", "token_type": ""}		// Data of type object stored for logout
+}
+
+// Try to logon the user using openidTokenEndpoint
+var http = new HTTPClient();
+var httpData = "grant_type=password&username=" + username + "&password=" + password;
+
+if (openidClientID != "") {
+	httpData = httpData + "&client_id=" + openidClientID;
+}
+
+if (openidClientSecret != "") {
+	httpData = httpData + "&client_secret=" + openidClientSecret;
+}
+
+if (openidAudience != "") {
+	httpData = httpData + "&audience=" + openidAudience;
+}
+
+if (openidScope != "") {
+	httpData = httpData + "&scope=" + openidScope;
+}
+
+var httpToken = http.request({
+	protocol: openidProtocol,
+	hostname: openidServer,
+	port: openidPort,
+	path: openidTokenEndpoint,
+	timeout: openidTimeout,
+	method: "POST",
+	headers: {"Content-Type" : "application/x-www-form-urlencoded"},
+	data: httpData
+});
+
+if (debugMode) console.log("+++ openidTokenEndpoint: ", httpToken);
+
+if (httpToken.status == 200) {
+	var tokenData = JSON.parse(httpToken.data);
+
+	returnValue.authcontext.access_token = tokenData["access_token"];
+	returnValue.authcontext.token_type = tokenData["token_type"];
+
+	// Try to get an admin token using openidAdminTokenEndpoint
+	httpData = "grant_type=password&username=" + openidAdminUser + "&password=" + openidAdminPassword;
+
+	if (openidAdminClientID != "") {
+		httpData = httpData + "&client_id=" + openidAdminClientID;
+	}
+
+	if (openidAdminClientSecret != "") {
+		httpData = httpData + "&client_secret=" + openidAdminClientSecret;
+	}
+
+	if (openidAdminAudience != "") {
+		httpData = httpData + "&audience=" + openidAdminAudience;
+	}
+
+	if (openidAdminScope != "") {
+		httpData = httpData + "&scope=" + openidAdminScope;
+	}
+	
+	httpToken = http.request({
+		protocol: openidProtocol,
+		hostname: openidServer,
+		port: openidPort,
+		path: openidAdminTokenEndpoint,
+		timeout: openidTimeout,
+		method: "POST",
+		headers: {"Content-Type" : "application/x-www-form-urlencoded"},
+		data: httpData
+	});
+
+	if (debugMode) console.log("+++ openidAdminTokenEndpoint: ", httpToken);
+
+	if (httpToken.status == 200) {
+		tokenData = JSON.parse(httpToken.data);
+
+		var adminAccessToken = tokenData["access_token"];
+		var adminTokenType = tokenData["token_type"];
+
+		// Try to get some information about the user
+		httpToken = http.request({
+			protocol: openidProtocol,
+			hostname: openidServer,
+			port: openidPort,
+			path: openidUsersEndpoint,
+			timeout: openidTimeout,
+			method: "GET",
+			headers: {"Content-Type" : "application/x-www-form-urlencoded", "Authorization" : adminTokenType + ' ' + adminAccessToken}
+		});
+
+		if (debugMode) console.log("+++ openidUsersEndpoint: ", httpToken);
+
+		if (httpToken.status == 200) {
+			tokenData = JSON.parse(httpToken.data);
+
+			var userId = tokenData[0]["id"];
+			// Build the full name from first and last name
+			returnValue.name = tokenData[0]["firstName"] + ' ' + tokenData[0]["lastName"] ;
+
+			// Try to get the client-id for role discovery using openidRoleClientidEndpoint
+			httpToken = http.request({
+				protocol: openidProtocol,
+				hostname: openidServer,
+				port: openidPort,
+				path: openidRoleClientidEndpoint,
+				timeout: openidTimeout,
+				method: "GET",
+				headers: {"Content-Type" : "application/x-www-form-urlencoded", "Authorization" : adminTokenType + ' ' + adminAccessToken}
+			});
+
+			if (debugMode) console.log("+++ openidRoleClientidEndpoint: ", httpToken);
+
+			if (httpToken.status == 200) {
+				tokenData = JSON.parse(httpToken.data);
+
+				// Try to get the roles for the user using openidRoleUsersEndpoint
+				var modifiedRoleUsersEndpoint = openidRoleUsersEndpoint;
+				modifiedRoleUsersEndpoint = modifiedRoleUsersEndpoint.replace("--userId--", userId);
+				modifiedRoleUsersEndpoint = modifiedRoleUsersEndpoint.replace("--roleclientid--", tokenData[0]["id"]);
+				
+				httpToken = http.request({
+					protocol: openidProtocol,
+					hostname: openidServer,
+					port: openidPort,
+					path: modifiedRoleUsersEndpoint,
+					timeout: openidTimeout,
+					method: "GET",
+					headers: {"Content-Type" : "application/x-www-form-urlencoded", "Authorization" : adminTokenType + ' ' + adminAccessToken}
+				});
+
+				if (debugMode) console.log("+++ openidRoleUsersEndpoint: ", httpToken);
+
+				if (httpToken.status == 200) {
+					tokenData = JSON.parse(httpToken.data);
+				
+					returnValue.success = true;
+					for (var i =0; i < tokenData.length; i++) {
+						returnValue.groups.push(tokenData[i].name);
+					}
+				}
+			}
+		}
+	}
+}
+
+if (debugMode) console.log("+++ returnValue: ", returnValue);
+
+return returnValue;]]></code>
+</script>

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Pozo.Utils.well_line_reduced
+NodeClass: Variable
+BrowseName: 1:well_line_reduced
+DisplayName: en|well_line_reduced
+Description: en|well_line_reduced
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

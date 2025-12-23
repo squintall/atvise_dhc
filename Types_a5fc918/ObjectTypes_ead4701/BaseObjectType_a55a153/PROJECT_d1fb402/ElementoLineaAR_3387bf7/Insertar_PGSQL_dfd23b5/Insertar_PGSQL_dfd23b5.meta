@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Insertar_PGSQL
+NodeClass: Variable
+BrowseName: 1:Insertar_PGSQL
+DisplayName: en|Insertar_PGSQL
+Description: en|Insertar_PGSQL
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

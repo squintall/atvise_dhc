@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var address = request.postvalues.address;
+
+var node = Ua.findNode(address);
+var exist = Ua.Status(node) != Ua.Status.BADNODEIDUNKNOWN;
+
+if (exist) return true;
+return false;]]></code>
+</script>

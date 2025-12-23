@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_006.Equipos.Bombas.Bomba_2.fault
+NodeClass: Variable
+BrowseName: 1:fault
+DisplayName: en|fault
+Description: en|Tanque 006 | Equipo Bomba_2
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.fault.Falla
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

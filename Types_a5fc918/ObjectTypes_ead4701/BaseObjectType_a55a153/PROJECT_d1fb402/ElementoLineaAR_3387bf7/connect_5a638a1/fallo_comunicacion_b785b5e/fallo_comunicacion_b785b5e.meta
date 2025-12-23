@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.connect.fallo_comunicacion
+NodeClass: Object
+BrowseName: 1:fallo_comunicacion
+DisplayName: en|fallo_comunicacion
+Description: en|fallo_comunicacion
+EventNotifier: 0
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

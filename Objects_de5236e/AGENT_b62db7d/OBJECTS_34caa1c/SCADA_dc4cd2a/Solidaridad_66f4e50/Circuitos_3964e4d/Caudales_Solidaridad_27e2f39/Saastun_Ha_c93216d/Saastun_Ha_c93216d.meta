@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Caudales_Solidaridad.Saastun_Ha
+NodeClass: Variable
+BrowseName: 1:Saastun_Ha
+DisplayName: en|Saastun_Ha
+Description: en|Saastun_Ha
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

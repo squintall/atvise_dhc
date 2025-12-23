@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Turistica.Carcamos_AP.AP_BJ_CAR_AEROPUERTO_ZONA_TURISTICA.Bombas.Variador1
+NodeClass: Object
+BrowseName: 1:Variador1
+DisplayName: en|Variador1
+Description: en|Variador1
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.bomba
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.button

@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Downtime.Downtime_Status
+NodeClass: Object
+BrowseName: 1:Downtime_Status
+DisplayName: en|Downtime_Status
+Description: en|Downtime_Status
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

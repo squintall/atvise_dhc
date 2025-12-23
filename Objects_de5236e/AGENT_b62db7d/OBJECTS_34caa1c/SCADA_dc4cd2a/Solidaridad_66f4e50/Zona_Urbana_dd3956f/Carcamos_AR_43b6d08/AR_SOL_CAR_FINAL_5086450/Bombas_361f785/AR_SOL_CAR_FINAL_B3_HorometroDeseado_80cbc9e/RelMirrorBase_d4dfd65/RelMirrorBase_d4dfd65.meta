@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AR.AR_SOL_CAR_FINAL.Bombas.AR_SOL_CAR_FINAL_B3_HorometroDeseado.RelMirrorBase
+NodeClass: Variable
+BrowseName: 1:RelMirrorBase
+DisplayName: en|RelMirrorBase
+Description: en|RelMirrorBase
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.Relative.Base

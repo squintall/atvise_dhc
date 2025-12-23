@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Final_LLegada.Equipos.Caudalimetros.Clorada.Umbrales.Presion.WarnLow
+NodeClass: Variable
+BrowseName: 1:WarnLow
+DisplayName: en|WarnLow
+Description: en|WarnLow
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

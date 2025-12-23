@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.trendCfg.conectividad
+NodeClass: Variable
+BrowseName: 1:conectividad
+DisplayName: en|conectividad
+Description: en|conectividad
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

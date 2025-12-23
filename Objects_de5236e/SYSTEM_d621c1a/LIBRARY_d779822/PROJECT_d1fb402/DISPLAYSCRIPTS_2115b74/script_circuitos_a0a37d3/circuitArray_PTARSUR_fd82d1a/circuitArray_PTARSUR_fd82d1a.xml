@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var circuito_s =
+	[
+		[
+			{
+				lat:21.131226589258667, lng:-86.88356128306526
+			},
+			"Cárcamo Andalucía, Agua Residual",
+			"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Andalucia",
+			1,
+			"carcamoAR"
+		],
+		
+		[
+			{
+				lat:21.144658467889382, lng:-86.81558627635566
+			},
+			"Cárcamo Tajamar, Agua Residual",
+			"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Tajamar",
+			2,
+			 "carcamoAR"
+		],
+		
+		[
+			{
+				lat:21.132620990215923, lng:-86.86799799739825
+			},
+			"Cárcamo Santa Fe Plus, Agua Residual",
+			"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Santa_Fe_Plus",
+			3, 
+			"carcamoAR"
+		],
+		
+		[
+			{
+				lat:21.122564401892564, lng:-86.882384676772
+			},
+			"Cárcamo Polígono 7/Villas Marino, Agua Residual",
+			"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Poligono_7",
+			4,
+			 "carcamoAR"
+		],
+	
+		[
+			{
+				lat:21.09971159265539, lng:-86.87758299439427
+			},
+			"Cárcamo Final PTAR SUR, Agua Residual",
+			"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Final_Sur_PTAR_SUR",
+			5,
+			 "carcamoAR"
+		],
+		
+		[
+			{
+				lat:21.09861457945615, lng:-86.87838652749852
+			},
+			"PTAR SUR, Agua Residual",
+			"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Final_Sur_PTAR_SUR",
+			6, 
+			"ptar"
+		],
+	
+		[
+			{
+				lat:21.125694091961265, lng:-86.83975044152207
+			},
+			"Cárcamo Islazul, Agua Residual",
+			"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Islazul",
+			7, 
+			"carcamoAR"
+		],
+		
+		[
+			{
+				lat:21.112381, lng:-86.841947
+			},
+			"Cárcamo Cumbres, Agua Residual",
+			" AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Cumbres",
+			8, 
+			"carcamoAR"
+		]
+	];]]></code>
+</script>

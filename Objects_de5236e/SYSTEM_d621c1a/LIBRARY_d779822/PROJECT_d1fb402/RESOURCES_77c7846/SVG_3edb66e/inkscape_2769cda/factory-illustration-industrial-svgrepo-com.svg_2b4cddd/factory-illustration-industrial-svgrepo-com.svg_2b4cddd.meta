@@ -1,0 +1,11 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/SVG/inkscape/factory-illustration-industrial-svgrepo-com.svg
+NodeClass: Variable
+BrowseName: 1:factory-illustration-industrial-svgrepo-com.svg
+DisplayName: en|factory-illustration-industrial-svgrepo-com.svg
+Description: en|factory-illustration-industrial-svgrepo-com.svg
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Svg
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Compress
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Translate

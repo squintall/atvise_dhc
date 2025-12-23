@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="connectivity" type="node.value" trigger="true" relative="true" starttime="00:00:02">
+    <RelativePath>
+      <Elements>
+        <RelativePathElement>
+          <TargetName>
+            <NamespaceIndex>1</NamespaceIndex>
+            <Name>connectivity</Name>
+          </TargetName>
+        </RelativePathElement>
+      </Elements>
+    </RelativePath>
+  </parameter>
+  <code><![CDATA[var estado = Ua.findNode(base + ".connectivity");
+var map = Ua.findNode(base + ".connect");
+var ip = Ua.findNode(base + ".ip");
+var name = Ua.findNode(base + ".short_name")
+var com = Ua.findNode(base + ".com");
+
+
+if (estado.result.status==false){
+map.result.value = true;
+}
+else {
+map.result.value = false;
+}
+
+if (estado.result.value == 0){
+map.result.value = false;
+}
+
+
+
+if (ip.result.value ==  "GPRS"){
+
+	var gprs = Ua.findNode(base + ".gprsConnect");
+	var connectivity = Ua.findNode(base + ".connectivity");
+	if (gprs.result.value == 1){
+			map.result.value = true;
+			connectivity.result.value = 1;
+	} else {
+			map.result.value = false;
+			connectivity.result.value = 0;
+	}
+	
+}
+
+com.result.value = map.result.value;]]></code>
+</script>

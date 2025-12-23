@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="ua" type="uainput" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* 
+Parse all displays and collect displays that reference this display
+Input (members of ua):
+	-node:uanodeid{mandatory} Specifies the nodeid of the display to search for
+Output (return value)	:
+	tablecolumnheaders:[string] Array of column titles
+	tablecolumntypes:[uanodeid] Array of typeDefinitions of column types
+	tabledata:[[string]] Array of string array that represents the rows of the result
+If no displays reference the target empty arrays are returned.
+*/
+
+function toNodes(result) {
+	var x = [];
+	for (var i = 0; i < result.length; ++i)
+		x.push(result[i].node);
+	return x;
+}
+
+function toNodes2(result, x) {
+	for (var i = 0; i < result.length; ++i)
+		x.push(result[i].node);
+}
+
+var serverTypes = toNodes(
+	Ua.findNode("ObjectTypes.ATVISE.Server").result.browse({
+		reference: Ua.Reference.HASSUBTYPE,
+		recursive: true
+	}).result
+);
+
+var servers = toNodes(
+	Ua.findNode(Ua.NodeId.OBJECTSFOLDER).result.browse({
+		typeDefinition: serverTypes
+	}).result
+);
+
+servers.push(Ua.findNode("ObjectTypes.PROJECT").result);
+
+var displays = [];
+for (var i = 0; i < servers.length; ++i)
+	toNodes2(
+		servers[i].browse({
+			typeDefinition: "VariableTypes.ATVISE.Display",
+			recursive: true
+		}).result,
+		displays
+	);
+
+var from = [];
+var to = [];
+
+for (var i = 0; i < displays.length; ++i) {
+	var d = call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.CrossRef.Lib.DisplayReferences", {
+		ua: {
+			node: Ua.findNode(displays[i]),
+			recursive: false
+		}
+	});
+	for (var j = 0; j < d.to.length; ++j) {
+		from.push(d.from[j]);
+		to.push(d.to[j]);
+	}
+}
+
+var strings2 = [];
+var strings1 = [];
+var stringsReturned = {};
+
+var nodesToReturn = [];
+var nodesReturned = {};
+
+var node = Ua.findNode(ua.node);
+var exist = Ua.Status(node) != Ua.Status.BADNODEIDUNKNOWN;
+
+if (node.result.equal(node.result.typeDefinition.valueOf(), "VariableTypes.ATVISE.Display").result) {
+	nodesToReturn.push(node.result);
+}
+
+toNodes2(
+	node.result.browse({
+		typeDefinition: "VariableTypes.ATVISE.Display",
+		recursive: true
+	}).result,
+	nodesToReturn
+);
+
+for (var i = 0; i < nodesToReturn.length; ++i) {
+	nodesReturned[nodesToReturn[i].nodeId.address] = true;
+}
+
+while (nodesToReturn.length) {
+	var toDisplay = nodesToReturn.shift();
+	for (var j = 0; j < to.length; ++j) {
+		if (to[j].equal(toDisplay).result) {
+			if (!stringsReturned[to[j].nodeId.address + from[j].nodeId.address]) {
+				stringsReturned[to[j].nodeId.address + from[j].nodeId.address] = true;
+				strings1.push(to[j].nodeId.address);
+				strings2.push(from[j].nodeId.address);
+				if (!nodesReturned[from[j].nodeId.address]) {
+					nodesToReturn.unshift(from[j]);
+					nodesReturned[from[j].nodeId.address] = true;
+				}
+			}
+		}
+	}
+}
+
+var variableTypesNode = Ua.findNode("VariableTypes.ATVISE.Display");
+
+return {
+	tablecolumnheaders: ["Display", "Referenced in display"],
+	tablecolumntypes: [variableTypesNode, variableTypesNode],
+	tabledata: [strings1, strings2]
+};]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Desaladora_006.display_caudalimetro
+NodeClass: Variable
+BrowseName: 1:display_caudalimetro
+DisplayName: en|display_caudalimetro
+Description: en|display_caudalimetro
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

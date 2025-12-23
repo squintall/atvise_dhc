@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layouts advanced fixed 1920x1080, advanced overlay 1920x1080 and advanced overlay 1280x800 object display
+ * ----------------------------------------------------------------------------------------------------------------------
+ * This script supports the display creating navigation and button events
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var queryParams = webMI.query;
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var loginHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Login Handler", {
+	"message_display": "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+	"user_display": "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.user_editor",
+	"password_display": "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.pw_editor"
+});
+
+/**
+ * UI SETUP SECTION
+ */
+webMI.gfx.setWidth("button_navigation_button_bg", webMI.gfx.getWidth("button_navigation_button_bg") - 2);
+webMI.gfx.setHeight("button_navigation_button_bg", webMI.gfx.getHeight("button_navigation_button_bg") - 2);
+webMI.gfx.setX("button_navigation_button_bg", "2");
+webMI.gfx.setY("button_navigation_button_bg", "2");
+
+
+/**
+ * EVENT SECTION
+ */
+
+// for overlay layouts having button_navigation
+if (typeof webMI.gfx.getX("button_navigation") != "undefined") {
+	webMI.addEvent("button_navigation", "click", function (e) {
+		var toggle = "menu_container";
+		webMI.trigger.fire("com.atvise.menu_toggle", toggle);
+	});
+}
+
+webMI.addEvent("logo_clickarea", "click", function (e) {
+	var names = tabHandler.getParentIFrameNames();
+	for (var i = 0; i < names.length; i++) {
+		var NN;
+		webMI.trigger.fire("com.atvise.getDefaultDisplay_" + (NN = names[i]), function (display, url) {
+			if (url != undefined)
+				webMI.display.openUrl(url, queryParams, NN);
+			else if (display != undefined)
+				webMI.display.openDisplay(display, queryParams, NN);
+		});
+	}
+});
+
+webMI.addEvent(webMI.data, "clientvariableschange", function(e) {
+	const responseType = loginHandler.getResponseType(e);
+	if (responseType == "validity")
+		loginHandler.showMessageDialog(e);
+	else if (responseType == "expired")
+		loginHandler.showMessageDialog(e);
+});]]></code>
+</script>

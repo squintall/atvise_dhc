@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A.Equipos.Bombas.Variador_6.Alarma_Estatus
+NodeClass: Variable
+BrowseName: 1:Alarma_Estatus
+DisplayName: en|Alarma_Estatus
+Description: en|Alarma_Estatus
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Alarma_Estatus.ON_OFF

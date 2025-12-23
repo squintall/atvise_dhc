@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_CADU_II.Equipos.Bombas.Bomba_4.fault.Falla.Falla general
+NodeClass: Object
+BrowseName: 1:Falla general
+DisplayName: en|Falla general
+Description: en|Falla general
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConditionControl.Discrete
+Reference: forward HasComponent ns=1;s=AGENT.ALARMING.Categories.Warning

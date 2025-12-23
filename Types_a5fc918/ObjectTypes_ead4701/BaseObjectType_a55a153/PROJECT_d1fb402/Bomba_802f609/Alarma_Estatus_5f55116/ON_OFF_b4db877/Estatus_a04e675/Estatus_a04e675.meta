@@ -1,0 +1,9 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Bomba.Alarma_Estatus.ON_OFF.Estatus
+NodeClass: Object
+BrowseName: 1:Estatus
+DisplayName: en|Estatus
+Description: en|Estatus
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConditionControl.Discrete
+Reference: forward HasComponent ns=1;s=AGENT.ALARMING.Categories.Information

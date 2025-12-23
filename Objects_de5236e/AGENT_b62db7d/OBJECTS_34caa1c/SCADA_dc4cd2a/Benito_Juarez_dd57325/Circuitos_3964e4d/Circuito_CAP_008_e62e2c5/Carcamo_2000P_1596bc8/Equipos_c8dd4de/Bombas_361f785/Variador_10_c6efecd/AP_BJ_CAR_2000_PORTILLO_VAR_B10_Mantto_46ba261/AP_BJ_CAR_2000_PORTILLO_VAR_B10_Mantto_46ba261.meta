@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_2000P.Equipos.Bombas.Variador_10.AP_BJ_CAR_2000_PORTILLO_VAR_B10_Mantto
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_2000_PORTILLO_VAR_B10_Mantto
+DisplayName: en|AP_BJ_CAR_2000_PORTILLO_VAR_B10_Mantto
+Description: en|AP_BJ_CAR_2000_PORTILLO_VAR_B10_Mantto
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

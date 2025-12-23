@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Landscape.USER.Layouts_SCADA.Cuencas.Cuencas_Main
+NodeClass: Variable
+BrowseName: 1:Cuencas_Main
+DisplayName: en|Cuencas_Main
+Description: en|Cuencas_Main
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

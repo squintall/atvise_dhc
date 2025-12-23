@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Tendencia_Full_content
+NodeClass: Variable
+BrowseName: 1:Tendencia_Full_content
+DisplayName: en|Tendencia_Full_content
+Description: en|Tendencia_Full_content
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

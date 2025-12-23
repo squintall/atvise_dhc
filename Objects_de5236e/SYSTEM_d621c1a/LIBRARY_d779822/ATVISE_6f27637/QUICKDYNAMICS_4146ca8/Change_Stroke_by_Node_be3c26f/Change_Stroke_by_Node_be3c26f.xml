@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABTSURBVFiF7dUxDgAQEERR65CckUtSSRREYWMU/1UiK6qZtZxTC0JR+TnwBZtjWEq1cX51TwwBOdut412WvWfoAUDu2AOrfe75hh4ArmN4G015DDuSOk4fR8duZwAAAABJRU5ErkJggg==</icon>
+	<visible>1</visible>
+	<title>Change Stroke by Node</title>
+	<description>Changes the stroke of an element by a node value.</description>
+  </metadata>
+  <parameter name="nodeId" description="node triggering the change" valuetype="address" behavior="optional"/>
+  <parameter name="minRange" description="min of range" valuetype="number" defaultvalue="0" behavior="optional"/>
+  <parameter name="maxRange" description="max of range" valuetype="number" behavior="optional"/>
+  <parameter name="strokeStyleInRange" description="stroke style when inside range" valuetype="enum" config="Solid=0;Dotted=1,2;Dashed=3,3;Dash Dot=3,2,1,2;Dash Dot Dot=3,2,1,2,1,2" behavior="optional"/>
+  <parameter name="strokeColorInRange" description="stroke color when inside range" valuetype="color" defaultvalue="#00ff00" behavior="optional"/>
+  <parameter name="strokeWidthInRange" description="stroke width when inside range" valuetype="number" defaultvalue="1" behavior="optional"/>
+  <parameter name="strokeOpacityInRange" description="stroke opacity when inside range" valuetype="number" defaultvalue="1" behavior="optional"/>
+  <parameter name="strokeStyleOutRange" description="stroke style when outside range" valuetype="enum" config="Solid=0;Dotted=1,2;Dashed=3,3;Dash Dot=3,2,1,2;Dash Dot Dot=3,2,1,2,1,2" behavior="optional"/>
+  <parameter name="strokeColorOutRange" description="stroke color when outside range" valuetype="color" defaultvalue="#aa0000" behavior="optional"/>
+  <parameter name="strokeWidthOutRange" description="stroke width when outside range" valuetype="number" defaultvalue="2" behavior="optional"/>
+  <parameter name="strokeOpacityOutRange" description="stroke opacity when outside range" valuetype="number" defaultvalue="1" behavior="optional"/>
+  <code><![CDATA[// This Quick Dynamic changes the stroke of the applied graphical element depending whether or not the value of the node is within the defined range.
+// Parameters:
+//	nodeId:					this node (value within or out of the defined range) triggers this Quick Dynamic
+//	minRange:				lower bound of the range where the node's value should lie in
+//	maxRange:				upper bound of the range where the node's value should lie in; if not specified it will be set to "minRange", i.e. the quick dynamic will be triggered at a
+//							discrete value (minRange=maxRange=value) only and not for a range
+//	strokeStyleInRange:		this stroke style of the graphical element will be set when the value of the node is within the defined range
+//	strokeColorInRange:		this stroke color of the graphical element will be set when the value of the node is within the defined range
+//	strokeWidthInRange:		this stroke width of the graphical element will be set when the value of the node is within the defined range
+//	strokeOpacityInRange:	this stroke opacity of the graphical element will be set when the value of the node is within the defined range
+//	strokeStyleOutRange:	this stroke style of the graphical element will be set when the value of the node is out of the defined range
+//	strokeColorOutRange:	this stroke color of the graphical element will be set when the value of the node is out of the defined range
+//	strokeWidthOutRange:	this stroke width of the graphical element will be set when the value of the node is out of the defined range
+//	strokeOpacityOutRange:	this stroke opacity of the graphical element will be set when the value of the node is out of the defined range
+var AggregateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Aggregate Manager");
+webMI.addOnunload(function unloadAggregateManager() {
+	AggregateManager.destroy();
+	AggregateManager = null;
+});
+
+AggregateManager.subscribeNodeOrAggregate(base.nodeId, handleResult);
+
+function handleResult(e) {
+	var value = e.value;
+
+	if (String(base.maxRange) == "") {
+		var maxRange=base.minRange; // If no maxRange is specified, the stroke will be changed at any value except at the value that coincides with the value of the minRange. (minRange = maxRange = value)
+	} else {
+		var maxRange = parseFloat(base.maxRange);
+	}
+	if (value >= base.minRange && value <= maxRange) {
+		webMI.gfx.setStroke(base.id, base.strokeColorInRange);
+		webMI.gfx.setStrokeOpacity(base.id, base.strokeOpacityInRange);
+		webMI.gfx.setStrokeWidth(base.id, base.strokeWidthInRange);
+		webMI.gfx.setStrokeDasharray(base.id, base.strokeStyleInRange);
+	}
+	else {
+		webMI.gfx.setStroke(base.id, base.strokeColorOutRange);
+		webMI.gfx.setStrokeOpacity(base.id, base.strokeOpacityOutRange);
+		webMI.gfx.setStrokeWidth(base.id, base.strokeWidthOutRange);
+		webMI.gfx.setStrokeDasharray(base.id, base.strokeStyleOutRange);
+	}
+}
+]]></code>
+</script>

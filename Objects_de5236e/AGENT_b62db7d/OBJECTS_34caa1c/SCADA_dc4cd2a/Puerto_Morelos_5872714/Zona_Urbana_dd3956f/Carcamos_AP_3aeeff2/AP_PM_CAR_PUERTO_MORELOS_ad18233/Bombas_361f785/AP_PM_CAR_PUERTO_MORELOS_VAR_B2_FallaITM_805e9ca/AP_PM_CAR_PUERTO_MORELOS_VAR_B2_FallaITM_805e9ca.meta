@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Zona_Urbana.Carcamos_AP.AP_PM_CAR_PUERTO_MORELOS.Bombas.AP_PM_CAR_PUERTO_MORELOS_VAR_B2_FallaITM
+NodeClass: Variable
+BrowseName: 1:AP_PM_CAR_PUERTO_MORELOS_VAR_B2_FallaITM
+DisplayName: en|AP_PM_CAR_PUERTO_MORELOS_VAR_B2_FallaITM
+Description: en|AP_PM_CAR_PUERTO_MORELOS_VAR_B2_FallaITM
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

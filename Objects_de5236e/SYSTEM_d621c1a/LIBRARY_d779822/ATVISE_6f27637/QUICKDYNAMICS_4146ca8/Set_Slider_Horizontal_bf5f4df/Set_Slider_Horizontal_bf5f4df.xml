@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png"/>
+    <visible>0</visible>
+    <title>Set Slider Horizontal</title>
+    <description>For internal usage only.</description>
+  </metadata>
+  <code><![CDATA[var finger = -1;
+var min = parseInt(base.min);
+var max = parseInt(base.max);
+var curValue;
+var baseValue;
+var MouseMove = false;
+var ResetValue = false;
+var h = parseInt(webMI.gfx.getWidth(base.id));
+var AggregateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Aggregate Manager");
+webMI.addOnunload(function unloadAggregateManager() {
+	AggregateManager.destroy();
+	AggregateManager = null;
+});
+
+function getPosition(event) {
+	if (event.changedTouches) {
+		if (event.type == "touchstart" && finger == -1) /* on touchstart */ finger = event.changedTouches[0].identifier;
+		else if (finger != event.changedTouches[0].identifier)
+			/* move or touchend */
+			return {
+				x: -1
+			};
+
+		return webMI.gfx.createPoint(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+	} else return webMI.gfx.createPoint(event.clientX, event.clientY);
+}
+
+AggregateManager.subscribeNodeOrAggregate(base.node, handleResult);
+
+function handleResult(e) {
+	if (!MouseMove) {
+		baseValue = e.value;
+
+		if (min > e.value) {
+			baseValue = min;
+		}
+		if (e.value > max) {
+			baseValue = max;
+		}
+		webMI.gfx.setMoveX("slider_pointer", webMI.translate(baseValue, min, max, 0, h));
+	}
+}
+
+webMI.addEvent(base.id, ["mousedown", "touchstart"], function (e) {
+	if (webMI.gfx.getX("activeIndicator") == "1") mouseDownEvent(e);
+});
+
+webMI.addEvent("slider_pointer", ["mousedown", "touchstart"], function (e) {
+	if (webMI.gfx.getX("activeIndicator") == "1") mouseDownEvent(e);
+});
+
+function mouseDownEvent(e) {
+	e.preventDefault();
+	var p = getPosition(e);
+	if (p.x != -1) {
+		MouseMove = true;
+		ResetValue = false;
+		p = p.matrixTransform(webMI.gfx.getScreenCTM().inverse());
+		var stepWidthSlider = (max - min) / webMI.gfx.getWidth(base.id);
+		var posSlider = p.x - webMI.gfx.getX(base.id);
+		curValue = min + posSlider * stepWidthSlider;
+	}
+}
+
+webMI.addEvent(base.ele.ownerDocument, ["mousemove", "touchmove"], function (e) {
+	if (webMI.gfx.getX("activeIndicator") == "1") {
+		var bcr = base.ele.getBoundingClientRect();
+		var p = getPosition(e);
+		if (MouseMove && p.x != -1 && p.y >= bcr.top && p.y <= bcr.bottom && p.x >= bcr.left && p.x <= bcr.right) {
+			e.preventDefault();
+			ResetValue = false;
+			p = p.matrixTransform(webMI.gfx.getScreenCTM().inverse());
+			var stepWidthSlider = (max - min) / webMI.gfx.getWidth(base.id);
+			var posSlider = p.x - webMI.gfx.getX(base.id);
+			// At bottom step round down
+			if (posSlider < 1) posSlider = 0;
+			// At top step round up
+			if (posSlider > webMI.gfx.getWidth(base.id) - 1) posSlider = webMI.gfx.getWidth(base.id);
+			curValue = min + posSlider * stepWidthSlider;
+			webMI.gfx.setMoveX("slider_pointer", webMI.translate(curValue, min, max, 0, h));
+			try {
+				webMI.gfx.setScaleX("bar", webMI.translate(curValue, min, max, 0, 1));
+			} catch (e) {}
+			var formatString = "%0." + base.decimalPositions + "f";
+			curValue = webMI.sprintf(formatString, curValue);
+			webMI.gfx.setText("slider_value", curValue);
+		}
+	}
+	return false;
+});
+
+webMI.addEvent(base.ele.ownerDocument, ["mouseup", "touchend"], function (e) {
+	if (webMI.gfx.getX("activeIndicator") == "1") {
+		var p = getPosition(e);
+		if (MouseMove && p.x != -1) {
+			e.preventDefault();
+			MouseMove = false;
+			finger = -1;
+			if (ResetValue) {
+				webMI.data.write(base.node, baseValue);
+				webMI.trigger.fire("valuechanged", baseValue == null ? "" : baseValue, "");
+			} else {
+				webMI.data.write(base.node, curValue);
+				webMI.trigger.fire("valuechanged", curValue == null ? "" : curValue, "");
+			}
+		}
+	}
+	return false;
+});
+
+function updateMinMax(newMin, newMax) {
+	min = parseInt(newMin);
+	max = parseInt(newMax);
+}
+
+return {
+	updateMinMax: updateMinMax
+};
+]]></code>
+</script>

@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[var util = call("Csv.Util");
+
+// Set Aggregatimport
+var importAggregates = true;
+
+// Logging
+var logger = new util.logger(1);
+
+// Header fields
+var fields = new Array();
+
+var nodeName = new util.field("<NodeName>", true);
+fields.push(nodeName);
+
+var dataType = new util.field("<DataType>", true);
+fields.push(dataType);
+
+var nodeValue = new util.field("<NodeValue>", false);
+fields.push(nodeValue);
+
+var description = new util.field("<Description>", false);
+fields.push(description);
+
+var typeDefinition = new util.field("<TypeDefinition>", false);
+fields.push(typeDefinition);
+
+var historyGroups = new util.field("<HistoryGroups>", false);
+fields.push(historyGroups);
+
+var onDemand = new util.field("<OnDemand>", false);
+fields.push(onDemand);
+
+fields = fields.concat(util.mirrorFields);
+
+// Header fields located in header
+var fieldsInHeader = 0;
+
+function processHeader(header) {
+	logger.trace("processHeader");
+	logger.trace("Data = " + header);
+	for (var i = 0; i < header.length; ++i) {
+		var located = -1;
+		for (var j = 0; j < fields.length; ++j) {
+			if (fields[j].name == header[i]) {
+				if (fields[j].index >= 0) {
+					logger.error("Field specified more than once: " + header[i]);
+					return CSVReader.STOP;
+				}
+				located = j;
+			}
+		}
+
+		if (located < 0) {
+			logger.error("Unknown field name found in header: " + header[i]);
+			return CSVReader.STOP;
+		}
+		else {
+			logger.trace("Found " + fields[located].name + " at index " + i);
+			fields[located].index = i;
+			++fieldsInHeader;
+		}
+	}
+
+	// Check for mandatory fields
+	for (var i = 0; i < fields.length; ++i) {
+		if (fields[i].mandatory && fields[i].index < 0) {
+			logger.error("Mandatory field not found in header: " + nodeName.name);
+			return CSVReader.STOP;
+		}
+	}
+
+	return CSVReader.CONTINUE;
+}
+
+function processRow(rowIdx, row) {
+	logger.trace("processRow: " + "rowIdx = " + rowIdx + ", row = " + row);
+
+	if (rowIdx == 0) {
+		return processHeader(row);
+	}
+
+	if (row.length == 1 && row[0] == "") {
+		logger.trace("Row " + rowIdx + " is empty");
+		return CSVReader.CONTINUE;
+	}
+
+	if (row.length != fieldsInHeader) {
+		logger.error("Row " + rowIdx + " does not contain the correct number of columns. Required = " + fieldsInHeader + ", has = " + row.length);
+		return CSVReader.STOP;
+	}
+
+	if (row[nodeName.index] == "") {
+		logger.error("Row " + rowIdx + "contains a node with an empty name");
+		return CSVReader.STOP;
+	}
+
+	var dataTypeIdx = util.dataTypes.indexOf(row[dataType.index].toLowerCase());
+	if (dataTypeIdx < 0) {
+		logger.error("Invalid data type: " + row[dataType.index]);
+		return CSVReader.STOP;
+	}
+
+	// Prefix for nodes in atvise address space
+	var addressPrefix = "AGENT.OBJECTS";
+
+	// Retrieve node properties from CSV row
+	var fullName = addressPrefix + "." + row[nodeName.index];
+	var nodeProperties = new Object();
+	nodeProperties.parent = fullName.substring(0, fullName.lastIndexOf('.'));
+
+	if (row[typeDefinition.index] === "68") {
+		nodeProperties.reference = Ua.Reference.HASPROPERTY;
+	} else {
+		nodeProperties.reference = Ua.Reference.HASCOMPONENT;
+	}
+
+	var updateDescription = false;
+	if (description.index >= 0) {
+		if (row[description.index] != "") {
+			nodeProperties.description = row[description.index];
+			updateDescription = true;
+		}
+	}
+
+	var updateValue = false;
+	if (util.dataTypeIds[dataTypeIdx] == "folder") {
+		logger.trace("Node is a folder");
+		nodeProperties.nodeClass = Ua.NodeClass.OBJECT;
+		nodeProperties.typeDefinition = Ua.ObjectType.FOLDERTYPE;
+	}
+	else if (util.dataTypeIds[dataTypeIdx] == "object") {
+		logger.trace("Node is an object");
+		nodeProperties.nodeClass = Ua.NodeClass.OBJECT;
+
+		if (typeDefinition.index < 0) {
+			logger.error("Node " + atvNode.result.nodeId.address + "is an object but there is no <typeDefinition> field specified in header");
+			return CSVReader.STOP;
+		}
+		else if (row[typeDefinition.index] == "") {
+			logger.error("Node " + atvNode.result.nodeId.address + "is an object but there is no Object Type defined in line");
+			return CSVReader.STOP;
+		}
+
+		nodeProperties.typeDefinition = row[typeDefinition.index];
+		if (nodeProperties.typeDefinition.indexOf("ObjectTypes.") != 0  && isNaN(nodeProperties.typeDefinition)) // Feature: if full path is not specified, assume type is defined in ObjectTypes.PROJECT
+			nodeProperties.typeDefinition = "ObjectTypes.PROJECT." + nodeProperties.typeDefinition;
+	}
+	else {
+		logger.trace("Node is a variable");
+		nodeProperties.nodeClass = Ua.NodeClass.VARIABLE;
+
+		if (typeDefinition.index >= 0 && row[typeDefinition.index] != "") // Variable is of variable type
+		{
+			nodeProperties.typeDefinition = row[typeDefinition.index];
+			if (nodeProperties.typeDefinition.indexOf("VariableTypes.") != 0  && isNaN(nodeProperties.typeDefinition)) // Feature: if not an integer and if full path is not specified, assume type is defined in VariableTypes.PROJECT
+				nodeProperties.typeDefinition = "VariableTypes.PROJECT." + nodeProperties.typeDefinition;
+		}
+		else
+			nodeProperties.typeDefinition = Ua.VariableType.BASEVARIABLETYPE;
+
+		var value = util.dataTypeDefaults[dataTypeIdx];
+		if (nodeValue.index >= 0) {
+			if (row[nodeValue.index] != "") {
+				value = row[nodeValue.index];
+				updateValue = true;
+			}
+		}
+
+		nodeProperties.dataType = util.dataTypeIds[dataTypeIdx];
+		if (nodeProperties.dataType == 1) //boolean
+			value = value == "true" ? true : false;
+		nodeProperties.value = value;
+	}
+
+
+	var atvNode = Ua.findNode(fullName);
+	var atvNodeExist = Ua.Status(atvNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (!atvNodeExist) {
+		// Node does not exist, create it
+		logger.trace("Node does not exist. Creating: " + fullName);
+
+		// First create all the parent folders
+		var folderPrefix = "";
+		var folders = row[nodeName.index].split(".");
+		for (var i = 0; i < folders.length - 1; i++) {
+			var folderName = folders[i];
+			if (folderName != "" && folderName != null) {
+
+				var folderAddress = addressPrefix + "." + (folderPrefix == "" ? folderPrefix : folderPrefix + ".") + folderName;
+				var folder = Ua.findNode(folderAddress);
+				var folderExist = Ua.Status(folder) != Ua.Status.BADNODEIDUNKNOWN;
+
+				if (!folderExist) {
+					logger.trace("Creating parent: " + addressPrefix + "." + (folderPrefix == "" ? folderPrefix : folderPrefix + ".") + folderName, false);
+					var parent = addressPrefix + (folderPrefix == "" ? folderPrefix : "." + folderPrefix);
+
+					Ua.createNode(folderAddress, {
+						parent: parent,
+						nodeClass: Ua.NodeClass.OBJECT,
+						typeDefinition: Ua.ObjectType.FOLDERTYPE,
+						reference: Ua.Reference.HASCOMPONENT
+					});
+
+					var folder = Ua.findNode(folderAddress);
+					var folderExist = Ua.Status(folder) != Ua.Status.BADNODEIDUNKNOWN;
+				} else {
+					logger.trace("Existing parent: " + folder.result.nodeId.address);
+				}
+
+				folderPrefix += (folderPrefix == "") ? folderName : "." + folderName;
+			}
+		}
+
+		Ua.createNode(fullName, nodeProperties);
+		atvNode = Ua.findNode(fullName);
+		var atvNodeGood = Ua.Status(atvNode) == Ua.Status.GOOD;
+
+		if (!atvNodeGood) {
+			logger.error("Unable to create node " + atvNode.result.nodeId.address + ". Status = " + Ua.Status(status).toString());
+			return CSVReader.STOP;
+		}
+		logger.trace("Node created");
+	} else {
+		// Node exists, update values on the node
+
+		logger.trace("Node exists, attempting to update values");
+		if (atvNode.result.nodeClass != nodeProperties.nodeClass) {
+			logger.error("Node " + atvNode.result.nodeId.address + " has a different nodeClass [" + atvNode.result.nodeClass + "] than the node in file [" + nodeProperties.nodeClass + "]");
+			return CSVReader.STOP;
+		}
+
+		if (util.trimNodeId(atvNode.result.typeDefinition.valueOf()) != util.trimNodeId(nodeProperties.typeDefinition)) {
+			logger.error("Node " + atvNode.result.nodeId.address + " has a different typeDefinition [" + atvNode.result.typeDefinition + "] than the node in file + [" + nodeProperties.typeDefinition + "]");
+			return CSVReader.STOP;
+		}
+
+		if (atvNode.result.nodeClass == Ua.NodeClass.VARIABLE) {
+			if (util.trimNodeId(atvNode.result.dataType.valueOf()) != util.trimNodeId(util.dataTypeIds[dataTypeIdx])) {
+				logger.error("Node " + atvNode.result.nodeId.address + " has a different dataType [" + atvNode.result.dataType + "] than the node in file [" + util.dataTypeIds[dataTypeIdx] + "]");
+				return CSVReader.STOP;
+			}
+
+			if (updateValue) {
+				atvNode.result.value = nodeProperties.value;
+				logger.trace("Value updated");
+			}
+
+			if (updateDescription) {
+				atvNode.result.description = nodeProperties.description;
+				logger.trace("Description updated");
+			}
+		}
+	}
+
+	//  Detect historical configuration
+	if (historyGroups.index > -1 && row[historyGroups.index].trim() != "") {
+		logger.trace("Detected historical configuration");
+
+		var tmp = row[historyGroups.index];
+		var start = tmp.indexOf('{');
+		var end = tmp.lastIndexOf('}');
+
+		// Verify input format
+		if (start < 0 || end < 1) {
+			logger.error("Invalid historical configuration format");
+			return CSVReader.STOP;
+		}
+
+		tmp = tmp.substr(start + 1, end - 1);
+
+		var groups = new Array();
+		if (tmp.trim() != "")
+			groups = tmp.split(',');
+
+		// Clear all existing history groups
+		var existingGroups = atvNode.result.browse({
+			reference: Ua.Reference.HASHISTORICALCONFIGURATION
+		});
+		logger.trace("Node has " + existingGroups.length + " history groups already set");
+
+		for (var i = 0; i < existingGroups.length; ++i) {
+			logger.trace("Deleting HASHISTORICALCONFIGURATION reference to " + existingGroups[i].node.nodeId.address);
+			atvNode.result.deletereference(Ua.Reference.HASHISTORICALCONFIGURATION, existingGroups[i].node.nodeid);
+		}
+
+		// Add history group(s)
+		for (var i = 0; i < groups.length; ++i) {
+			groups[i] = groups[i].trim();
+
+			// Import of history or aggregates
+			function importHistoryNode(nodeType, value) {
+
+				var historyArchiveNode = Ua.findNode(nodeType + value);
+				var historyArchiveNodeExist = Ua.Status(historyArchiveNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+				if (historyArchiveNodeExist) {
+					atvNode.result.addReference(Ua.Reference.HASHISTORICALCONFIGURATION, nodeType + value);
+					logger.trace("Added " + nodeType + " " + value);
+				} else {
+					logger.error(nodeType + " archive " + value + " doesn't exist", true);
+					return CSVReader.STOP;
+				}
+			}
+
+			// History at even, Aggregat at ood
+			if (i % 2 == 0) {
+				importHistoryNode("AGENT.HISTORY.", groups[i]);
+			} else {
+				importHistoryNode("AGENT.HISTORY.AGGREGATETEMPLATES.", groups[i]);
+			}
+
+			// Break loop if no aggregate import
+			if (!importAggregates)
+				i = groups.length + 1
+		}
+	}
+
+	// Check for on-demand
+	var onDemandValue = null;
+	if (onDemand.index > -1 && row[onDemand.index].trim() != "")
+		onDemandValue = row[onDemand.index].trim().toLowerCase() == "true";
+
+	// Add mirroring properties
+	for (var i = 0; i < util.mirrorFields.length; ++i) {
+		var mirrorField = util.mirrorFields[i];
+		if (mirrorField.index > -1 && row[mirrorField.index].trim() != "") {
+			logger.trace("Detected that " + mirrorField.name + " property is set");
+			var mirrorNodeName = fullName + "." + mirrorField.suffix();
+			
+			var mirrorNode = Ua.findNode(mirrorNodeName);
+			var mirrorNodeExist = Ua.Status(mirrorNode) != Ua.Status.BADNODEIDUNKNOWN;			
+
+			var mirrorNodeValue = row[mirrorField.index].trim();
+			if (mirrorField.name.indexOf('<Rel') == 0 && mirrorField.name != '<RelMirrorBase>') {
+				mirrorNodeValue = mirrorNodeValue.substring(1, mirrorNodeValue.length - 1);
+				mirrorNodeValue = mirrorNodeValue.split(',');
+				for (var j = 0; j < mirrorNodeValue.length; ++j)
+					mirrorNodeValue[j].trim();
+			}
+
+			if (!mirrorNodeExist) {
+				logger.trace("Mirror node does not exist, creating " + mirrorNodeName);
+				Ua.createNode(mirrorNodeName, {
+					nodeClass: Ua.NodeClass.VARIABLE,
+					parent: fullName,
+					typeDefinition: mirrorField.typeDefinition,
+					dataType: Ua.DataType.STRING,
+					value: mirrorNodeValue
+				});
+			} else {
+				logger.trace("Mirror node exists, updating value for " + mirrorNode.result.nodeId.address);
+				mirrorNode.result.value = mirrorNodeValue;
+			}
+
+			if (onDemandValue != null && mirrorField.demandable) {
+				
+				var ondemandNode = Ua.findNode(mirrorNodeName + ".OnDemand");
+				var ondemandNodeExist = Ua.Status(ondemandNode) != Ua.Status.BADNODEIDUNKNOWN;					
+				
+				if (!ondemandNodeExist) {
+					logger.trace("Creating ondemand property");
+					Ua.createNode(mirrorNodeName + ".OnDemand", {
+						nodeClass: Ua.NodeClass.VARIABLE,
+						parent: mirrorNodeName,
+						typeDefinition: Ua.VariableType.PROPERTY,
+						reference: Ua.Reference.HASPROPERTY,
+						dataType: Ua.DataType.BOOLEAN,
+						value: onDemandValue
+					});
+				} else {
+					logger.trace("Existing ondemand property: " + ondemandNode.result.nodeId.address);
+					ondemandNode.result.value = onDemandValue;
+				}
+			}
+		}
+	}
+}
+
+return function doImport(csvFile) {
+	logger.info("CsvImport started");
+	var reader = new CSVReader({trim: true});
+
+	reader.parse(csvFile, {onData: processRow});
+
+	logger.info("CsvImport finished");
+}]]></code>
+</script>

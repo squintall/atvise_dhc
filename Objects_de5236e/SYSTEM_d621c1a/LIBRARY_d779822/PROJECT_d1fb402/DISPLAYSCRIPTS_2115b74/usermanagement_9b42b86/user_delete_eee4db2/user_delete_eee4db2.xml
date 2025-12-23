@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var username = webMI.query.user;
+var colid = webMI.query.colid;
+var data = {"mode":"Delete", "username": username, "colid": colid};
+webMI.addOnload(function(e) {
+var id = "";
+var value = true;
+return function(value) {
+webMI.gfx.setText("username", username);
+} (value);
+});
+webMI.trigger.connect("clicked", function(e){
+	webMI.data.call("UserManagement", data, function(e) {
+		webMI.display.closeWindow();		
+		webMI.trigger.fire(webMI.query.triggerName, data);
+	});
+}, "delete_button");
+
+webMI.trigger.connect("clicked", function(e){
+	webMI.display.closeWindow();
+}, "cancel_button");]]></code>
+</script>

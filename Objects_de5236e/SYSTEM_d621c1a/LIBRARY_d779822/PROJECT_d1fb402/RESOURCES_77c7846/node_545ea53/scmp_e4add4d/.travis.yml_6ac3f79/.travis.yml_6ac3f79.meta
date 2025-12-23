@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/scmp/.travis.yml
+NodeClass: Variable
+BrowseName: 1:.travis.yml
+DisplayName: en|.travis.yml
+Description: en|.travis.yml
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

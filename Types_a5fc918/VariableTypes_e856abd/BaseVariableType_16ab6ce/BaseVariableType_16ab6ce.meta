@@ -1,0 +1,12 @@
+NodeId: i=62
+NodeClass: VariableType
+BrowseName: BaseVariableType
+DisplayName: |BaseVariableType
+Description: |BaseVariableType
+IsAbstract: true
+DataType: BaseDataType
+ValueRank: -2
+ValueType: i=0
+Reference: forward HasSubtype BaseDataVariableType
+Reference: forward HasSubtype PropertyType
+Reference: forward HasSubtype ns=1;s=VariableTypes.ATVISE

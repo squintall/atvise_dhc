@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/numbers/v2/regulatoryCompliance/bundle/bundleCopy.d.ts
+NodeClass: Variable
+BrowseName: 1:bundleCopy.d.ts
+DisplayName: en|bundleCopy.d.ts
+Description: en|bundleCopy.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

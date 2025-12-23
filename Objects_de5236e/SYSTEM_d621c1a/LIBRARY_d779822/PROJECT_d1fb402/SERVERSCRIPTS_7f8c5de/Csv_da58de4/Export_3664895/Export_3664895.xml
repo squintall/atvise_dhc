@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[var util = call("Csv.Util");
+
+// Logging
+var logger = new util.logger(1);
+
+function writeHeader(output, nodeValue, description, history, mirroring) {
+	output.write("<NodeName>;<DataType>;<TypeDefinition>");
+	if (nodeValue)
+		output.write(";<NodeValue>");
+	if (description)
+		output.write(";<Description>");
+	if (history)
+		output.write(";<HistoryGroups>");
+	if (mirroring) {
+		for (var i = 0; i < util.mirrorFields.length; ++i)
+			output.write(";" + util.mirrorFields[i].name);
+		output.write(";<OnDemand>");
+	}
+}
+
+function verifyForExport(node) {
+	if (typeof node.nodeId.address.indexOf !== "function")
+		return false;
+
+	if (node.nodeId.address.indexOf("AGENT.OBJECTS") != 0)
+		return false;
+
+	// Do not export mirror nodes
+	if (util.trimNodeId(node.typeDefinition.valueOf()).indexOf("VariableTypes.ATVISE.Mirror") == 0)
+		return false;
+
+
+	// Do not export on demand nodes
+	if (node.nodeId.address.indexOf(".OnDemand") > -1 && node.typeDefinition.valueOf() == "i=68")
+		return false;
+
+	return true;
+}
+
+return function doExport(nodes, output, nodeValue, description, history, mirroring) {
+	logger.info("Csv Export started");
+	logger.trace("Nodes: " + nodes);
+
+	writeHeader(output, nodeValue, description, history, mirroring);
+
+	for (var i = 0; i < nodes.length; ++i) {
+		var node = Ua.findNode(nodes[i]);
+		var nodeExist = Ua.Status(node) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!verifyForExport(node.result)) {
+			logger.error("Cannot export node " + node.result.nodeId.address);
+		} else {
+			if (node.result.nodeId.address != "AGENT.OBJECTS") {
+				exportNode(node.result, output, nodeValue, description, history, mirroring);
+			}
+
+			var children = node.result.browse({recursive: true}).result;
+			logger.trace("Node " + node.result.nodeId.address + " has " + children.length + " children");
+
+			for (var j in children) {
+				exportNode(children[j].node, output, nodeValue, description, history, mirroring);
+			}
+		}
+	}
+	logger.info("Csv Export finished");
+}
+
+function exportNode(nodeToExport, output, nodeValue, description, history, mirroring) {
+	if (!verifyForExport(nodeToExport)) {
+		logger.trace("Not exporting node " + nodeToExport.nodeId.address);
+	} else  // Node export
+	{
+		output.write("\n");
+		logger.trace("Exporting " + nodeToExport.nodeId.address);
+
+		// NodeName
+		output.write(nodeToExport.nodeId.address.substr("AGENT.OBJECTS.".length) + ";");
+
+		// DataType
+		if (nodeToExport.nodeClass == Ua.NodeClass.OBJECT) {
+			if (util.trimNodeId(nodeToExport.typeDefinition.valueOf()) == Ua.ObjectType.FOLDERTYPE)
+				output.write("folder");
+			else
+				output.write("object");
+		} else if (nodeToExport.nodeClass == Ua.NodeClass.VARIABLE) {
+			var dataType = util.trimNodeId(nodeToExport.dataType.valueOf());
+
+			var idx = -1;
+			for (var k = 0; k < util.dataTypeIds.length; ++k) {
+				if (dataType == util.trimNodeId(util.dataTypeIds[k]))
+					idx = k;
+			}
+			if (idx > -1)
+				output.write(util.dataTypes[idx]);
+			else {
+				logger.error("Variable " + nodeToExport.nodeId.address + " has unknown data type = " + nodeToExport.dataType);
+				return;
+			}
+		}
+		output.write(";");
+
+		// Typedefinition
+		var typeDefinition = util.trimNodeId(nodeToExport.typeDefinition.valueOf());
+		if (typeDefinition != Ua.VariableType.BASEVARIABLETYPE && typeDefinition != Ua.ObjectType.FOLDERTYPE)
+			output.write(typeDefinition);
+
+		// Value
+		if (nodeValue) {
+			output.write(";");
+			if (nodeToExport.nodeClass == Ua.NodeClass.VARIABLE) {
+				if (nodeToExport.dataType == Ua.DataType.DATETIME) {
+					output.write(nodeToExport.value.getTime());
+				} else {
+					// escape double quotes and write value inside double quotes if value contains semicolon or double quote
+					if (typeof nodeToExport.value == "string" && (nodeToExport.value.indexOf(";") > -1 || nodeToExport.value.indexOf("\"") > -1)) {
+						var outValue = nodeToExport.value.replace(/\"/g, "\"\"");
+						output.write("\"" + outValue + "\"");
+					} else
+						output.write(nodeToExport.value);
+				}
+			}
+		}
+
+		// Description
+		if (description) {
+			output.write(";");
+			output.write(nodeToExport.description);
+		}
+
+		// History
+		if (history) {
+			output.write(";");
+			var existingGroups = nodeToExport.browse({
+				reference: Ua.Reference.HASHISTORICALCONFIGURATION
+			});
+			
+			logger.trace("Node has " + existingGroups.result.length + " history groups set");
+			if (existingGroups.result.length > 0) {
+				output.write("{");
+				for (var k = 0; k < existingGroups.result.length; ++k) {
+					if (k != 0) output.write(",");
+					output.write(existingGroups.result[k].node.browseName.valueOf());
+				}
+				output.write("}");
+			}
+		}
+
+		// Mirroring
+		if (mirroring) {
+			var onDemandValue = null;
+
+			for (var k = 0; k < util.mirrorFields.length; ++k) {
+				output.write(";");
+				var mirrorField = util.mirrorFields[k];
+
+				var mirrorNode = Ua.findNode(nodeToExport.nodeId.address + "." + mirrorField.suffix());
+				var mirrorNodeExist = Ua.Status(mirrorNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+				if (mirrorNodeExist) {
+					var mirroringValue = '\"';
+					if (mirrorNode.result.value instanceof Array) {
+						mirroringValue += '{';
+						for (var l = 0; l < mirrorNode.result.value.length; ++l) {
+							mirroringValue += mirrorNode.result.value[l];
+							if (l < mirrorNode.result.value.length - 1)
+								mirroringValue += ',';
+						}
+						mirroringValue += '}';
+					} else {
+						mirroringValue += mirrorNode.result.value;
+					}
+
+					mirroringValue += '\"';
+					output.write(mirroringValue);
+					if (mirrorField.demandable) {
+						var onDemandNode = Ua.findNode(mirrorNode.result.nodeId.address + ".OnDemand");
+						var onDemandNodeExist = Ua.Status(onDemandNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+						if (onDemandNodeExist)
+							onDemandValue = onDemandNode.result.value;
+					}
+				}
+			}
+
+			output.write(";");
+			if (onDemandValue != null)
+				output.write(onDemandValue);
+		}
+	}
+}]]></code>
+</script>

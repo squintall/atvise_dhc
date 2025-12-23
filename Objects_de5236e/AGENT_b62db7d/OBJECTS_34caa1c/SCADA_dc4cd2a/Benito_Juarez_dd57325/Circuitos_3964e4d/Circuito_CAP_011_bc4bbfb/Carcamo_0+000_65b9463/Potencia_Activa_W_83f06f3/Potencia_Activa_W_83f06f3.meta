@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_0+000.Potencia_Activa_W
+NodeClass: Variable
+BrowseName: 1:Potencia_Activa_W
+DisplayName: en|Potencia_Activa_W
+Description: en|Potencia_Activa_W
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAVVJREFUWIXt1r8uREEUx/HP3vUvhILCdoKERDwAbyARUQgvQSsaDyDR6hUSiY5CoSb+JSJRSKgQhUYtirWKezc2667dK3tX4f6SmztzZnLOdzJnZg5/rFyd8aBiTjGh39KviDIlVP6vAufUz59UgmZqVJtYqbKttxJgAa9VELetBAgiiHssCU9LLEBbjG0CPU2AeMI+9rCMjnoAQfRfxEgTAGA8+s9rzqISaRRHOMCQFudAP45xiOHI1jBAV1U/j/aEANc4xWCFrWGAC/RF7QHs4hGFhBANKYixld/xAjYwhlm8pAEQp3Nh0mzjEtPCbQh8FShNexfiHF0IVzuHuwiiet5P1U6pRvtNeB8EKqqruIuohB3M4AZbPwQrK1fjqxwrRr4/6jkqJ+EUrrDm+8lITQHO0Bv15/CAVXSmETCupOoW7ntR+Jg8YxIneE8DIlOmTP9bn2TXNZXuo/AmAAAAAElFTkSuQmCC</icon>
+    <visible>1</visible>
+    <title>Tab Handler</title>
+    <description>Enables/Disables tab handler functionality.</description>
+  </metadata>
+  <parameter behavior="optional" defaultvalue="true" desc="activate tab handler" name="activate" valuetype="bool"/>
+  <code><![CDATA[if (typeof this.data === "undefined") {
+	this.data = {
+		arr_indexed: [],
+		arr_not_indexed: [],
+		act_tab: { array: null, index: null },
+		act_doc: null,
+		parent_doc: null,
+		prev_doc: null,
+		has_parent: false
+	};
+	this.doc_storage = [];
+	this.acceptKeys = { accept: true, preventFirst: false, active: true, passthru: false };
+	this.iframes = [];
+	this.afterLoadCallbacks = [];
+
+	webMI.keys.addCombinationListener(0, 9, nextTab);
+	webMI.keys.addCombinationListener(4, 9, prevTab);
+	webMI.keys.addCombinationListener(0, 13, applyTab);
+	webMI.keys.addCombinationListener(0, 32, applyTab);
+	webMI.keys.addCombinationListener(0, 27, applyTab);
+	webMI.keys.addCombinationListener(0, 38, applyTab);
+	webMI.keys.addCombinationListener(0, 40, applyTab);
+	webMI.keys.addCombinationListener(0, 37, applyTab);
+	webMI.keys.addCombinationListener(0, 39, applyTab);
+
+	/*PreventDefault bei Tab,Enter,Esc,Backspace*/
+	webMI.keys.addPressListener(function (e) {
+		preventTab(e, 9);
+	}, 9);
+	webMI.keys.addPressListener(function (e) {
+		preventTab(e, 13);
+	}, 13);
+	webMI.keys.addPressListener(function (e) {
+		preventTab(e, 27);
+	}, 27);
+	webMI.keys.addPressListener(function (e) {
+		preventTab(e, 8);
+	}, 8);
+	webMI.keys.addDownListener(function (e) {
+		preventTab(e, 9);
+	}, 9);
+	webMI.keys.addDownListener(function (e) {
+		preventTab(e, 13);
+	}, 13);
+	webMI.keys.addDownListener(function (e) {
+		preventTab(e, 27);
+	}, 27);
+	webMI.keys.addDownListener(function (e) {
+		preventTab(e, 8);
+	}, 8);
+
+	webMI.keys.addUpListener(releaseClick, 13);
+	webMI.keys.addUpListener(releaseClick, 38);
+	webMI.keys.addUpListener(releaseClick, 40);
+	webMI.keys.addUpListener(releaseClick, 37);
+	webMI.keys.addUpListener(releaseClick, 39);
+}
+
+var data = this.data;
+var doc_storage = this.doc_storage;
+var acceptKeys = this.acceptKeys;
+var iframes = this.iframes;
+var afterLoadCallbacks = this.afterLoadCallbacks;
+
+/*Outer*/
+function register(tabIndex, keyHandler, doc) {
+	if (!acceptKeys.accept) return;
+
+	if (tabIndex && tabIndex == -999999) {
+		return;
+	} else if (tabIndex && tabIndex >= 1) {
+		pushToStorage(doc, tabIndex, keyHandler);
+	} else {
+		pushToStorage(doc, null, keyHandler);
+	}
+}
+
+function registerDisplay(doc) {
+	if (!acceptKeys.accept) return;
+
+	pushToStorage(doc, null, null);
+}
+
+function blurFocused() {
+	if (!testDocumentExists(data.act_doc)) return;
+
+	if (data.act_tab.array == "indexed") {
+		data.arr_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+	} else if (data.act_tab.array == "not_indexed") {
+		data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+	}
+	storeActTab();
+}
+
+function beforeFirstUse(doc, storeParent, callback) {
+	if (storeParent) {
+		storeParentDoc(doc, data.prev_doc);
+		getFocused(doc);
+	}
+	if (callback) {
+		callback.call(this);
+	}
+}
+
+function getFocused(doc) {
+	if (!acceptKeys.accept || !testDocumentExists(doc) || isFocused(doc)) return;
+
+	getFromStorage(doc);
+	if (data.arr_indexed.length > 0 && data.act_tab.array == "indexed") {
+		setCurrentIndex(data.arr_indexed[data.act_tab.index].keyHandler);
+	} else if (data.arr_indexed.length > 0) {
+		setCurrentIndex(data.arr_indexed[0].keyHandler);
+	} else if (data.arr_not_indexed.length > 0 && data.act_tab.array == "not_indexed") {
+		setCurrentIndex(data.arr_not_indexed[data.act_tab.index].keyHandler);
+	} else if (data.arr_not_indexed.length > 0) {
+		setCurrentIndex(data.arr_not_indexed[0].keyHandler);
+	}
+}
+
+function isFocused(doc) {
+	return testDocumentExists(data.act_doc) && doc == data.act_doc;
+}
+
+function removeDoc(doc, switchToParent) {
+	removeFromStorage(doc, switchToParent);
+}
+
+function setCurrentIndex(keyHandler, callback) {
+	if (!testDocumentExists(data.act_doc) && acceptKeys.accept) return;
+
+	//callback just from button
+	var retValBlur;
+	if (data.act_tab.array == "indexed") {
+		retValBlur = data.arr_indexed[data.act_tab.index].keyHandler.call(this, "blur", callback);
+	} else if (data.act_tab.array == "not_indexed") {
+		retValBlur = data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "blur", callback);
+	}
+	data.act_tab = findKeyHandler(keyHandler);
+	if (data.act_tab.array == "indexed") {
+		data.arr_indexed[data.act_tab.index].keyHandler.call(this, "focus");
+	} else if (data.act_tab.array == "not_indexed") {
+		data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "focus");
+	}
+	if (callback && (typeof retValBlur === "undefined" || (typeof retValBlur === "boolean" && !retValBlur))) {
+		callback.call(this);
+	}
+}
+
+function renew(modal) {
+	/*if external, internal not modal or no parent exists*/
+	if (typeof modal === "undefined" || modal || !data.has_parent) {
+		data.has_parent = true;
+		data.prev_doc = data.act_doc;
+	}
+	data.arr_indexed = [];
+	data.arr_not_indexed = [];
+	data.act_tab = { array: null, index: null };
+	data.act_doc = null;
+	data.parent_doc = null;
+}
+
+function changeDisplay() {
+	data.has_parent = false;
+	data.prev_doc = null;
+	data.arr_indexed = [];
+	data.arr_not_indexed = [];
+	data.act_tab = { array: null, index: null };
+	data.act_doc = null;
+	data.parent_doc = null;
+}
+
+function renewGlobal() {
+	data.arr_indexed.length = 0;
+	data.arr_not_indexed.length = 0;
+	data.act_tab = { array: null, index: null };
+	data.act_doc = null;
+	data.parent_doc = null;
+	doc_storage.length = 0;
+	data.has_parent = false;
+	data.prev_doc = null;
+	iframes.length = 0;
+	afterLoadCallbacks.length = 0;
+}
+
+function pushIFrame(fname, frame, defaultFrameName) {
+	var replace = false;
+	var obj = { name: fname, frame: frame, loaded: false, hasevent: false };
+	if (defaultFrameName && fname != defaultFrameName) obj.loaded = true;
+	for (var i = 0; i < iframes.length; i++) {
+		if (fname != "" && iframes[i].name == fname) {
+			iframes[i] = obj;
+			replace = true;
+		}
+	}
+	if (!replace) {
+		iframes.push(obj);
+	}
+}
+
+function getIFrame(fname) {
+	for (var i = 0; i < iframes.length; i++) {
+		try {
+			if (iframes[i].name == fname) return iframes[i].frame;
+		} catch (ex) {
+			// do nothing
+		}
+	}
+	return null;
+}
+
+function setIFrameHasEvent(frame) {
+	for (var i = 0; i < iframes.length; i++) {
+		try {
+			if (iframes[i].frame == frame) iframes[i].hasevent = true;
+		} catch (ex) {
+			// do nothing
+		}
+	}
+}
+
+function hasIFrameEvent(frame) {
+	for (var i = 0; i < iframes.length; i++) {
+		try {
+			if (iframes[i].frame == frame) return iframes[i].hasevent;
+		} catch (ex) {
+			// do nothing
+		}
+	}
+	return false;
+}
+
+function setIFrameLoaded(frame, bool) {
+	for (var i = 0; i < iframes.length; i++) {
+		try {
+			if (iframes[i].frame == frame) iframes[i].loaded = bool;
+		} catch (ex) {
+			// do nothing
+		}
+	}
+}
+
+function areAllIFrameLoaded() {
+	for (var i = 0; i < iframes.length; i++) {
+		try {
+			if (!iframes[i].loaded) return false;
+		} catch (ex) {
+			// do nothing
+		}
+	}
+	return true;
+}
+
+function getIFrameNames() {
+	var ret = [];
+	for (var i = iframes.length - 1; i >= 0; i--) {
+		try {
+			if (iframes[i].frame.contentWindow != null && iframes[i].name != "") ret.push(iframes[i].name);
+		} catch (ex) {
+			iframes.splice(i, 1);
+		}
+	}
+	return ret;
+}
+
+//returns the names of the iFrames projected in the default-display
+function getParentIFrameNames() {
+	var foreignObjectsContainer = document.getElementById("foreignobjects");
+	var currentWin = null;
+	while (!foreignObjectsContainer) {
+		currentWin = window.parent;
+		foreignObjectsContainer = currentWin.document.getElementById("foreignobjects");
+	}
+	var parentFrameNames = [];
+	for (var i = 0; i < foreignObjectsContainer.childNodes.length; i++) {
+		for (var h = 0; h < foreignObjectsContainer.childNodes[i].childNodes.length; h++) {
+			if (foreignObjectsContainer.childNodes[i].childNodes[h].nodeName.toLowerCase() == "iframe") {
+				var frameName = foreignObjectsContainer.childNodes[i].childNodes[h].getAttribute("framename");
+				if (frameName !== null) {
+					parentFrameNames.push(foreignObjectsContainer.childNodes[i].childNodes[h].getAttribute("framename"));
+				}
+			}
+		}
+	}
+	return parentFrameNames;
+}
+
+var indexHtmWindow = window;
+try {
+	while (!indexHtmWindow.isRootDisplay && indexHtmWindow != indexHtmWindow.parent && indexHtmWindow.parent.webMI)
+		indexHtmWindow = indexHtmWindow.parent;
+} catch (ex) {
+	// do nothing
+}
+
+function cleanIFrames() {
+	var iframes_obj = iframes;
+	if (indexHtmWindow.isRootDisplay) {
+		var domIFrames = indexHtmWindow.document.getElementsByTagName("iframe");
+		if (domIFrames.length > 1) {
+			for (let i = 0; i < iframes.length; i++) {
+				var remove = true;
+				for (let j in domIFrames) {
+					try {
+						if (iframes[i].frame.id == domIFrames[j].id) remove = false;
+					} catch (ex) {
+						// do nothing
+					}
+					try {
+						if (iframes[i].frame.contentWindow.webMI) remove = false;
+					} catch (ex) {
+						// do nothing
+					}
+				}
+				if (remove) {
+					if (iframes_obj != iframes) return;
+					iframes.splice(i, 1);
+					iframes_obj = iframes;
+					i--;
+				}
+			}
+		}
+	}
+	return;
+}
+
+function removeCallback(frame) {
+	for (var i = afterLoadCallbacks.length - 1; i >= 0; i--) {
+		var frameElement = afterLoadCallbacks[i].frame;
+		if (typeof frameElement === "string") {
+			if (afterLoadCallbacks[i].frame === frame.getAttribute("framename")) {
+				afterLoadCallbacks.splice(i, 1);
+			}
+		} else {
+			if (afterLoadCallbacks[i].frame === frame) {
+				afterLoadCallbacks.splice(i, 1);
+			}
+		}
+	}
+}
+
+function addAfterIFrameLoad(fun, frame) {
+	var find = false;
+	for (var i = 0; i < afterLoadCallbacks.length; i++) {
+		if (afterLoadCallbacks[i].callback == fun) find = true;
+	}
+	if (!find) afterLoadCallbacks.push({ callback: fun, frame: frame });
+}
+
+function runAfterIFrameLoad() {
+	for (let ali = 0; ali < afterLoadCallbacks.length; ali++) {
+		afterLoadCallbacks[ali].callback.call(this);
+	}
+	afterLoadCallbacks.length = 0;
+}
+
+function setAcceptKeys(bool) {
+	if (acceptKeys.active) acceptKeys.accept = bool;
+}
+
+function setAcceptKeysPrevent(bool) {
+	if (acceptKeys.active) acceptKeys.preventFirst = bool;
+}
+
+function getAcceptKeys() {
+	var ret = acceptKeys.accept && !acceptKeys.preventFirst;
+	acceptKeys.preventFirst = false;
+	return ret;
+}
+
+/*Inner*/
+function sortFunction(a, b) {
+	return a.tabIndex - b.tabIndex;
+}
+
+function pushToStorage(doc, index1, handler1) {
+	if (doc.location == "about:blank") return;
+	var sto_index = null;
+	for (var j = 0; j < doc_storage.length; j++) {
+		if (doc_storage[j].doc == doc) sto_index = j;
+	}
+	if (sto_index == null) {
+		sto_index = doc_storage.length;
+		doc_storage[doc_storage.length] = {
+			doc: doc,
+			data: {
+				arr_indexed: [],
+				arr_not_indexed: [],
+				act_tab: { array: null, index: null },
+				act_doc: null,
+				parent_doc: null
+			}
+		};
+	}
+	if (index1 != null && handler1 != null) {
+		doc_storage[sto_index].data.arr_indexed[doc_storage[sto_index].data.arr_indexed.length] = {
+			tabIndex: index1,
+			keyHandler: handler1
+		};
+	} else if (index1 == null && handler1 != null) {
+		doc_storage[sto_index].data.arr_not_indexed[doc_storage[sto_index].data.arr_not_indexed.length] = {
+			tabIndex: doc_storage[sto_index].data.arr_not_indexed.length,
+			keyHandler: handler1
+		};
+	}
+}
+
+function findDocStorage(doc, callback) {
+	for (var j = 0; j < doc_storage.length; ++j) {
+		if (doc_storage[j].doc == doc) {
+			callback.call(this, j);
+			return;
+		}
+	}
+}
+
+function getFromStorage(doc) {
+	findDocStorage(doc, function (ind) {
+		data.arr_indexed = doc_storage[ind].data.arr_indexed;
+		data.arr_not_indexed = doc_storage[ind].data.arr_not_indexed;
+		data.act_tab = doc_storage[ind].data.act_tab;
+		data.act_doc = doc;
+	});
+	data.arr_indexed.sort(sortFunction);
+	data.arr_not_indexed.sort(sortFunction);
+}
+
+function storeActTab() {
+	findDocStorage(data.act_doc, function (ind) {
+		doc_storage[ind].data.act_tab = data.act_tab;
+	});
+}
+
+function storeParentDoc(doc, parent) {
+	findDocStorage(doc, function (ind) {
+		doc_storage[ind].data.parent_doc = parent;
+	});
+}
+
+function removeFromStorage(doc, switchToParent) {
+	findDocStorage(doc, function (ind) {
+		switchToParent && getFocused(doc_storage[ind].data.parent_doc);
+		doc_storage.splice(ind, 1);
+	});
+}
+
+function setAndRunFirst(ori) {
+	if (ori == 1) {
+		for (let i = 0; i < data.arr_indexed.length; i++) {
+			if (data.arr_indexed[i].keyHandler.call(this, "isActive", getComputedVisibility)) {
+				data.arr_indexed[i].keyHandler.call(this, "focus");
+				data.act_tab = { array: "indexed", index: i };
+				return;
+			}
+		}
+		for (let i = 0; i < data.arr_not_indexed.length; i++) {
+			if (data.arr_not_indexed[i].keyHandler.call(this, "isActive", getComputedVisibility)) {
+				data.arr_not_indexed[i].keyHandler.call(this, "focus");
+				data.act_tab = { array: "not_indexed", index: i };
+				return;
+			}
+		}
+	} else {
+		for (let i = data.arr_not_indexed.length - 1; i > -1; i--) {
+			if (data.arr_not_indexed[i].keyHandler.call(this, "isActive", getComputedVisibility)) {
+				data.arr_not_indexed[i].keyHandler.call(this, "focus");
+				data.act_tab = { array: "not_indexed", index: i };
+				return;
+			}
+		}
+		for (let i = data.arr_indexed.length - 1; i > -1; i--) {
+			if (data.arr_indexed[i].keyHandler.call(this, "isActive", getComputedVisibility)) {
+				data.arr_indexed[i].keyHandler.call(this, "focus");
+				data.act_tab = { array: "indexed", index: i };
+				return;
+			}
+		}
+	}
+}
+
+function findKeyHandler(keyHandler) {
+	for (let i = 0; i < data.arr_indexed.length; i++) {
+		if (data.arr_indexed[i].keyHandler == keyHandler) {
+			return { array: "indexed", index: i };
+		}
+	}
+	for (let i = 0; i < data.arr_not_indexed.length; i++) {
+		if (data.arr_not_indexed[i].keyHandler == keyHandler) {
+			return { array: "not_indexed", index: i };
+		}
+	}
+	return { array: null, index: null };
+}
+
+function getKeyCode(e) {
+	return e.keyCode || e.charCode;
+}
+
+function preventTab(e, kk) {
+	if (!acceptKeys.accept) return true;
+	if (kk == 9 || kk == 13 || kk == 27 || kk == 8) {
+		if (e.preventDefault) {
+			if (e.explicitOriginalTarget != webMI.rootWindow.document.firstElementChild) {
+				e.preventDefault();
+			}
+		} else {
+			e.returnValue = false;
+			return false;
+		}
+	}
+}
+
+function nextTab(e, shiftNum) {
+	if (!acceptKeys.accept || acceptKeys.preventFirst) {
+		acceptKeys.preventFirst = false;
+		return true;
+	}
+	shiftNum = shiftNum || 0;
+	if (data.arr_indexed.length == 0 && data.arr_not_indexed.length == 0) return;
+	if (data.act_tab.array == null) {
+		setAndRunFirst(1);
+	} else {
+		if (data.act_tab.array == "indexed" && data.act_tab.index < data.arr_indexed.length - 1) {
+			/*normal next indexed*/
+			if (shiftNum == 0) data.arr_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "indexed", index: data.act_tab.index + 1 };
+		} else if (
+			data.act_tab.array == "indexed" &&
+			data.act_tab.index == data.arr_indexed.length - 1 &&
+			data.arr_not_indexed.length > 0
+		) {
+			/*indexed overflow and exists not_indexed*/
+			if (shiftNum == 0) data.arr_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "not_indexed", index: 0 };
+		} else if (
+			data.act_tab.array == "indexed" &&
+			data.act_tab.index == data.arr_indexed.length - 1 &&
+			data.arr_not_indexed.length == 0
+		) {
+			/*indexed overflow and not exists not_indexed*/
+			if (shiftNum == 0) data.arr_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "indexed", index: 0 };
+		} else if (data.act_tab.array == "not_indexed" && data.act_tab.index < data.arr_not_indexed.length - 1) {
+			/*normal next not_indexed*/
+			if (shiftNum == 0) data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "not_indexed", index: data.act_tab.index + 1 };
+		} else if (
+			data.act_tab.array == "not_indexed" &&
+			data.act_tab.index == data.arr_not_indexed.length - 1 &&
+			data.arr_indexed.length > 0
+		) {
+			/*not_indexed overflow and exists indexed*/
+			if (shiftNum == 0) data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "indexed", index: 0 };
+		} else if (
+			data.act_tab.array == "not_indexed" &&
+			data.act_tab.index == data.arr_not_indexed.length - 1 &&
+			data.arr_indexed.length == 0
+		) {
+			/*not_indexed overflow and not exists indexed*/
+			if (shiftNum == 0) data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "not_indexed", index: 0 };
+		}
+		if (data.act_tab.array == "indexed") {
+			if (data.arr_indexed[data.act_tab.index].keyHandler.call(this, "isActive", getComputedVisibility))
+				data.arr_indexed[data.act_tab.index].keyHandler.call(this, "focus");
+			else if (shiftNum < data.arr_indexed.length + data.arr_not_indexed.length) nextTab(e, shiftNum + 1);
+			else data.act_tab = { array: null, index: null };
+		} else if (data.act_tab.array == "not_indexed") {
+			if (data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "isActive", getComputedVisibility))
+				data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "focus");
+			else if (shiftNum < data.arr_indexed.length + data.arr_not_indexed.length) nextTab(e, shiftNum + 1);
+			else data.act_tab = { array: null, index: null };
+		}
+	}
+}
+
+function prevTab(e, shiftNum) {
+	if (!acceptKeys.accept || acceptKeys.preventFirst) {
+		acceptKeys.preventFirst = false;
+		return true;
+	}
+	shiftNum = shiftNum || 0;
+	if (data.arr_indexed.length == 0 && data.arr_not_indexed.length == 0) return;
+	if (data.act_tab.array == null) {
+		setAndRunFirst(-1);
+	} else {
+		if (data.act_tab.array == "indexed" && data.act_tab.index > 0) {
+			/*normal next indexed*/
+			if (shiftNum == 0) data.arr_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "indexed", index: data.act_tab.index - 1 };
+		} else if (data.act_tab.array == "indexed" && data.act_tab.index == 0 && data.arr_not_indexed.length > 0) {
+			/*indexed overflow and exists not_indexed*/
+			if (shiftNum == 0) data.arr_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "not_indexed", index: data.arr_not_indexed.length - 1 };
+		} else if (data.act_tab.array == "indexed" && data.act_tab.index == 0 && data.arr_not_indexed.length == 0) {
+			/*indexed overflow and not exists not_indexed*/
+			if (shiftNum == 0) data.arr_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "indexed", index: data.arr_indexed.length - 1 };
+		} else if (data.act_tab.array == "not_indexed" && data.act_tab.index > 0) {
+			/*normal next not_indexed*/
+			if (shiftNum == 0) data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "not_indexed", index: data.act_tab.index - 1 };
+		} else if (data.act_tab.array == "not_indexed" && data.act_tab.index == 0 && data.arr_indexed.length > 0) {
+			/*not_indexed overflow and exists indexed*/
+			if (shiftNum == 0) data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "indexed", index: data.arr_indexed.length - 1 };
+		} else if (data.act_tab.array == "not_indexed" && data.act_tab.index == 0 && data.arr_indexed.length == 0) {
+			/*not_indexed overflow and not exists indexed*/
+			if (shiftNum == 0) data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "blur");
+			data.act_tab = { array: "not_indexed", index: data.arr_not_indexed.length - 1 };
+		}
+		if (data.act_tab.array == "indexed") {
+			if (data.arr_indexed[data.act_tab.index].keyHandler.call(this, "isActive", getComputedVisibility))
+				data.arr_indexed[data.act_tab.index].keyHandler.call(this, "focus");
+			else if (shiftNum < data.arr_indexed.length + data.arr_not_indexed.length) prevTab(e, shiftNum + 1);
+			else data.act_tab = { array: null, index: null };
+		} else if (data.act_tab.array == "not_indexed") {
+			if (data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "isActive", getComputedVisibility))
+				data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, "focus");
+			else if (shiftNum < data.arr_indexed.length + data.arr_not_indexed.length) prevTab(e, shiftNum + 1);
+			else data.act_tab = { array: null, index: null };
+		}
+	}
+}
+
+function callApply(fun, kk) {
+	if (data.act_tab.array == "indexed") {
+		return data.arr_indexed[data.act_tab.index].keyHandler.call(this, fun, kk);
+	} else if (data.act_tab.array == "not_indexed") {
+		return data.arr_not_indexed[data.act_tab.index].keyHandler.call(this, fun, kk);
+	}
+}
+
+function applyTab(e) {
+	var kk = getKeyCode(e);
+	if (!acceptKeys.accept || acceptKeys.preventFirst) {
+		if (kk != 27) acceptKeys.preventFirst = false;
+		return true;
+	}
+	if ((data.arr_indexed.length == 0 && data.arr_not_indexed.length == 0) || data.act_tab.array == null) return;
+	if (!callApply("isActive", getComputedVisibility)) {
+		nextTab(e);
+		return;
+	}
+	var fun;
+	if (kk == 13) {
+		fun = "apply";
+	} else if (kk == 27) {
+		fun = "back";
+	} else if (kk == 32) {
+		fun = "space";
+	} else if (kk == 38) {
+		fun = "arrow";
+	} else if (kk == 40) {
+		fun = "arrow";
+	} else if (kk == 37) {
+		fun = "arrow";
+	} else if (kk == 39) {
+		fun = "arrow";
+	}
+	callApply(fun, kk);
+}
+
+function releaseClick() {
+	if ((data.arr_indexed.length == 0 && data.arr_not_indexed.length == 0) || data.act_tab.array == null) return;
+	callApply("releaseClick", null);
+}
+
+function getComputedVisibility(element) {
+	function isVisible(style) {
+		return style["visibility"] != "hidden";
+	}
+
+	var elementDoc = element.ownerDocument;
+	var elementWin = elementDoc.defaultView || elementDoc.parentWindow;
+	if (elementWin.getComputedStyle) {
+		var computedStyle = elementWin.getComputedStyle(element);
+		return isVisible(computedStyle) && computedStyle["display"] != "none";
+	}
+	var visible = isVisible(element.currentStyle);
+	if (!visible) return visible;
+
+	var parent = element.parentNode;
+	while (parent.id != "webmivmlroot") {
+		if (!isVisible(parent.currentStyle)) return false;
+		parent = parent.parentNode;
+	}
+	return visible;
+}
+
+function testDocumentExists(doc) {
+	try {
+		return doc.location != "";
+	} catch (e) {
+		return false;
+	}
+}
+
+if (base.activate == "false") {
+	acceptKeys.active = false;
+	acceptKeys.accept = false;
+}
+
+return {
+	register: register,
+	registerDisplay: registerDisplay,
+	blurFocused: blurFocused,
+	beforeFirstUse: beforeFirstUse,
+	getFocused: getFocused,
+	isFocused: isFocused,
+	removeDoc: removeDoc,
+	setCurrentIndex: setCurrentIndex,
+	renew: renew,
+	changeDisplay: changeDisplay,
+	renewGlobal: renewGlobal,
+	pushIFrame: pushIFrame,
+	getIFrame: getIFrame,
+	setIFrameHasEvent: setIFrameHasEvent,
+	hasIFrameEvent: hasIFrameEvent,
+	setIFrameLoaded: setIFrameLoaded,
+	areAllIFrameLoaded: areAllIFrameLoaded,
+	getIFrameNames: getIFrameNames,
+	getParentIFrameNames: getParentIFrameNames,
+	cleanIFrames: cleanIFrames,
+	removeCallback: removeCallback,
+	addAfterIFrameLoad: addAfterIFrameLoad,
+	runAfterIFrameLoad: runAfterIFrameLoad,
+	setAcceptKeys: setAcceptKeys,
+	setAcceptKeysPrevent: setAcceptKeysPrevent,
+	getAcceptKeys: getAcceptKeys,
+	nextTab: nextTab,
+	prevTab: prevTab
+};
+]]></code>
+</script>

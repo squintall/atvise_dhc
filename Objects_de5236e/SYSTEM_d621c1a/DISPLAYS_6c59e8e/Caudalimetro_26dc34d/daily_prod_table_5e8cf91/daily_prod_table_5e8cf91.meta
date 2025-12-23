@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Caudalimetro.daily_prod_table
+NodeClass: Variable
+BrowseName: 1:daily_prod_table
+DisplayName: en|daily_prod_table
+Description: en|daily_prod_table
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

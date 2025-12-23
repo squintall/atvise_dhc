@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Simulation.Bomba_Prueba.ON
+NodeClass: Variable
+BrowseName: 1:ON
+DisplayName: en|ON
+Description: en|ON
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

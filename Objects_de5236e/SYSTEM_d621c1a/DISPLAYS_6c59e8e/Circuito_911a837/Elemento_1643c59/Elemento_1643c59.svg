@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="63.109999999999999" version="1.2" width="133" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="Nivel" name="level" substitute="$level$" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="Nombre" name="name" substitute="$name$" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="L" desc="" name="line" substitute="$line$" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="Q" name="flow" substitute="$flow$" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="P" name="pressure" substitute="$pressure$" valuetype="address"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <rect atv:refpx="51.397" atv:refpy="-7.319" fill="#fdffff" height="29.5" id="id_3" stroke="#000000" stroke-width="1" width="132" x="0.5" y="0.5"/>
+ <svg atv:refpx="66.502" atv:refpy="16" height="31" id="id_1" transform="matrix(1.0076,0,0,1,0,0)" width="131" x="0.496" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_DHC.Custom_gauge" y="0.5">
+  <atv:argument name="base" prefix="base" value=".level_percent"/>
+ </svg>
+ <rect atv:refpx="66.5" atv:refpy="46.6" fill="#fdffff" height="32.019" id="id_2" stroke="#000000" stroke-width="1" width="132" x="0.5" y="30.59"/>
+ <rect atv:refpx="66.502" atv:refpy="46.501" fill="#c5d1de" height="29" id="id_4" stroke="#c5d1de" stroke-width="2" width="129" x="2" y="32"/>
+ <svg atv:refpx="121.925" atv:refpy="45.023" height="40" id="id_10" transform="matrix(0.4966,0,0,0.4512,0,0)" width="40" x="225.533" xlink:href="SYSTEM.LIBRARY.PROJECT.RESOURCES%2FSVG%20WIFI.svg" y="79.787"/>
+ <text atv:refpx="30.343" atv:refpy="16" fill="#000000" font-family="Arial" font-size="14" id="id_12" transform="matrix(1.0571,0,0,0.9565,-0.3141,0.1759)" x="10" y="21.043">$level$</text>
+ <text atv:refpx="39.732" atv:refpy="46.968" fill="#ffffff" font-family="Arial" font-size="12" font-weight="bold" id="id_13" transform="matrix(1.4528,0,0,1.3885,-0.2264,-12.0439)" x="5" y="47.001">$name$</text>
+ <svg atv:refpx="0" atv:refpy="0" height="30" id="id_0" transform="matrix(1.6625,0,0,2.1,0,0)" width="80" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.clickarea" y="0"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".level_percent", function(e) {
+var id = "id_12";
+var value = e.value;
+webMI.gfx.setText(id, webMI.sprintf("%.2f", value + "%"));
+
+});
+
+
+
+webMI.data.subscribe(webMI.query["base"] + ".sap_name", function(e) {
+var id = "id_13";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+
+
+webMI.data.subscribe(webMI.query["base"] + ".connectivity", function(e) {
+var id = "id_10";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setFill(id, "#fafafa");
+if (value == false)
+	webMI.gfx.setFill(id, "#a3a3a3");
+
+});
+webMI.data.subscribe(webMI.query["base"] + ".connectivity", function(e) {
+var id = "id_4";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setFill(id, "#0c9557");
+if (value == false)
+	webMI.gfx.setFill(id, "#bf1d25");
+
+});
+
+
+
+
+webMI.data.subscribe(webMI.query["base"] + ".connectivity", function(e) {
+var id = "id_10";
+var value = e.value;
+if (value == false)
+	webMI.gfx.setVisible(id, {0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false});
+if (value == true)
+	webMI.gfx.setVisible(id, true);
+
+});
+
+
+
+
+
+
+webMI.addEvent("id_0", "click", function(e) {
+var id = "id_0";
+var value = true;
+webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Circuito.Circuito",extern:false,height:800,menubar:false,modal:true,movable:true,resizable:true,scrollbars:false,status:false,title:"",toolbar:false,width:800,query:webMI.query});
+});
+
+]]></script>
+</svg>

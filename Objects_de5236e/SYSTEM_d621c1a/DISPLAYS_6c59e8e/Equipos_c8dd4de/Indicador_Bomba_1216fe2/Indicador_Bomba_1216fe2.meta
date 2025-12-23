@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Equipos.Indicador_Bomba
+NodeClass: Variable
+BrowseName: 1:Indicador_Bomba
+DisplayName: en|Indicador_Bomba
+Description: en|Indicador_Bomba
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

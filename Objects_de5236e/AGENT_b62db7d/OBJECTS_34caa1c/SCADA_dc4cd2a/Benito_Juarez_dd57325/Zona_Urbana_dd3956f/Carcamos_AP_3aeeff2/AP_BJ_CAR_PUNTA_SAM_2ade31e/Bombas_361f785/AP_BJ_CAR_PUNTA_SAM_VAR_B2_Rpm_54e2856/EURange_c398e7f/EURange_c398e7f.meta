@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_PUNTA_SAM.Bombas.AP_BJ_CAR_PUNTA_SAM_VAR_B2_Rpm.EURange
+NodeClass: Object
+BrowseName: 1:EURange
+DisplayName: en|EU range of this tag
+Description: en|EURange
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Carcamo AP.DatosElectricos
+NodeClass: Variable
+BrowseName: 1:DatosElectricos
+DisplayName: en|DatosElectricos
+Description: en|DatosElectricos
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.data_change_trigger
+NodeClass: Variable
+BrowseName: 1:data_change_trigger
+DisplayName: en|data_change_trigger
+Description: en|data_change_trigger
+DataType: Int16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

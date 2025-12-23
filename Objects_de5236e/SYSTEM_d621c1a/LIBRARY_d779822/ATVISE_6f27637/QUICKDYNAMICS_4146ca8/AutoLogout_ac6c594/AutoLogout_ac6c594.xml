@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAAEEfUpiAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA+hJREFUeNpi+P//PwMQ/IdhRqgACoDLgiRZgAQjTKahof4/QAAxoJvBBJX8CFPJCJVBMhGiRWDp0iWf3d1d/wMEENxaRkZGBwZMsB9kRAOSQD3UFEaoJlSHgwRgCtauXfMNSL8C24nu1DVr1swA+er79+//AQII2Q3/sbiBgQWJ7YjVkdgCD9lNLEAC3RcbgZoCsIY2Er4AczhK6IOMBPHnzZtrcP78OTAb7k1k/OLFi/8wwISsG4oTXr16BRY7fvw4A0AAYfgCV3jg9Cm+YMCrEWoREz4FUGyA1yCMBIcHoIcoXhdgAehJIRGewrFhqMsmwPhz585R+Pnz5/9Lly79//Dhw/9Tp04BU+XqbzgNQMcbNqx/D9IIAteuXQPTDx8+/M+CK3Sx+X/FiuUvfHx8xf/8+cNw7NhRhhs3bhgCBBC6sxtwpE2cmImBQoCepxWAlAIR+kBpox89x4K88QBIPSAiFcLZTDgUOABxADFewBcG64GGXCBkAHqRAQOwcNCHRqsg0HsfcCZxIvEEpOh2QBInKd4VyDXgA1qCE4DGFvZKCVpT7IdyC4FqJoAY69atvayoqKhz796972xsbO5+fv7KuHIizIkCMLHVq1d9vnnzJrg+AGUiUM4E5lADXNH4AJR5kEM+JCSUZ9mypQy/fv1iANY8DFu3bmHg4+M7THR2hhXVT548+Q+rmUBZnAnN7w1IZSEcg+Tu3r3D8OPHDwZpaWmw2kePHoHUb2QisgRuAOZ9wXPnzjK8fPkS7A1gzfIGGIgJAAGG19nklA90L0+oWh7R3DLU9M1AarUELjCBWICajiI1CkCl1Hto6pxADcdQkgbykRxTQIkjqJmqQSWHA55c5UDrXMAPbrlCQuUCtJKlWRTgAxOBPjaAVtIMhFp3DSQmwngcchuBOAG96gS2pwWgzQgQuJCUlPwBVjqCWu0klQNY8vFFqKUolf+qVSujmZmZZ8vIyHLq6+szgJrkoLLbxMSE4dq1qwz379//zsHB2eHt7d1EjgM2QC3dgE0NsIY5Ii0tYw2yMDg4GEP+yZPHDEVFRQy2tnYMkpIS50lKA0BLDwCxAC7LoY7U5uDgYDA1NQXzgZUug5GRIdBCG4b+/j5gHcrPMHv2HAZDQ0MGVlZWRUJdLWKbigzQztWHlStXvPby8ha5ePEig42NDVaFp0+fZlBTUwNV6l9YCBiaAOukEgEeghz79etX1W3btt62sLAUOXLkCAM/Pz+DnJwcw8ePH8H1+e3btxksLS0Ydu7c8Q7IVyYUAg0kOADedQGauQDcNF2/ruTv3785oGgD9gnYgUH+Emjdos+fP/XBcgMAiS0gWmpRUlUAAAAASUVORK5CYII=</icon>
+    <visible>1</visible>
+    <title>Auto Logout</title>
+    <description>Provides an auto logout functionality.</description>
+  </metadata>
+  <parameter name="action" description="performed action" valuetype="string" defaultvalue="configure" behavior="hidden"/>
+  <parameter name="activated" description="activates the QD" valuetype="bool" defaultvalue="false" behavior="hidden"/>
+  <parameter name="autoLogoutTime" description="time span for logout in seconds" valuetype="number" defaultvalue="600" behavior="optional"/>
+  <parameter name="targetFrame" description="target frame" valuetype="string" defaultvalue="content" behavior="optional"/>
+  <parameter name="logoutDisplay" description="logout display" valuetype="display" defaultvalue="AGENT.DISPLAYS.Main" behavior="optional"/>
+  <parameter name="popup" description="popup to push" valuetype="address" behavior="hidden"/>
+  <code><![CDATA[//Detailed information about the usage of this Quick Dynamic can be found in the help
+
+function setTimer(obj) {
+	return setTimeout(function() {
+		if(obj.popups != undefined) {
+			obj.clonedPopups = obj.popups.slice(0);
+			for (var i = 0; i < obj.clonedPopups.length; i++){
+				if (typeof obj.clonedPopups[i].close === "function")
+					obj.clonedPopups[i].close();
+			}
+			obj.clonedPopups = [];
+		}
+		webMI.data.logout();
+		obj.activated = false;
+		webMI.addEvent(mainframe, "load", function () {
+			webMI.display.openDisplay(obj.logoutDisplay, webMI.query, obj.targetFrame);
+		});
+	}, obj.autoLogoutTime);
+}
+
+if(base.action == "configure") {
+	this.autoLogoutTime = parseFloat(base.autoLogoutTime)*1000;
+	this.targetFrame = base.targetFrame;
+	this.logoutDisplay = base.logoutDisplay;
+	this.activated = base.activated === "true";
+}
+
+if(base.action == "start" && this.activated == false) {
+	clearTimeout(this.timerId);
+	this.timerId = setTimer(this);
+	this.activated = true;
+}
+
+if(base.action == "restartTimer" && this.activated == true) {
+	clearTimeout(this.timerId);
+	this.timerId = setTimer(this);
+}
+
+if(base.action == "manualLogout" && this.activated == true) {
+	clearTimeout(this.timerId);
+	this.activated = false;
+}
+
+if(base.action == "pushPopup") {
+	if(this.popups == undefined)
+		this.popups = [];
+	this.popups.push(base.popup);
+}
+
+if(base.action == "removePopup") {
+	for (var i = 0; i < this.popups.length; i++){
+		if (this.popups[i] == base.popup) this.popups.splice(i,1);
+	}
+}]]></code>
+</script>

@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.PTAR.AR_BJ_PLA_CHICHEN
+NodeClass: Object
+BrowseName: 1:AR_BJ_PLA_CHICHEN
+DisplayName: en|AR_BJ_PLA_CHICHEN
+Description: en|AR_BJ_PLA_CHICHEN
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

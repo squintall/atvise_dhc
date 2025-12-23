@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var divider = ",";
+var isNew = true;
+var baseDir = "AGENT.OBJECTS.ATVISE.Mail";
+var statusnode = baseDir + ".sendMailLog";
+var locked = false;
+var configuration_limit = 100;
+var configuration_name = webMI.query.configuration;
+var configuration = {};
+configuration.name = "";
+configuration.cycleTime = {};
+configuration.start = 0;
+configuration.end = 86399999;
+configuration.alarm = {};
+configuration.prio = {};
+configuration.prio.active = true;
+configuration.prio.operator = ">=";
+configuration.prio.value = 601;
+configuration.mail = "";
+configuration.active = true;
+configuration.nodes ={}
+configuration.nodes.active = false;
+configuration.nodes.address = "";
+configuration.group ={}
+configuration.group.active = false;
+configuration.group.address = "";
+
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager = false;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+accessControlManager.clearRightsStorage([baseDir, statusnode]);
+
+//get status and lock save button if more than maximal allowed configurations were found
+if(webMI.getAccessControlSupport() && accessControlManager) {
+	
+	lockInputs(true);
+	webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+	accessControlManager.getRights(statusnode, (response) => {
+		if (response.result[0].rights.read) {
+			webMI.data.read(statusnode, function(e) {
+				if (e.value) {
+					var status = JSON.parse(e.value);
+					if (status.count > configuration_limit) {
+						locked = true;
+						setMessage("T{Error}: T{Maximal number of report configurations reached.} T{Limit}: " + configuration_limit, true);
+						webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+					}
+				} else {
+					locked = true;
+					setMessage("T{Error}: T{Cannot read mandatory status node.}", true);
+					webMI.trigger.fire("com.atvise.setActive", false, "save_button");				
+				}
+			});
+		} else {
+			locked = true;
+			setMessage("T{Error}: T{Cannot read mandatory status node.}", true);
+			webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+		}
+		
+		if (!response.result[0].rights.write) {
+			locked = true;
+			setMessage("T{Error}: T{No permission to write configuration node.}", true);
+			active = false;
+		}
+	});
+	
+}
+
+//read configuration if specified
+if (typeof configuration_name != "undefined" && configuration_name != "") {
+	isNew = false;
+	webMI.trigger.fire("com.atvise.setActive", false, "configuration_input");
+	webMI.trigger.fire("com.atvise.setActive", false, "group_input");
+
+	webMI.data.call("MailReadConfiguration", {configuration: configuration_name}, function(cfg) {
+		if (cfg.error) {
+			if (cfg.errorstring)
+				setMessage("T{Error}: " + cfg.errorstring, true);
+			else
+				setMessage("T{Error}: Unknown error");
+		} else {
+			configuration = cfg;
+			setValues();
+		}
+	});
+	
+	if(webMI.getAccessControlSupport() && accessControlManager) {
+		accessControlManager.getRights(baseDir + "." + configuration_name, (response) => {
+			if (!response.result[0].rights.engineer)
+				webMI.trigger.fire("com.atvise.setActive", false, "delete_button");
+		});
+	}
+	
+} else {
+	webMI.trigger.fire("setValue", "", "group_input");
+	webMI.trigger.fire("setChecked", true, "weekdays_0");
+	webMI.trigger.fire("setChecked", true, "weekdays_1");
+	webMI.trigger.fire("setChecked", true, "weekdays_2");
+	webMI.trigger.fire("setChecked", true, "weekdays_3");
+	webMI.trigger.fire("setChecked", true, "weekdays_4");
+	webMI.trigger.fire("setChecked", true, "weekdays_5");
+	webMI.trigger.fire("setChecked", true, "weekdays_6");
+	webMI.trigger.fire("com.atvise.setActive", false, "delete_button");
+	webMI.trigger.fire("com.atvise.setActive", false, "start_input");
+	webMI.trigger.fire("com.atvise.setActive", false, "end_input");
+	webMI.trigger.fire("setValue", msToTime(configuration.start), "start_input");
+	webMI.trigger.fire("setValue", msToTime(configuration.end), "end_input");
+	webMI.trigger.fire("setChecked", configuration.prio.active, "prio_act");
+	webMI.trigger.fire("com.atvise.setActive", configuration.prio.active, "prio_oper");
+	webMI.trigger.fire("com.atvise.setActive", configuration.prio.active, "prio_input");
+	webMI.trigger.fire("setSelectedItem", configuration.prio.operator, "prio_oper");
+	webMI.trigger.fire("setValue", configuration.prio.value, "prio_input");	
+	webMI.trigger.fire("setValue", configuration.mail, "email_input");
+	webMI.trigger.fire("setChecked", configuration.group.active, "group_act");
+	webMI.trigger.fire("com.atvise.setActive", configuration.group.active, "group_picker");
+	webMI.trigger.fire("setValue", configuration.group.address, "group_picker");
+	webMI.trigger.fire("setChecked", configuration.nodes.active, "nodes_act");
+	webMI.trigger.fire("com.atvise.setActive", configuration.nodes.active, "address_picker");
+	webMI.trigger.fire("setValue", configuration.nodes.address, "address_picker");
+	webMI.trigger.fire("setChecked", true, "state_0");
+	webMI.trigger.fire("setChecked", false, "state_1");
+	webMI.trigger.fire("setChecked", false, "state_2");
+	webMI.trigger.fire("setChecked", false, "state_3");
+	webMI.trigger.fire("setChecked", false, "state_5");
+	webMI.trigger.fire("setChecked", false, "active");
+}
+
+function lockInputs(bool) {
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_0");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_1");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_2");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_3");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_4");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_5");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_6");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "active");
+	
+	webMI.trigger.fire("com.atvise.setActive", !bool, "email_input");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "state_0");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "state_1");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "state_2");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "state_3");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "state_5");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "start_input");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "end_input");
+}
+
+function setValues() {
+	var name = configuration.name.substring(configuration.name.lastIndexOf(".") + 1, configuration.name.length);
+	if (typeof configuration.active == "undefined") configuration.active = true;
+	if (typeof configuration.cycleTime != "object") configuration.cycleTime = {};
+	if (typeof configuration.alarm != "object") configuration.alarm = {};
+	if (configuration.prio.operator == "!=") configuration.prio.operator = "<>";
+	webMI.trigger.fire("setValue", name, "configuration_input");
+	webMI.trigger.fire("setValue", configuration.mail, "email_input");
+	webMI.trigger.fire("setChecked", configuration.active, "active");
+	
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(0) > -1, "weekdays_0");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(1) > -1, "weekdays_1");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(2) > -1, "weekdays_2");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(3) > -1, "weekdays_3");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(4) > -1, "weekdays_4");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(5) > -1, "weekdays_5");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(6) > -1, "weekdays_6");
+
+	webMI.trigger.fire("setValue", msToTime(configuration.start), "start_input");
+	webMI.trigger.fire("setValue", msToTime(configuration.end), "end_input");
+	webMI.trigger.fire("setChecked", JSON.parse(configuration.nodes.active), "nodes_act");
+	webMI.trigger.fire("com.atvise.setActive", configuration.nodes.active, "address_picker");
+	webMI.trigger.fire("setValue", configuration.nodes.address, "address_picker");
+	webMI.trigger.fire("setChecked", JSON.parse(configuration.group.active), "group_act");
+	webMI.trigger.fire("com.atvise.setActive", configuration.group.active, "group_picker");
+	webMI.trigger.fire("setValue", configuration.group.address, "group_picker");
+	webMI.trigger.fire("setChecked", JSON.parse(configuration.prio.active), "prio_act");
+	webMI.trigger.fire("com.atvise.setActive", configuration.prio.active, "prio_oper");
+	webMI.trigger.fire("com.atvise.setActive", configuration.prio.active, "prio_input");
+	webMI.trigger.fire("setSelectedItem", configuration.prio.operator, "prio_oper");
+	webMI.trigger.fire("setValue", configuration.prio.value, "prio_input");
+	webMI.trigger.fire("setChecked", configuration.alarm.state.indexOf(0) > -1, "state_0");
+	webMI.trigger.fire("setChecked", configuration.alarm.state.indexOf(1) > -1, "state_1");
+	webMI.trigger.fire("setChecked", configuration.alarm.state.indexOf(2) > -1, "state_2");
+	webMI.trigger.fire("setChecked", configuration.alarm.state.indexOf(3) > -1, "state_3");
+	webMI.trigger.fire("setChecked", configuration.alarm.state.indexOf(5) > -1, "state_5");
+}
+function setMessage(msg, error) {
+	if (typeof msg == "undefined")
+		msg = "";
+
+	if (error)
+		webMI.gfx.setFill("message", "#FF0000");
+	else 
+		webMI.gfx.setFill("message", "#00BB30");
+	
+	webMI.gfx.setText("message", msg);
+}
+function msToTime(duration) {
+	var milliseconds = Math.floor((duration % 1000) / 100),
+	minutes = Math.floor((duration / (1000 * 60)) % 60),
+    hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+    hours = (hours < 10) ? "0" + hours : hours;
+	minutes = (minutes < 10) ? "0" + minutes : minutes;
+	return hours + ":" + minutes;
+}
+function timeToMs(time, e) {
+	var timeParts = time.split(":");
+	var ms;
+	if(isNaN(timeParts[0])||isNaN(timeParts[1])){
+		alert("T{Please enter the correct time format HH:mm}");
+		return;
+	}else if(timeParts[0]>23 || timeParts[1]>59){
+		alert("T{Please enter the correct time format with a maximum time of 23:59}");
+		return;
+	}else{
+		ms=(timeParts[0]==23 && timeParts[1]==59)?(+timeParts[0] * (60000 * 60)) + (+timeParts[1] * 60000) + 59999:(+timeParts[0] * (60000 * 60)) + (+timeParts[1] * 60000);
+		(e=="from")?configuration.start=ms:configuration.end=ms;
+	}
+}
+setMessage();
+function handleNameChange() {
+	if (locked)
+		return;
+
+	if (configuration.name[configuration.name.length-1] == ".") {
+		setMessage("T{Error}: T{Name is empty or invalid.}", true);
+		webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+		return;
+	}
+
+	if (webMI.getAccessControlSupport() && accessControlManager) {
+		var config = baseDir + "." + configuration.name;
+		setMessage();
+		
+		if (isNew) {
+			var path = config.substring(0, config.lastIndexOf("."));
+			accessControlManager.getRights([config, path], (response) => {
+				var active = true;
+				if (!response.result[1].rights.engineer) {
+					setMessage("T{Error}: T{Group folder doesn't exist or permission is missing.}", true);
+					active = false;
+				}
+				
+				if (response.result[0].rights.engineer) {
+					setMessage("T{Error}: T{Configuration already exist.}", true);
+					active = false;
+				}
+
+				lockInputs(!active);
+				webMI.trigger.fire("com.atvise.setActive", active, "save_button");
+			});
+		} else {
+			accessControlManager.getRights(config, (response) => {
+				var active = true;
+				if (!response.result[0].rights.write) {
+					setMessage("T{Error}: T{No permission to write configuration node.}", true);
+					active = false;
+				}
+
+				lockInputs(!active);
+				webMI.trigger.fire("com.atvise.setActive", active, "save_button");
+			});	
+		}
+	}
+}
+function handleWeekydays(weekday, active) {
+	var active = active == "true" ? true : false;
+	
+	if (typeof configuration.cycleTime != "object")
+		return;
+	
+	if (typeof configuration.cycleTime.daysOfWeek == "undefined")
+		configuration.cycleTime.daysOfWeek = [];
+
+	var index = configuration.cycleTime.daysOfWeek.indexOf(weekday);
+
+	if (active && index == -1) {
+		configuration.cycleTime.daysOfWeek.push(weekday);
+	} else if (!active && index > -1) {
+		configuration.cycleTime.daysOfWeek.splice(index, 1)
+	}
+	
+	configuration.cycleTime.daysOfWeek.sort();
+}
+
+
+function handleAlarmStates(state, active) {
+	var active = active == "true" ? true : false;
+	
+	if (typeof configuration.alarm != "object")
+		return;
+	
+	if (typeof configuration.alarm.state == "undefined")
+		configuration.alarm.state = [];
+
+	var index = configuration.alarm.state.indexOf(state);
+
+	if (active && index == -1) {
+		configuration.alarm.state.push(state);
+	} else if (!active && index > -1) {
+		configuration.alarm.state.splice(index, 1)
+	}
+	
+	configuration.alarm.state.sort();
+}
+
+/**
+ * TRIGGERS
+ */
+
+webMI.trigger.connect("valuechanged", function (e) {
+	if (e.value.indexOf(".") > -1) {
+		setMessage("T{Error}: T{Name is empty or invalid.}", true);
+		webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+		return;
+	}
+
+	var group = configuration.name.substring(0, configuration.name.lastIndexOf("."));
+	if (group)
+		configuration.name = group + "." + e.value;
+	else
+		configuration.name = e.value;
+
+	handleNameChange();
+},"configuration_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(0, e.value);
+},"weekdays_0");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(1, e.value);
+},"weekdays_1");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(2, e.value);
+},"weekdays_2");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(3, e.value);
+},"weekdays_3");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(4, e.value);
+},"weekdays_4");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(5, e.value);
+},"weekdays_5");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(6, e.value);
+},"weekdays_6");
+
+
+webMI.trigger.connect("valuechanged", function (e) {
+	timeToMs(e.value,"from");
+},"start_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	timeToMs(e.value,"to");
+},"end_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.active = e.value;
+},"active");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	var mails = e.value;
+	configuration.mail = mails.split(',');
+},"email_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.nodes.active = e.value;
+	webMI.trigger.fire("com.atvise.setActive", configuration.nodes.active, "address_picker");
+},"nodes_act");
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.nodes.address = e.value;
+},"address_picker");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.group.active = e.value;
+	webMI.trigger.fire("com.atvise.setActive", configuration.group.active, "group_picker");
+},"group_act");
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.group.address = e.value;
+},"group_picker");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.prio.active = e.value === "true";
+	webMI.trigger.fire("com.atvise.setActive", configuration.prio.active, "prio_oper");
+	webMI.trigger.fire("com.atvise.setActive", configuration.prio.active, "prio_input");
+},"prio_act");
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.prio.operator = e.value;
+},"prio_oper");
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.prio.value = e.value;
+},"prio_input");
+
+
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleAlarmStates(0, e.value);
+},"state_0");
+webMI.trigger.connect("valuechanged", function (e) {
+	handleAlarmStates(1, e.value);
+},"state_1");
+webMI.trigger.connect("valuechanged", function (e) {
+	handleAlarmStates(2, e.value);
+},"state_2");
+webMI.trigger.connect("valuechanged", function (e) {
+	handleAlarmStates(3, e.value);
+},"state_3");
+webMI.trigger.connect("valuechanged", function (e) {
+	handleAlarmStates(5, e.value);
+},"state_5");
+
+
+webMI.trigger.connect("clicked", function(e) {
+	webMI.trigger.fire("com.atvise.setActive", false, "save_button");	
+	setMessage();
+
+	webMI.data.call("MailWriteConfiguration", {configuration: JSON.stringify(configuration)}, function(e) {
+		if (e.error) {
+			if (e.errorstring)
+				setMessage("T{Error}: " + e.errorstring, true);
+			else
+				setMessage("T{Error}: T{Unknown error}", true);
+		} else {
+			setMessage("T{Configuration saved.}");
+			webMI.trigger.fire("com.atvise.MailManager.refreshList");
+			webMI.display.closeWindow();
+		}
+		
+		webMI.trigger.fire("com.atvise.setActive", true, "save_button");
+	});
+}, "save_button");
+
+webMI.trigger.connect("clicked", function (e) {
+	webMI.display.closeWindow();	
+},"cancel_button");
+]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/Alarm_Inactive.png
+NodeClass: Variable
+BrowseName: 1:Alarm_Inactive.png
+DisplayName: en|Alarm_Inactive.png
+Description: en|Alarm_Inactive.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MAIN.Aguakan_Dashboards.Analisis_Flujo
+NodeClass: Variable
+BrowseName: 1:Analisis_Flujo
+DisplayName: en|Analisis_Flujo
+Description: en|Analisis_Flujo
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

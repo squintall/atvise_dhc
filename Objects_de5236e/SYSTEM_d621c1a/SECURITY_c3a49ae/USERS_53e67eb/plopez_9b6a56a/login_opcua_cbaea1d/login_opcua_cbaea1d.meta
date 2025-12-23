@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.plopez.login_opcua
+NodeClass: Variable
+BrowseName: 1:login_opcua
+DisplayName: en|login_opcua
+Description: en|login_opcua
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

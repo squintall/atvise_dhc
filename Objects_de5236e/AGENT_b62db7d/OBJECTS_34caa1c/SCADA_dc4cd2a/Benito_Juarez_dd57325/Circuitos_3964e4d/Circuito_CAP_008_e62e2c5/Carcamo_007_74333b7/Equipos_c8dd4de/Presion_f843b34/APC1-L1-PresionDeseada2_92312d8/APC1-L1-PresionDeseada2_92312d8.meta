@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Equipos.Presion.APC1-L1-PresionDeseada2
+NodeClass: Variable
+BrowseName: 1:APC1-L1-PresionDeseada2
+DisplayName: en|APC1-L1-PresionDeseada2
+Description: en|APC1-L1-PresionDeseada2
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

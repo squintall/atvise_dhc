@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="886" version="1.2" width="960" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+webMI.addEvent("id_4", "click", function(e) {
+var id = "id_4";
+var value = true;
+webMI.display.openDisplay("AGENT.DISPLAYS.USER.Layouts_SCADA.Cuencas.Full_Content.Grafica_NPE_FullContent", webMI.query, "content");
+});]]></script>
+ <svg atv:refpx="480.306" atv:refpy="474.874" height="400" id="id_0" transform="matrix(2.3985,0,0,2.0555,0,0)" width="400" x="0.25" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.highcharts" y="31.025">
+  <atv:argument name="trendName" value="Caudal_NPE"/>
+  <atv:argument name="yAxis1yAxis_id" value="caudal"/>
+  <atv:argument name="yAxis1yAxis_title_text" value="Caudal"/>
+  <atv:argument name="series1series_marker_enabled" value="false"/>
+  <atv:argument name="series1series_address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Guadalupana.Equipos.Caudalimetro.L1.historic_flow"/>
+  <atv:argument name="series1series_name" value="T{CAR Guadalupana}"/>
+  <atv:argument name="series1series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series1series_tooltip_valueSuffix" value=" LPS"/>
+  <atv:argument name="xAxisxAxis_title_text" value="Tiempo"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="1"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="day(s)"/>
+  <atv:argument name="xAxisxAxis_tickInterval" value="10000000"/>
+  <atv:argument name="series1series_color" value="#4c54eb"/>
+  <atv:argument name="series2series_address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_ARA.Equipos.Caudalimetro.L1.historic_flow"/>
+  <atv:argument name="series2series_name" value="T{CAR ARA}"/>
+  <atv:argument name="series2series_marker_enabled" value="false"/>
+  <atv:argument name="series2series_color" value="#aaaaff"/>
+  <atv:argument name="series2series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series2series_tooltip_valueSuffix" value=" LPS"/>
+  <atv:argument name="series3series_address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Casas_del_Mar.Equipos.Caudalimetro.L1.historic_flow"/>
+  <atv:argument name="series3series_name" value="T{CAR Casas del Mar}"/>
+  <atv:argument name="series3series_marker_enabled" value="false"/>
+  <atv:argument name="series3series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series4series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series4series_tooltip_valueSuffix" value=" LPS"/>
+  <atv:argument name="series5series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series5series_tooltip_valueSuffix" value=" LPS"/>
+  <atv:argument name="series6series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series6series_tooltip_valueSuffix" value=" LPS"/>
+  <atv:argument name="series7series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series7series_tooltip_valueSuffix" value="%"/>
+  <atv:argument name="series8series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series8series_tooltip_valueSuffix" value="%"/>
+  <atv:argument name="series9series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series9series_tooltip_valueSuffix" value="%"/>
+  <atv:argument name="series10series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series10series_tooltip_valueSuffix" value="%"/>
+  <atv:argument name="zoomType" value="xy axis"/>
+  <atv:argument name="alignTicks" value=""/>
+  <atv:argument name="gtitle_text" value="Caudales Noporniente"/>
+  <atv:argument name="series4series_address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.Equipos.Caudalimetro.L1.historic_flow"/>
+  <atv:argument name="series4series_name" value="T{CAR Poligono Paraíso}"/>
+  <atv:argument name="series5series_address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Paseos_del_Mar.Equipos.Caudalimetro.L1.historic_flow"/>
+  <atv:argument name="series5series_name" value="T{CAR Paseos del Mar}"/>
+  <atv:argument name="series6series_address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Final_Norponiente.Equipos.Caudalimetro.L1.historic_flow"/>
+  <atv:argument name="series6series_name" value="T{CAR Final Norponiente}"/>
+  <atv:argument name="series9series_marker_enabled" value="false"/>
+  <atv:argument name="series10series_marker_enabled" value="false"/>
+  <atv:argument name="series8series_marker_enabled" value="false"/>
+  <atv:argument name="series7series_marker_enabled" value="false"/>
+  <atv:argument name="series6series_marker_enabled" value="false"/>
+  <atv:argument name="series5series_marker_enabled" value="false"/>
+  <atv:argument name="series4series_marker_enabled" value="false"/>
+  <atv:argument name="series10series_color" value="#55ffff"/>
+  <atv:argument name="series11series_color" value="#ff00ff"/>
+  <atv:argument name="series11series_marker_enabled" value="false"/>
+  <atv:argument name="series12series_color" value="#aaaa00"/>
+  <atv:argument name="series12series_marker_enabled" value="false"/>
+  <atv:argument name="series13series_color" value="#005500"/>
+  <atv:argument name="series13series_marker_enabled" value="false"/>
+  <atv:argument name="series13series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series3series_tooltip_valueSuffix" value=" LPS"/>
+  <atv:argument name="gatviseOptions_configNode" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Grafica_Cuenca_NORPO"/>
+  <atv:argument name="gatviseOptions_configName" value="Nivel_NPE"/>
+  <atv:overwrite id="highchart_label" transform="matrix(0.4169,0,0,0.4865,0,0)" x="309.2" y="422.105"/>
+  <atv:overwrite height="820.209" id="border" transform="matrix(0.4169,0,0,0.4865,0,0)" width="957.4"/>
+  <atv:overwrite height="822.209" id="id_3" transform="matrix(0.4169,0,0,0.4865,0,0)" width="959.4"/>
+ </svg>
+ <svg atv:refpx="596.479" atv:refpy="49.473" height="30" id="id_8" width="141" x="525.979" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.toolbar" y="34.473">
+  <atv:argument name="chartname" value="Caudal_NPE"/>
+ </svg>
+ <g atv:refpx="548.457" atv:refpy="15" id="id_1">
+  <svg atv:refpx="332.88" atv:refpy="15" height="30" id="id_7" width="460" x="239.146" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.buttons_start_end_time" y="0">
+   <atv:argument name="chartname" value="Caudal_NPE"/>
+  </svg>
+  <svg atv:refpx="830" atv:refpy="15" height="30" id="id_2" width="260" x="700" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_config" y="0">
+   <atv:argument name="chartname" value="Caudal_NPE"/>
+  </svg>
+  <svg atv:refpx="34.913" atv:refpy="15" height="30" id="id_9" width="50" x="136.913" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_back_small" y="0"/>
+  <svg atv:refpx="96.867" atv:refpy="15" height="30" id="id_11" width="50" x="187.867" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_forward_small" y="0"/>
+ </g>
+ <svg atv:refpx="859.71" atv:refpy="52.883" height="30" id="id_4" transform="matrix(2.4633,0,0,1,0,0)" width="80" x="308.998" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="32.883">
+  <atv:argument name="label" value="T{Pantalla completa}"/>
+  <atv:argument name="fontSize" value="18"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:argument name="fontWeight2" value="bold"/>
+  <atv:overwrite id="id_6" transform="matrix(0.406,0,0,1,0,0)" width="195.064"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.406,0,0,1,0,0)" x="98.532"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.406,0,0,1,0,0)" x="99.032"/>
+  <atv:overwrite id="button_label" transform="matrix(0.406,0,0,1,0,0)" x="99.032"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.2436,0,0,0.6,0,0)" x="154.053"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.2436,0,0,0.6,0,0)" x="154.053"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.406,0,0,1,0,0)" x="88.532"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.406,0,0,1,0,0)" width="193.064"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.406,0,0,1,0,0)" width="195.064"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.406,0,0,1,0,0)" width="197.064"/>
+ </svg>
+</svg>

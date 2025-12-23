@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Aeropuerto_ZU.Entrada
+NodeClass: Variable
+BrowseName: 1:Entrada
+DisplayName: en|Entrada
+Description: en|Entrada
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

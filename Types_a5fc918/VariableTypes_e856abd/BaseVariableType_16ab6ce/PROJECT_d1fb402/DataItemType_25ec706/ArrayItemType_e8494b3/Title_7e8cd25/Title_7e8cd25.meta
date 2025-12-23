@@ -1,0 +1,10 @@
+NodeId: ns=1;s=VariableTypes.PROJECT.12021.Title
+NodeClass: Variable
+BrowseName: 1:Title
+DisplayName: en|Title
+Description: en|Title
+DataType: LocalizedText
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition PropertyType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\mmendez.allow_nodebrowser
+NodeClass: Variable
+BrowseName: 1:allow_nodebrowser
+DisplayName: en|allow_nodebrowser
+Description: en|allow_nodebrowser
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

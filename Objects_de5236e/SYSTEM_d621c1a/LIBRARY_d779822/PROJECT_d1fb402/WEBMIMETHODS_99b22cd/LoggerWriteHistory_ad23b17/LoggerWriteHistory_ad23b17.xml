@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <runcontext>owner</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* begin */
+
+var address = request.postvalues.address;
+var value = request.postvalues.value;
+var status = request.postvalues.status;
+var timestamp = request.postvalues.timestamp;
+var user = request.postvalues.user;
+
+return call("Logger.WriteHistory", {
+	"address": address,
+	"value": value,
+	"status": status,
+	"timestamp": timestamp,
+	"user": user
+});
+
+/* end */]]></code>
+</script>

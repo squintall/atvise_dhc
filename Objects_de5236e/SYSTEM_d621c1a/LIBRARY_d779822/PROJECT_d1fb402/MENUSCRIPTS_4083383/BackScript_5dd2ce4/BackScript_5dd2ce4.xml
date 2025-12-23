@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <code><![CDATA[var date = new Date();
+var year = date.getFullYear();
+var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+var month = monthNames[date.getMonth()];
+var day = ("0" + date.getDate()).slice(-2);
+var hours = ("0" + date.getHours()).slice(-2);
+var minutes = ("0" + date.getMinutes()).slice(-2);
+var seconds = ("0" + date.getSeconds()).slice(-2);
+
+var filename = "nodes_" + day + "_" + month + "_" + year + "_" + hours + "_" + minutes + "_" + seconds + ".db";
+
+console.log(filename);
+
+server.database.backup({
+   filename: "C:\\atvise_Backups\\"+filename,
+   timeout: 600,
+   sleep: 20
+});]]></code>
+</script>

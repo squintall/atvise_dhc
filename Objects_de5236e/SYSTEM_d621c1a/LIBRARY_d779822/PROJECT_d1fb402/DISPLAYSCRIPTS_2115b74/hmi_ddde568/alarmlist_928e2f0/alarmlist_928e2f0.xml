@@ -1,0 +1,4091 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the alarmlist and alarmlist_small object displays
+ * ----------------------------------------------------------
+ * The alarmlist is an advanced control that displays the current active alarms of the system and defined alarm conditions in form of a table (including filter possibilities).
+ *
+ * Alarms
+ *
+ *    Each alarm can be acknowledged.
+ *    Confirmable alarms can be confirmed after acknowledging.
+ *    A link to the corresponding display will be avaiable if the display was specified in the configuration.
+ *    For retrigger-alarms each triggering state change causes an distinct alarm in the table.
+ *    The alarm category "Acknowledge active and inactive" with explicit acknowledgement is displayed as a pair of alarms with identical background color. The inactive alarm state is shown on top of the active alarm state. Before the inactive state can be acknowledged the acknowledgement of the active state is required.
+ *    For historized alarms please use the "history list" display.
+ *
+ * Actions
+ *
+ * - acknowledge: An alarm is acknowledged.
+ * - confirm: An acknowledged alarm is confirmed.
+ * - acknowledge with comment: An alarm is acknowledged via a pop up dialog which allows to pass a comment.
+ * - confirm with comment: An acknowledged alarm is confirmed via a pop up dialog which allows to pass a comment.
+ * - shelve: Alarm or alarm condition is being shelved. The user cannot see alarms and conditions in the regular alarm list any longer.
+ *   -- one shot shelve: This action can only be applied to alarms and not to alarm conditions. The alarm is shelved until it is unshelved or the maximum shelving time set in the MaxTimeShelved variable is reached.
+ *   -- timed shelve: This action can be applied to alarms and alarm conditions. The alarm or alarm condition is shelved for a time period set by the user in a pop up dialog.
+ * - unsuppress: Alarm or alarm condition is being unsuppressed. Suppressing happens internally on the server. Suppressed alarms are not shown in the regular alarm list.
+ * - disable: Alarm condition and associated active alarms are being disabled. No further alarms and events are generated.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var isAlarmlog = webMI.query["alarmlog"];
+var webMIQueryProperties = {};
+var tableID = (webMIQueryProperties.tableID = webMI.query["tableID"]);
+var title = (webMIQueryProperties.title = webMI.query["title"]);
+var view = (webMIQueryProperties.view = webMI.query["view"]);
+var priority = (webMIQueryProperties.priority = parseFloat(
+	webMI.query["priority"] != undefined ? webMI.query["priority"] : 0
+));
+var display = (webMIQueryProperties.display = webMI.query["display"]);
+var group = (webMIQueryProperties.group = webMI.query["group"]);
+var alarm_source = (webMIQueryProperties.alarm_source = webMI.query["alarm_source"]);
+var alarm_condition = (webMIQueryProperties.alarm_condition = webMI.query["alarm_condition"]);
+var ackn_status = (webMIQueryProperties.ackn_status = webMI.query["ackn_status"]);
+var user = (webMIQueryProperties.user = webMI.query["user"]);
+var eventtext = (webMIQueryProperties.eventtext = webMI.query["eventtext"]);
+var comment = (webMIQueryProperties.comment = webMI.query["comment"]);
+var alarm_or_condition = (webMIQueryProperties.alarm_or_condition = webMI.query["alarm_or_condition"]);
+var filterState = (webMIQueryProperties.state = webMI.query["state"]);
+var rightAcknowledge = (webMIQueryProperties.rightAcknowledge = webMI.query["rightAcknowledge"]);
+var rightConfirm = (webMIQueryProperties.rightConfirm = webMI.query["rightConfirm"]);
+var rightShelve = (webMIQueryProperties.rightShelve = webMI.query["rightShelve"]);
+var rightSuppress = (webMIQueryProperties.rightSuppress = webMI.query["rightSuppress"]);
+var rightDisableEnable = (webMIQueryProperties.rightDisableEnable = webMI.query["rightDisableEnable"]);
+var rightExport = (webMIQueryProperties.rightExport = webMI.query["rightExport"]);
+var alarmIndication = (webMIQueryProperties.alarmIndication = webMI.query["alarmIndication"]);
+var query_filter = (webMIQueryProperties.query_filter = webMI.query["query_filter"]);
+var header_height = (webMIQueryProperties.header_height = parseInt(webMI.query["header_height"]));
+var row_height = (webMIQueryProperties.row_height = parseInt(webMI.query["row_height"]));
+var font_family = (webMIQueryProperties.font_family = webMI.query["font_family"]);
+var header_font_size = (webMIQueryProperties.header_font_size = webMI.query["header_font_size"]);
+var detail_font_size = (webMIQueryProperties.detail_font_size = webMI.query["detail_font_size"]);
+var footer_font_size = (webMIQueryProperties.footer_font_size = webMI.query["footer_font_size"]);
+var row_font_size = (webMIQueryProperties.row_font_size = webMI.query["row_font_size"]);
+var theme_class = (webMIQueryProperties.theme_class = webMI.query["theme_class"]);
+var paging = (webMIQueryProperties.paging = webMI.query["paging"]);
+var filterBar = (webMIQueryProperties.filterBar = webMI.query["filterBar"]);
+var filterRegExp = (webMIQueryProperties.filterRegExp = webMI.query["filterRegExp"]);
+var filterStar = (webMIQueryProperties.filterRegExp = webMI.query["filterStar"]);
+var filterCaseSensitive = (webMIQueryProperties.filterCaseSensitive = webMI.query["filterCaseSensitive"]);
+var filterMinInputLength = (webMIQueryProperties.filterMinInputLength = webMI.query["filterMinInputLength"]);
+var parentChildStickTogether = (webMIQueryProperties.parentChildStickTogether =
+	webMI.query["parentChildStickTogether"] == "true" ? true : false);
+var linebreak = (webMIQueryProperties.linebreak = webMI.query["linebreak"]);
+var columnReorder = (webMIQueryProperties.columnReorder = webMI.query["columnReorder"]);
+var showMenu = (webMIQueryProperties.showMenu = webMI.query["showMenu"]);
+var showMenuCustomTitle = (webMIQueryProperties.showMenuCustomTitle = webMI.query["showMenuCustomTitle"]);
+var showPickerMenuTitle = (webMIQueryProperties.showPickerMenuTitle = webMI.query["showPickerMenuTitle"]);
+var showPickerMenu = (webMIQueryProperties.showPickerMenu = webMI.query["showPickerMenu"]);
+var menuWidth = (webMIQueryProperties.menuWidth = webMI.query["menuWidth"]);
+var menuHeight = (webMIQueryProperties.menuHeight = webMI.query["menuHeight"]);
+var multicellselect = (webMIQueryProperties.multicellselect = webMI.query["multicellselect"]);
+var globalFontConfig = (webMIQueryProperties.globalFontConfig = webMI.query["globalFontConfig"]);
+var globalColorConfig = (webMIQueryProperties.globalColorConfig = webMI.query["globalColorConfig"]);
+var globalBorderColor = (webMIQueryProperties.globalBorderColor = webMI.query["globalBorderColor"]);
+var globalFillColor = (webMIQueryProperties.globalFillColor = webMI.query["globalFillColor"]);
+var globalFontColor = (webMIQueryProperties.globalFontColor = webMI.query["globalFontColor"]);
+var globalSymbolColor = (webMIQueryProperties.globalSymbolColor = webMI.query["globalSymbolColor"]);
+var alarm_comment_dialog = webMI.query["alarm_comment_dialog"];
+var alarm_timeshelve_dialog = webMI.query["alarm_timeshelve_dialog"];
+var displays_base = (webMIQueryProperties.displays_base = webMI.query["displays_base"]);
+var heightCollapsedFilters = (webMIQueryProperties.heightCollapsedFilters = parseInt(
+	webMI.query["heightCollapsedFilters"]
+));
+if (webMI.query["parentID"]) {
+	var parentID = webMI.query["parentID"];
+	var parentTableController;
+}
+var enableAlarmAcknowledge = rightAcknowledge == "";
+var enableAlarmConfirm = rightConfirm == "";
+var enableAlarmShelve = rightShelve == "";
+var enableAlarmSuppress = rightSuppress == "";
+var enableAlarmDisableEnable = rightDisableEnable == "";
+var enableAlarmExport = rightExport == "";
+var subscriptionId = null;
+var topWindow = parent;
+var acknStatusTexts = [
+	"T{All}",
+	"T{On Unacknowledged}",
+	"T{On Acknowledged}",
+	"T{Off Unacknowledged}",
+	"",
+	"T{On Off Unacknowledged}"
+];
+var isPopUpList = false;
+var columns = {};
+if (!isAlarmlog) {
+	columns["columnsAlarm"] = webMIQueryProperties.columnsAlarm = webMI.query["columnsAlarm"];
+	columns["columnsAll"] = webMIQueryProperties.columnsAll = webMI.query["columnsAll"];
+	columns["columnsDisabledView"] = webMIQueryProperties.columnsDisabledView = webMI.query["columnsDisabledView"];
+	columns["columnsShelvedView"] = webMIQueryProperties.columnsShelvedView = webMI.query["columnsShelvedView"];
+	columns["columnsSuppressedView"] = webMIQueryProperties.columnsSuppressedView = webMI.query["columnsSuppressedView"];
+} else {
+	columns["columnsAlarmlog"] = webMIQueryProperties.columnsAlarmlog = webMI.query["columnsAlarmlog"];
+}
+
+var countColumns = Object.keys(columns).length;
+var Tables, containerID, mainTableColumnsObject, mainTableColumnsFields, mainTableColumnTitlesDic;
+var slickStyler;
+var slickConfigurator;
+var tableLoaded = false;
+var tableLayer, tableLayerWidth;
+var currentScaleFactor = 1;
+var screenCTM = webMI.gfx.getScreenCTM(true);
+var heightTransformationFactor = screenCTM.d;
+var acknConfHeaderSpan1, acknConfCommentHeaderSpan1;
+var columnSettings;
+var deviceScaling = webMI.query["deviceScaling"] == "true";
+var maxColumnPriority;
+var fontMultiplicator;
+
+var contextMenuStyle = {};
+var fontSizeToTransformationFactor = 0.065;
+var offsetButtons1 = 0;
+var offsetButtons2 = 0;
+var columnDefinitions;
+var filterSubscriptionId;
+var hasBrowseNodes = webMI.getMethodSupport().indexOf("BrowseNodes") !== -1;
+var showAdvancedFilter = false;
+
+var dataController;
+var tableController;
+var screenCTM;
+var heightTransformationFactor;
+var yPosAdvanced = webMI.gfx.getY("showAdvancedFilter") - webMI.gfx.getY("filters_bg"); // y position of Advanced Filter button relative to filters_bg
+var yMove = webMI.gfx.getHeight("filters_bg") - heightCollapsedFilters;
+var filtersBgStandardHeight = parseInt(webMI.gfx.getHeight("filters_bg"));
+
+var currentFiltersBgHeight;
+var PanelTopPositionExpandedTransformed;
+var PanelTopPositionCollapsedTransformed;
+var PanelHeightExpandedTransformed;
+var PanelHeightCollapsedTransformed;
+var tablePanelHeight;
+
+var shelveOnceButton;
+var unshelveOnceButton;
+var shelveTimeButton;
+var unshelveTimeButton;
+var suppressedButton;
+var unsuppressedButton;
+var acknButton;
+var acknInactiveButton;
+var confButton;
+var confInactiveButton;
+var acknCommentButton;
+var acknCommentInactiveButton;
+var confCommentButton;
+var confCommentInactiveButton;
+var enabledButton;
+var disabledButton;
+
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager = false;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * Filter
+ */
+
+var select = [];
+
+//select.push("v:Abbreviation");
+select.push("v:AckedState");
+select.push("v:ActiveState");
+select.push("v:ActiveStateId");
+select.push("v:AlarmId");
+//select.push("v:BranchId");
+select.push("v:Color");
+select.push("v:Comment");
+select.push("v:ConditionName");
+select.push("v:ConditionState");
+select.push("v:confirmed");
+select.push("v:ConfirmedState");
+select.push("v:DataSource");
+//select.push("v:DataSourceEventId");
+select.push("v:EnabledState");
+select.push("v:EnabledStateId");
+//select.push("v:EventId");
+select.push("v:Flashtimeack");
+select.push("v:Flashtimeinack");
+select.push("v:Fontcolor");
+select.push("v:Groups");
+//select.push("v:InfoBits");
+select.push("v:InputNode");
+//select.push("v:LastAlarmId");
+select.push("v:MaxTimeShelved");
+select.push("v:ParentId");
+select.push("v:ReceiveTime");
+select.push("v:ShelvingState");
+select.push("v:ShelvingStateLastTransition");
+select.push("v:ShelvingStateLastTransitionTransitionTime");
+select.push("v:ShelvingStateUnshelveTime");
+select.push("v:SourceName");
+select.push("v:SourceNode");
+select.push("v:SuppressedOrShelved");
+select.push("v:SuppressedState");
+select.push("v:SuppressedStateId");
+select.push("v:UserColor1");
+select.push("v:UserColor2");
+select.push("v:UserColor3");
+select.push("v:UserColor4");
+select.push("v:acknowledged");
+select.push("v:acktime");
+select.push("v:activetime");
+select.push("v:address");
+select.push("v:base");
+select.push("v:confirmed");
+select.push("v:description");
+select.push("v:display");
+select.push("v:eventtext");
+select.push("v:eventtype");
+select.push("v:inactivetime");
+select.push("v:priority");
+select.push("v:retain");
+select.push("v:state");
+select.push("v:State0FillColor");
+select.push("v:State0FillFlashInterval");
+select.push("v:State0FontFlashInterval");
+select.push("v:State1FillColor");
+select.push("v:State1FillFlashInterval");
+select.push("v:State1FontColor");
+select.push("v:State1FontFlashInterval");
+select.push("v:State2FillColor");
+select.push("v:State2FillFlashInterval");
+select.push("v:State2FontColor");
+select.push("v:State2FontFlashInterval");
+select.push("v:State3FillColor");
+select.push("v:State3FillFlashInterval");
+select.push("v:State3FontColor");
+select.push("v:State3FontFlashInterval");
+select.push("v:State5FillColor");
+select.push("v:State5FillFlashInterval");
+select.push("v:State5FontColor");
+select.push("v:State5FontFlashInterval");
+select.push("v:subscriptionid");
+select.push("v:timestamp");
+select.push("v:type");
+select.push("v:User1FlashInterval");
+select.push("v:User2FlashInterval");
+select.push("v:User3FlashInterval");
+select.push("v:User4FlashInterval");
+select.push("v:username");
+select.push("v:value");
+select.push("v:valueservertimestamp");
+select.push("v:valuestatus");
+select.push("v:valuetimestamp");
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (deviceScaling) {
+	maxColumnPriority = webMI.getClientInfo()
+		? webMI.getClientInfo().isDesktop
+			? webMI.query["maxColumnPriority"]
+			: webMI.getClientInfo().isTablet
+				? 2
+				: 1
+		: webMI.query["maxColumnPriority"];
+	fontMultiplicator = webMI.getClientInfo()
+		? webMI.getClientInfo().deviceScaling.table.fontsize
+			? webMI.getClientInfo().deviceScaling.table.fontsize
+			: 1
+		: 1;
+	header_font_size = header_font_size * fontMultiplicator;
+	row_font_size = row_font_size * fontMultiplicator;
+	detail_font_size = detail_font_size * fontMultiplicator;
+	footer_font_size = footer_font_size * fontMultiplicator;
+}
+
+columnDefinitions = getColumnDefinitions(columns, view);
+
+contextMenuStyle = {
+	maxRows: 10,
+	fontFamily: "Arial",
+	fontSize: row_font_size,
+	fontFill: "#575757",
+	width: 17 * row_font_size,
+	fill: "#ffffff",
+	stroke: "#575757",
+	strokeWidth: 1,
+	hoverFill: "#e5e5e5",
+	closeTime: 0,
+	zIndex: 100,
+	showType: "right"
+};
+
+if (detectMicrosoftBrowser() == false) {
+	offsetButtons1 = 5;
+	offsetButtons2 = 0;
+	offsetButtons3 = 2;
+} else if (detectMicrosoftBrowser() > 11) {
+	offsetButtons1 = 4;
+	offsetButtons2 = 4;
+}
+
+if (parentID) {
+	isPopUpList = true;
+	webMI.table.waitReady(parentID, "controller", function () {
+		parentTableController = webMI.table.request(parentID, "controller");
+		parentTableController.webMIQuery.tableID = webMI.query["tableID"];
+		webMI.query = parentTableController.webMIQuery;
+		webMI.query.title = parentTableController.childTitle;
+		webMI.query.query_filter = parentTableController.child_query_filter;
+		webMI.query.group = parentTableController.child_sum_alarm_group;
+	});
+}
+
+if (isAlarmlog) query_filter = "false";
+
+webMI.gfx.setText("title", title);
+
+if (query_filter == "false") {
+	webMI.gfx.setVisible("filter_group", false);
+	webMI.gfx.setVisible("showAdvancedFilter", false);
+	webMI.gfx.setVisible("applyFilter", false);
+	webMI.gfx.setVisible("button_reset", false);
+}
+
+if (isAlarmlog) {
+	webMI.gfx.setVisible("title", false);
+	webMI.gfx.setVisible("view_label", false);
+	webMI.gfx.setVisible("logo", false);
+	webMI.gfx.setVisible("filters_bg", false);
+}
+
+if (typeof view == "undefined" || view == "" || view == "alarms") webMI.gfx.setText("view_label", "T{Alarms}");
+else if (view == "all") {
+	webMI.gfx.setText("view_label", "T{All}");
+} else if (view == "shelved") webMI.gfx.setText("view_label", "T{Shelved}");
+else if (view == "suppressed") webMI.gfx.setText("view_label", "T{Suppressed}");
+else if (view == "disabled") webMI.gfx.setText("view_label", "T{Disabled}");
+
+if (view == "" || view == "alarms") {
+	var alarmViewOffset = 34;
+	filtersBgStandardHeight = filtersBgStandardHeight - alarmViewOffset;
+	yMove = yMove - alarmViewOffset;
+}
+
+webMI.addOnload(function () {
+	//Deactivate unsupported filter inputs
+	var filtersupport = webMI.getFilterSupport()["subscribefilter"];
+
+	function filtersup(filter) {
+		if (typeof filtersupport == "boolean") return filtersupport;
+		return filtersupport.indexOf(filter) == -1 ? false : true;
+	}
+
+	if (!filtersup("priority")) webMI.trigger.fire("com.atvise.setActive", false, "picker_priority");
+	if (!filtersup("eventtext")) webMI.trigger.fire("com.atvise.setActive", false, "inout_event");
+	if (!filtersup("state")) webMI.trigger.fire("com.atvise.setActive", false, "combo_ackn_status");
+	if (!filtersup("DataSource")) webMI.trigger.fire("com.atvise.setActive", false, "combo_alarm_source");
+	if (!filtersup("address")) webMI.trigger.fire("com.atvise.setActive", false, "alarm_condition");
+	if (!filtersup("Group")) webMI.trigger.fire("com.atvise.setActive", false, "group");
+	if (!filtersup("username")) webMI.trigger.fire("com.atvise.setActive", false, "inout_user");
+	if (!filtersup("display")) webMI.trigger.fire("com.atvise.setActive", false, "address_display");
+	if (!filtersup("Comment")) webMI.trigger.fire("com.atvise.setActive", false, "inout_comment");
+
+	/* set default values */
+	webMI.trigger.fire(
+		"setValue",
+		parseFloat(webMIQueryProperties.priority ? webMIQueryProperties.priority : "0"),
+		"picker_priority"
+	);
+	webMI.trigger.fire("setValue", webMIQueryProperties.eventtext ? webMIQueryProperties.eventtext : "", "inout_event");
+	// webMI.trigger.fire("setSelectedItem", webMIQueryProperties.ackn_status, "combo_ackn_status");
+	// webMI.trigger.fire("setSelectedItem", webMIQueryProperties.alarm_source, "combo_alarm_source"); set in callback (ff. 2953):
+	webMI.trigger.fire(
+		"setValue",
+		webMIQueryProperties.alarm_condition ? webMIQueryProperties.alarm_condition : "",
+		"alarm_condition"
+	);
+	webMI.trigger.fire("setValue", webMIQueryProperties.group ? webMIQueryProperties.group : "", "group");
+	webMI.trigger.fire("setValue", webMIQueryProperties.user ? webMIQueryProperties.user : "", "inout_user");
+	webMI.trigger.fire("setValue", webMIQueryProperties.display ? webMIQueryProperties.display : "", "address_display");
+	webMI.trigger.fire("setValue", webMIQueryProperties.comment ? webMIQueryProperties.comment : "", "inout_comment");
+
+	if (webMI.getConfig("frame.scaletype") != "native") currentScaleFactor = webMI.frame.getCurrentScaleFactor();
+
+	shelveOnceButton = initIcon(
+		"shelveOnce",
+		"T{One Shot Shelve}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		enableAlarmShelve,
+		"shelveOnceButton"
+	);
+	unshelveOnceButton = initIcon(
+		"unshelveOnce",
+		"T{Unshelve}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		enableAlarmShelve,
+		"unshelveButton"
+	);
+	shelveTimeButton = initIcon(
+		"shelveTime",
+		"T{Timed Shelve}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		enableAlarmShelve,
+		"shelveTimeButton"
+	);
+	unshelveTimeButton = initIcon(
+		"unshelveTime",
+		"T{Unshelve}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		enableAlarmShelve,
+		"unshelveButton"
+	);
+	suppressedButton = initIcon(
+		"suppressed",
+		"T{Unsuppress}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		enableAlarmSuppress,
+		"unsuppressButton"
+	);
+	unsuppressedButton = initIcon(
+		"unsuppressed",
+		"T{Unsuppressed}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		null,
+		null
+	);
+	acknButton = initIcon(
+		"acknowledge",
+		"T{Acknowledge}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		true,
+		"acknButton"
+	);
+	acknInactiveButton = initIcon(
+		"acknowledge_inactive",
+		"",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		false,
+		"acknInactiveButton"
+	);
+	confButton = initIcon(
+		"confirm",
+		"T{Confirm}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		true,
+		"confButton"
+	);
+	confInactiveButton = initIcon(
+		"confirm_inactive",
+		"",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		false,
+		"confInactiveButton"
+	);
+	acknCommentButton = initIcon(
+		"acknowledge_comment",
+		"T{Acknowledge with comment}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		true,
+		"acknCommentButton"
+	);
+	acknCommentInactiveButton = initIcon(
+		"acknowledge_comment_inactive",
+		"",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		false,
+		"acknCommentInactiveButton"
+	);
+	confCommentButton = initIcon(
+		"confirm_comment",
+		"T{Confirm with comment}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		true,
+		"confCommentButton"
+	);
+	confCommentInactiveButton = initIcon(
+		"confirm_comment_inactive",
+		"",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		false,
+		"confCommentInactiveButton"
+	);
+	enabledButton = initIcon(
+		"enabled",
+		"T{Disable}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		enableAlarmDisableEnable,
+		"disableButton"
+	);
+	disabledButton = initIcon(
+		"disabled",
+		"T{Enable}",
+		fontSizeToTransformationFactor * row_font_size * heightTransformationFactor,
+		enableAlarmDisableEnable,
+		"enableButton"
+	);
+	if (enableAlarmAcknowledge) {
+		acknInactiveButton.icon.setAttribute("visibility", "hidden");
+		acknInactiveButton.icon.style.display = "none";
+		acknCommentInactiveButton.icon.setAttribute("visibility", "hidden");
+		acknCommentInactiveButton.icon.style.display = "none";
+	} else {
+		acknButton.icon.setAttribute("visibility", "hidden");
+		acknButton.icon.style.display = "none";
+		acknCommentButton.icon.setAttribute("visibility", "hidden");
+		acknCommentButton.icon.style.display = "none";
+	}
+	if (enableAlarmConfirm) {
+		confInactiveButton.icon.setAttribute("visibility", "hidden");
+		confInactiveButton.icon.style.display = "none";
+		confCommentInactiveButton.icon.setAttribute("visibility", "hidden");
+		confCommentInactiveButton.icon.style.display = "none";
+	} else {
+		confButton.icon.setAttribute("visibility", "hidden");
+		confButton.icon.style.display = "none";
+		confCommentButton.icon.setAttribute("visibility", "hidden");
+		confCommentButton.icon.style.display = "none";
+	}
+
+	if (!document.getElementById("shelve").outerHTML) {
+		Object.defineProperty(SVGElement.prototype, "outerHTML", {
+			get: function () {
+				return new XMLSerializer().serializeToString(this);
+			},
+			enumerable: false,
+			configurable: true
+		});
+	}
+	var acknStateOptions = {
+		0: {text: "T{All}", value: "0"},
+		1: {text: "T{ACTIVE!}", value: "1"},
+		2: {text: "T{ACTIVE! unconf.}", value: "1_unconf"},
+		//3: { text: "T{ACTIVE! latched}", value: "1_latched" },
+		4: {text: "T{active conf.}", value: "2_conf"},
+		5: {text: "T{active ack.}", value: "2_ack"},
+		6: {text: "T{INACTIVE!}", value: "3"},
+		7: {text: "T{INACTIVE! unconf.}", value: "3_unconf"},
+		//8: { text: "T{INACTIVE! latched}", value: "3_latched" },
+		9: {text: "T{(IN)ACTIVE!}", value: "5"},
+		10: {text: "T{(IN)ACTIVE! unconf.}", value: "5_unconf"}
+		//11: { text: "T{(IN)ACTIVE! latched}", value: "5_latched" }
+	};
+	webMI.trigger.fire("setItems", acknStateOptions, "combo_ackn_status");
+
+	tableLayer = document.getElementById(tableID).parentElement.parentElement;
+	setPanelHeightAndTop();
+
+	tableLayerWidth = parseInt(tableLayer.style.width.replace("px", ""));
+	tablePanelHeight = parseInt(webMI.gfx.getHeight("table_panel"));
+
+	var footerHeight = parseInt(webMI.gfx.getHeight("alarm_table_footer"));
+
+	if (isPopUpList) {
+		var popUpHeight = this.innerHeight / webMI.gfx.getAbsoluteScaleFactor(true);
+		var filtersBgHeight = parseInt(webMI.gfx.getHeight("filters_bg"));
+
+		var heightOffset = filtersBgHeight + tablePanelHeight + footerHeight - popUpHeight;
+		var panelHeight = popUpHeight - filtersBgHeight + yMove - footerHeight;
+		document.getElementById(tableID).style.height = panelHeight + "px";
+		webMI.gfx.setMoveY("alarm_table_footer", -heightOffset);
+	}
+
+	if (view != "all") {
+		webMI.gfx.setVisible("label_state", false);
+		webMI.gfx.setVisible("combo_state", false);
+	}
+	if (view == "" || view == "alarms") {
+		webMI.gfx.setVisible("label_alarm_or_condition", false);
+		webMI.gfx.setVisible("combo_alarm_or_condition", false);
+	}
+
+	//initial view - no advanced filter fields
+	webMI.gfx.setVisible("adv_1", false);
+
+	currentFiltersBgHeight = filtersBgStandardHeight - yMove;
+	if (!isAlarmlog) {
+		webMI.gfx.setHeight("filters_bg", currentFiltersBgHeight);
+
+		tableLayer.style.top = PanelTopPositionCollapsedTransformed + "px";
+		tableLayer.style.height = PanelHeightCollapsedTransformed + "px";
+	} else {
+		tableLayer.style.top = "0px";
+		tableLayer.style.height =
+			parseInt(webMI.gfx.getHeight("filters_bg")) + parseInt(webMI.gfx.getHeight("table_panel")) - 15 + "px";
+		webMI.gfx.setMoveY("alarm_table_footer", -5);
+		webMI.gfx.setScaleY("alarm_table_footer", (footerHeight + 15) / footerHeight);
+	}
+
+	if (rightAcknowledge == "") {
+	} else {
+		if (rightAcknowledge.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1)
+			rightAcknowledge = rightAcknowledge.substring(23, rightAcknowledge.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			enableAlarmAcknowledge = webMI.hasRight(rightAcknowledge);
+
+			if (enableAlarmAcknowledge) {
+				acknButton.icon.style.visibility = "visible";
+				acknButton.icon.style.display = "inline";
+				acknInactiveButton.icon.style.visibility = "hidden";
+				acknInactiveButton.icon.style.display = "none";
+				if (acknConfHeaderSpan1 != undefined) acknConfHeaderSpan1.innerHTML = acknButton.outerHTML;
+				acknCommentButton.icon.style.visibility = "visible";
+				acknCommentButton.icon.style.display = "inline";
+				acknCommentInactiveButton.icon.style.visibility = "hidden";
+				acknCommentInactiveButton.icon.style.display = "none";
+				if (acknConfCommentHeaderSpan1 != undefined) acknConfCommentHeaderSpan1.innerHTML = acknCommentButton.outerHTML;
+			} else {
+				acknButton.icon.style.visibility = "hidden";
+				acknButton.icon.style.display = "none";
+				acknInactiveButton.icon.style.visibility = "visible";
+				acknInactiveButton.icon.style.display = "inline";
+				if (acknConfHeaderSpan1 != undefined) acknConfHeaderSpan1.innerHTML = acknInactiveButton.outerHTML;
+				acknCommentButton.icon.style.visibility = "hidden";
+				acknCommentButton.icon.style.display = "none";
+				acknCommentInactiveButton.icon.style.visibility = "visible";
+				acknCommentInactiveButton.icon.style.display = "inline";
+				if (acknConfCommentHeaderSpan1 != undefined)
+					acknConfCommentHeaderSpan1.innerHTML = acknCommentInactiveButton.outerHTML;
+			}
+
+			var acknButtonElements = parent.document.getElementsByClassName("acknButton");
+			for (var i = 0; i < acknButtonElements.length; ++i) {
+				if (enableAlarmAcknowledge) {
+					acknButtonElements[i].style.visibility = "visible";
+					acknButtonElements[i].style.display = "inline";
+				} else {
+					acknButtonElements[i].style.visibility = "hidden";
+					acknButtonElements[i].style.display = "none";
+				}
+			}
+			var acknInactiveButtonElements = parent.document.getElementsByClassName("acknInactiveButton");
+			for (var i = 0; i < acknInactiveButtonElements.length; ++i) {
+				if (enableAlarmAcknowledge) {
+					acknInactiveButtonElements[i].style.visibility = "hidden";
+					acknInactiveButtonElements[i].style.display = "none";
+				} else {
+					acknInactiveButtonElements[i].style.visibility = "visible";
+					acknInactiveButtonElements[i].style.display = "inline";
+				}
+			}
+			var acknCommentButtonElements = parent.document.getElementsByClassName("acknCommentButton");
+			for (var i = 0; i < acknCommentButtonElements.length; ++i) {
+				if (enableAlarmAcknowledge) {
+					acknCommentButtonElements[i].style.visibility = "visible";
+					acknCommentButtonElements[i].style.display = "inline";
+				} else {
+					acknCommentButtonElements[i].style.visibility = "hidden";
+					acknCommentButtonElements[i].style.display = "none";
+				}
+			}
+			var acknCommentInactiveButtonElements = parent.document.getElementsByClassName("acknCommentInactiveButton");
+			for (var i = 0; i < acknCommentInactiveButtonElements.length; ++i) {
+				if (enableAlarmAcknowledge) {
+					acknCommentInactiveButtonElements[i].style.visibility = "hidden";
+					acknCommentInactiveButtonElements[i].style.display = "none";
+				} else {
+					acknCommentInactiveButtonElements[i].style.visibility = "visible";
+					acknCommentInactiveButtonElements[i].style.display = "inline";
+				}
+			}
+
+			if (tableController && tableController.grid) tableController.grid.resizeCanvas();
+		});
+	}
+
+	if (rightConfirm == "") {
+	} else {
+		if (rightConfirm.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1)
+			rightConfirm = rightConfirm.substring(23, rightConfirm.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			enableAlarmConfirm = webMI.hasRight(rightConfirm);
+
+			if (enableAlarmConfirm) {
+				confButton.icon.style.visibility = "visible";
+				confButton.icon.style.display = "flex";
+				confInactiveButton.icon.style.visibility = "hidden";
+				confInactiveButton.icon.style.display = "none";
+				confCommentButton.icon.style.visibility = "visible";
+				confCommentButton.icon.style.display = "flex";
+				confCommentInactiveButton.icon.style.visibility = "hidden";
+				confCommentInactiveButton.icon.style.display = "none";
+			} else {
+				confButton.icon.style.visibility = "hidden";
+				confButton.icon.style.display = "none";
+				confInactiveButton.icon.style.visibility = "visible";
+				confInactiveButton.icon.style.display = "flex";
+				confCommentButton.icon.style.visibility = "hidden";
+				confCommentButton.icon.style.display = "none";
+				confCommentInactiveButton.icon.style.visibility = "visible";
+				confCommentInactiveButton.icon.style.display = "flex";
+			}
+
+			var confButtonElements = parent.document.getElementsByClassName("confButton");
+			for (var i = 0; i < confButtonElements.length; ++i) {
+				if (enableAlarmConfirm) {
+					confButtonElements[i].style.visibility = "visible";
+					confButtonElements[i].style.display = "flex";
+				} else {
+					confButtonElements[i].style.visibility = "hidden";
+					confButtonElements[i].style.display = "none";
+				}
+			}
+			var confInactiveButtonElements = parent.document.getElementsByClassName("confInactiveButton");
+			for (var i = 0; i < confInactiveButtonElements.length; ++i) {
+				if (enableAlarmConfirm) {
+					confInactiveButtonElements[i].style.visibility = "hidden";
+					confInactiveButtonElements[i].style.display = "none";
+				} else {
+					confInactiveButtonElements[i].style.visibility = "visible";
+					confInactiveButtonElements[i].style.display = "flex";
+				}
+			}
+			var confCommentButtonElements = parent.document.getElementsByClassName("confCommentButton");
+			for (var i = 0; i < confCommentButtonElements.length; ++i) {
+				if (enableAlarmConfirm) {
+					confCommentButtonElements[i].style.visibility = "visible";
+					confCommentButtonElements[i].style.display = "flex";
+				} else {
+					confCommentButtonElements[i].style.visibility = "hidden";
+					confCommentButtonElements[i].style.display = "none";
+				}
+			}
+			var confCommentInactiveButtonElements = parent.document.getElementsByClassName("confCommentInactiveButton");
+			for (var i = 0; i < confCommentInactiveButtonElements.length; ++i) {
+				if (enableAlarmConfirm) {
+					confCommentInactiveButtonElements[i].style.visibility = "hidden";
+					confCommentInactiveButtonElements[i].style.display = "none";
+				} else {
+					confCommentInactiveButtonElements[i].style.visibility = "visible";
+					confCommentInactiveButtonElements[i].style.display = "flex";
+				}
+			}
+
+			if (tableController && tableController.grid) tableController.grid.resizeCanvas();
+		});
+	}
+
+	if (rightShelve == "") {
+	} else {
+		if (rightShelve.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1)
+			rightShelve = rightShelve.substring(23, rightShelve.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			enableAlarmShelve = webMI.hasRight(rightShelve);
+
+			if (enableAlarmShelve) {
+				shelveOnceButton.icon.style.cursor = "pointer";
+				unshelveOnceButton.icon.style.cursor = "pointer";
+				shelveTimeButton.icon.style.cursor = "pointer";
+				unshelveTimeButton.icon.style.cursor = "pointer";
+			} else {
+				shelveOnceButton.icon.style.cursor = "default";
+				unshelveOnceButton.icon.style.cursor = "default";
+				shelveTimeButton.icon.style.cursor = "default";
+				unshelveTimeButton.icon.style.cursor = "default";
+			}
+
+			var shelveOnceButtonElements = parent.document.getElementsByClassName("shelveOnceButton");
+			for (var i = 0; i < shelveOnceButtonElements.length; ++i) {
+				if (enableAlarmShelve) {
+					shelveOnceButtonElements[i].style.cursor = "pointer";
+				} else {
+					shelveOnceButtonElements[i].style.cursor = "default";
+				}
+			}
+			var unshelveOnceButtonElements = parent.document.getElementsByClassName("unshelveOnceButton");
+			for (var i = 0; i < unshelveOnceButtonElements.length; ++i) {
+				if (enableAlarmShelve) {
+					unshelveOnceButtonElements[i].style.cursor = "pointer";
+				} else {
+					unshelveOnceButtonElements[i].style.cursor = "default";
+				}
+			}
+			var shelveTimeButtonElements = parent.document.getElementsByClassName("shelveTimeButton");
+			for (var i = 0; i < shelveTimeButtonElements.length; ++i) {
+				if (enableAlarmShelve) {
+					shelveTimeButtonElements[i].style.cursor = "pointer";
+				} else {
+					shelveTimeButtonElements[i].style.cursor = "default";
+				}
+			}
+			var unshelveTimeButtonElements = parent.document.getElementsByClassName("unshelveTimeButton");
+			for (var i = 0; i < unshelveTimeButtonElements.length; ++i) {
+				if (enableAlarmShelve) {
+					unshelveTimeButtonElements[i].style.cursor = "pointer";
+				} else {
+					unshelveTimeButtonElements[i].style.cursor = "default";
+				}
+			}
+
+			if (tableController && tableController.grid) tableController.grid.resizeCanvas();
+		});
+	}
+
+	if (rightSuppress == "") {
+	} else {
+		if (rightSuppress.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1)
+			rightSuppress = rightSuppress.substring(23, rightSuppress.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			enableAlarmSuppress = webMI.hasRight(rightSuppress);
+
+			if (enableAlarmSuppress) {
+				suppressedButton.icon.style.cursor = "pointer";
+			} else {
+				suppressedButton.icon.style.cursor = "default";
+			}
+
+			var unsuppressButtonElements = parent.document.getElementsByClassName("unsuppressButton");
+			for (var i = 0; i < unsuppressButtonElements.length; ++i) {
+				if (enableAlarmSuppress) {
+					unsuppressButtonElements[i].style.cursor = "pointer";
+				} else {
+					unsuppressButtonElements[i].style.cursor = "default";
+				}
+			}
+
+			if (tableController && tableController.grid) tableController.grid.resizeCanvas();
+		});
+	}
+
+	if (rightDisableEnable == "") {
+	} else {
+		if (rightDisableEnable.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1)
+			rightDisableEnable = rightDisableEnable.substring(23, rightDisableEnable.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			enableAlarmDisableEnable = webMI.hasRight(rightDisableEnable);
+
+			if (enableAlarmDisableEnable) {
+				enabledButton.icon.style.cursor = "pointer";
+				disabledButton.icon.style.cursor = "pointer";
+			} else {
+				enabledButton.icon.style.cursor = "default";
+				disabledButton.icon.style.cursor = "default";
+			}
+
+			var disableButtonElements = parent.document.getElementsByClassName("disableButton");
+			for (var i = 0; i < disableButtonElements.length; ++i) {
+				if (enableAlarmDisableEnable) {
+					disableButtonElements[i].style.cursor = "pointer";
+				} else {
+					disableButtonElements[i].style.cursor = "default";
+				}
+			}
+			var enableButtonButtonElements = parent.document.getElementsByClassName("enableButton");
+			for (var i = 0; i < enableButtonButtonElements.length; ++i) {
+				if (enableAlarmDisableEnable) {
+					enableButtonButtonElements[i].style.cursor = "pointer";
+				} else {
+					enableButtonButtonElements[i].style.cursor = "default";
+				}
+			}
+
+			if (tableController && tableController.grid) tableController.grid.resizeCanvas();
+		});
+	}
+
+	if (rightExport == "") {
+	} else {
+		if (rightExport.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1)
+			rightExport = rightExport.substring(23, rightExport.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			enableAlarmExport = webMI.hasRight(rightExport);
+			if (typeof tableController != "undefined") {
+				if (!enableAlarmExport && !isAlarmlog) tableController.hideMenuEntriesByGroup("csv-commands");
+				else tableController.showMenuEntriesByGroup("csv-commands");
+			}
+
+			if (tableController && tableController.grid) tableController.grid.resizeCanvas();
+		});
+	}
+
+	var wasOffline = false;
+	webMI.addEvent(webMI.data, "serverstatechange", function (e) {
+		var state = e.active["connection-status"].primary || e.active["connection-status"].secondary;
+		if (!state) {
+			wasOffline = true;
+		} else if (wasOffline) {
+			wasOffline = false;
+			liveArray = [];
+			initLiveArray();
+		}
+	});
+
+	//liveTimer = setInterval(setLiveData, 300);
+
+	if (isNaN(priority)) priority = 0;
+	if (isNaN(ackn_status)) ackn_status = 0;
+
+	if (ackn_status == 0) ackn_status = "";
+
+	webMI.table.loadResources(function () {
+		/* special for ie11 */
+		function iconInnerHTML(icon, iconClass, dimensions) {
+			var newIcon = icon;
+			newIcon.setAttribute("visibility", "visible");
+			newIcon.setAttribute("viewbox", "0 0 " + icon.getAttribute("width") + " " + icon.getAttribute("height"));
+			if (dimensions) {
+				newIcon.setAttribute("width", dimensions.width);
+				newIcon.setAttribute("height", dimensions.height);
+			}
+			for (var ic in iconClass) {
+				webMI.rootWindow.jQuery(newIcon).addClass(iconClass[ic]);
+			}
+			return webMI.rootWindow.jQuery("<div>").append(webMI.rootWindow.jQuery(newIcon).clone()).html(); // webMI.rootWindow.jQuery(newIcon).outerHTML;
+		}
+
+		/**
+		 * Declaration of some ICONS
+		 * @type {HTMLElement | null}
+		 */
+
+		var iconSelected = initIcon(
+			"iconSelected",
+			"",
+			((fontSizeToTransformationFactor * 12.5) / 16) * header_font_size * heightTransformationFactor,
+			null,
+			null,
+			"selected"
+		);
+		iconSelected.span.innerHTML = iconSelected.icon.outerHTML;
+
+		var iconBurger = initIcon(
+			"iconBurger",
+			"",
+			fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+			null,
+			null,
+			"burger"
+		);
+		iconBurger.span.innerHTML = iconBurger.icon.outerHTML;
+
+		/* [AT-D-12385] Differentiation between alarm standard and scaled header */
+		var headerRowHeightFactor = (header_height ? header_height : 20) / 20;
+
+		var iconMessage = iconInnerHTML(document.getElementById("iconMessage"), [], {
+			width: 80 * headerRowHeightFactor,
+			height: 20 * headerRowHeightFactor
+		});
+
+		/* Scaling correction for external event listener **/
+		var alarmTableElement = document.getElementById(tableID);
+		var scaleType = webMI.getConfig("frame.scaletype");
+		if (scaleType == "zoom") {
+			webMI.gfx.setScaledEvents(
+				alarmTableElement.parentElement.parentElement,
+				false,
+				false,
+				alarmTableElement.parentElement
+			);
+		}
+
+		containerID = document.getElementById(tableID).id;
+
+		/* Show action button */
+		var multiactionButton = initIcon(
+			"action",
+			"",
+			fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+			null,
+			null,
+			"header"
+		);
+		multiactionButton.icon.setAttribute("id", "multiactionButton");
+		multiactionButton.icon.setAttribute("title", "T{Action}");
+		multiactionButton.span.style.display = "block";
+		multiactionButton.span.setAttribute("title", "T{Action}");
+		multiactionButton.span.innerHTML = multiactionButton.icon.outerHTML;
+
+		var div = parent.document.createElement("div");
+		div.style.width = "100%";
+		div.style.textAlign = "center";
+		div.innerHTML = multiactionButton.span.outerHTML;
+
+		var config = {};
+		config.mode = "live";
+		config.columns = columnDefinitions.mainTableColumns;
+		config.containerID = document.getElementById(tableID).id;
+		config.dataRequestFunction = {}; //live mode needs no dataRequestFunction
+		config.detailRowSettings = {
+			/* add three rows for prevent scrolling */
+			rows: columnDefinitions.detailTableColumns.length + 6,
+			template: createSubTable,
+			header: div.outerHTML,
+			callback: function (e) {
+				openActionButtonMenu(topWindow.document.getElementById("multiactionButton"), 1, 7);
+			}
+		};
+		if (isAlarmlog) config.detailRowSettings = 0;
+		config.bufferInterval = 25;
+		config.renderInterval = 100;
+		config.customComparer = customCompareFunction;
+		config.rowFormatter = rowFormatter;
+
+		/* get settings from query param */
+		var settings = {};
+		var heightMultiplicator = 1;
+		if (deviceScaling) {
+			heightMultiplicator = webMI.getClientInfo() ? webMI.getClientInfo().deviceScaling.table.rowheight : 1;
+		}
+		if (isAlarmlog) {
+			settings.multiselect = false;
+		} else {
+			settings.multiselect = true;
+		}
+		settings.header_height = (header_height / currentScaleFactor) * heightMultiplicator * heightTransformationFactor;
+		settings.row_height = (row_height / currentScaleFactor) * heightMultiplicator * heightTransformationFactor;
+		settings.font_family = font_family;
+		settings.header_text_size = (header_font_size / currentScaleFactor) * heightTransformationFactor;
+		settings.detail_text_size = (detail_font_size / currentScaleFactor) * heightTransformationFactor;
+		settings.footer_text_size = (footer_font_size / currentScaleFactor) * heightTransformationFactor;
+		settings.row_text_size = (row_font_size / currentScaleFactor) * heightTransformationFactor;
+		settings.theme_class = theme_class;
+		settings.paging = paging;
+		settings.filterBar = filterBar;
+		settings.filterRegExp = filterRegExp;
+		settings.filterStar = filterStar;
+		settings.filterCaseSensitive = filterCaseSensitive;
+		settings.filterLength = filterMinInputLength;
+		settings.filterConversion = {
+			timestamp: ["datetime"],
+			valuetimestamp: ["datetime"],
+			acktime: ["datetime"],
+			active_inactive_time: ["datetime"]
+		};
+		settings.linebreak = linebreak;
+		settings.columnReorder = columnReorder;
+		settings.showMenu = showMenu;
+		settings.showMenuCustomTitle = showMenuCustomTitle;
+		settings.showPickerMenuTitle = showPickerMenuTitle;
+		settings.showPickerMenu = showPickerMenu;
+		settings.showMenuWidth = (menuWidth * row_font_size) / 12 / currentScaleFactor;
+		settings.showMenuHeight = menuHeight / currentScaleFactor;
+		settings.multicellselect = multicellselect;
+		settings.icons = [];
+		settings.icons.selector = typeof iconSelected == "undefined" ? false : iconSelected.icon.outerHTML;
+		settings.icons.burger = typeof iconBurger == "undefined" ? false : iconBurger.span.outerHTML;
+		settings.notification = document.getElementById("notification_area").getAttribute("id");
+		var translation = {
+			title_export: "T{Export}",
+			title_command: "T{Filter}",
+			title_picker: "T{Columns}",
+			export_csv: "T{All rows with displayed columns}",
+			export_csv_wh: "T{All rows with all columns}",
+			export_csv_m: "T{Marked rows with displayed columns}",
+			export_csv_mwh: "T{Marked rows with all columns}",
+			export_option_timestamp: "T{Export time as timestamp}",
+			export_option_milliseconds: "T{Precision in milliseconds}",
+			filter_show_hide: "T{Show or hide filter}",
+			filter_clear: "T{Reset filter}",
+			sort_clear: "T{Reset sorting}",
+			tooltip_details: "T{Action}",
+			tooltip_marks: "T{Set/Cancel marks}"
+		};
+		settings.translation = translation;
+
+		/* add globals to settings */
+		for (var key in globalFontConfig) {
+			var value = globalFontConfig[key];
+			if (typeof value.size != "undefined") settings[key] = value.size;
+		}
+		for (var key in globalColorConfig) {
+			var value = globalColorConfig[key];
+			if (typeof value.color != "undefined") settings[key] = value.color;
+		}
+
+		/* get custom styling */
+		var styling = webMI.table.request(tableID, "styling");
+		for (var key in styling) {
+			var value = styling[key];
+			if (typeof value != "undefined") settings[key] = value;
+		}
+
+		/* global fallback colors */
+		var fallbacks = {};
+		fallbacks.globalBorderColor = globalBorderColor;
+		fallbacks.globalFillColor = globalFillColor;
+		fallbacks.globalFontColor = globalFontColor;
+		fallbacks.globalSymbolColor = globalSymbolColor;
+
+		slickConfigurator = new webMI.rootWindow.SlickConfigurator(config, settings, fallbacks);
+		var tableConfig = slickConfigurator.getConfig();
+
+		webMI.table.register(tableID, "ControllerConfig", tableConfig);
+		webMI.table.setReady(tableID, "ControllerConfig");
+
+		webMI.table.waitReady(tableID, "ControllerConfig", function () {
+			dataController = new webMI.rootWindow.DataController();
+			tableController = new webMI.rootWindow.SlickController(dataController, tableConfig);
+
+			tableController.webMIQuery = webMIQueryProperties;
+
+			document.getElementById(tableID).addEventListener(
+				"click",
+				function (e) {
+					if (e.target.className == "detailsButton") {
+						var conditionAddress = e.target.getAttribute("data-condition-address");
+						var value = parent.document.getElementById(e.target.getAttribute("input-field-id")).value;
+						setComment(conditionAddress, value);
+					}
+					if (e.target.className == "sumAlarmButton") {
+						var inputNode = e.target.getAttribute("data-input-node");
+						var parameters = {};
+						tableController.childTitle = "T{Sum alarm members of} " + inputNode;
+						tableController.child_query_filter = "false";
+						tableController.child_sum_alarm_group = inputNode;
+						webMI.display.openWindow({
+							display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist_popup",
+							extern: false,
+							height: 420,
+							width: tableLayerWidth,
+							menubar: false,
+							modal: true,
+							movable: true,
+							resizable: true,
+							scrollbars: true,
+							status: false,
+							title: "T{Sum alarm members list}",
+							toolbar: false,
+							query: {height: this.height, group: inputNode}
+						});
+					}
+				},
+				false
+			);
+
+			webMI.table.register(tableID, "controller", tableController);
+
+			/**
+			 * Add message icon to notification_area and configure listener
+			 */
+			webMI.rootWindow
+				.jQuery("#" + settings.notification)
+				.append(webMI.rootWindow.jQuery(iconMessage).clone())
+				.html();
+			webMI.addEvent("notification_area", "click", function (e) {
+				tableController.notification.handleEvent(e, null);
+			});
+
+			/**
+			 * Hide show notification button
+			 */
+			var panel = [];
+			panel.element = document.getElementById(tableID); // config.containerID);
+			panel.width = panel.element.offsetWidth;
+
+			var noteButton = [];
+			noteButton.element = document.getElementById("id_notification");
+
+			var topDefault = parseInt(noteButton.element.style.top.replace("px", ""), 10);
+			topDefault = topDefault - 1;
+			noteButton.top = isAlarmlog ? "2px" : topDefault + "px";
+
+			noteButton.icon = [];
+			noteButton.icon.id = document.getElementById("iconMessage").id;
+			noteButton.icon.container = noteButton.element.querySelector("#" + noteButton.icon.id);
+			noteButton.icon.width = noteButton.icon.container.width.baseVal.value;
+			noteButton.icon.height = noteButton.icon.container.height.baseVal.value;
+
+			/* [AT-D-12385] wrapper */
+			noteButton.wrapper = [];
+			noteButton.wrapper.element = noteButton.icon.container.parentElement.parentElement.parentElement;
+			noteButton.wrapper.left = parseInt(noteButton.wrapper.element.style.left.replace("px", ""), 10);
+			noteButton.wrapper.element.style.left = noteButton.wrapper.left + 80 - 80 * headerRowHeightFactor + "px";
+			noteButton.wrapper.element.style.width = 80 * headerRowHeightFactor + "px";
+			noteButton.wrapper.element.style.height = 20 * headerRowHeightFactor + "px";
+
+			noteButton.element.style.width = 80 * headerRowHeightFactor + "px";
+			noteButton.element.style.height = 20 * headerRowHeightFactor + "px";
+
+			tableController.hideNotificatonButton = function () {
+				noteButton.element.style.top = "-100px";
+				noteButton.element.style.display = "none";
+			};
+			tableController.showNotificatonButton = function () {
+				noteButton.element.style.top = noteButton.top;
+				noteButton.element.style.display = "block";
+
+				/* correction for parent */
+
+				var header = [];
+				header.container = [];
+				header.container.content = document.getElementById(tableID);
+				header.container.top = parseInt(
+					header.container.content.parentElement.parentElement.style.top.replace("px", ""),
+					10
+				);
+				header.container.left = parseInt(
+					header.container.content.parentElement.parentElement.style.left.replace("px", ""),
+					10
+				);
+				header.container.height = parseInt(
+					header.container.content.parentElement.parentElement.style.height.replace("px", ""),
+					10
+				);
+
+				header.column = [];
+				header.column.content = header.container.content.getElementsByClassName("slick-header-columns")[0];
+				header.column.width = parseInt(header.column.content.style.width.replace("px", ""), 10);
+				header.column.left = parseInt(header.column.content.style.left.replace("px", ""), 10);
+				header.column.height = header.column.content.offsetHeight;
+				header.offset = header.container.left + header.column.left + header.column.width;
+
+				setTimeout(function () {
+					if (webMI.getConfig("frame.scaletype") === "zoom") {
+						var buttonElement = noteButton.element;
+						var origHeight = 20 * headerRowHeightFactor;
+						var origWidth = 80 * headerRowHeightFactor;
+						var transHeight = buttonElement.getClientRects()[0].height;
+						var transWidth = buttonElement.getClientRects()[0].width;
+
+						var heightFactor = transHeight / origHeight;
+						var widthFactor = transWidth / origWidth;
+
+						var scaleString = "scale(" + widthFactor + "," + heightFactor + ")";
+
+						buttonElement.style.transformOrigin = "0 0";
+						buttonElement.style.transform = scaleString;
+						buttonElement.style.width = origWidth + "px";
+						buttonElement.style.height = origHeight + "px";
+						buttonElement.style.float = null;
+
+						/* [AT-D-12385] wrapper */
+						buttonElement.children[0].children[0].style.float = null;
+					} else if (webMI.getConfig("frame.scaletype") === "transform") {
+						var filters = document.getElementById("filters_bg");
+						var container = filters.parentElement.parentElement;
+						var buttonElement = noteButton.element;
+						var noteArea = buttonElement.children[0].children[0];
+						var iconMessage = noteArea.children[0];
+						var widthFactor = container.getAttribute("transform") ? webMI.gfx.getScreenCTM().a : 1;
+						var heightFactor = container.getAttribute("transform") ? webMI.gfx.getScreenCTM().d : 1;
+
+						noteArea.style.width = 0;
+						noteArea.style.height = 0;
+						noteArea.style.float = null;
+
+						var scaleString = "scale(" + widthFactor + "," + heightFactor + ")";
+
+						iconMessage.style.transform = scaleString;
+						iconMessage.style.transformOrigin = "0 0";
+						iconMessage.style.width = origWidth + "px";
+						iconMessage.style.height = origHeight + "px";
+					}
+				});
+			};
+
+			tableController.hideNotificatonButton();
+
+			/**
+			 * init table
+			 */
+			tableController.init(function () {
+				if (detectMicrosoftBrowser() == "false" && topWindow.document.getElementById("multiactionButton").parentElement)
+					topWindow.document.getElementById("multiactionButton").parentElement.parentElement.style.padding = "4px";
+
+				/* apply custom css to all components */
+				slickStyler = new webMI.rootWindow.SlickStyler();
+				slickStyler.generate(tableConfig.containerID, tableConfig.style);
+
+				webMI.table.setReady(tableID, "controller");
+
+				if (!tableController || !tableController.grid) return;
+
+				tableController.grid.onClick.subscribe(function (e, args) {
+					if (e.target.getAttribute("data-condition-address") == null && e.target.getAttribute("data-alarm-id") == null)
+						e.target = e.target.parentElement;
+
+					if (e.target.className) {
+						if (e.target.className.baseVal == "shelveOnceButton" && enableAlarmShelve) {
+							var conditionAddress = e.target.getAttribute("data-condition-address");
+							var alarmId = e.target.getAttribute("data-alarm-id");
+							tableController.Shelve(conditionAddress, alarmId);
+						}
+						if (e.target.className.baseVal == "shelveTimeButton" && enableAlarmShelve) {
+							var conditionAddress = e.target.getAttribute("data-condition-address");
+							var alarmId = e.target.getAttribute("data-alarm-id");
+							tableController.Shelve(conditionAddress, alarmId, true);
+						}
+						if (e.target.className.baseVal == "unshelveButton" && enableAlarmShelve) {
+							var conditionAddress = e.target.getAttribute("data-condition-address");
+							var alarmId = e.target.getAttribute("data-alarm-id");
+							tableController.Unshelve(conditionAddress, alarmId);
+						}
+						if (e.target.className.baseVal == "unsuppressButton" && enableAlarmSuppress) {
+							var conditionAddress = e.target.getAttribute("data-condition-address");
+							var alarmId = e.target.getAttribute("data-alarm-id");
+							tableController.Unsuppress(conditionAddress, alarmId);
+						}
+						if (e.target.className.baseVal == "enableButton" && enableAlarmDisableEnable) {
+							var conditionAddress = e.target.getAttribute("data-condition-address");
+							var alarmId = e.target.getAttribute("data-alarm-id");
+							tableController.Enable(conditionAddress);
+						}
+						if (e.target.className.baseVal == "disableButton" && enableAlarmDisableEnable) {
+							var conditionAddress = e.target.getAttribute("data-condition-address");
+							var alarmId = e.target.getAttribute("data-alarm-id");
+							tableController.Disable(conditionAddress, alarmId);
+						}
+						if (e.target.className.baseVal == "acknButton" && enableAlarmAcknowledge) {
+							var alarmId = e.target.getAttribute("data-alarm-id");
+							tableController.Acknowledge(alarmId);
+						}
+						if (e.target.className.baseVal == "confButton" && enableAlarmConfirm) {
+							var alarmId = e.target.getAttribute("data-alarm-id");
+							tableController.Confirm(alarmId);
+						}
+						if (e.target.className.baseVal == "acknCommentButton" && enableAlarmAcknowledge) {
+							var alarmId = e.target.getAttribute("data-alarm-id");
+							var conditionAddress = e.target.getAttribute("data-condition-address");
+							tableController.AcknowledgeWithComment([{address: conditionAddress, AlarmId: alarmId}]);
+						}
+						if (e.target.className.baseVal == "confCommentButton" && enableAlarmConfirm) {
+							var alarmId = e.target.getAttribute("data-alarm-id");
+							var conditionAddress = e.target.getAttribute("data-condition-address");
+							tableController.ConfirmWithComment([{address: conditionAddress, AlarmId: alarmId}]);
+						}
+					}
+				});
+
+				var cols = tableController.grid.getColumns();
+
+				function setHeaderIcon(columnField, icon) {
+					if (!icon) return;
+
+					var header = parent.document.getElementById(tableController.grid.getUID() + columnField);
+					if (header != null) {
+						var headerSpan = header.getElementsByClassName("slick-column-name")[0];
+						headerSpan.innerHTML = icon.icon.outerHTML;
+					}
+				}
+
+				var shelveButton;
+				if (enableAlarmShelve) {
+					shelveButton = initIcon(
+						"shelve",
+						"T{Shelve}",
+						fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+						null,
+						null,
+						"header"
+					);
+				} else {
+					shelveButton = initIcon(
+						"shelve_inactive",
+						"T{Shelve}",
+						fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+						null,
+						null,
+						"header"
+					);
+				}
+
+				var acknHeaderButton;
+				if (enableAlarmAcknowledge) {
+					acknHeaderButton = initIcon(
+						"acknowledge_header",
+						"T{Ackn. / Conf.}",
+						fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+						null,
+						null,
+						"header"
+					);
+				} else {
+					acknHeaderButton = initIcon(
+						"acknowledge_inactive_header",
+						"T{Ackn. / Conf.}",
+						fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+						null,
+						null,
+						"header"
+					);
+				}
+
+				var acknCommentHeaderButton;
+				if (enableAlarmAcknowledge) {
+					acknCommentHeaderButton = initIcon(
+						"acknowledge_comment_header",
+						"T{with comment}",
+						fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+						null,
+						null,
+						"header"
+					);
+				} else {
+					acknCommentHeaderButton = initIcon(
+						"acknowledge_comment_inactive_header",
+						"T{with comment}",
+						fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+						null,
+						null,
+						"header"
+					);
+				}
+
+				var suppressHeaderButton;
+				if (enableAlarmSuppress) {
+					suppressHeaderButton = initIcon(
+						"suppress_header",
+						"T{Suppress}",
+						fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+						null,
+						null,
+						"header"
+					);
+				} else {
+					suppressHeaderButton = initIcon(
+						"suppress_inactive_header",
+						"T{Suppress}",
+						fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+						null,
+						null,
+						"header"
+					);
+				}
+
+				var disableHeaderButton;
+				if (enableAlarmDisableEnable) {
+					disableHeaderButton = initIcon(
+						"disable_header",
+						"T{Disable}",
+						fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+						null,
+						null,
+						"header"
+					);
+				} else {
+					disableHeaderButton = initIcon(
+						"disable_inactive_header",
+						"T{Disable}",
+						fontSizeToTransformationFactor * header_font_size * heightTransformationFactor,
+						null,
+						null,
+						"header"
+					);
+				}
+
+				setHeaderIcon("shelve", shelveButton);
+				setHeaderIcon("suppress", suppressHeaderButton);
+				setHeaderIcon("enable", disableHeaderButton);
+				setHeaderIcon("ackn_conf", acknHeaderButton);
+				setHeaderIcon("ackn_conf_comment", acknCommentHeaderButton);
+
+				tableController.grid.onHeaderCellRendered.subscribe(function (e, args) {
+					setHeaderIcon("shelve", shelveButton);
+					setHeaderIcon("suppress", suppressHeaderButton);
+					setHeaderIcon("enable", disableHeaderButton);
+					setHeaderIcon("ackn_conf", acknHeaderButton);
+					setHeaderIcon("ackn_conf_comment", acknCommentHeaderButton);
+				});
+
+				if (!enableAlarmExport && !isAlarmlog) tableController.hideMenuEntriesByGroup("csv-commands");
+				tableController.grid.resizeCanvas();
+				tableLoaded = true;
+				tableController.allAcknowledgeable = [];
+				tableController.allConfirmable = [];
+				tableController.allShelveableOnce = [];
+				tableController.allShelveableTime = [];
+				tableController.allUnshelveable = [];
+				tableController.allUnsuppressable = [];
+				tableController.allEnableable = [];
+				tableController.allDisableable = [];
+				tableController.globalFillColor = globalFillColor;
+				tableController.globalFontColor = globalFontColor;
+
+				tableController.Shelve = async function (ConditionAddress, AlarmId, Time) {
+					let hasShelveRights = await hasExecutionRightsFor(["AlarmShelve", "AlarmConfiguration"]);
+
+					if (!hasShelveRights) {
+						showInfoDialog("T{Permission missing}", "");
+						return;
+					}
+
+					// Shelve for one condition
+					if (typeof ConditionAddress == "string") {
+						// Timed shelve
+						if (typeof Time != "undefined" && Time == true) {
+							webMI.display.openWindow({
+								display: alarm_timeshelve_dialog,
+								extern: false,
+								width: 400,
+								height: 225,
+								menubar: false,
+								modal: true,
+								movable: true,
+								resizable: false,
+								scrollbars: false,
+								status: false,
+								title: "T{Timed shelve} ",
+								toolbar: false,
+								query: {
+									conditionAddress: JSON.stringify(ConditionAddress),
+									alarmId: AlarmId,
+									bgColor: globalFillColor,
+									fontColor: globalFontColor,
+									tableID: tableID
+								}
+							});
+						} else {
+							// Oneshot shelve
+							webMI.data.call("AlarmShelve", {address: formatAddress(ConditionAddress)}, function (e) {
+								if (typeof e.result != "undefined" && typeof e.result[0].errorstring != "undefined") {
+									tableController.setMessage(
+										"T{Error}: " + e.result[0].errorstring + " [T{One Shot Shelve}: " + ConditionAddress + "]"
+									);
+								} else {
+									delete tableController.allShelveableOnce[ConditionAddress];
+								}
+							});
+						}
+						// Shelve for multiple conditions
+					} else {
+						var AdressesAndIds = ConditionAddress;
+						// Timed shelve
+						if (typeof Time != "undefined" && Time == true) {
+							webMI.display.openWindow({
+								display: alarm_timeshelve_dialog,
+								extern: false,
+								width: 400,
+								height: 225,
+								menubar: false,
+								modal: true,
+								movable: true,
+								resizable: false,
+								scrollbars: false,
+								status: false,
+								title: "T{Timed shelve} ",
+								toolbar: false,
+								query: {
+									conditionAddress: JSON.stringify(AdressesAndIds),
+									bgColor: globalFillColor,
+									fontColor: globalFontColor,
+									tableID: tableID
+								}
+							});
+							// Oneshot shelve
+						} else {
+							var buffer = [];
+							for (var i = 0; i < AdressesAndIds.length; i++) {
+								buffer.push(AdressesAndIds[i]);
+								webMI.data.call("AlarmShelve", {address: formatAddress(AdressesAndIds[i].address)}, function (e) {
+									if (typeof e.result[0].errorstring != "undefined") {
+										tableController.setMessage(
+											"T{Error}: " + e.result[0].errorstring + " [T{One Shot Shelve}: " + buffer[0].address + "]"
+										);
+										buffer.shift();
+									} else {
+										delete tableController.allShelveableOnce[buffer[0].address];
+										buffer.shift();
+									}
+								});
+							}
+						}
+					}
+				};
+
+				tableController.Unshelve = async function (ConditionAddress, AlarmId) {
+					if (webMI.getMethodSupport().indexOf("AlarmUnshelve") == -1) {
+						return;
+					}
+
+					let hasUnshelveRight = await hasExecutionRightsFor("AlarmUnshelve");
+
+					if (!hasUnshelveRight) {
+						showInfoDialog("T{Permission missing}", "");
+						return;
+					}
+
+					if (typeof ConditionAddress == "string") {
+						webMI.data.call("AlarmUnshelve", {address: formatAddress(ConditionAddress)}, function (e) {
+							if (typeof e.result[0].errorstring != "undefined") {
+								tableController.setMessage(
+									"T{Error}: " + e.result[0].errorstring + " [T{Unshelve}: " + ConditionAddress + "]"
+								);
+							} else {
+								delete tableController.allUnshelveable[ConditionAddress];
+							}
+						});
+					} else {
+						var addressesAndIds = ConditionAddress;
+						var buffer = [];
+						for (var i = 0; i < addressesAndIds.length; i++) {
+							buffer.push(addressesAndIds[i]);
+							webMI.data.call("AlarmUnshelve", {address: formatAddress(addressesAndIds[i].address)}, function (e) {
+								if (typeof e.result[0].errorstring != "undefined") {
+									tableController.setMessage(
+										"T{Error}: " + e.result[0].errorstring + " [T{Unshelve}: " + buffer[0].address + "]"
+									);
+									buffer.shift();
+								} else {
+									delete tableController.allUnshelveable[buffer[0].address];
+									buffer.shift();
+								}
+							});
+						}
+					}
+				};
+
+				tableController.Suppress = async function (ConditionAddress) {
+					let hasSuppressRight = await hasExecutionRightsFor("AlarmSuppress");
+
+					if (!hasSuppressRight) {
+						showInfoDialog("T{Permission missing}", "");
+						return;
+					}
+
+					if (typeof ConditionAddress == "string") {
+						webMI.data.call("AlarmSuppress", {address: formatAddress(ConditionAddress)}, function (e) {
+							if (typeof e.result[0].errorstring != "undefined")
+								tableController.setMessage(
+									"T{Error}: " + e.result[0].errorstring + " [T{Suppress}: " + ConditionAddress + "]"
+								);
+						});
+					} else {
+						for (var i = 0; i < ConditionAddress.length; i++) {
+							webMI.data.call("AlarmSuppress", {address: formatAddress(ConditionAddress[i])}, function (e) {
+								if (typeof e.result[0].errorstring != "undefined")
+									tableController.setMessage(
+										"T{Error}: " + e.result[0].errorstring + " [T{Suppress}: " + ConditionAddress[i] + "]"
+									);
+							});
+						}
+					}
+				};
+
+				tableController.Unsuppress = async function (ConditionAddress, AlarmId) {
+					let hasUnsuppressRight = await hasExecutionRightsFor("AlarmUnsuppress");
+
+					if (!hasUnsuppressRight) {
+						showInfoDialog("T{Permission missing}", "");
+						return;
+					}
+
+					if (typeof ConditionAddress == "string") {
+						webMI.data.call("AlarmUnsuppress", {address: formatAddress(ConditionAddress)}, function (e) {
+							if (typeof e.result[0].errorstring != "undefined") {
+								tableController.setMessage(
+									"T{Error}: " + e.result[0].errorstring + " [T{Unsuppress}: " + ConditionAddress + "]"
+								);
+							} else {
+								delete tableController.allUnsuppressable[ConditionAddress];
+							}
+						});
+					} else {
+						var addressesAndIds = ConditionAddress;
+						var buffer = [];
+						for (var i = 0; i < addressesAndIds.length; i++) {
+							buffer.push(addressesAndIds[i]);
+							webMI.data.call("AlarmUnsuppress", {address: formatAddress(addressesAndIds[i].address)}, function (e) {
+								if (typeof e.result[0].errorstring != "undefined") {
+									tableController.setMessage(
+										"T{Error}: " + e.result[0].errorstring + " [T{Unsuppress}: " + buffer[0].address + "]"
+									);
+									buffer.shift();
+								} else {
+									delete tableController.allUnsuppressable[buffer[0].address];
+									buffer.shift();
+								}
+							});
+						}
+					}
+				};
+
+				tableController.Acknowledge = async function (AlarmId) {
+					if (webMI.getMethodSupport().indexOf("AlarmAcknowledge") == -1) {
+						if (typeof AlarmId == "string") AlarmId = [AlarmId];
+						webMI.alarm.accept(AlarmId);
+						delete tableController.allAcknowledgeable[AlarmId];
+					} else {
+						let hasAlarmAcknowledgeRight = await hasExecutionRightsFor("AlarmAcknowledge");
+
+						if (!hasAlarmAcknowledgeRight) {
+							showInfoDialog("T{Permission missing}", "");
+							return;
+						}
+
+						if (typeof AlarmId == "string") {
+							webMI.data.call("AlarmAcknowledge", {address: AlarmId}, function (e) {
+								if (typeof e.result[0].errorstring != "undefined")
+									tableController.setMessage(
+										"T{Error}: " + e.result[0].errorstring + " [T{Acknowledge}: " + AlarmId + "]"
+									);
+								else delete tableController.allAcknowledgeable[AlarmId];
+							});
+						} else {
+							var buffer = [];
+							for (var i = 0; i < AlarmId.length; i++) {
+								buffer.push(AlarmId[i]);
+								webMI.data.call("AlarmAcknowledge", {address: AlarmId[i]}, function (e) {
+									if (typeof e.result[0].errorstring != "undefined") {
+										tableController.setMessage(
+											"T{Error}: " + e.result[0].errorstring + " [T{Acknowledge}: " + buffer[0] + "]"
+										);
+										buffer.shift();
+									} else {
+										delete tableController.allAcknowledgeable[buffer[0]];
+										buffer.shift();
+									}
+								});
+							}
+						}
+					}
+				};
+
+				tableController.AcknowledgeWithComment = async function (addressesAndIds) {
+					let hasAlarmAcknowledgeRight = await hasExecutionRightsFor("AlarmAcknowledge");
+
+					if (!hasAlarmAcknowledgeRight) {
+						showInfoDialog("T{Permission missing}", "");
+						return;
+					}
+
+					if (addressesAndIds.length > 0) {
+						webMI.display.openWindow({
+							display: alarm_comment_dialog,
+							extern: false,
+							width: 400,
+							height: 225,
+							menubar: false,
+							modal: true,
+							movable: true,
+							resizable: false,
+							scrollbars: false,
+							status: false,
+							title: "T{Acknowledge} ",
+							toolbar: false,
+							query: {
+								action: "acknowledge",
+								addressesAndIds: JSON.stringify(addressesAndIds),
+								bgColor: globalFillColor,
+								fontColor: globalFontColor,
+								tableID: tableID
+							}
+						});
+					}
+				};
+
+				tableController.Confirm = function (AlarmId) {
+					if (typeof AlarmId == "string") {
+						webMI.data.call("AlarmConfirm", {address: AlarmId}, function (e) {
+							if (typeof e.result[0].errorstring != "undefined")
+								tableController.setMessage("T{Error}: " + e.result[0].errorstring + " [T{Confirm}: " + AlarmId + "]");
+							else delete tableController.allConfirmable[AlarmId];
+						});
+					} else {
+						var buffer = [];
+						for (var i = 0; i < AlarmId.length; i++) {
+							buffer.push(AlarmId[i]);
+							webMI.data.call("AlarmConfirm", {address: AlarmId[i]}, function (e) {
+								if (typeof e.result[0].errorstring != "undefined") {
+									tableController.setMessage(
+										"T{Error}: " + e.result[0].errorstring + " [T{Confirm}: " + buffer[0] + "]"
+									);
+									buffer.shift();
+								} else {
+									delete tableController.allConfirmable[buffer[0]];
+									buffer.shift();
+								}
+							});
+						}
+					}
+				};
+
+				tableController.ConfirmWithComment = async function (addressesAndIds) {
+					let hasAlarmConfirmRight = await hasExecutionRightsFor("AlarmConfirm");
+
+					if (!hasAlarmConfirmRight) {
+						showInfoDialog("T{Permission missing}", "");
+						return;
+					}
+
+					if (addressesAndIds.length > 0) {
+						webMI.display.openWindow({
+							display: alarm_comment_dialog,
+							extern: false,
+							width: 400,
+							height: 225,
+							menubar: false,
+							modal: true,
+							movable: true,
+							resizable: false,
+							scrollbars: false,
+							status: false,
+							title: "T{Confirm} ",
+							toolbar: false,
+							query: {
+								action: "confirm",
+								addressesAndIds: JSON.stringify(addressesAndIds),
+								bgColor: globalFillColor,
+								fontColor: globalFontColor,
+								tableID: tableID
+							}
+						});
+					}
+				};
+
+				tableController.Enable = async function (ConditionAddress, AlarmId) {
+					if (webMI.getMethodSupport().indexOf("AlarmEnable") == -1) {
+						return;
+					}
+
+					let hasAlarmEnableRight = await hasExecutionRightsFor("AlarmEnable");
+
+					if (!hasAlarmEnableRight) {
+						showInfoDialog("T{Permission missing}", "");
+						return;
+					}
+
+					if (typeof ConditionAddress == "string") {
+						webMI.data.call("AlarmEnable", {address: ConditionAddress}, function (e) {
+							if (typeof e.result[0].errorstring != "undefined") {
+								tableController.setMessage(
+									"T{Error}: " + e.result[0].errorstring + " [T{Enable}: " + ConditionAddress + "]"
+								);
+							} else {
+								delete tableController.allEnableable[ConditionAddress];
+							}
+						});
+					} else {
+						var buffer = [];
+						for (var i = 0; i < ConditionAddress.length; i++) {
+							buffer.push(ConditionAddress[i]);
+							webMI.data.call("AlarmEnable", {address: ConditionAddress[i]}, function (e) {
+								if (typeof e.result[0].errorstring != "undefined") {
+									tableController.setMessage(
+										"T{Error}: " + e.result[0].errorstring + " [T{Enable}: " + buffer[0] + "]"
+									);
+									buffer.shift();
+								} else {
+									delete tableController.allEnableable[buffer[0]];
+									buffer.shift();
+								}
+							});
+						}
+					}
+				};
+
+				tableController.Disable = async function (ConditionAddress, AlarmId) {
+					let hasAlarmDisableRight = await hasExecutionRightsFor("AlarmDisable");
+
+					if (!hasAlarmDisableRight) {
+						showInfoDialog("T{Permission missing}", "");
+						return;
+					}
+
+					if (typeof ConditionAddress == "string") {
+						webMI.data.call("AlarmDisable", {address: ConditionAddress}, function (e) {
+							if (typeof e.result[0].errorstring != "undefined")
+								tableController.setMessage(
+									"T{Error}: " + e.result[0].errorstring + " [T{Disable}: " + ConditionAddress + "]"
+								);
+							else {
+								delete tableController.allDisableable[ConditionAddress];
+							}
+						});
+					} else {
+						var addressesAndIds = ConditionAddress;
+						var buffer = [];
+						for (var i = 0; i < addressesAndIds.length; i++) {
+							buffer.push(addressesAndIds[i]);
+							webMI.data.call("AlarmDisable", {address: addressesAndIds[i].address}, function (e) {
+								if (typeof e.result[0].errorstring != "undefined") {
+									tableController.setMessage(
+										"T{Error}: " + e.result[0].errorstring + " [T{Disable}: " + buffer[0].address + "]"
+									);
+									if (buffer) buffer.shift();
+								} else {
+									delete tableController.allDisableable[buffer[0].address];
+									if (buffer) buffer.shift();
+								}
+							});
+						}
+					}
+				};
+
+				subscribeFilter();
+			});
+		});
+	});
+
+	getDatasourcesList();
+});
+
+//cleanup subscriptions
+webMI.addOnunload(function () {
+	if (filterSubscriptionId) {
+		webMI.data.unsubscribeFilter(filterSubscriptionId);
+	}
+
+	try {
+		webMI.table.register(tableID, "controller", null, true);
+	} catch (ex) {
+		/* already unregistered */
+	}
+
+	/* remove functions */
+	if (tableController) {
+		tableController.hideNotificatonButton();
+		tableController.showNotificatonButton = undefined;
+		tableController.hideNotificatonButton = undefined;
+	}
+
+	slickConfigurator = undefined;
+	delete slickConfigurator;
+
+	try {
+		slickStyler.unload();
+		slickStyler = undefined;
+		delete slickStyler;
+	} catch (ex) {
+		/* already unset */
+	}
+
+	try {
+		tableController.destroy();
+		tableController = undefined;
+		delete tableController;
+	} catch (ex) {
+		/* already unset */
+	}
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+function showInfoDialog(headline, message) {
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+		height: 160,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: headline,
+			message: message,
+			button: "T{OK}"
+		}
+	});
+}
+
+/**
+ * @async
+ * @param {string|Array<string>} methodNames webMI-method name to check execution right for
+ * @returns {Promise<boolean>}
+ */
+async function hasExecutionRightsFor(methodNames) {
+	if (typeof methodNames === "string") {
+		methodNames = [methodNames];
+	}
+
+	let methodAddresses = methodNames.map((methodNames) => {
+		return `SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.${methodNames}`;
+	});
+
+	let getRightsParam2 = methodNames.map(() => {
+		return "execute";
+	});
+
+	return new Promise((resolve) => {
+		accessControlManager.getRights(methodAddresses, getRightsParam2, (response) => {
+			if (
+				response.result
+					.map((r) => {
+						return r.value;
+					})
+					.includes(false)
+			) {
+				resolve(false);
+			} else {
+				resolve(true);
+			}
+		});
+	});
+}
+
+// This function is not used anymore, but preserved for future applications.
+function getScaleFactorForSubdisplay(displayId) {
+	var currentDisplayCTM = webMI.gfx.getScreenCTM();
+	var subDisplayCTM = webMI.gfx.getScreenCTM(displayId);
+
+	var originPoint = webMI.gfx.createPoint(0, 0);
+	var point = webMI.gfx.createPoint(0, 1);
+
+	var oTransformed = originPoint.matrixTransform(currentDisplayCTM).matrixTransform(subDisplayCTM.inverse());
+	var pTransformed = point.matrixTransform(currentDisplayCTM).matrixTransform(subDisplayCTM.inverse());
+
+	return pTransformed.y - oTransformed.y;
+}
+
+function initIcon(domId, title, transform, right, iconClass, iconType) {
+	var icon = document.getElementById(domId);
+	if (!icon) return;
+
+	var iconClickarea = document.getElementById(domId + "_clickarea");
+	if (iconClickarea && iconClass) iconClickarea.setAttribute("class", iconClass);
+	var transformFactor = transform / currentScaleFactor;
+
+	var originalButtonSize = parseInt(icon.height.baseVal.value);
+	var transformedButtonSize = transformFactor * originalButtonSize;
+	var buttonOffsetX = 0;
+	var buttonOffsetY = 0;
+	if (detectMicrosoftBrowser() == false) {
+		icon.setAttribute(
+			"transform",
+			"matrix(" + transformFactor + ",0,0," + transformFactor + "," + buttonOffsetX + "," + buttonOffsetY + ")"
+		);
+	} else {
+		var iconGroup = document.getElementById(domId + "_group");
+		if (iconGroup) {
+			if (detectMicrosoftBrowser() > 11) {
+				iconGroup.setAttribute(
+					"transform",
+					"matrix(" + transformFactor + ",0,0," + transformFactor + "," + buttonOffsetX + "," + buttonOffsetY + ")"
+				);
+			} else {
+				iconGroup.setAttribute(
+					"transform",
+					"matrix(" + transformFactor + ",0,0," + transformFactor + "," + buttonOffsetX + "," + buttonOffsetY + ")"
+				);
+			}
+		}
+		icon.style.height = originalButtonSize * transformFactor + "px";
+		icon.style.width = originalButtonSize * transformFactor + "px";
+	}
+	if (right) {
+		icon.style.cursor = "pointer";
+	}
+	icon.setAttribute("visibility", "visible");
+
+	var span = parent.document.createElement("span");
+	span.setAttribute("title", title);
+	span.style.display = "grid";
+	return {icon: icon, group: iconGroup, clickarea: iconClickarea, span: span};
+}
+
+function detectMicrosoftBrowser() {
+	var ua = navigator.userAgent;
+
+	// IE 10
+	// ua = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)';
+
+	// IE 11
+	// ua = 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko';
+
+	// Edge 12 (Spartan)
+	// ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36 Edge/12.0';
+
+	// Edge 13
+	// ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586';
+
+	var msie = ua.indexOf("MSIE ");
+	if (msie > 0) {
+		// IE 10 or older => return version number
+		return parseInt(ua.substring(msie + 5, ua.indexOf(".", msie)), 10);
+	}
+
+	var trident = ua.indexOf("Trident/");
+	if (trident > 0) {
+		// IE 11 => return version number
+		var rv = ua.indexOf("rv:");
+		return parseInt(ua.substring(rv + 3, ua.indexOf(".", rv)), 10);
+	}
+
+	var edge = ua.indexOf("Edge/");
+	if (edge > 0) {
+		// Edge (IE 12+) => return version number
+		return parseInt(ua.substring(edge + 5, ua.indexOf(".", edge)), 10);
+	}
+
+	// other browser
+	return false;
+}
+
+function getStateText(state, acknowledged, confirmed, latched) {
+	switch (state) {
+		case 0:
+			return "";
+		case 1:
+			if (acknowledged == true && confirmed == false) return "T{ACTIVE! unconf.}";
+			else if (acknowledged == true && latched == true) return "T{ACTIVE! latched}";
+			return "T{ACTIVE!}";
+		case 2:
+			if (confirmed == true) return "T{active conf.}";
+			return "T{active ack.}";
+		case 3:
+			if (acknowledged == true && confirmed == false) return "T{INACTIVE! unconf.}";
+			else if (acknowledged == true && latched == true) return "T{INACTIVE! latched}";
+			return "T{INACTIVE!}";
+		case 5:
+			if (acknowledged == true && confirmed == false) return "T{(IN)ACTIVE! unconf.}";
+			else if (acknowledged == true && latched == true) return "T{(IN)ACTIVE! latched}";
+			return "T{(IN)ACTIVE!}";
+	}
+	return "undefined alarm state";
+}
+
+function formatString(obj, attribute) {
+	if (obj[attribute]) {
+		let text = typeof obj[attribute] === "string" ? obj[attribute] : obj[attribute]["T{}"];
+		text = webMI.escapeHTML(text);
+
+		try {
+			return webMI.sprintf(text, obj, "T{}");
+		} catch (err) {
+			console.error(attribute + ": " + text + "\n error: " + err);
+		}
+	}
+	return "";
+}
+
+/**
+ * Turns the translation objects for replacement values into strings for the current language (in place)
+ * @param item {object} Object containing data row table row
+ */
+function translateReplacements(item) {
+	// Don't replace keys that come translated from the query itself.
+	let defaultKeys = ["AckedState", "ActiveState"];
+
+	for (let key in item) {
+		if (!defaultKeys.includes(key) && typeof item[key] === "object" && item[key]["T{}"]) {
+			item[key] = formatString(item, key);
+		}
+	}
+}
+
+function formatAddress(address) {
+	if (webMI.getMethodSupport().indexOf("AlarmAcknowledge") == -1 && address != undefined && address.indexOf("/") > -1)
+		address = "./" + address;
+	return address;
+}
+
+function getAlarmIds(action) {
+	var alarmIds = [];
+	tableController.grid.getSelectedRows().forEach(function (rowIndex) {
+		var dataItem = tableController.grid.getDataItem(rowIndex);
+
+		if (action == "acknowledge") {
+			if (webMI.getMethodSupport().indexOf("AlarmAcknowledge") == -1) {
+				if (dataItem.state % 2) {
+					//Alarmstates 1, 3 & 5
+					var isAtviseVersion3 = atviseVersion3(dataItem);
+					if (!(isAtviseVersion3 && dataItem.state == 5 && dataItem.ParentId)) {
+						alarmIds.push(dataItem.AlarmId);
+					}
+				}
+			} else {
+				if (
+					dataItem.EnabledStateId != false &&
+					(dataItem.acknowledged == false || dataItem.confirmed == false) &&
+					(typeof dataItem.parent == "undefined" || dataItem.parent.acknowledged == true)
+				) {
+					if (dataItem.acknowledged == false) {
+						alarmIds.push(dataItem.AlarmId);
+					}
+				}
+			}
+		} else if (action == "confirm") {
+			if (
+				webMI.getMethodSupport().indexOf("AlarmConfirm") != -1 &&
+				dataItem.EnabledStateId != false &&
+				(dataItem.acknowledged == false || dataItem.confirmed == false) &&
+				(typeof dataItem.parent == "undefined" || dataItem.parent.acknowledged == true)
+			) {
+				if (dataItem.confirmed == false) {
+					alarmIds.push(dataItem.AlarmId);
+				}
+			}
+		} else {
+			alarmIds.push(dataItem.AlarmId);
+		}
+	});
+	return alarmIds;
+}
+
+function getAddresses(action) {
+	var addresses = [];
+	tableController.grid.getSelectedRows().forEach(function (rowIndex) {
+		var dataItem = tableController.grid.getDataItem(rowIndex);
+
+		if (action == "acknowledge") {
+			if (webMI.getMethodSupport().indexOf("AlarmAcknowledge") == -1) {
+				if (dataItem.state % 2) {
+					//Alarmstates 1, 3 & 5
+					var isAtviseVersion3 = atviseVersion3(dataItem);
+					if (!(isAtviseVersion3 && dataItem.state == 5 && dataItem.ParentId)) {
+						addresses.push(dataItem.address);
+					}
+				}
+			} else {
+				if (
+					dataItem.EnabledStateId != false &&
+					(dataItem.acknowledged == false || dataItem.confirmed == false) &&
+					(typeof dataItem.parent == "undefined" || dataItem.parent.acknowledged == true)
+				) {
+					if (dataItem.acknowledged == false) {
+						addresses.push(dataItem.address);
+					}
+				}
+			}
+		} else if (action == "enable") {
+			if (webMI.getMethodSupport().indexOf("AlarmDisable") != -1) {
+				if (dataItem.EnabledStateId == false) {
+					addresses.push(dataItem.address);
+				}
+			}
+		} else {
+			addresses.push(dataItem.address);
+		}
+	});
+	return addresses;
+}
+
+function getAlarmIdsAndAddresses(action) {
+	var alarmIdsAndAddresses = [];
+	tableController.grid.getSelectedRows().forEach(function (rowIndex) {
+		var dataItem = tableController.grid.getDataItem(rowIndex);
+		if (action == "acknowledge") {
+			if (webMI.getMethodSupport().indexOf("AlarmAcknowledge") == -1) {
+				if (dataItem.state % 2) {
+					//Alarmstates 1, 3 & 5
+					var isAtviseVersion3 = atviseVersion3(dataItem);
+					if (!(isAtviseVersion3 && dataItem.state == 5 && dataItem.ParentId)) {
+						alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+					}
+				}
+			} else {
+				if (
+					dataItem.EnabledStateId != false &&
+					(dataItem.acknowledged == false || dataItem.confirmed == false) &&
+					(typeof dataItem.parent == "undefined" || dataItem.parent.acknowledged == true)
+				) {
+					if (dataItem.acknowledged == false) {
+						alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+					}
+				}
+			}
+		} else if (action == "confirm") {
+			if (
+				webMI.getMethodSupport().indexOf("AlarmConfirm") != -1 &&
+				dataItem.EnabledStateId != false &&
+				(dataItem.acknowledged == false || dataItem.confirmed == false) &&
+				(typeof dataItem.parent == "undefined" || dataItem.parent.acknowledged == true)
+			) {
+				if (dataItem.confirmed == false) {
+					alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+				}
+			}
+		} else if (action == "oneShotShelve") {
+			if (webMI.getMethodSupport().indexOf("AlarmShelve") != -1 && dataItem.EnabledStateId != false) {
+				if ((dataItem.ShelvingState == "" || dataItem.ShelvingState == "Unshelved") && dataItem.state != 0) {
+					alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+				} else if (dataItem.ShelvingState != "" && dataItem.ShelvingState == "OneShotShelved") {
+				} else if (dataItem.state != 0) {
+					alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+				}
+			}
+		} else if (action == "timedShelve") {
+			if (webMI.getMethodSupport().indexOf("AlarmShelve") != -1 && dataItem.EnabledStateId != false) {
+				if (dataItem.ShelvingState == "" || dataItem.ShelvingState == "Unshelved") {
+					alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+				} else if (dataItem.ShelvingState != "" && dataItem.ShelvingState == "OneShotShelved") {
+					alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+				}
+			}
+		} else if (action == "unhelve") {
+			if (webMI.getMethodSupport().indexOf("AlarmShelve") != -1 && dataItem.EnabledStateId != false) {
+				if (dataItem.ShelvingState == "" || dataItem.ShelvingState == "Unshelved") {
+				} else if (dataItem.ShelvingState != "" && dataItem.ShelvingState == "OneShotShelved") {
+					alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+				} else {
+					alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+				}
+			}
+		} else if (action == "unsuppress") {
+			if (webMI.getMethodSupport().indexOf("AlarmUnsuppress") != -1 && dataItem.EnabledStateId != false) {
+				if (dataItem.SuppressedStateId == true) {
+					alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+				}
+			}
+		} else if (action == "disable") {
+			if (webMI.getMethodSupport().indexOf("AlarmDisable") != -1) {
+				if (dataItem.EnabledStateId == true) {
+					alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+				}
+			}
+		} else {
+			alarmIdsAndAddresses.push({address: dataItem.address, AlarmId: dataItem.AlarmId});
+		}
+	});
+	return alarmIdsAndAddresses;
+}
+
+function atviseVersion3(item) {
+	if (webMI.getMethodSupport().indexOf("AlarmConditions") != -1) {
+		isAtviseVersion3 = true;
+	} else {
+		isAtviseVersion3 = typeof item.ParentId !== "undefined";
+	}
+	return isAtviseVersion3;
+}
+
+function getFilter(currentView) {
+	var filter = {};
+	filter.type = ["v:2"];
+
+	filter.language = ["v:T{}"];
+
+	if (typeof currentView != "undefined") {
+		if (currentView != "" && currentView != "alarms") filter.init = ["v:true"];
+	}
+
+	priority = parseFloat(priority);
+	if (priority > 0) {
+		filter.priority = ["n:>=" + priority];
+	}
+
+	if (display) {
+		filter.display = ["g:*" + display + "*"];
+	}
+
+	if (group) {
+		var groupArray = trimAndSplit(group);
+		var groupArrayForSearch = [];
+		for (var i = 0; i < groupArray.length; i++) {
+			if (groupArray[i].search(/AGENT.ALARMING.Groups./i) == -1)
+				groupArrayForSearch.push("v:AGENT.ALARMING.Groups." + groupArray[i] + "");
+			else groupArrayForSearch.push("v:" + groupArray[i] + "");
+		}
+		filter.Groups = groupArrayForSearch;
+	}
+
+	if (alarm_source) {
+		if (alarm_source == "[local]") filter.DataSource = ["u:"];
+		else filter.DataSource = ["v:" + alarm_source];
+	}
+
+	if (alarm_condition) {
+		filter.address = ["g:*" + alarm_condition + "*"];
+	}
+
+	if (ackn_status) {
+		if (ackn_status == "1") {
+			filter.state = ["n:=1"];
+			filter.acknowledged = ["u:", "v:false"];
+			filter.confirmed = ["u:", "v:false"];
+		}
+		if (ackn_status == "1_unconf") {
+			filter.state = ["n:=1"];
+			filter.acknowledged = ["v:true"];
+			filter.confirmed = ["v:false"];
+		}
+		if (ackn_status == "1_latched") {
+			filter.state = ["n:=1"];
+			filter.acknowledged = ["v:true"];
+			filter.latched = ["v:true"];
+		}
+		if (ackn_status == "2_conf") {
+			filter.state = ["n:=2"];
+			filter.confirmed = ["v:true"];
+		}
+		if (ackn_status == "2_ack") {
+			filter.state = ["n:=2"];
+			filter.confirmed = ["u:", "v:false"];
+		}
+		if (ackn_status == "3") {
+			filter.state = ["n:=3"];
+			filter.acknowledged = ["u:", "v:false"];
+			filter.confirmed = ["u:", "v:false"];
+		}
+		if (ackn_status == "3_unconf") {
+			filter.state = ["n:=3"];
+			filter.acknowledged = ["v:true"];
+			filter.confirmed = ["v:false"];
+		}
+		if (ackn_status == "3_latched") {
+			filter.state = ["n:=3"];
+			filter.acknowledged = ["v:true"];
+			filter.latched = ["v:true"];
+		}
+		if (ackn_status == "5") {
+			filter.state = ["n:=5"];
+			filter.acknowledged = ["u:", "v:false"];
+			filter.confirmed = ["u:", "v:false"];
+		}
+		if (ackn_status == "5_unconf") {
+			filter.state = ["n:=5"];
+			filter.acknowledged = ["v:true"];
+			filter.confirmed = ["v:false"];
+		}
+		if (ackn_status == "5_latched") {
+			filter.state = ["n:=5"];
+			filter.acknowledged = ["v:true"];
+			filter.latched = ["v:true"];
+		}
+	}
+
+	if (user) {
+		filter.username = ["v:" + user];
+	}
+
+	if (eventtext) {
+		filter.eventtext = ["g:*" + eventtext + "*"];
+	}
+
+	if (comment) {
+		filter.Comment = ["g:*" + comment + "*"];
+	}
+
+	if (alarm_or_condition) {
+		if (alarm_or_condition == "alarm") {
+			filter.state = ["n:=1", "n:=2", "n:=3", "n:=5"];
+		}
+		if (alarm_or_condition == "condition") {
+			filter.state = ["n:=0"];
+		}
+	}
+
+	if (filterState) {
+		if (filterState == "active") {
+			filter.SuppressedOrShelved = ["u:", "v:false"];
+			filter.EnabledStateId = ["v:true"];
+			filter.state = ["n:=1", "n:=2", "n:=3", "n:=5"];
+		}
+		if (filterState == "shelved") {
+			filter.ShelvingState = ["v:OneShotShelved", "v:TimedShelved"];
+		}
+		if (filterState == "suppressed") {
+			filter.SuppressedStateId = ["v:true"];
+		}
+		if (filterState == "disabled") {
+			filter.EnabledStateId = ["v:false"];
+		}
+	}
+
+	filter.select = select;
+
+	return filter;
+}
+
+function getColumnDefinitions(columns, view) {
+	var mainTableColumns = [];
+	var detailTableColumns = [];
+
+	if (!isAlarmlog) {
+		if (typeof view == "undefined" || view == "" || view == "alarms") columnSettings = columns["columnsAlarm"];
+		else if (view == "all") columnSettings = columns["columnsAll"];
+		else if (view == "shelved") columnSettings = columns["columnsShelvedView"];
+		else if (view == "suppressed") columnSettings = columns["columnsSuppressedView"];
+		else if (view == "disabled") columnSettings = columns["columnsDisabledView"];
+	} else {
+		columnSettings = columns["columnsAlarmlog"];
+	}
+
+	for (var prop in columnSettings) {
+		// skip loop if the property is from prototype
+		if (!columnSettings.hasOwnProperty(prop)) continue;
+
+		var colParameters = columnSettings[prop];
+
+		if (deviceScaling) {
+			var cPrio = parseInt(colParameters.priority, 10);
+			var mPrio = parseInt(maxColumnPriority, 10);
+
+			//main table columns
+			var column = {
+				id: colParameters.field,
+				name: colParameters.columnName,
+				field: colParameters.field,
+				alignment: colParameters.alignment,
+				filter: colParameters.filter == "true",
+				minWidth: 0,
+				order: parseInt(colParameters.orderMain),
+				sortable: colParameters.sortable == "true",
+				textoption: colParameters.textoption,
+				type: trimAndSplit(colParameters.type),
+				visible: colParameters.visibleMain == "true" && cPrio <= mPrio
+			};
+		} else {
+			//main table columns
+			var column = {
+				id: colParameters.field,
+				name: colParameters.columnName,
+				field: colParameters.field,
+				alignment: colParameters.alignment,
+				filter: colParameters.filter == "true",
+				minWidth: 0,
+				order: parseInt(colParameters.orderMain),
+				sortable: colParameters.sortable == "true",
+				textoption: colParameters.textoption,
+				type: trimAndSplit(colParameters.type),
+				visible: colParameters.visibleMain == "true"
+			};
+		}
+
+		if (
+			colParameters.field == "shelve" ||
+			colParameters.field == "suppress" ||
+			colParameters.field == "ackn_conf" ||
+			colParameters.field == "ackn_conf_comment" ||
+			colParameters.field == "enable"
+		) {
+			column.minWidth = parseInt(colParameters.widthMain);
+			column.maxWidth = parseInt(colParameters.widthMain);
+		}
+
+		if (parseInt(colParameters.widthMain) > 0) {
+			column.width = parseInt(colParameters.widthMain);
+		}
+
+		if (column.field == "active_inactive_time") {
+			column.sortByDefault = true;
+			column.sortByDefaultAsc = false;
+			column.formatter = TimeStampFormatter;
+		}
+		if (column.field == "valuetimestamp") {
+			column.formatter = TimeStampFormatter;
+		}
+		if (column.field == "acktime") {
+			column.formatter = TimeStampFormatter;
+		} else if (column.field == "state") {
+			column.formatter = StatusFormatter;
+		} else if (column.field == "display") {
+			column.formatter = DisplayFormatter;
+		} else if (column.field == "ShelvingState") {
+			column.formatter = ShelvingStateFormatter;
+		} else if (column.field == "shelve") {
+			column.formatter = ShelveFormatter;
+		} else if (column.field == "suppress") {
+			column.formatter = SuppressFormatter;
+		} else if (column.field == "enable") {
+			column.formatter = DisableFormatter;
+		} else if (column.field == "ackn_conf") {
+			column.formatter = AcknConfFormatter;
+		} else if (column.field == "ackn_conf_comment") {
+			column.formatter = AcknConfCommentFormatter;
+		} else if (column.field == "actions") {
+			column.className = "dt-body-center";
+			column.sortable = false;
+		} else if (column.type == "bool" && column.field != "value") {
+			// !!! TAKE CARE! If some other boolean field, which is handled in the if clauses before it will not use this formatter
+			column.formatter = BooleanFormatter;
+		}
+
+		mainTableColumns.push(column);
+
+		//detail table columns
+		if (colParameters.visibleDetail == "true") {
+			detailTableColumns.push({
+				name: colParameters.columnName,
+				field: colParameters.field,
+				order: parseInt(colParameters.orderDetail),
+				type: colParameters.type
+			});
+		}
+	}
+
+	mainTableColumns.sort(columnCompareFunction);
+	detailTableColumns.sort(columnCompareFunction);
+
+	return {mainTableColumns: mainTableColumns, detailTableColumns: detailTableColumns};
+}
+
+//Custom compare function for Array.sort
+function columnCompareFunction(a, b) {
+	//The table colums are sorted by "order" and, if two ore more colums have the same "order", by "name".
+	if (a.order < b.order) return -1;
+	if (a.order > b.order) return 1;
+	//if a.order == b.order sort by name:
+	if (a.name.toUpperCase() < b.name.toUpperCase()) return -1;
+	if (a.name.toUpperCase() > b.name.toUpperCase()) return 1;
+	//if a.name.toUpperCase() == b.name.toUpperCase() return 0:
+	return 0;
+}
+
+function trimAndSplit(input) {
+	input = input.split(",");
+	for (var i in input) input[i] = input[i].trim();
+	return input;
+}
+
+// add item to the alarm list
+function addAlarmItem(item) {
+	if (item.address != undefined) {
+		var isAtviseVersion3 = atviseVersion3(item);
+
+		//sortId is used for sorting on rows that have equal values
+		item.sortId = item.address + item.AlarmId;
+
+		// Set colors and blinking
+
+		var fontColor = null;
+		var fillColor = null;
+		var fontFlashInterval = null;
+		var fillFlashInterval = null;
+
+		// Settings from alarm categories
+
+		fontColor = item.Fontcolor && item.EnabledStateId == true && item.state != 0 ? item.Fontcolor : null;
+		fillColor = item.Color && item.EnabledStateId == true && item.state != 0 ? item.Color : null;
+		fontFlashInterval =
+			item.StateFontFlashInterval && item.EnabledStateId == true && item.state != 0
+				? item.StateFontFlashInterval
+				: null;
+		fillFlashInterval =
+			item.StateFillFlashInterval && item.EnabledStateId == true && item.state != 0
+				? item.StateFillFlashInterval
+				: null;
+
+		if (item.EnabledStateId == true && item.state == 1) {
+			if (item.State1FontColor) fontColor = item.State1FontColor;
+			if (item.State1FillColor) fillColor = item.State1FillColor;
+			if (item.Flashtimeack) fontFlashInterval = item.Flashtimeack;
+			if (item.State1FillFlashInterval) fillFlashInterval = item.State1FillFlashInterval;
+		} else if (item.state == 2) {
+			if (item.State2FontColor) fontColor = item.State2FontColor;
+			if (item.State2FillColor) fillColor = item.State2FillColor;
+			if (item.State2FontFlashInterval) fontFlashInterval = item.State2FontFlashInterval;
+			if (item.State2FillFlashInterval) fillFlashInterval = item.State2FillFlashInterval;
+		} else if (item.state == 3) {
+			if (item.State3FontColor) fontColor = item.State3FontColor;
+			if (item.State3FillColor) fillColor = item.State3FillColor;
+			if (item.Flashtimeinack) fontFlashInterval = item.Flashtimeinack;
+			if (item.State3FillFlashInterval) fillFlashInterval = item.State3FillFlashInterval;
+		} else if (item.state == 5) {
+			if (item.State5FontColor) fontColor = item.State5FontColor;
+			if (item.State5FillColor) fillColor = item.State5FillColor;
+			if (item.State5FontFlashInterval) fontFlashInterval = item.State5FontFlashInterval;
+			if (item.State5FillFlashInterval) fillFlashInterval = item.State5FillFlashInterval;
+			// Items switching from active alarm to inactive (before becoming simple condition):
+			// } else if (item.state == 0 && item.retain == true && typeof item.AlarmId != "undefined") {
+			// ... changed. Now color and flash interval conditions:
+		} else if (item.state == 0) {
+			if (item.State0FontColor) fontColor = item.State0FontColor;
+			if (item.State0FillColor) fillColor = item.State0FillColor;
+			if (item.State0FontFlashInterval) fontFlashInterval = item.State0FontFlashInterval;
+			if (item.State0FillFlashInterval) fillFlashInterval = item.State0FillFlashInterval;
+		}
+
+		// Global list settings for none set settings
+
+		if ((item.EnabledStateId == true || webMI.getMethodSupport().indexOf("AlarmEnable") == -1) && alarmIndication) {
+			var indicationType;
+			if (item.state == 1 && alarmIndication.AlarmStatusOnUnacknowledged)
+				indicationType = alarmIndication.AlarmStatusOnUnacknowledged;
+			if (item.state == 2 && alarmIndication.AlarmStatusOnAcknowledged)
+				indicationType = alarmIndication.AlarmStatusOnAcknowledged;
+			if (item.state == 3 && alarmIndication.AlarmStatusOffUnacknowledged)
+				indicationType = alarmIndication.AlarmStatusOffUnacknowledged;
+			if (item.state == 5 && alarmIndication.AlarmStatusOnOffUnacknowledged)
+				indicationType = alarmIndication.AlarmStatusOnOffUnacknowledged;
+
+			if (indicationType) {
+				if (fontColor == null && indicationType.fontColor) fontColor = indicationType.fontColor;
+				if (fillColor == null && indicationType.fillColor) fillColor = indicationType.fillColor;
+				if (fontFlashInterval == null && indicationType.fontFlashInterval)
+					fontFlashInterval = indicationType.fontFlashInterval;
+				if (fillFlashInterval == null && indicationType.fillFlashInterval)
+					fillFlashInterval = indicationType.fillFlashInterval;
+			}
+		}
+
+		// Sort Groups array and concat its elements
+		if (item.Groups && Array.isArray(item.Groups)) {
+			item.Groups = item.Groups.sort().join(", ");
+			item.Groups = item.Groups.replace(/AGENT.ALARMING.Groups./g, "");
+		}
+
+		// Acknowledge / Confirm state
+
+		var state = item.state; //This is used for filtering.
+
+		if (item.state == 5 && item.ParentId)
+		//If the item has a ParentId (this means that there is pair of alarms), then the alarm is state 3 "INACTIV!" instead of state 5 "(IN)ACTIVE!".
+			state = 3;
+
+		item.ConfirmedState = formatString(item, "ConfirmedState");
+
+		if (isAtviseVersion3 && item.acknowledged == true && item.confirmed == false) {
+			tableController.allConfirmable[item.AlarmId] = true;
+		}
+
+		// Shelving
+
+		item.ShelvingState = formatString(item, "ShelvingState");
+		item["shelve"] = item["ShelvingState"];
+
+		if (item.ShelvingState == "" || item.ShelvingState == "Unshelved") {
+			if (state > 0) tableController.allShelveableOnce[item.address] = true;
+
+			tableController.allShelveableTime[item.address] = true;
+		} else if (item.ShelvingState == "OneShotShelved") {
+			tableController.allShelveableTime[item.address] = true;
+		} else if (item.ShelvingState == "TimedShelved" && state > 0) {
+			tableController.allShelveableOnce[item.address] = true;
+		}
+		if (item.ShelvingState == "OneShotShelved" || item.ShelvingState == "TimedShelved") {
+			tableController.allUnshelveable[item.address] = true;
+		}
+
+		// Suppressing
+
+		if (item["SuppressedState"] != undefined) {
+			if (item["SuppressedStateId"] == true) tableController.allUnsuppressable[item.address] = true;
+			item["SuppressedState"] = item["SuppressedState"]["T{}"];
+		} else {
+			item["SuppressedState"] = "";
+			item["SuppressedStateId"] = false;
+		}
+
+		item["suppress"] = item["SuppressedStateId"];
+
+		// Enable / Disable
+
+		if (item["EnabledStateId"] == true) tableController.allDisableable[item.address] = true;
+		else tableController.allEnableable[item.address] = true;
+		item["EnabledState"] = formatString(item, "EnabledState");
+		item["enable"] = item["EnabledStateId"];
+
+		// Calculation of unshelve time
+
+		item["ShelveTime"] = item["ShelvingStateLastTransitionTransitionTime"];
+		item["UnshelveTime"] = item["ShelvingStateLastTransitionTransitionTime"] + item["ShelvingStateUnshelveTime"];
+
+		// !!!!Bereinigen/entfernen, wenn kein timestamp mehr bei state = 0 kommt!!!!
+		item.timestamp = item.state > 0 ? item.timestamp : "";
+		item.active_inactive_time =
+			item.state > 0 ? (item.inactivetime ? item.inactivetime : item.activetime ? item.activetime : "") : "";
+
+		item.acktime = item.state > 0 ? item.acktime : "";
+		item.activetime = item.state > 0 ? item.activetime : "";
+		item.Comment = formatString(item, "Comment");
+		item.description = formatString(item, "description");
+		item.value = item.state > 0 ? item.value : "";
+		if (typeof item.value == "string") item.value = item.value.replace(/AGENT.ALARMING.Groups./g, "");
+		item.displayedAddress = item.address.replace(/AGENT.OBJECTS./g, "");
+		item.displayedAddress = item.displayedAddress.replace(/AGENT.ALARMING.Groups./g, "");
+		item.eventtext = formatString(item, "eventtext");
+		item.ackn_state = getStateText(state, item.acknowledged, item.confirmed, item.latched);
+		item.username = formatString(item, "username");
+		item.display = formatString(item, "display");
+
+		if (item.EnabledStateId == false) {
+			item.timestamp = "";
+			item.priority = "";
+			item.state = 0;
+			item.value = "";
+			item.ackn_state = "";
+		}
+
+		if (state == 0) {
+			item.ConfirmedState = formatString(item, "ConfirmedState");
+			item.priority = "";
+		}
+
+		var acknowledgeText = "";
+		var eventList = null;
+
+		if (item.state % 2) {
+			//Alarmstates 1, 3 & 5
+			//Hide accept in V3 pairs of alarms child alarm because the parent must be acknowledged before the child.
+			if (!(isAtviseVersion3 && item.state == 5 && item.ParentId)) {
+				acknowledgeText = "T{ACKNOWLEDGE}";
+				if (enableAlarmAcknowledge && item.acknowledged != true) {
+					if (isAtviseVersion3) tableController.allAcknowledgeable[item.AlarmId] = true;
+					else tableController.allAcknowledgeable[item.address] = true;
+				}
+			}
+		} else {
+			acknowledgeText = formatString(item, "username");
+		}
+
+		translateReplacements(item);
+
+		if (fontColor || fontFlashInterval || fillColor || fillFlashInterval)
+			item.rowStyle = slickStyler.getRowStyle(containerID, fontColor, fontFlashInterval, fillColor, fillFlashInterval);
+
+		//Sets the parent-child reference for alarms with acknowledgement type "Acknowledge active and inactive".
+		if (item.ParentId && item.state == 5) {
+			var parent = tableController.search("AlarmId", item.ParentId, true)[0];
+
+			if (typeof parent != "undefined") {
+				//Clone item to prevent circular references (table can't store them)
+				var cloneOfItem = JSON.parse(JSON.stringify(item));
+				parent.child = cloneOfItem;
+				item.parent = parent;
+			}
+		}
+
+		// Content of ackn_conf field
+
+		item.ackn_conf = item.ackn_conf_comment = "";
+		if (webMI.getMethodSupport().indexOf("AlarmAcknowledge") == -1) {
+			if (item.state % 2) {
+				// Alarmstates 1, 3 & 5
+				//Hide accept in V3 pairs of alarms child alarm because the parent must be acknowledged before the child.
+				var isAtviseVersion3 = atviseVersion3(item);
+				if (!(isAtviseVersion3 && item.state == 5 && item.ParentId)) {
+					item.ackn_conf = item.ackn_conf_comment = "T{acknowledge}";
+				}
+			}
+		} else {
+			if (
+				item.EnabledStateId != false &&
+				(item.acknowledged == false || item.confirmed == false) &&
+				(typeof item.parent == "undefined" || item.parent.acknowledged == true)
+			) {
+				if (item.acknowledged == false) {
+					item.ackn_conf = "T{acknowledge}";
+				} else if (item.confirmed == false) {
+					item.ackn_conf = item.ackn_conf_comment = "T{confirm}";
+				}
+			}
+		}
+
+		// Add or remove to/from table
+		var searchResult = tableController.search("address", item.address, true);
+		var searchResultFirst = searchResult[0];
+
+		// Condition -> ACTIVE!
+		// ACTIVE! -> acktive ackn.
+		// acktive ackn. -> ackn. / Condition
+		// ACTIVE! -> INACTIVE!
+		// INACTIVE! -> ackn. / Condition
+		// Condition/Alarm Timeshelved -> Condition/Alarm
+		// Alarm -> OneShotShelve
+		// OneShotShelve -> Alarm
+		// Condition or Alarm -> Suppress
+		// Condition or Alarm -> Unsuppress
+		// Condition or Alarm -> Disable
+		// Condition or Alarm -> Enable
+		// Disabled Condition -> Condition
+		// ACTIVE! Timeshelved -> ACTIVE!
+		// Probably searchResultFirst.ParentId == item.AlarmId never occurs, because searchResult happened first and so is parent
+		if (
+			typeof searchResultFirst != "undefined" &&
+			!(
+				(item.ParentId == searchResultFirst.AlarmId &&
+					(searchResultFirst.acknowledged == false || searchResultFirst.confirmed == false)) ||
+				(searchResultFirst.ParentId == item.AlarmId &&
+					(item.acknowledged == false || searchResultFirst.confirmed == false))
+			)
+		) {
+			var itemRemoved = false;
+			var retriggeredAlarm = false;
+			// Add or remove retriggered alarms
+			if (
+				searchResultFirst.AlarmId &&
+				item.AlarmId &&
+				searchResultFirst.AlarmId != item.AlarmId &&
+				searchResultFirst.retain == true &&
+				!(item.ParentId == searchResultFirst.AlarmId)
+			) {
+				if (item.state > 0 && searchResultFirst.state > 0) {
+					tableController.addData({result: [item]});
+					retriggeredAlarm = true;
+				} else if (searchResultFirst.state > 0) {
+					var searchByAlarmId = tableController.search("AlarmId", item.AlarmId, true);
+					item.id = searchByAlarmId[0].id;
+					removeAlarmItem(item);
+					retriggeredAlarm = true;
+				}
+			} else if (searchResult.length > 1) {
+				for (var elementIndex in searchResult) {
+					// active inactive acknowledge alarm (if not confirmable) acknowledged or (if confirmable) confirmed
+					if (
+						(searchResult[elementIndex].ParentId == item.AlarmId &&
+							(item.confirmed == true || (item.acknowledged == true && typeof item.confirmed == "undefined"))) ||
+						(item.AlarmId != searchResult[elementIndex].AlarmId && item.state == 0)
+					) {
+						removeAlarmItem(item);
+						itemRemoved = true;
+					}
+					// Probably this event never occurs ... removal via removeAlarmItem()
+					if (
+						searchResult[elementIndex].id != searchResultFirst.id &&
+						((searchResult[elementIndex].acknowledged == true &&
+							typeof searchResult[elementIndex].confirmed == "undefined") ||
+							searchResult[elementIndex].confirmed == true)
+					) {
+						removeAlarmItem(searchResult[elementIndex]);
+					}
+				}
+			}
+			// Condition -> ACTIVE!
+			// ACTIVE! -> acktive ackn.
+			// acktive ackn. -> ackn. / Condition
+			// ACTIVE! -> INACTIVE!
+			// INACTIVE! -> ackn. / Condition
+			// Condition/Alarm Timeshelved -> Condition/Alarm
+			// Alarm -> OneShotShelve
+			// OneShotShelve -> Alarm
+			// Condition or Alarm -> Suppress
+			// Condition or Alarm -> Unsuppress
+			// Condition or Alarm -> Disable
+			// Condition or Alarm -> Enable
+			// Disabled Condition -> Condition
+			// ACTIVE! Timeshelved -> ACTIVE!
+			if (!itemRemoved && !retriggeredAlarm) {
+				item.id = searchResultFirst.id;
+				// Delete from actionable lists, if alarm id changed
+				if (item.AlarmId && searchResultFirst.AlarmId && item.AlarmId != searchResultFirst.AlarmId)
+					removeFromActionableLists(searchResultFirst.AlarmId);
+				tableController.updateData(searchResultFirst.id, item, true);
+			}
+			// Condition
+			// Condition or Alarm -> Timeshelved
+			// ACTIVE! -> Timeshelved
+			// Active and inactive acknowledgeable alarm INACTIVE! becoming acknowledgable after parent (ACTIVE!) is acknowledged
+			// Active and inactive acknowledgeable alarm INACTIVE! becoming ACTIVE! again
+		} else {
+			var multipleFound = false;
+			if (typeof searchResult != "undefined") {
+				if (searchResult.length > 1) {
+					for (var i = 1; i < searchResult.length; i++) {
+						if (searchResult[i].AlarmId == item.AlarmId) {
+							multipleFound = true;
+							// Active and inactive acknowledgeable alarm INACTIVE! becoming acknowledgable after parent (ACTIVE!) is acknowledged
+							if (item.retain == true) {
+								item.id = searchResult[i].id;
+								if (item.AlarmId && searchResult[i].AlarmId && item.AlarmId != searchResult[i].AlarmId)
+									removeFromActionableLists(searchResultFirst.AlarmId);
+								tableController.updateData(searchResult[i].id, item, true);
+								// Active and inactive acknowledgeable alarm INACTIVE! becoming ACTIVE! again, INACTIVE! with retain = false is deleted
+							} else {
+								removeAlarmItem(searchResult[i]);
+							}
+						}
+					}
+				}
+			}
+			// Condition or Alarm -> Timeshelved
+			// ACTIVE! -> Timeshelved
+			if (!multipleFound) tableController.addData({result: [item]});
+		}
+	}
+}
+
+function removeAlarmItem(item) {
+	var isAtviseVersion3 = atviseVersion3(item);
+
+	if (isAtviseVersion3) {
+		if (typeof item.AlarmId != "undefined") {
+			var elementsHavingAddress = tableController.search("address", item.address, true);
+
+			for (var i = 0; i < elementsHavingAddress.length; i++) {
+				var hasAlarmId = typeof elementsHavingAddress[i].AlarmId != "undefined";
+				var hasParentId = typeof elementsHavingAddress[i].ParentId != "undefined";
+				var hasChild = typeof elementsHavingAddress[i].child != "undefined";
+
+				var isParentIDAlarmID = elementsHavingAddress[i].ParentId == item.AlarmId;
+				var isChildIDAlarmID = hasChild ? elementsHavingAddress[i].child.AlarmId == item.AlarmId : false;
+
+				if (!(hasAlarmId && ((hasParentId && isParentIDAlarmID) || (hasChild && isChildIDAlarmID)))) {
+					if (hasAlarmId) {
+						if (elementsHavingAddress[i].AlarmId == item.AlarmId) {
+							removeFromTable(elementsHavingAddress[i]);
+							removeFromActionableLists(elementsHavingAddress[i].AlarmId);
+						} else {
+							/* FIX AT-D-13900 / AT-D-14545 / AT-D-14493 */
+							removeFromTable(item);
+							removeFromActionableLists(item.address);
+						}
+					} else {
+						removeFromTable(elementsHavingAddress[i]);
+						removeFromActionableLists(elementsHavingAddress[i].address);
+					}
+				}
+			}
+		} else {
+			removeFromTable(item);
+			removeFromActionableLists(item.address);
+		}
+	} else {
+		removeFromTable(item);
+		removeFromActionableLists(item.address);
+	}
+
+	/**
+	 * save remove
+	 * @param id
+	 * @param address
+	 * @param option
+	 */
+	function removeFromTable(item) {
+		tableController.removeData(item.id);
+	}
+}
+
+function removeFromActionableLists(alarmidOrAddress) {
+	delete tableController.allAcknowledgeable[alarmidOrAddress];
+	delete tableController.allConfirmable[alarmidOrAddress];
+	delete tableController.allShelveableOnce[alarmidOrAddress];
+	delete tableController.allShelveableTime[alarmidOrAddress];
+	delete tableController.allUnshelveable[alarmidOrAddress];
+	delete tableController.allUnsuppressable[alarmidOrAddress];
+	delete tableController.allEnableable[alarmidOrAddress];
+	delete tableController.allDisableable[alarmidOrAddress];
+}
+
+function subscribeFilter() {
+	if (filterSubscriptionId) {
+		webMI.data.unsubscribeFilter(filterSubscriptionId);
+		tableController.clearData();
+	}
+
+	filterSubscriptionId = webMI.data.subscribeFilter(getFilter(view), function (item) {
+		if (!tableController) return console.warn("Table unloaded. Published item discarded");
+
+		var compareRights = [
+			{node: item.SourceNode, right: "alarmAdmin"},
+			{node: item.SourceNode, right: "alarmAcknowledge"},
+			{node: item.SourceNode, right: "alarmConfirm"}
+		];
+
+		if (accessControlManager) {
+			accessControlManager.assist.addRights(item, compareRights, processItem);
+		} else {
+			processItem(item);
+		}
+	});
+}
+
+
+var itemsProcessed = true;
+var itemStack = [];
+
+function processItem(item) {
+	itemStack.push(item);
+	processItems();
+}
+
+
+function processItems() {
+	if (!itemsProcessed) {
+		setTimeout(function () {
+			console.error("locked");
+			processItems();
+		}, 50);
+	}
+
+	itemsProcessed = false;
+
+	while (itemStack.length > 0) {
+		item = itemStack.shift();
+
+		if (typeof item.error != "undefined") {
+			var errorstring = item.errorstring ? item.error + " (" + item.errorstring + ")" : item.error;
+			errorstring = item.address ? errorstring + " T{for node} " + item.address : errorstring;
+			tableController.setMessage("T{Error}: " + errorstring);
+		}
+
+		//atvise version >= 3.3
+		if (webMI.getMethodSupport().indexOf("AlarmConditions") != -1) {
+			var isAlarmConditionView =
+				((typeof item.AlarmId != "undefined" && !item.retain && item.ConditionState != 2) ||
+					typeof item.AlarmId == "undefined") &&
+				((view != "" && view != "alarms") || (view == "all" && filterState != "active"));
+			var mustBeShown = typeof item.AlarmId != "undefined" && item.retain;
+			var mustNotBeShown = false;
+			if (
+				(view == "" || view == "alarms") &&
+				(item.ShelvingState == "OneShotShelved" ||
+					item.ShelvingState == "TimedShelved" ||
+					item.SuppressedStateId == true ||
+					item.EnabledStateId == false)
+			) {
+				mustNotBeShown = true;
+			}
+			if (item.ConditionState == 2) {
+				mustNotBeShown = true;
+			}
+
+			// Update allShelvableOnce list
+			if (item.ShelvingState != "OneShotShelved" && tableController.allShelveableOnce[item.address]) {
+				delete tableController.allShelveableOnce[item.address];
+			}
+
+			// Update allShelvableTime list
+			if (item.ShelvingState != "TimedShelved" && tableController.allShelveableTime[item.address]) {
+				delete tableController.allShelveableTime[item.address];
+			}
+
+			if (typeof view != "undefined") {
+				if (
+					view == "shelved" &&
+					((item.ShelvingState != "OneShotShelved" && item.ShelvingState != "TimedShelved") ||
+						item.EnabledStateId != true)
+				) {
+					mustBeShown = false;
+					mustNotBeShown = true;
+				} else if (view == "suppressed" && (item.SuppressedStateId != true || item.EnabledStateId != true)) {
+					mustBeShown = false;
+					mustNotBeShown = true;
+				} else if (view == "disabled" && item.EnabledStateId != false) {
+					mustBeShown = false;
+					mustNotBeShown = true;
+				}
+			}
+			if (!mustNotBeShown && (isAlarmConditionView || mustBeShown)) {
+				addAlarmItem(item);
+			} else if (mustNotBeShown || (typeof item.AlarmId != "undefined" && !item.retain)) {
+				if (typeof tableController.search("address", item.address, true)[0] != "undefined")
+					removeAlarmItem(item);
+			}
+
+			//atvise version 2.x and 3.0/3.1/3.2
+		} else {
+			var isAtviseVersion3 = atviseVersion3(item);
+			if (isAtviseVersion3 ? item.retain : item.state > 0) {
+				addAlarmItem(item);
+			} else {
+				if (typeof tableController.search("address", item.address, true)[0] != "undefined")
+					removeAlarmItem(item);
+			}
+		}
+	}
+
+	itemsProcessed = true;
+}
+
+function setComment(conditionAddress, text) {
+	webMI.data.call(
+		"AlarmComment",
+		{
+			address: conditionAddress,
+			comment: text
+		},
+		function (e) {
+		}
+	);
+}
+
+function setPanelHeightAndTop() {
+	screenCTM = webMI.gfx.getScreenCTM(true);
+	heightTransformationFactor = screenCTM.d;
+
+	PanelHeightExpandedTransformed = parseInt(tableLayer.style.height.replace("px", ""));
+	PanelTopPositionExpandedTransformed = parseInt(tableLayer.style.top.replace("px", ""));
+	PanelTopPositionCollapsedTransformed =
+		PanelTopPositionExpandedTransformed - (yMove * heightTransformationFactor) / currentScaleFactor;
+	PanelHeightCollapsedTransformed =
+		PanelHeightExpandedTransformed + (yMove * heightTransformationFactor) / currentScaleFactor;
+
+	if (view == "" || view == "alarms") {
+		PanelTopPositionCollapsedTransformed =
+			PanelTopPositionCollapsedTransformed - (alarmViewOffset * heightTransformationFactor) / currentScaleFactor;
+		PanelTopPositionExpandedTransformed =
+			PanelTopPositionExpandedTransformed - (alarmViewOffset * heightTransformationFactor) / currentScaleFactor;
+		PanelHeightCollapsedTransformed =
+			PanelHeightCollapsedTransformed + (alarmViewOffset * heightTransformationFactor) / currentScaleFactor;
+		PanelHeightExpandedTransformed =
+			PanelHeightExpandedTransformed + (alarmViewOffset * heightTransformationFactor) / currentScaleFactor;
+	}
+}
+
+/* Formatting function for row details - modify as you need */
+function createSubTable(item) {
+	// `d` is the original data object for the row
+	var tableStyle =
+		"height:" +
+		parseInt((webMI.query["detail_font_size"] / currentScaleFactor) * 1.15 * heightTransformationFactor) +
+		"px;font-size:" +
+		(parseInt(webMI.query["detail_font_size"]) / currentScaleFactor) * heightTransformationFactor +
+		"px";
+
+	var output =
+		'<table cellpadding="5" cellspacing="0" border="0" style="margin-left:74px;min-width:70%;">' +
+		"<tr>" +
+		'<td class="detail_line" style="' +
+		tableStyle +
+		'">' +
+		'<strong>T{Parameter}</strong></td><td class="detail_line" style="' +
+		tableStyle +
+		'"><strong>T{Value}</strong>' +
+		"</td>" +
+		"</tr>";
+
+	for (var key in columnDefinitions.detailTableColumns) {
+		// skip loop if the property is from prototype
+		if (!columnDefinitions.detailTableColumns.hasOwnProperty(key)) continue;
+		output +=
+			"<tr>" +
+			'<td class="detail_line" style="' +
+			tableStyle +
+			'">' +
+			columnDefinitions.detailTableColumns[key].name +
+			"</td>" +
+			'<td class="detail_line" style="' +
+			tableStyle +
+			'">';
+		var field = columnDefinitions.detailTableColumns[key].field;
+		var type = columnDefinitions.detailTableColumns[key].type;
+		if (field == "Comment") {
+			var rightForComments = true;
+			if ("ac_rights" in item) {
+				rightForComments = item.ac_rights.alarmAdmin || item.ac_rights.alarmAcknowledge || item.ac_rights.alarmConfirm;
+			}
+
+			if (typeof item.AlarmId != "undefined" && item.retain == true && rightForComments) {
+				var inputEl = topWindow.document.createElement("input");
+				inputEl.id = "commentInput_" + item.address;
+				if (item.Comment) {
+					inputEl.setAttribute("value", item.Comment);
+				}
+				inputEl.setAttribute("onfocusin", _attachFocusListener(true));
+				inputEl.setAttribute("onfocusout", _attachFocusListener(false));
+				var updateButton = topWindow.document.createElement("input");
+				updateButton.id = "commentButton_" + item.address;
+				updateButton.type = "button";
+				updateButton.setAttribute("class", "detailsButton");
+				updateButton.value = "T{update}";
+				updateButton.setAttribute("data-condition-address", item.address);
+				updateButton.setAttribute("input-field-id", inputEl.id);
+				output += inputEl.outerHTML + " " + updateButton.outerHTML;
+			} else {
+				if (item.Comment) {
+					output += item.Comment;
+				}
+			}
+		}
+		if (type == "datetime") {
+			output += _makeConversions(["datetime"], item[field], false);
+		} else if (item[field] !== undefined && field != "Comment") {
+			if (field == "ShelvingState") {
+				if (item[field] == "OneShotShelved") output += "T{One Shot Shelved}";
+				if (item[field] == "TimedShelved") output += "T{Timed Shelved}";
+				if (item[field] == "Unshelved") output += "T{Unshelved}";
+			} else {
+				if (item[field] == true && field != "value") output += "T{true}";
+				else if (item[field] == false && typeof item[field] == "boolean" && field != "value") output += "T{false}";
+				else output += item[field];
+			}
+		}
+		output += "</td>" + "</tr>";
+	}
+
+	// var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+	// tabHandler.setAcceptKeys(false);
+	function _attachFocusListener(focus) {
+		var attribute = 'var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");';
+		if (focus) return attribute + " tabHandler.setAcceptKeys(false);";
+		return attribute + " tabHandler.setAcceptKeys(true);";
+	}
+
+	if (
+		typeof item.InputNode != "undefined" &&
+		item.InputNode.replace(/AGENT.ALARMING.Groups./g, "") == item.value &&
+		item.InputNode.indexOf("AGENT.ALARMING.Groups.") != -1
+	) {
+		output +=
+			"<tr>" +
+			'<td class="detail_line" style="' +
+			tableStyle +
+			'">T{Is sum alarm}</td><td class="detail_line" style="' +
+			tableStyle +
+			'">';
+		var sumAlarmButton = topWindow.document.createElement("input");
+		sumAlarmButton.id = "sumAlarmButton_" + item.address;
+		sumAlarmButton.type = "button";
+		sumAlarmButton.setAttribute("class", "sumAlarmButton");
+		sumAlarmButton.value = "T{View sum alarm members}";
+		sumAlarmButton.setAttribute("data-input-node", item.InputNode);
+		output += sumAlarmButton.outerHTML;
+		output += "</td>" + "</tr>";
+	}
+
+	output += "</table>";
+
+	return output;
+}
+
+function customCompareFunction(a, b, args) {
+	var field = args.sortCol.field;
+
+	/*
+	if (a.parent && a.parent[field])
+		a.parent[field] = tableController.makeConversions(args.sortCol.type, a.parent[field]);
+	if (b.parent && b.parent[field])
+		b.parent[field] = tableController.makeConversions(args.sortCol.type, b.parent[field]);
+	if (a.child && a.child[field])
+		a.child[field] = tableController.makeConversions(args.sortCol.type, a.child[field]);
+	if (b.child && b.child[field])
+		b.child[field] = tableController.makeConversions(args.sortCol.type, b.child[field]);
+	*/
+
+	var acol = a[field];
+	var bcol = b[field];
+
+	if (parentChildStickTogether == true) {
+		//If there is a parent, this will be taken into account for sorting.
+		if (a.parent) acol = a.parent[field];
+		if (b.parent) bcol = b.parent[field];
+
+		//For columns with timestamps the newer value is used
+		if (args.sortCol.type[0] == "datetime") {
+			acol = a.parent && a.parent[field] > a[field] ? a.parent[field] : a[field];
+			bcol = b.parent && b.parent[field] > b[field] ? b.parent[field] : b[field];
+			acol = a.child && a.child[field] > acol ? a.child[field] : acol;
+			bcol = b.child && b.child[field] > bcol ? b.child[field] : bcol;
+		}
+	}
+
+	if (acol === bcol) {
+		if (a.sortId == b.sortId) {
+			var aid = parseFloat(a.id.replace("id_", ""));
+			var bid = parseFloat(b.id.replace("id_", ""));
+
+			function isFloat(n) {
+				return Number(n) === n && n % 1 !== 0;
+			}
+
+			if (!args.sortAsc && (isFloat(aid) || isFloat(bid))) return aid > bid ? -1 : 1;
+			return aid > bid ? 1 : -1;
+		}
+		return a.sortId > b.sortId ? 1 : -1;
+	} else return acol > bcol ? 1 : -1;
+}
+
+function openActionButtonMenu(element, xOffset, yOffset) {
+	var menuObj = {};
+
+	var i = 0;
+
+	var acknConfColumnVisible = false;
+	var acknConfCommentColumnVisible = false;
+	var columns = tableController.columns;
+	for (var i = 0; i < columns.length; i++) {
+		if (columns[i].field == "ackn_conf" && columns[i].visible == true) acknConfColumnVisible = true;
+		if (columns[i].field == "ackn_conf_comment" && columns[i].visible == true) acknConfCommentColumnVisible = true;
+	}
+
+	if (enableAlarmAcknowledge && Object.keys(tableController.allAcknowledgeable).length > 0) {
+		if (acknConfColumnVisible) {
+			menuObj[i] = {
+				text: "T{ACKNOWLEDGE}",
+				value: function () {
+					webMI.display.showPopup(0, 0, null);
+					var idsOrAddresses =
+						webMI.getMethodSupport().indexOf("AlarmAcknowledge") != -1
+							? getAlarmIds("acknowledge")
+							: getAddresses("acknowledge");
+					tableController.Acknowledge(idsOrAddresses, typeof username != "undefined" ? username : "");
+				}
+			};
+			i++;
+		}
+		if (acknConfCommentColumnVisible && webMI.getMethodSupport().indexOf("AlarmAcknowledge") != -1) {
+			menuObj[i] = {
+				text: "T{ACKNOWLEDGE} T{with comment}",
+				value: function () {
+					webMI.display.showPopup(0, 0, null);
+					tableController.AcknowledgeWithComment(getAlarmIdsAndAddresses("acknowledge"));
+				}
+			};
+			i++;
+		}
+	}
+	if (
+		enableAlarmConfirm &&
+		Object.keys(tableController.allConfirmable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmConfirm") != -1
+	) {
+		if (acknConfColumnVisible) {
+			menuObj[i] = {
+				text: "T{Confirm}",
+				value: function () {
+					webMI.display.showPopup(0, 0, null);
+					tableController.Confirm(getAlarmIds("confirm"));
+				}
+			};
+			i++;
+		}
+		if (acknConfCommentColumnVisible && webMI.getMethodSupport().indexOf("AlarmConfirm") != -1) {
+			menuObj[i] = {
+				text: "T{Confirm} T{with comment}",
+				value: function () {
+					webMI.display.showPopup(0, 0, null);
+					tableController.ConfirmWithComment(getAlarmIdsAndAddresses("confirm"));
+				}
+			};
+			i++;
+		}
+	}
+	if (
+		enableAlarmShelve &&
+		Object.keys(tableController.allShelveableOnce).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmShelve") != -1
+	) {
+		menuObj[i] = {
+			text: "T{One Shot Shelve}",
+			value: function () {
+				webMI.display.showPopup(0, 0, null);
+				tableController.Shelve(getAlarmIdsAndAddresses("oneShotShelve"), null);
+			}
+		};
+		i++;
+	}
+	if (
+		enableAlarmShelve &&
+		Object.keys(tableController.allShelveableTime).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmShelve") != -1
+	) {
+		menuObj[i] = {
+			text: "T{Timed Shelve}",
+			value: function () {
+				webMI.display.showPopup(0, 0, null);
+				tableController.Shelve(getAlarmIdsAndAddresses("timedShelve"), null, true);
+			}
+		};
+		i++;
+	}
+	if (
+		enableAlarmShelve &&
+		Object.keys(tableController.allUnshelveable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmUnshelve") != -1
+	) {
+		menuObj[i] = {
+			text: "T{Unshelve}",
+			value: function () {
+				webMI.display.showPopup(0, 0, null);
+				tableController.Unshelve(getAlarmIdsAndAddresses("unshelve"));
+			}
+		};
+		i++;
+	}
+	if (
+		enableAlarmSuppress &&
+		Object.keys(tableController.allUnsuppressable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmUnsuppress") != -1
+	) {
+		menuObj[i] = {
+			text: "T{Unsuppress}",
+			value: function () {
+				webMI.display.showPopup(0, 0, null);
+				tableController.Unsuppress(getAlarmIdsAndAddresses("unsuppress"));
+			}
+		};
+		i++;
+	}
+	if (
+		enableAlarmDisableEnable &&
+		Object.keys(tableController.allDisableable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmDisable") != -1
+	) {
+		menuObj[i] = {
+			text: "T{Disable}",
+			value: function () {
+				webMI.display.showPopup(0, 0, null);
+				tableController.Disable(getAlarmIdsAndAddresses("disable"));
+			}
+		};
+		i++;
+	}
+	if (
+		enableAlarmDisableEnable &&
+		Object.keys(tableController.allEnableable).length > 0 &&
+		webMI.getMethodSupport().indexOf("AlarmEnable") != -1
+	) {
+		menuObj[i] = {
+			text: "T{Enable}",
+			value: function () {
+				webMI.display.showPopup(0, 0, null);
+				tableController.Enable(getAddresses("enable"));
+			}
+		};
+		i++;
+	}
+
+	menuObj.style = contextMenuStyle;
+	menuObj.style.clickAreaId = "id_1";
+
+	var elementData = element.getBoundingClientRect();
+	var y = parseInt(webMI.gfx.getHeight("filters_bg")) + (elementData.height + yOffset) / heightTransformationFactor;
+
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+		id: element.id,
+		onEvent: "immediately",
+		menuObj: menuObj,
+		x: xOffset,
+		y: y,
+		fontSize: row_font_size,
+		minWidth: contextMenuStyle.width,
+		style: contextMenuStyle
+	});
+}
+
+function toggleFilter(currentView, force) {
+	if (showAdvancedFilter === false && (typeof force == "undefined" || force)) {
+		currentFiltersBgHeight = filtersBgStandardHeight;
+		webMI.gfx.setHeight("filters_bg", filtersBgStandardHeight);
+		tableLayer.style.top = PanelTopPositionExpandedTransformed + "px";
+		tableLayer.style.height = PanelHeightExpandedTransformed + "px";
+		webMI.gfx.setText("showback_button_label", "T{Hide advanced}");
+		webMI.gfx.setVisible("adv_1", true);
+		showAdvancedFilter = true;
+	} else if (showAdvancedFilter === true && (typeof force == "undefined" || !force)) {
+		tableLayer.style.top = PanelTopPositionCollapsedTransformed + "px";
+		tableLayer.style.height = PanelHeightCollapsedTransformed + "px";
+		webMI.gfx.setText("showback_button_label", "T{Advanced filters}");
+		webMI.gfx.setVisible("adv_1", false);
+		currentFiltersBgHeight = filtersBgStandardHeight - yMove;
+		webMI.gfx.setHeight("filters_bg", currentFiltersBgHeight);
+		showAdvancedFilter = false;
+	}
+	tableController.grid.resizeCanvas();
+}
+
+function TimeStampFormatter(row, cell, value, columnDef, dataContext) {
+	var format = columnDef.type;
+	return _makeConversions(format, value);
+}
+
+/**
+ * Internal conversation of datetime
+ * @param format
+ * @param value
+ * @returns {*}
+ * @private
+ */
+function _makeConversions(format, value, wrapIntoSlickDiv) {
+	if (typeof wrapIntoSlickDiv == "undefined") {
+		wrapIntoSlickDiv = true;
+	}
+	if (format[0] == "datetime") {
+		if (value) {
+			if (typeof value == "string" && value.indexOf("-") > -1)
+			//ignore already formatted values
+				return value;
+
+			var date = new Date(parseInt(value, 10));
+			value = webMI.sprintf(
+				"%d-%02d-%02d %02d:%02d:%02d.%03d",
+				date.getFullYear(),
+				date.getMonth() + 1,
+				date.getDate(),
+				date.getHours(),
+				date.getMinutes(),
+				date.getSeconds(),
+				date.getMilliseconds()
+			);
+
+			if (typeof format[1] != "undefined" && format[1] == "s") {
+				value = value.substring(0, value.indexOf("."));
+			}
+		} else {
+			value = "";
+		}
+	}
+	return wrapIntoSlickDiv ? '<div class="slick-cell-item">' + value + "</div>" : value;
+}
+
+function StatusFormatter(row, cell, value, columnDef, dataContext) {
+	if (typeof dataContext.Fontcolor != "undefined" && typeof value != "undefined") {
+		return '<span style="color:' + dataContext.Fontcolor + '">' + value + "</span>";
+	} else {
+		return value;
+	}
+}
+
+// Disable row rendering due chrome and edge sleeptab behavior
+var rowRenderActive = true;
+webMI.trigger.connect("com.atvise.visiblityChange", function (e) {
+	rowRenderActive = e.value == true;
+	if (rowRenderActive) subscribeFilter();
+});
+
+function rowFormatter(item, rowIndex) {
+	if (rowRenderActive && item.rowStyle) {
+		return [item.rowStyle];
+	} else {
+		return [];
+	}
+}
+
+function DisplayFormatter(row, cell, value, columnDef, dataContext) {
+	if (value != undefined && value != "0" && value != "") {
+		// var display = webMI.sprintf(value, dataContext).replace(/[\w\.]+\./, "");
+		// var displayLink = webMI.sprintf(value, dataContext);
+		var display = formatString(dataContext, "display").replace(/[\w\.]+\./, "");
+		var displayLink = formatString(dataContext, "display");
+		var current_base = displays_base ? displays_base : "";
+		var aElement = parent.document.createElement("a");
+		var aText = parent.document.createTextNode(display);
+		aElement.appendChild(aText);
+		aElement.setAttribute(
+			"href",
+			"javascript:webMI.display.openDisplay('" + displayLink + "', {'base' : '" + dataContext[current_base] + "'})"
+		);
+		return aElement.outerHTML;
+	} else {
+		return "";
+	}
+}
+
+function BooleanFormatter(row, cell, value, columnDef, dataContext) {
+	if (value == true) return "T{true}";
+	else if (value == false) return "T{false}";
+	else return value;
+}
+
+function ShelvingStateFormatter(row, cell, value, columnDef, dataContext) {
+	if (value == "OneShotShelved") return "T{One Shot Shelved}";
+	else if (value == "TimedShelved") return "T{Timed Shelved}";
+	else if (value == "Unshelved") return "T{Unshelved}";
+	else return value;
+}
+
+// Shelve buttons
+function ShelveFormatter(row, cell, value, columnDef, dataContext) {
+	if (webMI.getMethodSupport().indexOf("AlarmShelve") != -1 && dataContext.EnabledStateId != false) {
+		var div = parent.document.createElement("div");
+
+		if (detectMicrosoftBrowser() == false || detectMicrosoftBrowser() > 11) {
+			div.style.display = "grid";
+			div.style.gridTemplateColumns =
+				parseInt(((row_font_size * 1.7) / currentScaleFactor) * heightTransformationFactor) +
+				"px " +
+				parseInt(((row_font_size * 1.7) / currentScaleFactor) * heightTransformationFactor) +
+				"px";
+		} else {
+			div.style.display = "flex";
+		}
+
+		div.style.textAlign = "center";
+		if (dataContext.ShelvingState == "" || dataContext.ShelvingState == "Unshelved") {
+			shelveOnceButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			shelveOnceButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			shelveTimeButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			shelveTimeButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			if (dataContext.state == 0) {
+				shelveOnceButton.icon.style.visibility = "hidden";
+			} else {
+				shelveOnceButton.icon.style.visibility = "visible";
+			}
+			shelveOnceButton.span.innerHTML = shelveOnceButton.icon.outerHTML;
+			shelveTimeButton.span.innerHTML = shelveTimeButton.icon.outerHTML;
+			div.innerHTML = shelveOnceButton.span.outerHTML + shelveTimeButton.span.outerHTML;
+			return div.outerHTML;
+		} else if (dataContext.ShelvingState != "" && dataContext.ShelvingState == "OneShotShelved") {
+			unshelveOnceButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			unshelveOnceButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			shelveTimeButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			shelveTimeButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			unshelveOnceButton.span.innerHTML = unshelveOnceButton.icon.outerHTML;
+			shelveTimeButton.span.innerHTML = shelveTimeButton.icon.outerHTML;
+			div.innerHTML = unshelveOnceButton.span.outerHTML + shelveTimeButton.span.outerHTML;
+			return div.outerHTML;
+		} else {
+			shelveOnceButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			shelveOnceButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			unshelveTimeButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			unshelveTimeButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			if (dataContext.state == 0) {
+				shelveOnceButton.icon.style.visibility = "hidden";
+			} else {
+				shelveOnceButton.icon.style.visibility = "visible";
+			}
+			shelveOnceButton.span.innerHTML = shelveOnceButton.icon.outerHTML;
+			unshelveTimeButton.span.innerHTML = unshelveTimeButton.icon.outerHTML;
+			div.innerHTML = shelveOnceButton.span.outerHTML + unshelveTimeButton.span.outerHTML;
+			return div.outerHTML;
+		}
+	}
+}
+
+// Unsuppress button
+
+function SuppressFormatter(row, cell, value, columnDef, dataContext) {
+	if (webMI.getMethodSupport().indexOf("AlarmUnsuppress") != -1 && dataContext.EnabledStateId != false) {
+		var div = parent.document.createElement("div");
+		if (dataContext.SuppressedStateId == true) {
+			suppressedButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			suppressedButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			suppressedButton.span.innerHTML = suppressedButton.icon.outerHTML;
+			div.innerHTML = suppressedButton.span.outerHTML;
+			return div.outerHTML;
+		} else {
+			unsuppressedButton.span.innerHTML = unsuppressedButton.icon.outerHTML;
+			div.innerHTML = unsuppressedButton.span.outerHTML;
+			return div.outerHTML;
+		}
+	}
+}
+
+// Acknowlege and confirm buttons
+
+function AcknConfFormatter(row, cell, value, columnDef, dataContext) {
+	var div = parent.document.createElement("div");
+	if (webMI.getMethodSupport().indexOf("AlarmAcknowledge") == -1) {
+		if (dataContext.state % 2) {
+			//Alarmstates 1, 3 & 5
+			//Hide accept in V3 pairs of alarms child alarm because the parent must be acknowledged before the child.
+			var isAtviseVersion3 = atviseVersion3(dataContext);
+			if (!(isAtviseVersion3 && dataContext.state == 5 && dataContext.ParentId)) {
+				acknButton.clickarea.setAttribute("data-alarm-id", dataContext.address);
+				acknInactiveButton.clickarea.setAttribute("data-alarm-id", dataContext.address);
+				acknButton.span.innerHTML = acknButton.icon.outerHTML;
+				acknInactiveButton.span.innerHTML = acknInactiveButton.icon.outerHTML;
+				if (enableAlarmAcknowledge) div.innerHTML = acknButton.span.outerHTML;
+				else div.innerHTML = acknInactiveButton.span.outerHTML;
+				return div.outerHTML;
+			}
+		}
+	} else {
+		if (
+			dataContext.EnabledStateId != false &&
+			(dataContext.acknowledged == false || dataContext.confirmed == false) &&
+			(typeof dataContext.parent == "undefined" ||
+				(dataContext.parent.acknowledged == true && dataContext.acknowledged == false) ||
+				(dataContext.parent.confirmed == true && dataContext.confirmed == false))
+		) {
+			if (dataContext.acknowledged == false) {
+				acknButton.span.style.placeSelf = "center";
+				acknInactiveButton.span.style.placeSelf = "center";
+				acknButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+				acknInactiveButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+				acknButton.span.innerHTML = acknButton.icon.outerHTML;
+				acknInactiveButton.span.innerHTML = acknInactiveButton.icon.outerHTML;
+				if (enableAlarmAcknowledge) div.innerHTML = acknButton.span.outerHTML;
+				else div.innerHTML = acknInactiveButton.span.outerHTML;
+			} else if (dataContext.confirmed == false) {
+				confButton.span.style.placeSelf = "center";
+				confInactiveButton.span.style.placeSelf = "center";
+				confButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+				confInactiveButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+				confButton.span.innerHTML = confButton.icon.outerHTML;
+				confInactiveButton.span.innerHTML = confInactiveButton.icon.outerHTML;
+				if (enableAlarmAcknowledge) div.innerHTML = confButton.span.outerHTML;
+				else div.innerHTML = confInactiveButton.span.outerHTML;
+			}
+			return div.outerHTML;
+		}
+	}
+}
+
+// Acknowlege and confirm with comment buttons
+
+function AcknConfCommentFormatter(row, cell, value, columnDef, dataContext) {
+	if (
+		webMI.getMethodSupport().indexOf("AlarmConfirm") != -1 &&
+		dataContext.EnabledStateId != false &&
+		(dataContext.acknowledged == false || dataContext.confirmed == false) &&
+		(typeof dataContext.parent == "undefined" || dataContext.parent.acknowledged == true)
+	) {
+		var div = parent.document.createElement("div");
+		if (dataContext.acknowledged == false) {
+			acknCommentButton.span.style.placeSelf = "center";
+			acknCommentInactiveButton.span.style.placeSelf = "center";
+			acknCommentButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			acknCommentButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			acknCommentInactiveButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			acknCommentInactiveButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			acknCommentButton.span.setAttribute("title", "T{Acknowledge with comment}");
+			acknCommentInactiveButton.span.setAttribute("title", "T{Acknowledge with comment}");
+			acknCommentButton.span.innerHTML = acknCommentButton.icon.outerHTML;
+			acknCommentInactiveButton.span.innerHTML = acknCommentInactiveButton.icon.outerHTML;
+			if (enableAlarmAcknowledge) div.innerHTML = acknCommentButton.span.outerHTML;
+			else div.innerHTML = acknCommentInactiveButton.span.outerHTML;
+		} else if (dataContext.confirmed == false) {
+			confCommentButton.span.style.placeSelf = "center";
+			confCommentInactiveButton.span.style.placeSelf = "center";
+			confCommentButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			confCommentInactiveButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			confCommentButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			confCommentInactiveButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			confCommentButton.span.setAttribute("title", "T{Confirm with comment}");
+			confCommentInactiveButton.span.setAttribute("title", "T{Confirm with comment}");
+			confCommentButton.span.innerHTML = confCommentButton.icon.outerHTML;
+			confCommentInactiveButton.span.innerHTML = confCommentInactiveButton.icon.outerHTML;
+			if (enableAlarmAcknowledge) div.innerHTML = confCommentButton.span.outerHTML;
+			else div.innerHTML = confCommentInactiveButton.span.outerHTML;
+		}
+		return div.outerHTML;
+	}
+}
+
+function DisableFormatter(row, cell, value, columnDef, dataContext) {
+	if (webMI.getMethodSupport().indexOf("AlarmDisable") != -1) {
+		var div = parent.document.createElement("div");
+		if (dataContext.EnabledStateId == false) {
+			disabledButton.span.style.placeSelf = "center";
+			disabledButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			disabledButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			disabledButton.span.innerHTML = disabledButton.icon.outerHTML;
+			div.innerHTML = disabledButton.span.outerHTML;
+		} else {
+			enabledButton.span.style.placeSelf = "center";
+			enabledButton.clickarea.setAttribute("data-condition-address", dataContext.address);
+			enabledButton.clickarea.setAttribute("data-alarm-id", dataContext.AlarmId);
+			enabledButton.span.innerHTML = enabledButton.icon.outerHTML;
+			div.innerHTML = enabledButton.span.outerHTML;
+		}
+		return div.outerHTML;
+	}
+}
+
+/**
+ * Functions for visualization of filters
+ */
+function getDatasourcesList(startAddress) {
+	webMI.trigger.fire("setItems", {}, "combo_aggregate");
+	webMI.trigger.fire("setSelectedItem", "", "combo_aggregate");
+
+	webMI.trigger.fire("addItem", {text: "T{All}", value: ""}, "combo_alarm_source");
+	webMI.trigger.fire("addItem", {text: "[local]", value: "[local]"}, "combo_alarm_source");
+
+	if (!hasBrowseNodes) return;
+
+	if (typeof startAddress == "undefined" || startAddress == "") startAddress = "AGENT.DATASOURCES";
+
+	if (accessControlManager) {
+		var compareRights = [
+			{node: startAddress, right: "browse"},
+			{node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes", right: "execute"}
+		];
+
+		accessControlManager.assist.handleWithPermissions(
+			compareRights,
+			function success() {
+				readDatasourceList(startAddress);
+			},
+			function failure() {
+				return;
+			}
+		);
+	} else {
+		readDatasourceList(startAddress);
+	}
+
+	function readDatasourceList(startAddress) {
+		webMI.data.call(
+			"BrowseNodes",
+			{
+				startAddress: startAddress,
+				vTypes: ["ns=1;s=ObjectTypes.ATVISE.Datasource.OpcUa"]
+			},
+			function (e) {
+				for (var source in e) {
+					if (typeof e[source].text == "undefined") continue;
+					webMI.trigger.fire("addItem", {text: e[source].text, value: e[source].text}, "combo_alarm_source");
+				}
+				if (webMIQueryProperties.alarm_source)
+					webMI.trigger.fire("setSelectedItem", webMIQueryProperties.alarm_source, "combo_alarm_source");
+			}
+		);
+	}
+
+	webMI.trigger.fire("setSelectedItem", "T{All}", "combo_alarm_source");
+}
+
+/**
+ * EVENT SECTION
+ */
+
+if (!isPopUpList) {
+	webMI.addEvent("showAdvancedFilter", "click", function (e) {
+		toggleFilter(view);
+	});
+}
+
+webMI.addOnresize(function () {
+	if (webMI.getConfig("frame.scaletype") != "native") return;
+
+	setPanelHeightAndTop();
+
+	if (showAdvancedFilter == true) {
+		tableLayer.style.top = PanelTopPositionExpandedTransformed + "px";
+		tableLayer.style.height = PanelHeightExpandedTransformed + "px";
+	} else {
+		tableLayer.style.top = PanelTopPositionCollapsedTransformed + "px";
+		tableLayer.style.height = PanelHeightCollapsedTransformed + "px";
+	}
+
+	tableController.grid.resizeCanvas();
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+if (!isPopUpList) {
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			priority = typeof priority === "undefined" ? 0 : priority;
+			if (e.value != priority) {
+				priority = e.value;
+			}
+		},
+		"picker_priority"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			display = typeof display === "undefined" ? "" : display;
+			if (e.value != display) {
+				display = e.value;
+				webMI.gfx.setText("id_0", display);
+			}
+		},
+		"address_display"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			group = e.value;
+		},
+		"group"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			alarm_source = e.value;
+		},
+		"combo_alarm_source"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			alarm_condition = typeof alarm_condition === "undefined" ? "" : alarm_condition;
+			if (e.value != alarm_condition) {
+				alarm_condition = e.value;
+			}
+		},
+		"alarm_condition"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			if (e.value != ackn_status) {
+				ackn_status = e.value;
+			}
+		},
+		"combo_ackn_status"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			user = e.value;
+		},
+		"inout_user"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			eventtext = e.value;
+		},
+		"inout_event"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			comment = e.value;
+		},
+		"inout_comment"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			alarm_or_condition = e.value;
+		},
+		"combo_alarm_or_condition"
+	);
+
+	webMI.trigger.connect(
+		"valuechanged",
+		function (e) {
+			if (e.value != filterState) {
+				filterState = e.value;
+			}
+		},
+		"combo_state"
+	);
+
+	webMI.trigger.connect(
+		"clicked",
+		function (e) {
+			if (tableLoaded) {
+				subscribeFilter();
+			}
+		},
+		"applyFilter"
+	);
+
+	webMI.trigger.connect(
+		"clicked",
+		function (e) {
+			var id = "button_reset";
+			var value = e.value;
+			return (function (value) {
+				webMI.trigger.fire(
+					"setValue",
+					parseFloat(webMIQueryProperties.priority ? webMIQueryProperties.priority : "0"),
+					"picker_priority"
+				);
+				webMI.trigger.fire("setValue", webMIQueryProperties.display, "address_display");
+				webMI.trigger.fire("setValue", webMIQueryProperties.group, "group");
+				webMI.trigger.fire("setValue", webMIQueryProperties.alarm_source, "alarm_source");
+				var new_alarm_source = webMIQueryProperties.alarm_source;
+				if (new_alarm_source == "") new_alarm_source = "T{All}";
+				webMI.trigger.fire("setSelectedItem", new_alarm_source, "combo_alarm_source");
+				webMI.trigger.fire("setValue", webMIQueryProperties.alarm_condition, "alarm_condition");
+				webMI.trigger.fire("setSelectedItem", webMIQueryProperties.ackn_status, "combo_ackn_status");
+				webMI.trigger.fire("setValue", webMIQueryProperties.user ? webMIQueryProperties.user : "", "inout_user");
+				webMI.trigger.fire(
+					"setValue",
+					webMIQueryProperties.eventtext ? webMIQueryProperties.eventtext : "",
+					"inout_event"
+				);
+				webMI.trigger.fire(
+					"setValue",
+					webMIQueryProperties.comment ? webMIQueryProperties.comment : "",
+					"inout_comment"
+				);
+				webMI.trigger.fire("setValue", webMIQueryProperties.alarm_or_condition, "combo_alarm_or_condition");
+				webMI.trigger.fire(
+					"setSelectedItem",
+					webMIQueryProperties.filterState ? webMIQueryProperties.filterState : "T{All}",
+					"combo_state"
+				);
+			})(value);
+		},
+		"button_reset"
+	);
+}
+
+// FÜR SLICK TABLE AUCH MÖGLICH??
+if (
+	/mobile|android|blackberry|fennec|iemobile|ip(hone|ad|od)|opera m(ob|in)i|playbook|silk|windows (ce|phone)/i.test(
+		navigator.userAgent
+	)
+) {
+	// we have a mobile device, disable CSV button
+	webMI.trigger.fire("com.atvise.setActive", false, "csv");
+}
+]]></code>
+</script>

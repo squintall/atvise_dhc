@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element redu info object display
+ * ----------------------------------------
+ * This script supports the display showing the current redundancy status.
+ */
+
+var accessControlManager;
+var reduInfo = {};
+
+var reduWarning = webMI.query["display"]
+	? webMI.query["display"]
+	: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.redundancy.warning_dialog";
+var reduMessage = webMI.query["display_message"]
+	? webMI.query["display_message"]
+	: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog";
+
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * DECLARATION SECTION
+ */
+var reduinfoInitialized = false;
+
+if (accessControlManager) {
+	var compareRights = [{ node: "AGENT.REDUNDANCY", right: "read" }];
+
+	accessControlManager.assist.handleWithPermissions(compareRights, handleReduRightsGranted, handleReduRightsDenied);
+} else {
+	handleReduRightsGranted();
+}
+
+/**
+ * FUNCTION SECTION
+ */
+function handleReduRightsGranted() {
+	if (reduinfoInitialized || !webMI.isRedundant()) return;
+
+	reduinfoInitialized = true;
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Redundancy PopUp", {
+		display: reduWarning,
+		display_message: reduMessage,
+		show_sop_change: true,
+		show_con_change: true
+	});
+
+	const placeholderElements = document.getElementById("redu_info").querySelectorAll(".placeholder");
+	placeholderElements.forEach((placeholderElement) => {
+		placeholderElement.classList.remove("placeholder");
+	});
+
+	webMI.data.subscribe("AGENT.REDUNDANCY.role", function (e) {
+		if (reduInfo.role && reduInfo.role != e.value) {
+			webMI.gfx.setFill("symbol_id_1", "#e6cc00");
+		}
+
+		reduInfo.role = e.value;
+		webMI.gfx.setText("redu_role", e.value.charAt(0));
+	});
+
+	webMI.data.subscribe("AGENT.REDUNDANCY.status", function (e) {
+		if (reduInfo.status && reduInfo.status != e.value) {
+			webMI.gfx.setFill("symbol_id_1", "#e6cc00");
+		}
+
+		reduInfo.status = e.value;
+		e.value = getStatusTranslation(e.value);
+		webMI.gfx.setText("redu_status", e.value);
+	});
+}
+
+function handleReduRightsDenied() {
+	// current nothing to do, perhaps later
+}
+
+function getStatusTranslation(text) {
+	var statustext;
+	switch (text) {
+		case "Active":
+			statustext = "T{Active}";
+			break;
+		case "Passive":
+			statustext = "T{Passive}";
+			break;
+		case "SOP":
+			statustext = "T{SOP}";
+			break;
+		case "SNOP":
+			statustext = "T{SNOP}";
+			break;
+		default:
+			statustext = text;
+	}
+
+	return statustext;
+}
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent(webMI.data, "serverstatechange", function (status) {
+	/* basic reaction on server state changes */
+	if (reduInfo.activeCurrentHostName && reduInfo.activeCurrentHostName != status.active.currentHostName) {
+		webMI.gfx.setFill("symbol_id_1", "#e6cc00");
+	} else if (reduInfo.passiveCurrentHostName && reduInfo.passiveCurrentHostName != status.passive.currentHostName) {
+		webMI.gfx.setFill("symbol_id_1", "#e6cc00");
+	}
+
+	reduInfo.activeCurrentHostName = status.active.currentHostName;
+	reduInfo.passiveCurrentHostName = status.passive.currentHostName;
+});
+
+webMI.addEvent("clickarea", "click", function () {
+	webMI.gfx.setFill("symbol_id_1", webMI.query["fillColor"]);
+	webMI.display.openDisplay("SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.redundancy.status", webMI.query, "content");
+});
+
+webMI.addEvent("clickarea", ["mousedown", "touchstart"], function () {
+	var value = true;
+	return (function () {
+		webMI.gfx.setFill("bg", webMI.query["fillColorMouseDown"]);
+		webMI.gfx.setFill("redu_role", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setFill("redu_status", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setFill("redu_status_label", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setStroke("symbol_id_1", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setFill("symbol_id_3", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setFill("symbol_id_4", webMI.query["symbolColorMouseDown"]);
+	})(value);
+});
+
+webMI.addEvent("clickarea", ["mouseup", "mouseout", "touchend"], function () {
+	var value = true;
+	return (function () {
+		webMI.gfx.setFill("bg", webMI.query["fillColor"]);
+		webMI.gfx.setFill("redu_role", webMI.query["globalFontColor"]);
+		webMI.gfx.setFill("redu_status", webMI.query["globalFontColor"]);
+		webMI.gfx.setFill("redu_status_label", webMI.query["globalFontColor"]);
+		webMI.gfx.setStroke("symbol_id_1", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_id_3", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_id_4", webMI.query["symbolColor"]);
+	})(value);
+});
+]]></code>
+</script>

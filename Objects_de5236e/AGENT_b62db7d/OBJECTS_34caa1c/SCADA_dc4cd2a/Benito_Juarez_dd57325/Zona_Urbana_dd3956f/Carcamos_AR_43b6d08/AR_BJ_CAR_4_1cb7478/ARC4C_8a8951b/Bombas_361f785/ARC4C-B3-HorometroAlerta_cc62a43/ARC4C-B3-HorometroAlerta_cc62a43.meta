@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AR.AR_BJ_CAR_4.ARC4C.Bombas.ARC4C-B3-HorometroAlerta
+NodeClass: Variable
+BrowseName: 1:ARC4C-B3-HorometroAlerta
+DisplayName: en|ARC4C-B3-HorometroAlerta
+Description: en|ARC4C-B3-HorometroAlerta
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

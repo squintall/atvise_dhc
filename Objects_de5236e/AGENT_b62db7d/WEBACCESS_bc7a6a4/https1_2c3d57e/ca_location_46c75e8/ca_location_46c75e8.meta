@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.WEBACCESS.https1.ca_location
+NodeClass: Variable
+BrowseName: 1:ca_location
+DisplayName: en|ca_location
+Description: en|ca_location
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

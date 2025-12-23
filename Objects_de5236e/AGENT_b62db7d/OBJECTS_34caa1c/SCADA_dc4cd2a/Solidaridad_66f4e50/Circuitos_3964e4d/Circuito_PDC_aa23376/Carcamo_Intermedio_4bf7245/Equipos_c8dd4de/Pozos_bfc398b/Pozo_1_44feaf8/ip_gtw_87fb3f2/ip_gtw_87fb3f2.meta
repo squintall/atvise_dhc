@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Pozos.Pozo_1.ip_gtw
+NodeClass: Variable
+BrowseName: 1:ip_gtw
+DisplayName: en|ip_gtw
+Description: en|ip_gtw
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_13.AP_SOL_CAR_13_L1H1_MinutoEncendido.Active
+NodeClass: Variable
+BrowseName: 1:Active
+DisplayName: en|Active
+Description: en|Active
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Active.RelMirrorInputOutput

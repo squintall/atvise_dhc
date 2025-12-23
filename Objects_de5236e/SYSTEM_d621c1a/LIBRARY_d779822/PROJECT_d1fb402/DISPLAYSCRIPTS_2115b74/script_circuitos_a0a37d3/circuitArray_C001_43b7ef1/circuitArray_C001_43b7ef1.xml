@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var circuito_s =
+	[[{lat:21.07217341145776, lng:-87.030079275378},
+	"Cárcamo 1, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_001",
+	1, "carcamoAP"],
+	[{lat:21.12180936361552, lng:-86.93144340948847},
+	"Cárcamo 2, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_002",
+	2, "carcamoAP"],
+	[{lat:21.144807318134383, lng:-86.86654079804543},
+	"Cárcamo Infonavit 14, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_Infonavit14",
+	3, "carcamoAP"],
+	[{lat:21.029158114752377, lng:-86.8521213084531},
+	"Cárcamo Aeropuerto Zona Urbana, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Aeropuerto_ZU",
+	4, "carcamoAP"],
+	[{lat:21.167737668892737, lng:-86.8324303061414},
+	"Cárcamo Uxmal, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_Uxmal",
+	5, "carcamoAP"],
+	[{lat:21.16664566629784, lng:-86.83115264986152},
+	"Hiperbólico SM 23, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_H23",
+	6, "carcamoAP"],
+	[{lat:21.175778500181412, lng:-86.8242723491973},
+	"Cárcamo Puerto Juárez, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ",
+	7, "carcamoAP"]];]]></code>
+</script>

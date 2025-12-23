@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.CrossRef.ListUsedVariables
+NodeClass: Variable
+BrowseName: 1:ListUsedVariables
+DisplayName: en|ListUsedVariables
+Description: en|ListUsedVariables
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

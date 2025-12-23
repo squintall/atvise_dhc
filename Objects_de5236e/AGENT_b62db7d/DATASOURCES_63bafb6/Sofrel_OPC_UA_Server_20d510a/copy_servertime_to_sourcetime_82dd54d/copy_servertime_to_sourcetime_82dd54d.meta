@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server.copy_servertime_to_sourcetime
+NodeClass: Variable
+BrowseName: 1:copy_servertime_to_sourcetime
+DisplayName: en|copy_servertime_to_sourcetime
+Description: en|copy_servertime_to_sourcetime
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

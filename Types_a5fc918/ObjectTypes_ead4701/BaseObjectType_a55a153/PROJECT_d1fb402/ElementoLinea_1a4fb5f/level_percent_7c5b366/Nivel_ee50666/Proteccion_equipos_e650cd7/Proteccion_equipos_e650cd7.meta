@@ -1,0 +1,9 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.level_percent.Nivel.Proteccion_equipos
+NodeClass: Object
+BrowseName: 1:Proteccion_equipos
+DisplayName: en|Proteccion_equipos
+Description: en|Proteccion_equipos
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConditionControl.Limit
+Reference: forward HasComponent ns=1;s=AGENT.ALARMING.Categories.Error

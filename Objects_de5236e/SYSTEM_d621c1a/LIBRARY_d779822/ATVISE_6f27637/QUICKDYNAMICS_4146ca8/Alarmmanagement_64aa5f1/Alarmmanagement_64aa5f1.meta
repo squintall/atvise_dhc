@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Alarmmanagement
+NodeClass: Variable
+BrowseName: 1:Alarmmanagement
+DisplayName: en|Alarmmanagement
+Description: en|Alarmmanagement
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_2000_Oriente.circuito
+NodeClass: Variable
+BrowseName: 1:circuito
+DisplayName: en|circuito
+Description: en|circuito
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

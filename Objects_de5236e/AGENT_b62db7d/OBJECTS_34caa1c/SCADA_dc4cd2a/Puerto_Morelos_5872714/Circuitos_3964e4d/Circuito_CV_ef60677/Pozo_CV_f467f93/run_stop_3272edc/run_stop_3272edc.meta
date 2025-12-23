@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_CV.Pozo_CV.run_stop
+NodeClass: Variable
+BrowseName: 1:run_stop
+DisplayName: en|run_stop
+Description: en|run_stop
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

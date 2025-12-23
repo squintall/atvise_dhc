@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Cuencas.Cuenca_PTAR_VM2.Carcamo_Final_PTAR_VM2.Responsable
+NodeClass: Variable
+BrowseName: 1:Responsable
+DisplayName: en|Responsable
+Description: en|Responsable
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

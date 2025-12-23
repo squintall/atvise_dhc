@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[
+					
+var circuito_s =
+	[[{lat:21.256399347040773, lng:-86.74833407863943},
+	"Cárcamo  1, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_001_IM",
+	1, "carcamoAR"],
+	[{lat:21.23733132548439, lng:-86.73423935451817},
+	"Cárcamo 2, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_002_IM",
+	2, "carcamoAR"],
+	[{lat:21.230061804420455, lng:-86.72912305806504},
+	"Cárcamo Ampliación La Gloria, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Ampliacion",
+	3, "carcamoAR"],
+	[{lat:21.228821796795305, lng:-86.7309422185574},
+	"Cárcamo Caridad del Cobre, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Caridad_Cobre",
+	4, "carcamoAR"],
+	[{lat:21.22474579879822, lng:-86.72865428295026},
+	"Cárcamo Cañotal, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Cañotal",
+	5, "carcamoAR"],
+	[{lat:21.23739336154124, lng:-86.73793464795995},
+	"Cárcamo Electricistas, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Electricistas",
+	6, "carcamoAR"],
+	[{lat:21.216666288431952, lng:-86.72058750077977},
+	"Cárcamo Final, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Final_PTAR_IM",
+	7, "carcamoAR"],
+	[{lat:21.226261283498463, lng:-86.72535608973155},
+	"Cárcamo Fovissste, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Fovissste_IM",
+	8, "carcamoAR"],
+	[{lat:21.224254282385132, lng:-86.73038563512674},
+	"Cárcamo Miraflores, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Miraflores",
+	9, "carcamoAR"],
+	[{lat:21.222750512227783, lng:-86.72398068882747},
+	"Cárcamo Oriente, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Oriente",
+	10, "carcamoAR"],
+	[{lat:21.219149141158397, lng:-86.72270566402689},
+	"Cárcamo Poniente, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Poniente",
+	11, "carcamoAR"],
+	[{lat:21.235188900537057, lng:-86.74114125698128},
+	"Cárcamo Sacbajo, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Sacbajo",
+	12, "carcamoAR"],
+	[{lat:21.23420376849967, lng:-86.73318474136586},
+	"Cárcamo Salinas, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Salinas",
+	13, "carcamoAR"],
+	[{lat:21.21671110356268, lng:-86.72089443675505},
+	"PTAR Isla Mujeres, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Final_PTAR_IM",
+	14, "ptar"],
+	[{lat:21.2062778, lng:-86.7179444},
+	"Cárcamo Garrafon, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Garrafon",
+	15, "carcamoAR"],
+	[{lat:21.2117778, lng:-86.7225556},
+	"Cárcamo Coral, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Coral",
+	16, "carcamoAR"]
+
+	
+	];
+
+]]></code>
+</script>

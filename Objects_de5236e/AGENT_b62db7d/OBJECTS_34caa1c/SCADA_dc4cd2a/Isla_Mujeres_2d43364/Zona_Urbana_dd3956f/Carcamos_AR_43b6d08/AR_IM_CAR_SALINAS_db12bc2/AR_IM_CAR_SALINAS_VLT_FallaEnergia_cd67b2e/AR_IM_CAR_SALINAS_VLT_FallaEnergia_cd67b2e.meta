@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AR.AR_IM_CAR_SALINAS.AR_IM_CAR_SALINAS_VLT_FallaEnergia
+NodeClass: Variable
+BrowseName: 1:AR_IM_CAR_SALINAS_VLT_FallaEnergia
+DisplayName: en|AR_IM_CAR_SALINAS_VLT_FallaEnergia
+Description: en|AR_IM_CAR_SALINAS_VLT_FallaEnergia
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

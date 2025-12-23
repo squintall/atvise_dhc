@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Solidaridad.105.PtoA_Akumal.CzPuertoMaya_FteChedraui.DataloggerID
+NodeClass: Variable
+BrowseName: 1:DataloggerID
+DisplayName: en|DataloggerID
+Description: en|DataloggerID
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.StringID

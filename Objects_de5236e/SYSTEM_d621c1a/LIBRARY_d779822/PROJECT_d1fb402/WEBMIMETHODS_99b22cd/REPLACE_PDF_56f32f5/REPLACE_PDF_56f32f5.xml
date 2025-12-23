@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var valObj = {};
+var name = Ua.findNode("AGENT.OBJECTS.PDF_View.FileName").result.value;
+
+if(UaNode("AGENT.OBJECTS.PDF_View.FileName").value != request.getvalues.name){
+	UaNode("AGENT.OBJECTS.PDF_View.FileName").value =  request.getvalues.name;
+	var ifs = new InputFileStream(request.getvalues.name, "binary");
+	ifs.open();
+	var node = Ua.findNode("SYSTEM.LIBRARY.PROJECT.RESOURCES/atviseDemoApplication.pdf");
+	node.result.value = ifs. read(0);
+	ifs.close();
+	valObj.value = "NOT_EQUAL";
+}
+else{
+	valObj.value = "EQUAL";
+}
+return valObj]]></code>
+</script>

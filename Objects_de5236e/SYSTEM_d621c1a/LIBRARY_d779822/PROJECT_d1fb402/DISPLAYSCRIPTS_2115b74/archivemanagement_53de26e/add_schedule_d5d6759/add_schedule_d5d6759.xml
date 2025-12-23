@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+var loadingDone = false;
+
+var schedule = JSON.parse(webMI.query.schedule);
+
+var INTERVAL_ENUM = Object.freeze({
+	h: "T{Hour(s)}",
+	d: "T{Day(s)}",
+	w: "T{Week(s)}",
+	m: "T{Month(s)}",
+	y: "T{Year(s)}"
+});
+
+webMI.trigger.connect("valuechanged", function (e) {
+	schedule.archive = e.value.name;
+	schedule.type = e.value.type;
+}, "cmb_archive");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	if (e.value == "") {
+		return;
+	}
+	var partInt = /(\d*)_(.?)/.exec(schedule.partInt);
+	if (partInt == null) {
+		partInt = [];
+		partInt[2] = "";
+	}
+	schedule.partInt = e.value + "_" + partInt[2];
+}, "txt_partition_number");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	var partInt = /(\d*)_(.?)/.exec(schedule.partInt);
+	if (partInt == null) {
+		partInt = [];
+		partInt[1] = "";
+	}
+	schedule.partInt = partInt[1] + "_" + e.value;
+}, "cmb_partition_interval");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	schedule.source = e.value;
+	webMI.trigger.fire("com.atvise.setActive", schedule.action != "delete" && schedule.action != "copy" && true, "rdb_dest_swapin");
+}, "rdb_source_historydir");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	webMI.trigger.fire("com.atvise.setActive", false, "rdb_dest_swapin");
+	if (schedule.destination) {
+		webMI.trigger.fire("radioClicked_destination", {name: "", value: ""}, "rdb_dest_swapin");
+	}
+	schedule.source = e.value;
+	if (schedule.destination == "swapin") {
+		schedule.destination = "";
+	}
+}, "rdb_source_swapin");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	schedule.destination = e.value;
+}, "rdb_dest_swapin");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	schedule.destination = e.value;
+}, "rdb_dest_backup");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	if (!loadingDone) {
+		return;
+	}
+	schedule.active = e.value == "true";
+}, "chk_active");
+
+var updatingFirstRun = false;
+webMI.trigger.connect("com.atvise.datepicker_dpt", function (e) {
+	if (updatingFirstRun) {
+		return;
+	}
+	var d = new Date(e.value);
+	d.setSeconds(0);
+	d.setMilliseconds(0);
+	schedule.firstRun = d.getTime();
+	updatingFirstRun = true;
+	webMI.trigger.fire("com.atvise.datepicker_dpt", schedule.firstRun, "dt_first_run");
+	updatingFirstRun = false;
+}, "dt_first_run");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	if (e.value == "") {
+		return;
+	}
+	var olderThan = /(\d*)_(.?)/.exec(schedule.olderThan);
+	if (olderThan == null) {
+		olderThan = [];
+		olderThan[2] = "";
+	}
+	schedule.olderThan = e.value + "_" + olderThan[2];
+}, "txt_older_number");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	var olderThan = /(\d*)_(.?)/.exec(schedule.olderThan);
+	if (olderThan == null) {
+		olderThan = [];
+		olderThan[1] = "";
+	}
+	schedule.olderThan = olderThan[1] + "_" + e.value;
+}, "cmb_older_interval");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	schedule.action = e.value;
+
+	webMI.trigger.fire("com.atvise.setActive", schedule.action != "delete", "rdb_dest_swapin");
+	webMI.trigger.fire("com.atvise.setActive", schedule.action != "delete", "rdb_dest_backup");
+
+	switch (schedule.action) {
+		case "move":
+			if (webMI.query.backup_mode != schedule.action) {
+				webMI.trigger.fire("com.atvise.setActive", false, "rdb_source_swapin");
+				webMI.trigger.fire("radioClicked_source", {name: "", value: ""}, "rdb_source_swapin");
+				if (schedule.source == "swapin") {
+					schedule.source = "";
+				}
+				webMI.trigger.fire("com.atvise.setActive", false, "rdb_dest_backup");
+				if (schedule.destination == "backup") {
+					webMI.trigger.fire("radioClicked_destination", {name: "", value: ""}, "rdb_dest_backup");
+					schedule.destination = "";
+				}
+			}
+			break;
+		case "copy":
+			if (webMI.query.backup_mode == schedule.action) {
+				webMI.trigger.fire("com.atvise.setActive", true, "rdb_source_swapin");
+				webMI.trigger.fire("com.atvise.setActive", false, "rdb_dest_swapin");
+				if (schedule.destination == "swapin") {
+					webMI.trigger.fire("radioClicked_destination", {name: "", value: ""}, "rdb_dest_swapin");
+					schedule.destination = "";
+				}
+			}
+			break;
+		case "delete":
+			webMI.trigger.fire("com.atvise.setActive", true, "rdb_source_swapin");
+			if (schedule.destination) {
+				webMI.trigger.fire("radioClicked_destination", {
+					name: "",
+					value: ""
+				}, "rdb_dest_" + schedule.destination);
+				schedule.destination = "";
+			}
+			break;
+	}
+
+}, "cmb_action");
+
+webMI.trigger.connect("clicked", function (e) {
+	// check if schedule is valid
+	var valid = "archive" in schedule && schedule.archive != "" && schedule.archive != undefined;
+	valid = valid && (schedule.archive == "systemdb" || schedule.firstRun > 0);
+	valid = valid && (/(\d+)_(.)/.exec(schedule.partInt) != null);
+	valid = valid && (schedule.archive == "systemdb" || (/(\d+)_(.)/.exec(schedule.olderThan) != null));
+	valid = valid && schedule.action != "";
+	valid = valid && !((schedule.source == "" && schedule.archive != "systemdb") || (schedule.destination == "" && schedule.action != "delete"));
+
+	if (!valid) {
+		webMI.display.openWindow(
+			{
+				display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+				height: 160,
+				width: 400,
+				modal: true,
+				resizable: false,
+				movable: true,
+				scrollbars: false,
+				menubar: false,
+				status: false,
+				toolbar: false,
+				title: webMI.query.add_edit == "T{Save}" ? "T{Edit schedule}" : "T{Add schedule}",
+				query: {
+					headline: "T{Error}",
+					message: "T{Schedule is not valid with current settings}.",
+					button: "T{OK}"
+				}
+			});
+		return;
+	}
+
+	webMI.trigger.fire("AddSchedule.Config", schedule);
+	webMI.trigger.fire("clicked", {}, "btn_cancel");
+}, "btn_add");
+
+webMI.trigger.connect("clicked", function (e) {
+	webMI.trigger.fire("DeleteSchedule", schedule);
+	webMI.trigger.fire("clicked", {}, "btn_cancel");
+}, "btn_delete");
+
+webMI.trigger.connect("clicked", function (e) {
+	webMI.display.closeWindow();
+}, "btn_cancel");
+
+webMI.addOnload(function () {
+	loadingDone = true;
+
+	var compareRights = [{
+		node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations",
+		right: "execute"
+	}];
+	handleAccessControlResponse(compareRights, function () {
+		webMI.data.call("FileOperations", {
+			fn: "GetArchives",
+			directoryTypes: ["historydir", "swapin"]
+		}, function (archives) {
+			var archiveList = [];
+			archives.forEach(function (archive) {
+				archiveList.push({text: archive.name, value: archive});
+			});
+			archiveList = archiveList.sort(function (a, b) {
+				return a.text > b.text;
+			});
+			webMI.trigger.fire("setItems", archiveList, "cmb_archive");
+		});
+	});
+
+	webMI.gfx.setText("id_4", (webMI.query.add_edit == "T{Save}" ? "T{Edit schedule}" : "T{Add schedule}") + ":");
+
+	// set controls depending on the schedule config
+	webMI.trigger.fire("com.atvise.datepicker_dpt", typeof schedule.firstRun == "number" && schedule.firstRun >= 0 ? schedule.firstRun : Date.now(), "dt_first_run");
+
+	var partInt = /(\d+)_(.)/.exec(schedule.partInt);
+	if (partInt == null) {
+		partInt = new Array();
+		partInt[0] = "1_h";
+		partInt[1] = "1";
+		partInt[2] = "h";
+	} else if (!(partInt[2] in INTERVAL_ENUM)) {
+		partInt[2] = "h";
+	}
+
+	if (Number(partInt[1]) != null) {
+		webMI.trigger.fire("setValue", Number(partInt[1]), "txt_partition_number");
+	}
+
+	webMI.trigger.fire("setSelectedItem", INTERVAL_ENUM[partInt[2]], "cmb_partition_interval");
+
+	if (schedule.archive != "systemdb") {
+		var olderThan = /(\d+)_(.)/.exec(schedule.olderThan);
+		if (olderThan == null) {
+			olderThan = new Array();
+			olderThan[0] = "1_d";
+			olderThan[1] = "1";
+			olderThan[2] = "d";
+		} else if (!(olderThan[2] in INTERVAL_ENUM)) {
+			olderThan[2] = "d";
+		}
+		if (Number(olderThan[1]) != null) {
+			webMI.trigger.fire("setValue", Number(olderThan[1]), "txt_older_number");
+		}
+		webMI.trigger.fire("setSelectedItem", INTERVAL_ENUM[olderThan[2]], "cmb_older_interval");
+	}
+
+	var actions = [];
+	var defaultAction = "T{move}";
+	actions.push({text: "T{move}", value: "move"});
+
+	if (webMI.query.backup_mode == "copy") {
+		actions.push({text: "T{copy}", value: "copy"});
+		defaultAction = "T{copy}";
+	}
+
+	actions.push({text: "T{delete}", value: "delete"});
+
+	webMI.trigger.fire("setItems", actions, "cmb_action");
+	webMI.trigger.fire("setSelectedItem", schedule.action == "" ? defaultAction : getTranslatedAction(schedule.action), "cmb_action");
+
+	if (schedule.archive != "systemdb") {
+		if (typeof schedule.source == "string" && schedule.source.length > 0) {
+			webMI.trigger.fire("radioClicked_source", {
+				name: schedule.source.substring(0, 1),
+				value: schedule.source
+			}, "rdb_source_" + schedule.source);
+		} else {
+			webMI.trigger.fire("radioClicked_source", {name: "h", value: "historydir"}, "rdb_source_historydir");
+		}
+	}
+
+	if (schedule.action != "delete") {
+		if (typeof schedule.destination == "string" && schedule.destination.length > 0) {
+			webMI.trigger.fire("radioClicked_destination", {
+				name: schedule.destination.substring(0, 1),
+				value: schedule.destination
+			}, "rdb_dest_" + schedule.destination);
+		} else {
+			webMI.trigger.fire("radioClicked_destination", {name: "b", value: "backup"}, "rdb_dest_backup");
+		}
+	}
+
+	webMI.trigger.fire("setChecked", schedule.active, "chk_active");
+
+	var selectedItem = schedule.archive == "systemdb" ? "T{System database}" : schedule.archive;
+
+	webMI.trigger.fire("setSelectedItem", selectedItem, "cmb_archive");
+
+	var compareRights = [{
+		node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations",
+		right: "execute"
+	}];
+	handleAccessControlResponse(compareRights, function () {
+		webMI.trigger.fire("com.atvise.setActive", webMI.query.add_edit != "T{Save}", "cmb_archive");
+	});
+
+	webMI.gfx.setVisible("btn_delete", webMI.query.add_edit == "T{Save}");
+
+	webMI.trigger.fire("setChecked", schedule.inheritDefault, "chk_inherit_default");
+
+	if (schedule.archive == "systemdb") {
+		webMI.trigger.fire("setSelectedItem", "T{copy}", "cmb_action");
+		["rdb_source_historydir", "rdb_source_swapin", "rdb_dest_swapin", "rdb_dest_backup", "txt_older_number", "cmb_older_interval", "cmb_action"].forEach(function (id) {
+			webMI.trigger.fire("com.atvise.setActive", false, id);
+		});
+		webMI.gfx.setVisible("chk_inherit_default", false);
+		webMI.gfx.setVisible("btn_delete", false);
+	}
+});
+
+function getTranslatedAction(action) {
+	switch (action) {
+		case "copy":
+			return "T{copy}";
+		case "move":
+			return "T{move}";
+		case "delete":
+			return "T{delete}";
+		default:
+			return action;
+	}
+}
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback
+ */
+function handleAccessControlResponse(compareRights, callback) {
+	if (!accessControlManager) {
+		callback();
+		return;
+	}
+
+	var requiredRights = {
+		nodeIds: [
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations"
+		],
+		rights: [
+			"execute"
+		]
+	};
+
+	accessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, (response) => {
+		var right_active_visu_element =
+			response["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations"].execute;
+
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "btn_delete");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "btn_add");
+
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "cmb_archive");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "chk_active");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "dt_first_run");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "txt_partition_number");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "cmb_partition_interval");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "txt_older_number");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "cmb_older_interval");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "cmb_action");
+
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "rdb_source_historydir");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "rdb_source_swapin");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "rdb_dest_swapin");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "rdb_dest_backup");
+
+		if (!Array.isArray(compareRights))
+			compareRights = [compareRights];
+
+		var allRights = [];
+
+		for (var c in compareRights) {
+			if (typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined") {
+				allRights.push(response[compareRights[c].node][compareRights[c].right]);
+			} else {
+				allRights.push(false);
+			}
+		}
+
+		if (!allRights.includes(false)) {
+			callback();
+		} else {
+			handleAccessDenied("T{Access Denied}");
+		}
+	});
+
+	function handleAccessDenied(message) {
+		// UpdateStatusLabel(message);
+	}
+}
+
+]]></code>
+</script>

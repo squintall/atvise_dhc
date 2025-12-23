@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.LAYOUTS.Layout_main
+NodeClass: Variable
+BrowseName: 1:Layout_main
+DisplayName: en|Layout_main
+Description: en|Layout_main
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

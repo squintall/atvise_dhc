@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.SMTPSERVERS
+NodeClass: Object
+BrowseName: 1:SMTPSERVERS
+DisplayName: en|SMTPSERVERS
+Description: en|SMTPSERVERS
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

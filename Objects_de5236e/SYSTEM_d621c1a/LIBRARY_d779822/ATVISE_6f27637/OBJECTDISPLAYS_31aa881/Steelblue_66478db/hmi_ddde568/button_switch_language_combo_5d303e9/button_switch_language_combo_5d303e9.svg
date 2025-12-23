@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="30" version="1.2" width="160" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_21" x1="0.119403" x2="0.119403" y1="0.970149" y2="-0.0159425">
+   <stop offset="0" stop-color="#29394b"/>
+   <stop offset="1" stop-color="#788ba3"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_5" x1="0.776844" x2="0.776844" y1="-0.0159425" y2="0.940299">
+   <stop offset="0" stop-color="#1a242f"/>
+   <stop offset="1" stop-color="#71849c"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_1" x1="1" x2="1" y1="-0.0183441" y2="1">
+   <stop offset="0" stop-color="#ffffff" stop-opacity="0.2745098039215687"/>
+   <stop offset="0.5515695067264574" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_2" x1="0.14785" x2="0.14785" y1="1.00118" y2="-0.0183441">
+   <stop offset="0" stop-color="#ffffff" stop-opacity="0.2745098039215687"/>
+   <stop offset="0.5515695067264574" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+ </defs>
+ <desc>Displays the current language and switches it on click.</desc>
+ <title>Button/Display Language</title>
+ <metadata>
+  <atv:parameter behavior="hidden" desc="base" name="base" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="language text" name="languageText" substitute="$LANGUAGE$" valuetype="trstring"/>
+  <atv:parameter behavior="optional" config="Arial;Courier;Verdana" defaultvalue="Verdana" desc="family" group="Font" name="fontFamily" substitute="$FONTFAMILY$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="16" desc="size" group="Font" name="fontSize" substitute="$FONTSIZE$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="#000000" desc="color" group="Font" name="fontColor" substitute="$FONTCOLOR$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="symbol color" group="Appearance" name="symbolColor" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#d1d1d1" desc="fill color" group="Appearance" name="fill" substitute="$FILL$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="stroke color when pressed" group="Appearance" name="strokePressed" valuetype="color"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="5" width="5"/>
+  <atv:snapconfig enabled="false" height="5" width="5"/>
+ </metadata>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="80.25" atv:refpy="15.5" fill="url(#linear_21)" height="29.5" id="id_4" rx="3" ry="3" stroke="#646464" stroke-width="0.5" width="159.5" x="0.25" y="0.25"/>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="153.5" atv:refpy="-12.25" fill="url(#linear_5)" height="24.5" id="id_5" rx="3" ry="3" stroke="none" stroke-width="0.5" width="128" x="2.5" y="2.75"/>
+ <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="156.5" atv:refpy="22.5" fill="$FILL$" height="22.5" id="input_bg" rx="3" ry="3" stroke="none" stroke-width="0.5" width="126" x="3.5" y="3.75"/>
+ <text atv:bindbr="0,0.5" atv:bindtl="0,0.5" atv:dynamic="true" atv:refpx="28" atv:refpy="15" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="$FONTSIZE$" id="language_label" x="6.5" y="21">$LANGUAGE$</text>
+ <g atv:refpx="144.75" atv:refpy="15" id="button_clickarea">
+  <rect atv:bindbr="1,0.5" atv:bindtl="1,0.5" atv:refpx="674.75" atv:refpy="-3.75" fill="url(#linear_5)" height="24.5" id="id_6" rx="3" ry="3" stroke="none" stroke-width="0.5" width="24.5" x="132.5" y="2.75"/>
+  <rect atv:bindbr="1,0.5" atv:bindtl="1,0.5" atv:refpx="545.25" atv:refpy="33.75" fill="#495a6f" height="22.5" id="button_bg" rx="3" ry="3" stroke="none" stroke-width="2" width="22.5" x="133.5" y="3.75"/>
+  <svg atv:bindbr="1,0.5" atv:bindtl="1,0.5" atv:refpx="279.5" atv:refpy="20" height="20" id="id_0" width="20" x="134.75" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.language" y="5">
+   <atv:argument name="symbolColor" prefix="symbolColor"/>
+  </svg>
+  <rect atv:bindbr="1,0.5" atv:bindtl="1,0.5" atv:refpx="545.25" atv:refpy="-2.296" fill="url(#linear_11)" height="22.5" id="button_stroke" rx="2.755" ry="2.755" stroke="none" stroke-width="0.5" width="22.5" x="133.5" y="3.75"/>
+ </g>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.hmi.button_switch_language_combo" atv:name="button_switch_language_combo" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

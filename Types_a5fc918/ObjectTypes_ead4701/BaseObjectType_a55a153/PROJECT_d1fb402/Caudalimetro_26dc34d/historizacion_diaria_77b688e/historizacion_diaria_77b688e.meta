@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Caudalimetro.historizacion_diaria
+NodeClass: Variable
+BrowseName: 1:historizacion_diaria
+DisplayName: en|historizacion_diaria
+Description: en|historizacion_diaria
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="206" version="1.2" width="561" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <g atv:insensitive="true" atv:refpx="0" atv:refpy="0" id="id_28" transform="matrix(0.9265,0,0,1.03,0,0)">
+  <rect atv:refpx="302.75" atv:refpy="100" fill="#ffffff" fill-opacity="0" height="200.00" id="id_33" width="605.50" x="0" y="0"/>
+ </g>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <rect atv:refpx="280.5" atv:refpy="103" fill="#000088" fill-opacity="0" height="204" id="id_8" rx="0" ry="0" stroke="#000072" stroke-width="2" width="559" x="1" y="1"/>
+ <line atv:refpx="110.5" atv:refpy="96.5" fill="#000000" fill-opacity="0.964706" id="id_43" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="107" x2="130" y1="98" y2="98"/>
+ <g atv:refpx="517.5" atv:refpy="89.75" id="id_41" transform="matrix(1,0,0,1,71.5,0.5)">
+  <rect atv:refpx="440.761" atv:refpy="-12.817" fill="#000088" fill-opacity="0" height="174.5" id="id_58" rx="0" ry="0" stroke="#000072" stroke-width="1" width="78" x="395" y="4"/>
+  <text atv:refpx="433.697" atv:refpy="91.248" fill="#000018" font-family="Arial" font-size="18" font-weight="bold" id="id_106" transform="matrix(0.612,0,0,0.6329,156.6379,30.0128)" x="407.706" y="103.256">PTAR SUR</text>
+ </g>
+ <line atv:refpx="122.5" atv:refpy="67.5" fill="#000000" fill-opacity="0.964706" id="id_46" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.097" x1="130" x2="130" y1="98" y2="41"/>
+ <polygon atv:refpx="95.13" atv:refpy="48" fill="#000018" fill-opacity="0.964706" id="id_47" points="122.26,50 122.26,30 108,40 108,40" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.097"/>
+ <g atv:refpx="51.001" atv:refpy="110.75" id="id_0" transform="matrix(1,0,0,1,7,77)">
+  <svg atv:refpx="47" atv:refpy="-9.006" height="63.11" id="id_2" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2.66" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Principal" y="0">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Andalucia"/>
+  </svg>
+  <svg atv:refpx="14.5" atv:refpy="55" height="25" id="id_19" width="25" x="2" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="46.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Andalucia.Equipos.Bombas.Bomba_1"/>
+  </svg>
+  <svg atv:refpx="38.5" atv:refpy="55" height="25" id="id_20" width="25" x="26" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="46.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Andalucia.Equipos.Bombas.Bomba_2"/>
+  </svg>
+  <svg atv:refpx="61.5" atv:refpy="55" height="25" id="id_21" width="25" x="50" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="46.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Andalucia.Equipos.Bombas.Bomba_3"/>
+  </svg>
+ </g>
+ <svg atv:refpx="364.488" atv:refpy="-9.004" height="63.11" id="id_3" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="418.274" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Principal" y="2.744">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Final_Sur_PTAR_SUR"/>
+ </svg>
+ <svg atv:refpx="63.984" atv:refpy="159" height="63.11" id="id_4" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="11.97" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Principal" y="214.021">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Islazul"/>
+ </svg>
+ <svg atv:refpx="53.996" atv:refpy="-8.506" height="63.11" id="id_5" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="11.97" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Principal" y="3.43">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Santa_Fe_Plus"/>
+ </svg>
+ <g atv:refpx="45.5" atv:refpy="64" id="id_15" transform="matrix(1,0,0,1,6.0038,-72)">
+  <svg atv:refpx="15.496" atv:refpy="131" height="25" id="id_22" width="25" x="2.996" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="121.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Santa_Fe_Plus.Equipos.Bombas.Bomba_1"/>
+  </svg>
+  <svg atv:refpx="38.496" atv:refpy="130" height="25" id="id_23" width="25" x="25.996" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="121.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Santa_Fe_Plus.Equipos.Bombas.Bomba_2"/>
+  </svg>
+  <svg atv:refpx="62.496" atv:refpy="130" height="25" id="id_24" width="25" x="49.996" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="121.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Santa_Fe_Plus.Equipos.Bombas.Bomba_3"/>
+  </svg>
+  <svg atv:refpx="85.496" atv:refpy="130" height="25" id="id_25" width="25" x="72.996" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="121.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Santa_Fe_Plus.Equipos.Bombas.Bomba_4"/>
+  </svg>
+ </g>
+ <g atv:refpx="184.501" atv:refpy="62.5" id="id_40" transform="matrix(1,0,0,1,31.9974,-80.5)">
+  <svg atv:refpx="142.504" atv:refpy="130" height="25" id="id_26" width="25" x="130.004" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="129.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Poligono_7.Equipos.Bombas.Bomba_1"/>
+  </svg>
+  <svg atv:refpx="166.504" atv:refpy="130" height="25" id="id_27" width="25" x="154.004" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="129.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Poligono_7.Equipos.Bombas.Bomba_2"/>
+  </svg>
+ </g>
+ <svg atv:refpx="203.734" atv:refpy="168.997" height="63.11" id="id_6" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="215.122" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Principal" y="214.021">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Tajamar"/>
+ </svg>
+ <svg atv:refpx="219.742" atv:refpy="-9.006" height="63.11" id="id_7" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="215.122" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Principal" y="2.744">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Poligono_7"/>
+ </svg>
+ <g atv:refpx="355.842" atv:refpy="59" id="id_39" transform="matrix(1,0,0,1,187.2188,-2)">
+  <svg atv:refpx="141.624" atv:refpy="64" height="25" id="id_11" width="25" x="128.124" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="50.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Final_Sur_PTAR_SUR.Equipos.Bombas.Equipo_1"/>
+  </svg>
+  <svg atv:refpx="161.624" atv:refpy="67" height="25" id="id_12" width="25" x="152.124" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="50.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Final_Sur_PTAR_SUR.Equipos.Bombas.Equipo_2"/>
+  </svg>
+  <svg atv:refpx="188.624" atv:refpy="64" height="25" id="id_29" width="25" x="176.124" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="50.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Final_Sur_PTAR_SUR.Equipos.Bombas.Equipo_3"/>
+  </svg>
+  <svg atv:refpx="216.624" atv:refpy="64" height="25" id="id_30" width="25" x="200.124" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="50.5">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Final_Sur_PTAR_SUR.Equipos.Bombas.Equipo_4"/>
+  </svg>
+ </g>
+ <svg atv:refpx="364.489" atv:refpy="101.692" height="63.11" id="id_31" transform="matrix(0.7509,0,0,0.7509,0,0)" width="133" x="418.919" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Principal" y="103.875">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Cumbres"/>
+ </svg>
+ <svg atv:refpx="323.5" atv:refpy="139.004" height="25" id="id_36" width="25" x="317" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="125.504">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Cumbres.Equipos.Bombas.Bomba_1"/>
+ </svg>
+ <svg atv:refpx="343.5" atv:refpy="142.004" height="25" id="id_37" width="25" x="341" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="125.504">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.Carcamo_Cumbres.Equipos.Bombas.Bomba_2"/>
+ </svg>
+ <line atv:refpx="114.5" atv:refpy="38.5" fill="#000000" fill-opacity="0.964706" id="id_42" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="115" x2="130" y1="40" y2="40"/>
+ <g atv:refpx="127.007" atv:refpy="12" id="id_48" transform="matrix(1,0,0,1,-15.9995,38)">
+  <line atv:refpx="150.011" atv:refpy="-15.109" fill="#000000" id="id_44" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="126.007" x2="174.014" y1="-24" y2="-24"/>
+  <polygon atv:refpx="329.007" atv:refpy="242.284" fill="#000018" id="id_45" points="163.822,-34 163.822,-14 177.014,-24 177.014,-24" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
+ </g>
+ <g atv:refpx="280.007" atv:refpy="20" id="id_49" transform="matrix(1,0,0,1,137.0005,46)">
+  <line atv:refpx="150.011" atv:refpy="-15.109" fill="#000000" id="id_50" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="126.007" x2="174.014" y1="-24" y2="-24"/>
+  <polygon atv:refpx="329.007" atv:refpy="242.284" fill="#000018" id="id_51" points="163.822,-34 163.822,-14 177.014,-24 177.014,-24" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
+ </g>
+ <g atv:refpx="431.507" atv:refpy="21" id="id_52" transform="matrix(1,0,0,1,289.5005,47)">
+  <line atv:refpx="150.011" atv:refpy="-15.109" fill="#000000" id="id_53" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="126.007" x2="174.014" y1="-24" y2="-24"/>
+  <polygon atv:refpx="329.007" atv:refpy="242.284" fill="#000018" id="id_54" points="163.822,-34 163.822,-14 177.014,-24 177.014,-24" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
+ </g>
+ <g atv:refpx="431.507" atv:refpy="99" id="id_55" transform="matrix(1,0,0,1,289.5005,125)">
+  <line atv:refpx="150.011" atv:refpy="-15.109" fill="#000000" id="id_56" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="126.007" x2="174.014" y1="-24" y2="-24"/>
+  <polygon atv:refpx="329.007" atv:refpy="242.284" fill="#000018" id="id_57" points="163.822,-34 163.822,-14 177.014,-24 177.014,-24" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
+ </g>
+</svg>

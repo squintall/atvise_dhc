@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.AuthScripts.ScriptLoginSample
+NodeClass: Variable
+BrowseName: 1:ScriptLoginSample
+DisplayName: en|ScriptLoginSample
+Description: en|ScriptLoginSample
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

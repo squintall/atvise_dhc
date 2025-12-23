@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the bar_horizontal and bar_vertical object displays
+ * ------------------------------------------------------------
+ * The bar is used for the graphical representation of the value of an address.
+ * For each bar 0 to 4 limits (from 'limit low low' up to 'limit high high') can be specified.
+ * These limits split the range defined by 'min' and 'max' in 1 to 5 intervals.
+ * Depending in what interval the value of the "base" address lies,
+ * the text color and bar color of the value will be changed according to the specified color for each limit.
+ * In case a limit lies below min or above max, it will not be explicitly drawn,
+ * though the text color and bar color will be changed accordingly. (e.g. max = 100 and limit high high = 120:
+ * although the bar will not go beyond 'max', the text color and bar color will change according to 'limit high high color'
+ * as soon as the value reaches the 'limit high high')
+ */
+
+/**
+ * QD Calls e.g. Imports
+ */
+
+var AggregateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Aggregate Manager");
+webMI.addOnunload(function () {
+	AggregateManager.destroy();
+	AggregateManager = null;
+});
+
+/**
+ * DECLARATION SECTION
+ */
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var decimalPositions = webMI.query["decimalPositions"];
+
+/** style & colors **/
+var barColor = webMI.query["barColor"];
+var barColorInactive = webMI.query["barColorInactive"] ? webMI.query["barColorInactive"] : "#000000";
+var barColorLimitsOn = webMI.query["barColorLimitsOn"];
+var fontColor = webMI.query["fontColor"];
+var fillColor = webMI.query["fillColor"];
+var limitLowLowFill = webMI.query["limitLowLowFill"];
+var limitLowFill = webMI.query["limitLowFill"];
+var limitHighFill = webMI.query["limitHighFill"];
+var limitHighHighFill = webMI.query["limitHighHighFill"];
+var scaleColor = webMI.query["scaleColor"];
+
+/** limits **/
+var min = webMI.query["min"] == undefined ? "" : parseFloat(webMI.query["min"]);
+var max = webMI.query["max"] == undefined ? "" : parseFloat(webMI.query["max"]);
+var limitLowLow = webMI.query["limitLowLow"] == undefined ? "" : webMI.query["limitLowLow"];
+var limitLow = webMI.query["limitLow"] == undefined ? "" : webMI.query["limitLow"];
+var limitHigh = webMI.query["limitHigh"] == undefined ? "" : webMI.query["limitHigh"];
+var limitHighHigh = webMI.query["limitHighHigh"] == undefined ? "" : webMI.query["limitHighHigh"];
+var nodeMin = webMI.query["nodeMin"] == undefined ? "" : webMI.query["nodeMin"];
+var nodeMax = webMI.query["nodeMax"] == undefined ? "" : webMI.query["nodeMax"];
+var nodeLowLow = webMI.query["nodeLowLow"] == undefined ? "" : webMI.query["nodeLowLow"];
+var nodeLow = webMI.query["nodeLow"] == undefined ? "" : webMI.query["nodeLow"];
+var nodeHigh = webMI.query["nodeHigh"] == undefined ? "" : webMI.query["nodeHigh"];
+var nodeHighHigh = webMI.query["nodeHighHigh"] == undefined ? "" : webMI.query["nodeHighHigh"];
+
+/** other **/
+var notAvailableString = "T{N/A}";
+
+/** status **/
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+
+/** switch compatibility and advanced modes for designs **/
+var compatibilityMode = typeof webMI.query["compatibilityMode"] == "undefined" ? false : true;
+var advancedMode = !compatibilityMode;
+var isHorizontal = webMI.query["horizontalMode"] == "true" ? true : false;
+
+var lockUpdateColor = false;
+
+/** notification cfg **/
+var notifierConfig;
+
+/** data **/
+var runTimeNodeConfig = {
+	base: {value: null, address: base, paramValue: "", read: true, write: false, aggregate: false},
+	min: {value: null, address: nodeMin, paramValue: min, read: true, write: false},
+	max: {value: null, address: nodeMax, paramValue: max, read: true, write: false},
+	limitLowLow: {value: null, address: nodeLowLow, paramValue: limitLowLow, read: true, write: false},
+	limitLow: {value: null, address: nodeLow, paramValue: limitLow, read: true, write: false},
+	limitHigh: {value: null, address: nodeHigh, paramValue: limitHigh, read: true, write: false},
+	limitHighHigh: {value: null, address: nodeHighHigh, paramValue: limitHighHigh, read: true, write: false}
+};
+
+/** advanced menu layout with corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+if (advancedMode && isHorizontal) {
+	menuLayout.customElementLayoutOffsets = {
+		"top-left": {x: 69, y: 26},
+		"top-right": {x: 14, y: 26},
+		"bottom-left": {x: 68, y: 11},
+		"bottom-right": {x: 14, y: 11}
+	};
+} else if (advancedMode) {
+	menuLayout.customElementLayoutOffsets = {
+		"top-left": {x: 27, y: 18},
+		"top-right": {x: 22, y: 18},
+		"bottom-left": {x: 27, y: 43},
+		"bottom-right": {x: 22, y: 43}
+	};
+}
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+AggregateManager.isAggregates(webMI.query["base"], function (aggregate, aggregateNodeRights) {
+	var address = aggregate ? webMI.query["base"].replace(aggregate, "") : webMI.query["base"];
+	var scale = webMI.query["scale"];
+	var eleBg_rect = document.getElementById("bg_rect");
+
+	if (!eleBg_rect)
+		return;
+
+	notifierConfig = {
+		id: eleBg_rect.id,
+		rights: [
+			{nodeId: webMI.query["alarm"], rights: "alarmRead", disable: false, notify: true},
+			{nodeId: webMI.query["nodeMin"], rights: "read", disable: true, notify: true},
+			{nodeId: webMI.query["nodeMax"], rights: "read", disable: true, notify: true},
+			{nodeId: webMI.query["nodeLowLow"], rights: "read", disable: false, notify: true},
+			{nodeId: webMI.query["nodeLow"], rights: "read", disable: false, notify: true},
+			{nodeId: webMI.query["nodeHigh"], rights: "read", disable: false, notify: true},
+			{nodeId: webMI.query["nodeHighHigh"], rights: "read", disable: false, notify: true},
+			{nodeId: scale, rights: "read", disable: true, notify: true}
+		],
+		menuLayout: menuLayout
+	};
+
+	if (aggregateNodeRights) {
+		for (var key in aggregateNodeRights) {
+			var cR = aggregateNodeRights[key];
+			notifierConfig.rights.push({
+				nodeId: cR.node,
+				rights: cR.right,
+				disable: cR.disable ? true : false,
+				notify: cR.notify ? true : false
+			});
+		}
+	}
+
+	var rightsHandlingProperties = {
+		notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {}
+	};
+
+	if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+	if (aggregate) {
+		notifierConfig.rights.push({nodeId: address, rights: "read", disable: true, notify: false});
+		runTimeNodeConfig.base.aggregate = aggregate;
+	}
+
+	if (typeof updateRunTimeNodeConfig === "function") {
+		updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+	} else {
+		initialize(runTimeNodeConfig);
+	}
+});
+
+/**
+ * FUNCTIONS
+ */
+
+/**
+ * read or subscribe data by runtime node configuration
+ * @param nodeCfg
+ */
+function initialize(nodeCfg) {
+	/* init alarm indication */
+	if (alarmToSubscribe != "") updateAlarmIndication(alarmToSubscribe);
+
+	/* set init value */
+	if (runTimeNodeConfig.base.value == null)
+		runTimeNodeConfig.base.value = 0;
+
+	/* base */
+	if (nodeCfg.base.read) {
+		if (nodeCfg.min.address && !nodeCfg.min.read) {
+			_updateOutput("bar_value", "T{N/A}");
+			_updateColors();
+		} else if (nodeCfg.max.address && !nodeCfg.max.read) {
+			_updateOutput("bar_value", "T{N/A}");
+			_updateColors();
+		} else {
+			if (!nodeCfg.base.subscribe) {
+				nodeCfg.base.subscribe = true;
+
+				if(AggregateManager)
+				  AggregateManager.subscribeNodeOrAggregate(nodeCfg.base.address, manageBaseResult);
+
+				function manageBaseResult(result) {
+					if (typeof result.status != "undefined" && typeof updateStatusIndication === "function") {
+						updateStatusIndication(result.status);
+					}
+
+					if (!result.error) {
+						runTimeNodeConfig.base.value = result.value;
+						_updateOutput("bar_value", result.value, decimalPositions);
+						_updateColors();
+					} else {
+						runTimeNodeConfig.base.value = null;
+						_updateOutput("bar_value", "T{N/A}");
+						_updateColors();
+					}
+				}
+			}
+		}
+	} else {
+		_updateOutput("bar_value", runTimeNodeConfig.base.value);
+		_updateColors();
+	}
+
+	/* min max limits ... */
+	for (var key in nodeCfg) {
+		if (key != "base" && key != "outputNode") {
+			let cKey = key;
+			let node = nodeCfg[key];
+
+			if (node.address && node.read) {
+				if (!nodeCfg[key].subscribe) {
+					nodeCfg[key].subscribe = true;
+
+					webMI.data.subscribe(node.address, function (response) {
+						runTimeNodeConfig[cKey].value = response.value;
+						_updateLimits();
+						_updateColors();
+					});
+				}
+			} else if (node.address && !node.read) {
+				if (cKey == "min" || cKey == "max") {
+					webMI.gfx.setText(cKey, "T{N/A}");
+				}
+			} else if (!node.address) {
+				runTimeNodeConfig[cKey].value = node.paramValue;
+				_updateLimits();
+				_updateColors();
+			}
+		}
+	}
+
+	if (typeof tooltip != "undefined") {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+			auto: "true",
+			id: "clickareaFO",
+			text: tooltip
+		});
+	}
+}
+
+/**
+ * switch to active layout
+ */
+function setActiveLayout() {
+	lockUpdateColor = false;
+	_updateLimits();
+	_updateColors();
+	_updateOutput("bar_value", runTimeNodeConfig.base.value, decimalPositions);
+}
+
+/**
+ * switch to inactive layout
+ */
+function setInactiveLayout() {
+	lockUpdateColor = true;
+	_updateLimits();
+	_updateColors();
+	_updateOutput("bar_value", "T{N/A}");
+}
+
+/**
+ * update on ac right changes
+ */
+function fetchCurrentRightsAndUpdate() {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+}
+
+/**
+ * update background color
+ * @private
+ */
+function _updateColors() {
+	var value = parseFloat(runTimeNodeConfig.base.value);
+	var limitLowLow = parseFloat(runTimeNodeConfig.limitLowLow.value);
+	var limitLow = parseFloat(runTimeNodeConfig.limitLow.value);
+	var limitHigh = parseFloat(runTimeNodeConfig.limitHigh.value);
+	var limitHighHigh = parseFloat(runTimeNodeConfig.limitHighHigh.value);
+
+	var currentColor = barColor;
+
+	if (!isNaN(limitLowLow) || !isNaN(limitLow) || !isNaN(limitHigh) || !isNaN(limitHighHigh)) {
+		if (advancedMode) currentColor = barColorLimitsOn;
+		else currentColor = barColor;
+	}
+
+	if (limitLowLow != null && value <= limitLowLow) {
+		currentColor = limitLowLowFill;
+	} else if (limitLow != null && value <= limitLow) {
+		currentColor = limitLowFill;
+	} else if (limitHighHigh != null && value >= limitHighHigh) {
+		currentColor = limitHighHighFill;
+	} else if (limitHigh != null && value >= limitHigh) {
+		currentColor = limitHighFill;
+	}
+
+	if (lockUpdateColor)
+		currentColor = barColorInactive;
+
+	_updateLimits();
+	_updateSlider(currentColor);
+}
+
+/**
+ * update limit pointers
+ * @private
+ */
+function _updateLimits() {
+	var barWidth = parseInt(webMI.gfx.getWidth("bar"));
+	var barHeight = parseInt(webMI.gfx.getHeight("bar"));
+	var screenCTM = webMI.gfx.getScreenCTM("bar");
+
+	var isRotated90Degrees = screenCTM.b == -screenCTM.c && screenCTM.a == 0 && screenCTM.d == 0;
+	var isHorizontal = (barWidth > barHeight && !isRotated90Degrees) || (barWidth < barHeight && isRotated90Degrees);
+
+	var min = runTimeNodeConfig.min.value != null ? parseFloat(runTimeNodeConfig.min.value) : "T{N/A}";
+	var max = runTimeNodeConfig.max.value != null ? parseFloat(runTimeNodeConfig.max.value) : "T{N/A}";
+	var limitLowLow = parseFloat(runTimeNodeConfig.limitLowLow.value);
+	var limitLow = parseFloat(runTimeNodeConfig.limitLow.value);
+	var limitHigh = parseFloat(runTimeNodeConfig.limitHigh.value);
+	var limitHighHigh = parseFloat(runTimeNodeConfig.limitHighHigh.value);
+
+	webMI.gfx.setText("min", min);
+	webMI.gfx.setText("max", max);
+
+	if (max > min) {
+		if (!isNaN(limitLowLow) && limitLowLow >= min) {
+			if (isHorizontal) webMI.gfx.setMoveX("limit_low_low", webMI.translate(limitLowLow, min, max, 0, barWidth));
+			else
+				webMI.gfx.setMoveY(
+					"limit_low_low",
+					webMI.translate(limitLowLow, min, max, 0, isRotated90Degrees ? -barWidth : -barHeight)
+				);
+			webMI.gfx.setVisible("limit_low_low", null);
+		} else {
+			webMI.gfx.setVisible("limit_low_low", false);
+		}
+
+		if (!isNaN(limitLow) && limitLow >= min && limitLow <= max) {
+			if (isHorizontal) webMI.gfx.setMoveX("limit_low", webMI.translate(limitLow, min, max, 0, barWidth));
+			else
+				webMI.gfx.setMoveY(
+					"limit_low",
+					webMI.translate(limitLow, min, max, 0, isRotated90Degrees ? -barWidth : -barHeight)
+				);
+			webMI.gfx.setVisible("limit_low", null);
+		} else {
+			webMI.gfx.setVisible("limit_low", false);
+		}
+
+		if (!isNaN(limitHigh) && limitHigh >= min && limitHigh <= max) {
+			if (isHorizontal) webMI.gfx.setMoveX("limit_high", webMI.translate(limitHigh, min, max, 0, barWidth));
+			else
+				webMI.gfx.setMoveY(
+					"limit_high",
+					webMI.translate(limitHigh, min, max, 0, isRotated90Degrees ? -barWidth : -barHeight)
+				);
+			webMI.gfx.setVisible("limit_high", null);
+		} else {
+			webMI.gfx.setVisible("limit_high", false);
+		}
+
+		if (!isNaN(limitHighHigh) && limitHighHigh <= max) {
+			if (isHorizontal) webMI.gfx.setMoveX("limit_high_high", webMI.translate(limitHighHigh, min, max, 0, barWidth));
+			else
+				webMI.gfx.setMoveY(
+					"limit_high_high",
+					webMI.translate(limitHighHigh, min, max, 0, isRotated90Degrees ? -barWidth : -barHeight)
+				);
+			webMI.gfx.setVisible("limit_high_high", null);
+		} else {
+			webMI.gfx.setVisible("limit_high_high", false);
+		}
+	}
+}
+
+/**
+ * update slider position
+ * @param currentColor
+ * @private
+ */
+function _updateSlider(currentColor) {
+	var barWidth = parseInt(webMI.gfx.getWidth("bar"));
+	var barHeight = parseInt(webMI.gfx.getHeight("bar"));
+	var screenCTM = webMI.gfx.getScreenCTM("bar");
+
+	var isRotated90Degrees = screenCTM.b == -screenCTM.c && screenCTM.a == 0 && screenCTM.d == 0;
+	var isHorizontal = (barWidth > barHeight && !isRotated90Degrees) || (barWidth < barHeight && isRotated90Degrees);
+
+	min = runTimeNodeConfig.min.value >= 0 ? runTimeNodeConfig.min.value : runTimeNodeConfig.min.paramValue;
+	max = runTimeNodeConfig.max.value >= 0 ? runTimeNodeConfig.max.value : runTimeNodeConfig.max.paramValue;
+
+	var setMin = min;
+	var setMax = max;
+	var setValue = runTimeNodeConfig.base.value;
+
+	if (lockUpdateColor) {
+		setMin = 0;
+		setMax = 1;
+		setValue = 1;
+	}
+
+	var barValue = setValue;
+	if (setMin > setValue) {
+		barValue = setMin;
+	}
+
+	if (setValue > setMax) {
+		barValue = setMax;
+	}
+
+	if (isHorizontal) webMI.gfx.setScaleX("bar", webMI.translate(barValue, setMin, setMax, 0, 1));
+	else webMI.gfx.setScaleY("bar", webMI.translate(barValue, setMin, setMax, 0, 1));
+
+	if (currentColor != "")
+		webMI.gfx.setFill("bar", currentColor);
+}
+
+/**
+ * update input value
+ * @param component
+ * @param value
+ * @private
+ */
+function _updateOutput(component, value, decimal) {
+	var tmpValue = notAvailableString;
+
+	if (!CRH || (CRH && CRH.state.accessControlState && CRH.state.activationTriggerState)) {
+		tmpValue = formatValue(value)
+	}
+
+	function formatValue(value) {
+		if (typeof value != "string")
+			value = parseFloat(value);
+
+		if (decimal) {
+			var formatString = "%0." + parseFloat(decimal) + "f";
+			value = webMI.sprintf(formatString, value);
+		}
+		return value
+	}
+
+	webMI.gfx.setText(component, tmpValue);
+}
+
+]]></code>
+</script>

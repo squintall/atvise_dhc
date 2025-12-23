@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Grafica_Circuito_6A
+NodeClass: Variable
+BrowseName: 1:Grafica_Circuito_6A
+DisplayName: en|Grafica_Circuito_6A
+Description: en|Grafica_Circuito_6A
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

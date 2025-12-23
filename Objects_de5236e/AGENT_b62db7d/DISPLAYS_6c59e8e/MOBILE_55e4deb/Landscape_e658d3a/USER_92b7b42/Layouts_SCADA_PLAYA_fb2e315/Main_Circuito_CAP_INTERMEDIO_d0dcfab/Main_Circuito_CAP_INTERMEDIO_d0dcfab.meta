@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Landscape.USER.Layouts_SCADA_PLAYA.Main_Circuito_CAP_INTERMEDIO
+NodeClass: Variable
+BrowseName: 1:Main_Circuito_CAP_INTERMEDIO
+DisplayName: en|Main_Circuito_CAP_INTERMEDIO
+Description: en|Main_Circuito_CAP_INTERMEDIO
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

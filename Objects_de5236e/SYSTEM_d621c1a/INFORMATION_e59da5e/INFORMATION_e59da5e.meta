@@ -1,0 +1,8 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION
+NodeClass: Object
+BrowseName: 1:INFORMATION
+DisplayName: en|INFORMATION
+Description: en|INFORMATION
+EventNotifier: 0
+Reference: forward Organizes ns=1;s=ModuleStatistics
+Reference: forward HasTypeDefinition FolderType

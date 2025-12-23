@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_CV.Carcamo_Central_Vallarta.Equipos.Bombas.Bomba_Pozo.ON
+NodeClass: Variable
+BrowseName: 1:ON
+DisplayName: en|ON
+Description: en|ON
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

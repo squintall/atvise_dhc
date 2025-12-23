@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="800" version="1.2" width="800" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Display for the settings of the auto-scheduler.</desc>
+ <title>Auto-Scheduler Management</title>
+ <metadata>
+  <atv:parameter behavior="mandatory" defaultvalue="AGENT.OBJECTS.AutoSchedulerConfig" desc="config node" name="configNode" substitute="" valuetype="address"/>
+  <atv:parameter behavior="hidden" defaultvalue="" name="backup_mode" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Appearance" name="globalFillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="color" group="Font" name="globalFontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="10" width="10"/>
+ </metadata>
+ <svg atv:refpx="570.017" atv:refpy="760.024" height="30" id="btn_save" transform="matrix(1.5,0,0,1.3333,0,0)" width="80" x="340" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="555.014">
+  <atv:argument name="label" value="T{Save}"/>
+  <atv:argument name="fontSize" value="16"/>
+  <atv:overwrite height="34.5" id="id_2" transform="matrix(0.6667,0,0,0.75,0,0)" width="114.5"/>
+  <atv:overwrite height="39.5" id="id_0" transform="matrix(0.6667,0,0,0.75,0,0)" width="119.5"/>
+  <atv:overwrite height="37.999" id="id_6" transform="matrix(0.6667,0,0,0.75,0,0)" width="118"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.6667,0,0,0.75,0,0)" x="60" y="31.499"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6667,0,0,0.75,0,0)" x="60" y="16.499"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6667,0,0,0.75,0,0)" x="60" y="24.499"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.4,0,0,0.45,0,0)" x="89.833" y="34.624"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.4,0,0,0.45,0,0)" x="89.833" y="13.291"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6667,0,0,0.75,0,0)" x="50" y="9.999"/>
+  <atv:overwrite height="35.999" id="button_stroke" transform="matrix(0.6667,0,0,0.75,0,0)" width="116"/>
+  <atv:overwrite height="37.999" id="button_bg" transform="matrix(0.6667,0,0,0.75,0,0)" width="118"/>
+  <atv:overwrite height="39.999" id="outer_frame" transform="matrix(0.6667,0,0,0.75,0,0)" width="120"/>
+ </svg>
+ <svg atv:refpx="720.013" atv:refpy="760.029" height="30" id="btn_cancel" transform="matrix(1.5,0,0,1.3333,0,0)" width="80" x="439.999" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="555.014">
+  <atv:argument name="label" value="T{Cancel}"/>
+  <atv:argument name="fontSize" value="16"/>
+  <atv:overwrite height="34.499" id="id_2" transform="matrix(0.6667,0,0,0.75,0,0)" width="114.5"/>
+  <atv:overwrite height="39.499" id="id_0" transform="matrix(0.6667,0,0,0.75,0,0)" width="119.5"/>
+  <atv:overwrite height="37.999" id="id_6" transform="matrix(0.6667,0,0,0.75,0,0)" width="118"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.6667,0,0,0.75,0,0)" x="60" y="31.499"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6667,0,0,0.75,0,0)" x="60" y="16.499"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6667,0,0,0.75,0,0)" x="60" y="24.499"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.4,0,0,0.45,0,0)" x="89.833" y="34.624"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.4,0,0,0.45,0,0)" x="89.833" y="13.291"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6667,0,0,0.75,0,0)" x="50" y="9.999"/>
+  <atv:overwrite height="35.999" id="button_stroke" transform="matrix(0.6667,0,0,0.75,0,0)" width="116"/>
+  <atv:overwrite height="37.999" id="button_bg" transform="matrix(0.6667,0,0,0.75,0,0)" width="118"/>
+  <atv:overwrite height="39.999" id="outer_frame" transform="matrix(0.6667,0,0,0.75,0,0)" width="120"/>
+ </svg>
+ <text atv:refpx="65.331" atv:refpy="42.306" fill="$FONTCOLOR$" font-family="Arial" font-size="20" id="id_1" transform="matrix(1.194,0,0,1.1739,-3.88,-3.478)" x="25" y="43.5">T{General}:</text>
+ <text atv:refpx="98.101" atv:refpy="318.795" fill="$FONTCOLOR$" font-family="Arial" font-size="20" id="id_4" transform="matrix(1.194,0,0,1.1739,-3.783,-52.17)" x="24.5" y="323.5">T{Schedules}:</text>
+ <text atv:refpx="86.261" atv:refpy="165.851" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_7" transform="matrix(1.194,0,0,1.1739,-3.88,-26.085)" x="25" y="169.5">T{E-mail from}:</text>
+ <text atv:refpx="93.424" atv:refpy="125.853" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_8" transform="matrix(1.194,0,0,1.1739,-3.88,-19.129)" x="25" y="129.5">T{Report errors}:</text>
+ <text atv:refpx="127.452" atv:refpy="85.856" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_9" transform="matrix(1.194,0,0,1.1739,-3.88,-12.173)" x="25" y="89.5">T{Auto-scheduler active}:</text>
+ <line atv:refpx="399.75" atv:refpy="280.5" id="id_14" stroke="$FONTCOLOR$" stroke-width="1" x1="0" x2="800" y1="280" y2="280"/>
+ <svg atv:refpx="430.061" atv:refpy="165.002" height="30" id="txt_email_from" transform="matrix(2.125,0,0,1,0,0)" width="160" x="122.388" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="150">
+  <atv:argument name="fontSize" value="16"/>
+  <atv:argument name="validation" value="String"/>
+  <atv:argument name="selectTextOnFocus" value="true"/>
+  <atv:overwrite id="id_2" transform="matrix(0.4706,0,0,1,0,0)" width="334.5"/>
+  <atv:argument name="tooltip" value="T{E-mail address to send reports.}"/>
+  <atv:overwrite id="input_label" transform="matrix(0.4706,0,0,1,0,0)" x="332.055"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.4706,0,0,1,0,0)" width="332"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.4706,0,0,1,0,0)" width="336"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.4706,0,0,1,0,0)" width="332"/>
+  <atv:overwrite id="id_1" transform="matrix(0.4706,0,0,1,0,0)" width="338"/>
+  <atv:overwrite id="id_0" transform="matrix(0.4706,0,0,1,0,0)" width="340"/>
+ </svg>
+ <svg atv:refpx="0.004" atv:refpy="-320.009" height="30" id="chk_active" width="160" x="260" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="70">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="fontSize" value="16"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:argument name="tooltip" value="T{Activate Autobackup.}"/>
+  <atv:overwrite id="checkbox_bg2" transform="matrix(1.3401,0,0,1,0,0)"/>
+  <atv:overwrite id="id_5" transform="matrix(1.3401,0,0,1,0,0)"/>
+  <atv:overwrite id="id_2" transform="matrix(1.3401,0,0,1,0,0)" width="87.392"/>
+  <atv:overwrite id="id_0" transform="matrix(1.3401,0,0,1,0,0)" width="118.892"/>
+ </svg>
+ <svg atv:refpx="10" atv:refpy="-20" height="20" id="icon_event" width="20" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.event" y="-30"/>
+ <svg atv:refpx="70" atv:refpy="-20" height="20" id="icon_aggr" width="20" x="60" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.aggregate" y="-30"/>
+ <svg atv:refpx="340.074" atv:refpy="125" height="30" id="chk_logfiles" width="160" x="260.074" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="110">
+  <atv:argument name="label" value="T{Server logfile}"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="fontSize" value="16"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:argument name="valueOn" value="true"/>
+ </svg>
+ <svg atv:refpx="520.074" atv:refpy="125" height="30" id="chk_email" width="160" x="440.074" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="110">
+  <atv:argument name="label" value="T{E-mail}"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="fontSize" value="16"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:argument name="valueOn" value="true"/>
+ </svg>
+ <svg atv:refpx="100" atv:refpy="-20" height="20" id="icon_backup" width="20" x="90" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.backup" y="-30"/>
+ <svg atv:refpx="130" atv:refpy="-20" height="20" id="icon_historydir" width="20" x="120" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.historydir" y="-30"/>
+ <svg atv:refpx="160" atv:refpy="-20" height="20" id="icon_swapin" width="20" x="150" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.swapin" y="-30"/>
+ <svg atv:refpx="40" atv:refpy="-20" height="20" id="icon_data" width="20" x="30" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.data" y="-30"/>
+ <svg atv:refpx="190" atv:refpy="-20" height="20" id="icon_systemdb" width="20" x="180" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.archivemanagement.systemdb" y="-30"/>
+ <svg atv:refpx="720.017" atv:refpy="320.025" height="30" id="btn_add" transform="matrix(1.5,0,0,1.3333,0,0)" width="80" x="440" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="225.006">
+  <atv:argument name="label" value="T{Add}"/>
+  <atv:argument name="fontSize" value="16"/>
+  <atv:overwrite height="34.5" id="id_2" transform="matrix(0.6667,0,0,0.75,0,0)" width="114.5"/>
+  <atv:overwrite height="39.5" id="id_0" transform="matrix(0.6667,0,0,0.75,0,0)" width="119.5"/>
+  <atv:overwrite height="37.999" id="id_6" transform="matrix(0.6667,0,0,0.75,0,0)" width="118"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.6667,0,0,0.75,0,0)" x="60" y="31.499"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6667,0,0,0.75,0,0)" x="60" y="16.499"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6667,0,0,0.75,0,0)" x="60" y="24.499"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.4,0,0,0.45,0,0)" x="89.833" y="34.624"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.4,0,0,0.45,0,0)" x="89.833" y="13.291"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6667,0,0,0.75,0,0)" x="50" y="9.999"/>
+  <atv:overwrite height="35.999" id="button_stroke" transform="matrix(0.6667,0,0,0.75,0,0)" width="116"/>
+  <atv:overwrite height="37.999" id="button_bg" transform="matrix(0.6667,0,0,0.75,0,0)" width="118"/>
+  <atv:overwrite height="39.999" id="outer_frame" transform="matrix(0.6667,0,0,0.75,0,0)" width="120"/>
+ </svg>
+ <svg atv:refpx="399.999" atv:refpy="539.708" height="640" id="id_3" transform="matrix(1.1875,0,0,0.5923,0,0)" width="640" x="16.842" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.slickgrid.table" y="591.383">
+  <atv:argument name="tableID" value="atvise_table_archive"/>
+  <atv:argument name="multiselect" value="false"/>
+  <atv:argument name="footer_text_size" value="9"/>
+  <atv:argument name="header_text_horizontal" value="center"/>
+ </svg>
+ <rect atv:refpx="400" atv:refpy="539.75" fill="none" height="379.042" id="id_10" stroke="$FILLCOLOR$" stroke-width="1" width="760" x="20" y="350.229"/>
+ <text atv:refpx="64.771" atv:refpy="245.851" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_13" transform="matrix(1.194,0,0,1.1739,-3.88,-39.997)" x="25" y="249.5">T{SMTP}:</text>
+ <svg atv:refpx="430" atv:refpy="245" height="30" id="cmb_smtp" transform="matrix(2.125,0,0,1,0,0)" width="160" x="122.353" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.combobox" y="230">
+  <atv:argument name="fontSize" value="16"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.4706,0,0,1,0,0)" width="336"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.4706,0,0,1,0,0)" x="315"/>
+  <atv:overwrite id="id_7" transform="matrix(0.4706,0,0,1,0,0)" x="315"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.4706,0,0,1,0,0)" x="315"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.4706,0,0,1,0,0)" x="305.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.4706,0,0,1,0,0)" width="308"/>
+  <atv:overwrite id="combobox_bg" transform="matrix(0.4706,0,0,1,0,0)" width="308"/>
+  <atv:overwrite id="id_1" transform="matrix(0.4706,0,0,1,0,0)" width="338"/>
+  <atv:overwrite id="id_0" transform="matrix(0.4706,0,0,1,0,0)" width="340"/>
+ </svg>
+ <text atv:refpx="75.516" atv:refpy="205.851" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_11" transform="matrix(1.194,0,0,1.1739,-3.88,-33.041)" x="25" y="209.5">T{E-mail to}:</text>
+ <svg atv:refpx="429.987" atv:refpy="205.002" height="30" id="txt_email_to" transform="matrix(2.125,0,0,1,0,0)" width="160" x="122.353" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="190">
+  <atv:argument name="fontSize" value="16"/>
+  <atv:argument name="validation" value="String"/>
+  <atv:argument name="selectTextOnFocus" value="true"/>
+  <atv:overwrite id="id_2" transform="matrix(0.4706,0,0,1,0,0)" width="334.5"/>
+  <atv:argument name="tooltip" value="T{E-mail address to send reports.}"/>
+  <atv:overwrite id="input_label" transform="matrix(0.4706,0,0,1,0,0)" x="332.055"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.4706,0,0,1,0,0)" width="332"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.4706,0,0,1,0,0)" width="336"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.4706,0,0,1,0,0)" width="332"/>
+  <atv:overwrite id="id_1" transform="matrix(0.4706,0,0,1,0,0)" width="338"/>
+  <atv:overwrite id="id_0" transform="matrix(0.4706,0,0,1,0,0)" width="340"/>
+ </svg>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.archivemanagement.auto_scheduler" atv:name="auto_scheduler" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/preview/deployed_devices/fleet/certificate.d.ts
+NodeClass: Variable
+BrowseName: 1:certificate.d.ts
+DisplayName: en|certificate.d.ts
+Description: en|certificate.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.RIGHTS.USER.Log
+NodeClass: Object
+BrowseName: 1:Log
+DisplayName: en|Log
+Description: en|Log
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

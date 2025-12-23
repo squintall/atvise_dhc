@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager
+NodeClass: Variable
+BrowseName: 1:Access Control Manager
+DisplayName: en|Access Control Manager
+Description: en|Access Control Manager
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

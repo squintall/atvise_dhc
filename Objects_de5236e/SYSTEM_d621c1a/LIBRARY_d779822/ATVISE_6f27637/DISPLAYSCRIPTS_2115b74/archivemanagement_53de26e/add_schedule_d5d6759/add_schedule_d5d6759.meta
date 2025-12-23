@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.archivemanagement.add_schedule
+NodeClass: Variable
+BrowseName: 1:add_schedule
+DisplayName: en|add_schedule
+Description: en|add_schedule
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

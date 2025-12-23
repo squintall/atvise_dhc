@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Caudalimetro.totalizer_table_01_00
+NodeClass: Variable
+BrowseName: 1:totalizer_table_01_00
+DisplayName: en|totalizer_table_01_00
+Description: en|totalizer_table_01_00
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

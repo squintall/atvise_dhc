@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Cañotal.Equipos.Bombas.AR_IM_CAR_CAÑOTAL_B2_Local
+NodeClass: Variable
+BrowseName: 1:AR_IM_CAR_CAÑOTAL_B2_Local
+DisplayName: en|AR_IM_CAR_CAÑOTAL_B2_Local
+Description: en|AR_IM_CAR_CAÑOTAL_B2_Local
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

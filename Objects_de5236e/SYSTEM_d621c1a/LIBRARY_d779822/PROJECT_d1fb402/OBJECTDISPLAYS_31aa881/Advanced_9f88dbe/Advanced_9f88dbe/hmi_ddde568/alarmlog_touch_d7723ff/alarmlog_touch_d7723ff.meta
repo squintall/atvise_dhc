@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.Advanced.hmi.alarmlog_touch
+NodeClass: Variable
+BrowseName: 1:alarmlog_touch
+DisplayName: en|alarmlog_touch
+Description: en|alarmlog_touch
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

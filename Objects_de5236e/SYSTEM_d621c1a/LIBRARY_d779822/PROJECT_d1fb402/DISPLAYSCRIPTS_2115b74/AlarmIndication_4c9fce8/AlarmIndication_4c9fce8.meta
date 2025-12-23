@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.AlarmIndication
+NodeClass: Variable
+BrowseName: 1:AlarmIndication
+DisplayName: en|AlarmIndication
+Description: en|AlarmIndication
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

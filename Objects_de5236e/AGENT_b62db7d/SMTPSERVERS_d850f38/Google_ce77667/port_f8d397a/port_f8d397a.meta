@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.SMTPSERVERS.Google.port
+NodeClass: Variable
+BrowseName: 1:port
+DisplayName: en|port
+Description: en|port
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

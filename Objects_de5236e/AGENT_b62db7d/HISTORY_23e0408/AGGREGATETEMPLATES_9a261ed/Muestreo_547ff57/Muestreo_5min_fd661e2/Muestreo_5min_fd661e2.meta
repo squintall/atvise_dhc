@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.HISTORY.AGGREGATETEMPLATES.Muestreo.Muestreo_5min
+NodeClass: Object
+BrowseName: 1:Muestreo_5min
+DisplayName: en|Muestreo_5min
+Description: en|Muestreo_5min
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AggregateFunction
+Reference: forward HasComponent ns=1;s=Sampled

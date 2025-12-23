@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_001.Equipos.Caudalimetro.L1.trendCfg.presiones
+NodeClass: Variable
+BrowseName: 1:presiones
+DisplayName: en|presiones
+Description: en|presiones
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

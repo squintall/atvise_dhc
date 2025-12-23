@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.projectObjectDisplays.Alarmlist.Columns.Alarm
+NodeClass: Variable
+BrowseName: 1:Alarm
+DisplayName: en|Alarm
+Description: en|Alarm
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

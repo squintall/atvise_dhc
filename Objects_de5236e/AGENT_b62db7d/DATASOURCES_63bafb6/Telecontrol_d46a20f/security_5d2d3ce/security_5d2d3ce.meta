@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.security
+NodeClass: Variable
+BrowseName: 1:security
+DisplayName: en|security
+Description: en|security
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.DataSourceSecurity

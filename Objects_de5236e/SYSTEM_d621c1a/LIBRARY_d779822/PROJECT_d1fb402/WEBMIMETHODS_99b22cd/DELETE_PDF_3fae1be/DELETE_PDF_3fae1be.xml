@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[
+var Path=request.postvalues["Address"];
+
+// delete selected File over FileSystem Path
+if(request.postvalues['mode'] == "one" && Path.length>1) {
+	var fs = new FileSystem();
+	fs.deleteFile(Path.replace("./",""));
+}
+
+returnValue=true;
+return returnValue;]]></code>
+</script>

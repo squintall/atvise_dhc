@@ -1,0 +1,11 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Desaladora.Equipos.Caudalimetro.Modulo_301.current_flow
+NodeClass: Variable
+BrowseName: 1:current_flow
+DisplayName: en|current_flow
+Description: en|current_flow
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.current_flow.SuppressFlicker
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Caudalimetros

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.lifetime_count
+NodeClass: Variable
+BrowseName: 1:lifetime_count
+DisplayName: en|lifetime_count
+Description: en|lifetime_count
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

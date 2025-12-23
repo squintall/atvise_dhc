@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Carcamo_009.Equipos.Scrubber.AP_BJ_CAR_9_SCRUBBER_S3.MirrorInput
+NodeClass: Variable
+BrowseName: 1:MirrorInput
+DisplayName: en|MirrorInput
+Description: en|MirrorInput
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.Input

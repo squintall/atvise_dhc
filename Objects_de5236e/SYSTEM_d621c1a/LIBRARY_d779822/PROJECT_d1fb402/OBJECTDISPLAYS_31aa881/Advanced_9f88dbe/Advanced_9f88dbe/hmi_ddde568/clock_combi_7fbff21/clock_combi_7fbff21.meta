@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.Advanced.hmi.clock_combi
+NodeClass: Variable
+BrowseName: 1:clock_combi
+DisplayName: en|clock_combi
+Description: en|clock_combi
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

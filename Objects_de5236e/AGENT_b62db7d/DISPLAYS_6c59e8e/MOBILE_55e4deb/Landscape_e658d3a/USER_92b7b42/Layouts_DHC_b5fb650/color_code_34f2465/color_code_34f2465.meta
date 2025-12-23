@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Landscape.USER.Layouts_DHC.color_code
+NodeClass: Variable
+BrowseName: 1:color_code
+DisplayName: en|color_code
+Description: en|color_code
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

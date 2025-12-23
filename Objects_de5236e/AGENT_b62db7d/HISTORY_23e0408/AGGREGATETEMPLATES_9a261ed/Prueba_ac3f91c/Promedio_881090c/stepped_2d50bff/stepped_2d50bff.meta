@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.HISTORY.AGGREGATETEMPLATES.Prueba.Promedio.stepped
+NodeClass: Variable
+BrowseName: 1:stepped
+DisplayName: en|stepped
+Description: en|stepped
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

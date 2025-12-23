@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Downtime.Downtime_Monitor.Downtime_Reason_4
+NodeClass: Variable
+BrowseName: 1:Downtime_Reason_4
+DisplayName: en|Downtime_Reason_4
+Description: en|Downtime_Reason_4
+DataType: UInt64
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

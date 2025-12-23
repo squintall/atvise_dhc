@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server.pki_path
+NodeClass: Variable
+BrowseName: 1:pki_path
+DisplayName: en|pki_path
+Description: en|pki_path
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,471 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="768" version="1.2" width="1280" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="10" width="10"/>
+ </metadata>
+ <foreignObject height="770" id="map_canvas" width="1280" x="0" y="0">
+  <div style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <text atv:refpx="241.5" atv:refpy="37" fill="#000000" font-family="Arial" font-size="18" id="id_info" x="84.5" y="41.5"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[//----------------Inicializo variables -------------------//
+
+
+//Variable interna
+var Info_Windowact=false;
+var Markeract=false;
+var Markeractdc;
+var Markers= new Array();
+var Rutas= new Array();
+var Pos_origen;
+var Pos_destination;
+
+var google = webMI.rootWindow.google; //Clase Principal
+var map; //Variable donde va a vivir el mapa
+var coordenadas =
+	[[21.1938500, -86.8693550],
+	 [21.166886, -86.841163],
+	 [21.1721406,-86.8777736],
+	 [21.107313631191182, -86.88906471440723],
+	 [21.1740080, -86.8499580],	 
+	 [21.16034482468887, -86.87480751749767],
+	 [21.187811, -86.823514],
+	 [21.201972, -86.880222],
+	 [21.201898, -86.851493],
+	 [21.163160, -86.884666],
+	 [21.099282, -86.862326],				
+	 [21.2026747,-86.8312718],
+	 [21.187312, -86.839589],
+	 [20.511465, -87.227179],
+	 [20.513308040762656, -87.22560298625184],
+	 [20.514199, -87.228981],
+	 [20.516524, -87.233729],
+	 [20.509960, -87.224654]]
+
+					
+var coordenadas_s =
+	[[{lat:21.1938500, lng:-86.8693550}, "Villas Otoch 1, Paseo de los Olivos con Calle 6a Privada el Fresno",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.001.Villas_Otoch_1.PaseoLosOlivos_CSextaPrivLaPalma", "001", "LSP"],
+	[{lat:21.166886, lng:-86.841163}, "Supermanzana 61, Av. José López Portillo con 55 Norte",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.002.SM_65.AvJLPortillo_C55N", "002", "LSP"],
+	[{lat:21.1721406, lng:-86.8777736}, "Los Héroes, Av. 20 de Nomviembre con Calle Narciso de Mendoza",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.005.Los_Heroes.Av20Noviembre_CNarcisoDeMendoza", "005", "LSP"],	
+	[{lat:21.107313631191182, lng:-86.88906471440723}, "Jardines del Sur V, Av. Flor de Naranjo con Priv. de Dalia 04",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.006.Jardines_Sur.AvFlordeNaranjo_PrivDeDalia04", "006", "LSP"],
+	[{lat:21.1740080, lng:-86.8499580}, "Reserva Norte 1, Calle 67 Norte con Calle 56 Poniente",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.007.Reserva_Norte_1.C67N_C56P", "007", "LSP"],	
+	[{lat:21.16034482468887, lng:-86.87480751749767}, "Región 100, Calle 123 Norte con Calle 52 Poniente",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.008.Reg_100.C123N_C52P", "008", "LSP"],
+	[{lat:21.187811, lng:-86.823514}, "Condminios Cancún, Calle 60 con 43",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.009.Cond_Cancun.C60_C43", "009", "LSP"],
+	[{lat:21.201972, lng:-86.880222}, "Villas del Mar, Paseo del Avellano con Paseo de Frambuesas",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.010.Villas_Mar.PaseoAvellano_PaseoFrambuesas", "010", "LSP"],
+	[{lat:21.201898, lng:-86.851493}, "Azul Bonampak, Av. Muyil con Calle Petén",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.011.Azul_Bonampak.AvMuyil_CPeten", "011", "LSP"],
+	[{lat:21.163160, lng:-86.884666}, "Izamal Residencial, Cerrada Yucatán con Flamingo",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.013.Resid_Izamal.CFlamingo_CdaYucatan", "013", "LSP"],
+	[{lat:21.099282, lng:-86.862326}, "SM 307, Av. de los Colegios con Av. Huayacán",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.014.SM_307.AvColegios_AvHuayacan", "014", "LSP"],
+	[{lat:21.2026747, lng:-86.8312718}, "SM 237, Calle 41 con Calle 150",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.015.SM_237.C41_C150", "015", "LSP"],
+	[{lat:21.187312, lng:-86.839589}, "SM 233, Calle 84 con Calle 19 Norte",
+	"AGENT.OBJECTS.Sofrel.Benito_Juarez.016.SM_233.C84_C19N", "016", "LSP"],
+	[{lat:20.511465, lng:-87.227179}, "Av. Eje del Equilibrio Entre Cal. Puerto Maya y Calzada del Sol",
+	"AGENT.OBJECTS.Sofrel.Solidaridad.100.PtoMaya_I_04_.AvEquilibrio_CzPtoMaya_CzdelSol", "100", "LSP"],
+	[{lat:20.513308040762656, lng:-87.22560298625184}, "Cerrada Iguana con Calzada de la Luna",
+	"AGENT.OBJECTS.Sofrel.Solidaridad.101.PtoMaya_I_02.CdaIguana_CzdelaLuna", "101", "LSP"],
+	[{lat:20.514199, lng:-87.228981}, "Calzada Puerto Maya (Parque Lol Beh)",
+	"AGENT.OBJECTS.Sofrel.Solidaridad.102.PtoMaya_III_M6.CzPtoMaya_ParqLolBeh", "102", "LS42"],
+	[{lat:20.516524, lng:-87.233729}, "Calzada del Sol esquina con Cda. Venado",
+	"AGENT.OBJECTS.Sofrel.Solidaridad.103.PtoMaya_II_M7.CzdelSol_CdaVenado", "103", "LS42"],
+	[{lat:20.509960, lng:-87.224654}, "Calzada Puerto Maya (Frente a Chedraui)",
+	"AGENT.OBJECTS.Sofrel.Solidaridad.105.PtoA_Akumal.CzPuertoMaya_FteChedraui", "105", "LS42"]]
+					
+var infowindow;					
+var coordenadas_centro;
+const symbolSofrel = "/ls-42.png";
+
+
+
+//----------------Ejecución -------------------//
+
+
+
+//Determinación del dispositivo
+var infoCliente;
+infoCliente = new webMI.getClientInfo();
+
+//Preprocesamiento de variables
+
+//Calculo del Centro
+var suma=[0,0];
+for (var i=0; i<coordenadas.length; i++){
+	suma[0]=suma[0]+coordenadas[i][0]; //Latitud 
+	suma[1]=suma[1]+coordenadas[i][1]; //Longitud
+}
+
+coordenadas_centro=[suma[0]/coordenadas.length,suma[1]/coordenadas.length];
+
+
+webMI.addOnload(function() {
+	
+	//Posiciones en el mapa
+	var position1 = new google.maps.LatLng(coordenadas_centro[0], coordenadas_centro[1]);
+	
+	//Opciones del mapa
+	var myOptions = {
+		zoom: 10,
+		center: position1,
+		mapTypeId: google.maps.MapTypeId.roadmap
+	};
+	
+
+	//Inicializo el mapa
+	map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+	
+	
+		
+	
+		
+	// Instantiate an info window to hold step text.
+	const stepDisplay = new google.maps.InfoWindow();
+	
+	
+	//-------Inicializo Marcadores
+	
+	coordenadas_s.forEach(([position,title,object,address,type],i) =>{
+		const marker = new google.maps.Marker({
+			position, 
+			map,
+			icon: symbolSofrel,
+			title: ` ${address}`,
+			optimized: true,
+		});
+		
+		marker.setMap(map);
+		
+		//Agrego marcador a lista de marcadores
+		Markers.push(marker);
+	
+		//-------Listener de Marcadores
+		
+		//DOBLECLICK (Fija Carcamo)
+		google.maps.event.addListener(marker,'dblclick',function(event) {
+		
+			// Los lísteners aquí son para visualización de indicadores de nivel, presión, flujo 
+		    webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Sectorizacion.Grafico_Sectorizacion" ,
+			extern:false,height:356,menubar:false,modal:false,movable:true,resizable:true,scrollbars:false,status:false,
+			title:title,toolbar:false,x:200,y:200,width:550,query:{base:object}});
+
+			/*webMI.display.openDisplay("ObjectTypes.PROJECT.DataLogger"+ type +".Grafico_Sectorizacion",
+			{base:  "AGENT.OBJECTS.Sofrel." + object}, "Sectorizacion");*/
+			map.panTo(this.getPosition());
+			map.setZoom(14);
+
+			Markeract=true;
+			Markeractdc=marker;
+			Pos_origen=position;
+			
+			//Limpio
+			Elimina_Ruta(Rutas);
+				
+		});
+	/*	map.addListener("zoom_changed", () => {
+    infowindow.setContent("Zoom: " + map.getZoom());
+  });*/
+		
+		
+		//CLICK (Abre Infowindow)
+		/*google.maps.event.addListener(marker,'click',function(event) {	
+			
+			//Abro en temporal
+			if (marker!=Markeractdc && Markeract==true ){		
+				webMI.display.openDisplay("ObjectTypes.PROJECT.DataLogger"+ type +".Grafico_SectorizacionB", {base:  "AGENT.OBJECTS.Sofrel." + object}, "SectorizacionB");
+				Pos_destination=position;	
+				
+				//Limpio
+				Elimina_Ruta(Rutas);
+				
+				//Dibujo
+				//Dibuja_Ruta(Pos_origen,Pos_destination);
+			}
+			
+			//webMI.display.openDisplay("SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.LAYOUTS.Blanc_Layout",{}, "detallesCarcamoNext");
+			
+		});	*/
+			
+		
+		//MOUSEOVER
+		google.maps.event.addListener(marker, "mouseover", function(event){
+			infowindow = new google.maps.InfoWindow();
+			//Abro marcador
+			infowindow.open(marker.getMap,marker);
+			Info_Windowact=true;
+			/*webMI.data.subscribe("AGENT.OBJECTS.Carcamos.Carcamo_"+[i+1]
+			+".MedicionNivel",
+			function(e){
+				infowindow.setContent(marker.getTitle()+" - Nivel: " +
+				e.value.toFixed(2) + "m");
+				}
+			);*/
+			
+				infowindow.setContent(title);
+		
+		});	
+		
+		//MOUSEOUT
+		google.maps.event.addListener(marker, "mouseout", function(event){
+			
+			
+			if (Info_Windowact){
+				infowindow.close();
+				Info_Windowact=false;
+			}			
+		});
+		
+		
+		
+	});	
+			
+});
+
+
+
+function Dibuja_Ruta(Origen,Destination){
+	
+	if(Markeract && (Origen!=Destination)){
+			
+		//////////// Servicios Rutas en el mapa
+		var directionsService = new google.maps.DirectionsService();
+		var directionsRenderer = new google.maps.DirectionsRenderer({ map: map });		
+		
+		//Crea el request
+		var request = {
+			origin: Origen,
+			destination:Destination,
+			travelMode: google.maps.TravelMode.DRIVING // Puedes ajustar el modo de transporte según tus necesidades
+		  };    
+		
+		
+		directionsService.route(request, function(response, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  directionsRenderer.setDirections(response);
+			  Rutas.push(directionsRenderer);
+			}
+		  });
+	 }
+    
+ }
+
+
+function Elimina_Ruta(Rutas){
+	
+	Rutas.forEach(function(ruta) {
+		ruta.setMap(null);
+	});
+	
+	Rutas=new Array();
+    
+ }
+	
+
+/*[	[21.0723783, -87.0303208],
+					[21.1219352, -86.9317333],
+					[21.1674306, -86.8322111],				
+					[21.12174,-86.93153],
+					[21.00966,-87.03019]]
+					[21.00966,-87.02987],
+					[21.11217,-86.95208],
+					[21.16791,-86.98331],
+					[21.16729,-86.98313],
+					[21.09115,-86.99416],
+					[21.05608,-87.0642],
+					[21.01445,-86.93365],
+					[21.01523,-86.92855],
+					[21.01008,-87.02949],
+					[21.1567,-86.82069],
+					[21.16054,-86.85492],
+					[21.1414,-86.84338],
+					[21.15187,-86.88198],
+					[21.02888,-86.85184],
+					[21.03009,-86.85204],
+					[21.13178,-86.87921],
+					[21.15658,-86.89947],
+					[21.16743,-86.83221],
+					[21.16671,-86.83108],
+					[21.17046,-86.84156],
+					[21.17483,-86.85937],
+					[21.18596,-86.83879],
+					[21.1957,-86.83382],
+					[21.15067,-86.82043],
+					[21.1461,-86.83335],
+					[21.23497,-86.80161],
+					[21.14477,-86.86641],
+					[21.19317,-86.87171],
+					[21.13696,-86.92071],
+					[21.1803,-86.81496],
+					[21.14513,-86.88828],
+					[21.17639,-86.82054],
+					[21.17701,-86.81719],
+					[21.17578,-86.82429],
+					[21.18483,-86.81766],
+					[21.11064,-86.84454],
+					[21.14964,-86.85279],
+					[21.13193,-86.83222],
+					[21.18141,-86.88925],
+					[21.19461,-86.85915],
+					[21.18812,-86.85054],
+					[21.13232,-86.83922],
+					[21.1413,-86.90508],
+					[21.17543,-86.87166],
+					[21.14981,-86.8256],
+					[21.17537,-86.8977],
+					[21.17192,-86.90454],
+					[21.15206,-86.91688],
+					[21.16142,-86.92804],
+					[21.12461,-86.92966],
+					[21.13321,-86.92429],
+					[21.16365,-86.82107],
+					[21.16324,-86.83454],
+					[21.15069,-86.82143],
+					[21.15746,-86.8408],
+					[21.14775,-86.82732],
+					[21.15045,-86.83313],
+					[21.15403,-86.85022],
+					[21.16418,-86.85322],
+					[21.1578,-86.85405],
+					[21.15326,-86.86345],
+					[21.17565,-86.81707],
+					[21.1804,-86.81463],
+					[21.15211,-86.86654],
+					[21.16615,-86.84708],
+					[21.14122,-86.84383],
+					[21.14024,-86.85624],
+					[21.13988,-86.87262],
+					[21.13643,-86.87229],
+					[21.17434,-86.82018],
+					[21.13267,-86.86796],
+					[21.14865,-86.82287],
+					[21.13753,-86.8566],
+					[21.15058,-86.82036],
+					[21.16175,-86.84535],
+					[21.16316,-86.86817],
+					[21.16663,-86.86316],
+					[21.17036,-86.85455],
+					[21.18121,-86.8297],
+					[21.17661,-86.84125],
+					[21.17332,-86.84676],
+					[21.15974,-86.87466],
+					[21.1535,-86.88552],
+					[21.16735,-86.83243],
+					[21.18338,-86.81921],
+					[21.12651,-86.83115],
+					[21.1414,-86.82537],
+					[21.1393,-86.82341],
+					[21.17053,-86.87889],
+					[21.18584,-86.82768],
+					[21.15664,-86.89911],
+					[21.14128,-86.89794],
+					[21.19444,-86.85891],
+					[21.19577,-86.83417],
+					[21.20037,-86.84916],
+					[21.14133,-86.90483],
+					[21.12239,-86.88213],
+					[21.19346,-86.87168],
+					[21.13703,-86.92104],
+					[21.18782,-86.87506],
+					[21.175,-86.85955],
+					[21.13123,-86.88368],
+					[21.1881,-86.85063],
+					[21.15528,-86.85324],
+					[21.16358,-86.91402],
+					[21.19102,-86.84799],
+					[21.15061,-86.7946],
+					[21.14467,-86.78959],
+					[21.13884,-86.76936],
+					[21.13487,-86.75568],
+					[21.13594,-86.74676],
+					[21.125,-86.75429],
+					[21.11296,-86.76116],
+					[21.12473,-86.7668],
+					[21.13056,-86.76241],
+					[21.13255,-86.7606],
+					[21.13821,-86.8571],
+					[21.17968,-86.89381],
+					[21.20375,-86.82958],
+					[21.19275,-86.80776],
+					[21.19478,-86.81828],
+					[21.12566,-86.83965],
+					[21.05318,-87.03086],
+					[21.09763,-86.98072],
+					[20.96513,-87.11867],
+					[21.19521,-86.99773],
+					[21.11871,-87.00977],
+					[21.0497,-87.09124],
+					[20.62706,-87.08305],
+					[20.62042,-87.09041],
+					[20.63336,-87.0769],
+					[20.63997,-87.07101],
+					[20.64754,-87.06462],
+					[20.64058,-87.09594],
+					[20.65721,-87.08072],
+					[20.6881,-87.0564],
+					[20.66988,-87.1071],
+					[20.67145,-87.09015],
+					[20.51381,-87.22892],
+					[20.51046,-87.23241],
+					[20.6393,-87.06434],
+					[20.65521,-87.07993],
+					[20.67952,-87.05818],
+					[20.62618,-87.10363],
+					[20.62687,-87.07051],
+					[20.63454,-87.07736],
+					[20.66182,-87.06343],
+					[20.66938,-87.06223],
+					[20.62421,-87.09091],
+					[20.66624,-87.10904],
+					[20.63679,-87.06288],
+					[20.67204,-87.04145],
+					[20.64643,-87.05766],
+					[20.65618,-87.10602],
+					[20.5108,-87.22779],
+					[20.63788,-87.08164],
+					[20.68384,-87.11739],
+					[20.70075,-87.20675],
+					[20.85527,-86.89548],
+					[20.85933,-86.90758],
+					[20.98507,-87.21119],
+					[20.85959,-86.90833],
+					[20.87094,-86.89591],
+					[20.85311,-86.93752],
+					[20.9802,-87.22789],
+					[20.97528,-87.23809],
+					[21.22491,-86.72595],
+					[21.25129,-86.74244],
+					[21.25637,-86.74828],
+					[21.23737,-86.73427],
+					[21.22998,-86.72912],
+					[21.22626,-86.72545],
+					[21.22298,-86.72356],
+					[21.22061,-86.7263],
+					[21.23425,-86.73322],
+					[21.23516,-86.74117],
+					[21.22416,-86.73034],
+					[21.22471,-86.72869],
+					[21.2373,-86.73794],
+					[21.22868,-86.73093],
+					[21.21673,-86.72072],
+					[21.06744,-86.84533],
+					[21.13365,-86.83175],
+					[21.14354,-86.87057],
+					[21.15394,-86.83948],
+					[21.17435,-86.84669],
+					[21.18663,-86.84931],
+					[21.14076,-86.9174],
+					[21.15873,-86.81992],
+					[21.16009,-86.90302],
+					[21.19514,-86.82698],
+					[20.66818,-87.07127],*/
+]]></script>
+</svg>

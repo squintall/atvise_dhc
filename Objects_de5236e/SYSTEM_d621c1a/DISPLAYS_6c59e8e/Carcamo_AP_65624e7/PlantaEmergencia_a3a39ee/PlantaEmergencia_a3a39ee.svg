@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="40.869999999999997" version="1.2" width="350.29000000000002" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_0" x1="0" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#000000"/>
+   <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".NivelCombustible", function(e) {
+var id = "id_4";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+]]><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".EstadoPlantaEmergencia", function(e) {
+var id = "id_5";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+]]><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".EstadoPlantaEmergencia", function(e) {
+var id = "id_7";
+var value = e.value;
+if (value == 0)
+	webMI.gfx.setStroke(id, "#dddddd");
+if (value == 0)
+	webMI.gfx.setFill(id, "#bbbbbb");
+if (value == 1)
+	webMI.gfx.setFill(id, "#ffaa00");
+if (value == 1)
+	webMI.gfx.setStroke(id, "#fff15a");
+
+});]]></script>
+ <rect atv:refpx="20" atv:refpy="20.867" fill="#d7d7d7" height="40" id="id_8" stroke="none" stroke-width="2" width="40" x="0" y="0.867"/>
+ <text atv:refpx="93.734" atv:refpy="21.21" fill="#000000" font-family="Arial" font-size="18" id="id_1" x="42.066" y="25.71">Planta Emergencia</text>
+ <text atv:refpx="265.277" atv:refpy="22.951" fill="#000000" font-family="Arial" font-size="18" id="id_2" x="245.277" y="27.451">Fuel %:</text>
+ <text atv:refpx="329.29" atv:refpy="21.218" fill="#000000" font-family="Arial" font-size="18" id="id_4" x="309.79" y="27.718">Nivel</text>
+ <text atv:refpx="203.648" atv:refpy="21.744" fill="#000000" font-family="Arial" font-size="18" id="id_5" x="195.648" y="26.244">Sts</text>
+ <polyline atv:refpx="20.345" atv:refpy="20" fill="#cacaca" id="id_7" points="22.147,1.265 1.344,38.702 39.344,39 22.101,1" stroke="#989898" stroke-width="2"/>
+</svg>

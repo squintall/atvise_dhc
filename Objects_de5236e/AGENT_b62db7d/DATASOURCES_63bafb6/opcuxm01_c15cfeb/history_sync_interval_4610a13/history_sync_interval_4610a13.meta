@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.opcuxm01.history_sync_interval
+NodeClass: Variable
+BrowseName: 1:history_sync_interval
+DisplayName: en|history_sync_interval
+Description: en|history_sync_interval
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

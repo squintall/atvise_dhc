@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.restore.exceeded_critical
+NodeClass: Variable
+BrowseName: 1:exceeded_critical
+DisplayName: en|exceeded_critical
+Description: en|exceeded_critical
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType

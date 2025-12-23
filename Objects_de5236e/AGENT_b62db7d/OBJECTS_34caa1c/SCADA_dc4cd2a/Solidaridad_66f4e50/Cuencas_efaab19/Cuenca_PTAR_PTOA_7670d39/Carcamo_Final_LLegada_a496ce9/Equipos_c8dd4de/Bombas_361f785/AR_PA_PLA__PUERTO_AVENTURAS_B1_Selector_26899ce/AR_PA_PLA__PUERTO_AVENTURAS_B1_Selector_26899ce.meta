@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Final_LLegada.Equipos.Bombas.AR_PA_PLA__PUERTO_AVENTURAS_B1_Selector
+NodeClass: Variable
+BrowseName: 1:AR_PA_PLA__PUERTO_AVENTURAS_B1_Selector
+DisplayName: en|AR_PA_PLA__PUERTO_AVENTURAS_B1_Selector
+Description: en|AR_PA_PLA__PUERTO_AVENTURAS_B1_Selector
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

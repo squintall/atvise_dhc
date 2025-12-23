@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/timer/certec/dhtmlxscheduler_zoom.js
+NodeClass: Variable
+BrowseName: 1:dhtmlxscheduler_zoom.js
+DisplayName: en|dhtmlxscheduler_zoom.js
+Description: en|dhtmlxscheduler_zoom.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

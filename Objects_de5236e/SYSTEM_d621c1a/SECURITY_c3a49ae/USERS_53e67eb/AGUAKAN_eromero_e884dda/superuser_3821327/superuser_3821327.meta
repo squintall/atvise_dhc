@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\eromero.superuser
+NodeClass: Variable
+BrowseName: 1:superuser
+DisplayName: en|superuser
+Description: en|superuser
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

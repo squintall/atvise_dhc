@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig
+NodeClass: Variable
+BrowseName: 1:DirectoryMonitoringConfig
+DisplayName: en|DirectoryMonitoringConfig
+Description: en|DirectoryMonitoringConfig
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

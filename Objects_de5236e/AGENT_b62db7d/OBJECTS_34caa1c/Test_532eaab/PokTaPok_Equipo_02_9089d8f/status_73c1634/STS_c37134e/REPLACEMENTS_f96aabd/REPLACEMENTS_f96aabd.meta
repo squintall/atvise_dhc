@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Test.PokTaPok_Equipo_02.status.STS.REPLACEMENTS
+NodeClass: Object
+BrowseName: 1:REPLACEMENTS
+DisplayName: en|REPLACEMENTS
+Description: en|REPLACEMENTS
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

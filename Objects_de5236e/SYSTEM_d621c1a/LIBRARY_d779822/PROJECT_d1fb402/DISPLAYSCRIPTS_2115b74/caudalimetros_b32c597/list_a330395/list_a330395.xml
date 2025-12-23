@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/*
+ * Caudalimetros – Lista (sin IIFEs, sin window)
+ * Usa CaudalGlobals de main y monta filas en #fo_root_host.
+ */
+
+// API pública simple
+if (typeof caudalListMain === 'undefined') { var caudalListMain = {}; }
+
+  var items = [];
+  var LAYOUT = null;
+
+  var XHTML_NS = 'http://www.w3.org/1999/xhtml';
+  function x(doc, tag) { return doc.createElementNS(XHTML_NS, tag); }
+
+  function ensureLayout() {
+    var host = document.getElementById('fo_root_host');
+    if (!host) return null;
+    if (LAYOUT && LAYOUT.host === host) return LAYOUT;
+    while (host.firstChild) { try { host.removeChild(host.firstChild); } catch (_) { break; } }
+    var doc = host.ownerDocument || document;
+    var container = x(doc, 'div');
+    container.style.display = 'flex';
+    container.style.gap = '24px';
+    container.style.width = '100%';
+    container.style.height = '100%';
+    container.style.boxSizing = 'border-box';
+    container.style.padding = '0 24px';
+    container.style.fontFamily = 'Arial, Helvetica, sans-serif';
+    host.appendChild(container);
+    var listPanel = x(doc, 'div');
+    listPanel.style.flex = '1';
+    listPanel.style.display = 'flex';
+    listPanel.style.flexDirection = 'column';
+    listPanel.style.gap = '12px';
+    container.appendChild(listPanel);
+    var slotsWrap = x(doc, 'div');
+    slotsWrap.style.flex = '1';
+    slotsWrap.style.minHeight = '0';
+    slotsWrap.style.display = 'flex';
+    slotsWrap.style.flexDirection = 'column';
+    slotsWrap.style.gap = '10px';
+    slotsWrap.style.overflowY = 'auto';
+    slotsWrap.style.paddingRight = '4px';
+    listPanel.appendChild(slotsWrap);
+    // Card panel on the right
+    var cardPanel = x(doc, 'div');
+    cardPanel.style.flex = '0 0 840px';
+    cardPanel.style.height = '100%';
+    cardPanel.style.boxSizing = 'border-box';
+    cardPanel.style.border = '1px solid #e2e8f0';
+    cardPanel.style.borderRadius = '12px';
+    cardPanel.style.background = '#ffffff';
+    cardPanel.style.boxShadow = '0 12px 28px -18px rgba(15,23,42,0.35)';
+    cardPanel.style.padding = '18px 20px';
+    cardPanel.style.display = 'flex';
+    cardPanel.style.flexDirection = 'column';
+    cardPanel.style.overflowY = 'auto';
+    container.appendChild(cardPanel);
+    // Placeholder and host
+    var placeholder = x(doc, 'div');
+    placeholder.textContent = 'Seleccione un equipo para ver el detalle';
+    placeholder.style.flex = '1';
+    placeholder.style.display = 'flex';
+    placeholder.style.alignItems = 'center';
+    placeholder.style.justifyContent = 'center';
+    placeholder.style.color = '#64748b';
+    placeholder.style.fontSize = '14px';
+    cardPanel.appendChild(placeholder);
+    var cardHost = x(doc, 'div');
+    cardHost.id = 'ca_side_host';
+    cardHost.style.display = 'none';
+    cardHost.style.flex = '1';
+    cardHost.style.minHeight = '0';
+    cardHost.style.overflowY = 'auto';
+    cardPanel.appendChild(cardHost);
+    LAYOUT = { host: host, slotsWrap: slotsWrap, cardPanel: cardPanel, cardHost: cardHost, placeholder: placeholder };
+    // Exponer layout para main
+    CaudalGlobals.LAYOUT = LAYOUT;
+    return LAYOUT;
+  }
+
+  // utilidades del namespace
+  var formatNumber = CaudalGlobals.UTILS.formatNumber.bind(CaudalGlobals.UTILS);
+  var formatUnit = CaudalGlobals.UTILS.formatUnit.bind(CaudalGlobals.UTILS);
+
+  function mountRow(el, address) {
+    var doc = el.ownerDocument || document;
+    var wrapper = x(doc, 'div');
+    wrapper.style.display = 'flex';
+    wrapper.style.alignItems = 'center';
+    wrapper.style.justifyContent = 'space-between';
+    wrapper.style.padding = '8px 16px';
+    wrapper.style.border = '1px solid #cbd5e1';
+    wrapper.style.borderRadius = '8px';
+    wrapper.style.background = '#ffffff';
+    wrapper.style.cursor = 'pointer';
+    el.appendChild(wrapper);
+    var left = x(doc, 'div'); left.style.display = 'flex'; left.style.flexDirection = 'column'; left.style.gap = '2px'; left.style.minWidth = '0'; wrapper.appendChild(left);
+    var nameEl = x(doc, 'span'); nameEl.style.fontWeight = '700'; nameEl.style.fontSize = '15px'; nameEl.style.color = '#0f172a'; nameEl.style.whiteSpace = 'nowrap'; nameEl.style.overflow = 'hidden'; nameEl.style.textOverflow = 'ellipsis'; nameEl.textContent = address.split('.').pop() || 'Caudalimetro'; left.appendChild(nameEl);
+    // Ocultar alias con dirección completa (no mostrar el address crudo)
+    // var aliasEl = x(doc, 'div'); aliasEl.style.fontSize = '11px'; aliasEl.style.color = '#475569'; aliasEl.style.whiteSpace = 'nowrap'; aliasEl.style.overflow = 'hidden'; aliasEl.style.textOverflow = 'ellipsis'; aliasEl.textContent = address; // left.appendChild(aliasEl);
+    var rightBox = x(doc, 'div'); rightBox.style.display = 'flex'; rightBox.style.alignItems = 'center'; rightBox.style.gap = '14px'; rightBox.style.marginLeft = 'auto'; wrapper.appendChild(rightBox);
+    var metrics = x(doc, 'div'); metrics.style.display = 'grid'; metrics.style.gridAutoFlow = 'column'; metrics.style.gridAutoColumns = 'minmax(120px,auto)'; metrics.style.gap = '16px'; rightBox.appendChild(metrics);
+    var isAP = (address || '').indexOf('Circuito') >= 0;
+    var defs = [
+      { key: 'flow',    label: 'Caudal',      suffix: '.current_flow',        unit: 'l/s',    decimals: 1, trend: CaudalGlobals.CONFIG.PATHS.flow },
+      { key: 'pressure',label: 'Presion',     suffix: '.current_pressure',    unit: 'kg/cm2', decimals: 2, trend: CaudalGlobals.CONFIG.PATHS.pressure, onlyAP: true },
+      { key: 'daily',   label: 'Prod. dia',   suffix: '.current_daily_volume',unit: 'm3',     decimals: 0, trend: CaudalGlobals.CONFIG.PATHS.daily },
+      { key: 'total',   label: 'Prod. total', suffix: '.current_total_volume',unit: 'm3',     decimals: 0, trend: null }
+    ];
+    var valueRefs = {};
+    defs.forEach(function (def) {
+      if (def.onlyAP && !isAP) return;
+      var block = x(doc, 'div'); block.style.display = 'flex'; block.style.flexDirection = 'column'; block.style.gap = '2px'; block.style.cursor = def.trend ? 'pointer' : 'default'; metrics.appendChild(block);
+      var lab = x(doc, 'span'); lab.textContent = def.label; lab.style.fontSize = '10px'; lab.style.textTransform = 'uppercase'; lab.style.letterSpacing = '0.03em'; lab.style.color = '#64748b'; block.appendChild(lab);
+      var val = x(doc, 'span'); val.textContent = '--'; val.style.fontSize = '16px'; val.style.fontWeight = '600'; val.style.color = '#0f172a'; block.appendChild(val);
+      if (def.trend) {
+        block.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          CaudalGlobals.UTILS.openWindowWithDynamicTitle(address + '.name', def.trend, 'Tendencia de ', {
+            width: 900, height: 575, resizable: true, menubar: false, toolbar: false, scrollbars: false, status: false, modal: false, movable: true
+          }, CaudalGlobals.CONFIG.QUERY);
+        });
+      }
+      valueRefs[def.key] = { el: val, def: def };
+    });
+    var subs = [];
+    subs.push(CaudalGlobals.UTILS.subscribeValue(address + '.name', function (v) { if (v) nameEl.textContent = v || nameEl.textContent; }));
+    // Helper: producción del día desde serie acumulada horaria
+    function updateDailyFromHist(targetEl){
+      try{
+        var now = new Date(); var sod = new Date(now); sod.setHours(0,0,0,0);
+        var from = (+sod); var to = Date.now();
+        var path = address + '.historic_hourly_production';
+        function q(filter, cb){ try{ webMI.data.queryFilter(filter, function(res){ var r=(res&&res.result)||[]; cb(r&&r[0]); }); }catch(_){ cb(null); } }
+        var fFirst = { type:["v:1"], address:["g:"+path], select:["v:timestamp","v:value"], numrows:["v:1"], timestamp:["n:>="+from,"n:<="+to], order:["v:asc"] };
+        var fLast  = { type:["v:1"], address:["g:"+path], select:["v:timestamp","v:value"], numrows:["v:1"], timestamp:["n:>="+from,"n:<="+to], order:["v:desc"] };
+        q(fFirst, function(fr){ q(fLast, function(lr){
+          var v0 = fr ? +((fr.value!=null)? fr.value : (Array.isArray(fr)? fr[1]:NaN)) : NaN;
+          var v1 = lr ? +((lr.value!=null)? lr.value : (Array.isArray(lr)? lr[1]:NaN)) : NaN;
+          var dv = (isFinite(v0) && isFinite(v1))? (v1 - v0) : 0; if (!isFinite(dv) || dv<0) dv=0; if (Math.abs(dv)<1e-9) dv=0;
+          targetEl.textContent = CaudalGlobals.UTILS.formatUnit(dv, 'm3', 0);
+        }); });
+      }catch(_){ targetEl.textContent = CaudalGlobals.UTILS.formatUnit(0,'m3',0); }
+    }
+
+    Object.keys(valueRefs).forEach(function (key) {
+      var ref = valueRefs[key];
+      if (key === 'daily'){
+        updateDailyFromHist(ref.el);
+        try{ subs.push({ type:'interval', id: setInterval(function(){ updateDailyFromHist(ref.el); }, 300000) }); }catch(_){ }
+      } else {
+        subs.push(CaudalGlobals.UTILS.subscribeValue(address + ref.def.suffix, function (val, status) {
+          ref.el.textContent = CaudalGlobals.UTILS.formatUnit(val, ref.def.unit, ref.def.decimals);
+          ref.el.style.color = (status == null || status === 0) ? '#0f172a' : '#b91c1c';
+        }));
+      }
+    });
+    // Arrow indicator (blue AP, green AR)
+    var arrow = x(doc, 'span'); arrow.textContent = '➔'; arrow.style.fontSize = '18px'; arrow.style.fontWeight = '700'; arrow.style.color = isAP ? '#2563eb' : '#16a34a'; rightBox.appendChild(arrow);
+    wrapper.addEventListener('click', function () {
+      try { CaudalGlobals.STATE.SLOT_ADDRS[el.id] = address; } catch (_) {}
+      try { if (CaudalGlobals.UTILS && CaudalGlobals.UTILS.markSlotSelected) CaudalGlobals.UTILS.markSlotSelected(address); } catch (_) {}
+      try { if (typeof caudalMain !== 'undefined' && typeof caudalMain.select === 'function') { caudalMain.select(address); } } catch (_) {}
+    });
+    CaudalGlobals.STATE.LINE_INSTANCES[el.id] = { subs: subs };
+    CaudalGlobals.STATE.SLOT_ADDRS[el.id] = address;
+  }
+
+  function renderList() {
+    var lay = ensureLayout(); if (!lay) return;
+    var oldWrap = lay.slotsWrap;
+    // Unsubscribe all existing line subscriptions
+    try {
+      Object.keys(CaudalGlobals.STATE.LINE_INSTANCES).forEach(function (id) {
+        var inst = CaudalGlobals.STATE.LINE_INSTANCES[id];
+        if (!inst) return;
+        try{ if (Array.isArray(inst.subs)) inst.subs.forEach(function(s){ if (s && s.type==='interval' && s.id){ try{ clearInterval(s.id); }catch(__){} } }); }catch(__){}
+        CaudalGlobals.UTILS.unsubscribeAll(inst.subs);
+      });
+    } catch (_) {}
+    CaudalGlobals.STATE.LINE_INSTANCES = Object.create(null);
+    // Replace the slots container to avoid DOM invalid states
+    var doc = oldWrap.ownerDocument || document;
+    var parent = oldWrap.parentNode;
+    var newWrap = x(doc, 'div');
+    newWrap.style.flex = '1';
+    newWrap.style.minHeight = '0';
+    newWrap.style.display = 'flex';
+    newWrap.style.flexDirection = 'column';
+    newWrap.style.gap = '10px';
+    newWrap.style.overflowY = 'auto';
+    newWrap.style.paddingRight = '4px';
+    try { parent.replaceChild(newWrap, oldWrap); } catch (_) { /* fallback */ oldWrap.innerHTML = ''; newWrap = oldWrap; }
+    // Update layout refs
+    LAYOUT.slotsWrap = newWrap;
+    CaudalGlobals.LAYOUT.slotsWrap = newWrap;
+    var wrap = newWrap;
+    if (!items || !items.length) return;
+    for (var i = 0; i < items.length; i++) { var rowEl = x(doc, 'div'); rowEl.id = 'slot_' + i; wrap.appendChild(rowEl); mountRow(rowEl, items[i].address); }
+    // Reaplicar selección si existe
+    if (CaudalGlobals.STATE && CaudalGlobals.STATE.SELECTED_ADDR && CaudalGlobals.UTILS && CaudalGlobals.UTILS.markSlotSelected) {
+      CaudalGlobals.UTILS.markSlotSelected(CaudalGlobals.STATE.SELECTED_ADDR);
+    } else {
+      // Auto-seleccionar el primero visible
+      try {
+        var first = items[0] && items[0].address;
+        if (first && typeof caudalMain !== 'undefined' && typeof caudalMain.select === 'function') {
+          CaudalGlobals.STATE.SELECTED_ADDR = first;
+          CaudalGlobals.UTILS.markSlotSelected(first);
+          caudalMain.select(first);
+        }
+      } catch (_) {}
+    }
+  }
+
+  function applyItems(newItems) { items = newItems || []; renderList(); }
+
+  function load() {
+    if (!CaudalGlobals.CONFIG.BASE) return;
+    try {
+      webMI.data.call('ListarEquipos', {
+        startAddress: CaudalGlobals.CONFIG.BASE,
+        endLevel: '3', levelMode: 'exact', recursive: 'true', max: '0', includeStartAddress: 'false', filterTypeName: 'Caudalimetro', debug: 'false'
+      }, function (ret) {
+        var newItems = [];
+        if (ret && Array.isArray(ret.items)) {
+          newItems = ret.items.map(function (n) {
+            var addr = String((n && n.address) || ''); var i = addr.indexOf('s='); if (i >= 0) addr = addr.slice(i + 2);
+            return { address: addr, name: (n && n.name) || '' };
+          }).filter(function (it) { return !!it.address; });
+        }
+        applyItems(newItems);
+      });
+    } catch (_) { applyItems([]); }
+  }
+
+  function init() { ensureLayout(); load(); }
+  try { if (typeof webMI !== 'undefined' && webMI.addOnload) webMI.addOnload(init); else init(); }
+  catch (_) { init(); }
+
+  // API pública
+  caudalListMain.reload = load;
+  caudalListMain.render = renderList;
+]]></code>
+</script>

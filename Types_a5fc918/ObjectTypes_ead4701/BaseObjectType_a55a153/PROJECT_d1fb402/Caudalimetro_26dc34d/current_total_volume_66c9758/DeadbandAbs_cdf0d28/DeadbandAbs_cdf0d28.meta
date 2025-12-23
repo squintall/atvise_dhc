@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Caudalimetro.current_total_volume.DeadbandAbs
+NodeClass: Variable
+BrowseName: 1:DeadbandAbs
+DisplayName: en|DeadbandAbs
+Description: en|DeadbandAbs
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Smoothing.Deadband.Absolute

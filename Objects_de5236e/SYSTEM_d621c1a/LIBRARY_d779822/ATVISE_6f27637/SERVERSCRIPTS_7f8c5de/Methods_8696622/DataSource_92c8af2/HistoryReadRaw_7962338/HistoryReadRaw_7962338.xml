@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="datasource" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="address" type="stringarray" trigger="false" relative="false" value=""/>
+  <parameter name="starttime" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="endtime" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="continuationpoint" type="stringarray" trigger="false" relative="false" value=""/>
+  <parameter name="releasecontinuationpoints" type="boolean" trigger="false" relative="false" value="false"/>
+  <parameter name="numvalues" type="number" trigger="false" relative="false" value="0"/>
+  <parameter name="returnbounds" type="boolean" trigger="false" relative="false" value="false"/>
+  <code><![CDATA[/*
+atvise server wrapper for UA method "AGENT.MIRROR.METHODS.historyReadRaw"
+This script is a standard atvise resource and must not be modified.
+For a description including an example see the atvise documentation.
+*/
+
+if (continuationpoint === null || continuationpoint === undefined) continuationpoint = [];
+
+var historyReadRaw = Ua.findNode("AGENT.MIRROR.METHODS.historyReadRaw").result;
+var response = historyReadRaw.call({
+	object: "AGENT.MIRROR.METHODS",
+	input: [
+		{ type: Ua.DataType.STRING, value: datasource },
+		{ type: Ua.DataType.STRING, value: address },
+		{ type: Ua.DataType.DATETIME, value: starttime },
+		{ type: Ua.DataType.DATETIME, value: endtime },
+		{ type: Ua.DataType.BYTESTRING, value: continuationpoint },
+		{ type: Ua.DataType.BOOLEAN, value: releasecontinuationpoints },
+		{ type: Ua.DataType.UINT32, value: numvalues },
+		{ type: Ua.DataType.BOOLEAN, value: returnbounds }
+	]
+});
+
+var result = {};
+
+if (response.error) {
+	result.error = response.error;
+	result.errorstring = Ua.Status(result.error).toString();
+
+	if (response.argumentError) {
+		var parameterNames = [
+			"datasource",
+			"address",
+			"starttime",
+			"endtime",
+			"continuationpoint",
+			"releasecontinuationpoints",
+			"numvalues",
+			"returnbounds"
+		];
+
+		for (var i = 0; i < response.argumentError.length; ++i)
+			if (response.argumentError[i])
+				result.errorstring += ", " + parameterNames[i] + ":" + Ua.Status(response.argumentError[i]).toString();
+	}
+} else if (response.result.length < 3) {
+	result.error = Ua.Status.BADUNEXPECTEDERROR;
+	result.errorstring = Ua.Status(result.error).toString();
+	result.errorstring += ", result.length < 3";
+} else if (response.result[0].length != address.length) {
+	result.error = Ua.Status.BADUNEXPECTEDERROR;
+	result.errorstring = Ua.Status(result.error).toString();
+	result.errorstring += ", InputArrayLength != ResultArrayLength";
+} else {
+	result.result = {};
+
+	result.result["status"] = response.result[0];
+	result.result["continuationpoint"] = response.result[1];
+	result.result["value"] = [];
+
+	for (var i = 0; i < response.result[2].length; ++i) {
+		result.result["value"][i] = [];
+
+		for (var j = 0; j < response.result[2][i].value.length; ++j) {
+			result.result["value"][i][j] = {};
+			result.result["value"][i][j]["status"] = response.result[2][i].value[j].value.status;
+			result.result["value"][i][j]["sourcetime"] = response.result[2][i].value[j].value.sourcetime;
+			result.result["value"][i][j]["servertime"] = response.result[2][i].value[j].value.servertime;
+			result.result["value"][i][j]["type"] = response.result[2][i].value[j].value.type;
+			result.result["value"][i][j]["value"] = response.result[2][i].value[j].value.value;
+		}
+	}
+}
+
+return result;
+]]></code>
+</script>

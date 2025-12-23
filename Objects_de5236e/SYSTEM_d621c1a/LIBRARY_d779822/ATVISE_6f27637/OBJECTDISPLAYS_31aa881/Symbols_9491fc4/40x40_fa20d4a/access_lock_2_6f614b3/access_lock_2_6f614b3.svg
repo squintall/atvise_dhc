@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="40" version="1.2" width="40" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="#000000" desc="symbol color" name="symbolColor" substitute="$SYMBOLCOLOR$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="reflexion color" name="reflectionColor" valuetype="color"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="2" width="2"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <g atv:refpx="20" atv:refpy="19.902" id="id_12">
+  <polyline atv:refpx="20" atv:refpy="14" fill="$SYMBOLCOLOR$" id="id_14" points="4,8 20,4 36,8 36,24 4,24 4,8 4,8" stroke="#000000" stroke-width="0"/>
+  <circle atv:refpx="20" atv:refpy="24.402" cx="14.252" cy="24.402" fill="$SYMBOLCOLOR$" id="id_15" r="11.402" stroke="#000000" stroke-width="0" transform="matrix(1.4033,0,0,1,0,0)"/>
+  <polyline atv:refpx="20" atv:refpy="15" fill="#ffffff" id="id_5" points="6,9.6 20,6 34,9.6 34,24 6,24 6,9.6 6,9.6" stroke="#000000" stroke-width="0"/>
+  <circle atv:refpx="20" atv:refpy="24.5" cx="16.289" cy="29.405" fill="#ffffff" id="id_11" r="11.402" stroke="#000000" stroke-width="0" transform="matrix(1.2279,0,0,0.8332,0,0)"/>
+ </g>
+ <g atv:refpx="19.999" atv:refpy="19.499" id="id_10" transform="matrix(0.6,0,0,0.6364,8,6.4545)">
+  <circle atv:refpx="20" atv:refpy="16" cx="20" cy="16" fill="$SYMBOLCOLOR$" id="id_1" r="12" stroke="#000000" stroke-width="0"/>
+  <circle atv:refpx="20" atv:refpy="16" cx="20" cy="16" fill="#ffffff" id="id_2" r="9" stroke="#000000" stroke-width="0"/>
+  <rect atv:refpx="20" atv:refpy="27" fill="$SYMBOLCOLOR$" height="18" id="id_0" stroke="$SYMBOLCOLOR$" stroke-linejoin="bevel" stroke-width="2" width="28" x="6" y="18"/>
+  <rect atv:refpx="9.5" atv:refpy="17" fill="$SYMBOLCOLOR$" height="2" id="id_4" stroke="#000000" stroke-width="0" width="3" x="8" y="16"/>
+  <rect atv:refpx="30.5" atv:refpy="17" fill="$SYMBOLCOLOR$" height="2" id="id_6" stroke="#000000" stroke-width="0" width="3" x="29" y="16"/>
+  <rect atv:refpx="20" atv:refpy="17" fill="#ffffff" height="2" id="id_7" stroke="#000000" stroke-width="0" width="18" x="11" y="16"/>
+  <circle atv:refpx="20" atv:refpy="25" cx="20" cy="25" fill="#ffffff" id="id_8" r="3" stroke="#000000" stroke-width="0"/>
+  <rect atv:refpx="20" atv:refpy="28.5" fill="#ffffff" height="7" id="id_9" stroke="#000000" stroke-width="0" width="2" x="19" y="25"/>
+ </g>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

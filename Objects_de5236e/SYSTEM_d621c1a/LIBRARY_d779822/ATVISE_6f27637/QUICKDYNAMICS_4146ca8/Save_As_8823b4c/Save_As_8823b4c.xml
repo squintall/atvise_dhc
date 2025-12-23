@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+ <metadata>
+  <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAiZJREFUeNrslr0vBEEYxufQ8wcotlET5yPR3B4aohCN6+6u1LAkKlGIiIjER6G2JQo5iZBorFJyFx+VUNijUSgoJMJOxjPnwtqPubWzTsGbTHZmdnZ+zz7zzuzGGGOERyo1/F4JFo8omY2NzRyRjJhDQBKTGqIHMI7fT5SbWYzXIxWAYqIoPuP5Pd0mgMcqRGhhBdQ5OzCZWQb5OeDsGkNfA57LRCIAkykVHPCKNM+JajnA7W6wdWXKAkg1HHDGqUjsjzgQICeq7gD5d+DPO8DFHv2aA51bN1zEU+dmUSev9I5Z9JlYlBBKCePX96Lyq61N8rOqKuPAA4SeAt6CukEYM8mL1U8visn8XLfrY9a+cMzs8FJd1gEbvB5vbgFOePEKF9wm4LtfQy7QcMA/J/1qO3Habh9XWOqLhXIAcEUWTkRLUDEHhhaJLJy9SuQAsl2VhlMZBwbmRfAdtLX8VJfZNm2oqK+gr9kFl9kFHfqV6gMvop2pbWrkeaJhn6/EJw8GMe7aCRdtw8OKR2vvTNLH9hze/AFwg90/JuLje0phuV+Lj+6eAd78Be4jIBno6PNf89KyAa7Rq9scvbwt/S0DrrjgXudA0GhfO+dLcOiTcNnCfM/Hb3rryI4OeNoFRznZznqfAxVDnO3r8Yl9LtDEm6uAJ7zgwqM4qADBVku7Ek5wFNeEERBon1vi8yG0gCjgTNYBaXhkSxAWTqNYAhm4zYE3AQYAWAdMsnDNwz0AAAAASUVORK5CYII=</icon>
+  <visible>1</visible>
+  <title>Save As</title>
+  <description>Triggers a "Save As" dialog in the browser.</description>
+ </metadata>
+ <parameter behavior="optional" defaultvalue="filename.txt" desc="name of the file" name="name" valuetype="string"/>
+ <parameter behavior="optional" defaultvalue="text/plain" desc="type of the file" name="type" valuetype="string"/>
+ <parameter behavior="optional" desc="content of the file" name="content" valuetype="string"/>
+ <parameter behavior="optional" defaultvalue="export" desc="URL action" name="action" valuetype="string"/>
+ <parameter behavior="optional" defaultvalue="post" desc="POST or GET method" name="method" valuetype="string"/>
+ <parameter behavior="optional" defaultvalue="application/x-www-form-urlencoded" desc="encoding type" name="enctype" valuetype="string"/>
+ <parameter behavior="optional" defaultvalue="false" desc="prepend ByteOrderMark to file" name="useBOM" valuetype="bool"/>
+ <code><![CDATA[function createElement(nodeName, attributes, style, parent) {
+	var element = webMI.dom.createElement("http://www.w3.org/1999/xhtml", nodeName);
+	for (var i in attributes)
+		element.setAttribute(i, attributes[i]);
+	for (var i in style)
+		element.style[i] = style[i];
+
+	return parent.appendChild(element);
+}
+
+function openDataDialog() {
+	var openedWindow = webMI.display.openWindow({
+		extern:false,
+		modal:false,
+		width: 800,
+		height: 600
+	});
+	var doc = openedWindow.getContentDocument();
+	var data = base.content;
+	doc.open();
+	doc.write(data.replace(/\n/g, "<br/>"));
+	doc.close();
+	openedWindow.iframe.focus();
+
+	webMI.addEvent(doc, "keydown", function(e) {
+		if (e.keyCode == 27)
+			openedWindow.close();
+	});
+}
+
+function triggerSaveAsDialog() {
+	var location = window.location;
+	var origin = location.protocol + "//" + location.host + "/";
+	var form = createElement("form", {
+		"action": origin + base.action,
+		"enctype": base.enctype,
+		"method": base.method,
+		"target": emptyFrameName
+	}, {
+		"display": "none"
+	}, doc.body);
+
+	for (var i in base) {
+		createElement("input", {
+			"type": "hidden",
+			"name": i,
+			"value": base[i]
+		}, {}, form);
+	}
+
+	form.submit();
+	doc.body.removeChild(form);
+}
+
+var indexHtmWindow = window;
+try {
+	while (top != indexHtmWindow && indexHtmWindow.parent.webMI)
+		indexHtmWindow = indexHtmWindow.parent;
+} catch (ex) { }
+
+var doc = indexHtmWindow.document;
+if(typeof base.useBOM == 'string')
+	base.useBOM = base.useBOM == "true";
+if(base.useBOM == true)
+	base.content = "\ufeff" + base.content;
+var emptyFrameName = "emptyframe";
+var iframe = doc.getElementById(emptyFrameName);
+if (iframe != null)
+	return triggerSaveAsDialog();
+if (indexHtmWindow["NO-EXPORT-SCRIPT"])
+	return openDataDialog();
+
+webMI.data.call("BrowseNodes", {
+	startAddress: "SYSTEM.LIBRARY.ATVISE.RESOURCES",
+	vTypes: ["VariableTypes.ATVISE.ScriptCode"]
+}, function(e) {
+	var exportScriptExists = !("error" in e) && base.action in e;
+	if (exportScriptExists) {
+		iframe = createElement("iframe", {
+			"name": emptyFrameName,
+			"id": emptyFrameName
+		}, {
+			"display": "none"
+		}, doc.body);
+
+		triggerSaveAsDialog();
+	} else {
+		indexHtmWindow["NO-EXPORT-SCRIPT"] = true;
+		openDataDialog();
+	}
+});
+]]></code>
+</script>

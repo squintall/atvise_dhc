@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.opcuxm01.Redundancy.switch_sourcetime_tolerance
+NodeClass: Variable
+BrowseName: 1:switch_sourcetime_tolerance
+DisplayName: en|switch_sourcetime_tolerance
+Description: en|switch_sourcetime_tolerance
+DataType: Int32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Landscape.USER.Sectorizacion.02_Tabla_Totalizador
+NodeClass: Variable
+BrowseName: 1:02_Tabla_Totalizador
+DisplayName: en|02_Tabla_Totalizador
+Description: en|02_Tabla_Totalizador
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

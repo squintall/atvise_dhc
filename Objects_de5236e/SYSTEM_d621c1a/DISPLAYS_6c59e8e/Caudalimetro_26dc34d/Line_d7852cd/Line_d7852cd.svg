@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="50" version="1.2" width="1200" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <!-- Colores de estados -->
+  <atv:parameter defaultvalue="#2c99d8" name="okColor" valuetype="string"/>
+  <atv:parameter defaultvalue="#ffb300" name="warnColor" valuetype="string"/>
+  <atv:parameter defaultvalue="#e53935" name="alarmColor" valuetype="string"/>
+  <atv:parameter defaultvalue="#d5d5d5" name="offColor" valuetype="string"/>
+  <!-- Thresholds relativos a base (si los usarás después) -->
+  <atv:parameter defaultvalue=".thr_flow_warn_low" name="flowWarnLow" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_flow_alarm_low" name="flowAlarmLow" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_flow_warn_high" name="flowWarnHigh" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_flow_alarm_high" name="flowAlarmHigh" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_press_warn_low" name="pressWarnLow" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_press_alarm_low" name="pressAlarmLow" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_press_warn_high" name="pressWarnHigh" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_press_alarm_high" name="pressAlarmHigh" valuetype="string"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <!-- Fila -->
+ <rect atv:refpx="600" atv:refpy="25" fill="#fff" height="48" id="row_bg" rx="6" ry="6" stroke="#cfd4dc" stroke-width="1.5" width="1198" x="1" y="1"/>
+ <!-- Nombre y Ø -->
+ <text atv:refpx="25.5" atv:refpy="26" fill="#000" font-family="Arial" font-size="20" font-weight="bold" id="ln_diam" x="16" y="33">8"</text>
+ <text atv:refpx="82" atv:refpy="25.5" fill="#000" font-family="Arial" font-size="20" id="ln_name" x="58" y="33">Línea</text>
+ <!-- Presión (solo AP; se ocultará en AR) -->
+ <g atv:refpx="328" atv:refpy="23.25" id="col_p">
+  <text atv:refpx="281" atv:refpy="13.5" fill="#666" font-family="Arial" font-size="12" id="id_0" x="260" y="18">Presión</text>
+  <!-- número alineado a la derecha -->
+  <text atv:refpx="333" atv:refpy="29.5" fill="#111" font-family="Arial" font-size="18" font-weight="bold" id="p_val" text-anchor="end" x="350" y="36">0.00</text>
+  <!-- unidad pegada (gap ~5px) -->
+  <text atv:refpx="375.5" atv:refpy="31" fill="#444" font-family="Arial" font-size="14" id="id_1" x="355" y="36">kg/cm²</text>
+ </g>
+ <!-- Caudal -->
+ <g atv:refpx="454" atv:refpy="23.25" id="col_q">
+  <text atv:refpx="429.5" atv:refpy="13.5" fill="#666" font-family="Arial" font-size="12" id="id_2" x="410" y="18">Caudal</text>
+  <text atv:refpx="468" atv:refpy="29.5" fill="#111" font-family="Arial" font-size="18" font-weight="bold" id="q_val" text-anchor="end" x="480" y="36">0.0</text>
+  <text atv:refpx="491.5" atv:refpy="31" fill="#444" font-family="Arial" font-size="14" id="id_3" x="485" y="36">l/s</text>
+ </g>
+ <!-- Vd día -->
+ <g atv:refpx="610" atv:refpy="23.25" id="col_vd">
+  <text atv:refpx="584" atv:refpy="13.5" fill="#666" font-family="Arial" font-size="12" id="id_4" x="560" y="18">Prod. día</text>
+  <text atv:refpx="635.5" atv:refpy="29.5" fill="#111" font-family="Arial" font-size="18" font-weight="bold" id="vd_val" text-anchor="end" x="640" y="36">0</text>
+  <text atv:refpx="652.5" atv:refpy="31" fill="#444" font-family="Arial" font-size="14" id="id_5" x="645" y="36">m³</text>
+ </g>
+ <!-- Vd total -->
+ <g atv:refpx="790" atv:refpy="23.25" id="col_vt">
+  <text atv:refpx="767" atv:refpy="13.5" fill="#666" font-family="Arial" font-size="12" id="id_6" x="740" y="18">Prod. total</text>
+  <text atv:refpx="815.5" atv:refpy="29.5" fill="#111" font-family="Arial" font-size="18" font-weight="bold" id="vt_val" text-anchor="end" x="820" y="36">0</text>
+  <text atv:refpx="832.5" atv:refpy="31" fill="#444" font-family="Arial" font-size="14" id="id_7" x="825" y="36">m³</text>
+ </g>
+ <!-- Chevron / actividad -->
+ <polygon atv:refpx="1165" atv:refpy="25" fill="#d5d5d5" id="chev" points="1150,12 1180,25 1150,38"/>
+ <!-- ===== JS ===== -->
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+    // IDs
+    var ID_NAME="ln_name", ID_DIAM="ln_diam", ID_Q_VAL="q_val", ID_P_VAL="p_val", ID_VD_VAL="vd_val", ID_VT_VAL="vt_val";
+    var ID_CHEVRON="chev", ID_ROW="row_bg", ID_COL_P="col_p";
+
+    // Destinos
+    var PATH_GRAPH_Q="SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Tendencia_Caudal";
+    var PATH_GRAPH_P="SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Tendencia_Presion";
+    var PATH_DAILY  ="SYSTEM.DISPLAYS.Caudalimetro.daily_prod_table";
+    var PATH_CARD   ="SYSTEM.DISPLAYS.Caudalimetro.Card";
+
+    // Colores de actividad
+    var ACTIVE_AP="#4dc3ff", ACTIVE_AR="#b9d8a9", INACTIVE="#d5d5d5";
+
+    // Contexto
+    var base = webMI.query.base || "";
+    var esAP = base.indexOf("Circuito")>=0;
+    var esAR = base.indexOf("Cuenca")>=0;
+
+    // Helpers
+    function fmt(v,d){ try{ return new Intl.NumberFormat('es-MX',{maximumFractionDigits:d}).format(v); }catch(_){ return String(v); } }
+    function setFill(id,c){ try{ webMI.gfx.setFill(id,c); }catch(_){ } }
+    function setStroke(id,c){ try{ webMI.gfx.setStroke(id,c); }catch(_){ } }
+    function subText(id,node,f){
+      webMI.data.subscribe(node,function(e){
+        try{ webMI.gfx.setText(id,(typeof f==="function")?f(e.value,e):e.value); }catch(_){}
+      });
+    }
+
+    // Bind valores
+    subText(ID_NAME, base+".name");
+    subText(ID_DIAM, base+".diameter", function(v){ return (v||'')+'"'; });
+    subText(ID_Q_VAL, base+".current_flow", function(v){ return webMI.sprintf('%.1f', v||0); });
+    subText(ID_VD_VAL, base+".current_daily_volume", function(v){ return fmt(v||0,0); });
+    subText(ID_VT_VAL, base+".current_total_volume", function(v){ return fmt(v||0,0); });
+
+    // Presión solo en AP
+    try{ webMI.gfx.setVisible(ID_COL_P, esAP); }catch(_){}
+    if (esAP){
+      subText(ID_P_VAL, base+".current_pressure", function(v){ return webMI.sprintf('%.2f', v||0); });
+    }
+
+    // Actividad (flecha/borde)
+    var flow=0, press=0;
+    function applyActivity(){
+      var active = esAP ? (flow>0 || press>0) : (flow>0);
+      var col = active ? (esAP ? ACTIVE_AP : ACTIVE_AR) : INACTIVE;
+      setFill(ID_CHEVRON, col);
+      setStroke(ID_ROW, active ? col : "#cfd4dc");
+    }
+    webMI.data.subscribe(base+".current_flow", function(e){ flow=+e.value||0; applyActivity(); });
+    if (esAP) webMI.data.subscribe(base+".current_pressure", function(e){ press=+e.value||0; applyActivity(); });
+
+    // Abrir en panel lateral (iframe 'ca_side')
+    function openSide(path){
+      try{
+        webMI.display.openDisplay(path, Object.assign({}, webMI.query,{base:base, frameName:"ca_side"}), "ca_side");
+        webMI.gfx.setVisible("ca_side", true);
+      }catch(_){}
+    }
+
+    // Clicks
+    try{ webMI.addEvent(ID_Q_VAL, "click", function(){ openSide(PATH_GRAPH_Q); }); }catch(_){}
+    if (esAP){ try{ webMI.addEvent(ID_P_VAL, "click", function(){ openSide(PATH_GRAPH_P); }); }catch(_){} }
+    try{ webMI.addEvent(ID_VD_VAL, "click", function(){ openSide(PATH_DAILY); }); }catch(_){}
+    try{ webMI.addEvent(ID_CHEVRON, "click", function(){ openSide(PATH_CARD); }); }catch(_){}
+  ]]></script>
+</svg>

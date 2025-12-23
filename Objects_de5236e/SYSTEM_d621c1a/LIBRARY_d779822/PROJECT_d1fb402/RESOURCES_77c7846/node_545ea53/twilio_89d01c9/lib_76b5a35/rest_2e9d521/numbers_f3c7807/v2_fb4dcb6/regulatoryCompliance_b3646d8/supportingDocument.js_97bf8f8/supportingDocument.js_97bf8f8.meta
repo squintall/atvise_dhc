@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/numbers/v2/regulatoryCompliance/supportingDocument.js
+NodeClass: Variable
+BrowseName: 1:supportingDocument.js
+DisplayName: en|supportingDocument.js
+Description: en|supportingDocument.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="1080" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="2" width="2"/>
+ </metadata>
+ <svg atv:refpx="959.956" atv:refpy="530.025" height="600" id="content" transform="matrix(2.4,0,0,1.4833,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="57.303">
+  <atv:argument name="frameName" value="content"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_ISLA.Main_Circuito_IM"/>
+ </svg>
+ <svg atv:refpx="179" atv:refpy="42.5" height="65" id="box_user" width="358" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.box_user" y="10">
+  <atv:argument name="font_size" value="20"/>
+  <atv:argument name="fillColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="fillColorActive" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="buttonFillColorInactive" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+ </svg>
+ <svg atv:refpx="1775.146" atv:refpy="49.973" height="52" id="layout_time" width="203" x="1709" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.time" y="0"/>
+ <svg atv:refpx="1758" atv:refpy="59" height="30" id="layout_date" width="203" x="1708" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.date" y="42"/>
+ <text atv:refpx="730.051" atv:refpy="50" fill="#050a4b" font-family="Arial" font-size="18" id="id_2" transform="matrix(2.9999,0,0,3,-759.9556,0)" x="384.497" y="21.5">SCADA AP Isla Mujeres DHC</text>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <svg atv:refpx="944.994" atv:refpy="1024.936" height="300" id="id_0" transform="matrix(1.8701,0,0,0.3667,0,0)" width="200" x="413.342" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.navigation" y="2645.187">
+  <atv:overwrite id="navigation_description" transform="matrix(1.2903,0,0,0.3429,0,0)"/>
+  <atv:argument name="navPanelAlign" value="bottom"/>
+  <atv:overwrite id="navigation_1_description" transform="matrix(1.25,0,0,0.3371,0,0)"/>
+  <atv:argument name="navContainerID" value="navigation_3"/>
+  <atv:argument name="navItemCount" value="2"/>
+  <atv:argument name="navAnimateFactor" value="2"/>
+  <atv:argument name="navPanelBorderColor" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="navItemBorderColor" value="SYSTEM.GLOBALS.#20dbd8"/>
+  <atv:argument name="navItemBorderRadius" value="100"/>
+  <atv:argument name="navItemWidthSteady" value="150"/>
+  <atv:argument name="navItemIndentationActive" value="80"/>
+  <atv:argument name="navFontSize" value="18"/>
+  <atv:overwrite id="navigation_2_description" transform="matrix(0.2022,0,0,2.727,0,0)"/>
+  <atv:argument name="navCustomTitle01" value="Agua Potable"/>
+  <atv:argument name="navCustomDisplay01" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_ISLA.00_Menu_Carcamos_AP_IM"/>
+  <atv:argument name="navHomeText" value=""/>
+  <atv:argument name="navIconHomeActive" value="false"/>
+  <atv:argument name="navItemBackgroundActive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color2"/>
+  <atv:argument name="navArrowBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navHomeBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navItemBackgroundInactive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navItemBackgroundHover" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color3"/>
+  <atv:argument name="navFontColorHover" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorInactive" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorActive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color5"/>
+  <atv:argument name="navHomeColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navArrowActive" value="false"/>
+  <atv:argument name="navCustomDisplay02" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_ISLA.00_Menu_Carcamos_AR_IM"/>
+  <atv:argument name="navCustomTitle02" value="Agua Residual"/>
+  <atv:argument name="navHomeActive" value="false"/>
+  <atv:argument name="navContent" value="admin_content"/>
+  <atv:overwrite id="navigation_3_description" transform="matrix(0.5347,0,0,2.727,0,0)"/>
+ </svg>
+</svg>

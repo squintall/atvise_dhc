@@ -1,0 +1,316 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg xmlns:atv="http://webmi.atvise.com/2007/svgext" version="1.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="788.23" height="640">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="mandatory" name="dataMode" desc="put data by row or column" valuetype="address" defaultvalue="AGENT.OBJECTS.ArrayModeInt"/>
+  <atv:parameter behavior="mandatory" name="series0Title" desc="colmun1 title" valuetype="trstring" defaultvalue="T{data 1}"/>
+  <atv:parameter behavior="optional" name="series1Title" desc="colmun2 title" valuetype="trstring" defaultvalue="T{data 2}"/>
+  <atv:parameter behavior="optional" name="series2Title" desc="colmun3 title" valuetype="trstring" defaultvalue="T{data 3}"/>
+  <atv:parameter behavior="optional" name="series3Title" desc="colmun4 title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" name="series4Title" desc="colmun5 title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" name="series5Title" desc="colmun6 title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" name="series6Title" desc="colmun7 title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" name="series7Title" desc="colmun8 title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" name="series8Title" desc="colmun9 title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" name="series9Title" desc="colmun10 title" valuetype="trstring"/>
+  <atv:parameter behavior="mandatory" name="dataArrayType" valuetype="address" defaultvalue="AGENT.OBJECTS.dataArrayType"/>
+  <atv:parameter behavior="optional" name="tableArray_md_1" valuetype="address" defaultvalue="AGENT.OBJECTS.TableArr_md_1"/>
+  <atv:parameter behavior="optional" name="tableArray_md_2" valuetype="address" defaultvalue="AGENT.OBJECTS.TableArr_md_2"/>
+  <atv:parameter behavior="optional" name="tableArray_md_3" valuetype="address" defaultvalue="AGENT.OBJECTS.TableArr_md_3"/>
+  <atv:gridconfig gridstyle="lines" width="20" height="20" enabled="false"/>
+  <atv:snapconfig width="10" height="10" enabled="false"/>
+ </metadata>
+ <svg xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.slickgrid.table" y="2.613" atv:refpx="397.26" transform="matrix(1.2218,0,0,1,0,0)" id="id_0" width="640" height="640" atv:refpy="322.613" x="5.149">
+  <atv:argument name="tableID" value="myAtviseDataTable"/>
+  <atv:argument name="globalColorConfig" value="SYSTEM.GLOBALS.atvObjectDisplays.Tables.ColorConfig1"/>
+ </svg>
+ <script type="text/ecmascript"><![CDATA[var dataMode;
+
+// inital loading of available Nodes
+var vars = [
+	webMI.query.series0Title,
+	webMI.query.series1Title,
+	webMI.query.series2Title,
+	webMI.query.series3Title,
+	webMI.query.series4Title,
+	webMI.query.series5Title,
+	webMI.query.series6Title,
+	webMI.query.series7Title,
+	webMI.query.series8Title,
+	webMI.query.series9Title
+];
+var arrType = webMI.query.dataArrayType;
+var arrSrc_md = [
+	webMI.query.tableArray_md_1,
+	webMI.query.tableArray_md_2,
+	webMI.query.tableArray_md_3
+];
+// #####
+
+webMI.table.loadResources(function() {
+var config = [];
+
+// ### BEGIN CONFIGURATION SECTION ###
+// configuration of table rows and their options
+var columns = [];
+columns['id'] = {id: "id", name: "T{Index}", field: "id", sortable: true, filter: true, visible: true, resizable: false};
+columns['data1'] = {id: "data1", name: "T{"+webMI.query.series0Title+"}", field: "data1", width:280, sortable: true, filter: true, visible: true, resizable: false};
+columns['data2'] = {id: "data2", name: "T{"+webMI.query.series1Title+"}", field: "data2", sortable: true, filter: true, visible: true, resizable: true, sortByDefault:true, sortByDefaultAsc: true};
+columns['data3'] = {id: "data3", name: "T{"+webMI.query.series2Title+"}", field: "data3", sortable: true, filter: true, visible: true, resizable: true};
+columns['data4'] = {id: "data4", name: "T{"+webMI.query.series3Title+"}", field: "data4", sortable: true, filter: true, visible: true, resizable: true};
+columns['data5'] = {id: "data5", name: "T{"+webMI.query.series4Title+"}", field: "data5", sortable: true, filter: true, visible: true, resizable: true};
+columns['data6'] = {id: "data6", name: "T{"+webMI.query.series5Title+"}", field: "data6", sortable: true, filter: true, visible: true, resizable: true};
+columns['data7'] = {id: "data7", name: "T{"+webMI.query.series6Title+"}", field: "data7", sortable: true, filter: true, visible: true, resizable: true};
+columns['data8'] = {id: "data8", name: "T{"+webMI.query.series7Title+"}", field: "data8", sortable: true, filter: true, visible: true, resizable: true};
+columns['data9'] = {id: "data9", name: "T{"+webMI.query.series8Title+"}", field: "data9", sortable: true, filter: true, visible: true, resizable: true};
+columns['data10'] = {id: "data10", name: "T{"+webMI.query.series9Title+"}", field: "data10", sortable: true, filter: true, visible: true, resizable: true};
+
+// config["columns"] is used for building the defined columns in the table
+config["columns"] = [
+	columns['id'],
+	columns['data1']
+];
+// #####
+
+var maxseries = vars.length; // Number of available Series Titles / Columns
+// creating columns depending on available Titles configs
+// pushes the data to config variable of the table (config["columns"])
+for(var i=1;i<=maxseries;i++) {
+	if(vars[i]!=undefined) { config["columns"].push(columns['data'+(i+1)]); }
+}
+// #####
+
+config["mode"] = "live"; // live mode for making array data updates possible
+config["bufferInterval"] = 50;
+
+// Configuration of the data query for the table
+config["dataRequestFunction"] = function customDataRequest(continuation) {
+	var that = this;
+	var data = {
+		result: []
+	};	
+	var elem = {};
+	var arr = [];
+	var dataArrType = 1;
+	
+	// getting subcription for checking if DataMode has changed
+	// DataMode switches the state to get the data handled for Rows OR Columns
+	that.subscribeDataMode = webMI.data.subscribe(
+		webMI.query.dataMode,
+		function(e) {
+			that.clearData();
+			handleDataUpdate();
+		}
+	);
+	
+	// getting subscription Status of available predefined Nodes
+	// ArrType = switch for used data source Array type (f.e. 1 dimensional or various 2 dimensional arrays, Json Objects)
+	// f.e. parameter tableArray_md_1
+	that.subscribeArrType = webMI.data.subscribe(arrType,function(requestResult) {
+		if(requestResult.value) {
+			dataArrType = requestResult.value;
+			handleDataUpdate();
+		}
+	});
+	// #####
+	
+	// getting subscription Status of available predefined Nodes for diff. array types
+	// data source Arrays for different Multidimensional Array types
+	// f.e. parameter tableArray_md_1,tableArray_md_2,tableArray_md_3,...
+	that.subscribeNodes_arrayStructs = webMI.data.subscribe(arrSrc_md,function(requestResult) {					
+		if(requestResult.value) {
+			handleDataUpdate();
+		}
+	});
+	// #####
+	
+	// unloads the subsrcibed nodes to update them immediately 
+	// by value changes from the source
+	webMI.addOnunload(
+		function() {
+			webMI.data.unsubscribe(that.subscribeDataMode);
+			webMI.data.unsubscribe(that.subscribeNodes_arrayStructs);
+			webMI.data.unsubscribe(that.subscribeArrType);
+		}
+	);
+	// #####
+	
+	
+	// update handler function for updating the table and set the data of the table to latest state, 
+	// depending which Array / Data Mode is used (Column or Row)
+	function handleDataUpdate() {
+		webMI.data.read(
+			webMI.query.dataMode,
+				function(e) {
+					if(dataArrType==1) { setData_ArrStruct1(elem,data,that,e.value); }
+					else if(dataArrType==2) { setData_ArrStruct2(elem,data,that,e.value); }
+					else if(dataArrType==3) { setData_ArrStruct3(elem,data,that,e.value); }
+					else { setData_ArrStruct1(elem,data,that,e.value); }
+				}
+			);
+	}	
+	// #####
+	
+};
+
+
+function setData_ArrStruct1(elem,data,that,mode) {
+	// Data example: {['aaa'; 'bbb'; 'ccc'; 'ddd'], ['aaaa1'; 'bbb1'; 'ccc1'; 'dddd1'], ['aaaa2'; 'bbb2'; 'ccc2'; 'dddd2']}
+
+	webMI.data.read(
+		arrSrc_md[0],
+		function(e) {
+			that.clearData();
+			
+			var arrTmp = e.value;
+			var arr = [];
+			
+			arrTmp = arrTmp.toString();
+			arrTmp = arrTmp.replace(/\[/g, "").replace(/\]/g, "").replace(/\'/g, "");
+			arrTmp = arrTmp.split(",");
+					
+			for(var n = 0; n < arrTmp.length; n++) {
+				arr[n] = arrTmp[n].split(';'); // split on separation symbols
+			}
+			
+			if(mode==1) {
+				// adding Data from 2 DIMENSION Array with Column Values, Array = Column
+				for(var i = 0; i <= arr[0].length; i++) {
+					var x=0;
+					while(x < arr.length) {
+						x++;
+						if(arr[x-1][i]!=undefined) { elem["data"+x] = arr[x-1][i]; }
+					}
+					
+					if(arr[0][i]!=undefined) {
+						data.result = elem;
+						that.addData(data);
+					}
+				}
+			} else {
+				// adding Data from 2 DIMENSION Array with Row Values, Array = Row
+				for(var i = 0; i <= arr.length; i++) {
+					var x=0;
+					while(x < vars.length) {
+						x++;
+						if(arr[i][x-1]!=undefined) { elem["data"+x] = arr[i][x-1]; }
+					}
+					
+					if(arr[i][0]!=undefined) {
+						data.result = elem;
+						that.addData(data);
+					}						
+				}			
+			}
+		}
+	);
+	
+};
+
+function setData_ArrStruct2(elem,data,that,mode) {
+	// Data example: {"data1":["aaa", "bbb", "ccc"], "data2":["aaa2", "bbb2", "ccc2"], "data3":["aaa3", "bbb3", "ccc3"]}
+	
+	webMI.data.read(
+		arrSrc_md[1],
+		function(e) {
+			that.clearData();
+			
+			var arrTmp = e.value;
+			arrTmp = "{"+arrTmp.toString()+"}";
+			arrTmp = JSON.parse(arrTmp);
+			var ObjCnt = Object.keys(arrTmp).length;
+			var arr = [];
+			
+			for(var n = 0;n <= ObjCnt-1; n++) {
+				arr[n] = arrTmp['data'+(n+1)];
+			}
+			
+			if(mode==1) {
+				// adding Data from 2 DIMENSION JSON Object Array Column Values, Array = Column
+				for(var i = 0; i < arr.length; i++) {
+					var x=0;
+					while(x < arr.length) {
+						x++;
+						if(arr[x-1][i]!=undefined) { elem["data"+x] = arr[x-1][i]; }
+					}
+					
+					if(arr[0][i]!=undefined) {
+						data.result = elem;
+						that.addData(data);
+					}
+				}
+			}
+			else {
+				// adding Data from 2 DIMENSION Array with Row Values, Array = Row
+				for(var i = 0; i <= arr.length; i++) {
+					var x=0;
+					while(x < vars.length) {
+						x++;
+						if(arr[i][x-1]!=undefined) { elem["data"+x] = arr[i][x-1]; }
+					}
+					
+					if(arr[i][0]!=undefined) {
+						data.result = elem;
+						that.addData(data);
+					}						
+				}
+			}
+		}
+	);
+	
+};
+
+
+// adding Data from 2 DIMENSION JSON Object Array with Row Values, Array = Row
+function setData_ArrStruct3(elem,data,that,mode) {
+	// Data example: {"datas": [["aaa", "bbb", "ccc"], ["aaa2", "bbb2", "ccc2"], ["aaaa3", "bbb3", "ccc3"]]}
+
+	webMI.data.read(
+		arrSrc_md[2],
+		function(e) {
+			that.clearData();
+			
+			var arrTmp = e.value;
+			arrTmp = "{"+arrTmp.toString()+"}";					
+			arrTmp = JSON.parse(arrTmp);
+			arrTmp = arrTmp.datas;				
+
+			if(mode==1) {
+				// adding Data from 2 DIMENSION JSON Object Array Column Values, Array = Column
+				for(var i = 0; i <= arrTmp[0].length; i++) {
+					var x=0;
+					while(x < arrTmp.length) {
+						x++;
+						if(arrTmp[x-1][i]!=undefined) { elem["data"+x] = arrTmp[x-1][i]; }
+					}
+					
+					if(arrTmp[0][i]!=undefined) {
+						data.result = elem;
+						that.addData(data);
+					}
+				}
+			} else {
+				// adding Data from 2 DIMENSION Array with Row Values, Array = Row
+				for(var i = 0; i <= arrTmp.length; i++) {
+					var x=0;
+					while(x < vars.length) {
+						x++;
+						if(arrTmp[i][x-1]!=undefined) { elem["data"+x] = arrTmp[i][x-1]; }
+					}
+					
+					if(arrTmp[i][0]!=undefined) {
+						data.result = elem;
+						that.addData(data);
+					}
+				}
+			}
+		}
+	);
+	
+};
+
+// ### END CONFIGURATION SECTION ###
+webMI.table.register("myAtviseDataTable", "config", config);
+webMI.table.setReady("myAtviseDataTable", "config");
+});]]></script>
+</svg>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Villas_del_Mar_1.Entrada
+NodeClass: Variable
+BrowseName: 1:Entrada
+DisplayName: en|Entrada
+Description: en|Entrada
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

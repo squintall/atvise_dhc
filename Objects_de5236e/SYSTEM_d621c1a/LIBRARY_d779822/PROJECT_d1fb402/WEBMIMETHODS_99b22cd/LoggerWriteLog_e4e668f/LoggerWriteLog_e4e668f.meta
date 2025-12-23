@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.LoggerWriteLog
+NodeClass: Variable
+BrowseName: 1:LoggerWriteLog
+DisplayName: en|LoggerWriteLog
+Description: en|LoggerWriteLog
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

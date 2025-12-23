@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvObjectDisplays.RecipeManager.recipe_manager.ParameterColumns
+NodeClass: Variable
+BrowseName: 1:ParameterColumns
+DisplayName: en|ParameterColumns
+Description: en|ParameterColumns
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

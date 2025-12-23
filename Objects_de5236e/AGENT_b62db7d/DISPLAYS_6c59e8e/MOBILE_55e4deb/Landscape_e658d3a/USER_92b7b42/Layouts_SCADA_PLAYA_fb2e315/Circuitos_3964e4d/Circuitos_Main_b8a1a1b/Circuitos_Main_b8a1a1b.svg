@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="397" version="1.2" width="920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <rect atv:refpx="630.5" atv:refpy="442" fill="#000088" fill-opacity="0" height="884" id="id_5" stroke="#000043" stroke-width="2" width="1259" x="1" y="0"/>
+ <svg atv:refpx="632.5" atv:refpy="442.5" height="600" id="id_0" transform="matrix(1.5688,0,0,1.475,0,0)" width="800" x="3.187" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="0.014">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Circuitos.Circuito_CAP_Carcamo_Intermedio"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="Circuito_Intermedio"/>
+ </svg>
+ <rect atv:refpx="1589.5" atv:refpy="442.5" fill="#000088" fill-opacity="0" height="885" id="id_1" stroke="#000043" stroke-width="2" width="659" x="1260" y="0"/>
+ <svg atv:refpx="1590" atv:refpy="439.99" height="600" id="id_2" transform="matrix(0.8125,0,0,1.4667,0,0)" width="800" x="1556.923" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="0">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Circuitos.Circuito_CAP_Puerto_Aventuras"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="Circuito_Puerto_Aventuras"/>
+ </svg>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.script_circuitos.circuitArray" atv:name="circuitArray" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+
+
+
+]]></script>
+</svg>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.common.indicator_handling
+NodeClass: Variable
+BrowseName: 1:indicator_handling
+DisplayName: en|indicator_handling
+Description: en|indicator_handling
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

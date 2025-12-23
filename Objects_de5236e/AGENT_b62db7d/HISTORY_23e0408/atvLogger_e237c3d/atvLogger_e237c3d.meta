@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.HISTORY.atvLogger
+NodeClass: Object
+BrowseName: 1:atvLogger
+DisplayName: en|atvLogger
+Description: en|atvLogger
+EventNotifier: 0
+Reference: forward HasModellingRule SharedExclusive
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.ArchiveGroup.Data

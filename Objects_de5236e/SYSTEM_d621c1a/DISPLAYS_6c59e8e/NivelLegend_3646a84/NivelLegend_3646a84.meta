@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.NivelLegend
+NodeClass: Variable
+BrowseName: 1:NivelLegend
+DisplayName: en|NivelLegend
+Description: en|NivelLegend
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

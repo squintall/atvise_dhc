@@ -1,0 +1,1301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/*
+ * Main orchestrator and shared globals for Caudalimetros.
+ *
+ * Objetivo:
+ * - Declarar una sola vez (sin IIFEs) las variables y utilidades
+ *   compartidas por list y card.
+ * - Exponer un namespace global para que los tres scripts
+ *   compartan el mismo scope.
+ */
+
+// Namespace global único sin usar `window`
+if (typeof CaudalGlobals === 'undefined') {
+	var CaudalGlobals = {};
+}
+
+// Configuración y constantes compartidas (se evalúan una vez)
+if (!CaudalGlobals.CONFIG) {
+	var __Q = (typeof webMI !== 'undefined' && webMI.query) || {};
+	var __BASE = __Q.base || __Q["base"] || '';
+	var __PER = Math.max(1, Number(__Q.perPage || 5));
+	if (__PER > 12) {
+		__PER = 12;
+	}
+	var __MAX = Math.max(__PER, Number(__Q.maxTotal || 60));
+	var __PATHS = {
+		flow: 'SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Tendencia_Caudal',
+		pressure: 'SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Tendencia_Presion',
+		daily: 'SYSTEM.DISPLAYS.Caudalimetro.daily_prod_table'
+	};
+	var __THRESHOLDS = {
+		flow: {
+			wl: '.Umbrales.Caudal.WarnLow',
+			al: '.Umbrales.Caudal.AlarmLow',
+			wh: '.Umbrales.Caudal.WarnHigh',
+			ah: '.Umbrales.Caudal.AlarmHigh'
+		},
+		pressure: {
+			wl: '.Umbrales.Presion.WarnLow',
+			al: '.Umbrales.Presion.AlarmLow',
+			wh: '.Umbrales.Presion.WarnHigh',
+			ah: '.Umbrales.Presion.AlarmHigh'
+		}
+	};
+	CaudalGlobals.CONFIG = {
+		QUERY: __Q,
+		BASE: __BASE,
+		PER_PAGE: __PER,
+		MAX_TOTAL: __MAX,
+		PATHS: __PATHS,
+		THRESHOLDS: __THRESHOLDS
+	};
+}
+
+// Utilidades compartidas
+if (!CaudalGlobals.UTILS) {
+	CaudalGlobals.UTILS = {
+		XHTML_NS: 'http://www.w3.org/1999/xhtml',
+
+		x: function (doc, tag) {
+			try {
+				return (doc || document).createElementNS(this.XPATH_NS, tag);
+			} catch (_) {
+				return (doc || document).createElement(tag);
+			}
+		},
+
+		x: function (doc, tag) {
+			try {
+				return (doc || document).createElementNS(this.XHTML_NS, tag);
+			} catch (_) {
+				return (doc || document).createElement(tag);
+			}
+		},
+
+		buildNodes: function (base) {
+			var TH = (CaudalGlobals && CaudalGlobals.CONFIG && CaudalGlobals.CONFIG.THRESHOLDS) || {};
+			return {
+				q_wl: base + ((TH.flow && TH.flow.wl) || ''),
+				q_al: base + ((TH.flow && TH.flow.al) || ''),
+				q_wh: base + ((TH.flow && TH.flow.wh) || ''),
+				q_ah: base + ((TH.flow && TH.flow.ah) || ''),
+				p_wl: base + ((TH.pressure && TH.pressure.wl) || ''),
+				p_al: base + ((TH.pressure && TH.pressure.al) || ''),
+				p_wh: base + ((TH.pressure && TH.pressure.wh) || ''),
+				p_ah: base + ((TH.pressure && TH.pressure.ah) || ''),
+				areas: base + '.areasInfluencia'
+			};
+		},
+
+		fmt: function (v, d) {
+			try {
+				return new Intl.NumberFormat('es-MX', { maximumFractionDigits: d }).format(+v || 0);
+			} catch (_) {
+				return String(v);
+			}
+		},
+
+		pad2: function (n) {
+			n = parseInt(n, 10) || 0;
+			return (n < 10 ? '0' : '') + n;
+		},
+
+		formatNumber: function (value, decimals) {
+			if (typeof value !== 'number' || !isFinite(value)) {
+				return '--';
+			}
+			var d = (typeof decimals === 'number') ? decimals : 0;
+			try {
+				return new Intl.NumberFormat('es-MX', { minimumFractionDigits: d, maximumFractionDigits: d }).format(value);
+			} catch (_) {
+				try {
+					return value.toFixed(d);
+				} catch (__) {
+					return String(value);
+				}
+			}
+		},
+
+		formatUnit: function (value, unit, decimals) {
+			var txt = this.formatNumber(value, decimals);
+			if (txt === '--') {
+				return txt;
+			}
+			return unit ? (txt + ' ' + unit) : txt;
+		},
+
+		setText: function (id, t) {
+			try {
+				webMI.gfx.setText(id, t);
+			} catch (_) {}
+		},
+
+		setVis: function (id, on) {
+			try {
+				webMI.gfx.setVisible(id, !!on);
+			} catch (_) {}
+		},
+
+		subText: function (id, node, f) {
+			try {
+				var subId = webMI.data.subscribe(node, function (e) {
+					var val = (typeof f === 'function') ? f(e.value, e) : e.value;
+					try {
+						webMI.gfx.setText(id, val);
+					} catch (_) {}
+				});
+				var subObj = { type: 'data', id: subId };
+				try {
+					if (CaudalGlobals && CaudalGlobals.STATE && CaudalGlobals.STATE.CARD_INSTANCE && CaudalGlobals.STATE.CARD_INSTANCE.subs) {
+						CaudalGlobals.STATE.CARD_INSTANCE.subs.push(subObj);
+					}
+				} catch (_) {}
+				return subObj;
+			} catch (_) {
+				return null;
+			}
+		},
+
+		normalisePayload: function (raw) {
+			if (raw == null) {
+				return { value: undefined, status: undefined };
+			}
+			if (typeof raw === 'object' && ('value' in raw || 'status' in raw)) {
+				return { value: raw.value, status: raw.status };
+			}
+			return { value: raw, status: undefined };
+		},
+
+		subscribeValue: function (path, cb) {
+			var self = this;
+			var handler = function (raw) {
+				var p = self.normalisePayload(raw);
+				try {
+					cb(p.value, p.status);
+				} catch (_) {}
+			};
+			var subId = null;
+			try {
+				subId = webMI.data.subscribe(path, handler);
+			} catch (_) {}
+			try {
+				webMI.data.read(path, handler);
+			} catch (_) {}
+			return { type: 'data', id: subId };
+		},
+
+		addInterval: function (fn, ms) {
+			var id = null;
+			try {
+				id = setInterval(fn, ms);
+			} catch (_) {}
+			try {
+				if (CaudalGlobals && CaudalGlobals.STATE && CaudalGlobals.STATE.CARD_INSTANCE && CaudalGlobals.STATE.CARD_INSTANCE.subs) {
+					CaudalGlobals.STATE.CARD_INSTANCE.subs.push({ type: 'interval', id: id });
+				}
+			} catch (_) {}
+			return id;
+		},
+
+		unsubscribeAll: function (list) {
+			if (!Array.isArray(list)) {
+				return;
+			}
+			for (var i = 0; i < list.length; i++) {
+				var sub = list[i];
+				if (sub && sub.type === 'data' && sub.id) {
+					try {
+						webMI.data.unsubscribe(sub.id);
+					} catch (_) {}
+				}
+			}
+		},
+
+		openWindowWithDynamicTitle: function (variablePath, displayPath, prefix, options, query) {
+			if (!displayPath) {
+				return;
+			}
+			var Q = query || ((CaudalGlobals && CaudalGlobals.CONFIG && CaudalGlobals.CONFIG.QUERY) || {});
+			try {
+				webMI.data.read(variablePath, function (res) {
+					var nombre = (res && res.value) ? res.value : 'Equipo';
+					var titulo = 'T{' + (prefix || '') + nombre + '}';
+					var opts = Object.assign({}, options || {}, { title: titulo, display: displayPath, query: Q });
+					webMI.display.openWindow(opts);
+				});
+			} catch (_) {
+				try {
+					webMI.display.openWindow(displayPath, Q, options);
+				} catch (__) {}
+			}
+		},
+
+		markSlotSelected: function (address) {
+			try {
+				CaudalGlobals.STATE.SELECTED_ADDR = address;
+			} catch (_) {}
+			var map = (CaudalGlobals && CaudalGlobals.STATE && CaudalGlobals.STATE.SLOT_ADDRS) || {};
+			Object.keys(map).forEach(function (rowId) {
+				var el = null;
+				try {
+					el = document.getElementById(rowId);
+				} catch (_) {}
+				if (!el || !el.firstChild) {
+					return;
+				}
+				var wrap = el.firstChild;
+				var isSel = map[rowId] === address;
+				wrap.style.background = isSel ? '#eff6ff' : '#ffffff';
+				wrap.style.border = isSel ? '1px solid #93c5fd' : '1px solid #cbd5e1';
+			});
+		},
+
+		read: function (node, cb) {
+			try {
+				webMI.data.read(node, function (r) {
+					cb(r && r.value);
+				});
+			} catch (_) {
+				cb(undefined);
+			}
+		},
+
+		write: function (node, val, cb) {
+			try {
+				webMI.data.write(node, val, cb);
+			} catch (_) {
+				if (cb) {
+					cb();
+				}
+			}
+		},
+
+		editNumber: function (node, decimals, title) {
+			var read = this.read;
+			var write = this.write;
+			read(node, function (cur) {
+				var nv = prompt(title || 'Nuevo valor:', String(cur == null ? '' : cur));
+				if (nv === null) {
+					return;
+				}
+				var num = parseFloat(nv);
+				if (isNaN(num)) {
+					return;
+				}
+				if (typeof decimals === 'number') {
+					var f = Math.pow(10, Math.max(0, decimals));
+					num = Math.round(num * f) / f;
+				}
+				write(node, num);
+			});
+		}
+	};
+}
+
+// Estado compartido entre list y card
+if (!CaudalGlobals.STATE) {
+	CaudalGlobals.STATE = {
+		LINE_INSTANCES: Object.create(null),
+		CARD_INSTANCE: null,
+		SLOT_ADDRS: Object.create(null)
+	};
+}
+
+// Orquestador simple: recargar la lista al cargar el display
+if (typeof caudalMain === 'undefined') {
+	var caudalMain = {};
+}
+caudalMain.reload = function () {
+	try {
+		if (typeof caudalListMain !== 'undefined' && typeof caudalListMain.reload === 'function') {
+			caudalListMain.reload();
+		}
+	} catch (_) {}
+};
+
+// Punto de integración: selección de una línea para renderizar la card en el panel
+// Implementación mínima por defecto (puede ser sobreescrita por integraciones existentes)
+if (typeof caudalMain.select !== 'function') {
+	caudalMain.select = function (address) {
+		try {
+			if (!address || !CaudalGlobals.LAYOUT || !CaudalGlobals.LAYOUT.cardHost) {
+				return;
+			}
+			var x = CaudalGlobals.UTILS.x.bind(CaudalGlobals.UTILS);
+
+			// Limpiar card previa
+			if (CaudalGlobals.STATE.CARD_INSTANCE && CaudalGlobals.STATE.CARD_INSTANCE.subs) {
+				CaudalGlobals.UTILS.unsubscribeAll(CaudalGlobals.STATE.CARD_INSTANCE.subs);
+			}
+
+			CaudalGlobals.STATE.CARD_INSTANCE = {
+				base: address,
+				subs: []
+			};
+
+			var host = CaudalGlobals.LAYOUT.cardHost;
+			var doc = host.ownerDocument || document;
+
+			host.innerHTML = '';
+			CaudalGlobals.LAYOUT.placeholder.style.display = 'none';
+			host.style.display = 'flex';
+			host.style.flexDirection = 'column';
+			host.style.gap = '12px';
+
+			// Header
+			var header = x(doc, 'div');
+			header.style.display = 'flex';
+			header.style.alignItems = 'baseline';
+			header.style.gap = '8px';
+
+			var hTitle = x(doc, 'div');
+			hTitle.style.fontSize = '20px';
+			hTitle.style.fontWeight = '700';
+			hTitle.style.color = '#111';
+			hTitle.id = 'cd_title_h';
+			header.appendChild(hTitle);
+
+			var hSub = x(doc, 'div');
+			hSub.style.fontSize = '13px';
+			hSub.style.color = '#666';
+			hSub.style.cursor = 'pointer';
+			hSub.id = 'cd_sub_h';
+			header.appendChild(hSub);
+
+			var spacer = x(doc, 'div');
+			spacer.style.flex = '1';
+			header.appendChild(spacer);
+
+			var arrow = x(doc, 'span');
+			arrow.textContent = '➔';
+			arrow.style.fontSize = '18px';
+			arrow.style.fontWeight = '700';
+			arrow.style.marginRight = '8px';
+			header.appendChild(arrow);
+
+			var badgeWrap = x(doc, 'span');
+			badgeWrap.style.background = '#e7f3ff';
+			badgeWrap.style.border = '1px solid #b5d8ff';
+			badgeWrap.style.borderRadius = '999px';
+			badgeWrap.style.padding = '2px 8px';
+
+			var badge = x(doc, 'span');
+			badge.id = 'badge_t_h';
+			badge.style.fontSize = '12px';
+			badge.style.color = '#1976d2';
+			badgeWrap.appendChild(badge);
+			header.appendChild(badgeWrap);
+
+			host.appendChild(header);
+
+			// Métricas
+			var metricsRow = x(doc, 'div');
+			metricsRow.style.display = 'grid';
+			metricsRow.style.gridTemplateColumns = '200px 200px 1fr 1fr';
+			metricsRow.style.alignItems = 'end';
+			metricsRow.style.gap = '12px';
+			host.appendChild(metricsRow);
+
+			function metricBig(label, id, unit) {
+				var box = x(doc, 'div');
+				box.style.display = 'flex';
+				box.style.flexDirection = 'column';
+
+				var l = x(doc, 'span');
+				l.textContent = label;
+				l.style.fontSize = '13px';
+				l.style.color = '#666';
+				box.appendChild(l);
+
+				var row = x(doc, 'div');
+				row.style.display = 'flex';
+				row.style.alignItems = 'baseline';
+				row.style.gap = '6px';
+
+				var v = x(doc, 'span');
+				v.id = id;
+				v.style.fontSize = (id === 'q_val_h' ? '40px' : '34px');
+				v.style.lineHeight = '1';
+				v.style.fontWeight = '700';
+				v.style.color = '#111';
+				v.textContent = '0';
+
+				var u = x(doc, 'span');
+				u.textContent = unit;
+				u.style.fontSize = '18px';
+				u.style.color = '#444';
+
+				row.appendChild(v);
+				row.appendChild(u);
+				box.appendChild(row);
+				metricsRow.appendChild(box);
+				return v;
+			}
+
+			function metricSmall(label, id, unit) {
+				var box = x(doc, 'div');
+				box.style.display = 'flex';
+				box.style.flexDirection = 'column';
+
+				var l = x(doc, 'span');
+				l.textContent = label;
+				l.style.fontSize = '12px';
+				l.style.color = '#666';
+				l.style.textAlign = 'center';
+				box.appendChild(l);
+
+				var row = x(doc, 'div');
+				row.style.display = 'flex';
+				row.style.alignItems = 'baseline';
+				row.style.gap = '4px';
+				row.style.justifyContent = 'flex-end';
+
+				var v = x(doc, 'span');
+				v.id = id;
+				v.style.fontSize = '14px';
+				v.style.fontWeight = '700';
+				v.style.color = '#111';
+				v.textContent = '0';
+
+				var u = x(doc, 'span');
+				u.textContent = unit;
+				u.style.fontSize = '12px';
+				u.style.color = '#444';
+
+				row.appendChild(v);
+				row.appendChild(u);
+				box.appendChild(row);
+				metricsRow.appendChild(box);
+				return v;
+			}
+
+			var qVal = metricBig('Caudal', 'q_val_h', 'l/s');
+			var pVal = metricBig('Presión', 'p_val_h', 'kg/cm2');
+			var vdVal = metricSmall('Vd (día)', 'vd_val_h', 'm³');
+			var vtVal = metricSmall('Vd (total)', 'vt_val_h', 'm³');
+
+			// Detalle dinámico (sparkline/tabla)
+			var detailWrap = x(doc, 'div');
+			detailWrap.style.marginTop = '10px';
+			detailWrap.style.border = '1px solid #e5e7eb';
+			detailWrap.style.borderRadius = '10px';
+			detailWrap.style.padding = '10px';
+			detailWrap.style.background = '#fff';
+			host.appendChild(detailWrap);
+
+			// Umbrales
+			var thrWrap = x(doc, 'div');
+			thrWrap.style.marginTop = '6px';
+			thrWrap.style.background = '#f8fafc';
+			thrWrap.style.border = '1px solid #e3e8ef';
+			thrWrap.style.borderRadius = '10px';
+			thrWrap.style.padding = '10px';
+			host.appendChild(thrWrap);
+
+			var thrTitle = x(doc, 'div');
+			thrTitle.textContent = 'Umbrales';
+			thrTitle.style.fontSize = '12px';
+			thrTitle.style.color = '#667';
+			thrTitle.style.marginBottom = '6px';
+			thrWrap.appendChild(thrTitle);
+
+			var thrRow = x(doc, 'div');
+			thrRow.style.display = 'grid';
+			thrRow.style.gridTemplateColumns = 'repeat(4,1fr)';
+			thrRow.style.gap = '10px';
+			thrWrap.appendChild(thrRow);
+
+			// --------- NUEVO makeThr: etiqueta + chip de unidad + valor grande ----------
+			function makeThr(label, id, unit) {
+				var box = x(doc, 'div');
+				box.style.display = 'flex';
+				box.style.flexDirection = 'column';
+				box.style.gap = '6px';
+				box.style.padding = '10px';
+				box.style.border = '1px solid #e2e8f0';
+				box.style.borderRadius = '12px';
+				box.style.background = '#fff';
+			
+				// fila superior: label + unidad
+				var top = x(doc, 'div');
+				top.style.display = 'flex';
+				top.style.alignItems = 'center';
+				top.style.gap = '8px';
+			
+				var l = x(doc, 'span');
+				l.textContent = label;
+				l.style.fontSize = '13px';
+				l.style.fontWeight = '700';
+				l.style.color = '#0f172a';
+				top.appendChild(l);
+			
+				if (unit) {
+					var chip = x(doc, 'span');
+					chip.textContent = unit;
+					chip.style.fontSize = '11px';
+					chip.style.color = '#1d4ed8';
+					chip.style.background = '#e8f0ff';
+					chip.style.border = '1px solid #c7d8ff';
+					chip.style.borderRadius = '999px';
+					chip.style.padding = '2px 6px';
+					top.appendChild(chip);
+				}
+			
+				box.appendChild(top);
+			
+				// valor editable (grande)
+				var v = x(doc, 'span');
+				v.id = id;
+				v.textContent = '--';
+				v.style.fontSize = '20px';
+				v.style.lineHeight = '1';
+				v.style.fontWeight = '800';
+				v.style.letterSpacing = '0.2px';
+				v.style.color = '#111827';
+				v.style.cursor = 'pointer';
+			
+				// micro-hint
+				var hint = x(doc, 'span');
+				hint.textContent = 'Clic para editar';
+				hint.style.fontSize = '11px';
+				hint.style.color = '#64748b';
+			
+				// hover sutil
+				try {
+					v.addEventListener('mouseenter', function () { v.style.textDecoration = 'underline'; });
+					v.addEventListener('mouseleave', function () { v.style.textDecoration = 'none'; });
+				} catch (_) {}
+			
+				box.appendChild(v);
+				box.appendChild(hint);
+			
+				thrRow.appendChild(box);
+				return v;
+			}
+			
+			// --------- Llamadas traducidas (mismos IDs) ----------
+			var q_wl = makeThr('Caudal · Aviso bajo',  'q_wl_h', 'l/s');
+			var q_al = makeThr('Caudal · Alarma baja', 'q_al_h', 'l/s');
+			var q_wh = makeThr('Caudal · Aviso alto',  'q_wh_h', 'l/s');
+			var q_ah = makeThr('Caudal · Alarma alta', 'q_ah_h', 'l/s');
+			
+			var p_wl = makeThr('Presión · Aviso bajo',  'p_wl_h', 'kg/cm²');
+			var p_al = makeThr('Presión · Alarma baja', 'p_al_h', 'kg/cm²');
+			var p_wh = makeThr('Presión · Aviso alto',  'p_wh_h', 'kg/cm²');
+			var p_ah = makeThr('Presión · Alarma alta', 'p_ah_h', 'kg/cm²');
+
+
+			// Áreas de influencia
+			var aiBox = x(doc, 'div');
+			aiBox.style.borderTop = '1px solid #e2e8f0';
+			aiBox.style.paddingTop = '10px';
+			aiBox.style.marginTop = '8px';
+			host.appendChild(aiBox);
+
+			var aiTitle = x(doc, 'div');
+			aiTitle.textContent = 'Áreas de influencia';
+			aiTitle.style.fontWeight = '600';
+			aiTitle.style.marginBottom = '6px';
+			aiBox.appendChild(aiTitle);
+
+			var aiList = x(doc, 'div');
+			aiList.id = 'ai_list_h';
+			aiBox.appendChild(aiList);
+
+			var aiControls = x(doc, 'div');
+			aiControls.style.display = 'flex';
+			aiControls.style.gap = '6px';
+			aiControls.style.marginTop = '8px';
+			aiBox.appendChild(aiControls);
+
+			var aiInput = x(doc, 'input');
+			aiInput.id = 'ai_input_h';
+			aiInput.type = 'text';
+			aiInput.placeholder = 'Agregar área (Enter)';
+			aiInput.style.flex = '1';
+			aiInput.style.border = '1px solid #cbd5e1';
+			aiInput.style.borderRadius = '8px';
+			aiInput.style.padding = '6px 10px';
+			aiControls.appendChild(aiInput);
+
+			var aiAdd = x(doc, 'button');
+			aiAdd.id = 'ai_add_btn_h';
+			aiAdd.textContent = 'Agregar';
+			aiAdd.style.background = '#2563eb';
+			aiAdd.style.color = '#fff';
+			aiAdd.style.border = 'none';
+			aiAdd.style.borderRadius = '8px';
+			aiAdd.style.padding = '6px 10px';
+			aiControls.appendChild(aiAdd);
+
+			var aiSave = x(doc, 'button');
+			aiSave.id = 'ai_save_btn_h';
+			aiSave.textContent = 'Guardar';
+			aiSave.style.background = '#059669';
+			aiSave.style.color = '#fff';
+			aiSave.style.border = 'none';
+			aiSave.style.borderRadius = '8px';
+			aiSave.style.padding = '6px 10px';
+			aiControls.appendChild(aiSave);
+
+			// Schedules (AP)
+			var isAP = address.indexOf('Circuito') >= 0;
+			var isAR = address.indexOf('Cuenca') >= 0;
+
+			if (!isAR) {
+				var schBox = x(doc, 'div');
+				schBox.style.borderTop = '1px solid #e2e8f0';
+				schBox.style.paddingTop = '10px';
+				host.appendChild(schBox);
+
+				var schTitleRow = x(doc, 'div');
+				schTitleRow.style.display = 'flex';
+				schTitleRow.style.alignItems = 'center';
+				schTitleRow.style.gap = '8px';
+				schBox.appendChild(schTitleRow);
+
+				var schTitle = x(doc, 'div');
+				schTitle.textContent = 'Horarios de presión';
+				schTitle.style.fontWeight = '600';
+				schTitleRow.appendChild(schTitle);
+
+				var schSpacer = x(doc, 'div');
+				schSpacer.style.flex = '1';
+				schTitleRow.appendChild(schSpacer);
+
+				var btnAdd = x(doc, 'button');
+				btnAdd.textContent = 'Agregar';
+				btnAdd.style.background = '#2563eb';
+				btnAdd.style.color = '#fff';
+				btnAdd.style.border = 'none';
+				btnAdd.style.borderRadius = '8px';
+				btnAdd.style.padding = '4px 10px';
+				schTitleRow.appendChild(btnAdd);
+
+				var btnSave = x(doc, 'button');
+				btnSave.textContent = 'Guardar';
+				btnSave.style.background = '#059669';
+				btnSave.style.color = '#fff';
+				btnSave.style.border = 'none';
+				btnSave.style.borderRadius = '8px';
+				btnSave.style.padding = '4px 10px';
+				schTitleRow.appendChild(btnSave);
+
+				// Encabezados de columnas
+				var schHead = x(doc, 'div');
+				schHead.style.display = 'grid';
+				schHead.style.gridTemplateColumns = '1fr 1fr 1fr';
+				schHead.style.gap = '8px';
+				schHead.style.marginTop = '6px';
+				schBox.appendChild(schHead);
+
+				function makeHead(txt) {
+					var d = x(doc, 'div');
+					d.textContent = txt;
+					d.style.fontSize = '12px';
+					d.style.color = '#666';
+					d.style.fontWeight = '600';
+					return d;
+				}
+
+				schHead.appendChild(makeHead('PD (kg/cm²)'));
+				schHead.appendChild(makeHead('Hora inicio'));
+				schHead.appendChild(makeHead('Hora fin'));
+
+				// Grid de filas
+				var schGrid = x(doc, 'div');
+				schGrid.style.display = 'grid';
+				schGrid.style.gridTemplateColumns = '1fr 1fr 1fr';
+				schGrid.style.gap = '8px';
+				schGrid.style.marginTop = '2px';
+				schBox.appendChild(schGrid);
+
+				function row(i) {
+					var pd = x(doc, 'div');
+					pd.id = 'r' + i + '_pd_h';
+					pd.style.cursor = 'pointer';
+
+					var ini = x(doc, 'div');
+					ini.id = 'r' + i + '_i_h';
+					ini.style.cursor = 'pointer';
+
+					var fin = x(doc, 'div');
+					fin.id = 'r' + i + '_f_h';
+					fin.style.cursor = 'pointer';
+
+					schGrid.appendChild(pd);
+					schGrid.appendChild(ini);
+					schGrid.appendChild(fin);
+
+					return {
+						pd: pd,
+						ini: ini,
+						fin: fin
+					};
+				}
+
+				var rs = [
+					row(1),
+					row(2),
+					row(3),
+					row(4)
+				];
+
+				// Local state and helpers
+				var schedState = {
+					1: { PD: 0, HF: 0, MF: 0, HH: 0, MH: 0 },
+					2: { PD: 0, HF: 0, MF: 0, HH: 0, MH: 0 },
+					3: { PD: 0, HF: 0, MF: 0, HH: 0, MH: 0 },
+					4: { PD: 0, HF: 0, MF: 0, HH: 0, MH: 0 }
+				};
+
+				function S(i) {
+					return {
+						PD: address + '.PD' + i,
+						HF: address + '.HF' + i,
+						MF: address + '.MF' + i,
+						HH: address + '.HH' + i,
+						MH: address + '.MH' + i
+					};
+				}
+
+				function pad2(n) {
+					n = parseInt(n, 10) || 0;
+					return (n < 10 ? '0' : '') + n;
+				}
+
+				function paintRow(i) {
+					var data = schedState[i] || {};
+					var pdEl = doc.getElementById('r' + i + '_pd_h');
+					var iEl = doc.getElementById('r' + i + '_i_h');
+					var fEl = doc.getElementById('r' + i + '_f_h');
+
+					if (pdEl) {
+						pdEl.textContent = (typeof webMI !== 'undefined' && webMI.sprintf) ? webMI.sprintf('%.2f', data.PD || 0) : String(data.PD || 0);
+					}
+					if (iEl) {
+						iEl.textContent = pad2(data.HF) + ':' + pad2(data.MF);
+					}
+					if (fEl) {
+						fEl.textContent = pad2(data.HH) + ':' + pad2(data.MH);
+					}
+				}
+
+				function paintAll() {
+					for (var i = 1; i <= 4; i++) {
+						paintRow(i);
+					}
+				}
+
+				function fetchRow(i, cb) {
+					var n = S(i);
+					var out = { PD: 0, HF: 0, MF: 0, HH: 0, MH: 0 };
+					var k = 0;
+
+					function done() {
+						if (++k === 5) {
+							cb(out);
+						}
+					}
+
+					CaudalGlobals.UTILS.read(n.PD, function (v) { out.PD = +v || 0; done(); });
+					CaudalGlobals.UTILS.read(n.HF, function (v) { out.HF = +v || 0; done(); });
+					CaudalGlobals.UTILS.read(n.MF, function (v) { out.MF = +v || 0; done(); });
+					CaudalGlobals.UTILS.read(n.HH, function (v) { out.HH = +v || 0; done(); });
+					CaudalGlobals.UTILS.read(n.MH, function (v) { out.MH = +v || 0; done(); });
+				}
+
+				function loadAll(cb) {
+					var i = 1;
+					var done = 0;
+					for (i = 1; i <= 4; i++) {
+						(function (k) {
+							fetchRow(k, function (cur) {
+								schedState[k] = cur;
+								if (++done === 4) {
+                                    paintAll();
+									if (cb) {
+										cb();
+									}
+								}
+							});
+						})(i);
+					}
+				}
+
+				function parseHM(t) {
+					var a = String(t || '').trim().split(':');
+					var h = parseInt(a[0], 10);
+					var m = parseInt(a[1], 10);
+					if (isNaN(h) || h < 0 || h > 23) {
+						return null;
+					}
+					if (isNaN(m) || m < 0 || m > 59) {
+						return null;
+					}
+					return {
+						h: h,
+						m: m
+					};
+				}
+				
+				// === helpers para escritura inmediata y repaint de UNA fila ===
+				function writeAndRefresh(i, updates) {
+					var pending = updates.length;
+					function after() {
+						if (--pending <= 0) {
+							fetchRow(i, function (cur) { schedState[i] = cur; paintRow(i); });
+						}
+					}
+					updates.forEach(function (u) { CaudalGlobals.UTILS.write(u.node, u.value, after); });
+				}
+				
+				// editor independiente por celda
+				function editCell(i, mode) {
+					var n = S(i);
+					fetchRow(i, function (cur) {
+						if (mode === 'pd') {
+							var def = (typeof webMI !== 'undefined' && webMI.sprintf) ? webMI.sprintf('%.2f', cur.PD || 0) : String(cur.PD || 0);
+							var pdStr = prompt('PD (kg/cm²):', def);
+							if (pdStr === null) return;
+							var PDn = parseFloat(String(pdStr).replace(',', '.'));
+							if (!isFinite(PDn)) { alert('PD inválida'); return; }
+							PDn = Math.round(PDn * 100) / 100;
+							writeAndRefresh(i, [{ node: n.PD, value: PDn }]);
+							return;
+						}
+						if (mode === 'start') {
+							var iStr = prompt('Inicio (HH:MM):', pad2(cur.HF) + ':' + pad2(cur.MF));
+							if (iStr === null) return;
+							var I = parseHM(iStr);
+							if (!I) { alert('Formato inválido (HH:MM)'); return; }
+							writeAndRefresh(i, [{ node: n.HF, value: I.h }, { node: n.MF, value: I.m }]);
+							return;
+						}
+						if (mode === 'end') {
+							var fStr = prompt('Fin (HH:MM):', pad2(cur.HH) + ':' + pad2(cur.MH));
+							if (fStr === null) return;
+							var F = parseHM(fStr);
+							if (!F) { alert('Formato inválido (HH:MM)'); return; }
+							writeAndRefresh(i, [{ node: n.HH, value: F.h }, { node: n.MH, value: F.m }]);
+							return;
+						}
+					});
+				}
+
+				
+				function promptRow(defaults) {
+					var cur = defaults || { PD: 0, HF: 0, MF: 0, HH: 0, MH: 0 };
+					var parseHM2 = function (txt) {
+						var s = String(txt || '').trim();
+						var m1 = s.match(/^(\d{1,2}):(\d{1,2})$/);              // HH:MM
+						var m2 = s.match(/^(\d{1,2})(\d{2})$/);                 // HHMM
+						var m3 = s.match(/^(\d{1,2})$/);                        // HH
+						var h = null;
+						var m = null;
+						if (m1) { h = +m1[1]; m = +m1[2]; }
+						else if (m2) { h = +m2[1]; m = +m2[2]; }
+						else if (m3) { h = +m3[1]; m = 0; }
+						else { return null; }
+						if (h < 0 || h > 23) return null;
+						if (m < 0 || m > 59) return null;
+						return { h: h, m: m };
+					};
+				
+					var iStr = prompt('Inicio (HH:MM):', pad2(cur.HF) + ':' + pad2(cur.MF));
+					if (iStr === null) { return null; }
+					var I = parseHM2(iStr);
+					if (!I) { alert('Formato inválido (usa HH:MM, HHMM o HH)'); return null; }
+				
+					var fStr = prompt('Fin (HH:MM):', pad2(cur.HH) + ':' + pad2(cur.MH));
+					if (fStr === null) { return null; }
+					var F = parseHM2(fStr);
+					if (!F) { alert('Formato inválido (usa HH:MM, HHMM o HH)'); return null; }
+				
+					if (I.h === F.h && I.m === F.m) {
+						alert('Inicio y fin no pueden ser iguales');
+						return null;
+					}
+				
+					var pdDef = (typeof webMI !== 'undefined' && webMI.sprintf)
+						? webMI.sprintf('%.2f', cur.PD || 0)
+						: String(cur.PD || 0);
+					var pdStr = prompt('PD (kg/cm²):', pdDef);
+					if (pdStr === null) { return null; }
+					var PDn = parseFloat(String(pdStr).replace(',', '.'));
+					if (!isFinite(PDn)) { alert('PD inválida'); return null; }
+					PDn = Math.round(PDn * 100) / 100;
+				
+					return {
+						PD: PDn,
+						HF: I.h,
+						MF: I.m,
+						HH: F.h,
+						MH: F.m
+					};
+				}
+				
+				function editRow(i) {
+					var nv = promptRow(schedState[i]);
+					if (!nv) { return; }
+					schedState[i] = nv;
+					paintRow(i);
+				}
+				
+				function addRow() {
+					var slot = null;
+					for (var i = 1; i <= 4; i++) {
+						var d = schedState[i];
+						var empty = !d || (!d.PD && !d.HF && !d.MF && !d.HH && !d.MH);
+						if (empty) { slot = i; break; }
+					}
+					if (slot === null) {
+						alert('No hay filas disponibles');
+						return;
+					}
+					var nv = promptRow();
+					if (!nv) { return; }
+					schedState[slot] = nv;
+					paintRow(slot);
+				}
+
+				function saveAll() {
+					btnSave.disabled = true;
+					for (var i = 1; i <= 4; i++) {
+						var n = S(i);
+						var d = schedState[i] || { PD: 0, HF: 0, MF: 0, HH: 0, MH: 0 };
+						CaudalGlobals.UTILS.write(n.PD, d.PD);
+						CaudalGlobals.UTILS.write(n.HF, d.HF);
+						CaudalGlobals.UTILS.write(n.MF, d.MF);
+						CaudalGlobals.UTILS.write(n.HH, d.HH);
+						CaudalGlobals.UTILS.write(n.MH, d.MH);
+					}
+					setTimeout(function () {
+						btnSave.disabled = false;
+					}, 300);
+				}
+
+				// Bind interactions (independiente por celda)
+				for (var i = 1; i <= 4; i++) {
+					(function (k) {
+						var pdEl = doc.getElementById('r' + k + '_pd_h');
+						var iEl  = doc.getElementById('r' + k + '_i_h');
+						var fEl  = doc.getElementById('r' + k + '_f_h');
+						if (pdEl) pdEl.addEventListener('click',
+						function (e) { e.stopImmediatePropagation(); editCell(k, 'pd');    }, true);
+						if (iEl)  iEl.addEventListener('click',
+						function (e) { e.stopImmediatePropagation(); editCell(k, 'start'); }, true);
+						if (fEl)  fEl.addEventListener('click',
+						function (e) { e.stopImmediatePropagation(); editCell(k, 'end');   }, true);
+					})(i);
+				}
+
+
+				btnAdd.addEventListener('click', addRow);
+				btnSave.addEventListener('click', saveAll);
+				loadAll();
+			}
+
+			// Subscriptions and logic
+			var subs = CaudalGlobals.STATE.CARD_INSTANCE.subs;
+
+			// Header and badge
+			subs.push(CaudalGlobals.UTILS.subscribeValue(address + '.name', function (v) {
+				hTitle.textContent = v || hTitle.textContent || 'Equipo';
+			}));
+			subs.push(CaudalGlobals.UTILS.subscribeValue(address + '.diameter', function (v) {
+				hSub.textContent = 'Ø ' + (v || '') + '"';
+			}));
+
+			badge.textContent = isAP ? 'AP' : 'AR';
+			arrow.style.color = isAP ? '#2563eb' : '#16a34a';
+
+			hSub.addEventListener('click', function () {
+				try {
+					webMI.data.read(address + '.diameter', function (r) {
+						var cur = (r && r.value != null) ? r.value : '';
+						var nv = prompt('Diámetro (pulgadas):', String(cur));
+						if (nv === null) {
+							return;
+						}
+						var num = parseFloat(nv);
+						if (isNaN(num) || num <= 0) {
+							alert('Valor inválido');
+							return;
+						}
+						webMI.data.write(address + '.diameter', num);
+					});
+				} catch (_) {}
+			});
+
+			// Metrics
+			qVal.style.cursor = 'pointer';
+			pVal.style.cursor = 'pointer';
+			vtVal.style.cursor = 'pointer';
+
+			subs.push(CaudalGlobals.UTILS.subscribeValue(address + '.current_flow', function (v, s) {
+				qVal.textContent = (typeof webMI !== 'undefined' && webMI.sprintf) ? webMI.sprintf('%.1f', v || 0) : String(v || 0);
+				qVal.style.color = (s == null || s === 0) ? '#0f172a' : '#b91c1c';
+			}));
+
+			if (isAP) {
+				subs.push(CaudalGlobals.UTILS.subscribeValue(address + '.current_pressure', function (v, s) {
+					pVal.textContent = (typeof webMI !== 'undefined' && webMI.sprintf) ? webMI.sprintf('%.2f', v || 0) : String(v || 0);
+					pVal.style.color = (s == null || s === 0) ? '#0f172a' : '#b91c1c';
+				}));
+			} else {
+				pVal.parentNode.style.display = 'none';
+			}
+
+			qVal.addEventListener('click', function () {
+				try {
+					CaudalDetail.showFlow(detailWrap, address);
+				} catch (_) {}
+			});
+
+			if (isAP) {
+				pVal.addEventListener('click', function () {
+					try {
+						CaudalDetail.showPressure(detailWrap, address);
+					} catch (_) {}
+				});
+			}
+
+			vtVal.addEventListener('click', function () {
+				try {
+					CaudalDetail.showProduction(detailWrap, address);
+				} catch (_) {}
+			});
+
+			subs.push(CaudalGlobals.UTILS.subscribeValue(address + '.current_daily_volume', function (v) {
+				vdVal.textContent = CaudalGlobals.UTILS.fmt(v || 0, 0);
+			}));
+
+			subs.push(CaudalGlobals.UTILS.subscribeValue(address + '.current_total_volume', function (v) {
+				vtVal.textContent = CaudalGlobals.UTILS.fmt(v || 0, 0);
+			}));
+
+			// Thresholds
+			var N = CaudalGlobals.UTILS.buildNodes(address);
+
+			function bindThr(elId, node, decimals) {
+				var el = doc.getElementById(elId);
+				if (!el || !node) {
+					return;
+				}
+				subs.push(CaudalGlobals.UTILS.subscribeValue(node, function (v) {
+					el.textContent = CaudalGlobals.UTILS.fmt(v || 0, 2);
+				}));
+				el.addEventListener('click', function () {
+					CaudalGlobals.UTILS.editNumber(node, decimals, 'Nuevo valor');
+				});
+			}
+
+			bindThr('q_wl_h', N.q_wl, 2);
+			bindThr('q_al_h', N.q_al, 2);
+			bindThr('q_wh_h', N.q_wh, 2);
+			bindThr('q_ah_h', N.q_ah, 2);
+
+			if (isAP) {
+				bindThr('p_wl_h', N.p_wl, 2);
+				bindThr('p_al_h', N.p_al, 2);
+				bindThr('p_wh_h', N.p_wh, 2);
+				bindThr('p_ah_h', N.p_ah, 2);
+			} else {
+				p_wl.parentNode.style.display = 'none';
+				p_al.parentNode.style.display = 'none';
+				p_wh.parentNode.style.display = 'none';
+				p_ah.parentNode.style.display = 'none';
+			}
+
+			// Áreas de influencia
+			(function () {
+				var AI_NODE = address + '.areasInfluencia';
+
+				function splitAreas(s) {
+					if (!s) {
+						return [];
+					}
+					return String(s)
+						.split(/[,;|\n]/)
+						.map(function (t) {
+							return t.trim();
+						})
+						.filter(Boolean);
+				}
+
+				function joinAreas(a) {
+					return (a || []).join(', ');
+				}
+
+				var state = [];
+
+				function render() {
+					aiList.innerHTML = state.map(function (txt, i) {
+						return '<span style="display:inline-block; margin:2px 6px 2px 0; padding:2px 8px;background:#eef2f7; border:1px solid #cfd4dc; border-radius:999px; color:#111; line-height:1.6;">'
+							+ txt.replace(/[&<>\"]/g, function (m) {
+								return {
+									'&': '&amp;',
+									'<': '&lt;',
+									'>': '&gt;',
+									'"': '&quot;'
+								}[m];
+							})
+							+ ' <button data-i="' + i + '" style="margin-left:4px; border:none; background:#e11d48; color:#fff; border-radius:10px; padding:0 6px; cursor:pointer;">×</button></span>';
+					}).join('');
+				}
+
+				function load() {
+					try {
+						webMI.data.read(AI_NODE, function (r) {
+							var v = r && (typeof r.value !== 'undefined' ? r.value : r);
+							state = splitAreas(v);
+							render();
+						});
+					} catch (_) {}
+				}
+
+				aiAdd.addEventListener('click', function () {
+					var t = (aiInput.value || '').trim();
+					if (!t) {
+						return;
+					}
+					var parts = splitAreas(t);
+					if (parts.length) {
+						state = state.concat(parts);
+					}
+					aiInput.value = '';
+					render();
+				});
+
+				aiInput.addEventListener('keydown', function (e) {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						var t = (aiInput.value || '').trim();
+						if (!t) {
+							return;
+						}
+						var parts = splitAreas(t);
+						if (parts.length) {
+							state = state.concat(parts);
+						}
+						aiInput.value = '';
+						render();
+					}
+				});
+
+				aiList.addEventListener('click', function (e) {
+					var t = e.target;
+					if (t && t.tagName && t.tagName.toLowerCase() === 'button' && t.hasAttribute('data-i')) {
+						var idx = parseInt(t.getAttribute('data-i'), 10);
+						if (!isNaN(idx)) {
+							state.splice(idx, 1);
+							render();
+						}
+					}
+				});
+
+				aiSave.addEventListener('click', function () {
+					var s = joinAreas(state);
+					aiSave.disabled = true;
+					CaudalGlobals.UTILS.write(AI_NODE, s, function () {
+						aiSave.disabled = false;
+						load();
+						try {
+							webMI.callExtension('SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.MessageBox', {
+								title: 'T{Guardado}',
+								text: 'T{Áreas de influencia actualizadas.}'
+							});
+						} catch (_) {}
+					});
+				});
+
+				try {
+					CaudalGlobals.STATE.CARD_INSTANCE.subs.push(CaudalGlobals.UTILS.subscribeValue(AI_NODE, function (v) {
+						state = splitAreas(v);
+						render();
+					}));
+				} catch (_) {}
+
+				load();
+			})();
+
+			// (old direct-write schedule code removed; now using add/save flow)
+		} catch (e) {
+			/* noop */
+		}
+	};
+}
+
+try {
+	if (typeof webMI !== 'undefined' && webMI.addOnload) {
+		webMI.addOnload(caudalMain.reload);
+	} else {
+		caudalMain.reload();
+	}
+} catch (_) {
+	caudalMain.reload();
+}
+
+// Limpieza global al cerrar/cambiar display
+function cleanupAll() {
+	try {
+		// líneas
+		try {
+			var L = (CaudalGlobals && CaudalGlobals.STATE && CaudalGlobals.STATE.LINE_INSTANCES) || {};
+			Object.keys(L).forEach(function (k) {
+				var inst = L[k];
+				if (!inst) {
+					return;
+				}
+				try {
+					(inst.subs || []).forEach(function (s) {
+						if (s && s.type === 'interval' && s.id) {
+							try {
+								clearInterval(s.id);
+							} catch (_) {}
+						}
+					});
+				} catch (_) {}
+				try {
+					CaudalGlobals.UTILS.unsubscribeAll(inst.subs);
+				} catch (_) {}
+			});
+			CaudalGlobals.STATE.LINE_INSTANCES = Object.create(null);
+		} catch (_) {}
+
+		// tarjeta
+		try {
+			var card = (CaudalGlobals && CaudalGlobals.STATE && CaudalGlobals.STATE.CARD_INSTANCE) || null;
+			if (card) {
+				try {
+					(card.subs || []).forEach(function (s) {
+						if (s && s.type === 'interval' && s.id) {
+							try {
+								clearInterval(s.id);
+							} catch (_) {}
+						}
+					});
+				} catch (_) {}
+				try {
+					CaudalGlobals.UTILS.unsubscribeAll(card.subs);
+				} catch (_) {}
+				CaudalGlobals.STATE.CARD_INSTANCE = null;
+			}
+		} catch (_) {}
+	} catch (_) {}
+}
+
+try {
+	if (typeof webMI !== 'undefined' && webMI.addOnunload) {
+		webMI.addOnunload(cleanupAll);
+	}
+} catch (_) {}
+]]></code>
+</script>

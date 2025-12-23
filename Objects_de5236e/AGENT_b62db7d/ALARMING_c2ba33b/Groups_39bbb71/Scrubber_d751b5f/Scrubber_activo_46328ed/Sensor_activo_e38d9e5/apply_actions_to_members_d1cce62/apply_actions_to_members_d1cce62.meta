@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.ALARMING.Groups.Scrubber.Scrubber_activo.Sensor_activo.apply_actions_to_members
+NodeClass: Variable
+BrowseName: 1:apply_actions_to_members
+DisplayName: en|apply_actions_to_members
+Description: en|apply_actions_to_members
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

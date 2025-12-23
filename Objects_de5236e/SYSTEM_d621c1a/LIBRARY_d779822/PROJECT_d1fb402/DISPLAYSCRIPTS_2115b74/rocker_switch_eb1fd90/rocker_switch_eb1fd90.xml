@@ -1,0 +1,825 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for rocker_switch, rocker_switch_small and rocker_switch_horizontal object displays
+ * ----------------------------------------------------------------------------------------
+ * This button increments or decrements the value of an address like the button increment/decrement. rocker_switch_small is the smaller representation of the rocker switch. rocker_switch_horizontal is the horizontal representation of the rocker switch.
+ * In addition the trigger "valuechanged" with the new value (=incremented or decremented value) will be fired.
+ * An additional border indicates the current value's negative state or an additionally defined alarm. The colors and blinking intervals are defined in global lists.
+ */
+
+/**
+ *    IMPORTS
+ */
+var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var stepInc = parseFloat(webMI.query["stepInc"]);
+var stepDec = parseFloat(webMI.query["stepDec"]);
+var decimalFraction = parseInt(webMI.query["decimalFraction"], 10);
+var leadingZeros = parseInt(webMI.query["leadingZeros"], 10);
+var postDecimal = parseInt(webMI.query["postDecimal"], 10);
+var unit = webMI.query["unit"];
+var sign = webMI.query["sign"] == "true";
+var min = webMI.query["min"] == undefined ? "" : parseFloat(webMI.query["min"]);
+var max = webMI.query["max"] == undefined ? "" : parseFloat(webMI.query["max"]);
+var interval = parseFloat(webMI.query["interval"]);
+var defaultValue = webMI.query["initValue"];
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+var fontColor = webMI.query["fontColor"];
+var inputFill = typeof webMI.query["fill"] != "undefined" ? webMI.query["fill"] : webMI.query["inputFill"];
+var fillColorInactive = webMI.query["fillColorInactive"];
+var fillColor = typeof webMI.query["buttonFill"] != "undefined" ? webMI.query["buttonFill"] : webMI.query["fillColor"];
+var buttonStrokePressed = webMI.query["buttonStrokePressed"];
+var focusStrokeColor = webMI.query["focusStrokeColor"];
+var consistencyGroup = webMI.query["consistencyGroup"];
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+var keyboard = webMI.query["keyboard"];
+var number_keyboard = webMI.query["number_keyboard"];
+var message_dialog_small = webMI.query["message_dialog_small"];
+var right = webMI.query["right"] == undefined ? "" : webMI.query["right"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var CONST_NUMBER_FORMAT = "[^-0-9.]";
+var format = CONST_NUMBER_FORMAT;
+var storedEvent = { keyCode: null, shiftKey: false };
+var isPressed = false;
+var isRunning = false;
+var activeTimer;
+var decimalFactor = 1;
+
+if (!isNaN(decimalFraction) && decimalFraction > 0) {
+	decimalFactor = Math.pow(10, decimalFraction);
+}
+
+stepInc *= decimalFactor;
+stepDec *= decimalFactor;
+if (min !== "") min *= decimalFactor;
+if (max !== "") max *= decimalFactor;
+
+/**
+ * style
+ */
+var lockInputEvents = false;
+var lockReadEvents = false;
+var notAvailableString = "T{N/A}";
+
+/**
+ * fo obj
+ */
+var foreignObject;
+var inputActive = false;
+var inputFO = webMI.dom.createElement("http://www.w3.org/1999/xhtml", "input");
+inputFO.type = "number";
+inputFO.step = stepInc;
+inputFO.min = min;
+inputFO.max = max;
+inputFO.id = document.getElementById("input_clickarea").id + "_html_input";
+inputFO.className = "hideArrows";
+inputFO.style.width = "100%";
+inputFO.style.height = "100%";
+inputFO.style.borderWidth = "0px";
+inputFO.style.padding = "0px 8px 0px 0px";
+inputFO.style.textAlign = "center";
+inputFO.style.color = fontColor;
+inputFO.style.fontFamily = webMI.query["fontFamily"];
+inputFO.style.fontSize = parseFloat(webMI.query["fontSize"]) + "px";
+inputFO.style.boxSizing = "border-box";
+
+var isTouch = navigator.userAgent.indexOf("Mobi") > -1;
+var useSVGKeyboard = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Configuration", {
+	action: "existsIndexParameter",
+	parameterName: "useSVGKeyboard"
+});
+if (useSVGKeyboard == "true") isTouch = true;
+
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var isActivationNodeSet = activeNode != "" && String(activeValue) != "";
+
+/** data **/
+var runTimeNodeConfig = {
+	base: { value: null, address: base, paramValue: "", read: true, write: true, aggregate: false }
+};
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: document.getElementById("bg").id,
+	elementEventTarget: document.getElementById("clickareaFO").id,
+	rights: [
+		{ nodeId: base, rights: "read", disable: true, notify: false },
+		{ nodeId: base, rights: "write", disable: true, notify: false },
+		{ nodeId: alarmToSubscribe, rights: "alarmRead", disable: false, notify: true },
+		{ nodeId: keyboard, rights: "read", disable: false, notify: true },
+		{ nodeId: number_keyboard, rights: "read", disable: false, notify: true },
+		{ nodeId: message_dialog_small, rights: "read", disable: true, notify: true },
+		{ nodeId: activeNode, rights: "read", disable: true, notify: true }
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: { activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"] },
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: webMI.query["right"],
+	editable: webMI.query["editable"] != "No"
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+if (typeof updateRunTimeNodeConfig === "function") {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+} else {
+	initialize(runTimeNodeConfig);
+}
+
+if (base != "" && consistencyGroup) consistencyHandler.register(consistencyGroup, base, writeValue);
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * read or subscribe data by runtime node configuration
+ * @param nodeCfg
+ */
+function initialize(nodeCfg) {
+	/* init alarm indication */
+	if (alarmToSubscribe != "") updateAlarmIndication(alarmToSubscribe);
+
+	/* base */
+	if (!nodeCfg.base.address) {
+		if (runTimeNodeConfig.base.value == null) runTimeNodeConfig.base.value = defaultValue ? defaultValue : 0;
+		writeValueToField();
+	} else if (consistencyGroup) {
+		//handled in runtime section
+		if (!nodeCfg.base.read) writeValueToField(notAvailableString);
+	} else if (nodeCfg.base.address && nodeCfg.base.read) {
+		if (!nodeCfg.base.subscribe) {
+			nodeCfg.base.subscribe = true;
+
+			webMI.data.subscribe(nodeCfg.base.address, function (result) {
+				if (typeof result.value == "undefined") {
+					writeValueToField(notAvailableString);
+					return;
+				}
+
+				if (typeof result.status != "undefined" && typeof updateStatusIndication === "function") {
+					updateStatusIndication(result.status);
+				}
+
+				runTimeNodeConfig.base.value = result.value;
+				writeValueToField();
+			});
+		}
+	} else {
+		writeValueToField(notAvailableString);
+	}
+
+	if (tooltip != "") {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+			auto: "true",
+			id: "clickarea_inc",
+			text: tooltip
+		});
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+			auto: "true",
+			id: "clickarea_dec",
+			text: tooltip
+		});
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+			auto: "true",
+			id: "input_clickarea",
+			text: tooltip
+		});
+	}
+}
+
+inputFO.onblur = blurHandler;
+
+webMI.addOnload(function () {
+	var doc = document.getElementById("clickarea_inc").ownerDocument;
+	tabHandler.register(tabIndex, keyHandler, doc);
+});
+
+/**
+ * FUNCTION SECTION
+ */
+function setLabelValue(value) {
+	var formattedOutput = value;
+
+	if (!isNaN(formattedOutput)) {
+		formattedOutput = _formatInputFieldValue(formattedOutput);
+		formattedOutput = formattedOutput.toString();
+	}
+
+	webMI.gfx.setText("input_label", formattedOutput);
+}
+
+function setActiveLayout() {
+	lockInputEvents = false;
+
+	webMI.gfx.setFill("input_field_widget", inputFill);
+	webMI.gfx.setFill("input_bg", fillColor);
+	webMI.gfx.setFill("inc_bg", fillColor);
+	webMI.gfx.setFill("dec_bg", fillColor);
+	webMI.gfx.setVisible("inc_stroke", null);
+	webMI.gfx.setVisible("dec_stroke", null);
+}
+
+function setInactiveLayout() {
+	if (runTimeNodeConfig.base.address || !CRH.state.activationTriggerState) {
+		lockInputEvents = true;
+	}
+
+	webMI.gfx.setFill("input_field_widget", fillColorInactive);
+	webMI.gfx.setFill("input_bg", fillColorInactive);
+	webMI.gfx.setFill("inc_bg", fillColorInactive);
+	webMI.gfx.setFill("dec_bg", fillColorInactive);
+	webMI.gfx.setVisible("inc_stroke", false);
+	webMI.gfx.setVisible("dec_stroke", false);
+}
+
+/**
+ * update on ac right changes
+ */
+function fetchCurrentRightsAndUpdate() {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+}
+
+/**
+ * update consistensy group, node and display
+ * @param value
+ */
+function writeValue(value) {
+	/* only update display, do not modify internals */
+	if (value == notAvailableString) {
+		writeValueToField(value);
+		return;
+	}
+
+	/* skip if value already exists */
+	if (runTimeNodeConfig.base.value == value) {
+		return;
+	}
+
+	if (String(max) != "" && value > max) {
+		value = max;
+	} else if (String(min) != "" && value < min) {
+		value = min;
+	}
+
+	if (consistencyGroup) {
+		runTimeNodeConfig.base.value = value;
+		consistencyHandler.set(consistencyGroup, base, value);
+		writeValueToField();
+		fireTriggerValueChanged();
+	} else if (runTimeNodeConfig.base.address && runTimeNodeConfig.base.write) {
+		runTimeNodeConfig.base.value = value;
+		webMI.data.write(base, runTimeNodeConfig.base.value, function (e) {
+			if (e && e.error) {
+				if (e.error === -4) {
+					showMessageDialog("T{Access Denied}", "");
+				} else {
+					showMessageDialog("T{Invalid format!}", "T{Please enter only numeric values.}");
+				}
+
+				webMI.data.read(runTimeNodeConfig.base.address, function (e) {
+					runTimeNodeConfig.base.value = e.value;
+					writeValueToField();
+					fireTriggerValueChanged();
+				});
+			} else {
+				writeValueToField();
+				fireTriggerValueChanged();
+			}
+		});
+	} else if (!runTimeNodeConfig.base.address) {
+		runTimeNodeConfig.base.value = value * decimalFactor;
+		writeValueToField();
+		fireTriggerValueChanged();
+	}
+}
+
+/**
+ * fire value change trigger
+ */
+function fireTriggerValueChanged() {
+	webMI.trigger.fire("valuechanged", runTimeNodeConfig.base.value, "");
+}
+
+/**
+ * update display only
+ * @param value
+ */
+function writeValueToField(value) {
+	if (value) {
+		setLabelValue(value);
+	} else {
+		setLabelValue(runTimeNodeConfig.base.value);
+	}
+}
+
+function focusTH() {
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", focusStrokeColor);
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setStroke("input_field_widget", focusStrokeColor);
+	}
+}
+
+function blurTH() {
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", "none");
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setStroke("input_field_widget", "none");
+	}
+}
+
+function applyTH() {
+	var tmp = null;
+	if (useSVGKeyboard) {
+		var size = format != undefined && format == CONST_NUMBER_FORMAT ? { w: 378, h: 328 } : { w: 700, h: 300 };
+		var keyboardParam = _getDisplayParameters();
+
+		if (format != undefined && format == CONST_NUMBER_FORMAT) {
+			keyboard = number_keyboard;
+		}
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: size.h,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Keyboard}",
+			toolbar: false,
+			width: size.w,
+			query: keyboardParam
+		});
+	} else {
+		switchToInputMode();
+	}
+}
+
+function backTH() {}
+
+function arrowTH(dir) {
+	if (dir == 38 || dir == 40) {
+		var step = dir == 40 ? stepDec * -1 : stepInc;
+		//Execute action once on mousedown
+		var newValue = runTimeNodeConfig.base.value + step;
+		if ((String(max) == "" || newValue <= max) && (String(min) == "" || newValue >= min)) {
+			writeValue(newValue);
+		}
+	}
+}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		focusTH();
+	} else if (keyTH == "blur") {
+		blurTH();
+	} else if (keyTH == "apply") {
+		applyTH();
+	} else if (keyTH == "back") {
+		backTH();
+	} else if (keyTH == "arrow") {
+		param2 == 38 && webMI.gfx.setFill("inc_stroke", "url(#linear_2)");
+		param2 == 40 && webMI.gfx.setFill("dec_stroke", "url(#linear_2)");
+		arrowTH(param2);
+	} else if (keyTH == "releaseClick") {
+		webMI.gfx.setFill("inc_stroke", "url(#linear_1)");
+		webMI.gfx.setFill("dec_stroke", "url(#linear_1)");
+	} else if (keyTH == "isActive") {
+		return param2(document.getElementById("clickarea_inc").parentNode);
+	}
+}
+
+function stopPropagation(event) {
+	/*
+	 * If the ALT key is pressed together with one or more other keys on
+	 * Firefox (only Windows), there will be no keyup event when the ALT
+	 * key gets released. Since the ALT key is being used for paning in
+	 * atvise visualization, we have to make sure that key listeners in the
+	 * global document do not get triggered if someone is currently entering
+	 * something in the inputFO (like "someone@example.com").
+	 **/
+	if (event.altKey) {
+		if (event.stopPropagation) event.stopPropagation();
+		else event.cancelBubble = true;
+	}
+}
+
+function touchstartHandler(e) {
+	if (e.target !== inputFO && inputActive) {
+		blurHandler();
+	}
+}
+
+function blurHandler() {
+	switchToOutputMode();
+	tabHandler.setAcceptKeys(true);
+
+	if (storedEvent["keyCode"] != null) {
+		if (storedEvent["shiftKey"] && storedEvent["keyCode"] == "9") tabHandler.prevTab();
+		else if (storedEvent["keyCode"] == "9") tabHandler.nextTab();
+	}
+
+	if (storedEvent["keyCode"] != "27") {
+		//workaround: setTimeout for Chrome crash error (clicking out from the input field or clicking enter while holding a button pressed).
+		setTimeout(function () {
+			checkInput();
+		}, 0);
+	}
+
+	storedEvent["keyCode"] = null;
+}
+
+function checkInput() {
+	var tmpValue = parseFloat(inputFO.value.replace(",", "."));
+	if (inputFO.value.trim() == "" && inputFO.validity.valid) {
+		tmpValue = 0;
+	}
+
+	if (isNaN(tmpValue)) {
+		showMessageDialog("T{Invalid format!}", "T{Please enter only numeric values.}");
+	} else if (String(max) != "" && tmpValue > max / decimalFactor) {
+		showMessageDialog(
+			"T{Value too high!}",
+			webMI.sprintf("T{Please enter a value less than or equal to %d.}", max / decimalFactor)
+		);
+	} else if (String(min) != "" && tmpValue < min / decimalFactor) {
+		showMessageDialog(
+			"T{Value too low!}",
+			webMI.sprintf("T{Please enter a value greater than or equal to %d.}", min / decimalFactor)
+		);
+	} else {
+		writeValue(tmpValue * decimalFactor);
+	}
+}
+
+function showMessageDialog(headline, message) {
+	webMI.display.openWindow({
+		display: message_dialog_small,
+		height: 160,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: headline,
+			message: message,
+			button: "T{OK}"
+		}
+	});
+}
+
+function buttonPressed(pressed, step) {
+	isPressed = pressed;
+
+	if (isPressed && step) {
+		//Execute action once on mousedown
+		var newValue = runTimeNodeConfig.base.value + step;
+
+		//if ((String(max) != "") && (newValue > max)) newValue = max;
+		//if ((String(min) != "") && (newValue < min)) newValue = min;
+		if ((String(max) == "" || newValue <= max) && (String(min) == "" || newValue >= min)) {
+			writeValue(newValue);
+		}
+
+		// Execute action while holding mousedown
+
+		if (interval > 0) {
+			isRunning = true;
+			var callFn = function () {
+				doInDecrement(step);
+			};
+			activeTimer = setTimeout(callFn, interval);
+		}
+	} else if (isRunning && activeTimer) {
+		isRunning = false;
+		clearTimeout(activeTimer);
+	}
+}
+
+function doInDecrement(step) {
+	if (isRunning && isPressed) {
+		var calcStep = (step < 0 ? -1 * step : step) - 1;
+		//		var steps = Math.floor(max / calcStep);
+		var newValue = runTimeNodeConfig.base.value + step;
+
+		//if ((String(max) != "") && (newValue > max)) newValue = max;
+		//if ((String(min) != "") && (newValue < min)) newValue = min;
+		if ((String(max) == "" || newValue <= max) && (String(min) == "" || newValue >= min)) {
+			writeValue(newValue);
+		}
+
+		var callFn = function () {
+			doInDecrement(step);
+		};
+		activeTimer = setTimeout(callFn, interval);
+	}
+}
+
+function switchToInputMode() {
+	tabHandler.setAcceptKeys(false);
+	inputFO.value = _formatInputFieldValue(runTimeNodeConfig.base.value, true);
+	webMI.gfx.setVisible("input_clickarea", false);
+
+	function setFocus() {
+		inputFO.focus();
+		if (webMI.query["selectTextOnFocus"] == "true") inputFO.select();
+	}
+
+	var inputElement = document.getElementById("input_element");
+	var widthBorderArea = webMI.gfx.getWidth("border_area");
+	var heightBorderArea = webMI.gfx.getHeight("border_area");
+	var xBorderArea = webMI.gfx.getX("border_area");
+
+	foreignObject = webMI.gfx.addForeignObject(
+		{
+			x: xBorderArea,
+			y: 0,
+			width: widthBorderArea,
+			height: heightBorderArea,
+			id: "input_fo",
+			childNodes: [inputFO]
+		},
+		inputElement
+	);
+
+	foreignObject.style.outline = "2px solid black";
+	foreignObject.style.outlineOffset = "-2px";
+	setFocus();
+	inputActive = true;
+}
+
+function switchToOutputMode() {
+	if (inputActive) {
+		inputActive = false;
+		webMI.gfx.setVisible("input_clickarea", true);
+
+		if (foreignObject) {
+			webMI.gfx.removeForeignObject(foreignObject);
+			foreignObject = undefined;
+		}
+	}
+}
+
+function releaseInc() {
+	webMI.gfx.setFill("inc_stroke", "url(#linear_1)");
+	webMI.gfx.setStroke("inc_stroke", "none");
+	buttonPressed(false, null);
+}
+
+function releaseDec() {
+	webMI.gfx.setFill("dec_stroke", "url(#linear_1)");
+	webMI.gfx.setStroke("dec_stroke", "none");
+	buttonPressed(false, null);
+}
+
+/**
+ * Applies formatting options to value for input field
+ * @param {number} rawValue Value read from base node
+ * @param {boolean} fractionOnly Whether to skip leading zeroes, post decimals ...
+ * @returns {string} formatted value
+ */
+function _formatInputFieldValue(rawValue, fractionOnly) {
+	let formattedOutput = rawValue / decimalFactor;
+	let fieldWidth = 0;
+
+	if (fractionOnly) return formattedOutput;
+
+	if (!isNaN(leadingZeros) && leadingZeros > 0) {
+		fieldWidth += leadingZeros;
+	}
+
+	if (!isNaN(postDecimal) && postDecimal > 0) {
+		if (postDecimal > 9) postDecimal = 9;
+		fieldWidth += postDecimal + 1;
+	}
+
+	if (!isNaN(leadingZeros) && !isNaN(postDecimal)) {
+		var formatString = (sign ? "%+" : "%") + "0" + fieldWidth + "." + postDecimal + "f";
+		formattedOutput = webMI.sprintf(formatString, formattedOutput);
+	}
+
+	if (typeof unit != "undefined" && unit != "") {
+		formattedOutput = formattedOutput + " " + unit;
+	}
+
+	return formattedOutput;
+}
+
+function _getDisplayParameters() {
+	var communicationID = new Date().getTime().toString();
+	webMI.trigger.connect(communicationID, function (e) {
+		writeValue(e.value);
+	});
+
+	var passObj = {};
+	for (var i in webMI.query) passObj[i] = webMI.query[i];
+	passObj["minValue"] = passObj["min"];
+	passObj["maxValue"] = passObj["max"];
+	passObj["trigger"] = communicationID;
+	if (!consistencyGroup) passObj["target"] = passObj["base"];
+	return passObj;
+}
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent("clickareaFO", "click", function (e) {
+	if (lockInputEvents) return;
+
+	if (!base || (base != "" && runTimeNodeConfig.base.write)) {
+		tabHandler.setCurrentIndex(keyHandler);
+		switchToInputMode();
+	}
+});
+
+webMI.addEvent(inputFO, "keyup", stopPropagation);
+
+webMI.addEvent(inputFO, "keydown", function (e) {
+	if (lockInputEvents) return;
+
+	var keyCode = e.keyCode;
+	if (/MSIE/.test(navigator.userAgent)) {
+		storedEvent["keyCode"] = e.keyCode;
+		storedEvent["shiftKey"] = e.shiftKey;
+	}
+	if (keyCode == "13" || keyCode == "9") {
+		inputFO.blur();
+		if (keyCode == "13") tabHandler.setAcceptKeysPrevent(true);
+	} else if (keyCode == "27") {
+		storedEvent["keyCode"] = "27";
+		tabHandler.setAcceptKeysPrevent(true);
+		inputFO.blur();
+	}
+
+	stopPropagation(e);
+});
+
+webMI.addEvent("clickarea_inc", "mousedown", function (e) {
+	if (lockInputEvents) return;
+
+	var id = "clickarea_inc";
+	var value = true;
+	return (function (value) {
+		tabHandler.setCurrentIndex(keyHandler);
+		webMI.gfx.setFill("inc_stroke", "url(#linear_2)");
+		webMI.gfx.setStroke("inc_stroke", buttonStrokePressed);
+		buttonPressed(true, stepInc);
+	})(value);
+});
+
+webMI.addEvent("clickarea_inc", "mouseup", function (e) {
+	var id = "clickarea_inc";
+	var value = true;
+	return (function (value) {
+		releaseInc();
+	})(value);
+});
+
+webMI.addEvent("clickarea_inc", "mouseout", function (e) {
+	var id = "clickarea_inc";
+	var value = true;
+	return (function (value) {
+		releaseInc();
+	})(value);
+});
+
+webMI.addEvent("clickarea_inc", "dragstart", function (e) {
+	if (lockInputEvents) return;
+
+	if (e.preventDefault) {
+		e.preventDefault();
+	}
+});
+
+webMI.addEvent("clickarea_dec", "mousedown", function (e) {
+	if (lockInputEvents) return;
+
+	var id = "clickarea_dec";
+	var value = true;
+	return (function (value) {
+		tabHandler.setCurrentIndex(keyHandler);
+		webMI.gfx.setFill("dec_stroke", "url(#linear_2)");
+		webMI.gfx.setStroke("dec_stroke", buttonStrokePressed);
+		buttonPressed(true, stepDec * -1);
+	})(value);
+});
+
+webMI.addEvent("clickarea_dec", "mouseup", function (e) {
+	var id = "clickarea_dec";
+	var value = true;
+	return (function (value) {
+		releaseDec();
+	})(value);
+});
+
+webMI.addEvent("clickarea_dec", "mouseout", function (e) {
+	var value = true;
+	return (function (value) {
+		releaseDec();
+	})(value);
+});
+
+webMI.addEvent("clickarea_dec", "dragstart", function (e) {
+	if (lockInputEvents) return;
+
+	if (e.preventDefault) {
+		e.preventDefault();
+	}
+});
+
+webMI.addEvent("input_clickarea", "click", function (e) {
+	if (lockInputEvents) return;
+
+	var id = "input_clickarea";
+	var value = true;
+	return (function (value) {
+		tabHandler.setCurrentIndex(keyHandler);
+
+		if (useSVGKeyboard) {
+			var size = format != undefined && format == CONST_NUMBER_FORMAT ? { w: 378, h: 328 } : { w: 700, h: 300 };
+			var keyboardParam = _getDisplayParameters();
+
+			if (format != undefined && format == CONST_NUMBER_FORMAT) {
+				keyboard = number_keyboard;
+			}
+			webMI.display.openWindow({
+				display: keyboard,
+				extern: false,
+				height: size.h,
+				menubar: false,
+				modal: true,
+				movable: true,
+				resizable: false,
+				scrollbars: false,
+				status: false,
+				title: "T{Keyboard}",
+				toolbar: false,
+				width: size.w,
+				query: keyboardParam
+			});
+		} else {
+			switchToInputMode();
+		}
+	})(value);
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect("setValue", function (e) {
+	writeValue(e.value);
+});
+
+webMI.trigger.connect("com.atvise.setBackground", function (e) {
+	backgroundColor = e.value == "" ? backgroundColor : e.value;
+	setColorization();
+});
+
+webMI.trigger.connect("com.atvise.switchToInputMode", function (e) {
+	switchToInputMode();
+});
+]]></code>
+</script>

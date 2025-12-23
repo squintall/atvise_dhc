@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AR.AR_BJ_CAR_SUR -- DEMACIAS CARIBE 2000.Demasías caribe 2000.AR_BJ_CAR_SUR_CAUD_DEMASIAS_Caudal
+NodeClass: Variable
+BrowseName: 1:AR_BJ_CAR_SUR_CAUD_DEMASIAS_Caudal
+DisplayName: en|AR_BJ_CAR_SUR_CAUD_DEMASIAS_Caudal
+Description: en|AR_BJ_CAR_SUR_CAUD_DEMASIAS_Caudal
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="configuration" type="string" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* Report Generator *
+ *
+ * Configuration JSON parameters:
+ *  name {string}        : Configuration name.
+ *  reportTime {time}    : Optional report time as Javascript timestamp in ms or as valid date string.
+ *  locale {string}      : Optional localization string for the report format, e.g. 'de-DE', 'en-US'.
+ *  template {string}	 : Path with filename for the xlsx template file.
+ *  xlsxReport {string}  : Path with filename for the xlsx result file.
+ *  pdfReport {string}	 : Path with filename for the pdf  result file.
+ *  htmlReport {string}  : Path with filename for the html result file (currently unsupported).
+ *  startWorksheet {nr.} : Worksheet for the start of the convertion.
+ *  endWorksheet {nr.}   : Worksheet for the end   of the convertion.
+ *  overwrite {bool}     : Option to overwrite existing report files.
+ *  metaScript {string}	 : Script to be called  when data type is 'meta'.
+ *
+ * Remark:
+ * Use absolute paths or start with './' for a relative path starting with the project directory (= server.database.directory).
+ * Report filenames can contain date placeholders: {YYYY} or {YY}, {MM}, {DD}, {hh}, {mm}, {ss}.
+ *
+ */
+
+var DEBUG = false;
+var errors = [];
+var globals = {};
+var baseDir = "AGENT.OBJECTS.ATVISE.Report";
+var globalsAddr = baseDir + ".schedulerGlobals";
+var databaseDir = server.database.directory;
+
+/**
+ * Generic functions
+ */
+function _handleResult(data) {
+	if (typeof data == "string") {
+		data = JSON.parse(data);
+	}
+
+	if (data && data.error && data.error != 0) {
+		var errorstring = data.errorstring ? data.errorstring : "Report: An unknown error occured.";
+		console.error("Report Error: " + errorstring);
+
+		if (errorstring.length > 100) errorstring = errorstring.substring(0, 100) + "...";
+		errors.push(errorstring);
+
+		return { success: false, error: data.error, errorstring: errorstring };
+	}
+}
+
+function _replaceDatePlaceholders(date, string) {
+	string = string.replace("{YYYY}", date.getFullYear());
+	string = string.replace("{YY}", ("" + date.getFullYear()).slice(-2));
+	string = string.replace("{MM}", ("0" + (date.getMonth() + 1)).slice(-2));
+	string = string.replace("{DD}", ("0" + date.getDate()).slice(-2));
+	string = string.replace("{hh}", ("0" + date.getHours()).slice(-2));
+	string = string.replace("{mm}", ("0" + date.getMinutes()).slice(-2));
+	string = string.replace("{ss}", ("0" + date.getSeconds()).slice(-2));
+	return string;
+}
+
+function _replaceDatabaseDir(dir) {
+	if (!dir) return "";
+
+	return dir.replace("./", databaseDir).replace(".\\", databaseDir);
+}
+
+function _replacePlaceholders(date, string) {
+	string = _replaceDatePlaceholders(date, string);
+	string = string.replace("{name}", cfg.name);
+	string = string.replace("{locale}", cfg.locale);
+	return string;
+}
+
+function _isValidDate(date) {
+	return date && Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date);
+}
+
+function _getFilename(file) {
+	if (file.indexOf("\\") > -1) file = file.substring(file.lastIndexOf("\\") + 1, file.length);
+	else if (file.indexOf("/") > -1) file = file.substring(file.lastIndexOf("/") + 1, file.length);
+
+	return file;
+}
+
+function _sendMail(globals, cfg) {
+	if (!globals || !cfg || !globals.email || !cfg.email || !globals.email.smtp || !globals.email.from) {
+		_handleResult({ error: -1, errorstring: "Report: E-mail notification is active but configuration is invalid." });
+		return;
+	}
+
+	var att = [];
+	if (cfg.email.attachment && cfg.email.attachment.indexOf("xlsx") > -1) {
+		att.push({
+			type: SMTPClient.A_FILE,
+			name: _getFilename(cfg.xlsxReport),
+			content_type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+			file_path: cfg.xlsxReport,
+			inline: false
+		});
+	}
+
+	if (cfg.email.attachment && cfg.email.attachment.indexOf("pdf") > -1) {
+		att.push({
+			type: SMTPClient.A_FILE,
+			name: _getFilename(cfg.pdfReport),
+			content_type: "application/pdf",
+			file_path: cfg.pdfReport,
+			inline: false
+		});
+	}
+
+	if (cfg.email.attachment && cfg.email.attachment.indexOf("html") > -1) {
+		att.push({
+			type: SMTPClient.A_FILE,
+			name: _getFilename(cfg.htmlReport),
+			content_type: "text/html",
+			file_path: cfg.htmlReport,
+			inline: false
+		});
+	}
+
+	if (cfg.email.to.length > 0 || cfg.email.cc.length > 0 || cfg.email.bcc.length > 0) {
+		// Format the errors as a nicely numbered list
+		let errorMessages = "";
+		if (errors.length > 0) {
+			errorMessages = "\n\nErrors Encountered:\n";
+			errors.forEach((error, index) => {
+				errorMessages += `  ${index + 1}. ${error}\n`;
+			});
+		}
+
+		// Append the formatted error messages to the email body
+		let emailBody = _replacePlaceholders(cfg.reportTime, cfg.email.body) + errorMessages;
+
+		call("Mail.SendMail", {
+			smtpserver: globals.email.smtp,
+			from: globals.email.from,
+			to: cfg.email.to.join(";"),
+			cc: cfg.email.cc.join(";"),
+			bcc: cfg.email.bcc.join(";"),
+			content_type: "text/plain",
+			subject: _replacePlaceholders(cfg.reportTime, cfg.email.subject),
+			body: emailBody,
+			attachment: JSON.stringify(att)
+		});
+	}
+}
+
+/**
+ * Check (mandatory) parameters, file endings and script existence
+ */
+
+if (DEBUG) console.log("Report started for parameters: " + JSON.stringify(configuration));
+
+var validityCheck = call("Report.ConfigurationHandler", { action: "check", configuration: configuration });
+if (validityCheck == true) {
+	var cfg = configuration;
+	if (typeof configuration == "string") cfg = JSON.parse(configuration);
+} else {
+	return _handleResult(validityCheck);
+}
+
+if (typeof cfg.reportTime == "undefined" || cfg.reportTime == 0 || cfg.reportTime == "") {
+	cfg.reportTime = new Date();
+} else {
+	if (!_isValidDate(cfg.reportTime)) {
+		try {
+			var parsedTime = parseInt(cfg.reportTime);
+			if (!isNaN(parsedTime)) cfg.reportTime = parsedTime;
+			else cfg.reportTime = cfg.reportTime.replaceAll("'", "");
+		} catch (ex) {}
+
+		cfg.reportTime = new Date(cfg.reportTime);
+	}
+}
+
+if (!_isValidDate(cfg.reportTime)) {
+	return _handleResult({ error: -1, errorstring: "Report: 'reportTime' is not a valid Javascript timestamp." });
+}
+
+cfg.template = _replaceDatabaseDir(cfg.template);
+cfg.xlsxReport = _replaceDatabaseDir(cfg.xlsxReport);
+cfg.pdfReport = _replaceDatabaseDir(cfg.pdfReport);
+cfg.htmlReport = _replaceDatabaseDir(cfg.htmlReport);
+
+cfg.xlsxReport = _replaceDatePlaceholders(cfg.reportTime, cfg.xlsxReport);
+cfg.pdfReport = _replaceDatePlaceholders(cfg.reportTime, cfg.pdfReport);
+cfg.htmlReport = _replaceDatePlaceholders(cfg.reportTime, cfg.htmlReport);
+
+/**
+ * Initiate and create report
+ */
+if (DEBUG) console.log(" -- Creating Report -- ");
+
+var report = new Report(cfg.template, {
+	reportTime: cfg.reportTime.getTime(),
+	language: cfg.locale ? cfg.locale : ""
+});
+
+var result = report.generate(function (query) {
+	if (typeof query == "undefined" || typeof query.type == "undefined")
+		_handleResult({ error: -1, errorstring: "Report: 'query' or 'query.type' is undefined." });
+
+	if (DEBUG) {
+		console.log("query.type: " + query.type);
+		console.log("query.data: " + JSON.stringify(query.data));
+	}
+
+	switch (query.type) {
+		case "node":
+			var node = Ua.findNode(query.data);
+			if (DEBUG) console.log("node.result: " + JSON.stringify(node.result));
+
+			var nodeExist = Ua.Status(node) != Ua.Status.BADNODEIDUNKNOWN;
+			if (nodeExist) {
+				return node.result;
+			} else {
+				_handleResult({ error: -1, errorstring: "Report: Node " + query.data + " not found or permission missing." });
+			}
+			break;
+
+		case "query":
+			var result = history.query(query.data);
+			if (DEBUG) console.log("query.result: " + JSON.stringify(result));
+			return result.result;
+
+		case "meta":
+			if (cfg.metaScript) {
+				var parameters = {};
+				parameters["data"] = query.data;
+				try {
+					cfg.scriptParameter = JSON.parse(cfg.scriptParameter.replaceAll('\\"', '"'));
+					for (var i in cfg.scriptParameter) {
+						parameters[i] = cfg.scriptParameter[i];
+					}
+				} catch (ex) {
+					parameters["additionalInfo"] = cfg.scriptParameter;
+				}
+
+				var result = call(cfg.metaScript, parameters);
+
+				if (typeof result != "object") {
+					_handleResult({ error: -1, errorstring: "Report: Type of meta script result is not 'object'." });
+				} else {
+					if (DEBUG) console.log("meta.result: " + JSON.stringify(result));
+					return result;
+				}
+			} else {
+				_handleResult({ error: -1, errorstring: "Report: Data type is 'meta' but no 'metaScript' is defined." });
+			}
+			break;
+
+		case "alarm":
+			if (query.data) {
+				var result = alarming.read(query.data);
+
+				if (result.length > 0) result = result[0];
+			} else {
+				var result = alarming.list;
+			}
+
+			if (DEBUG) console.log("alarm.result: " + JSON.stringify(result));
+			return result;
+
+		default:
+			_handleResult({ error: -1, errorstring: "Report: Unimplemented type of " + query.type });
+			break;
+	}
+});
+
+_handleResult(result);
+
+/**
+ * Save report
+ */
+if (DEBUG) console.log(" -- Saving Report -- ");
+
+var overwrite = cfg.overwrite === false || cfg.overwrite === "false" ? false : true;
+
+if (cfg.xlsxReport) _handleResult(report.save(cfg.xlsxReport, { overwrite: overwrite }));
+if (cfg.pdfReport)
+	_handleResult(
+		report.saveAsPdf(cfg.pdfReport, {
+			overwrite: overwrite,
+			startWorksheet: cfg.startWorksheet ? cfg.startWorksheet : 0,
+			endWorksheet: cfg.endWorksheet ? cfg.endWorksheet : 0,
+			locale: cfg.locale ? cfg.locale : ""
+		})
+	);
+if (cfg.htmlReport)
+	_handleResult(
+		report.saveAsHtml(cfg.htmlReport, {
+			overwrite: overwrite,
+			startWorksheet: cfg.startWorksheet ? cfg.startWorksheet : 0,
+			endWorksheet: cfg.endWorksheet ? cfg.endWorksheet : 0,
+			locale: cfg.locale ? cfg.locale : ""
+		})
+	);
+
+_handleResult(report.release());
+
+/**
+ * Send optional e-mail notification
+ */
+if (cfg.email && cfg.email.active) {
+	var globalsNode = Ua.findNode(globalsAddr);
+	var globalsNodeExist = Ua.Status(globalsNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (globalsNodeExist) {
+		try {
+			globals = JSON.parse(globalsNode.result.value);
+		} catch (ex) {
+			_handleResult({
+				error: -1,
+				errorstring: "Report: Global configuration node could not be parsed: " + globalsAddr
+			});
+		}
+
+		if (globals && globals.email && globals.email.active) {
+			_sendMail(globals, cfg);
+		}
+	}
+}
+
+/**
+ * Finish result
+ */
+console.log("Report finished for " + cfg.name);
+
+if (errors.length > 0) return { success: false, error: -1, errorstring: errors.toString() };
+else return { success: true };
+]]></code>
+</script>

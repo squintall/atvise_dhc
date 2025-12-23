@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts opt xaxis object display
+ * ----------------------------------------
+ * This script supports the display to show and edit x-axis options for the chart.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var activeAxis = 0;
+var chart = webMI.trendFactory.getTrendByName(webMI.query.chartname);
+var configHandler = new webMI.rootWindow.ConfigHandler();
+var errors = [];
+errors[1] = "More then " + numAxis + " x-axis are not supported.";
+errors[2] = "More then " + numAxis + " x-axis are found in configuration.";
+var inputDefaults = {
+	xAxis_title_text: "T{X-Axis}",
+	xAxis_min: 0,
+	xAxis_max: 0,
+	xAxis_timeSpan: 60,
+	xAxis_timeSpanUnit: "1",
+	xAxis_tickInterval: 10000,
+	xAxis_minorTickInterval: 10000,
+	xAxis_crosshair_width: 0,
+	xAxis_crosshair_snap: true,
+	"xAxis_opposite-true": "T{top}",
+	"xAxis_opposite-false": "T{bottom}",
+	"xAxis_labels_align-left": "T{left}",
+	"xAxis_labels_align-right": "T{right}",
+	"xAxis_labels_align-center": "T{center}",
+	xAxis_labels_format: "{value:%H:%M:%S}",
+	xAxis_lineColor: "#000000",
+	xAxis_crosshair_color: "#ff0000",
+	xAxis_gridLineColor: "#888888",
+	xAxis_minorGridLineColor: "#eeeeee",
+	xAxis_gridLineWidth: 1,
+	xAxis_minorGridLineWidth: 1,
+	"xAxis_crosshair_dashStyle-Dash": "T{dashed}",
+	"xAxis_crosshair_dashStyle-Dot": "T{dotted}",
+	"xAxis_crosshair_dashStyle-Solid": "T{solid}",
+	xAxis_lineWidth: 1,
+	xAxis_title_style_color: "#676767",
+	xAxis_labels_style_color: "#676767"
+};
+var numAxis = 6;
+var options = chart.chart.options;
+var timeSpanUnits = [
+	{ text: "T{second(s)}", value: "1" },
+	{ text: "T{minute(s)}", value: "60" },
+	{ text: "T{hour(s)}", value: "3600" },
+	{ text: "T{day(s)}", value: "86400" },
+	{ text: "T{week(s)}", value: "604800" },
+	{ text: "T{month(s)}", value: "2592000" }
+];
+var triggerEnabled = true;
+var updateEnabled = true;
+var xAxis = [];
+
+/**
+ * UI SETUP SECTION
+ * Since only one time axis is currently supported, the creation and deletion of additional axes is deactivated.
+ */
+webMI.trigger.fire("com.atvise.setActive", false, "btn_add");
+webMI.trigger.fire("com.atvise.setActive", false, "btn_delete");
+webMI.trigger.fire("setItems", timeSpanUnits, "xAxis_timeSpanUnit");
+
+/* lock some time settings if zoom is active */
+setZoomLocks(chart.chart._setZoomed);
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ * Triggers for every input element
+ */
+webMI.addOnload(function () {
+	for (var key in inputDefaults)
+		webMI.trigger.connect(
+			"valuechanged",
+			function (e) {
+				if (!triggerEnabled) return;
+
+				if (e.context === "xAxis_crosshair_width") {
+					webMI.trigger.fire("com.atvise.setActive", e.value, "xAxis_crosshair_snap");
+				}
+				processInput(e.context, e.value, activeAxis);
+			},
+			key
+		);
+
+	for (var i = 0; i < numAxis; i++)
+		webMI.trigger.connect(
+			"valuechanged",
+			function (e) {
+				activeAxis = e.value;
+				readOptions();
+			},
+			"axisSelector" + i
+		);
+
+	readOptions();
+
+	var updateCb = chart.control.registerOnUpdatedCallback(function () {
+		if (!updateEnabled) return;
+
+		readOptions();
+	});
+
+	if (typeof chart.chart._setZoomLocks !== "function") {
+		chart.chart._setZoomLocks = function (e) {
+			setZoomLocks(e);
+		};
+	}
+
+	webMI.addOnunload(function () {
+		if (processTimer) {
+			clearTimeout(processTimer);
+			processTimer = null;
+		}
+
+		if (chart && chart.control) {
+			chart.control.unregisterOnUpdatedCallback(updateCb);
+			chart.chart._setZoomLocks = null;
+		}
+	});
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * Axis functions
+ * @param options
+ */
+function addAxis(options) {
+	if (xAxis.length > numAxis) {
+		console.warn(errors[1]);
+		return;
+	}
+
+	if (typeof options == "undefined") options = {};
+
+	chart.chart.addAxis(options, true);
+
+	updateEnabled = false;
+	chart.control.updated(function () {
+		updateEnabled = true;
+	});
+
+	activeAxis = xAxis.length;
+	webMI.trigger.fire("radioClicked_g0", {
+		name: webMI.gfx.getText("axisSelector" + activeAxis + "_radiobutton_label"),
+		value: activeAxis
+	});
+}
+
+function removeAxis() {
+	if (xAxis.length == 1) return;
+
+	if (options.xAxis[activeAxis]) {
+		var index = options.xAxis[activeAxis].index;
+		chart.chart.xAxis[index].remove();
+
+		updateEnabled = false;
+		chart.control.updated(function () {
+			updateEnabled = true;
+		});
+	}
+
+	--activeAxis;
+	webMI.trigger.fire("radioClicked_g0", {
+		name: webMI.gfx.getText("axisSelector" + activeAxis + "_radiobutton_label"),
+		value: activeAxis
+	});
+}
+
+function axisManager(xAxis) {
+	for (var i = 0; i < xAxis.length; i++) {
+		if (i < numAxis) {
+			var name = xAxis[i] != "" ? xAxis[i] : "T{X-Axis}";
+			webMI.gfx.setText("axisSelector" + i + "_radiobutton_label", name + " [" + i + "]");
+		} else {
+			console.warn(errors[2]);
+		}
+	}
+}
+
+/**
+ * Read options
+ */
+function readOptions() {
+	triggerEnabled = false;
+
+	var mappedOptions = configHandler.mapToAtviseId(options);
+	xAxis = [];
+
+	/* Search configured x-axis */
+	var i = 0;
+	while (typeof options.xAxis[i] != "undefined") {
+		if (options.xAxis[i]["title"] && options.xAxis[i]["title"]["text"]) xAxis.push(options.xAxis[i]["title"]["text"]);
+		else xAxis.push("");
+		i++;
+	}
+
+	var extremes = chart.chart.xAxis[activeAxis].getExtremes();
+
+	/* Set values for current active axis */
+	for (var key in inputDefaults) {
+		var value = inputDefaults[key];
+
+		/* build radio button group key */
+		var isRadio = false;
+		var keyValue = key.split("-");
+		if (keyValue.length == 2) {
+			isRadio = true;
+			key = keyValue[0];
+			keyValue = keyValue[1];
+		}
+
+		var optionsKey = "xAxis" + activeAxis + "_" + key;
+
+		if (isRadio) {
+			if (typeof mappedOptions[optionsKey] != "undefined") value = inputDefaults[key + "-" + mappedOptions[optionsKey]];
+			else setOptions(key, keyValue, activeAxis);
+			webMI.trigger.fire("radioClicked_" + key, { name: value });
+			continue;
+		}
+
+		if (key == "xAxis_dateTimeLabelFormats")
+			mappedOptions[optionsKey] = JSON.stringify(options.xAxis[activeAxis]["dateTimeLabelFormats"]);
+
+		if (typeof mappedOptions[optionsKey] != "undefined") value = mappedOptions[optionsKey];
+		else if (key != "xAxis_min" && key != "xAxis_max") setOptions(key, value, activeAxis);
+
+		if (key == "xAxis_min") webMI.trigger.fire("com.atvise.datepicker_" + key, extremes.min);
+		else if (key == "xAxis_max") webMI.trigger.fire("com.atvise.datepicker_" + key, extremes.max);
+		else if (key == "xAxis_crosshair_width") {
+			webMI.trigger.fire("setChecked", value, key);
+			webMI.trigger.fire("com.atvise.setActive", value, "xAxis_crosshair_snap");
+		} else if (key == "xAxis_crosshair_snap") {
+			webMI.trigger.fire("setChecked", value, key);
+		} else if (key.search(/color/gi) > -1) webMI.trigger.fire("valuechanged_" + key, { hex: value });
+		else if (key == "xAxis_timeSpanUnit") {
+			/* new highchart init with empty value */
+			if (typeof value == "undefined" || value == "") value = 1;
+			var type = 0;
+			while (value != timeSpanUnits[type].value) type++;
+			webMI.trigger.fire("setSelectedItem", timeSpanUnits[type].text, key);
+		} else webMI.trigger.fire("setValue", value, key);
+	}
+
+	axisManager(xAxis);
+
+	/* wait for trigger fired */
+	setTimeout(function waitForTrigger() {
+		triggerEnabled = true;
+		webMI.trigger.fire("com.atvise.highCharts.configChanged");
+	}, 500);
+}
+
+/**
+ * Write options
+ * @param key
+ * @param value
+ * @param identifier
+ */
+function setOptions(key, value, identifier) {
+	function updateTimeSettings() {
+		if (typeof chart.chart._configUpdates === "function") {
+			chart.chart._configUpdates(timeSettings);
+		} else {
+			var oldMode = chart.control.getMode();
+
+			/* Zoom activity and settings cannot be reliably determined at this point. */
+			/* In addition, the zoom must also be reset at this point due to the lack of time information. */
+			/* This limitation is caused by the highcharts itself, */
+			/* as the zooming is handled internally without providing any necessary API interfaces for manipulations. */
+			try {
+				chart.chart.zoomOut();
+				chart.chart.resetZoomButton.destroy();
+				chart.chart.resetZoomButton.hide();
+			} catch (ex) {
+				// do nothing
+			}
+
+			chart.chart.xAxis[activeAxis].dataMin = timeSettings.start;
+			chart.chart.xAxis[activeAxis].dataMax = timeSettings.end;
+			chart.chart.xAxis[activeAxis].setExtremes(timeSettings.start, timeSettings.end);
+
+			chart.chart.xAxis[activeAxis].options.min = timeSettings.start;
+			chart.chart.xAxis[activeAxis].options.max = timeSettings.end;
+			chart.chart.xAxis[activeAxis].userOptions.timeSlotStart = timeSettings.start;
+			chart.chart.xAxis[activeAxis].userOptions.timeSlotEnd = timeSettings.end;
+
+			chart.chart.xAxis[activeAxis].setExtremes(timeSettings.start, timeSettings.end);
+
+			chart.chart.xAxis[activeAxis].update({
+				min: timeSettings.start,
+				max: timeSettings.end,
+				dataMin: timeSettings.start,
+				dataMax: timeSettings.end
+			});
+
+			if (chart.control.isLiveModeRunning()) {
+				chart.control.stopLiveMode(function () {
+					setTimeout(function delayStart() {
+						chart.control.startLiveMode();
+					}, 250);
+				});
+			} else {
+				chart.control.setMode("history");
+				chart.control.loadHistory();
+				chart.control.setMode(oldMode);
+			}
+		}
+	}
+	if (value == "true") value = true;
+	else if (value == "false") value = false;
+
+	if (key == "xAxis_dateTimeLabelFormats") {
+		try {
+			value = JSON.parse(value);
+		} catch (ex) {
+			console.warn("date / time format error: " + ex);
+		}
+	}
+
+	if (options.xAxis[identifier]) {
+		var index = options.xAxis[identifier].index;
+		index = index ? index : identifier;
+
+		var optionsObj = configHandler.createConfigObject(key.slice(6, key.length), value);
+
+		var extremes = chart.chart.xAxis[activeAxis].getExtremes();
+		var timeSettings = {
+			start: extremes.min,
+			end: extremes.max,
+			time: chart.chart.xAxis[activeAxis].userOptions.timeSpan,
+			unit: chart.chart.xAxis[activeAxis].userOptions.timeSpanUnit
+		};
+
+		chart.chart.xAxis[index].update(optionsObj);
+
+		if (key == "xAxis_min") {
+			timeSettings.start = value;
+			updateTimeSettings(timeSettings);
+		} else if (key == "xAxis_max") {
+			timeSettings.end = value;
+			updateTimeSettings(timeSettings);
+		} else if (key == "xAxis_timeSpan") {
+			timeSettings.time = value;
+			timeSettings.start = timeSettings.end - timeSettings.time * timeSettings.unit * 1000;
+			updateTimeSettings(timeSettings);
+		} else if (key == "xAxis_timeSpanUnit") {
+			timeSettings.unit = value;
+			timeSettings.start = timeSettings.end - timeSettings.time * timeSettings.unit * 1000;
+			updateTimeSettings(timeSettings);
+		}
+
+		chart.chart.options.xAxis[identifier] = chart.chart.xAxis[identifier].options;
+	}
+}
+
+function setZoomLocks(value) {
+	webMI.trigger.fire("com.atvise.setActive", !value, "xAxis_timeSpan");
+	webMI.trigger.fire("com.atvise.setActive", !value, "xAxis_timeSpanUnit");
+	webMI.trigger.fire("com.atvise.setActive", !value, "xAxis_labels_format");
+	webMI.trigger.fire("com.atvise.setActive", !value, "xAxis_tickInterval");
+	webMI.trigger.fire("com.atvise.setActive", !value, "xAxis_minorTickInterval");
+}
+
+var processQueu = [];
+var processTimer = null;
+
+function processInput(key, value, identifier) {
+	if (!triggerEnabled) return;
+
+	processQueu[key] = {
+		value: value,
+		identifier: identifier
+	};
+
+	if (processTimer) {
+		clearTimeout(processTimer);
+		processTimer = null;
+	}
+
+	/** start update queu **/
+	processTimer = setTimeout(function execute() {
+		for (var pQkey in processQueu) {
+			executeProcessInput(pQkey, processQueu[pQkey].value, processQueu[pQkey].identifier);
+		}
+
+		if (key == "xAxis_min" || key == "xAxis_max") {
+			updateEnabled = false;
+			chart.control.updated(function () {
+				updateEnabled = true;
+			});
+		}
+
+		processQueu = [];
+	}, 1000);
+}
+
+function executeProcessInput(key, value, identifier) {
+	if (typeof key == "undefined" || typeof value == "undefined") return;
+
+	if (key == "xAxis_timeSpan") {
+		// do nothing
+	} else if (key == "xAxis_min") {
+		// do nothing
+	} else if (key == "xAxis_max") {
+		// do nothing
+	} else if (key == "xAxis_title_text") {
+		webMI.gfx.setText("axisSelector" + activeAxis + "_radiobutton_label", value + " [" + identifier + "]");
+	} else if (key == "xAxis_crosshair_width") {
+		if (value == "true") {
+			webMI.trigger.fire("com.atvise.setActive", true, "xAxis_crosshair_snap");
+		} else {
+			webMI.trigger.fire("com.atvise.setActive", false, "xAxis_crosshair_snap");
+		}
+	}
+
+	setOptions(key, value, identifier);
+	webMI.trigger.fire("com.atvise.highcharts.updateQuickSave", { chart: webMI.query.chartname, active: true });
+}
+
+/**
+ * TRIGGER SECTION
+ */
+
+/* Triggers to add and remove x-axis */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		addAxis();
+	},
+	"btn_add"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		removeAxis();
+	},
+	"btn_delete"
+);
+
+this.window.addEventListener("keydown", (e) => {
+	if (e.key === "Escape") webMI.trigger.fire("com.atvise.highCharts.closeTrendConfigurator");
+});
+
+this.window.focus();
+]]></code>
+</script>

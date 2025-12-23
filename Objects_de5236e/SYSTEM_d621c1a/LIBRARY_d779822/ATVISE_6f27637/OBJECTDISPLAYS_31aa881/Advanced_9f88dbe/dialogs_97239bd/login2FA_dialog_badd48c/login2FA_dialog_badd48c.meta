@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.login2FA_dialog
+NodeClass: Variable
+BrowseName: 1:login2FA_dialog
+DisplayName: en|login2FA_dialog
+Description: en|login2FA_dialog
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

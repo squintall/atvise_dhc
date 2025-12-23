@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[var util = call("Csv.Util");
+
+// Logging
+var logger = new util.logger(1);
+
+// There is only one mandatory header field, and that is node name
+var nodeName = new Object();
+nodeName.name = "<NodeName>";
+nodeName.index = -1;
+
+var errors = 0;
+var deleted = 0;
+var count = 0;
+
+function processHeader(header) {
+	logger.trace("processHeader");
+	logger.trace("Data = " + header);
+	for (var i = 0; i < header.length; ++i) {
+		if (header[i] == nodeName.name)
+			nodeName.index = i;
+	}
+	if (nodeName.index < 0)
+		logger.error("Mandatory field " + nodeName.name + " not found in CSV header");
+}
+
+function processRow(rowIdx, row) {
+	logger.trace("processRow");
+	logger.trace("rowIdx = " + rowIdx);
+	logger.trace("row = " + row);
+
+	if (rowIdx == 0) {
+		return processHeader(row);
+	}
+
+	// Prefix for nodes in atvise address space
+	var addressPrefix = "AGENT.OBJECTS";
+
+	// Construct full node name
+	var fullName = addressPrefix + "." + row[nodeName.index];
+
+	var nodeToDelete = Ua.findNode(fullName);
+	var nodeToDeleteExist = Ua.Status(nodeToDelete) != Ua.Status.BADNODEIDUNKNOWN;
+
+	++count;
+	if (nodeToDeleteExist) {
+		var status = nodeToDelete.result.remove();
+		++deleted;
+
+		/* ??? todo test and eval
+		if (!nodeToDelete.result.good(status))
+		{
+			logger.error("Removal of node " + fullName + "failed with status " + Ua.Status(status).toString());
+			++errors;
+		}
+		*/
+	}
+}
+
+return function doDelete(csvFile) {
+	logger.info("CsvDelete started");
+	var reader = new CSVReader({
+		trim: true
+	});
+
+	reader.parse(csvFile, {
+		onData: processRow
+	});
+
+	logger.info("CsvDelete finished. Found and deleted " + deleted + " out of " + count + " specified. Errors: " + errors);
+}]]></code>
+</script>

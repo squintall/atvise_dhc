@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the button_switch object display
+ * -----------------------------------------
+ * This button will be in "On" state if the value of "base" equals the parameter "value On".
+ * If no "outputNode" is specified, the value of "base" will be switched between "value On to be set" (= state "On") and "value Off to be set" (=state Off").
+ * If an "outputNode" is specified, then this node will be switched between "value On to be set" (= state "On") and "value Off to be set".
+ */
+
+/**
+ *    IMPORTS
+ */
+var ConsistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var onText = webMI.query["labelOn"];
+var offText = webMI.query["labelOff"];
+var onFill = webMI.query["fillOn"] == undefined ? "" : webMI.query["fillOn"];
+var offFill = webMI.query["fillOff"] == undefined ? "" : webMI.query["fillOff"];
+var fillColorInactive = webMI.query["fillColorInactive"];
+var strokeNormal = "none";
+var strokePressed = webMI.query["strokePressed"];
+var extraBorderColor = webMI.query["extraBorderColor"];
+var focusStrokeColor = webMI.query["focusStrokeColor"];
+var valueOn = webMI.query["valueOn"] == undefined ? "" : webMI.query["valueOn"];
+var outputNode = webMI.query["outputNode"] == undefined ? "" : webMI.query["outputNode"];
+var outputValueOn = webMI.query["outputValueOn"];
+var outputValueOff = webMI.query["outputValueOff"];
+var visibilityLabel = webMI.query["visibilityLabel"];
+var visibilitySymbol = webMI.query["visibilitySymbol"];
+var symbolOn = webMI.query["symbolOn"] == undefined ? "" : webMI.query["symbolOn"];
+var symbolOff = webMI.query["symbolOff"] == undefined ? "" : webMI.query["symbolOff"];
+var currentValue = outputValueOff;
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+var right = webMI.query["right"] == undefined ? "" : webMI.query["right"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var isActivationNodeSet = activeNode != "" && String(activeValue) != "";
+
+var lockInputEvents = true;
+
+/** other **/
+var notAvailableString = "T{N/A}";
+
+/** data **/
+var runTimeNodeConfig = {
+	base: {value: null, address: base, paramValue: "", read: true, write: true, aggregate: false}
+};
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: document.getElementById("button_clickarea").id,
+	rights: [
+		{nodeId: webMI.query["base"], rights: "read", disable: true, notify: false},
+		{nodeId: webMI.query["base"], rights: "write", disable: true, notify: false},
+		{nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true},
+		{nodeId: webMI.query["alarm"], rights: "alarmRead", disable: true, notify: true},
+		{nodeId: webMI.query["outputNode"], rights: "write", disable: true, notify: false}
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: {activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"]},
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: right
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+if (typeof updateRunTimeNodeConfig === "function") {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+} else {
+	initialize(runTimeNodeConfig);
+}
+
+/**
+ * read or subscribe data by runtime node configuration
+ * @param nodeCfg
+ */
+function initialize(nodeCfg) {
+	/* init alarm indication */
+	if (alarmToSubscribe != "") updateAlarmIndication(alarmToSubscribe);
+
+	/* base */
+	if (!nodeCfg.base.address) {
+		if (runTimeNodeConfig.base.value == null)
+			runTimeNodeConfig.base.value = typeof outputValueOff != "undefined" ? outputValueOff : "";
+		_updateButtonSwitch();
+	} else if (nodeCfg.base.read) {
+		if (!nodeCfg.base.subscribe) {
+			nodeCfg.base.subscribe = true
+
+			webMI.data.subscribe(nodeCfg.base.address, function (result) {
+				if (typeof result.status != "undefined" && typeof updateStatusIndication === "function") {
+					updateStatusIndication(result.status);
+				}
+
+				runTimeNodeConfig.base.value = result.value;
+				_updateButtonSwitch();
+			});
+		}
+	} else if (!nodeCfg.base.read) {
+		runTimeNodeConfig.base.value = notAvailableString;
+		_updateButtonSwitch();
+	}
+
+	if (tooltip != "") {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+			auto: "true",
+			id: "button_clickarea",
+			text: tooltip
+		});
+	}
+}
+
+if (typeof extraBorderColor != "undefined" && extraBorderColor != "none" && extraBorderColor != "") {
+	webMI.gfx.setStroke("button_stroke", extraBorderColor);
+}
+
+function _updateButtonSwitch() {
+	if (base != "") {
+		currentValue = runTimeNodeConfig.base.value;
+
+		if (currentValue == notAvailableString) {
+			webMI.gfx.setText("button_label", currentValue);
+			webMI.gfx.setVisible("button_symbol_on", false);
+			webMI.gfx.setVisible("button_symbol_off", false);
+		} else if (String(currentValue) != "") {
+			if (compareValue(currentValue, valueOn)) {
+				if (visibilityLabel != "hidden")
+					webMI.gfx.setText("button_label", onText);
+
+				if (visibilitySymbol != "hidden") {
+					if (symbolOff != "") webMI.gfx.setVisible("button_symbol_on", null);
+					if (symbolOn != "") webMI.gfx.setVisible("button_symbol_off", false);
+				}
+
+				webMI.gfx.setFill("button_stroke", "url(#linear_2)");
+
+				if (onFill != "")
+					webMI.gfx.setFill("button_bg", onFill);
+			} else {
+				if (visibilityLabel != "hidden")
+					webMI.gfx.setText("button_label", offText);
+
+				if (visibilitySymbol != "hidden") {
+					if (symbolOff != "") webMI.gfx.setVisible("button_symbol_on", false);
+					if (symbolOn != "") webMI.gfx.setVisible("button_symbol_off", null);
+				}
+
+				webMI.gfx.setFill("button_stroke", "url(#linear_1)");
+
+				if (offFill != "")
+					webMI.gfx.setFill("button_bg", offFill);
+			}
+		}
+	} else {
+		webMI.gfx.setFill("button_stroke", "url(#linear_1)");
+		if (visibilityLabel != "hidden")
+			webMI.gfx.setText("button_label", offText);
+
+		if (offFill != "")
+			webMI.gfx.setFill("button_bg", offFill);
+
+		if (visibilitySymbol != "hidden") {
+			if (symbolOff != "") webMI.gfx.setVisible("button_symbol_on", false);
+			if (symbolOn != "") webMI.gfx.setVisible("button_symbol_off", null);
+		}
+
+	}
+
+	if (lockInputEvents) {
+		webMI.gfx.setFill("button_bg", fillColorInactive);
+	}
+}
+
+if (tooltip != "") {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "button_clickarea",
+		text: tooltip
+	});
+}
+
+webMI.addOnload(function () {
+	var doc = document.getElementById("button_clickarea").ownerDocument;
+	tabHandler.register(tabIndex, keyHandler, doc);
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setActiveLayout() {
+	lockInputEvents = false;
+
+	if (compareValue(currentValue, valueOn)) {
+		webMI.gfx.setFill("button_stroke", "url(#linear_2)");
+		if (onFill != "") webMI.gfx.setFill("button_bg", onFill);
+		if (visibilityLabel != "hidden") webMI.gfx.setText("button_label", onText);
+		if (visibilitySymbol != "hidden") {
+			if (symbolOff != "") webMI.gfx.setVisible("button_symbol_on", null);
+			if (symbolOn != "") webMI.gfx.setVisible("button_symbol_off", false);
+		}
+	} else {
+		webMI.gfx.setFill("button_stroke", "url(#linear_1)");
+		if (offFill != "") webMI.gfx.setFill("button_bg", offFill);
+		if (visibilityLabel != "hidden") webMI.gfx.setText("button_label", offText);
+		if (visibilitySymbol != "hidden") {
+			if (symbolOff != "") webMI.gfx.setVisible("button_symbol_on", false);
+			if (symbolOn != "") webMI.gfx.setVisible("button_symbol_off", null);
+		}
+	}
+	webMI.gfx.setVisible("button_stroke", null);
+}
+
+function setInactiveLayout() {
+	lockInputEvents = true;
+
+	webMI.gfx.setFill("button_bg", fillColorInactive);
+	webMI.gfx.setVisible("button_stroke", false);
+}
+
+/**
+ * update on ac right changes
+ */
+function fetchCurrentRightsAndUpdate() {
+	updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+}
+
+function compareValue(value1, value2) {
+	// value2 is always a string
+	var equal = false;
+	switch (typeof value1) {
+		case "boolean":
+			if (value1 == true) {
+				if (value2 == "true" || value2 == "1") {
+					equal = true;
+				} else {
+					equal = false;
+				}
+			}
+			if (value1 == false) {
+				if (value2 == "false" || value2 == "0") {
+					equal = true;
+				} else {
+					equal = false;
+				}
+			}
+			break;
+		case "number":
+			try {
+				var temp = parseFloat(value2);
+				equal = value1 == temp;
+			} catch (e) {
+				equal = false;
+			}
+			break;
+		default:
+			equal = value1 == value2;
+			break;
+	}
+	return equal;
+}
+
+function release() {
+	if (typeof extraBorderColor != "undefined") {
+		webMI.gfx.setFill("button_stroke", "url(#linear_1)");
+	}
+	if (typeof extraBorderColor == "undefined" || extraBorderColor == "none" || extraBorderColor == "") {
+		webMI.gfx.setStroke("button_stroke", strokeNormal);
+	} else {
+		webMI.gfx.setStroke("button_stroke", extraBorderColor);
+		webMI.gfx.setStrokeWidth("button_stroke", 1);
+	}
+}
+
+function focusTH() {
+	webMI.gfx.setStroke("button_stroke", focusStrokeColor);
+	if (typeof extraBorderColor != "undefined" && extraBorderColor != "none" && extraBorderColor != "") {
+		webMI.gfx.setStrokeWidth("button_stroke", 2);
+	}
+}
+
+function applyTH() {
+	if (lockInputEvents) return;
+
+	clickFunction(true);
+}
+
+function backTH() {
+}
+
+function arrowTH(dir) {
+}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		focusTH();
+	} else if (keyTH == "blur") {
+		release();
+	} else if (keyTH == "apply") {
+		applyTH();
+	} else if (keyTH == "back") {
+		backTH();
+	} else if (keyTH == "arrow") {
+		return param2(document.getElementById("button_clickarea").parentNode);
+	}
+}
+
+function clickFunction(fireTrigger) {
+	if (lockInputEvents) return;
+
+	if (String(currentValue) != "") {
+		if (compareValue(currentValue, valueOn)) {
+			if (fireTrigger) webMI.trigger.fire("valuechanged", outputValueOff, "");
+			if (outputNode != "") {
+				webMI.data.write(outputNode, outputValueOff);
+			} else {
+				if (base != "") webMI.data.write(base, outputValueOff);
+			}
+			if (base == "") {
+				webMI.gfx.setFill("button_stroke", "url(#linear_1)");
+				if (visibilityLabel != "hidden") webMI.gfx.setText("button_label", offText);
+				if (offFill != "") webMI.gfx.setFill("button_bg", offFill);
+				if (visibilitySymbol != "hidden") {
+					if (symbolOff != "") webMI.gfx.setVisible("button_symbol_on", false);
+					if (symbolOn != "") webMI.gfx.setVisible("button_symbol_off", null);
+				}
+				currentValue = outputValueOff;
+			}
+		} else {
+			if (fireTrigger) webMI.trigger.fire("valuechanged", outputValueOn, "");
+			if (outputNode != "") {
+				webMI.data.write(outputNode, outputValueOn);
+			} else {
+				if (base != "") webMI.data.write(base, outputValueOn);
+			}
+			if (base == "") {
+				webMI.gfx.setFill("button_stroke", "url(#linear_2)");
+				if (visibilityLabel != "hidden") webMI.gfx.setText("button_label", onText);
+				if (onFill != "") webMI.gfx.setFill("button_bg", onFill);
+				if (visibilitySymbol != "hidden") {
+					if (symbolOff != "") webMI.gfx.setVisible("button_symbol_on", null);
+					if (symbolOn != "") webMI.gfx.setVisible("button_symbol_off", false);
+				}
+				currentValue = valueOn;
+			}
+		}
+	}
+}
+
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent("button_clickarea", ["mouseup", "mouseout"], function (e) {
+	var id = "button_clickarea";
+	var value = true;
+	return (function (value) {
+		release();
+	})(value);
+});
+
+webMI.addEvent("button_clickarea", "mousedown", function (e) {
+	if (lockInputEvents) return;
+
+	var id = "button_clickarea";
+	var value = true;
+	return (function (value) {
+		webMI.gfx.setStroke("button_stroke", strokePressed);
+	})(value);
+});
+
+webMI.addEvent("button_clickarea", "dragstart", function (e) {
+	if (e.preventDefault) e.preventDefault();
+});
+
+webMI.addEvent("button_clickarea", "click", function (e) {
+	if (lockInputEvents) return;
+
+	var id = "button_clickarea";
+	var value = true;
+	return (function (value) {
+		tabHandler.setCurrentIndex(keyHandler);
+		clickFunction(true);
+	})(value);
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect(
+	"setValue",
+	function (e) {
+		var value = e.value;
+		var isClicked = currentValue == "1";
+
+		if (isClicked == value) {
+			if (lockInputEvents) return;
+
+			clickFunction(false);
+		}
+	},
+	""
+);
+
+]]></code>
+</script>

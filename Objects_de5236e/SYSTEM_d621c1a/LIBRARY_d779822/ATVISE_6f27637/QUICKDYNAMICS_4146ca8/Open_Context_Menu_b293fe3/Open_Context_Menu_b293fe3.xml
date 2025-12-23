@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAO7SURBVFiFxVdfaFtVGP/dP6ktDUlubWmXm2sUH3S7NSuCtA+6ZTBJoCrFLp10D2awwZ72UhEEQYWBbmgnXRm+yCRjTwpOcTR3bK21MtIWtxWS2pXNJm2TVplrkqUlNefm+JDeJKtpk6239vdyD7/zfff73e873z3nMJIkUmwj5uaizGbz7HYGrwS8Niin9HEgiqKTZTFUie2OZ2DHBeRLIIqicysvikajPwOA3d74bDaLlscWUGnNSmGXhdyPRtEgSVZv84v03vQ9eia9WtmS0qUEQm3uQ0RR+jDLOt5680DGV6lvPgN/jDwEVIASChC69kRhXDQHsjZWc+MsyU4YA4DBwPPp9OrJ36b3dL66O9T86+9PtZYTUMjAEwbP82vw+XxVyWT82xt3uHcAOlyxgC0FJ4UX2mwSLl68VN3U9Mw4x2XfrbgEozc5UDUXECoFVQFkscYV+NyzwFOVgqXUCKwCwNMAIMsyenreqz93ru/7cHjx5YoEdL9fW07shtjTlHke+Au1tcZ8LjyeLoyM/CKzLP/V8PDwiY18demCyUV+ohTf19dfZTBwx9ra2o5s6CxJItVrR3S7XUt0HRKJBHU6961YrdaSP6dt/xWbTCb095+vkSTbdbvdbvnfBQDaouypa2ysD6yf02Uv4HkSjkT+DG9m4/F0IRQKvWA0mr4bHBw6pPGMTvX/ZG4u+rHb7VoaGPD/J83F6Ox8myST8Q+uXRv6HNCxBKIoOltbWzcNDgAXLnzDV1fXfNTe3v4aAP26QBRFZ2/vF+uboCSCwSDdu/elh3a73bIjBxJZlnH69BmjIFhCfHnz7YHL5cbk5KRVpy7gbxNCNrUJhUK4elXB4OD1FCEqWV5O8QD+1uVERAg5UIpXFD9cLjcAwGw2wefzxZaW4nIkEonn4z5p0HI4e7YXx48fg6L4AeS2aYvFLKy30+1eoJUwmUzi6FEvicfjP6gqPXXlyk+jLpe7CgD273fWJJM/dkcikfOan24ZcDgc3kQiAadzXzoWW/BOTd05FYvFbo+Njac0G4+nCw0N9d3FfroJWFlZSfv9A/cfPFjcPTs7G+I45pbNtqtDEOpuaGWQZRmp1HJzsZ9uXRAOT33GMMynhPDPcZx2L2A7gsGJrxVFeUNbjAcPvm5WVXokEAhcekTAVroAgJDJcBaWZS6zLOwFmnbMzy94x8ZGEwDMiuLHzMxMJpP55zCARwVsBdlspoNl8SXDwFzMMwxjBgCDoepmS4vjFUGoG797d7pvfn7hsmbzLz2Z8UeLK6nHAAAAAElFTkSuQmCC</icon>
+    <visible>1</visible>
+    <title>Open Context Menu</title>
+    <description>Opens a context menu at the specified position.</description>
+  </metadata>
+  <parameter behavior="mandatory" desc="x coordinate" name="x" valuetype="number"/>
+  <parameter behavior="mandatory" desc="y coordinate" name="y" valuetype="number"/>
+  <parameter behavior="optional" desc="first entry key" name="key1" valuetype="string"/>
+  <parameter behavior="optional" desc="first entry value" name="value1" valuetype="string"/>
+  <parameter behavior="optional" desc="second entry key" name="key2" valuetype="string"/>
+  <parameter behavior="optional" desc="second entry value" name="value2" valuetype="string"/>
+  <parameter behavior="optional" desc="third entry key" name="key3" valuetype="string"/>
+  <parameter behavior="optional" desc="third entry value" name="value3" valuetype="string"/>
+  <parameter behavior="optional" desc="fourth entry key" name="key4" valuetype="string"/>
+  <parameter behavior="optional" desc="fourth entry value" name="value4" valuetype="string"/>
+  <parameter behavior="optional" desc="fifth entry key" name="key5" valuetype="string"/>
+  <parameter behavior="optional" desc="fifth entry value" name="value5" valuetype="string"/>
+  <parameter behavior="optional" desc="trigger name" name="trigger" valuetype="string"/>
+  <parameter behavior="optional" desc="output node" name="outputNode" valuetype="address"/>
+  <parameter behavior="mandatory" config="click;dblclick;mousedown;mouseup;mouseover;mousemove;mouseout;immediately" defaultvalue="click" desc="trigger event" name="onEvent" valuetype="enum"/>
+  <parameter behavior="optional" defaultvalue="0" desc="maximum displayed items (0 = all)" name="itemsCount" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="12" desc="font size" name="fontSize" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="180" desc="minimum width of the PopUp" name="minWidth" valuetype="number"/>
+  <parameter behavior="optional" desc="style" name="style" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="true" desc="close on mouseout" name="closeOnMouseout" valuetype="bool"/>
+  <parameter behavior="optional" desc="click area ID" name="clickAreaId" valuetype="string"/>
+  <code><![CDATA[var StylePresets = { width: parseInt(base.minWidth, 10), fontSize: base.fontSize, closeTime: 0, strokeWidth: 2 }; // fontSize and minWidth taken from parameters for backwards compatibility
+var baseId = base.clickAreaId || base.id;
+
+// Apply style settings from object display element if available
+var style = base.style != undefined ? base.style : {};
+
+// If pre-set setting
+for (var i in StylePresets) {
+	if (style[i] == undefined) {
+		style[i] = StylePresets[i];
+	}
+}
+var styleSettings = JSON.parse(JSON.stringify(style));
+styleSettings.closeOnMouseout = base.closeOnMouseout;
+
+/**
+ * Make sure the HTML pop-up has the same width as the SVG drawing
+ */
+function scaleContextMenu() {
+	// Reset hardcoded styleSettings values
+	styleSettings.width = parseInt(base.minWidth, 10);
+
+	var matrix = webMI.gfx.getScreenCTM(true);
+	var scaleX = matrix["a"];
+	var scaleY = matrix["d"];
+
+	var bottomPoint = webMI.gfx.createPoint(base.x, base.y).matrixTransform(matrix);
+	var topPoint = webMI.gfx.createPoint(0, 0).matrixTransform(matrix);
+	styleSettings.width *= scaleX;
+	styleSettings.strokeWidth = parseInt(Math.round(parseInt(style.strokeWidth) * scaleX));
+	if (styleSettings.strokeWidth > 0 && styleSettings.strokeWidth < 1) styleSettings.strokeWidth = 1;
+	styleSettings.width = styleSettings.width - styleSettings.strokeWidth * 2; // Subtract left and right width of outline to match exact SVG width in total
+	styleSettings.fontSize = Math.round(parseInt(style.fontSize) * scaleY);
+	if (base.elementHeight) styleSettings.elementHight = base.elementHeight;
+	else styleSettings.elementHight = bottomPoint.y - topPoint.y;
+}
+
+function getFn(val) {
+	return function () {
+		if (base.trigger != undefined) {
+			webMI.trigger.fire(base.trigger, val);
+		}
+		if (base.outputNode != "") {
+			webMI.data.write(base.outputNode, val);
+		}
+		var p = webMI.gfx.createPoint(base.x, base.y).matrixTransform(webMI.gfx.getScreenCTM(true));
+		webMI.display.showPopup(p.x, p.y, null);
+	};
+}
+function closeContextMenu() {
+	if (typeof tempObj.style == "undefined") tempObj.style = {};
+	tempObj.style.closeOnMouseout = base.closeOnMouseout;
+	tempObj.style.clickAreaId = baseId;
+	webMI.display.showPopup(0, 0, null);
+}
+function openContextMenu() {
+	scaleContextMenu();
+	if (!base.active || base.active()) {
+		var p = webMI.gfx.createPoint(base.x, base.y).matrixTransform(webMI.gfx.getScreenCTM(true));
+		tempObj.style.closeOnMouseout = base.closeOnMouseout;
+		tempObj.style.clickAreaId = baseId;
+		if (base.menuObj && typeof base.menuObj == "function") {
+			//showPopup in callback
+			base.menuObj(function (tempObj) {
+				tempObj.style = styleSettings;
+				tempObj.itemsCount = base.itemsCount;
+				webMI.display.showPopup(p.x, p.y, tempObj);
+			});
+		} else {
+			webMI.display.showPopup(p.x, p.y, tempObj);
+		}
+	}
+}
+
+var tempObj = {};
+
+if (base.menuObj != undefined && typeof base.menuObj == "object") {
+	tempObj = base.menuObj;
+	tempObj.style = styleSettings;
+	tempObj.itemsCount = base.itemsCount;
+} else if (base.menuObj != undefined && typeof base.menuObj == "function") {
+	//tempObj calculate dynamically in event
+	tempObj.style = {};
+	tempObj.style.closeOnMouseout = base.closeOnMouseout;
+} else {
+	tempObj = { style: styleSettings, itemsCount: base.itemsCount };
+	var texts = [base.key1, base.key2, base.key3, base.key4, base.key5];
+	var textvals = [base.value1, base.value2, base.value3, base.value4, base.value5];
+	for (var i = 0; i < 5; i++) {
+		if (texts[i] != undefined && textvals[i] != undefined) {
+			tempObj[i] = { text: texts[i], value: getFn(textvals[i]) };
+		}
+	}
+}
+if (base.onEvent == "immediately" && baseId != "") {
+	openContextMenu();
+} else if (base.onEvent == "immediately" && baseId == "") {
+	closeContextMenu();
+} else {
+	webMI.addEvent(baseId, base.onEvent, openContextMenu);
+}
+
+/**
+ * If calling webMI.addOnunload causes a TypeError, the affected document has
+ * already been closed and not unloaded properly.
+ * [AT-D-11674] comment 2022-12-12 11:36:15
+ */
+try {
+	webMI.addOnunload(function () {
+		closeContextMenu();
+		base = null;
+		tempObj = null;
+		webMI = null;
+	});
+} catch (ex) {
+	if (ex.name === "TypeError") {
+		closeContextMenu();
+		base = null;
+		tempObj = null;
+		webMI = null;
+	} else {
+		throw ex;
+	}
+}
+]]></code>
+</script>

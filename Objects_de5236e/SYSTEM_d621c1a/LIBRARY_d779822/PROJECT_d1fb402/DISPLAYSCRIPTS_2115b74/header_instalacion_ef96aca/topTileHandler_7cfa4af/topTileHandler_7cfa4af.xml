@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/* TopTile handler: muestra nombre, subinfo y LED de conectividad */
+(function(){
+  var BASE = (typeof webMI!=='undefined' && webMI.query && (webMI.query.base || webMI.query["base"])) || "";
+
+  function $(id){ return document.getElementById(id); }
+  function setText(id, v){ var el=$(id); if(el) el.textContent = (v==null? '-' : String(v)); }
+  function setFill(id, c){ var el=$(id); if(el) try{ el.setAttribute('fill', c); }catch(_){} }
+  function setStroke(id, c){ var el=$(id); if(el) try{ el.setAttribute('stroke', c); }catch(_){} }
+
+  // Colores segun notas (Good, Bad, Waiting, etc.)
+  var LED = {
+    onlineCtrl : '#1c7ed6',   // azul: en linea y controlable
+    onlineNoCtl: '#ff8f05',   // naranja: en linea sin control
+    down       : '#ff0000',   // rojo
+    waiting    : '#7c1536',   // rojo oscuro
+    lastUsable : '#883fb2',   // purpura
+    unknown    : '#6b7280'    // gris
+  };
+
+  function niceNameFromBase(b){
+    if(!b) return '-';
+    var s = String(b).split('.').pop().replace(/_/g,' ');
+    return s || '-';
+  }
+
+  // Nombre (short_name) y subinfo (por ejemplo level_percent)
+  try {
+    webMI.data.read(BASE + '.short_name', function(r){
+      setText('tt_name', r && r.value!=null ? r.value : niceNameFromBase(BASE));
+    });
+  } catch(_){ setText('tt_name', niceNameFromBase(BASE)); }
+
+  function paintSub(){
+    try {
+      webMI.data.read(BASE + '.level_percent', function(r){
+        if (!r || typeof r.value === 'undefined') { setText('tt_sub',''); return; }
+        var v = Number(r.value); if (isNaN(v)) { setText('tt_sub',''); return; }
+        setText('tt_sub', v.toFixed(0) + ' %');
+      });
+    } catch(_) { setText('tt_sub',''); }
+  }
+  paintSub();
+
+  // Conectividad a LED
+  function paintConn(){
+    try {
+      webMI.data.read(BASE + '.connectivity', function(cn){
+        var status = cn && cn.status; var value = cn && cn.value;
+        var col = LED.unknown;
+        if (status === 0) {
+          col = (value === true) ? LED.onlineCtrl : LED.onlineNoCtl;
+        } else if (status === 2150760448) { // BadWaitingForInitialData
+          col = LED.waiting;
+        } else if (status === 2150694912) { // BadNoCommunication
+          col = LED.down;
+        } else if (status === 1083179008) { // UncertainLastUsableValue
+          col = LED.lastUsable;
+        }
+        setFill('tt_led', col);
+        setStroke('tt_bg', (col === LED.down) ? '#ef4444' : '#cbd5e1');
+      });
+    } catch(_){ setFill('tt_led', LED.unknown); }
+  }
+  paintConn();
+
+  // Pequeño refresco periódico de subinfo
+  try { setInterval(paintSub, 15000); } catch(_){}
+
+})();
+
+]]></code>
+</script>

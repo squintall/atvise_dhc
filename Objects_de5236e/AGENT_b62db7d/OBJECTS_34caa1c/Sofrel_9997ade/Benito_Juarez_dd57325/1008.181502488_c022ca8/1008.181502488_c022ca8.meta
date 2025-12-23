@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.1008.181502488
+NodeClass: Object
+BrowseName: 1:1008.181502488
+DisplayName: en|1008.181502488
+Description: en|1008.181502488
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerCWT
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerCWT.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerCWT.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerCWT.presion_min_max

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.SetUserData
+NodeClass: Variable
+BrowseName: 1:SetUserData
+DisplayName: en|SetUserData
+Description: en|SetUserData
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

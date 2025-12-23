@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_014.Equipos.Caudalimetro.Cruda_Entrada.PPM_Filtro
+NodeClass: Variable
+BrowseName: 1:PPM_Filtro
+DisplayName: en|PPM_Filtro
+Description: en|PPM_Filtro
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Descripcion
+NodeClass: Variable
+BrowseName: 1:Descripcion
+DisplayName: en|Descripcion
+Description: en|Descripcion
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

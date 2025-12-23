@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.hmi.top_1024
+NodeClass: Variable
+BrowseName: 1:top_1024
+DisplayName: en|top_1024
+Description: en|top_1024
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

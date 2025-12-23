@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="63.109999999999999" version="1.2" width="133" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <g atv:insensitive="true" atv:refpx="0" atv:refpy="0" id="id_43">
+  <rect atv:refpx="66.5" atv:refpy="31.555" fill="#ffffff" fill-opacity="0" height="63.11" id="id_10" width="133.00" x="0" y="0"/>
+ </g>
+ <rect atv:refpx="0" atv:refpy="0" fill="#ffffff" height="31" id="id_5" stroke="#c5d1de" stroke-width="0" width="131" x="1" y="31"/>
+ <rect atv:refpx="51.397" atv:refpy="-7.319" fill="#fdffff" height="29.5" id="id_3" stroke="#000000" stroke-width="1" width="132" x="0.5" y="0.5"/>
+ <svg atv:refpx="66.5" atv:refpy="15.5" height="31" id="id_1" width="131" x="1" xlink:href="SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Custom_gauge" y="0">
+  <atv:argument name="base" prefix="base" value=".level_percent"/>
+ </svg>
+ <rect atv:refpx="66.5" atv:refpy="46.6" fill="none" height="32.019" id="id_2" stroke="#000000" stroke-width="1" width="132" x="0.5" y="30.59"/>
+ <text atv:refpx="67.545" atv:refpy="46.968" fill="#000000" font-family="Arial" font-size="12" font-weight="bold" id="id_13" text-anchor="middle" transform="matrix(1.4528,0,0,1.3885,-4.7849,-12.0439)" x="49.067" y="47.001">short_name</text>
+ <svg atv:refpx="0.001" atv:refpy="0.112" height="30" id="id_0" transform="matrix(1.6625,0,0,2.1,0,0)" width="80" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.clickarea" y="0.052"/>
+ <text atv:refpx="0" atv:refpy="0" fill="#000000" font-family="Arial" font-size="20" font-weight="bold" id="id_7" text-anchor="end" x="109.5" y="23.5">n</text>
+ <text atv:refpx="117.375" atv:refpy="19" fill="#000000" font-family="Arial" font-size="20" font-weight="bold" id="id_8" text-anchor="end" x="128.5" y="23.5">m</text>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[// ==============================================
+// Consolidación de la lógica de visualización
+// ==============================================
+
+/*
+ * Se obtiene la dirección base del objeto a partir de la consulta webMI.
+ * Con ella, se determina si el objeto corresponde a:
+ *   - Tanque de Agua Potable: la dirección contiene "Circuito"
+ *   - Cárcamo de Agua Residual: la dirección contiene "Cuenca"
+ */
+var address = webMI.query["base"];
+var esTanque = address.includes("Circuito");
+var esCarcamo = address.includes("Cuenca");
+var clientInfo = webMI.getClientInfo();
+// Se detecta si el cliente usa un dispositivo móvil.
+var esMovil = clientInfo.isMobile;
+
+// Variable para almacenar la ruta de la pantalla a abrir.
+var displayPath = "";
+
+// Selecciona la pantalla de visualización en función del tipo de instalación y del dispositivo.
+if (esMovil) {
+    // Caso móvil: se usan las pantallas móviles.
+    if (esTanque) {
+        displayPath = "SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Mobile.Vista_Instalacion";
+    } else if (esCarcamo) {
+        displayPath = "SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Mobile.Vista_Instalacion_AR";
+    }
+} else {
+    // Caso escritorio: se usan las pantallas de Reservorio
+        displayPath = "SYSTEM.DISPLAYS.Instalacion.Vista_Principal";
+   
+}
+
+// Si se definió una ruta de pantalla, se añade un único evento "click" al elemento con id "id_0".
+// Este evento abrirá la pantalla de visualización correspondiente.
+if (displayPath !== "") {
+    webMI.addEvent("id_0", "click", function(e) {
+        webMI.display.openDisplay(displayPath, webMI.query, "content");
+    });
+}
+
+
+// Suscribe el estado de la alarma "Comunicacion.Fallo" a un evento de alarma
+
+webMI.alarm.subscribe(webMI.query["base"] + ".com.Comunicacion.Fallo", function(e) {
+    var value = e.state; // Almacena el estado de la alarma en la variable "value"
+    // Si el estado de la alarma es 0, indica que no hay fallo de comunicación
+    if (value == 0) {
+        webMI.gfx.setFill("id_5", "#1a8b22"); // Cambia el color del elemento gráfico a verde
+        
+    }
+    
+    // Si el estado de la alarma es 1, indica que hay un fallo de comunicación
+    if (value == 1) {
+ 
+        // Suscribe la conectividad y ajusta el color del elemento según el estado
+        webMI.data.read(webMI.query["base"] + ".connectivity", function(e) {
+            var status = e.status; // Estado de conectividad
+            var valor = e.value; // Valor de conectividad (true o false)
+		
+              // Cambia el color del gráfico según el estado de conectividad y códigos OPC UA
+            switch (status) {
+                case 0:
+                    if (valor == true)
+                       {
+                        webMI.gfx.setFill("id_5", "#1a8b22"); // Verde si está conectado
+                        webMI.gfx.setVisible("id_13", true);
+                       }
+                    else
+					   {
+					   webMI.gfx.setFill("id_5", "#ff0000"); // Rojo si no está conectado
+					   webMI.gfx.setVisible("id_13", {0:true,3:false,6:true,9:false});
+					   }
+                
+                case undefined:
+                    break;
+                
+                case 2156593152: // Código OPC UA: BadDeviceFailure
+                    // Ha ocurrido una falla en el dispositivo/fuente de datos que afecta el valor
+                    webMI.gfx.setFill("id_5", "#b98f2d"); // Color marrón claro para indicar la falla en el dispositivo
+                    break;
+                    
+				case 2151350272: // Código OPC UA: BadNotWritable
+                    // The access level does not allow writing to the Node
+                    webMI.gfx.setFill("id_5", "#be6b30"); // Color amarillo claro para indicar la falla en el dispositivo
+                    break;
+                
+                case 2150694912: // Código OPC UA: BadNoCommunication
+                     // La comunicación con la fuente de datos está definida, pero no se ha establecido
+                    // Rojo para indicar falta de comunicación
+                      {
+					   webMI.gfx.setFill("id_5", "#ff0000"); 
+					   webMI.gfx.setVisible("id_13", {0:true,3:false,6:true,9:false});
+					   }
+                    break;
+                
+                case 2150760448: // Código OPC UA: BadWaitingForInitialData
+                    // Esperando a que el servidor obtenga valores de la fuente de datos
+                    webMI.gfx.setFill("id_5", "#7c1536"); // Rojo oscuro para indicar espera de datos iniciales
+                    break;
+                
+                case 1083179008: // Código OPC UA: UncertainLastUsableValue
+                    // El proceso de actualización del valor se ha detenido; último valor usable
+                    webMI.gfx.setFill("id_5", "#883fb2"); // Violeta oscuro para estado incierto
+                    break;
+                
+                case 2147483648: // Código OPC UA: Bad
+                    // El valor es malo, pero no se conoce una razón específica
+                    webMI.gfx.setFill("id_5", "#ff8f05"); // Naranja para indicar un error no especificado
+                    break;
+                
+                default:		
+                    webMI.gfx.setFill("id_5", "#000000"); // Negro para estados desconocidos
+                    break;
+            }
+        });
+    }
+
+    // Si el estado de la alarma es 2, cambia el color a marrón oscuro
+    if (value == 2)
+        webMI.gfx.setFill("id_5", "#954120");
+
+    // Si el estado de la alarma es 3, cambia el color a verde para indicar que el fallo se ha resuelto
+    if (value == 3)
+        webMI.gfx.setFill("id_5", "#1a8b22");
+
+    // Si el estado de la alarma es 5, registra un mensaje en la consola para advertir de un cambio en el estado de alarma
+    if (value == 5)
+        console.log("State of alarm changed to On Off, Unacknowledged!");
+});
+
+
+
+
+
+// Suscribe el nivel a un evento de datos
+webMI.data.read(webMI.query["base"] + ".level", function(e) {
+    var value = e.value; // Almacena el valor del nivel
+    var status = e.status; // Almacena el estado del nivel
+    webMI.gfx.setText("id_7", webMI.sprintf("%.2f", value)); // Muestra el valor del nivel en el elemento gráfico
+
+    // Si el estado es indefinido, oculta los elementos correspondientes
+    if (status == undefined) {
+		webMI.gfx.setVisible("id_7", false); // Oculta el elemento id_7
+        webMI.gfx.setVisible("id_1", false); // Oculta el elemento id_1
+        webMI.gfx.setVisible("id_3", false); // Oculta el elemento id_3
+        webMI.gfx.setVisible("id_8", false); // Oculta el elemento id_8 
+        webMI.gfx.setFill("id_5", "#6b6b6b");
+    }
+    
+    if (value == 0){
+		webMI.gfx.setVisible("id_7", false); // Oculta el elemento id_7
+        webMI.gfx.setVisible("id_1", false); // Oculta el elemento id_1
+        webMI.gfx.setVisible("id_3", false); // Oculta el elemento id_3
+        webMI.gfx.setVisible("id_8", false); // Oculta el elemento id_8
+    }
+});
+
+// Suscribe el valor de la variable "energy" a un evento de datos
+webMI.data.subscribe(webMI.query["base"] + ".energy", function(e) {
+    var cfe = e.value;
+    webMI.gfx.setFill("id_13", "#ffffff"); // Cambia el color de fondo del elemento gráfico a blanco
+    
+    if (cfe == 0 || cfe == 1){
+			webMI.data.read(webMI.query["base"] + ".short_name", function(e) {
+				var value = e.value; // Asigna el valor recibido del evento a la variable
+				webMI.gfx.setText("id_13", value); // Establece el texto del elemento gráfico con el valor recibido
+				webMI.gfx.setVisible("id_13", true);
+				webMI.gfx.setFill("id_13", "#ffffff"); // Cambia el color de fondo del elemento gráfico a blanco
+			});
+    }
+
+    if (cfe == 2){
+    webMI.gfx.setText("id_13", "Operando P.E"); // Establece el texto del elemento gráfico con el valor recibido
+    webMI.gfx.setFill("id_5", "#0000cc"); // Cambia el color de fondo del elemento gráfico a blanco
+    webMI.gfx.setVisible("id_13", {0:true,3:false,6:true,9:false});
+    }
+    if (cfe == 3){
+    webMI.gfx.setText("id_13", "UPS"); // Establece el texto del elemento gráfico con el valor recibido
+    webMI.gfx.setFill("id_5", "#ffff00"); // Cambia el color de fondo del elemento gráfico a blanco
+    webMI.gfx.setVisible("id_13", {0:true,3:false,6:true,9:false});
+    webMI.gfx.setFill("id_13", "#000000"); // Cambia el color de fondo del elemento gráfico a negro
+    }
+    if (cfe == 4){
+    webMI.gfx.setText("id_13", "ERROR FATAL"); // Establece el texto del elemento gráfico con el valor recibido
+    webMI.gfx.setFill("id_5", "#ff0000"); // Cambia el color de fondo del elemento gráfico a blanco
+    webMI.gfx.setVisible("id_13", {0:true,3:false,6:true,9:false});
+    webMI.gfx.setFill("id_13", "#000000"); // Cambia el color de fondo del elemento gráfico a negro
+
+    }
+});
+
+]]></script>
+</svg>

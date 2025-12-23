@@ -1,0 +1,254 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="1040" version="1.2" width="644" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <foreignObject height="1040" id="mapa" width="645" x="0" y="0">
+  <div style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[//----------------Inicializo variables -------------------//
+
+
+//Variable interna
+var Info_Windowact=false;
+var Markeract=false;
+var Markeractdc;
+var Markers= new Array();
+var Rutas= new Array();
+var Pos_origen;
+var Pos_destination;
+var WayPoints = new Array();
+
+var google = webMI.rootWindow.google; //Clase Principal
+var map; //Variable donde va a vivir el mapa
+var m,n;
+var circuito =
+	[[20.510846008445828, -87.22775727337664],				
+	 [20.525189182407978, -87.24020497181863],
+	 [20.51661480746625, -87.23456542660108],
+	 [20.510511080148984, -87.23237643858741],
+	 [20.513718430463125, -87.22912772988185],
+	 [20.51365437978025, -87.22885857272563]]
+
+					
+var circuito_s =
+	[[{lat:20.510846008445828, lng:-87.22775727337664},
+	"Cárcamo Puerto Aventuras, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Puerto_Aventuras",
+	20, "carcamoAR"],
+	[{lat:20.525189182407978, lng:-87.24020497181863},
+	"Cárcamo Puerto Maya 3, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Cárcamo_Puerto_Maya_3",
+	21, "carcamoAR"],
+	[{lat:20.51661480746625, lng:-87.23456542660108},
+	"PTAR Puerto Aventuras",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Puerto_Aventuras",
+	3, "ptar"],
+	[{lat:20.510511080148984, lng:-87.23237643858741},
+	"Cárcamo 13, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_013",
+	1, "carcamoAP"],
+	[{lat:20.513718430463125, lng:-87.22912772988185},
+	"Cárcamo 14, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_014",
+	2, "carcamoAP"],
+	[{lat:20.51365437978025, lng:-87.22885857272563},
+	"Desaladora Puerto Aventuras, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Desaladora_Puerto_Maya",
+	3, "desaladora"]];
+					
+var infowindow;					
+var circuito_centro;
+var carcamoAR = "/icons/carcamo_ar_30_18px.png";
+
+
+
+//----------------Ejecución -------------------//
+
+
+
+//Determinación del dispositivo
+var infoCliente;
+infoCliente = new webMI.getClientInfo();
+
+//Preprocesamiento de variables
+
+//Calculo del Centro
+var suma=[0,0];
+for (var i=0; i<circuito.length; i++){
+	suma[0]=suma[0]+circuito[i][0]; //Latitud 
+	suma[1]=suma[1]+circuito[i][1]; //Longitud
+}
+
+circuito_centro=[suma[0]/circuito.length,suma[1]/circuito.length];
+
+
+webMI.addOnload(function() {
+	
+	//Posiciones en el mapa
+	var position1 = new google.maps.LatLng(circuito_centro[0], circuito_centro[1]);
+	
+	//Opciones del mapa
+	var myOptions = {
+		zoom: 15.5,
+		center: position1,
+		mapTypeId: google.maps.MapTypeId.roadmap
+	};
+	
+
+	//Inicializo el mapa
+	map = new google.maps.Map(document.getElementById("mapa"), myOptions);
+	
+	
+		
+	
+		
+	// Instantiate an info window to hold step text.
+	const stepDisplay = new google.maps.InfoWindow();
+	
+	
+	//-------Inicializo Marcadores
+	
+	circuito_s.forEach(([position,title,object,order,type],i) =>{
+	
+	if (type == 'ptar') {
+	carcamoAR = "/icons/planta.png"
+	}
+	if (type == 'carcamoAP') {
+	carcamoAR =  "/icons/carcamo_31_40px.png"
+	}
+	if (type == 'desaladora') {
+	carcamoAR =  "/icons/carcamo_31_40px.png"
+	}
+	
+	
+		const marker = new google.maps.Marker({
+			position, 
+			map,
+			icon: carcamoAR,
+			title: ` ${order}`,
+			optimized: false,
+		});
+		
+		marker.setMap(map);
+		
+		//Agrego marcador a lista de marcadores
+		Markers.push(marker);
+	
+		//-------Listener de Marcadores
+		
+		//DOBLECLICK (Fija Carcamo)
+		google.maps.event.addListener(marker,'dblclick',function(event) {
+							
+			//Abrir display en frame de la izquierda, en la primera posición, relativo a la base		
+			if (type == 'carcamoAR' || type == 'ptar') {
+				webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Circuito.Eslabon_AR",
+			extern:false,height:610,menubar:false,modal:false,movable:true,
+			resizable:true,scrollbars:false,status:false,title:title,
+			toolbar:false,width:600,x:0,y:50,query:{base:   object}});
+					}
+			if (type == 'carcamoAP') {
+				webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Circuito.Eslabon",
+			extern:false,height:610,menubar:false,modal:false,movable:true,
+			resizable:true,scrollbars:false,status:false,title:title,
+			toolbar:false,width:600,x:0,y:50,query:{base:   object}});
+					}
+			if (type == 'desaladora') {
+			console.log(type + " " + object);
+				webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Circuito.Eslabon",
+			extern:false,height:610,menubar:false,modal:false,movable:true,
+			resizable:true,scrollbars:false,status:false,title:title,
+			toolbar:false,width:600,x:0,y:50,query:{base:   object}});
+					}	
+							
+			map.panTo(this.getPosition());
+			map.setZoom(16.5);
+
+			Markeract=true;
+			Markeractdc=marker;
+			Pos_origen=position;
+		
+			
+			//Limpio
+			Elimina_Ruta(Rutas);
+				
+		});
+
+			
+		
+		//MOUSEOVER
+		google.maps.event.addListener(marker, "mouseover", function(event){
+			infowindow = new google.maps.InfoWindow();
+			//Abro marcador
+			infowindow.open(marker.getMap,marker);
+			Info_Windowact=true;
+			//Defino que objeto va a ser el seleccionado para mostrar su información
+			webMI.data.subscribe( object +".level_percent",
+			function(e){
+				infowindow.setContent(title+" - Nivel: " +
+				e.value.toFixed(2) + "%");
+				}
+			);
+			
+				//infowindow.setContent(title);
+		
+		});	
+		
+		//MOUSEOUT
+		google.maps.event.addListener(marker, "mouseout", function(event){
+			
+			
+			if (Info_Windowact){
+				infowindow.close();
+				Info_Windowact=false;
+			}			
+		});
+		
+		
+		
+	});	
+			
+});
+
+
+
+function Dibuja_Ruta(Origen,Destination){
+	
+	if(Markeract && (Origen!=Destination)){
+			
+		//////////// Servicios Rutas en el mapa
+		var directionsService = new google.maps.DirectionsService();
+		var directionsRenderer = new google.maps.DirectionsRenderer({ map: map });		
+		
+		//Crea el request
+		var request = {
+			origin: Origen,
+			destination:Destination,
+			travelMode: google.maps.TravelMode.DRIVING // Puedes ajustar el modo de transporte según tus necesidades
+		  };    
+		
+		
+		directionsService.route(request, function(response, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  directionsRenderer.setDirections(response);
+			  Rutas.push(directionsRenderer);
+			}
+		  });
+	 }
+    
+ }
+
+
+function Elimina_Ruta(Rutas){
+	
+	Rutas.forEach(function(ruta) {
+		ruta.setMap(null);
+	});
+	
+	Rutas=new Array();
+    
+ }
+]]></script>
+</svg>

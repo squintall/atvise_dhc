@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.FPMain
+NodeClass: Variable
+BrowseName: 1:FPMain
+DisplayName: en|FPMain
+Description: en|FPMain
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

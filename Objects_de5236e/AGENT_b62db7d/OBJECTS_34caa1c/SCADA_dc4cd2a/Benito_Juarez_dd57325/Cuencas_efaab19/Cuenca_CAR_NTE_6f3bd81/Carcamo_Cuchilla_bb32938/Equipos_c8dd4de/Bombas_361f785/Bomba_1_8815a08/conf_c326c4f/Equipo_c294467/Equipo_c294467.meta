@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_Cuchilla.Equipos.Bombas.Bomba_1.conf.Equipo
+NodeClass: Variable
+BrowseName: 1:Equipo
+DisplayName: en|Equipo
+Description: en|Equipo
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

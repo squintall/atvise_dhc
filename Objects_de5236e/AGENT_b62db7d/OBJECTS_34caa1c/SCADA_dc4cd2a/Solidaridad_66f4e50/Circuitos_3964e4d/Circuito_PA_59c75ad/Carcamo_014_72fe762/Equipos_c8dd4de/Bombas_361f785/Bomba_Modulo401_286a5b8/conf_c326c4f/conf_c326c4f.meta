@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_014.Equipos.Bombas.Bomba_Modulo401.conf
+NodeClass: Variable
+BrowseName: 1:conf
+DisplayName: en|conf
+Description: en|conf
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

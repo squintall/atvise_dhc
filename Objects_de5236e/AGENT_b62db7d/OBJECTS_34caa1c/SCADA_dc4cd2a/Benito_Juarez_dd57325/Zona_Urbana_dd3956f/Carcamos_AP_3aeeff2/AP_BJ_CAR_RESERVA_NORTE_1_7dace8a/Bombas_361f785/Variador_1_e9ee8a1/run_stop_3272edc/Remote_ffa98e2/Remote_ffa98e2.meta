@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_RESERVA_NORTE_1.Bombas.Variador_1.run_stop.Remote
+NodeClass: Variable
+BrowseName: 1:Remote
+DisplayName: en|Remote
+Description: en|Remote
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1085.Remote.RelMirrorInputOutput

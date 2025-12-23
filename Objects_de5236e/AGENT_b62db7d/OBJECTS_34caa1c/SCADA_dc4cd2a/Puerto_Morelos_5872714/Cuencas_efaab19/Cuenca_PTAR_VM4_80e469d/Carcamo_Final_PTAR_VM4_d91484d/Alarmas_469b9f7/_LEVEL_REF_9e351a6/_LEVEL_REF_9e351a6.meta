@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Cuencas.Cuenca_PTAR_VM4.Carcamo_Final_PTAR_VM4.Alarmas._LEVEL_REF
+NodeClass: Variable
+BrowseName: 1:_LEVEL_REF
+DisplayName: en|_LEVEL_REF
+Description: en|_LEVEL_REF
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

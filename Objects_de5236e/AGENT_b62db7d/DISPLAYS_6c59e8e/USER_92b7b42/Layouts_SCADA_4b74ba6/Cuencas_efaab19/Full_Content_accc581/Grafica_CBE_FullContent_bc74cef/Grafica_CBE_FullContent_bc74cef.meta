@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_SCADA.Cuencas.Full_Content.Grafica_CBE_FullContent
+NodeClass: Variable
+BrowseName: 1:Grafica_CBE_FullContent
+DisplayName: en|Grafica_CBE_FullContent
+Description: en|Grafica_CBE_FullContent
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

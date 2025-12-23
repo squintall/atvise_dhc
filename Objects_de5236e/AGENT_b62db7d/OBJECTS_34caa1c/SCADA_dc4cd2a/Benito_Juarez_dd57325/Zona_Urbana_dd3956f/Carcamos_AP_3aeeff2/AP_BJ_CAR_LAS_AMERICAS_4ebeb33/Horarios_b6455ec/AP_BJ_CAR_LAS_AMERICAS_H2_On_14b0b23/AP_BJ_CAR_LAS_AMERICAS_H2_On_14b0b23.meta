@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_LAS_AMERICAS.Horarios.AP_BJ_CAR_LAS_AMERICAS_H2_On
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_LAS_AMERICAS_H2_On
+DisplayName: en|AP_BJ_CAR_LAS_AMERICAS_H2_On
+Description: en|AP_BJ_CAR_LAS_AMERICAS_H2_On
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

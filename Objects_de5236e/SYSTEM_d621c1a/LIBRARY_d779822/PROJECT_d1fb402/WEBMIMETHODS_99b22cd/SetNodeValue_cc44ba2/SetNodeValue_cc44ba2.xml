@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* addressVersion and version can be empty string */
+var address = request.postvalues.address;
+var addressVersion = request.postvalues.addressVersion;
+var value = request.postvalues.value;
+var version = request.postvalues.version;
+
+var node = Ua.findNode(address);
+var exist = Ua.Status(node) != Ua.Status.BADNODEIDUNKNOWN;
+
+if(version == undefined)
+	version = "";
+
+if(addressVersion == undefined)
+	addressVersion = "";
+
+if (addressVersion != "" && version != "") {
+
+	var nodeVersion = Ua.findNode(addressVersion);
+	var existVersion = Ua.Status(nodeVersion) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (existVersion){
+		if (nodeVersion.value != version && exist){
+			node.result.value = value;
+			nodeVersion.result.value = version;
+		}
+	} else if (exist){
+		node.result.value = value;
+	}
+
+} else if (exist){
+	node.result.value = value;
+}]]></code>
+</script>

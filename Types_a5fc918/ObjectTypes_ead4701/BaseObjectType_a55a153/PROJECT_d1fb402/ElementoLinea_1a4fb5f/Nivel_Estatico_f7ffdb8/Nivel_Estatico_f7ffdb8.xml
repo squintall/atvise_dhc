@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="t" type="interval" trigger="true" relative="false" value="" offset="00:00:00" interval="00:05:00"/>
+  <code><![CDATA[/* REGLAS DEL PROYECTO
+   - Prohibido usar IIEEs (sin funciones autoejecutables).
+   - Estilo limpio, tipografías legibles, animaciones discretas.
+*/
+
+/* ===== Utilidades mínimas ===== */
+function toNum(v){ if (typeof v === "number") return v; var x = Number(v); return isFinite(x) ? x : undefined; }
+function getVal(n){ try { return (n && n.result) ? n.result.value : undefined; } catch(_){ return undefined; } }
+function setVal(n,v){ try { if (n && n.result) n.result.value = v; } catch(_){ } }
+function ts(){ return new Date().toISOString(); }
+function log(evt, data){ try{ console.log(ts()+"\t"+evt+"\t"+(data?JSON.stringify(data):"")); }catch(_){} }
+
+/* ===== Rutas por concatenación ===== */
+var SEP = (typeof base === "string" && base.indexOf("/") !== -1) ? "/" : ".";
+var A_FOLDER = base + SEP + "Alarmas";
+
+/* ===== Direcciones mínimas ===== */
+var ADDR_LEVEL = base     + SEP + "level_percent";
+var ADDR_REF   = A_FOLDER + SEP + "_LEVEL_REF";
+var ADDR_FLAG  = A_FOLDER + SEP + "_LEVEL_STATIC";
+var ADDR_NAME  = base     + SEP + "short_name";
+
+/* ===== Nodos ===== */
+var n_level = Ua.findNode(ADDR_LEVEL);
+var n_ref   = Ua.findNode(ADDR_REF);
+var n_flag  = Ua.findNode(ADDR_FLAG);
+var n_name  = Ua.findNode(ADDR_NAME);
+
+/* ===== Identificación (short_name -> base) ===== */
+function sn(){
+  var s = getVal(n_name);
+  if (typeof s === "string" && s) return s;
+  try {
+    if (typeof base === "string" && base) return base;
+    if (base && typeof base.nodeid === "string" && base.nodeid) return base.nodeid;
+    if (base && typeof base.nodeId  === "string" && base.nodeId)  return base.nodeId;
+  } catch(_) {}
+  return "";
+}
+function baseId(){
+  try {
+    if (typeof base === "string" && base) return base;
+    if (base && typeof base.nodeid === "string" && base.nodeid) return base.nodeid;
+    if (base && typeof base.nodeId  === "string" && base.nodeId)  return base.nodeId;
+  } catch(_){}
+  return String(base);
+}
+
+/* ===== Lógica: comparar REF (actual) vs LEVEL; luego actualizar REF = LEVEL =====
+   - Omitir si no existe level_percent o si es un ObjectType genérico. */
+function tick() {
+  try {
+    // Omitir si es el ObjectType (no instancias)
+    var bid = baseId();
+    if (bid === "ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR" ||
+        bid === "ns=1;s=ObjectTypes.PROJECT.ElementoLinea") {
+      log("skip_objecttype", { short_name: sn(), base: bid });
+      return;
+    }
+
+    // Omitir si NO existe el nodo level_percent
+    if (!n_level || !n_level.result) {
+      log("skip_no_level_node", { short_name: sn() });
+      return;
+    }
+
+    // Leer LEVEL (y omitir si viene indefinido o no numérico)
+    var levelRaw = getVal(n_level);
+    if (levelRaw === undefined || levelRaw === null) {
+      log("skip_level_undefined", { short_name: sn() });
+      return;
+    }
+    var level = toNum(levelRaw);
+    if (level === undefined) {
+      log("skip_level_nan", { short_name: sn() });
+      return;
+    }
+
+    // Leer REF actual y comparar
+    var ref_before = toNum(getVal(n_ref));
+    var equal = (ref_before !== undefined && ref_before === level);
+
+    // Pintar FLAG según coincidencia exacta en este instante
+    setVal(n_flag, !!equal);
+
+    // Log de comparación (short_name al final)
+    log("compare", { level: level, ref_before: ref_before, equal: equal, short_name: sn() });
+
+    // Actualizar REF al final con el LEVEL actual
+    setVal(n_ref, level);
+
+  } catch (e) {
+    log("error", { message: String(e), short_name: sn() });
+  }
+}
+
+/* ===== Ejecutar una vez al cargar ===== */
+tick();
+]]></code>
+</script>

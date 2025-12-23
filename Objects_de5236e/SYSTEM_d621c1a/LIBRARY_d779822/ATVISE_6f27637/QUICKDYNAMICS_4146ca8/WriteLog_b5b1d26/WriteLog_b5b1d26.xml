@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter behavior="mandatory" name="group" desc="group" valuetype="string"/>
+  <parameter behavior="mandatory" name="subgroup" desc="subgroup" valuetype="string"/>
+  <parameter behavior="mandatory" name="label" desc="label" valuetype="string"/>
+  <parameter behavior="mandatory" name="message" desc="message" valuetype="string"/>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAPRSURBVFiFxddvSBtnHAfw7z13Zy5BU82fius0JnWkjrIFN5ibA9OyDTaFQeHIi75oXyxIQ1/I3owyFpiwMdg6fDHyYhYZjL5wKUhhvlkHjZbCisNJrc3E1oTUNLQ1qdHmcsslz7MX8ZxonVo1PnDw8LuH+/y4e54f9+OwzSHLssflWOrN50UvB2aVDMUiAICV76sqLzBG0kaDFpl7aO4Ph8OT23kut9WCHv/HAY5D0HFkyXKifV5sdWZgkjSAYuViYCtzRREQjVlwfaJRS6TMmRK4voHBq6EXSsDn8zXX23ORFke2Qe66V2WvVcBKABh7Lg76X5xRhoWnRlwZcxfuJ2tTj7LV3qGhofi2Ewj0dJ0uUeHS+TNTUmtLpgztAF+7JpqwIjTSpgp88ZPQpZHL6y1+feCLC+8FKSUXv/7sD8NLh3O7wkEBW7WCzlcTws2Zl7vf72giY7dio5smEOjpOk0pufjlp+NVJqm4a1yPiYTinZYk/9ttV/sbr7vj43/NTm34BD6fr7nWrEa//fymtJf42lhOFXHhl5NqNi+16nuC6AnU23OR82em9g1nFDAJBZzz/inV1zyL6C4ByketxZFt2O2G+z9cnx87vACXNdPgP9sdWE2A4xCUu+5V7TeurznliVYRRoIAQGRZ9jiOLFl2es5fFAcFbMYcmiyLFlmWPYLLsdR7on1erBSuxzqb4+KSIvWSfF70tjozFcVBAbftCZQC7yUcmHWz2r5fOKMMJl4DB85KJEOxWGlcn0tisViuAweAg7KVOsAOCKcA2EodOAicUZTfgKrywoHglEHVBIEwRtKKIlQcVwoiGGNpYjRokWjMUlEcFJhJ2yGJWoTMPTT3X59o1CqJgwKjSacWz9b1k3A4PJlImTMLT40VwxfyJjxYPpQJh8OTBABK4PqujLkLlcDBGIZnjxco0FeuAwAGBq+G7idrU9GEdd/xv9N2zC3XpQZ+/jW0mgAAPMpWe0MjbaqSF/cNz/0j4se77epj1ezV3dWf0unp6cW33myJ37jb+GHHK/OiSOie419NnMyDg/+ny8M3NiQAAOMTs1MfvNvE/37H2fH20SQvcqU9xWtE9ZvvB6/9sNbc0BeM3YqNtr3mjl27c/Qjp3VRsJmUXX/z7ya9Kjj41+PAVq1ZzbOIy5ppOOWJVtmMuR0fteHZ44W55brUY9W8s9Zs7fCf7Q4QRoJNlkVLZ3NcdNuewMRrz8WVgoiZtB2jSaf2YPlQhgJ9+m7fbGyZgD5kWfa4LNlepcB7OXBWSVzXnmuCwBhLS6IWiWfrtt2e/wsqyH6R9qZHrAAAAABJRU5ErkJggucgHAJ3QH6u74PUiGvylPoYtxiEfeOZCMP8IwYPJ87egkiFmekBL+oLTomLCnyjmcXI+t585mJo3Wn3csb8jRLMP7+eXBDhc8taReYDQiHIEX+hoQBlM0DZ/5HYMHHsYrj0/WfgYv7NIMb1lWfagh2KTKDaz1jzJbRAR2RkeN5DypPIZRZCHboYZvsGwUeIgbLp918swSzgqvcPbYKakFkcLH/+sIDKdLAL6WgxXB+QyQJqdHz7wiIArtnoZTGQ/e0XK8P33ywfmUAtnulr9X9TO44J6QMVza++8wQwgZpb95/zF8zYaPCLHhaDEvvsy2a/QPUCyG7kvpICP9fP6x0x+zmAPTCqBTVcHGjP15+sDLWnPX58/MWhCWqUYa0L6gtd6r78YKuu9jvCxsXyi2oWt51z/s7L+qOjeda+JqJqQ1CIiPN+PaAk8k4ySP86mwjnV5IsfvOdi2H9HZ1f9z4LPQfGtQPMx0TVhjgcZABs9xd8+8XiwMjAIAzKw5DmOUQe1MICGvWWk+X3AWD8TsDalMcCALC7cALzLl2+AAAAAElFTkSuQmCC</icon>
+    <visible>1</visible>
+    <title>Write Log Entry</title>
+    <description>Adds an entry to the logger.</description>
+  </metadata>
+  <code><![CDATA[
+  // This Quick Dynamic writes a entry to the log
+
+var user = "";
+
+webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+	user = e.username;
+});
+
+setTimeout(function () {
+	webMI.data.call("LoggerWriteLog", {
+			"group": base.group,
+			"subgroup": base.subgroup,
+			"label": base.label,
+			"message": base.message,
+			"user": user
+		}
+	)
+}, 5);
+
+]]></code>
+</script>

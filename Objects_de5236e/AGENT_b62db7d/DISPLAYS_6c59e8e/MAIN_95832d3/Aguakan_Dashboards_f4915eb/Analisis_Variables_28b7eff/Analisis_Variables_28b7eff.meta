@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MAIN.Aguakan_Dashboards.Analisis_Variables
+NodeClass: Variable
+BrowseName: 1:Analisis_Variables
+DisplayName: en|Analisis_Variables
+Description: en|Analisis_Variables
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

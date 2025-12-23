@@ -1,0 +1,9 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Desaladora.Equipos.Bombas.Bomba_Modulo401.rpm
+NodeClass: Variable
+BrowseName: 1:rpm
+DisplayName: en|rpm
+Description: en|rpm
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.HISTORY.AGGREGATETEMPLATES.Produccion_M3.Produccion_Horaria.offset_value
+NodeClass: Variable
+BrowseName: 1:offset_value
+DisplayName: en|offset_value
+Description: en|offset_value
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

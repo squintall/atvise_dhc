@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.REPLACE_PDF
+NodeClass: Variable
+BrowseName: 1:REPLACE_PDF
+DisplayName: en|REPLACE_PDF
+Description: en|REPLACE_PDF
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

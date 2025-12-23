@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[const certificateData = JSON.parse(webMI.query.certificateData);
+
+function loadValueDetails(details) {
+	const rootElement = document.getElementById("value_details");
+	const background = document.getElementById("value_details_background");
+	const preTag = webMI.rootWindow.document.createElement("pre"); // Change to const
+	rootElement.style.height = "260px";
+	rootElement.style.width = "415px";
+	background.classList.remove("highlight");
+
+	preTag.textContent = details;
+	rootElement.innerHTML = "";
+	rootElement.appendChild(preTag);
+
+	setTimeout(() => {
+		background.classList.add("highlight");
+	});
+}
+
+class CertificateDetailsTableRenderer {
+	constructor() {
+		const rootElement = document.getElementById("table");
+
+		function createTable(data) {
+			rootElement.innerHTML = "";
+
+			const table = webMI.rootWindow.document.createElement("table");
+			table.style.width = "100%";
+			table.style.borderCollapse = "collapse";
+			table.style.fontFamily = "Arial";
+			table.style.color = "#575757";
+
+			const headerRow = webMI.rootWindow.document.createElement("tr");
+			headerRow.innerHTML = `<th style="border: 1px solid #575757; padding: 5px; background-color: #f2f2f2;">T{Key}</th>
+                               <th style="border: 1px solid #575757; padding: 5px; background-color: #f2f2f2;">T{Value}</th>`;
+			table.appendChild(headerRow);
+
+			data.forEach(([key, value]) => {
+				const row = webMI.rootWindow.document.createElement("tr");
+
+				const keyCell = webMI.rootWindow.document.createElement("td");
+				keyCell.style.border = "1px solid #575757";
+				keyCell.style.padding = "5px";
+				keyCell.style.whiteSpace = "nowrap";
+				keyCell.style.overflow = "hidden";
+				keyCell.style.textOverflow = "ellipsis";
+				keyCell.style.maxWidth = "150px";
+				keyCell.textContent = key;
+				keyCell.style.cursor = "pointer";
+				keyCell.style.textDecoration = "underline";
+
+				// Hover styles for keyCell
+				const originalColor = "#575757";
+				const hoverColor = "#000";
+				keyCell.addEventListener("mouseenter", () => {
+					keyCell.style.color = hoverColor;
+					keyCell.style.background = "#f2d600";
+				});
+
+				keyCell.addEventListener("mouseleave", () => {
+					keyCell.style.color = originalColor;
+					keyCell.style.background = null;
+				});
+
+				keyCell.addEventListener("click", () => {
+					const readableValue = typeof value === "object" ? JSON.stringify(value, null, 2) : value;
+					loadValueDetails(readableValue);
+				});
+
+				const valueCell = webMI.rootWindow.document.createElement("td");
+				valueCell.style.border = "1px solid #000";
+				valueCell.style.padding = "5px";
+				valueCell.style.whiteSpace = "nowrap";
+				valueCell.style.overflow = "hidden";
+				valueCell.style.textOverflow = "ellipsis";
+				valueCell.style.maxWidth = "250px";
+				valueCell.textContent = typeof value === "object" ? JSON.stringify(value, null, 2) : value;
+
+				row.appendChild(keyCell);
+				row.appendChild(valueCell);
+				table.appendChild(row);
+			});
+
+			rootElement.appendChild(table);
+		}
+
+		this.update = function (data) {
+			createTable(data);
+		};
+	}
+}
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.display.closeWindow();
+	},
+	"close_button"
+);
+
+loadValueDetails("T{Click on a key to show detail information}.")
+
+const certificateDetailsTableRenderer = new CertificateDetailsTableRenderer();
+certificateDetailsTableRenderer.update(certificateData);
+]]></code>
+</script>

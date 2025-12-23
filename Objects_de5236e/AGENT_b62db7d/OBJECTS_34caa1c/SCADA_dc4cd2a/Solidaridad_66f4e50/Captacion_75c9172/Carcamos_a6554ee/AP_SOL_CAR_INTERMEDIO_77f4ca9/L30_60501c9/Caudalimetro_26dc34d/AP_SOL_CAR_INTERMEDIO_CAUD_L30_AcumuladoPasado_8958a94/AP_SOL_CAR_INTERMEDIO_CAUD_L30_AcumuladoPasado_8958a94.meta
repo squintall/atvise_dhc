@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Captacion.Carcamos.AP_SOL_CAR_INTERMEDIO.L30.Caudalimetro.AP_SOL_CAR_INTERMEDIO_CAUD_L30_AcumuladoPasado
+NodeClass: Variable
+BrowseName: 1:AP_SOL_CAR_INTERMEDIO_CAUD_L30_AcumuladoPasado
+DisplayName: en|AP_SOL_CAR_INTERMEDIO_CAUD_L30_AcumuladoPasado
+Description: en|AP_SOL_CAR_INTERMEDIO_CAUD_L30_AcumuladoPasado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

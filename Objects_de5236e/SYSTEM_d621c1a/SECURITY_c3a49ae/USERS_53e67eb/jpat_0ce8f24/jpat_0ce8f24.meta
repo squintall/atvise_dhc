@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.jpat
+NodeClass: Object
+BrowseName: 1:jpat
+DisplayName: en|jpat
+Description: en|jpat
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

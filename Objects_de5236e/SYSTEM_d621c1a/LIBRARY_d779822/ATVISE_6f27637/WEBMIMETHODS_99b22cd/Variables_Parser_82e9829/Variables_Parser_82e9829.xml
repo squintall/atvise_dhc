@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="Parameters" type="http" trigger="false" relative="false" value=""/>
+  <code><![CDATA[//External Variables
+var ParametersI= Parameters.request.getvalues;
+var StartAddress=ParametersI.address;
+var Web_Segment=ParametersI.Web_Segment;
+
+
+var Nodes=findNodesByName(StartAddress, "ip");
+
+return (Nodes);
+
+//Function
+function findNodesByName(StartAddress, NodeName,Web_Segment) {
+    // Helper function to recursively browse nodes
+    function browseNodes(address) {
+        var results = [];
+        var browseResult = Ua.findNode(address).result.browse({
+            direction: Ua.Node.BROWSEDIRECTION_FORWARD,
+            reference: Ua.Reference.HIERARCHICALREFERENCES,
+            subType: true,
+            nodeClass: Ua.NodeClass.UNSPECIFIED,
+            maxResult: 0,
+            recursive: false
+        });
+
+        if (browseResult.error) {
+            console.error("Browse error: " + browseResult.errorstring);
+            return results;
+        }
+
+        browseResult.result.forEach(function (node) {
+			// Extract the last part of the address
+			var addressParts = node.node.nodeId.address.split('.');
+			var lastPartOfAddress = addressParts[addressParts.length - 1];
+		
+			if (lastPartOfAddress === NodeName) {
+				var nodeValue = Ua.findNode(node.node.nodeId.address).result.value;
+				var nodeObj = {};
+				var within_segment=isIpSegmentPresent(nodeValue, "168.248");
+				if(within_segment){
+					nodeObj[node.node.nodeId.address] = nodeValue;
+					results.push(nodeObj);
+				}
+			}
+		
+			// Recursively browse child nodes
+			var childResults = browseNodes(node.node.nodeId.address);
+			results = results.concat(childResults);
+		});
+
+        return results;
+    }
+
+    return browseNodes(StartAddress);
+}
+
+
+
+function isIpSegmentPresent(ipString, ipSegment) {
+	
+  // Check if the specific segment is present in the segments array
+  return ipString.includes(ipSegment);
+}]]></code>
+</script>

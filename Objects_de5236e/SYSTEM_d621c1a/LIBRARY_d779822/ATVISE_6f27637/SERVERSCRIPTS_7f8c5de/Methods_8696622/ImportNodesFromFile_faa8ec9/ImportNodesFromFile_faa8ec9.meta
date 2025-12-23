@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Methods.ImportNodesFromFile
+NodeClass: Variable
+BrowseName: 1:ImportNodesFromFile
+DisplayName: en|ImportNodesFromFile
+Description: en|ImportNodesFromFile
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

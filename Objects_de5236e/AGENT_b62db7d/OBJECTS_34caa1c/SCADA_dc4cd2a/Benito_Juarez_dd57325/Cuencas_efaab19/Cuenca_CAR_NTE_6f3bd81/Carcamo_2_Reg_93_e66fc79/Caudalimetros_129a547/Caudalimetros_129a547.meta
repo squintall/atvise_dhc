@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_2_Reg_93.Caudalimetros
+NodeClass: Variable
+BrowseName: 1:Caudalimetros
+DisplayName: en|Caudalimetros
+Description: en|Caudalimetros
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

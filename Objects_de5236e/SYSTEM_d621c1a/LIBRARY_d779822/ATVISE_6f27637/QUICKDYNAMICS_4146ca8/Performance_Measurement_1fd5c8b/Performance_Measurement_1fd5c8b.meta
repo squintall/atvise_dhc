@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Performance Measurement
+NodeClass: Variable
+BrowseName: 1:Performance Measurement
+DisplayName: en|Performance Measurement
+Description: en|Performance Measurement
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

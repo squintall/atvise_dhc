@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.hmi.accesscontrol
+NodeClass: Variable
+BrowseName: 1:accesscontrol
+DisplayName: en|accesscontrol
+Description: en|accesscontrol
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the report edit_dialog object display
+ * -------------------------------------------
+ * This display creates or edits report configurations.
+ *
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var divider = ",";
+var isNew = true;
+var baseDir = "AGENT.OBJECTS.ATVISE.Report";
+var statusnode = baseDir + ".schedulerLog";
+var locked = false;
+var configuration_limit = 100;
+var configuration_name = webMI.query.configuration;
+var configuration = {};
+configuration.name = "";
+configuration.cycleTime = {};
+configuration.cycleOffset = 0;
+configuration.locale = "";
+configuration.startWorksheet = 0;
+configuration.endWorksheet = 0;
+configuration.email = {};
+configuration.email.active = false;
+configuration.email.attachment = [];
+configuration.email.smtp = "";
+configuration.email.from = "";
+configuration.email.to = [];
+configuration.email.cc = [];
+configuration.email.bcc = [];
+configuration.email.subject = "";
+configuration.email.body = "";
+
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager = false;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * RUNTIME SECTION
+ */
+ 
+accessControlManager.clearRightsStorage([baseDir, statusnode]);
+
+//get status and lock save button if more than maximal allowed configurations were found
+if(webMI.getAccessControlSupport() && accessControlManager) {
+	lockInputs(true);
+	webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+	accessControlManager.getRights(statusnode, (response) => {
+		if (response.result[0].rights.read) {
+			webMI.data.read(statusnode, function(e) {
+				if (e.value) {
+					var status = JSON.parse(e.value);
+					if (status.count > configuration_limit) {
+						locked = true;
+						setMessage("T{Error}: T{Maximal number of report configurations reached.} T{Limit}: " + configuration_limit, true);
+						webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+					}
+				} else {
+					locked = true;
+					setMessage("T{Error}: T{Cannot read mandatory status node.}", true);
+					webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+				}
+			});
+		} else {
+			locked = true;
+			setMessage("T{Error}: T{Cannot read mandatory status node.}", true);
+			webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+		}
+	});
+}
+
+//read configuration if specified
+if (typeof configuration_name != "undefined" && configuration_name != "") {
+	isNew = false;
+	webMI.trigger.fire("com.atvise.setActive", false, "configuration_input");
+	webMI.trigger.fire("com.atvise.setActive", false, "group_input");
+
+	webMI.data.call("ReportReadConfiguration", {configuration: configuration_name}, function(cfg) {
+		if (cfg.error) {
+			if (cfg.errorstring)
+				setMessage("T{Error}: " + cfg.errorstring, true);
+			else
+				setMessage("T{Error}: Unknown error");
+		} else {
+			configuration = cfg;
+			setValues();
+		}
+	});
+	
+	if(webMI.getAccessControlSupport() && accessControlManager) {
+		accessControlManager.getRights(baseDir + "." + configuration_name, (response) => {
+			if (!response.result[0].rights.engineer)
+				webMI.trigger.fire("com.atvise.setActive", false, "delete_button");
+		});
+	}
+} else {
+	webMI.trigger.fire("setValue", "", "group_input");
+	webMI.trigger.fire("setChecked", false, "weekdays_0");
+	webMI.trigger.fire("setChecked", false, "weekdays_1");
+	webMI.trigger.fire("setChecked", false, "weekdays_2");
+	webMI.trigger.fire("setChecked", false, "weekdays_3");
+	webMI.trigger.fire("setChecked", false, "weekdays_4");
+	webMI.trigger.fire("setChecked", false, "weekdays_5");
+	webMI.trigger.fire("setChecked", false, "weekdays_6");
+	webMI.trigger.fire("com.atvise.setActive", false, "delete_button");
+	webMI.trigger.fire("com.atvise.setActive", false, "ws_start_input");
+	webMI.trigger.fire("com.atvise.setActive", false, "ws_end_input");
+	webMI.trigger.fire("setValue", configuration.startWorksheet, "ws_start_input");
+	webMI.trigger.fire("setValue", configuration.endWorksheet, "ws_end_input");
+	webMI.trigger.fire("setChecked", false, "email_toggle");
+	webMI.trigger.fire("setChecked", false, "email_xlsx");
+	webMI.trigger.fire("setChecked", false, "email_pdf");
+	webMI.trigger.fire("setChecked", false, "email_html");
+}
+
+/**
+ * FUNCTION SECTION
+ */
+ 
+function lockInputs(bool) {
+	webMI.trigger.fire("com.atvise.setActive", !bool, "minutes_input");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "hours_input");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "days_input");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "months_input");
+
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_0");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_1");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_2");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_3");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_4");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_5");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "weekdays_6");
+
+	webMI.trigger.fire("com.atvise.setActive", !bool, "offset_input");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "locale_input");
+
+	webMI.trigger.fire("com.atvise.setActive", !bool, "template_input");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "xlsx_input");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "pdf_input");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "html_input");
+
+	webMI.trigger.fire("com.atvise.setActive", !bool, "ws_all_input");
+	if (bool && (configuration.startWorksheet != 0 || configuration.endWorksheet != 0)) {
+		webMI.trigger.fire("com.atvise.setActive", true, "ws_start_input");
+		webMI.trigger.fire("com.atvise.setActive", true, "ws_end_input");
+	} else {
+		webMI.trigger.fire("com.atvise.setActive", false, "ws_start_input");
+		webMI.trigger.fire("com.atvise.setActive", false, "ws_end_input");
+	}
+
+	webMI.trigger.fire("com.atvise.setActive", !bool, "metascript_input");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "metascript_parameters_input");
+	
+	webMI.trigger.fire("com.atvise.setActive", !bool, "email_toggle");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "email_settings");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "email_xlsx");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "email_pdf");
+	webMI.trigger.fire("com.atvise.setActive", !bool, "email_html");
+}
+
+function setValues() {
+	var name = configuration.name.substring(configuration.name.lastIndexOf(".") + 1, configuration.name.length);
+	var group = configuration.name.substring(0, configuration.name.lastIndexOf("."));
+
+	if (typeof configuration.cycleTime != "object") configuration.cycleTime = {};
+	if (!configuration.cycleTime.minutes) configuration.cycleTime.minutes = [];
+	if (!configuration.cycleTime.hours) configuration.cycleTime.hours = [];
+	if (!configuration.cycleTime.daysOfMonth) configuration.cycleTime.daysOfMonth = [];
+	if (!configuration.cycleTime.months) configuration.cycleTime.months = [];
+	if (!configuration.cycleTime.daysOfWeek) configuration.cycleTime.daysOfWeek = [];
+	
+	if (typeof configuration.active == "undefined") configuration.active = true;
+	if (!configuration.locale) configuration.locale = "";
+	if (!configuration.template) configuration.template = "";
+	if (!configuration.xlsxReport) configuration.xlsxReport = "";
+	if (!configuration.pdfReport) configuration.pdfReport = "";
+	if (!configuration.htmlReport) configuration.htmlReport = "";
+	if (!configuration.metaScript) configuration.metaScript = "";
+	if (!configuration.scriptParameter) configuration.scriptParameter = "";
+	if (!configuration.startWorksheet) configuration.startWorksheet = 0;
+	if (!configuration.endWorksheet) configuration.endWorksheet = 0;
+	
+	if (typeof configuration.email != "object") configuration.email = {};
+	if (!configuration.email.active) configuration.email.active = false;
+	if (!configuration.email.attachment) configuration.email.attachment = [];
+	if (!configuration.email.smtp) configuration.email.smtp = "";
+	if (!configuration.email.from) configuration.email.from = "";
+	if (!configuration.email.to) configuration.email.to = [];
+	if (!configuration.email.cc) configuration.email.cc = [];
+	if (!configuration.email.bcc) configuration.email.bcc = [];
+	if (!configuration.email.subject) configuration.email.subject = "";
+	if (!configuration.email.body) configuration.email.body = "";
+	
+	if (typeof configuration.cycleOffset == "undefined" || configuration.cycleOffset === "")
+		configuration.cycleOffset = 0;
+
+	webMI.trigger.fire("setValue", name, "configuration_input");
+	webMI.trigger.fire("setValue", group, "group_input");
+	
+	webMI.trigger.fire("setValue", configuration.cycleTime.minutes, "minutes_input");
+	webMI.trigger.fire("setValue", configuration.cycleTime.hours, "hours_input");
+	webMI.trigger.fire("setValue", configuration.cycleTime.daysOfMonth, "days_input");
+	webMI.trigger.fire("setValue", configuration.cycleTime.months, "months_input");
+
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(0) > -1, "weekdays_0");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(1) > -1, "weekdays_1");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(2) > -1, "weekdays_2");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(3) > -1, "weekdays_3");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(4) > -1, "weekdays_4");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(5) > -1, "weekdays_5");
+	webMI.trigger.fire("setChecked", configuration.cycleTime.daysOfWeek.indexOf(6) > -1, "weekdays_6");
+
+	webMI.trigger.fire("setValue", configuration.cycleOffset, "offset_input");
+
+	webMI.trigger.fire("setValue", configuration.locale, "locale_input");
+	webMI.trigger.fire("setValue", configuration.template, "template_input");
+	webMI.trigger.fire("setValue", configuration.xlsxReport, "xlsx_input");
+	webMI.trigger.fire("setValue", configuration.pdfReport, "pdf_input");
+	webMI.trigger.fire("setValue", configuration.htmlReport, "html_input");
+	webMI.trigger.fire("setValue", configuration.metaScript, "metascript_input");
+	webMI.trigger.fire("setValue", configuration.scriptParameter, "metascript_parameters_input");
+
+	webMI.trigger.fire("setValue", configuration.startWorksheet, "ws_start_input");
+	webMI.trigger.fire("setValue", configuration.endWorksheet, "ws_end_input");
+		
+	if (configuration.startWorksheet == 0 && configuration.endWorksheet == 0) {
+		webMI.trigger.fire("setChecked", true, "ws_all_input");
+		webMI.trigger.fire("com.atvise.setActive", false, "ws_start_input");
+		webMI.trigger.fire("com.atvise.setActive", false, "ws_end_input");
+	} else {
+		webMI.trigger.fire("setChecked", false, "ws_all_input");
+	}
+	
+	webMI.trigger.fire("setChecked", configuration.email.active, "email_toggle");
+	webMI.trigger.fire("setChecked", configuration.email.attachment.indexOf("xlsx") > -1, "email_xlsx");
+	webMI.trigger.fire("setChecked", configuration.email.attachment.indexOf("pdf") > -1, "email_pdf");
+	webMI.trigger.fire("setChecked", configuration.email.attachment.indexOf("html") > -1, "email_html");
+	
+	if (configuration.advanced) {
+		locked = true;
+		webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+	}
+}
+
+function setMessage(msg, error) {
+	if (typeof msg == "undefined")
+		msg = "";
+
+	if (error)
+		webMI.gfx.setFill("message", "#FF0000");
+	else 
+		webMI.gfx.setFill("message", "#00BB30");
+	
+	webMI.gfx.setText("message", msg);
+}
+
+setMessage();
+
+function handleNameChange() {
+	if (locked)
+		return;
+
+	if (configuration.name[configuration.name.length-1] == ".") {
+		setMessage("T{Error}: T{Name is empty or invalid.}", true);
+		webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+		return;
+	}
+	
+	function fillInputs() {
+		if (isNew) {
+			webMI.trigger.fire("setValue", "./" + configuration.name + "_template.xlsx" , "template_input");
+			webMI.trigger.fire("setValue", "./" + configuration.name + "_report_{YYYY}-{MM}-{DD}_{hh}-{mm}.xlsx", "xlsx_input");
+			webMI.trigger.fire("setValue", "./" + configuration.name + "_report_{YYYY}-{MM}-{DD}_{hh}-{mm}.pdf", "pdf_input");
+			webMI.trigger.fire("setValue", "./" + configuration.name + "_report_{YYYY}-{MM}-{DD}_{hh}-{mm}.html", "html_input");
+		}
+	} 
+
+	if (webMI.getAccessControlSupport() && accessControlManager) {
+		var config = baseDir + "." + configuration.name;
+		setMessage();
+		
+		if (isNew) {
+			var path = config.substring(0, config.lastIndexOf("."));
+			accessControlManager.getRights([config, path], (response) => {
+				var active = true;
+				if (!response.result[1].rights.engineer) {
+					setMessage("T{Error}: T{Group folder doesn't exist or permission is missing.}", true);
+					active = false;
+				}
+				
+				if (response.result[0].rights.engineer) {
+					setMessage("T{Error}: T{Configuration already exist.}", true);
+					active = false;
+				}
+
+				lockInputs(!active);
+				webMI.trigger.fire("com.atvise.setActive", active, "save_button");
+				
+				if (active) fillInputs();
+			});
+		} else {
+			accessControlManager.getRights(config, (response) => {
+				var active = true;
+				if (!response.result[0].rights.write) {
+					setMessage("T{Error}: T{No permission to write configuration node.}", true);
+					active = false;
+				}
+
+				lockInputs(!active);
+				webMI.trigger.fire("com.atvise.setActive", active, "save_button");
+			});	
+		}
+	} else {
+		fillInputs();
+	}
+}
+
+function handleWeekydays(weekday, active) {
+	var active = active == "true" ? true : false;
+	
+	if (typeof configuration.cycleTime != "object")
+		return;
+	
+	if (typeof configuration.cycleTime.daysOfWeek == "undefined")
+		configuration.cycleTime.daysOfWeek = [];
+
+	var index = configuration.cycleTime.daysOfWeek.indexOf(weekday);
+
+	if (active && index == -1) {
+		configuration.cycleTime.daysOfWeek.push(weekday);
+	} else if (!active && index > -1) {
+		configuration.cycleTime.daysOfWeek.splice(index, 1)
+	}
+	
+	configuration.cycleTime.daysOfWeek.sort();
+}
+
+/**
+ * TRIGGERS
+ */
+
+webMI.trigger.connect("valuechanged", function (e) {
+	var name = configuration.name.substring(configuration.name.lastIndexOf(".") + 1, configuration.name.length);
+	if (e.value) {	
+		configuration.name = e.value.replace(baseDir + ".", "") + "." + name;
+	} else {
+		configuration.name = name;
+	}
+	handleNameChange();
+},"group_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	if (e.value.indexOf(".") > -1) {
+		setMessage("T{Error}: T{Name is empty or invalid.}", true);
+		webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+		return;
+	}
+
+	var group = configuration.name.substring(0, configuration.name.lastIndexOf("."));
+	if (group)
+		configuration.name = group + "." + e.value;
+	else
+		configuration.name = e.value;
+
+	handleNameChange();
+},"configuration_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.cycleTime.minutes = e.value.split(divider);
+},"minutes_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.cycleTime.hours = e.value.split(divider);
+},"hours_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.cycleTime.daysOfMonth = e.value.split(divider);
+},"days_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.cycleTime.months = e.value.split(divider);
+},"months_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(0, e.value);
+},"weekdays_0");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(1, e.value);
+},"weekdays_1");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(2, e.value);
+},"weekdays_2");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(3, e.value);
+},"weekdays_3");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(4, e.value);
+},"weekdays_4");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(5, e.value);
+},"weekdays_5");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	handleWeekydays(6, e.value);
+},"weekdays_6");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.cycleOffset = e.value;
+},"offset_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.locale = e.value;
+},"locale_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.template = e.value.replaceAll("\\","\\\\").replaceAll("\\\\\\\\","\\\\");
+},"template_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.xlsxReport = e.value.replaceAll("\\","\\\\").replaceAll("\\\\\\\\","\\\\");
+},"xlsx_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.pdfReport = e.value.replaceAll("\\","\\\\").replaceAll("\\\\\\\\","\\\\");
+},"pdf_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.htmlReport = e.value.replaceAll("\\","\\\\").replaceAll("\\\\\\\\","\\\\");
+},"html_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.metaScript = e.value;
+},"metascript_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.scriptParameter = e.value;
+},"metascript_parameters_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	var all = e.value == "true" ? true : false;
+	webMI.trigger.fire("com.atvise.setActive", !all, "ws_start_input");
+	webMI.trigger.fire("com.atvise.setActive", !all, "ws_end_input");
+
+	if (all) {
+		webMI.trigger.fire("setValue", 0, "ws_start_input");
+		webMI.trigger.fire("setValue", 0, "ws_end_input");
+	} else {
+		if (configuration.startWorksheet == 0)
+			webMI.trigger.fire("setValue", 1, "ws_start_input");
+		if (configuration.endWorksheet == 0)
+			webMI.trigger.fire("setValue", 1, "ws_end_input");
+	}
+},"ws_all_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.startWorksheet = e.value;
+},"ws_start_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.endWorksheet = e.value;
+},"ws_end_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	configuration.email.active = e.value == "true";
+},"email_toggle");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	var value = e.value == "true";
+	var index = configuration.email.attachment.indexOf("xlsx");
+	if (value && index == -1) {
+		configuration.email.attachment.push("xlsx");
+	} else if (!value && index > -1) {
+		configuration.email.attachment.splice(index, 1);
+	}
+},"email_xlsx");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	var value = e.value == "true";
+	var index = configuration.email.attachment.indexOf("pdf");
+	if (value && index == -1) {
+		configuration.email.attachment.push("pdf");
+	} else if (!value && index > -1) {
+		configuration.email.attachment.splice(index, 1);
+	}
+},"email_pdf");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	var value = e.value == "true";
+	var index = configuration.email.attachment.indexOf("html");
+	if (value && index == -1) {
+		configuration.email.attachment.push("html");
+	} else if (!value && index > -1) {
+		configuration.email.attachment.splice(index, 1);
+	}
+},"email_html");
+
+webMI.trigger.connect("clicked", function() {
+	var attachment = [];
+	
+	function getFilename (file) {
+		if(file.indexOf("\\") > -1)
+			file = file.substring(file.lastIndexOf("\\")+1,file.length);
+		else if(file.indexOf("/") > -1)
+			file = file.substring(file.lastIndexOf("/")+1,file.length);
+			
+		return file;
+	}
+	
+	if(configuration.email.attachment.indexOf("xlsx") > -1) {
+		attachment.push({
+			type: "SMTPClient.A_FILE",
+			name: getFilename(configuration.xlsxReport),
+			content_type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+			file_path: configuration.xlsxReport,
+			inline: false,
+			is_encoded: false
+		})
+	}
+
+	if(configuration.email.attachment.indexOf("pdf") > -1) {
+		attachment.push({
+			type: "SMTPClient.A_FILE",
+			name: getFilename(configuration.pdfReport),
+			content_type: "application/pdf",
+			file_path: configuration.pdfReport,
+			inline: false,
+			is_encoded: false
+		})
+	}
+
+	if(configuration.email.attachment.indexOf("html") > -1) {
+		attachment.push({
+			type: "SMTPClient.A_FILE",
+			name: getFilename(configuration.htmlReport),
+			content_type: "text/html",
+			file_path: configuration.htmlReport,
+			inline: false,
+			is_encoded: false
+		})
+	}
+
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.email_dialog",
+		extern: false,
+		width: 1200,
+		height: 600 + 20,
+		menubar: false,
+		modal: true,
+		movable: true,
+		resizable: true,
+		scrollbars: false,
+		status: false,
+		title: "T{E-mail settings}",
+		toolbar: false,
+		query: {
+			name: "com.atvise.report.email_dialog",
+			info: "T{Available placeholders for subject, message and attachment inputs}:\n\n{name},{locale},{YYYY},{YY},{MM},{DD},{hh},{mm},{ss}",
+			active: configuration.email.active,
+			smtp: "T{Specified by global settings}",
+			from: "T{Specified by global settings}",
+			to: configuration.email.to,
+			cc: configuration.email.cc,
+			bcc: configuration.email.bcc,
+			subject: configuration.email.subject,
+			body: configuration.email.body,
+			attachment: JSON.stringify(attachment),
+			contenttype: "text/plain; charset=utf-8",
+			editable_smtp: "No",
+			editable_from: "No",
+			editable_attachment: "No",
+			editable_reply: "No",
+			editable_contenttype: "No",
+			editable_encoding: "No",
+			editable_custom: "No"
+		}
+	});
+}, "email_settings");
+
+webMI.trigger.connect("valuechanged_" + "com.atvise.report.email_dialog", function (e) {
+	function transformToArray(string) {
+		return string.split(" ").join(',').split(';').join(',').split(',');
+	}
+
+	var ret = e.value;
+	configuration.email.active = ret.active;
+	configuration.email.to = transformToArray(ret.to);
+	configuration.email.cc = transformToArray(ret.cc);
+	configuration.email.bcc = transformToArray(ret.bcc);
+	configuration.email.subject = ret.subject;
+	configuration.email.body = ret.body;
+	setValues();
+
+	setMessage("T{E-mail settings changed}. T{Please save to apply}.");
+});
+
+webMI.trigger.connect("clicked", function() {
+	webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+	setMessage();
+
+	webMI.data.call("ReportWriteConfiguration", {configuration: JSON.stringify(configuration)}, function(e) {
+		if (e.error) {
+			if (e.errorstring)
+				setMessage("T{Error}: " + e.errorstring, true);
+			else
+				setMessage("T{Error}: T{Unknown error}", true);
+		} else {
+			setMessage("T{Configuration saved.}");
+			webMI.trigger.fire("com.atvise.ReportManager.refreshList");
+			webMI.display.closeWindow();
+		}
+		
+		webMI.trigger.fire("com.atvise.setActive", true, "save_button");
+	});
+}, "save_button");
+
+webMI.trigger.connect("clicked", function () {
+	webMI.display.closeWindow();
+},"cancel_button");]]></code>
+</script>

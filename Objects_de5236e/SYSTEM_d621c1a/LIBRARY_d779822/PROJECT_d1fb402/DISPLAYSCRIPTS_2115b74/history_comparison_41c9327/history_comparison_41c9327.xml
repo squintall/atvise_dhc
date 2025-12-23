@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var node;
+var highchartConfig;
+var timeStamp1;
+var timeStamp2;
+var unittime;
+var Yscale = 0;
+var unit = (webMI.query["unit"])?webMI.query["unit"]:"T{hour(s)}";
+var span = (parseInt(webMI.query["span"]))?parseInt(webMI.query["span"]):1;
+Yscale = (webMI.query["Yscale"]=="1 T{axis}")?0:1;
+node = (webMI.query["Node"])?webMI.query["Node"]:"";
+webMI.addOnload(function(e) {
+var id = "highchartsForeignObject";
+var value = true;
+return function(value) {
+	webMI.trigger.fire("setValue", node, "node");
+	webMI.trigger.fire("setValue", span, "span");
+	webMI.trigger.fire("setSelectedItem", unit, "unit");
+	timeStamp1 = new Date().getTime() - 7200000;
+	webMI.trigger.fire("com.atvise.datepicker_start1",timeStamp1);
+	timeStamp2 = new Date().getTime() - 3600000;
+	webMI.trigger.fire("com.atvise.datepicker_start2",timeStamp2);
+	var topWindow = parent;
+	if(topWindow.Highcharts == undefined){
+		webMI.data.loadScript("/highcharts/highcharts.js",function(url, alreadyLoaded){
+			webMI.data.loadScript("/highcharts/modules/exporting.js",function(url, alreadyLoaded){
+				webMI.data.loadScript("/highcharts/themes/grid-light.js",function(){
+					initChart();
+				});
+			});	
+		});	
+	}
+	else{
+		initChart();		
+	}
+	function initChart(){
+		topWindow.Highcharts.setOptions({
+			global: {
+				useUTC: false
+			},
+		});
+		var element = document.getElementById('highcharts_container');
+	}
+} (value);
+});
+webMI.gfx.setScaledEvents("highcharts_container");
+
+function setchart(){
+	var data = [];
+	var data2 = [];
+	var filter = {};
+	filter.type = ["v:1"];
+	filter.address = ["v:"+node];
+	filter.numrows = ["v:10000"];
+	var topWindow = parent;
+	topWindow.Highcharts.setOptions({
+		global: {
+			useUTC: false
+		}
+	});
+	webMI.gfx.setVisible("txt", false);
+	var from = timeStamp1;
+	var to = from + span*unittime; 
+	filter.timestamp = ["n:>=" + from + "<" + to];
+	webMI.data.queryFilter(filter, function(e) {	
+		for (i = 0; i < e.result.length; i++) {
+			entry = [];
+			entry[0] = (parseInt(e.result[i].timestamp)-timeStamp1);
+			entry[1] = (e.result[i].value);
+			data.push(entry);			
+		}
+		data = data.reverse();
+		var from = timeStamp2;
+		var to = from + span*unittime; 
+		filter.timestamp = ["n:>=" + from + "<" + to];
+		webMI.data.queryFilter(filter, function(e) {
+			for (i = 0; i < e.result.length; i++) {
+				entry = [];
+				entry[0] = (parseInt(e.result[i].timestamp)-timeStamp2);
+				entry[1] = (e.result[i].value);
+				data2.push(entry);
+			}
+			data2 = data2.reverse();
+			var conf = {};
+			var length = span*unittime;
+			conf.series = [
+				{
+					name: "T{Start time} 1",
+					data: data,
+					starttime: timeStamp1
+				},
+				{
+					name: "T{Start time} 2",
+					data: data2,
+					starttime: timeStamp2,
+					yAxis: Yscale
+					
+				},
+			];
+			if(Yscale == 0){
+				conf.yAxis = [{
+					title: { text: 'Data 1' },
+				}];
+			}else{
+				conf.yAxis = [{
+					title: { text: 'Data 1' },
+					},{
+					title: { text: 'Data 2' },
+					opposite: true,
+				}];
+			}
+			
+			conf.xAxis = [{
+				crosshair: true,
+				labels: {
+					enabled: false
+				},
+				min: 0,
+				max: length
+			}];
+
+			conf.tooltip = {
+				formatter: function () {
+					return this.points.reduce(function (s, point) {
+						function datetime(el){
+							var date = new Date(el);
+							var dateformat = preNull(date.getDate())+"/"+preNull((date.getMonth()+1))+"/"+date.getFullYear()+" "+preNull(date.getHours())+":"+preNull(date.getMinutes())+":"+preNull(date.getSeconds());
+							return dateformat;
+						}
+						return s+'<br/><span style="color:'+point.series.color+';font-size:18px;">' + point.series.name + '</span><br/>T{Value}: ' + point.y + '<br/>T{Date}: '+datetime(point.series.userOptions.starttime+point.key)+'<br/>';
+					}, '<b>T{ }</b>');
+				},
+				style: {
+					fontSize: '15px',
+					fontWeight: 'bold'
+				},
+				shared: true,
+				backgroundColor: '#e5e5e5'
+			};
+
+			highchartConfig = conf;
+			var topWindow = parent;
+			topWindow.Highcharts.setOptions({
+				global: {
+					useUTC: false
+				},
+				chart: {
+					zoomType: 'x',
+					backgroundColor: 'white',				
+				},
+				title: {
+					text: 'T{History comparison}'
+				},
+				legend: {
+					itemStyle: {
+						fontSize: '20px'
+					}
+				},
+				plotOptions: {
+					series:
+					{
+					   turboThreshold:100000
+					}
+                },
+                credits: {
+					 enabled: false
+				},
+				
+			});		
+			var element = document.getElementById('highcharts_container');
+			myChart = topWindow.Highcharts.chart(element, highchartConfig);
+		});
+	});
+};
+
+
+webMI.trigger.connect("valuechanged", function(e) { 
+    timeStamp1 = e.value;
+}, "start1");
+
+webMI.trigger.connect("valuechanged", function(e) { 
+    timeStamp2 = e.value;
+}, "start2");
+
+webMI.trigger.connect("valuechanged", function(e) { 
+    unit = e.value;
+    switch(unit) {
+		case "1":
+			unittime = 1000;
+			break;
+		case "2":
+			unittime = 60*1000;
+			break;
+		case "3":
+			unittime = 60*60*1000;
+			break;
+		case "4":
+			unittime = 24*60*60*1000;
+			break;
+	}
+}, "unit");
+
+webMI.trigger.connect("valuechanged", function(e) { 
+    span = parseInt(e.value);
+}, "span");
+
+webMI.trigger.connect("valuechanged", function(e) { 
+    node = e.value;
+}, "node");
+
+webMI.addEvent("filter", "mouseover", function(e) {
+	var id = "filter";
+	var value = true;
+	return function(value) {
+		document.getElementById(id).style.cursor = "pointer";
+	} (value);
+});
+webMI.addEvent("filter", ["click","touchstart"], function(e) {
+	var id = "filter";
+	var value = true;
+	return function(value) {
+		if(timeStamp1 && timeStamp2 && unittime && span>0 ){
+			if(node){			
+				setchart();
+			}else{
+				alert('T{Please define node Address.}');				
+			}
+		}else{
+			alert('T{Please enter data in all fields.}');	
+		}
+	} (value);
+});
+
+function preNull(value) {
+	return (value < 10) ? "0" + value : value;
+}]]></code>
+</script>

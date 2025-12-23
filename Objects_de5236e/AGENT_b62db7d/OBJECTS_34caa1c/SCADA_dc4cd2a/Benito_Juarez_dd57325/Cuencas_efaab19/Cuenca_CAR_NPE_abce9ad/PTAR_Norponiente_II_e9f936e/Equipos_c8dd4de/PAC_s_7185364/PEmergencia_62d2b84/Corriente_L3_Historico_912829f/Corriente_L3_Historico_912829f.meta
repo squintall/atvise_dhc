@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.PTAR_Norponiente_II.Equipos.PAC´s.PEmergencia.Corriente_L3_Historico
+NodeClass: Variable
+BrowseName: 1:Corriente_L3_Historico
+DisplayName: en|Corriente_L3_Historico
+Description: en|Corriente_L3_Historico
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AR

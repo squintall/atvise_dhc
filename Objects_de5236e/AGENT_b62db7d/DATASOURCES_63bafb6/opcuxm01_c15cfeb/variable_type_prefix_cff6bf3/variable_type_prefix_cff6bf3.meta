@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.opcuxm01.variable_type_prefix
+NodeClass: Variable
+BrowseName: 1:variable_type_prefix
+DisplayName: en|variable_type_prefix
+Description: en|variable_type_prefix
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/Alarm_sounds/mixkit-alarm-clock-beep-988.wav
+NodeClass: Variable
+BrowseName: 1:mixkit-alarm-clock-beep-988.wav
+DisplayName: en|mixkit-alarm-clock-beep-988.wav
+Description: en|mixkit-alarm-clock-beep-988.wav
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Wave

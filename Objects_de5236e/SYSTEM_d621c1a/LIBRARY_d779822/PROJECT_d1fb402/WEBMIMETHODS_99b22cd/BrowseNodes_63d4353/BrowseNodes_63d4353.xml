@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var startAddress = request.postvalues.startAddress;
+var endLevel = 0;
+var vTypes = request.postvalues.vTypes;
+var mapping = request.postvalues.mapping;
+var includeStartAddress = false;
+
+if (request.postvalues.endLevel)
+	endLevel = isNaN(Number(request.postvalues.endLevel)) ? 0 : Number(request.postvalues.endLevel);
+
+if (request.postvalues.includeStartAddress)
+	includeStartAddress = (request.postvalues.includeStartAddress == "true");
+
+return call("Utilities.BrowseNodes", {
+	"startAddress": startAddress,
+	"endLevel": endLevel,
+	"vTypes": vTypes,
+	"mapping": mapping,
+	"includeStartAddress": includeStartAddress
+});]]></code>
+</script>

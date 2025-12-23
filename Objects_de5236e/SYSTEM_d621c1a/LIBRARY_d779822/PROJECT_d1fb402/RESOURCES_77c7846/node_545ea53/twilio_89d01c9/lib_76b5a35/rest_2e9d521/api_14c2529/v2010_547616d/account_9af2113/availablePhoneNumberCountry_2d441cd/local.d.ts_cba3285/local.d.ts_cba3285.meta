@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/api/v2010/account/availablePhoneNumberCountry/local.d.ts
+NodeClass: Variable
+BrowseName: 1:local.d.ts
+DisplayName: en|local.d.ts
+Description: en|local.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

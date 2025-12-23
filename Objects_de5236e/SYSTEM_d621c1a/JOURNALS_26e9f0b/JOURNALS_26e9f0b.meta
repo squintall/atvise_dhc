@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.JOURNALS
+NodeClass: Object
+BrowseName: 1:JOURNALS
+DisplayName: en|JOURNALS
+Description: en|JOURNALS
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

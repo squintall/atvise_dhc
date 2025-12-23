@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Circuito.Monitoreo_IT
+NodeClass: Variable
+BrowseName: 1:Monitoreo_IT
+DisplayName: en|Monitoreo_IT
+Description: en|Monitoreo_IT
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

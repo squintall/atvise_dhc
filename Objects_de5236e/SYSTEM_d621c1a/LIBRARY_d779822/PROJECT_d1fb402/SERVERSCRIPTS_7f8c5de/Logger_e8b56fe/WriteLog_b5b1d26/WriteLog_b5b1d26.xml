@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <runcontext>owner</runcontext>
+  </metadata>
+  <parameter name="group" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="subgroup" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="label" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="message" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="user" type="session.user" trigger="false" relative="false" value=""/>
+  <parameter name="status" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="comment" type="string" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* begin */
+
+/**
+ * Define some vars from parameter
+ * and set default nodes for runtime
+ * @type {string}
+ */
+var logGroup = _validate(group) ? group : "atvise";
+var logSubgroup = _validate(subgroup) ? subgroup : "Error";
+var logLabel = _validate(label) ? label : "undefined";
+var logMessage = _validate(message) ? message : "";
+var logUser = _validate(user) ? user : "";
+var logStatus = _validate(status) ? status : "new";
+var logComment = _validate(comment) ? comment : "";
+
+var nodes = {
+	"root": "AGENT.OBJECTS",
+	"base": "AGENT.OBJECTS.ATVISE.Logger",
+	"group": "AGENT.OBJECTS.ATVISE.Logger" + "." + logGroup,
+	"subgroup": "AGENT.OBJECTS.ATVISE.Logger" + "." + logGroup + "." + logSubgroup
+}
+
+
+/**
+ * evaluate security settings for script caller
+ * find permission node, get permission settings
+ */
+var caller = script.caller;
+var utils = call("AccessControl.Configuration", {});
+
+var security = {
+	"Read": false,
+	"Write": false,
+	"Engineer": false
+}
+
+var permissionOrder = ["subgroup", "group", "base", "root"];
+var permissionAddr = false;
+var permissionNode = false
+
+while (permissionOrder && !permissionAddr) {
+	var searchAddress = nodes[permissionOrder.shift()];
+	var searchNode = Ua.findNode(searchAddress);
+	var searchNodeExist = Ua.Status(searchNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (searchNodeExist) {
+		permissionAddr = searchAddress;
+		permissionNode = searchNode;
+	}
+}
+
+var permissions = utils.getRuntimePermissionsForNode(permissionAddr);
+var permissionsForUser;
+
+if (caller && permissions && permissions.users)
+	permissionsForUser = permissions.users[caller];
+else if(permissions && permissions.groups)
+	permissionsForUser = permissions.groups["Anonymous"];
+
+if (permissions && permissionsForUser) {
+	if (permissionsForUser["read"])
+		security.Read = true;
+	if (permissionsForUser["write"])
+		security.Write = true;
+	if (permissionsForUser["engineer"])
+		security.Engineer = true;
+}
+
+
+/**
+ * determine timestamp and reference id
+ * and create log object
+ */
+var occurance = Date.now();
+var reference = occurance + "-" + Math.floor(Math.random() * 8999 + 1000);
+
+var logObject = {};
+logObject.group = logGroup;
+logObject.subgroup = logSubgroup;
+logObject.label = logLabel;
+logObject.message = logMessage;
+logObject.reference = reference;
+logObject.event = [{
+	"occurance": occurance,
+	"user": logUser,
+	"status": logStatus,
+	"comment": logComment
+}];
+
+
+/**
+ * setup environment
+ * define default nodes always to be created
+ * get archive node
+ * setup default nodes
+ */
+var defaultCreateNodeList = {
+	"AGENT.OBJECTS.ATVISE": {folder: true, archive: false},
+	"AGENT.OBJECTS.ATVISE.Logger": {folder: false, archive: false},
+	"AGENT.OBJECTS.ATVISE.Logger.atvise": {folder: false, archive: false},
+	"AGENT.OBJECTS.ATVISE.Logger.atvise.Info": {folder: false, archive: true},
+	"AGENT.OBJECTS.ATVISE.Logger.atvise.Warning": {folder: false, archive: true},
+	"AGENT.OBJECTS.ATVISE.Logger.atvise.Error": {folder: false, archive: true},
+	"AGENT.OBJECTS.ATVISE.Status": {folder: false, archive: false}
+}
+
+var archiveNode = call("Logger.GetArchive", {})["atvLogger"]["name"];
+
+for (var key in defaultCreateNodeList) {
+	if (!checkNodeExists[defaultCreateNodeList[key]]) {
+		if (defaultCreateNodeList[key].folder) {
+			_createFolder(key, "OBJECT", "i=61", "FOLDERTYPE");
+		} else if (defaultCreateNodeList[key].archive) {
+			_createNode(key, "VARIABLE", "i=62", "STRING", "", archiveNode);
+		} else {
+			_createNode(key, "VARIABLE", "i=62", "STRING", "", "");
+		}
+	}
+}
+
+
+/**
+ * setup group and subgroup node.
+ * this part requires Engineer right!
+ * so, make sure the caller has the proper right otherwise creating the nodes is not permitted!
+ */
+var securityError = false
+
+if (!checkNodeExists(nodes.group)) {
+	if (security.Engineer) {
+		_createNode(nodes.group, "VARIABLE", "i=62", "STRING", "");
+	} else {
+		securityError = true;
+	}
+}
+
+if (!securityError && !checkNodeExists(nodes.subgroup)) {
+	if (security.Engineer) {
+		_createNode(nodes.subgroup, "VARIABLE", "i=62", "STRING", "", archiveNode);
+	} else {
+		securityError = true;
+	}
+}
+
+if (securityError) {
+	console.warn("Logger: " + (caller ? caller : "Anonymous") + " is not allowed to write to the " + nodes.subgroup + " node!");
+	return false;
+}
+
+
+/**
+ * write to log to subgroup node
+ * this part requires Wright right!
+ * so, make sure the caller has the proper right otherwise writing to the node is not permitted!
+ */
+if (logStatus != "atvCreateNodeMode") {
+	if (security.Write) {
+		var now = Date.now();
+		var wait = Date.now() + (checkNodeExists[nodes.subgroup] ? 0 : 50);
+
+		while (now < wait) {
+			now = Date.now();
+		}
+
+		var writeNode = Ua.findNode(nodes.subgroup);
+		writeNode.result.value = JSON.stringify(logObject);
+	} else {
+		console.warn("Logger: " + (caller ? caller : "Anonymous") + " is not allowed to write to the " + nodes.subgroup + " node!");
+		return false;
+	}
+}
+
+return true;
+
+
+/**
+ * Check if node exists
+ * @param searchAddress
+ * @returns {boolean}
+ */
+function checkNodeExists(searchAddress) {
+	var searchNode = Ua.findNode(searchAddress);
+	var searchNodeExist = Ua.Status(searchNode) != Ua.Status.BADNODEIDUNKNOWN;
+	return searchNodeExist;
+}
+
+
+/**
+ * create a folder node
+ * @param address
+ * @param nodeClass
+ * @param typeDefinition
+ * @param dataType
+ * @param value
+ */
+function _createFolder(address, nodeClass, typeDefinition, dataType, value) {
+	Ua.createNode(address, {
+		"nodeClass": Ua.NodeClass[nodeClass],
+		"parent": address.substring(0, address.lastIndexOf('.')),
+		"typeDefinition": typeDefinition,
+	});
+}
+
+
+/**
+ * create a node with optional archiv reference
+ * @param address
+ * @param nodeClass
+ * @param typeDefinition
+ * @param dataType
+ * @param value
+ * @param archiveNode
+ */
+function _createNode(address, nodeClass, typeDefinition, dataType, value, archiveNode) {
+	if (address == "AGENT.OBJECTS.ATVISE.Status") {
+		value = Date.now();
+	}
+
+	Ua.createNode(address, {
+		"nodeClass": Ua.NodeClass[nodeClass],
+		"parent": address.substring(0, address.lastIndexOf('.')),
+		"typeDefinition": typeDefinition,
+		"dataType": Ua.DataType[dataType],
+		"value": value
+	});
+
+	if (address != "AGENT.OBJECTS.ATVISE.Status") {
+		var searchNode = Ua.findNode("AGENT.OBJECTS.ATVISE.Status");
+		var searchNodeExist = Ua.Status(searchNode) != Ua.Status.BADNODEIDUNKNOWN;
+		if (searchNodeExist)
+			searchNode.result.value = Date.now();
+	}
+
+	if (archiveNode) {
+		var dataNode = Ua.findNode(address);
+		var historyNode = Ua.findNode(archiveNode);
+		dataNode.result.addReference(Ua.Reference.HASHISTORICALCONFIGURATION, historyNode.result);
+	}
+}
+
+
+/**
+ * simple validation
+ * @param string
+ * @returns {string|*}
+ * @private
+ */
+function _validate(string) {
+	string = string ? string : "";
+	string = string != "" ? string : "";
+	string = string != "undefined" ? string : "";
+	return string;
+}
+
+/* end */]]></code>
+</script>

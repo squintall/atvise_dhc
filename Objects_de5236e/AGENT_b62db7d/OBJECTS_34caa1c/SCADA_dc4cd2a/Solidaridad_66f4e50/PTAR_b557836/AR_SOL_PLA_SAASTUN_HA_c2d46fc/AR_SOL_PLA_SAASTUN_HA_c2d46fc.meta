@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.PTAR.AR_SOL_PLA_SAASTUN_HA
+NodeClass: Object
+BrowseName: 1:AR_SOL_PLA_SAASTUN_HA
+DisplayName: en|AR_SOL_PLA_SAASTUN_HA
+Description: en|AR_SOL_PLA_SAASTUN_HA
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

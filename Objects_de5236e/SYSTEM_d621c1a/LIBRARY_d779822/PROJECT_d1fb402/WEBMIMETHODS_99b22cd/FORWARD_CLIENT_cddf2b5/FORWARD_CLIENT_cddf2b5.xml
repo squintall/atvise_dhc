@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="ip" type="http.ip" trigger="false" relative="false" value=""/>
+  <code><![CDATA[if(ip == "127.0.0.1")
+	return "AGENT.DISPLAYS.MAIN.local";
+else if(ip == "192.168.192.173")
+	return "AGENT.DISPLAYS.MAIN.testmachine";
+else
+	return "AGENT.DISPLAYS.MAIN.unknown";]]></code>
+</script>

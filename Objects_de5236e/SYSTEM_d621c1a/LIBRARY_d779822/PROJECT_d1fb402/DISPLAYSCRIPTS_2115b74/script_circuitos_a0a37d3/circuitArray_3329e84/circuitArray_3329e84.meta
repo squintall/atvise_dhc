@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.script_circuitos.circuitArray
+NodeClass: Variable
+BrowseName: 1:circuitArray
+DisplayName: en|circuitArray
+Description: en|circuitArray
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

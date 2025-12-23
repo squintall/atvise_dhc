@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ButtonCfg.NT AUTHORITY\ANONYMOUS LOGON
+NodeClass: Variable
+BrowseName: 1:NT AUTHORITY\ANONYMOUS LOGON
+DisplayName: en|NT AUTHORITY\ANONYMOUS LOGON
+Description: en|NT AUTHORITY\ANONYMOUS LOGON
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

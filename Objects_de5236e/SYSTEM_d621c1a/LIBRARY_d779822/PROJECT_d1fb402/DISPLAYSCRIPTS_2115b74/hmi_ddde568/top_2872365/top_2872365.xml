@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the top object display
+ * -------------------------------
+ * This control is used as the top frame by default (You can find the reference to it on the "Default" display).
+ * It's a collection of the most important controls (display main menu, alarm handling, login and language buttons...).
+ */
+
+var accessControlManager
+var accessControlElementNotifier;
+
+if (webMI.query.displayAcNotification === "true" || true) {
+	var notifierConfig = {
+		id: document.getElementById("redu_info").id,
+		elementId: document.getElementById("redu_info").id,
+		rights: []
+	};
+}
+
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * DECLARATION SECTION
+ */
+
+var reduinfoInitialized = false;
+var isTop800 = typeof webMI.gfx.getX("title") == "undefined";
+var logoClickarea = isTop800 ? "logo_clickarea" : "atvise_logo";
+
+var redundancy_warning_dialog = webMI.query["redundancy_warning_dialog"];
+var message_dialog = webMI.query["message_dialog"];
+var message_dialog_small = webMI.query["message_dialog_small"];
+var user_dialog = webMI.query["user_dialog"];
+var password_dialog = webMI.query["password_dialog"];
+
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var loginHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Login Handler", {
+	"message_display": message_dialog_small,
+	"user_display": user_dialog,
+	"password_display": password_dialog
+});
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (!isTop800) {
+	webMI.addOnload(function() {
+		updateTime();
+		var updateDateTime = setInterval( function() { updateTime(); },60000);
+	});
+}
+
+/**
+ * FUNCTION SECTION
+ */
+
+function updateTime() {
+	var time = new Date();
+	webMI.gfx.setText("date_label", webMI.sprintf("%02d",time.getDate()) + "." + webMI.sprintf("%02d",time.getMonth()+1) + "." + time.getFullYear());
+	webMI.gfx.setText("time_label", webMI.sprintf("%02d",time.getHours()) + ":" + webMI.sprintf("%02d",time.getMinutes()));
+}
+
+function getStatusTranslation(text) {
+	var statustext;
+	switch(text) {
+		case "Active":
+			statustext = "T{Active}";
+			break;
+		case "Passive":
+			statustext = "T{Passive}";
+			break;
+		case "SOP":
+			statustext = "T{SOP}";
+			break;
+		case "SNOP":
+			statustext = "T{SNOP}";
+			break;
+		default:
+			statustext = text;
+	}
+
+	return statustext;
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent(logoClickarea, "click", function(e) {
+	var value = true;
+	return function(value) {
+		var names = tabHandler.getParentIFrameNames();
+		for (var i=0;i<names.length;i++){
+			var NN;
+			webMI.trigger.fire("com.atvise.getDefaultDisplay_"+(NN=names[i]),function(display,url){
+				if (url != undefined)
+					webMI.display.openUrl(url, webMI.query,NN);
+				else if (display != undefined)
+					webMI.display.openDisplay(display, webMI.query,NN);
+			});
+		}
+	} (value);
+});
+
+webMI.addEvent("username_label", "click", function(e) {
+	webMI.display.openWindow({
+		display: user_dialog,
+		extern: false,
+		height: 520,
+		menubar: false,
+		modal: false,
+		movable: false,
+		resizable: false,
+		scrollbars: false,
+		status: false,
+		title: "T{User Editor}",
+		toolbar: false,
+		width: 430,
+		query: webMI.query
+	});
+});
+
+webMI.addEvent(webMI.data, "clientvariableschange", function(e) {
+	webMI.gfx.setText("username_label", (e.username) ? e.username : "");
+	
+	const responseType = loginHandler.getResponseType(e);
+	if (responseType == "validity")
+		loginHandler.showMessageDialog(e);
+	else if (responseType == "expired")
+		loginHandler.showMessageDialog(e);
+});
+
+webMI.addOnload(function() {
+	webMI.addEvent(webMI.data, "serverstatechange", function() {
+	
+		if (accessControlManager) {
+			var compareRights = [
+				{node: "AGENT.REDUNDANCY", right: "read"}
+			];
+
+			accessControlManager.assist.handleWithPermissions(
+				compareRights,
+				handleReduRightsGranted,
+				handleReduRightsDenied
+			);
+		} else {
+			handleReduRightsGranted();
+		}
+		
+		function handleReduRightsGranted() {
+			if (reduinfoInitialized)
+				return;
+		
+			reduinfoInitialized = true;
+			webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Redundancy PopUp", {"display": redundancy_warning_dialog});
+			webMI.gfx.setVisible("redu_info", null);
+			webMI.data.subscribe("AGENT.REDUNDANCY.role", function(e) {
+				webMI.gfx.setText("redu_role", e.value.charAt(0));
+			});
+		
+			webMI.data.subscribe("AGENT.REDUNDANCY.status", function(e) {
+				e.value = getStatusTranslation(e.value);
+				webMI.gfx.setText("redu_status", e.value);
+			});
+		}
+		
+		function handleReduRightsDenied() {
+			// current nothing to do, perhaps later
+		}
+	});
+});]]></code>
+</script>

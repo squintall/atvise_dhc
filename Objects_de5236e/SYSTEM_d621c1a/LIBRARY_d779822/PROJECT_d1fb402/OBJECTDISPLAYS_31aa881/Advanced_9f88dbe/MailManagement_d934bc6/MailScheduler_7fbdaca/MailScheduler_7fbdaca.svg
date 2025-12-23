@@ -1,0 +1,402 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="700" version="1.2" width="700" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="T{Edit sms scheduler}" desc="headline" name="headline" substitute="$HEADLINE$" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.folder_report" desc="symbol" name="symbol" substitute="$SYMBOL$" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.keyboard.keyboard" desc="keyboard display" name="keyboard" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.pw_editor" desc="password display" name="passworddisplay" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" name="fontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" name="fillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="symbol color" name="symbolColor" substitute="$SYMBOLCOLOR$" valuetype="global"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <rect atv:refpx="350" atv:refpy="350" fill="$FILLCOLOR$" height="700" id="background" stroke="none" stroke-width="0" width="700" x="0" y="0"/>
+ <rect atv:refpx="350.24" atv:refpy="320.019" fill="#ffffff" height="558.86" id="schedule_background" rx="14.542" ry="18.029" stroke="none" stroke-width="0" width="618.076" x="41.202" y="40.589"/>
+ <rect atv:refpx="349.408" atv:refpy="306.289" fill="#f5f5f5" height="290.165" id="id_34" rx="14.585" ry="20.909" stroke="none" stroke-width="0" width="579.892" x="59.462" y="161.207"/>
+ <text atv:refpx="107.504" atv:refpy="492.706" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="weekdays_label" text-anchor="end" x="158.104" y="498.706">T{Weekday(s)}</text>
+ <svg atv:refpx="603.922" atv:refpy="259.165" height="30" id="weekdays_0" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="3140.917" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="475.165">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="194.999" atv:refpy="277.165" height="30" id="weekdays_1" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="960" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="475.165">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="45"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="263.796" atv:refpy="277.165" height="30" id="weekdays_2" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="1326.912" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="475.165">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="46"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="331.821" atv:refpy="277.165" height="30" id="weekdays_3" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="1689.713" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="475.165">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="47"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="399.846" atv:refpy="463.165" height="30" id="weekdays_4" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="2052.512" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="475.165">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="48"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="467.871" atv:refpy="277.165" height="30" id="weekdays_5" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="2415.315" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="475.165">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="49"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="535.897" atv:refpy="259.165" height="30" id="weekdays_6" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="2778.116" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="475.165">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="50"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <text atv:refpx="592.324" atv:refpy="518.665" fill="$FONTCOLOR$" font-family="Arial" font-size="10" id="id_15" text-anchor="middle" x="603.922" y="523.165">T{Sun.}</text>
+ <text atv:refpx="184.134" atv:refpy="518.665" fill="$FONTCOLOR$" font-family="Arial" font-size="10" id="id_16" text-anchor="middle" x="196.271" y="523.165">T{Mon.}</text>
+ <text atv:refpx="263.88" atv:refpy="519.665" fill="$FONTCOLOR$" font-family="Arial" font-size="10" id="id_17" text-anchor="middle" x="263.88" y="523.165">T{Tue.}</text>
+ <text atv:refpx="332.488" atv:refpy="519.665" fill="$FONTCOLOR$" font-family="Arial" font-size="10" id="id_18" text-anchor="middle" x="332.488" y="523.165">T{Wed.}</text>
+ <text atv:refpx="399.096" atv:refpy="519.665" fill="$FONTCOLOR$" font-family="Arial" font-size="10" id="id_19" text-anchor="middle" x="399.096" y="523.165">T{Thu.}</text>
+ <text atv:refpx="468.205" atv:refpy="519.665" fill="$FONTCOLOR$" font-family="Arial" font-size="10" id="id_21" text-anchor="middle" x="468.205" y="523.165">T{Fri.}</text>
+ <text atv:refpx="535.813" atv:refpy="519.665" fill="$FONTCOLOR$" font-family="Arial" font-size="10" id="id_22" text-anchor="middle" x="535.813" y="523.165">T{Sat.}</text>
+ <svg atv:refpx="282.74" atv:refpy="83.962" height="30" id="configuration_input" transform="matrix(1.2842,0,0,1,0,0)" width="160" x="140.171" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="60.962">
+  <atv:argument name="validation" value="String"/>
+  <atv:argument name="allowDirectInput" value="Yes"/>
+  <atv:argument name="tabIndex" value="1"/>
+  <atv:overwrite id="id_2" transform="matrix(0.8889,0,0,1,0,0)" width="174.5"/>
+  <atv:overwrite id="input_label" transform="matrix(0.7787,0,0,1,0,0)" x="197.527"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.7787,0,0,1,0,0)" width="197.472"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.7787,0,0,1,0,0)" width="201.472"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.7787,0,0,1,0,0)" width="197.472"/>
+  <atv:overwrite id="id_1" transform="matrix(0.7787,0,0,1,0,0)" width="203.472"/>
+  <atv:overwrite id="id_0" transform="matrix(0.7787,0,0,1,0,0)" width="205.472"/>
+ </svg>
+ <svg atv:refpx="401.375" atv:refpy="175.575" height="30" id="prio_input" transform="matrix(0.2312,0,0,1,0,0)" width="160" x="1746.902" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="183.575">
+  <atv:argument name="allowDirectInput" value="Yes"/>
+  <atv:argument name="tabIndex" value="1"/>
+  <atv:overwrite id="id_2" transform="matrix(0.8889,0,0,1,0,0)" width="174.5"/>
+  <atv:overwrite id="input_label" transform="matrix(4.3253,0,0,1,0,0)" x="29.047"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(4.3253,0,0,1,0,0)" width="28.992"/>
+  <atv:overwrite id="focus_frame" transform="matrix(4.3253,0,0,1,0,0)" width="32.992"/>
+  <atv:overwrite id="input_bg" transform="matrix(4.3253,0,0,1,0,0)" width="28.992"/>
+  <atv:overwrite id="id_1" transform="matrix(4.3253,0,0,1,0,0)" width="34.992"/>
+  <atv:overwrite id="id_0" transform="matrix(4.3253,0,0,1,0,0)" width="36.992"/>
+ </svg>
+ <text atv:refpx="266.617" atv:refpy="198.575" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_3" text-anchor="start" x="232" y="204.575">T{Priority}</text>
+ <text atv:refpx="130.624" atv:refpy="559.483" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_4" text-anchor="end" x="158.104" y="565.483">T{From}</text>
+ <text atv:refpx="406.567" atv:refpy="559.483" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_5" text-anchor="end" x="423.718" y="565.483">T{To}</text>
+ <svg atv:dynamic="true" atv:refpx="295.345" atv:refpy="618.889" height="30" id="save_button" transform="matrix(1.1875,0,0,1,0,0)" width="80" x="206.713" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="642.889">
+  <atv:argument name="label" value="T{Save}"/>
+  <atv:argument name="tabIndex" value="60"/>
+  <atv:argument name="borderVisible" value="true"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+  <atv:argument name="fontSize" value="14"/>
+  <atv:overwrite id="id_6" transform="matrix(0.8421,0,0,1,0,0)" width="93"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.8421,0,0,1,0,0)" x="47.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.8421,0,0,1,0,0)" x="47.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.8421,0,0,1,0,0)" x="47.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.5053,0,0,0.6,0,0)" x="69"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.5053,0,0,0.6,0,0)" x="69"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.8421,0,0,1,0,0)" x="37.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.8421,0,0,1,0,0)" width="91"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.8421,0,0,1,0,0)" width="93"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.8421,0,0,1,0,0)" width="95"/>
+ </svg>
+ <svg atv:dynamic="true" atv:refpx="410.345" atv:refpy="618.889" height="30" id="cancel_button" transform="matrix(1.1875,0,0,1,0,0)" width="80" x="303.555" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="642.889">
+  <atv:argument name="label" value="T{Cancel}"/>
+  <atv:argument name="tabIndex" value="61"/>
+  <atv:argument name="borderVisible" value="true"/>
+  <atv:argument name="extraBorderColor" value="#ffffff"/>
+  <atv:argument name="fontSize" value="14"/>
+  <atv:overwrite id="id_6" transform="matrix(0.8421,0,0,1,0,0)" width="93"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.8421,0,0,1,0,0)" x="47.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.8421,0,0,1,0,0)" x="47.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.8421,0,0,1,0,0)" x="47.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.5053,0,0,0.6,0,0)" x="69"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.5053,0,0,0.6,0,0)" x="69"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.8421,0,0,1,0,0)" x="37.5"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.8421,0,0,1,0,0)" width="91"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.8421,0,0,1,0,0)" width="93"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.8421,0,0,1,0,0)" width="95"/>
+ </svg>
+ <text atv:refpx="372" atv:refpy="624.387" fill="#ff0004" font-family="Arial" font-size="14" id="message" text-anchor="middle" x="350" y="628.887">&lt;errormessage></text>
+ <svg atv:refpx="398.83" atv:refpy="132.01" height="30" id="email_input" transform="matrix(2.7365,0,0,1,0,0)" width="160" x="65.76" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="110.01">
+  <atv:argument name="allowDirectInput" value="Yes"/>
+  <atv:argument name="tabIndex" value="1"/>
+  <atv:overwrite id="id_2" transform="matrix(0.8889,0,0,1,0,0)" width="174.5"/>
+  <atv:argument name="validation" value="String"/>
+  <atv:overwrite id="input_label" transform="matrix(0.3654,0,0,1,0,0)" x="429.895"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.3654,0,0,1,0,0)" width="429.84"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.3654,0,0,1,0,0)" width="433.84"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.3654,0,0,1,0,0)" width="429.84"/>
+  <atv:overwrite id="id_1" transform="matrix(0.3654,0,0,1,0,0)" width="435.84"/>
+  <atv:overwrite id="id_0" transform="matrix(0.3654,0,0,1,0,0)" width="437.84"/>
+ </svg>
+ <text atv:refpx="523.359" atv:refpy="76.325" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_9" text-anchor="start" x="491.79" y="82.325">T{Active}</text>
+ <svg atv:refpx="604.539" atv:refpy="108.325" height="30" id="active" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="2354.87" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="61.325">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <text atv:refpx="127.604" atv:refpy="75.962" fill="#575757" font-family="Arial" font-size="16" id="id_7" text-anchor="end" x="158.104" y="81.962">T{Name}</text>
+ <text atv:refpx="65.301" atv:refpy="331.457" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_10" text-anchor="end" x="158.19" y="337.457">T{Alarm State}</text>
+ <text atv:refpx="126.104" atv:refpy="125.01" fill="#575757" font-family="Arial" font-size="16" id="id_11" text-anchor="end" x="158.104" y="131.01">T{E-Mail}</text>
+ <svg atv:refpx="399.846" atv:refpy="346" height="30" id="state_3" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="2052.512" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="359">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="399.846" atv:refpy="307" height="30" id="state_2" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="2052.512" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="320">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="195" atv:refpy="346" height="30" id="state_1" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="960" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="359">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="195" atv:refpy="307" height="30" id="state_0" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="960" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="320">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <text atv:refpx="279.5" atv:refpy="335.184" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_24" text-anchor="start" x="232" y="338.684">T{Acknowledged}</text>
+ <text atv:refpx="297" atv:refpy="374.529" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_25" text-anchor="start" x="232" y="378.029">T{On Unacknowledged}</text>
+ <text atv:refpx="524.587" atv:refpy="332.551" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_26" text-anchor="start" x="445.061" y="338.551">T{On Acknowledged}</text>
+ <text atv:refpx="535.783" atv:refpy="371.896" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_27" text-anchor="start" x="445.061" y="377.896">T{Off Unacknowledged}</text>
+ <svg atv:refpx="399.846" atv:refpy="385.74" height="30" id="state_5" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="2052.512" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="398.74">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <text atv:refpx="548.866" atv:refpy="411.24" fill="$FONTCOLOR$" font-family="Arial" font-size="12" id="id_29" text-anchor="start" x="445.061" y="417.24">T{On Off Unacknowledged}</text>
+ <svg atv:refpx="358.474" atv:refpy="164.575" height="30" id="prio_oper" transform="matrix(0.3646,0,0,1,0,0)" width="160" x="933.449" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.combobox" y="183.575">
+  <atv:argument name="text1" value="T{==}"/>
+  <atv:argument name="text1value" value="=="/>
+  <atv:argument name="text2" value="T{>=}"/>
+  <atv:argument name="text2value" value=">="/>
+  <atv:argument value="T{&lt;=}" name="text3"/>
+  <atv:argument value="&lt;=" name="text3value"/>
+  <atv:argument value="T{&lt;>}" name="text4"/>
+  <atv:argument name="text4value" value="!="/>
+  <atv:overwrite id="focus_frame" transform="matrix(2.7427,0,0,1,0,0)" width="54.336"/>
+  <atv:overwrite id="button_stroke" transform="matrix(2.7427,0,0,1,0,0)" x="33.336"/>
+  <atv:overwrite id="id_7" transform="matrix(2.7427,0,0,1,0,0)" x="33.336"/>
+  <atv:overwrite id="button_bg" transform="matrix(2.7427,0,0,1,0,0)" x="33.336"/>
+  <atv:overwrite id="combobox_label" transform="matrix(2.7427,0,0,1,0,0)" x="23.836"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(2.7427,0,0,1,0,0)" width="26.336"/>
+  <atv:overwrite id="combobox_bg" transform="matrix(2.7427,0,0,1,0,0)" width="26.336"/>
+  <atv:overwrite id="id_1" transform="matrix(2.7427,0,0,1,0,0)" width="56.336"/>
+  <atv:overwrite id="id_0" transform="matrix(2.7427,0,0,1,0,0)" width="58.336"/>
+ </svg>
+ <svg atv:refpx="479.584" atv:refpy="260.911" height="30" id="address_picker" transform="matrix(1.7401,0,0,1,0,0)" width="160" x="195.612" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.picker_address" y="261.911">
+  <atv:overwrite id="addresspicker_clickarea" transform="matrix(0.5747,0,0,1,0,0)" x="250.416"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.5747,0,0,1,0,0)" width="274.416"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.5747,0,0,1,0,0)" x="253.416"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5747,0,0,1,0,0)" x="253.166"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.5747,0,0,1,0,0)" x="253.416"/>
+  <atv:overwrite id="input_label" transform="matrix(0.5747,0,0,1,0,0)" x="244.416"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.5747,0,0,1,0,0)" width="246.416"/>
+  <atv:overwrite id="addresspicker_bg" transform="matrix(0.5747,0,0,1,0,0)" width="246.416"/>
+  <atv:overwrite id="id_0" transform="matrix(0.5747,0,0,1,0,0)" width="276.416"/>
+  <atv:overwrite id="addresspicker_stroke" transform="matrix(0.5747,0,0,1,0,0)" width="278.416"/>
+ </svg>
+ <text atv:refpx="271" atv:refpy="276.911" fill="#575757" font-family="Arial" font-size="16" id="id_32" text-anchor="start" x="232" y="282.911">T{Address}</text>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.MailManagement.MailScheduler" atv:name="Mail Scheduler" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <svg atv:refpx="195" atv:refpy="182.575" height="30" id="prio_act" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="960" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="183.575">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="194.47" atv:refpy="260.911" height="30" id="nodes_act" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="960" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="261.911">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <svg atv:refpx="342.951" atv:refpy="245.743" height="30" id="group_act" transform="matrix(0.1875,0,0,1,0,0)" width="160" x="959.733" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="222.743">
+  <atv:argument name="label" value=""/>
+  <atv:argument name="tabIndex" value="52"/>
+  <atv:argument name="valueOn" value="true"/>
+  <atv:argument name="outputValueOn" value="true"/>
+  <atv:argument name="outputValueOff" value="false"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="focus_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_frame" transform="matrix(5.3333,0,0,1,0,0)"/>
+  <atv:overwrite id="checkbox_stroke" transform="matrix(5.3333,0,0,1,0,0)"/>
+ </svg>
+ <text atv:refpx="263.568" atv:refpy="236.419" fill="$FONTCOLOR$" font-family="Arial" font-size="16" id="id_12" text-anchor="start" x="232" y="242.419">T{Group}</text>
+ <svg atv:refpx="479.584" atv:refpy="221.743" height="30" id="group_picker" transform="matrix(1.7401,0,0,1,0,0)" width="160" x="195.613" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.picker_address" y="222.743">
+  <atv:argument name="base" value="AGENT.ALARMING.Groups"/>
+  <atv:argument name="onDemand" value="No"/>
+  <atv:argument name="showBaseVariables" value="No"/>
+  <atv:overwrite id="addresspicker_clickarea" transform="matrix(0.5747,0,0,1,0,0)" x="250.416"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.5747,0,0,1,0,0)" width="274.416"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.5747,0,0,1,0,0)" x="253.416"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5747,0,0,1,0,0)" x="253.166"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.5747,0,0,1,0,0)" x="253.416"/>
+  <atv:overwrite id="input_label" transform="matrix(0.5747,0,0,1,0,0)" x="244.416"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.5747,0,0,1,0,0)" width="246.416"/>
+  <atv:overwrite id="addresspicker_bg" transform="matrix(0.5747,0,0,1,0,0)" width="246.416"/>
+  <atv:overwrite id="id_0" transform="matrix(0.5747,0,0,1,0,0)" width="276.416"/>
+  <atv:overwrite id="addresspicker_stroke" transform="matrix(0.5747,0,0,1,0,0)" width="278.416"/>
+ </svg>
+ <svg atv:refpx="220.666" atv:refpy="559.483" height="30" id="start_input" transform="matrix(0.5065,0,0,1,0,0)" width="160" x="355.635" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="544.483">
+  <atv:argument name="validation" value="String"/>
+  <atv:overwrite id="input_label" transform="matrix(1.9742,0,0,1,0,0)" x="73.101"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.9742,0,0,1,0,0)" width="73.046"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.9742,0,0,1,0,0)" width="77.046"/>
+  <atv:overwrite id="input_bg" transform="matrix(1.9742,0,0,1,0,0)" width="73.046"/>
+  <atv:overwrite id="id_1" transform="matrix(1.9742,0,0,1,0,0)" width="79.046"/>
+  <atv:overwrite id="id_0" transform="matrix(1.9742,0,0,1,0,0)" width="81.046"/>
+ </svg>
+ <text atv:refpx="287.528" atv:refpy="559.983" fill="$FONTCOLOR$" font-family="Arial" font-size="12" font-style="italic" id="id_13" x="266.559" y="564.483">HH:mm</text>
+ <svg atv:refpx="497.598" atv:refpy="559.483" height="30" id="end_input" transform="matrix(0.5065,0,0,1,0,0)" width="160" x="894.52" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="544.483">
+  <atv:argument name="validation" value="String"/>
+  <atv:overwrite id="input_label" transform="matrix(1.9743,0,0,1,0,0)" x="73.095"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(1.9743,0,0,1,0,0)" width="73.04"/>
+  <atv:overwrite id="focus_frame" transform="matrix(1.9743,0,0,1,0,0)" width="77.04"/>
+  <atv:overwrite id="input_bg" transform="matrix(1.9743,0,0,1,0,0)" width="73.04"/>
+  <atv:overwrite id="id_1" transform="matrix(1.9743,0,0,1,0,0)" width="79.04"/>
+  <atv:overwrite id="id_0" transform="matrix(1.9743,0,0,1,0,0)" width="81.04"/>
+ </svg>
+ <text atv:refpx="560.46" atv:refpy="559.983" fill="$FONTCOLOR$" font-family="Arial" font-size="12" font-style="italic" id="id_20" x="539.491" y="564.483">HH:mm</text>
+</svg>

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the chart bar tile object display
+ * ----------------------------------------
+ * This script supports the functions of the bar dashboard tile.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var base = webMI.query["base"];
+
+/** internal ids **/
+var BACKGROUND_ID = "background";
+var BLINKING_FRAME_ID = "blinking_frame";
+var CHART_ID = "chart";
+var CLICKAREA_ID = "clickarea_display";
+var MAIN_LABEL_ID = "main_label";
+var TITLE_ID = "title";
+var TITLEAREA_ID = "clickarea_title";
+var SUB_LABEL_ID = "sub_label";
+
+/** internal trigger **/
+var OPEN_DISPLAY_TRIGGER = "com.atvise.dashboard.openDisplay";
+var SET_ACTIVE_TRIGGER = "com.atvise.dashboard.setActive";
+var SET_INACTIVE_TRIGGER = "com.atvise.dashboard.setInactive";
+var SET_STATUS_TRIGGER = "com.atvise.dashboard.setStatus";
+var SET_BLINKING_FRAME_STROKE_TRIGGER = "com.atvise.dashboard.setBlinkingFrameStroke";
+var SHOW_HIDE_BLINKING_FRAME_TRIGGER = "com.atvise.dashboard.showHideBlinkingFrame";
+
+/** interal visu setting **/
+var BLINKING_FRAME_COLOR_ACTIVE = "#ffffff";
+var BLINKING_FRAME_COLOR_INACTIVE = webMI.query["backgroundColor"];
+webMI.gfx.setStroke(BLINKING_FRAME_ID, BLINKING_FRAME_COLOR_INACTIVE);
+
+/** format output **/
+var unit = webMI.query["unit"] || "";
+var postDecimalFactor = Math.pow(10, webMI.query["postDecimals"]);
+var oneLine = webMI.query["oneLine"] == "true" ? true : false;
+
+/** click behavior **/
+var contentFrame = webMI.query["contentFrame"] != "" ? webMI.query["contentFrame"] : "content_iframe_myframe";
+var display = webMI.query["display"];
+var enableClick = webMI.query["enableClick"] == "true" ? true : false;
+var enableClickContent = webMI.query["enableClickContent"] == "true" ? true : false;
+var enableElementID = webMI.query["linkedElementID"];
+
+/** notifications **/
+var alarmAddress = webMI.query["alarm"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+
+/** appearance **/
+var alarmIndication = webMI.query["alarmIndication"];
+var colorInactive = webMI.query["colorInactive"];
+var backgroundColor = webMI.query["backgroundColor"];
+var statusIndication = webMI.query["statusIndication"];
+
+/** options **/
+var tooltip = webMI.query["tooltip"];
+if (tooltip) {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		"auto": "true",
+		"id": TITLEAREA_ID,
+		"text": tooltip
+	});
+}
+
+/** data **/
+var runTimeNodeConfig = {};
+for (var s = 1; s < 11; s++) {
+	var seriesAddress = "series" + s + "Address";
+	if (webMI.query[seriesAddress]) {
+		runTimeNodeConfig[seriesAddress] =
+			{
+				value: null,
+				address: webMI.query[seriesAddress],
+				paramValue: "",
+				read: true,
+				write: false,
+				aggregate: false
+			}
+	} else {
+		break;
+	}
+}
+
+/** advanced menu layout with corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+}
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+if (true) {
+	var notifierConfig = {
+		id: document.getElementById("background").id,
+		rights: [
+			{nodeId: webMI.query["alarm"], rights: "alarmRead", disable: false, notify: true},
+			{nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true},
+			{nodeId: webMI.query["display"], rights: "read", disable: false, notify: true}
+		],
+		menuLayout: menuLayout
+	};
+
+	for (var s = 1; s < 11; s++) {
+		var seriesAddress = "series" + s + "Address";
+		if (webMI.query[seriesAddress]) {
+			notifierConfig.rights.push(
+				{
+					nodeId: webMI.query[seriesAddress],
+					rights: "read", disable: false, notify: false
+				}
+			);
+		} else {
+			break;
+		}
+	}
+
+	var rightsHandlingProperties = {
+		activationNodeSet: {activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"]},
+		notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+		userRight: webMI.query["right"],
+		editable: true
+	};
+
+	if (typeof rightsHandling === "function")
+		rightsHandling(rightsHandlingProperties);
+
+	if (typeof updateRunTimeNodeConfig === "function") {
+		updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+	} else {
+		initialize(runTimeNodeConfig)
+	}
+}
+
+
+/**
+ * FUNCTIONS
+ */
+
+function initialize(runTimeNodeConfig) {
+	if (alarmAddress != "")
+		updateAlarmIndication(alarmAddress);
+
+	/** check if address exists **/
+	var hasAddress = false;
+
+	for (var s = 1; s < 11; s++) {
+		var seriesAddress = "series" + s + "Address";
+		if (webMI.query[seriesAddress]) {
+			hasAddress = true;
+		} else {
+			break;
+		}
+	}
+
+	/** set inactive if no address is available **/
+	if (!hasAddress) {
+		setInactiveLayout();
+	}
+
+	if(enableElementID) {
+		try {
+			var frame = webMI.rootWindow.document.getElementById(contentFrame);
+			var element = frame.contentDocument.getElementById(enableElementID);
+
+			if (!element) {
+				setInactiveLayout();
+			}
+		} catch (ex) {
+			setInactiveLayout();
+		}
+	}
+}
+
+/**
+ * Activate display
+ */
+function setActiveLayout() {
+	webMI.gfx.setText(TITLE_ID, webMI.query["title"]);
+
+	webMI.gfx.setVisible(MAIN_LABEL_ID, false);
+	webMI.gfx.setVisible(SUB_LABEL_ID, false);
+
+	webMI.gfx.setStroke(BLINKING_FRAME_ID, null);
+	webMI.gfx.setFill(BACKGROUND_ID, backgroundColor);
+	webMI.gfx.setFill(BLINKING_FRAME_ID, BLINKING_FRAME_COLOR_ACTIVE);
+
+	enableClick = webMI.query["enableClick"] == "true" ? true : false;
+	enableClickContent = webMI.query["enableClickContent"] == "true" ? true : false;
+	enableElementID = webMI.query["linkedElementID"];
+}
+
+/**
+ * Deactivate display
+ */
+function setInactiveLayout() {
+	// webMI.gfx.setText(TITLE_ID, webMI.query["title"] + " (T{inactive})");
+	webMI.gfx.setText(TITLE_ID, webMI.query["title"]);
+
+	webMI.gfx.setVisible(MAIN_LABEL_ID, false);
+	webMI.gfx.setVisible(SUB_LABEL_ID, false);
+
+	webMI.gfx.setFill(BACKGROUND_ID, colorInactive);
+	webMI.gfx.setFill(BLINKING_FRAME_ID, colorInactive);
+	webMI.gfx.setStroke(BLINKING_FRAME_ID, BLINKING_FRAME_COLOR_INACTIVE);
+
+	enableClick = false;
+	enableClickContent = false;
+	enableElementID = false;
+}
+
+
+/**
+ * EVENT SECTION
+ */
+
+if (display && enableClick) {
+	webMI.addEvent(TITLEAREA_ID, ["click", "touchend"], function (e) {
+		webMI.display.openDisplay(display);
+	});
+}
+
+if (display && enableClickContent) {
+	webMI.addEvent(CLICKAREA_ID, ["click", "touchend"], function (e) {
+		webMI.display.openDisplay(display);
+	});
+}
+
+if (enableElementID) {
+	var frame = webMI.rootWindow.document.getElementById(contentFrame);
+	var element = frame.contentDocument.getElementById(enableElementID);
+	webMI.addEvent(element, ["click", "touchend"], function (e) {
+		if (display && enableClick) {
+			webMI.display.openDisplay(display);
+		}
+	});
+}
+
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect(SET_STATUS_TRIGGER, function (triggerObj) {
+	if (triggerObj && triggerObj.value && triggerObj.value.chart) {
+		if (triggerObj.value.chart == document.getElementById(CHART_ID).id) {
+			updateStatusIndication(triggerObj.status);
+		}
+	}
+});
+
+webMI.trigger.connect(SET_ACTIVE_TRIGGER, function (triggerObj) {
+	if (triggerObj && triggerObj.value && triggerObj.value.chart) {
+		if (triggerObj.value.chart == document.getElementById(CHART_ID).id) {
+			activeHandling(true);
+			switchLayout();
+		}
+	}
+});
+
+webMI.trigger.connect(SET_INACTIVE_TRIGGER, function (triggerObj) {
+	if (triggerObj && triggerObj.value && triggerObj.value.chart) {
+		if (triggerObj.value.chart == document.getElementById(CHART_ID).id) {
+			activeHandling(false);
+			switchLayout();
+		}
+	}
+});
+
+]]></code>
+</script>

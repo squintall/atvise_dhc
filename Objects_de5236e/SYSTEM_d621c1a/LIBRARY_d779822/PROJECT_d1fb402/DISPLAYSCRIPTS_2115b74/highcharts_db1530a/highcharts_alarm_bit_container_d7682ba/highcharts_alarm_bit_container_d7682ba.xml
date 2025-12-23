@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var chart;
+var nodeAddress = webMI.query["node"];
+var span = webMI.query["span"];
+var unit = webMI.query["unit"];
+var unittime;
+var alarmNode = webMI.query["alarm"];
+
+const highchartsContainer = document.getElementById('highcharts_container');
+webMI.gfx.setVisible("txt", false);
+if(nodeAddress != undefined){
+	webMI.trigger.fire("setValue", nodeAddress, "node");
+}
+if(alarmNode != undefined){
+	webMI.trigger.fire("setValue", alarmNode, "alarm_node");
+}
+
+switch(unit) {
+	case "s":
+		unittime = 1000;
+		break;
+	case "m":
+		unittime = 60*1000;
+		break;
+	case "h":
+		unittime = 60*60*1000;
+		break;
+	case "d":
+		unittime = 24*60*60*1000;
+		break;
+}
+
+var timeStart = new Date().getTime()-(span*unittime);
+webMI.trigger.fire("com.atvise.datepicker_pickerStart",timeStart);
+var timeEnd = new Date().getTime();
+var alarmTimeEnd = timeEnd+500;
+webMI.trigger.fire("com.atvise.datepicker_pickerEnd",timeEnd);
+var lang = webMI.rootWindow.language;
+var rootWindow = webMI.rootWindow;
+
+webMI.addOnload(function(e) {
+var id = "highcharts_container";
+var value = true;
+return function(value) {	
+	if (rootWindow.Highcharts == undefined){
+		webMI.data.loadScript("/highcharts/highcharts.js",function(url, alreadyLoaded){
+			webMI.data.loadScript("/highcharts/modules/exporting.js",function(url, alreadyLoaded){
+				webMI.data.loadScript("/highcharts/themes/grid-light.js",function(){
+					initChart();
+				});
+			});	
+		});	
+	} else {			
+		initChart();
+	}
+	function initChart(){
+		if(nodeAddress){
+			// chart configuration
+			var conf = {};
+			conf.chart = {
+				zoomType: 'x',
+			};
+			conf.xAxis = [{
+				type: 'datetime',
+				visible: true,
+				crosshair: true
+			},{
+				type: 'datetime',
+				visible: false,
+			}];
+			conf.yAxis = [{
+				gridLineWidth: 1,
+				title: null,
+				labels: {
+					enabled: true
+				},
+				min: 0,
+				height: '95%',
+			},{
+				title: null,
+				labels: {
+					enabled: false
+				},
+				min: 0,
+				max: 2,
+				height: '5%',
+				top: '95%',
+			}];
+			conf.legend= {
+				enabled: false
+			};
+			conf.title = {
+				text: 'Timeline of alarms'
+			};
+			conf.subtitle = {
+				text: 'All alarms in the entered time range'
+			},
+			conf.tooltip = {
+				style: {
+					padding: 10,
+					fontSize: 15
+				},	
+				formatter: function () {
+					if(this.series.name == 'Alarm') {
+						return ''+rootWindow.Highcharts.dateFormat('%A, %b %e, %H:%M:%S:%L', this.x) +'<br>' + this.key+'';
+					}else{
+						return ''+rootWindow.Highcharts.dateFormat('%A, %b %e, %H:%M:%S:%L', this.x) +'<br>T{Value}: ' + this.y+'';
+					}
+				},				
+				shared: false
+			};
+			conf.exporting = {
+				buttons: {
+					contextButton: {
+						menuItems: ["printChart", "separator", "downloadPNG", "downloadJPEG", "downloadSVG"]
+					}
+				}
+			};
+			conf.plotOptions = {
+				series: {
+					pointPlacement: 'between'
+				}
+			};
+			conf.series = [{
+				color: '#54d900',
+				type: 'spline',
+				marker: {
+					//enabled: false,
+					symbol: 'square'
+				},
+				name: 'T{Value}',
+				yAxis: 0,
+				data: [] //data
+			}];
+			
+			if(!(alarmNode == "" || alarmNode == undefined)){
+				conf.series.push({
+					name: 'Alarm',
+					color: "white",
+					data: [], //alarmData
+					yOffset: -15,
+					yAxis: 1,
+					tooltip:{
+						pointFormat: ''
+					}
+				});
+			}
+			
+			var options = {
+				trendName: webMI.query.trendName,
+				trendGroup: webMI.query.trendGroup,
+				trendConfig: conf
+			};
+		
+			webMI.trendFactory.createTrend(highchartsContainer, options, function (trendInstance) {
+				chart = trendInstance;
+				setchart();
+			});	
+			
+		}else{
+			webMI.gfx.setVisible("txt", true);	
+			alert('T{Please define node Address.}');				
+		}
+	}
+} (value);
+});
+function setchart(){
+	let data = [];
+	let alarmData = [];
+	var filter = {};
+	var filterAlarm = {};
+	filter.type = ["v:1"];
+	filter.address = ["g:"+nodeAddress];
+	filter.timestamp = ["n:>=" + timeStart + "<" + timeEnd];
+	filterAlarm.type = ["v:2"];
+	filterAlarm.address = (alarmNode == "" || alarmNode == undefined)?["g:"+nodeAddress+".*"]:["g:"+alarmNode+".*"];
+	filterAlarm.timestamp = ["n:>=" + timeStart + "<" + alarmTimeEnd];
+	
+	webMI.data.queryFilter(filter, function(val) {
+		var results = val.result;
+		for(result in results){
+			var value = results[result].value;
+			if(typeof results[result].value === "boolean"){
+				value = value === true ? 1 : 0;
+			}
+			data.push({x:results[result].timestamp, y:value});
+		}
+		webMI.data.queryFilter(filterAlarm, function(e) {
+			var alarms = e.result;
+			let index = 0;
+			let inactiveIndex;
+			let state;
+			var value;
+			for(alarm in alarms){
+				state = alarms[alarm].state;
+				var eventText = "";
+				(alarms[0].valuetimestamp == undefined)?alarms[0].valuetimestamp = timeStart:alarms[0].valuetimestamp = alarms[0].valuetimestamp;
+				if(alarms[alarm].state == 1){
+					index = data.findIndex(value => { return value.x === alarms[alarm].valuetimestamp });
+					if(index != -1 && (alarmNode == "" || alarmNode == undefined)){
+						value = "<br>T{Value}: <strong>"+data[index].y+"</strong>";
+					}else{
+						value = "<br>T{Value}: <strong>"+alarms[alarm].value+"</strong>";
+					}
+					if(alarms[alarm].eventtext){
+						eventText = "<br>T{Event text}: <strong>"+alarms[alarm].eventtext[lang]+"</strong>";
+					}
+					
+					if(alarmNode == "" || alarmNode == undefined){
+						if(index > -1){
+							data[index] = {x:data[index].x, y:data[index].y, marker:{enabled: true,symbol:'url(/Alarm_Active.png)'},name:"<span style='font-size:15px'>T{Name}: <strong>"+alarms[alarm].SourceName+"</strong><br>T{Alarm condition}: <strong>"+alarms[alarm].ConditionName+"</strong><br>T{Status}: <strong>"+alarms[alarm].ActiveState[lang]+" "+alarms[alarm].AckedState[lang]+"</strong>"+eventText+" "+value+"</span>"};
+						}
+					} else {
+						alarmData.push({x:alarms[alarm].valuetimestamp, y:1, marker:{enabled: true,symbol:'url(/Alarm_Active.png)'},name:"<span style='font-size:15px'>T{Name}: <strong>"+alarms[alarm].SourceName+"</strong><br>T{Alarm condition}: <strong>"+alarms[alarm].ConditionName+"</strong><br>T{Status}: <strong>"+alarms[alarm].ActiveState[lang]+" "+alarms[alarm].AckedState[lang]+"</strong>"+eventText+" "+value+"</span>"});
+					}
+				}
+				else{
+					inactiveIndex = data.findIndex(value => { return value.x === alarms[alarm].valuetimestamp });
+					if(inactiveIndex != -1 && (alarmNode == "" || alarmNode == undefined)){
+						value = "<br>T{Value}: <strong>"+data[inactiveIndex].y+"</strong>";
+					}else{
+						value = "<br>T{Value}: <strong>"+alarms[alarm].value+"</strong>";
+					}
+					if(alarms[alarm].eventtext){
+						eventText = "<br>T{Event text}: <strong>"+alarms[alarm].eventtext[lang]+"</strong>";
+					}
+					
+					if(alarmNode == "" || alarmNode == undefined){
+						if(inactiveIndex > -1){
+							data[inactiveIndex] = {x:data[inactiveIndex].x, y:data[inactiveIndex].y, marker:{enabled: true,symbol:'url(/Alarm_Inactive.png)'},name:"<span style='font-size:15px'>T{Name}: <strong>"+alarms[alarm].SourceName+"</strong><br>T{Alarm condition}: <strong>"+alarms[alarm].ConditionName+"</strong><br>T{Status}: <strong>"+alarms[alarm].ActiveState[lang]+" "+alarms[alarm].AckedState[lang]+"</strong>"+eventText+" "+value+"</span>"};
+						}
+					} else {
+						alarmData.push({x:alarms[alarm].valuetimestamp, y:1, marker:{enabled: true,symbol:'url(/Alarm_Inactive.png)'},name:"<span style='font-size:15px'>T{Name}: <strong>"+alarms[alarm].SourceName+"</strong><br>T{Alarm condition}: <strong>"+alarms[alarm].ConditionName+"</strong><br>T{Status}: <strong>"+alarms[alarm].ActiveState[lang]+" "+alarms[alarm].AckedState[lang]+"</strong>"+eventText+" "+value+"</span>"});
+					}
+				}
+			}
+
+			rootWindow.Highcharts.setOptions({
+				global: {
+					useUTC: false
+				},
+				credits: {
+					 enabled: false
+				}
+			});
+			
+			if(data.length > 0){
+				chart.chart.series[0].setData(data);
+			}
+
+			if(alarmData.length > 0){
+				chart.chart.series[1].setData(alarmData);
+			}
+			
+			chart.chart.xAxis[0].setExtremes(timeStart, timeEnd);
+		});
+	});
+}
+
+]]></code>
+</script>

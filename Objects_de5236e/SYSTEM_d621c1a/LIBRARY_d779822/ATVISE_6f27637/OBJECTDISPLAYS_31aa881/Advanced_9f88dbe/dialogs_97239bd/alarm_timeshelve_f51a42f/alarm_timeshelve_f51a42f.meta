@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.alarm_timeshelve
+NodeClass: Variable
+BrowseName: 1:alarm_timeshelve
+DisplayName: en|alarm_timeshelve
+Description: en|alarm_timeshelve
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

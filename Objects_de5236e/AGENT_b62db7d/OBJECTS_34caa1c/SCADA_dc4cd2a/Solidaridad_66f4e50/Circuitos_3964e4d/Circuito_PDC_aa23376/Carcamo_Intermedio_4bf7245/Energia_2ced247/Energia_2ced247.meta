@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Energia
+NodeClass: Variable
+BrowseName: 1:Energia
+DisplayName: en|Energia
+Description: en|Energia
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Energia.high_limits
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Energia.low_limits

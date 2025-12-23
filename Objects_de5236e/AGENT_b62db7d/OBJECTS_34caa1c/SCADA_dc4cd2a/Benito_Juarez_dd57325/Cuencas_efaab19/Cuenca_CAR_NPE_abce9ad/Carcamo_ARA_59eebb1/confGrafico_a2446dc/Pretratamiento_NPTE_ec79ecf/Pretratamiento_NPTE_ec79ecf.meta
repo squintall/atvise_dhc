@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_ARA.confGrafico.Pretratamiento NPTE
+NodeClass: Variable
+BrowseName: 1:Pretratamiento NPTE
+DisplayName: en|Pretratamiento NPTE
+Description: en|Pretratamiento NPTE
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

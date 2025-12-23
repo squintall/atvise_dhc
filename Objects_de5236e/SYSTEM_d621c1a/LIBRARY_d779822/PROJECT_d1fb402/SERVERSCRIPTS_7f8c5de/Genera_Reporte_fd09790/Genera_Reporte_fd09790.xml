@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="Tipo_Reporte" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="timeStampFrom" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="timeStampTo" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="Periodicidad" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="Mult_Periodicidad" type="number" trigger="false" relative="false" value=""/>
+  <parameter name="Metodo_Ajuste" type="number" trigger="false" relative="false" value=""/>
+  <code><![CDATA[//Variables Globales
+var datos_tablas;
+var titulos;
+var Titulo_Reporte;
+
+//----------Preparo datos para reporte----------------//
+
+
+//Titulo de reporte
+Titulo_Reporte= "Reporte de Condiciones Carcamo " + Tipo_Reporte;
+
+//Encabezados en tablas
+var Encabezado_1 = ["Hora","Presion","Flujo","Nivel"];
+
+//Variables de en tablas
+var Ref_Variables_1=["AGENT.OBJECTS.Carcamos.Carcamo_"+Tipo_Reporte+".Presion","AGENT.OBJECTS.Carcamos.Carcamo_"+Tipo_Reporte+".Flujo","AGENT.OBJECTS.Carcamos.Carcamo_"+Tipo_Reporte+".MedicionNivel"];	
+
+//Datos de tablas necesarias
+var tabledata1=call("SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.Table_Data",{Encabezado:Encabezado_1,Ref_Variables:Ref_Variables_1,from:timeStampFrom,to:timeStampTo,periodicidad:Periodicidad,Mult_Periodicidad:Mult_Periodicidad, Metodo_Ajuste:Metodo_Ajuste});
+
+//Datos de Graficas necesarias
+var graphdata1=call("SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.Graph_Data",{Ref_Variables:Ref_Variables_1,from:timeStampFrom,to:timeStampTo,Raw_Data:[tabledata1[2],tabledata1[3]],Method:1});    
+
+//Variables de contenido
+datos_tablas =[tabledata1];
+datos_graficas =graphdata1;
+titulos = ["Tabla 1. Presion, Flujo y Nivel de Carcamo "+Tipo_Reporte];   
+
+
+
+
+
+
+//Configuracion del documento
+const doc = [
+	{type: "setPageMargins", data: {margins: [40, 60, 40, 60]}}
+];
+
+//Configuracion del tiempo
+var date = new Date();
+
+var day = date.getDate();
+var months = date.getMonth() + 1;
+var year = date.getYear() + 1900;
+
+var hour = date.getHours();
+var minutes = date.getMinutes();
+
+date = day + '.' + months + '.' + year;
+
+if (minutes < 10) { minutes = '0' + minutes.toString(); }
+if (day < 10) { day = '0' + day.toString(); }
+if (months < 10) { months = '0' + months.toString(); }
+
+
+// Encabezado de la portada
+const titlePageHeader = [];
+
+// Contenido de la portada
+const titlePageContent = [
+    {type: 'text', data: {text: 'Aguakan', margin: [130, 330, 0, 0], style: {fontSize: 18}}}, //Margenes [left, Top, Right, Botton]
+    {type: 'text', data: {text: Titulo_Reporte, margin: [130, 0], style: {fontSize: 24}}},
+    {type: 'text', data: {text: 'Generado el: ' + day + "." + months + "." + year, margin: [130, 10],style: {fontSize: 12}}},
+];
+
+// Pie de página de la portada
+const titlePageFooter = [];
+
+// Background de la portada
+const titlePageBackground = [{type: 'image', data: {image: 'Aguakan.jpg', width: 600}}];
+
+
+//Encabezado del Contenido
+const contentPageHeader = [
+    {
+        type: 'columns',
+        data: {
+            margin: [0, 20, 0, 0],
+            body: [
+                [{type: 'text', data: {text: '', style: {fontSize: 8}, alignment: 'center'}}],
+                [{type: 'text', data: {text: 'Reporte Aguakan', style: {fontSize: 8}, alignment: 'center'}}],
+                [{type: 'text', data: {text: '', style: {fontSize: 8}, alignment: 'center'}}]
+            ]
+        },
+    },
+    {
+		type: 'svg',
+		data: {
+			svg: '<svg width="520" height="10" viewBox="0 0 520 10"><line x1="-100%" y1="0" x2="100%" y2="0" stroke="black" /></svg>',
+			margin: [40, 5, 0, 0]
+		}
+    },
+];
+
+
+//Introduzco contenido
+
+//Contenido del Contenido
+const contentPageContent = Genera_contentPageContent(datos_tablas,titulos);
+
+//Footer del Contenido
+const contentPageFooter = [
+    {
+        type: 'columns',
+        data: {
+            body: [
+                [{
+                    type: 'table',
+                    data: {
+                        margin: [ 30, 10, 0, 15 ],
+                        layout: 'blackTable',
+                        widths: [60, 105],
+                        body: [
+                            [
+                                {
+                                    type: 'text',
+                                    data: {
+                                        text: 'Generado',
+                                        border: [false, false, false, false],
+                                        borderColor: ["#DDDDDD", "#DDDDDD", "#DDDDDD", "#DDDDDD"],
+                                        margin: [0, 0, 0, 0],
+                                        alignment: 'center'
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    data: {
+                                        text: date + ", " + hour + ":" + minutes,
+                                        border: [false, false, false, false],
+                                        borderColor: ["#DDDDDD", "#DDDDDD", "#DDDDDD", "#DDDDDD"],
+                                        margin: [-15, 2, 0, 0],
+                                        alignment: "center",
+                                        style: {
+                                            fontSize: 10
+                                        }
+                                    }
+                                },
+                            ]
+                        ]
+                    }
+                }],
+                [{
+                    type: 'table',
+                    data: {
+                        heights: [2],
+                        widths: [80],
+                        alignment: 'left',
+                        margin: [-180, 30, 0, 0],
+                        body: [
+                            [
+                                {
+                                    type: 'text',
+                                    data: {
+                                        "text": "",
+                                        "border": [false, false, false, false],
+                                        "style": {
+                                            "fillColor": "#1790ec"
+                                        }
+                                    }
+
+                                }
+                            ]
+                        ]
+                    }
+                }],
+                [{
+                    type: 'text',
+                    data: {
+                        "alignment": 'center',
+                        "margin": [-50, 8, 0, 0],
+                        "text": [
+                            { text: '{currentPage}', italics: true },
+                            ' of ',
+                            { text: '{pageCount}', italics: true }
+                        ]
+                    }
+                }],
+            ]
+        }
+    }
+];
+var contentPageBackground = [];
+
+//----------Configuración final del reporte----------------//
+
+var titlePage = [titlePageHeader, titlePageContent, titlePageFooter, titlePageBackground];
+var contentPage = [contentPageHeader, contentPageContent, contentPageFooter, contentPageBackground];
+
+return ({
+	doc : doc,
+	titlePage : titlePage,
+	contentPage : contentPage,
+})
+
+
+
+
+
+//----------Funciones Auxiliares----------------//
+function Genera_contentPageContent(datos_tablas,titulos){
+	var contentPageContentI=[];
+	
+	//Agrego Grafico
+	
+	//Titulo del Grafico
+	contentPageContentI.push({type: 'text', data: {text: "Grafico 1. Datos de Presion, Flujo y Nivel Carcamo "+Tipo_Reporte, style: {fontSize: 14, bold:true}, margin: [0, 10, 0, 0]}})
+	
+	// Grafico
+	contentPageContentI.push({type: "chart", data: {chart: {
+                width: 2000,
+                options: {
+    "time":{
+         "timezone":"America/New_York",
+         "useUTC":false
+      },
+      "chart":{
+         "type":"line"
+      },
+      "title":{
+         "text":"Datos de Presion, Flujo y Nivel Carcamo "+Tipo_Reporte
+      },
+      "series":graphdata1,
+      
+      "xAxis":{
+         "type":"datetime",
+         "dateTimeLabelFormats":{
+            "hour":"%e. %b %H:%M",
+            "month":"%e. %b",
+            "year":"%b"
+         },
+         "title":{
+            "text":"Tiempo"
+         }
+      }
+   }
+            }, image: {fit: [500, 500]}}});	
+	
+	//Agrego Tablas
+	for (var i=0;i<titulos.length;i++){
+		
+		//Agrego el titulo
+		contentPageContentI.push({type: 'text', data: {text: titulos[i], style: {fontSize: 14, bold:true}}})
+		
+		//Agrego tabla Estadisticos
+		contentPageContentI.push({type: 'table', data: {layout: 'blackTable', body: datos_tablas[i][1]}});
+		
+		//Agrego Cantidad de datos
+		contentPageContentI.push({type: 'text', data: {text: "Cuadro de datos crudos, cantidad: " + (datos_tablas[i][0]).length, style: {fontSize: 14, bold:true}, margin: [0, 10, 0, 0]}})
+		
+		//Agrego tabla Crudos
+		contentPageContentI.push({type: 'table', data: {layout: 'blackTable', body: datos_tablas[i][0], margin: [0, 10, 0, 0]}});
+		
+		//Page Break
+		contentPageContentI.push({type: 'text', data: {text: '', pageBreak: 'after'}});
+		
+	}
+	
+	return contentPageContentI;
+}]]></code>
+</script>

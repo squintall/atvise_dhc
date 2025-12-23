@@ -1,0 +1,13 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_001.pressure
+NodeClass: Variable
+BrowseName: 1:pressure
+DisplayName: en|pressure
+Description: en|pressure
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.pressure.SuppressFlicker
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.pressure.high_limits
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.pressure.low_limits
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

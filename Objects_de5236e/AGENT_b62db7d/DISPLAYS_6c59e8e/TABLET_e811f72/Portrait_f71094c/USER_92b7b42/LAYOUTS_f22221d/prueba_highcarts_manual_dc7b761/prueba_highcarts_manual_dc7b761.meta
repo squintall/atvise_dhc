@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.LAYOUTS.prueba_highcarts_manual
+NodeClass: Variable
+BrowseName: 1:prueba_highcarts_manual
+DisplayName: en|prueba_highcarts_manual
+Description: en|prueba_highcarts_manual
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

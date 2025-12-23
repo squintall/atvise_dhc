@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.AlarmConditions
+NodeClass: Variable
+BrowseName: 1:AlarmConditions
+DisplayName: en|AlarmConditions
+Description: en|AlarmConditions
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

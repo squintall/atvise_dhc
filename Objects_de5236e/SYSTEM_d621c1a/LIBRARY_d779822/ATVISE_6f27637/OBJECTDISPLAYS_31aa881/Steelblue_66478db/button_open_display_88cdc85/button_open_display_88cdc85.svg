@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="30" version="1.2" width="80" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_12" x1="0.119403" x2="0.119403" y1="0.970149" y2="-0.0159425">
+   <stop offset="0" stop-color="#29394b"/>
+   <stop offset="1" stop-color="#788ba3"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_0" x1="0.776844" x2="0.776844" y1="-0.0159425" y2="0.940299">
+   <stop offset="0" stop-color="#1a242f"/>
+   <stop offset="1" stop-color="#71849c"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_1" x1="1" x2="1" y1="-0.0183441" y2="1">
+   <stop offset="0" stop-color="#ffffff" stop-opacity="0.2745098039215687"/>
+   <stop offset="0.5515695067264574" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_2" x1="1" x2="1" y1="1" y2="-0.0183441">
+   <stop offset="0" stop-color="#ffffff" stop-opacity="0.2745098039215687"/>
+   <stop offset="0.5515695067264574" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+ </defs>
+ <desc>Opens the specified display.</desc>
+ <title>Button Open Display</title>
+ <metadata>
+  <atv:parameter behavior="hidden" desc="base" name="base" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Display}" desc="label" name="label" substitute="$LABEL$" valuetype="trstring"/>
+  <atv:parameter behavior="mandatory" desc="target display" name="display" valuetype="display"/>
+  <atv:parameter behavior="mandatory" defaultvalue="content" desc="target frame" name="frame" valuetype="string"/>
+  <atv:parameter behavior="optional" config="Times New Roman=Times New Roman,Bodoni,Garamond,Minion Web,ITC Stone Serif,MS Georgia,Bitstream Cyberbit,serif;Arial=MS Trebuchet,ITC Avant Garde Gothic,MS Arial,MS Verdana,Univers,Futura,ITC Stone Sans,Gill Sans,Akzidenz Grotesk,Helvetica,sans-serif;Courier=Courier,MS Courier New,Prestige,Everson Mono,monospace;Zapf-Chancery=Caflisch Script,Adobe Poetica,Sanvito,Ex Ponto,Snell Roundhand,Zapf-Chancery,cursive;Alpha Geometrique=Alpha Geometrique,Critter,Cottonwood,FB Reactor,Studz,fantasy" defaultvalue="Arial" desc="family" group="Font" name="fontFamily" substitute="$FONTFAMILY$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="12" desc="size" group="Font" name="fontSize" substitute="$FONTSIZE$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="#d0d0d0" desc="color" group="Font" name="fontColor" substitute="$FONTCOLOR$" valuetype="color"/>
+  <atv:parameter behavior="optional" config="visible=inherit;hidden=hidden" defaultvalue="inherit" desc="visibility label" group="Appearance" name="visibilityLabel" substitute="$VISIBILITYLABEL$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="visible=inherit;hidden=hidden" defaultvalue="hidden" desc="visibility symbol" group="Appearance" name="visibilitySymbol" substitute="$VISIBILITYSYMBOL$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.display" desc="symbol" group="Appearance" name="symbol" substitute="$SYMBOL$" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="#d0d0d0" desc="symbol color" group="Appearance" name="symbolColor" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#495a6f" desc="fill color" group="Appearance" name="fillColor" substitute="$FILLCOLOR$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#8c8c8c" desc="fill color when inactive" group="Appearance" name="fillColorInactive" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="stroke color pressed" group="Appearance" name="strokePressed" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="focus stroke color" group="Appearance" name="focusStrokeColor" valuetype="color"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" desc="necessary right" group="Security" name="right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security" name="activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security" name="activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" desc="tab index" group="Options" name="tabIndex" valuetype="number"/>
+  <atv:parameter behavior="optional" desc="tooltip" group="Options" name="tooltip" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show access control notification" group="Security" name="displayAcNotification" valuetype="bool"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="2" width="2"/>
+  <atv:snapconfig enabled="true" height="2" width="2"/>
+ </metadata>
+ <g atv:dynamic="true" atv:refpx="40" atv:refpy="15" id="button_clickarea">
+  <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:dynamic="true" atv:refpx="40.25" atv:refpy="16.5" fill="url(#linear_12)" height="29.5" id="outer_frame" rx="3" ry="3" stroke="#646464" stroke-width="0.5" width="79.5" x="0.25" y="0.25"/>
+  <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="42.75" atv:refpy="-88.5" fill="url(#linear_0)" height="24.5" id="inner_frame" rx="2.811" ry="2.492" stroke="none" stroke-width="0.5" width="74.5" x="2.75" y="2.75"/>
+  <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="44" atv:refpy="39" fill="$FILLCOLOR$" height="22" id="button_bg" rx="2.717" ry="2.237" stroke="none" stroke-width="0.5" width="72" x="4" y="4"/>
+  <svg atv:bindbr="0.5,0.5" atv:bindtl="0.5,0.5" atv:refpx="70" atv:refpy="15" height="20" id="button_symbol" visibility="$VISIBILITYSYMBOL$" width="20" x="30" xlink:href="$SYMBOL$" y="5">
+   <atv:argument name="symbolColor" prefix="symbolColor"/>
+  </svg>
+  <text atv:bindbr="0.5,0.5" atv:bindtl="0.5,0.5" atv:refpx="61" atv:refpy="15" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="$FONTSIZE$" id="button_label" text-anchor="middle" visibility="$VISIBILITYLABEL$" x="40" y="19.5">$LABEL$</text>
+  <rect atv:bindbr="1,1" atv:bindtl="0,0" atv:refpx="44" atv:refpy="39" fill="url(#linear_1)" height="22" id="button_stroke" rx="2.717" ry="2.237" stroke="none" stroke-width="1" width="72" x="4" y="4"/>
+ </g>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.common.rights_handling" atv:name="rights_handling" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.button_open_display" atv:name="button_open_display" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Mapas.Mapa_Cuenca_PTARLOX
+NodeClass: Variable
+BrowseName: 1:Mapa_Cuenca_PTARLOX
+DisplayName: en|Mapa_Cuenca_PTARLOX
+Description: en|Mapa_Cuenca_PTARLOX
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

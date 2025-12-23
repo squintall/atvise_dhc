@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.user_delete
+NodeClass: Variable
+BrowseName: 1:user_delete
+DisplayName: en|user_delete
+Description: en|user_delete
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

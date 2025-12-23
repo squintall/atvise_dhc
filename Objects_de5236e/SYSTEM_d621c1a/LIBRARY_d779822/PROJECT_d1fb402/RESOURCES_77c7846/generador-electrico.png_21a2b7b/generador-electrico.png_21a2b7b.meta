@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/generador-electrico.png
+NodeClass: Variable
+BrowseName: 1:generador-electrico.png
+DisplayName: en|generador-electrico.png
+Description: en|generador-electrico.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

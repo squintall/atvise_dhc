@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+    <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the table notification object display
+ * ----------------------------------------
+ * This script supports the display handling a notification button for calling additional information.
+ */
+
+
+/**
+ * Declaration Section
+ */
+var dialogBoard = null;
+var font_family = webMI.query["font_family"];
+var font_size = webMI.query["font_size"];
+var messageBoard = webMI.query["messageBoard"];
+var tableController, tableConfig;
+var tableID = webMI.query["tableID"];
+var style = webMI.query["style"];
+
+if (!messageBoard) {
+	messageBoard = "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.messageBoard";
+}
+
+
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+
+	webMI.table.loadResources(function () {
+		webMI.table.waitReady(tableID, "ControllerConfig", function () {
+		});
+
+	});
+
+	webMI.table.waitReady(tableID, "controller", function () {
+		tableController = webMI.table.request(tableID, "controller");
+		tableConfig = webMI.table.request(tableID, "ControllerConfig");
+
+		var notification = function () {
+			var container = tableConfig.notification.notification;
+			var isActive = false;
+			var isVisible = false;
+			var messageList = [];
+
+			this.handleEvent = function (e, args) {
+				if (!this.toggleBoard()) {
+					setTimeout(function () {
+						webMI.trigger.fire("com.atvise.message_board_update", messageList);
+					}, 250);
+				}
+			}
+
+			this.addNotification = function (message) {
+				if (typeof message == "object" && typeof message.error != "undefined") {
+					messageList.push(message.error + ": " + message.address + ": " + message.message);
+				} else {
+					messageList.push(message);
+				}
+				this.showButton();
+				webMI.trigger.fire("com.atvise.message_board_update", messageList);
+			};
+
+			this.showButton = function () {
+				if (!isActive) {
+					isActive = true;
+					tableController.showNotificatonButton();
+				}
+			}
+
+			this.toogleButton = function () {
+				if (isActive) {
+					tableController.showNotificatonButton();
+					isActive = false;
+					return;
+				}
+				isActive = true;
+				tableController.hideNotificatonButton();
+			}
+
+			this.toggleBoard = function () {
+				if (isVisible) {
+					return false;
+				} else {
+					dialogBoard = webMI.display.openWindow({
+						display: messageBoard,
+						extern: false,
+						height: 540,
+						menubar: false,
+						modal: false,
+						movable: false,
+						resizable: false,
+						scrollbars: true,
+						status: false,
+						title: "T{Notification}",
+						toolbar: false,
+						width: 900,
+						query: {
+							font_family: font_family,
+							font_size: font_size,
+							btn1: "T{Clear}",
+							btn2: "T{Close}",
+							action_btn1: "triggerClearBoard",
+							action_unload: "triggerCloseBoard"
+						}
+					});
+					isVisible = true;
+				}
+			}
+
+			webMI.trigger.connect("com.atvise.message_board_loaded", function (e) {
+				webMI.trigger.fire("com.atvise.message_board_update", messageList);
+			});
+
+			webMI.trigger.connect("triggerClearBoard", function (e) {
+				messageList = [];
+				webMI.trigger.fire("com.atvise.message_board_reset", true);
+			});
+
+			webMI.trigger.connect("triggerCloseBoard", function (e) {
+				isVisible = false;
+				if (messageList.length === 0) {
+					tableController.hideNotificatonButton();
+					isActive = false;
+				}
+				dialogBoard = null;
+			});
+
+		}
+
+		tableController.notification = new notification();
+	});
+});
+]]></code>
+</script>

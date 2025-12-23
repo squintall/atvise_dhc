@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.Combo_Reportes
+NodeClass: Variable
+BrowseName: 1:Combo_Reportes
+DisplayName: en|Combo_Reportes
+Description: en|Combo_Reportes
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

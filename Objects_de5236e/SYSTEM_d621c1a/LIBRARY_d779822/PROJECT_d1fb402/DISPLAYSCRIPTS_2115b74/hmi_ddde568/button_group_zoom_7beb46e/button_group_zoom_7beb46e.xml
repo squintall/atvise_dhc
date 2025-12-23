@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the button_group_zoom object display
+ * ---------------------------------------------
+ * This control is a group of buttons that provides zooming functionality for the visualisation:
+ * - zoom in: Button that increases the zoom level.
+ * - zoom out: Button that decreases the zoom level.
+ * - zoom area: Button that activates the area zoom. You can select the desired area with the mouse after you have activated the button.
+ * - zoom reset: Resets the zoom level to initial state.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var strokeNormal = "none";
+var strokePressed = webMI.query["strokePressed"];
+var frameName = webMI.query["targetFrame"];
+var isOldStyle = typeof webMI.query["color"] != "undefined";
+var touchDevice = webMI.getClientInfo() ? webMI.getClientInfo().isMultiTouchDevice : false;
+
+/**
+ * RUNTIME SECTION
+ */
+
+if (!touchDevice || isOldStyle) {
+	registerEventsForClickarea3();
+} else {
+	webMI.gfx.setFill("button_stroke_3", webMI.query["fillColorInactive"]);
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent("clickarea_1", "mousedown", function(e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_1", "url(#linear_2)");
+		if (isOldStyle) webMI.gfx.setStroke("button_stroke_1", strokePressed);
+	} (value);
+});
+
+webMI.addEvent("clickarea_1", "mouseup", function(e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_1", "url(#linear_1)");
+		if (isOldStyle) webMI.gfx.setStroke("button_stroke_1", strokeNormal);
+	} (value);
+});
+
+webMI.addEvent("clickarea_1", "mouseout", function(e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_1", "url(#linear_1)");
+		if (isOldStyle) webMI.gfx.setStroke("button_stroke_1", strokeNormal);
+	} (value);
+});
+
+webMI.addEvent("clickarea_1", "click", function(e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function(value) {
+		webMI.trigger.fire("com.atvise.zoomIn_" + frameName, true);
+	} (value);
+});
+
+webMI.addEvent("clickarea_2", "mousedown", function(e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_2", "url(#linear_2)");
+		if (isOldStyle) webMI.gfx.setStroke("button_stroke_2", strokePressed);
+	} (value);
+});
+
+webMI.addEvent("clickarea_2", "mouseup", function(e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_2", "url(#linear_1)");
+		if (isOldStyle) webMI.gfx.setStroke("button_stroke_2", strokeNormal);
+	} (value);
+});
+
+webMI.addEvent("clickarea_2", "mouseout", function(e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_2", "url(#linear_1)");
+		if (isOldStyle) webMI.gfx.setStroke("button_stroke_2", strokeNormal);
+	} (value);
+});
+
+webMI.addEvent("clickarea_2", "click", function(e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function(value) {
+		webMI.trigger.fire("com.atvise.zoomOut_" + frameName, true);
+	} (value);
+});
+
+function registerEventsForClickarea3() {
+
+	webMI.addEvent("clickarea_3", "mousedown", function(e) {
+		var id = "clickarea_3";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_3", "url(#linear_2)");
+			if (isOldStyle) webMI.gfx.setStroke("button_stroke_3", strokePressed);
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_3", "mouseup", function(e) {
+		var id = "clickarea_3";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_3", "url(#linear_1)");
+			if (isOldStyle) webMI.gfx.setStroke("button_stroke_3", strokeNormal);
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_3", "mouseout", function(e) {
+		var id = "clickarea_3";
+		var value = true;
+		return function(value) {
+			webMI.gfx.setFill("button_stroke_3", "url(#linear_1)");
+			if (isOldStyle) webMI.gfx.setStroke("button_stroke_3", strokeNormal);
+		} (value);
+	});
+
+	webMI.addEvent("clickarea_3", "click", function(e) {
+		var id = "clickarea_3";
+		var value = true;
+		return function(value) {
+			webMI.trigger.fire("com.atvise.zoomRect_" + frameName, true);
+		} (value);
+	});
+
+}
+
+webMI.addEvent("clickarea_4", "mousedown", function(e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_4", "url(#linear_2)");
+		if (isOldStyle) webMI.gfx.setStroke("button_stroke_4", strokePressed);
+	} (value);
+});
+
+webMI.addEvent("clickarea_4", "mouseup", function(e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_4", "url(#linear_1)");
+		if (isOldStyle) webMI.gfx.setStroke("button_stroke_4", strokeNormal);
+	} (value);
+});
+
+webMI.addEvent("clickarea_4", "mouseout", function(e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function(value) {
+		webMI.gfx.setFill("button_stroke_4", "url(#linear_1)");
+		if (isOldStyle) webMI.gfx.setStroke("button_stroke_4", strokeNormal);
+	} (value);
+});
+
+webMI.addEvent("clickarea_4", "click", function(e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function(value) {
+		webMI.trigger.fire("com.atvise.zoom11_" + frameName, true);
+	} (value);
+});
+
+/*
+----------------
+---- TRIGGERS ----
+----------------
+*/
+
+webMI.trigger.connect("setFrame", function(e) {
+	myFrame = e.value;
+});
+]]></code>
+</script>

@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.RIGHTS.USER.GuardarNodoConfig
+NodeClass: Object
+BrowseName: 1:GuardarNodoConfig
+DisplayName: en|Guardar gráfica
+Description: en|Guardar configuración de gráficas
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

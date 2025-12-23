@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DISK
+NodeClass: Object
+BrowseName: 1:DISK
+DisplayName: en|DISK
+Description: en|DISK
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

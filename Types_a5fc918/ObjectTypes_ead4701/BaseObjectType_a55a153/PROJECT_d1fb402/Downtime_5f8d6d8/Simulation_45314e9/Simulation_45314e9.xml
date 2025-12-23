@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="Trigger" type="interval" trigger="false" relative="false" value="" offset="00:00:00" interval="00:00:01"/>
+  <code><![CDATA[//External Variables
+var Downtime_Reason_1 = Ua.findNode((base)+".Downtime_Monitor.Downtime_Reason_1");
+var Downtime_Reason_2 = Ua.findNode((base)+".Downtime_Monitor.Downtime_Reason_2");
+var Downtime_Reason_3 = Ua.findNode((base)+".Downtime_Monitor.Downtime_Reason_3");
+var Downtime_Reason_4 = Ua.findNode((base)+".Downtime_Monitor.Downtime_Reason_4");
+
+var Downtime_Reason_Status_1 = Ua.findNode((base)+".Downtime_Status.Downtime_Reason_Status_1");
+var Downtime_Reason_Status_2 = Ua.findNode((base)+".Downtime_Status.Downtime_Reason_Status_2");
+var Downtime_Reason_Status_3 = Ua.findNode((base)+".Downtime_Status.Downtime_Reason_Status_3");
+var Downtime_Reason_Status_4 = Ua.findNode((base)+".Downtime_Status.Downtime_Reason_Status_4");
+
+var Downtime_Reason_Array= [Downtime_Reason_1,Downtime_Reason_2,Downtime_Reason_3,Downtime_Reason_4];
+
+//Internal Variables
+
+var Downtime_Reason_1I = Downtime_Reason_1.result.value;
+var Downtime_Reason_2I = Downtime_Reason_2.result.value;
+var Downtime_Reason_3I = Downtime_Reason_3.result.value;
+var Downtime_Reason_4I = Downtime_Reason_4.result.value;
+
+var Downtime_Reason_1I = Downtime_Reason_Status_1.result.value;
+var Downtime_Reason_2I = Downtime_Reason_Status_2.result.value;
+var Downtime_Reason_3I = Downtime_Reason_Status_3.result.value;
+var Downtime_Reason_4I = Downtime_Reason_Status_4.result.value;
+
+
+var Downtime_Reason_ArrayI= [Downtime_Reason_1I,Downtime_Reason_2I,Downtime_Reason_3I,Downtime_Reason_4I];
+var Downtime_Reason_Status_ArrayI= [Downtime_Reason_Status_1I,Downtime_Reason_Status_2I,Downtime_Reason_Status_3I,Downtime_Reason_Status_4I];
+
+//Logic
+
+for (var i = 0; i < Downtime_Reason_Status_ArrayI.length; i++) {
+    // Check if the downtime reason status is false
+    if (Downtime_Reason_Status_ArrayI[i] === false) {
+        // If false, add 1 to the corresponding downtime reason
+        Downtime_Reason_ArrayI[i] += 1;
+        Downtime_Reason_Array.result.assign({value: Downtime_Reason_ArrayI[i]});
+    }
+}]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.MENUSCRIPTS.Variables_Parser
+NodeClass: Variable
+BrowseName: 1:Variables_Parser
+DisplayName: en|Variables_Parser
+Description: en|Variables_Parser
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

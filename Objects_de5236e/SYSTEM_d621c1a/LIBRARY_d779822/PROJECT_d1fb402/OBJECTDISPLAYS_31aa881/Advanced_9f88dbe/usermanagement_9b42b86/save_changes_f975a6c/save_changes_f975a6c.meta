@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.save_changes
+NodeClass: Variable
+BrowseName: 1:save_changes
+DisplayName: en|save_changes
+Description: en|save_changes
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

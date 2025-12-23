@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA/9JREFUeNrEl0trE1EUx09rXIig+QI1Qam1vjoV4wOFRFB3Qt25M1E34sIgolQUUhSKRSVFEXcZFyrqJuAHMAFFaW0zwVZxYyctuHIRxTYR2zmec+dmcpMmk2nr48LMTS6Z+Z17Hv970oaI8D+HT/2y99l0hCa+TEA02baRE4HM3zSgTfUAGRCkaYrgYC/LmW+IeZqKNBfpGcNeg/RYtNP4YwYII54WdFo6WQd3PqP8DmLCQ+OxzSvyUHv9Ar1b9wgfXim8oQd4hJ6Y7OIeF3ie4JpXyPZhI8rPT8Z79ZYeIHi0Bfwb3fqWCE+Bhamtt8eirh4guEYvz7nA+RYbP9Wle4QH6ZkpgjvvQQt7P14KGQ3LkH6QbAF/6AY/8HwPhyUz/wvMcgkiE+dHzG13xmPCAzac35OUpV4bgtDjKXZ9WIEPg3C3Ay/QHPcID5bmMLPhZsg/eWGXTs8OYNUL4a7Bt9HFOYAYVeAFuiUInnRcR3HPnd5S9LJzgkfKcxCkS1TJh4u7E/KdthEW1hoQevSZYgVhxe2JsZOdLDi6XBsguOEFnj89UiSwyRcZElQ2mJBwfl+48/rroGMArUfqYp7mdSo1kmM8TvBEC/hM+yq4umYtALudd85wNqjKx3QlGaUhkWoIEDUFniV5dVxN8LRLoicJ/t23Wjz64ksBD6rwX/feOV771L+PPZpVvKApHkBNyXbP2j4/Dx/b26FjYQG2E3yi9AMGG8EVLxhOSVq2Ab6K/irZXnSDSrcnGe7zwX6CA8GhNAvry2Vc1wwuhiUOMnCMqBoAoGQ7eCi177TzsITn537Am59l7CZ4vCkcAFR4jQE1cER/q4TjmBO8g3fO8K/XR896ipmFfiUJQU1CoyqVoLmVGmV7vxPzWZjhnXvNGawku+0FQ01CQ8KFUvU8mPQ3q3P62SuCH6OEg3JJxDzuBb7pWpZ3H3ZCYCkG0EpGwithUE+7GpFht1Op3aCE63BNuMW771PggukYkDvTzT1gVskFR3gUbQ/Wi4xXuIx/QoFnzaHDZs1ZoMguX4Edd/PCCKntLK2Z5cI3XnnJ8ICEsxF6w35g5/33GTVOVJ6xifOavpKdE1w0JAo8W7h1JNKwHxDHrYU5rApTis5zmL48yhZrS+33GsCh/kivacnen9vJ5RhzhMl+ILX11rvEMuCJBvDY9O2jRsumdFsyF+UeTmmjnB6BTzU+WFxKrU8mXKABXPfUFfMQDaTcQY1S2t+z8mCpaLtfiky4rtRc4a4G8OgeGtVkdfQs0nELodmaAqd/Uxitd7tnAypD9HAWt2zcM3qCZ7nUKNtbds9tS/l3LNoo6mRE/2DZuq5qu5BXUriKyCz7n9G/HL8FGACh1OrJIyFTigAAAABJRU5ErkJggg==</icon>
+	<visible>1</visible>
+	<title>Auto Reconnect</title>
+	<description>Provides an auto reconnect functionality.</description>
+  </metadata>
+  <parameter behavior="optional" defaultvalue="true" desc="activates auto reconnect" name="activated" valuetype="bool"/>
+  <parameter behavior="optional" defaultvalue="5" desc="interval in seconds for auto reconnect" name="interval" valuetype="number"/>
+  <parameter behavior="hidden" defaultvalue="false" desc="use parameters as default configuration" name="defaultconfiguration" valuetype="bool"/>
+  <code><![CDATA[var self = this;
+
+if (!this.initialized || base.defaultconfiguration == "false") {
+	this.activated = base.activated == "true";
+	this.interval = parseInt(base.interval);
+}
+
+if (this.initialized) return;
+
+var indexHtmWindow = window;
+try {
+	while (top != indexHtmWindow && indexHtmWindow.parent.webMI) indexHtmWindow = indexHtmWindow.parent;
+} catch (ex) {
+	// do nothing
+}
+
+var connectingText = "Connecting ...";
+var reconnectingText = "Retry in %d second(s) ...";
+var seconds = 0;
+var state = 0;
+var timer = null;
+var statusBar = createElement(
+	"div",
+	{},
+	{
+		bottom: 0,
+		color: "white",
+		fontFamily: "Arial",
+		fontWeight: "bold",
+		display: "none",
+		height: "35px",
+		lineHeight: "35px",
+		position: "absolute",
+		textAlign: "center",
+		width: "100%",
+		zIndex: 999
+	},
+	indexHtmWindow.document.getElementById("mainContainer")
+);
+
+handleStateChange(webMI.getState()); //Call handleStateChange in case that the state had already changed to >0
+webMI.addEvent(webMI.data, "statechange", handleStateChange);
+
+webMI.addEvent(webMI.data, "serverstatechange", function (e) {
+	if (state < 0 && (e.status == "Sop" || e.status == "Snop")) setStatusText(webMI.sprintf("Trying to connect ..."));
+	else statusBar.style.display = "none";
+});
+
+function connect() {
+	if (!self.activated || state > -1) return;
+
+	setStatusText(webMI.sprintf(reconnectingText, self.interval - seconds));
+
+	if (seconds >= self.interval) {
+		seconds = 0;
+		setStatusText(connectingText);
+		webMI.data.call("read", "", function (e) {
+			var up = false;
+			if (e["result"] || e["error"] > -1000) up = true;
+
+			handleServerState(up);
+		});
+	} else {
+		++seconds;
+	}
+}
+
+this.initialized = true;
+
+function createElement(nodeName, attributes, style, parent) {
+	var element = webMI.dom.createElement("http://www.w3.org/1999/xhtml", nodeName);
+	for (let i in attributes) element.setAttribute(i, attributes[i]);
+	for (let i in style) element.style[i] = style[i];
+
+	return parent.appendChild(element);
+}
+
+function setStatusText(text) {
+	statusBar.style.display = "block";
+
+	if ("innerText" in statusBar) statusBar.innerText = text;
+	else statusBar.textContent = text;
+}
+
+function handleServerState(up) {
+	if (up) indexHtmWindow.location.reload(true);
+	else {
+		var topErrorScreen = indexHtmWindow.document.getElementById("errorscreen");
+		if (topErrorScreen) topErrorScreen.style.display = "block";
+	}
+}
+
+function handleStateChange(s) {
+	state = s;
+	if (state < 0 && !webMI.isRedundant() && timer == null) timer = setInterval(connect, 1000);
+	else if (state > -1) statusBar.style.display = "none";
+}
+]]></code>
+</script>

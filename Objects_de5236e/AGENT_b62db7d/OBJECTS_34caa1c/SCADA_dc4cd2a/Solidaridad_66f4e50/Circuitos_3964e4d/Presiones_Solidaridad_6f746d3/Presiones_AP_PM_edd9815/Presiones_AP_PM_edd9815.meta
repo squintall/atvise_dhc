@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Presiones_Solidaridad.Presiones_AP_PM
+NodeClass: Variable
+BrowseName: 1:Presiones_AP_PM
+DisplayName: en|Presiones_AP_PM
+Description: en|Presiones_AP_PM
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

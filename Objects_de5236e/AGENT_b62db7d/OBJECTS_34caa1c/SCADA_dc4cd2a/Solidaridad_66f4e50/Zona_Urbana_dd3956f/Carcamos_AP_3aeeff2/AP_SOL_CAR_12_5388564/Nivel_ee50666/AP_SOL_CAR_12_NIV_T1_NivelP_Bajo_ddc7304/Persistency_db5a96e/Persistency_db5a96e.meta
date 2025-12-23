@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_12.Nivel.AP_SOL_CAR_12_NIV_T1_NivelP_Bajo.Persistency
+NodeClass: Variable
+BrowseName: 1:Persistency
+DisplayName: en|Persistency
+Description: en|Persistency
+DataType: Byte
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Persistency.RelMirrorInputOutput

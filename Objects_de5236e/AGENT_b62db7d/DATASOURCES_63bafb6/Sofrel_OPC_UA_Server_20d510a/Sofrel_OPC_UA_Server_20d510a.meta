@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server
+NodeClass: Object
+BrowseName: 1:Sofrel OPC UA Server
+DisplayName: en|Sofrel OPC UA Server
+Description: en|Sofrel OPC UA Server
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.Datasource.OpcUa

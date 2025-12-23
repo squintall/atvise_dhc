@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Palmas_II.Equipos.Caudalimetro.L1.trendCfg
+NodeClass: Variable
+BrowseName: 1:trendCfg
+DisplayName: en|trendCfg
+Description: en|trendCfg
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

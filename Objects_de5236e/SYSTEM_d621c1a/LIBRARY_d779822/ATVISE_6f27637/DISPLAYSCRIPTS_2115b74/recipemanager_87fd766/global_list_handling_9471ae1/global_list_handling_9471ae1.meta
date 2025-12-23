@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.recipemanager.global_list_handling
+NodeClass: Variable
+BrowseName: 1:global_list_handling
+DisplayName: en|global_list_handling
+Description: en|global_list_handling
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

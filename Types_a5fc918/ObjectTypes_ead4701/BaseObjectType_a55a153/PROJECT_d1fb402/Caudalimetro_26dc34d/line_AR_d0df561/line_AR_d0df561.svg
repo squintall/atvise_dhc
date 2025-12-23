@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="50" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <rect atv:refpx="169" atv:refpy="25" fill="#ffffff" height="48" id="id_11" stroke="#000000" stroke-width="2" width="336" x="1" y="1"/>
+ <rect atv:refpx="1128.5" atv:refpy="25" fill="#ffffff" height="48" id="id_1" stroke="#000000" stroke-width="2" width="1581" x="338" y="1"/>
+ <rect atv:refpx="1775.682" atv:refpy="38.329" fill="#d5d5d5" height="13.812" id="id_0" stroke="#000000" stroke-opacity="0" stroke-width="2.15" width="157.364" x="1697" y="18.188"/>
+ <polygon atv:refpx="1060.428" atv:refpy="24" fill="#d5d5d5" id="id_3" points="1854,30.333 1854,41 1873.97,25 1854,8.998 1854,8.998" stroke="#000000" stroke-opacity="0" stroke-width="2.15"/>
+ <rect atv:refpx="376.225" atv:refpy="25.049" fill="#ffffff" height="48.1" id="id_13" stroke="#000000" stroke-width="2" width="583" x="1113" y="1"/>
+ <rect atv:refpx="-163.113" atv:refpy="0" fill="#e8e8e8" height="44.026" id="id_12" stroke="#000000" stroke-opacity="0" stroke-width="2" width="120" x="1115" y="3.521"/>
+ <text atv:refpx="1193.267" atv:refpy="32.615" fill="#000000" font-family="Arial" font-size="22" font-weight="bold" id="id_38" text-anchor="end" x="1206.767" y="45.115">Q</text>
+ <text atv:refpx="1220.386" atv:refpy="38.921" fill="#000000" font-family="Arial" font-size="18" font-weight="bold" id="id_39" text-anchor="end" x="1229.886" y="45.421">l/s</text>
+ <text atv:refpx="-76" atv:refpy="0" fill="#000000" font-family="Arial" font-size="22" font-weight="bold" id="id_56" text-anchor="end" x="1393.931" y="45.115">Vd</text>
+ <text atv:refpx="1423.262" atv:refpy="40.921" fill="#000000" font-family="Arial" font-size="18" font-weight="bold" id="id_57" text-anchor="start" x="1396.932" y="45.421">m3</text>
+ <text atv:refpx="87.818" atv:refpy="31" fill="#000000" font-family="Arial" font-size="24" id="id_6" text-anchor="start" x="77.5" y="35.5">NL</text>
+ <text atv:refpx="31.425" atv:refpy="31" fill="#000000" font-family="Arial" font-size="24" font-weight="bold" id="id_7" text-anchor="end" x="40.5" y="35.5">D</text>
+ <text atv:refpx="54.326" atv:refpy="31" fill="#000000" font-family="Arial" font-size="24" font-weight="bold" id="id_14" text-anchor="start" x="43.5" y="35.5">"</text>
+ <rect atv:refpx="191.953" atv:refpy="28.39" fill="#e8e8e8" height="44.026" id="id_2" stroke="#000000" stroke-opacity="0" stroke-width="2" width="265" x="1430" y="3.375"/>
+ <text atv:refpx="1210.886" atv:refpy="16.5" fill="#000000" font-family="Arial" font-size="12" font-weight="bold" id="id_15" text-anchor="end" x="1229.886" y="21">Caudal</text>
+ <text atv:refpx="1390.932" atv:refpy="16.5" fill="#000000" font-family="Arial" font-size="12" font-weight="bold" id="id_16" text-anchor="end" x="1422.932" y="21">Producción</text>
+ <text atv:refpx="1646.5" atv:refpy="16.5" fill="#000000" font-family="Arial" font-size="12" font-weight="bold" id="id_17" text-anchor="end" x="1692.5" y="21">Producción total</text>
+ <text atv:refpx="1647.487" atv:refpy="40.615" fill="#000000" font-family="Arial" font-size="22" font-weight="bold" id="id_18" text-anchor="end" x="1663.5" y="45.115">Vd</text>
+ <text atv:refpx="1692.83" atv:refpy="40.921" fill="#000000" font-family="Arial" font-size="18" font-weight="bold" id="id_19" text-anchor="start" x="1666.5" y="45.421">m3</text>
+ <rect atv:refpx="549.446" atv:refpy="28" fill="#e8e8e8" fill-opacity="0" height="44" id="id_22" stroke="#000000" stroke-opacity="0" stroke-width="2" width="122" x="1307" y="6"/>
+ <rect atv:refpx="159.621" atv:refpy="25.5" fill="#e8e8e8" fill-opacity="0" height="45" id="id_23" stroke="#000000" stroke-opacity="0" stroke-width="2" width="269" x="1431" y="3"/>
+ <rect atv:refpx="1173.5" atv:refpy="25" fill="#000000" fill-opacity="0" height="48" id="id_4" stroke="#0000ff" stroke-opacity="0" stroke-width="2" width="121" x="1113" y="1"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[// === FUNCIONES UTILITARIAS ===
+
+// Formatea números según configuración regional
+function formatNumber(value, digits = 1) {
+    return new Intl.NumberFormat('es-MX', { maximumFractionDigits: digits }).format(value);
+}
+
+// Formatea fecha desde timestamp
+function formatDate(timestamp) {
+    const date = new Date(timestamp);
+    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+    return new Intl.DateTimeFormat('es-MX', options).format(date);
+}
+
+// Suscribe a variable y actualiza texto con formato opcional
+function subscribeText(id, variablePath, formatter = val => val) {
+    webMI.data.subscribe(variablePath, function(e) {
+        webMI.gfx.setText(id, formatter(e.value));
+    });
+}
+
+// Suscribe a variable y cambia color basado en valor y estado
+function subscribeFill(id, variablePath, threshold = 1, colorOn = "#a18262", colorOff = "#d5d5d5") {
+    webMI.data.subscribe(variablePath, function(e) {
+        const { status, value } = e;
+        const color = (status === 0 && value > threshold) ? colorOn : colorOff;
+        webMI.gfx.setFill(id, color);
+    });
+}
+
+// Crea un evento para abrir una ventana
+function addWindowEvent(id, displayPath, options = {}) {
+    webMI.addEvent(id, "click", function() {
+        webMI.display.openWindow({
+            display: displayPath,
+            query: webMI.query,
+            ...options
+        });
+    });
+}
+
+// === SUSCRIPCIONES ===
+
+subscribeText("id_56", webMI.query["base"] + ".current_daily_volume", val => formatNumber(val));
+subscribeText("id_38", webMI.query["base"] + ".current_flow", val => webMI.sprintf("%.1f", val));
+subscribeText("id_6", webMI.query["base"] + ".name");
+subscribeText("id_7", webMI.query["base"] + ".diameter");
+subscribeText("id_18", webMI.query["base"] + ".current_total_volume", val => formatNumber(val));
+
+// Fecha de producción
+webMI.data.subscribe(webMI.query["base"] + ".current_daily_volume", function(e) {
+    const id = "id_16";
+    webMI.gfx.setText(id, "Producción: " + formatDate(e.timestamp));
+});
+
+// Colores dinámicos por flujo
+subscribeFill("id_3", webMI.query["base"] + ".current_flow");
+subscribeFill("id_0", webMI.query["base"] + ".current_flow");
+
+// === EVENTOS DE VENTANA ===
+
+addWindowEvent("id_23", "SYSTEM.DISPLAYS.Caudalimetro.totalizer_options", {
+    height: 950, width: 1700, modal: true, title: "T{Caudal}",
+    menubar: false, movable: true, resizable: true,
+    scrollbars: false, status: false, toolbar: false
+});
+
+addWindowEvent("id_7", "SYSTEM.DISPLAYS.Caudalimetro.change_diameter", {
+    height: 100, width: 300, modal: true, title: "T{Editar diámetro}",
+    menubar: false, movable: false, resizable: false,
+    scrollbars: false, status: false, toolbar: false,
+    x: 0, y: 0
+});
+
+addWindowEvent("id_4", "SYSTEM.DISPLAYS.Caudalimetro.graph_caudales", {
+    height: 570, width: 1920, modal: true, title: "T{Caudal}",
+    menubar: false, movable: true, resizable: true,
+    scrollbars: false, status: false, toolbar: false
+});
+
+addWindowEvent("id_22", "SYSTEM.DISPLAYS.Caudalimetro.daily_prod_table", {
+    height: 920, width: 1700, modal: true, title: "T{Acumulado diario caudalímetro}"
+}, {
+    group: "Consulta",
+    message: "Consulta de acumulado diario",
+    subgroup: "Caudalimetros"
+});]]></script>
+</svg>

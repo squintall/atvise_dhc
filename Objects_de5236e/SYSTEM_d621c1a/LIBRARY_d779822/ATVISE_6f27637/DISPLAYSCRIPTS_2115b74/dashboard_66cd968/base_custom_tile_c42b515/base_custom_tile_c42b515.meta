@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.dashboard.base_custom_tile
+NodeClass: Variable
+BrowseName: 1:base_custom_tile
+DisplayName: en|base_custom_tile
+Description: en|base_custom_tile
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

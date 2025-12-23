@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.WEBACCESS.http1.header
+NodeClass: Variable
+BrowseName: 1:header
+DisplayName: en|header
+Description: en|header
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

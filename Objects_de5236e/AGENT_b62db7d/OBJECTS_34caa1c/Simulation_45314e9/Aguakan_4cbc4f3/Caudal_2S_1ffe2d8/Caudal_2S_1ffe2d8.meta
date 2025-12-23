@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Simulation.Aguakan.Caudal_2S
+NodeClass: Variable
+BrowseName: 1:Caudal_2S
+DisplayName: en|Caudal_2S
+Description: en|Caudal_2S
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Historicos

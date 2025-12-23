@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="address" type="stringarray" trigger="false" relative="false" value=""/>
+  <parameter name="withouthierarchy" type="boolean" trigger="false" relative="false" value="false"/>
+  <code><![CDATA[/** atvise server wrapper for UA method "AGENT.OPCUA.METHODS.exportNodes"
+
+This script is a standard atvise resource and must not be modified.
+
+Example:
+
+var result = call("Methods.ExportNodes", {
+	address: ["AGENT.OBJECTS.instance1", "AGENT.OBJECTS.instance2"],
+	withouthierarchy: true
+});
+
+if (result.error)
+	console.log(result.errorstring);
+else
+	console.log(result.result);
+
+
+Input:
+param address {stringarray} Array of nodes to export.
+param withouthierarchy {boolean}, {optional} If true then only the specified nodes shall be exported, otherwise the
+whole hierarchy (the default).
+
+Output:
+return {Object} A result object is returned with the following properties:
+- Object.error {number},{optional} Returns the error code of the call in case of an error. If no error occurred, it is
+  undefined.
+- Object.errorstring {string},{optional} Returns the error string of the call in case of an error. If no error occurred,
+  it is undefined.
+- Object.result {object},{optional} Returns the result of the call if no error occurred. It has the following
+  properties:
+	- result.xmlnodeset {string} The exported nodes in XML format.
+	- result.errors {[Object]},{optional} Returns the list of errors appeared during export.
+		- Object.error {number} Returns the error code.
+		- Object.errorstring {string} Returns the node causing the error.
+*/
+
+var methodCall = Ua.findNode("AGENT.OPCUA.METHODS.exportNodes").result;
+
+var response = methodCall.call({
+	object: "AGENT.OPCUA.METHODS",
+	input: [
+		{ type: Ua.DataType.NODEID, value: address },
+		{ type: Ua.DataType.BOOLEAN, value: withouthierarchy }
+	]
+});
+
+var result = {};
+
+if (response.error) {
+	result.error = response.error;
+	result.errorstring = Ua.Status(result).toString();
+
+	if (response.argumentError) {
+		var parameterNames = ["address", "withouthierarchy"];
+
+		for (var i = 0; i < response.argumentError.length; ++i)
+			if (response.argumentError[i]) {
+				result.errorstring += ", " + parameterNames[i] + ":" + Ua.Status(response.argumentError[i]).toString();
+			}
+	}
+} else {
+	result.result = {};
+
+	if (response.result.length > 0) result.result["xmlnodeset"] = response.result[0];
+
+	if (response.result.length === 3) {
+		result.result["errors"] = [];
+
+		for (var i = 0; i < response.result[1].length; ++i)
+			result.result["errors"].push({
+				error: response.result[1][i],
+				errorstring: response.result[2][i]
+			});
+	}
+}
+
+return result;
+]]></code>
+</script>

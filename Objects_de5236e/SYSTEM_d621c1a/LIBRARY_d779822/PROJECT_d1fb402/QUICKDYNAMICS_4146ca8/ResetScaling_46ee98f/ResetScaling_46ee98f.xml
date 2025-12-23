@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAASNJREFUeNrsltENhCAMhu1NwAiOwAiO4AiM4AiO4giO4AiO4Ahs4LVeufQQfSp4D5g0SjX5v8JfEPZ9b568Xs3DVwWoAD8AAGAwbEkAkG2I4gveDOZs8RlA8YnEMbqia8AzMNKjiJFhfJTXjOnQZgASW0OScw5jCWOtEIW1X4AIYuHxRhAZAAZZWIquZx9s2uKisD4JID6ayQcZxPu4sNRHLa+RyQBAbT7IHMTHMbcjvXSqGw5Ayx4j8/mrjcjwGlnMb8oA6cLuHJqr9S49EDtUEYA2tjn57s6hyq3XcZgrgJNDlcRdKIw1VglRqvWcGE8SQiZzHTqeTXg68JL7QNafj0+bH8sQ2rE0AE29R80uuREVALBsSP8IQP0trwB/CfAWYAClpai1ozN4iAAAAABJRU5ErkJggg==</icon>
+    <visible>1</visible>
+    <title>ResetScaling</title>
+    <description>Prevents deformation in child object displays</description>
+  </metadata>
+  <parameter behavior="optional" name="innerNode" valuetype="string"/>
+  <parameter behavior="optional" name="callback" valuetype="string"/>
+  <parameter behavior="optional" name="originalWidth" valuetype="number"/>
+  <parameter behavior="optional" name="originalHeight" valuetype="number"/>
+  <code><![CDATA[var elm = base.innerNode;
+
+while (!elm.getAttribute('transform')) {
+    elm = elm.parentNode;
+    if (!elm.getAttribute) return;
+}
+
+var matrixString = elm.getAttribute('transform'),
+    re = /matrix\(([0-9\.]+),[0-9\.]+,[0-9\.]+,([0-9\.]+),.*\)/gi,
+    result = re.exec(matrixString),
+    scaleX = parseFloat(result[1]),
+    scaleY = parseFloat(result[2]),
+    renderedWidth = base.originalWidth * scaleX,
+    renderedHeight = base.originalHeight * scaleY,
+    scaleXInverse = base.originalWidth / renderedWidth,
+    scaleYInverse = base.originalHeight / renderedHeight;
+
+base.callback({
+    width: base.originalWidth,
+    height: base.originalHeight
+}, {
+    width: renderedWidth,
+    height: renderedHeight
+}, {
+    x: scaleX,
+    y: scaleY
+}, {
+    x: scaleXInverse,
+    y: scaleYInverse
+});]]></code>
+</script>

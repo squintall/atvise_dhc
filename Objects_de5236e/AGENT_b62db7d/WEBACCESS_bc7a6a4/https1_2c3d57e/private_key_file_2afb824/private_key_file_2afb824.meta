@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.WEBACCESS.https1.private_key_file
+NodeClass: Variable
+BrowseName: 1:private_key_file
+DisplayName: en|private_key_file
+Description: en|private_key_file
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

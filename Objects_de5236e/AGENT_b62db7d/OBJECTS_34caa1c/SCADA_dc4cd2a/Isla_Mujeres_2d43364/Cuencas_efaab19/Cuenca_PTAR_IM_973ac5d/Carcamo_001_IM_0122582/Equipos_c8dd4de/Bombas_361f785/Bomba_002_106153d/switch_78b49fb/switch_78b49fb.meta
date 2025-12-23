@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_001_IM.Equipos.Bombas.Bomba_002.switch
+NodeClass: Variable
+BrowseName: 1:switch
+DisplayName: en|switch
+Description: en|switch
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

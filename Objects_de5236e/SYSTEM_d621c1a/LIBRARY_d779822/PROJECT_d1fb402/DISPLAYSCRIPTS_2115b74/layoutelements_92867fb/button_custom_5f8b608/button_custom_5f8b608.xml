@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element button custom object display
+ * ----------------------------------------
+ * This script supports the display for display and evaluating the custom selection.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var activeDisplay, activeQuery;
+var atviseDesktopDisplays = ["SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist", "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.historylist", "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.main_display"];
+var atviseMobileDisplays = ["SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist_small", "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.historylist_small", "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.main_display_small"];
+var contextmenu1 = webMI.query["contextmenu1"];
+var contextmenu2 = webMI.query["contextmenu2"];
+var globalListContext = [];
+    globalListContext[0] = contextmenu1;
+    globalListContext[1] = contextmenu2;
+var contextMenuItemHeight = parseInt(webMI.query["context_menu_item_height"]);
+var itemsCount = webMI.query["itemsCount"];
+var popUpX = 0;
+var popUpY = parseInt(webMI.query["context_menu_position_y"]);
+var query1 = {};
+var query2 = {};
+var right1 = (webMI.query["right1"] == undefined) ? "" : webMI.query["right1"];
+var right2 = (webMI.query["right2"] == undefined) ? "" : webMI.query["right2"];
+if (right1.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1) {
+	right1 = right1.substring(23, right1.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+}
+if (right2.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1) {
+	right2 = right2.substring(23, right2.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+}
+var menuObjects = [];
+var target1 = webMI.query["target1"];
+var target2 = webMI.query["target2"];
+var text1 = webMI.query["text1"];
+var text2 = webMI.query["text2"];
+var trigger1 = webMI.query["trigger1"];
+var trigger2 = webMI.query["trigger2"];
+var selfId = document.getElementById("custom_button_1").parentNode.parentNode.id;
+var symbol1 = webMI.query["symbol1"];
+var symbol2 = webMI.query["symbol2"];
+
+/**
+ * UI SETUP SECTION
+ */
+var contextMenuStyle = {
+	itemHeight: contextMenuItemHeight,
+	itemFill: webMI.query["context_menu_fill_color"],
+	itemPadding: 10,
+	itemMargin: 5,
+	itemBorderRadius: 3,
+	itemBorder: "1px #d7d7d7 solid",
+	fill: "none",
+	maxRows: 5,
+	fontFamily: webMI.query["context_menu_font_family"],
+	fontSize: webMI.query["context_menu_font_size"],
+	fontFill: webMI.query["context_menu_font_color"],
+	strokeWidth: 0,
+	hoverFill: webMI.query["context_menu_hover_color"],
+	hoverFontFill: webMI.query["context_menu_font_color_hover"],
+	zIndex: 100,
+	showType: "right"
+};
+
+webMI.gfx.setWidth("custom_button_1_button_bg", webMI.gfx.getWidth("custom_button_1_button_bg") - 2);
+webMI.gfx.setHeight("custom_button_1_button_bg", webMI.gfx.getHeight("custom_button_1_button_bg") - 2);
+webMI.gfx.setX("custom_button_1_button_bg", "2");
+webMI.gfx.setY("custom_button_1_button_bg", "2");
+webMI.gfx.setWidth("custom_button_2_button_bg", webMI.gfx.getWidth("custom_button_2_button_bg") - 2);
+webMI.gfx.setHeight("custom_button_2_button_bg", webMI.gfx.getHeight("custom_button_2_button_bg") - 2);
+webMI.gfx.setX("custom_button_2_button_bg", "2");
+webMI.gfx.setY("custom_button_2_button_bg", "2");
+webMI.gfx.setWidth("custom_button_3_button_bg", webMI.gfx.getWidth("custom_button_3_button_bg") - 2);
+webMI.gfx.setHeight("custom_button_3_button_bg", webMI.gfx.getHeight("custom_button_3_button_bg") - 2);
+webMI.gfx.setX("custom_button_3_button_bg", "2");
+webMI.gfx.setY("custom_button_3_button_bg", "2");
+
+if (!target2 && !contextmenu2 && !trigger2) {
+	webMI.gfx.setVisible("custom_button_2", false);
+	webMI.gfx.setVisible("custom_button_3", false);
+} else {
+	webMI.gfx.setVisible("custom_button_1", false);
+}
+
+
+/* Manipulate atvise display addresses for mobile scaling and advanced alarm functions */
+if (webMI.getMethodSupport().indexOf("AlarmShelve") == -1) {
+	if (target1 == atviseDesktopDisplays[0] && typeof globalListContext[0] != "undefined")
+		globalListContext[0] = undefined;
+
+	if (target2 == atviseDesktopDisplays[0] && typeof globalListContext[1] != "undefined")
+		globalListContext[1] = undefined;
+}
+
+if (!webMI.getClientInfo().isDesktop) {
+	if (target1 == atviseDesktopDisplays[0] && typeof globalListContext[0] != "undefined") {
+		for (var i in globalListContext[0]) {
+			if (globalListContext[0][i].target.indexOf(atviseDesktopDisplays[0] > -1))
+				globalListContext[0][i].target = globalListContext[0][i].target.replace(atviseDesktopDisplays[0], atviseMobileDisplays[0]);
+		}
+	}
+
+	if (target2 == atviseDesktopDisplays[0] && typeof globalListContext[1] != "undefined") {
+		for (var i in globalListContext[1]) {
+			if (globalListContext[1][i].target.indexOf(atviseDesktopDisplays[0] > -1))
+				globalListContext[1][i].target = globalListContext[1][i].target.replace(atviseDesktopDisplays[0], atviseMobileDisplays[0]);
+		}
+	}
+
+	var target1_index = atviseDesktopDisplays.indexOf(target1);
+	if (target1_index > -1)
+		target1 = target1.replace(atviseDesktopDisplays[target1_index], atviseMobileDisplays[target1_index]);
+
+	var target2_index = atviseDesktopDisplays.indexOf(target2);
+	if (target2_index > -1)
+		target2 = target2.replace(atviseDesktopDisplays[target2_index], atviseMobileDisplays[target2_index]);
+}
+/* End of atvise display address manipulation */
+
+var menuObjects = [];
+
+for (var i = 0; i <= 1; i++) {
+	if (globalListContext[i]) {
+		webMI.gfx.setVisible("context_menu_sign_" + (i + 1), true);
+		var menuObj = {};
+		var globalListContextArray = Object.keys(globalListContext[i]).map(function (e) {
+			return globalListContext[i][e]
+		})
+		globalListContextArray.sort(columnCompareFunction);
+		for (var j = 0; j < globalListContextArray.length; j++) {
+
+			var query = "{}";
+			var fullAddress = globalListContextArray[j].target;
+			var trigger = globalListContextArray[j].trigger;
+			var address = fullAddress.substring(0, fullAddress.lastIndexOf("?"));
+			if (!address) {
+				address = fullAddress;
+			} else {
+				var decoded = decodeURI(fullAddress.substring(fullAddress.lastIndexOf("?") + 1).replace(/&/g, "\",\"").replace(/=/g, "\":\""));
+				query = '{"' + decoded + '"}';
+			}
+			eval("menuObj[" + j + "] = { text: globalListContextArray[j].text, value: function(){" + (address ? "webMI.display.openDisplay('" + address + "', " + query + ", 'content');" : "") + (trigger ? "webMI.trigger.fire('" + trigger + "', true);" : "") + "}, textAlign: webMI.query['contextMenuTextAlignment'] };");
+			if (globalListContextArray[j].iconClass) {
+				iconProperty = {};
+				iconProperty.fav = "<i class='" + globalListContextArray[j].iconClass + "'></i>";
+				if (globalListContextArray[j].iconAlignment) iconProperty.align = globalListContextArray[j].iconAlignment;
+				menuObj[j].icon = iconProperty;
+			}
+
+		}
+		menuObjects[i] = menuObj;
+	}
+}
+
+if (!target2 && !globalListContext[1] && !trigger2) {
+	if (globalListContext[0]) {
+		webMI.trigger.connect("clicked", function (e) {
+			webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+				"id": "custom_button_1",
+				onEvent: "immediately",
+				menuObj: menuObjects[0],
+				active: function () {
+					return true;
+				},
+				"x": popUpX,
+				"y": popUpY,
+				"itemsCount": itemsCount,
+				"elementHeight": webMI.gfx.getHeight("custom_button_1") / webMI.gfx.getScreenCTM().d * webMI.gfx.getScreenCTM("custom_button_1").d,
+				"minWidth": webMI.gfx.getWidth("custom_button_1") / webMI.gfx.getScreenCTM().a * webMI.gfx.getScreenCTM("custom_button_1").a,
+				"style": contextMenuStyle
+			});
+		}, "custom_button_1");
+	} else if (target1) {
+		// Click event (open target display)
+		webMI.trigger.connect("clicked", function (e) {
+			webMI.display.openDisplay(target1, query1, "content");
+			if (trigger1)
+				webMI.trigger.fire(trigger1, true);
+		}, "custom_button_1");
+	} else if (trigger1) {
+		webMI.trigger.connect("clicked", function (e) {
+			webMI.trigger.fire(trigger1, true);
+		}, "custom_button_1");
+	} else {
+		webMI.gfx.setVisible("custom_button_1", false);
+	}
+} else {
+	if (globalListContext[0]) {
+		webMI.trigger.connect("clicked", function (e) {
+			webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+				"id": "custom_button_2",
+				onEvent: "immediately",
+				menuObj: menuObjects[0],
+				active: function () {
+					return true;
+				},
+				"x": popUpX,
+				"y": popUpY,
+				"itemsCount": itemsCount,
+				"elementHeight": webMI.gfx.getHeight("custom_button_1") / webMI.gfx.getScreenCTM().d * webMI.gfx.getScreenCTM("custom_button_1").d,
+				"minWidth": webMI.gfx.getWidth("custom_button_1") / webMI.gfx.getScreenCTM().a * webMI.gfx.getScreenCTM("custom_button_1").a,
+				"style": contextMenuStyle
+			});
+		}, "custom_button_2");
+	} else if (target1) {
+		// Click event (open target display)
+		webMI.trigger.connect("clicked", function (e) {
+			webMI.display.openDisplay(target1, query1, "content");
+			if (trigger1)
+				webMI.trigger.fire(trigger1, true);
+		}, "custom_button_2");
+	} else if (trigger1) {
+		webMI.trigger.connect("clicked", function (e) {
+			webMI.trigger.fire(trigger1, true);
+		}, "custom_button_2");
+	} else {
+		webMI.trigger.fire("com.atvise.setActive", false, "custom_button_2");
+	}
+	if (globalListContext[1]) {
+		webMI.trigger.connect("clicked", function (e) {
+			webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+				"id": "custom_button_3",
+				onEvent: "immediately",
+				menuObj: menuObjects[1],
+				active: function () {
+					return true;
+				},
+				"x": popUpX + 119,
+				"y": popUpY,
+				"itemsCount": itemsCount,
+				"elementHeight": webMI.gfx.getHeight("custom_button_1") / webMI.gfx.getScreenCTM().d * webMI.gfx.getScreenCTM("custom_button_1").d,
+				"minWidth": webMI.gfx.getWidth("custom_button_1") / webMI.gfx.getScreenCTM().a * webMI.gfx.getScreenCTM("custom_button_1").a,
+				"style": contextMenuStyle
+			});
+		}, "custom_button_3");
+	} else if (target2) {
+		// Click event (open target display)		
+		webMI.trigger.connect("clicked", function (e) {
+			webMI.display.openDisplay(target2, query2, "content");
+			if (trigger2)
+				webMI.trigger.fire(trigger2, true);
+		}, "custom_button_3");
+	} else if (trigger2) {
+		webMI.trigger.connect("clicked", function (e) {
+			webMI.trigger.fire(trigger2, true);
+		}, "custom_button_3");
+	}
+}
+
+/**
+ * FUNCTION SECTION
+ */
+function columnCompareFunction(a, b) {
+	//The table colums are sorted by "order" and, if two ore more colums have the same "order", by "name".
+	if (a.order < b.order) return -1;
+	if (a.order > b.order) return 1;
+	//if a.order == b.order sort by name:
+	if (a.text.toUpperCase() < b.text.toUpperCase()) return -1;
+	if (a.text.toUpperCase() > b.text.toUpperCase()) return 1;
+	//if a.name.toUpperCase() == b.name.toUpperCase() return 0:
+	return 0;
+}
+
+function checkDisplay(menuInfo) {
+	var hasRight1 = right1 !== "" ? webMI.hasRight(right1) : true;
+	var hasRight2 = right2 !== "" ? webMI.hasRight(right2) : true;
+
+	if ((target1 && decodeURI(activeDisplay) == decodeURI(target1)) || (contextmenu1 && menuInfo != undefined && menuInfo.menu == menuObjects[0] && menuInfo.opened == true)) {
+		webMI.gfx.setFill("custom_button_1_button_bg", webMI.query["fillColorActive1"]);
+		webMI.gfx.setFill("custom_button_1_button_label", webMI.query["fontColorActive1"]);
+		webMI.gfx.setFill("custom_button_1_button_label_1", webMI.query["fontColorActive1"]);
+		webMI.gfx.setFill("custom_button_1_button_label_2", webMI.query["fontColorActive1"]);
+		webMI.gfx.setFill("context_menu_sign_0", webMI.query["symbolColorActive1"]);
+		webMI.gfx.setStroke("context_menu_sign_0", webMI.query["symbolColorActive1"]);
+		webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+			"newColor": webMI.query["symbolColorActive1"],
+			"currentColor": webMI.query["symbolColor1"],
+			"buttonId": selfId + "_custom_button_1"
+		});
+		webMI.gfx.setFill("custom_button_1_button_symbol", webMI.query["fontColorActive1"]);
+		webMI.gfx.setFill("custom_button_2_button_bg", webMI.query["fillColorActive1"]);
+		webMI.gfx.setFill("custom_button_2_button_label", webMI.query["fontColorActive1"]);
+		webMI.gfx.setFill("custom_button_2_button_label_1", webMI.query["fontColorActive1"]);
+		webMI.gfx.setFill("custom_button_2_button_label_2", webMI.query["fontColorActive1"]);
+		webMI.gfx.setFill("context_menu_sign_1", webMI.query["symbolColorActive1"]);
+		webMI.gfx.setStroke("context_menu_sign_1", webMI.query["symbolColorActive1"]);
+		webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+			"newColor": webMI.query["symbolColorActive1"],
+			"currentColor": webMI.query["symbolColor1"],
+			"buttonId": selfId + "_custom_button_2"
+		});
+	} else { // if ( (target1 && !contextmenu1) || ( contextmenu1 && menuInfo != undefined && menuInfo.menu == menuObjects[0] && menuInfo.opened == false ) ) {
+		if (hasRight1) {
+			webMI.gfx.setFill("custom_button_1_button_bg", webMI.query["fillColor1"]);
+			webMI.gfx.setFill("custom_button_1_button_label", webMI.query["fontColor1"]);
+			webMI.gfx.setFill("custom_button_1_button_label_1", webMI.query["fontColor1"]);
+			webMI.gfx.setFill("custom_button_1_button_label_2", webMI.query["fontColor1"]);
+			webMI.gfx.setFill("context_menu_sign_0", webMI.query["symbolColor1"]);
+			webMI.gfx.setStroke("context_menu_sign_0", webMI.query["symbolColor1"]);
+			webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+				"newColor": webMI.query["symbolColor1"],
+				"currentColor": webMI.query["symbolColorActive1"],
+				"buttonId": selfId + "_custom_button_1"
+			});
+			webMI.gfx.setFill("custom_button_2_button_bg", webMI.query["fillColor1"]);
+			webMI.gfx.setFill("custom_button_2_button_label", webMI.query["fontColor1"]);
+			webMI.gfx.setFill("custom_button_2_button_label_1", webMI.query["fontColor1"]);
+			webMI.gfx.setFill("custom_button_2_button_label_2", webMI.query["fontColor1"]);
+			webMI.gfx.setFill("context_menu_sign_1", webMI.query["symbolColor1"]);
+			webMI.gfx.setStroke("context_menu_sign_1", webMI.query["symbolColor1"]);
+			webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+				"newColor": webMI.query["symbolColor1"],
+				"currentColor": webMI.query["symbolColorActive1"],
+				"buttonId": selfId + "_custom_button_2"
+			});
+		}
+	}
+	if (target2 && decodeURI(activeDisplay) == decodeURI(target2) || (contextmenu2 && menuInfo != undefined && menuInfo.menu == menuObjects[1] && menuInfo.opened == true)) {
+		webMI.gfx.setFill("custom_button_3_button_bg", webMI.query["fillColorActive2"]);
+		webMI.gfx.setFill("custom_button_3_button_label", webMI.query["fontColorActive2"]);
+		webMI.gfx.setFill("custom_button_3_button_label_1", webMI.query["fontColorActive2"]);
+		webMI.gfx.setFill("custom_button_3_button_label_2", webMI.query["fontColorActive2"]);
+		webMI.gfx.setFill("context_menu_sign_2", webMI.query["symbolColorActive2"]);
+		webMI.gfx.setStroke("context_menu_sign_2", webMI.query["symbolColorActive2"]);
+		webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+			"newColor": webMI.query["symbolColorActive2"],
+			"currentColor": webMI.query["symbolColor2"],
+			"buttonId": selfId + "_custom_button_3"
+		});
+	} else { // if ( (target2 && !contextmenu2) || ( contextmenu2 && menuInfo != undefined && menuInfo.menu == menuObjects[1] && menuInfo.opened == false ) ) {
+		if (hasRight2) {
+			webMI.gfx.setFill("custom_button_3_button_bg", webMI.query["fillColor2"]);
+			webMI.gfx.setFill("custom_button_3_button_label", webMI.query["fontColor2"]);
+			webMI.gfx.setFill("custom_button_3_button_label_1", webMI.query["fontColor2"]);
+			webMI.gfx.setFill("custom_button_3_button_label_2", webMI.query["fontColor2"]);
+			webMI.gfx.setFill("context_menu_sign_2", webMI.query["symbolColor2"]);
+			webMI.gfx.setStroke("context_menu_sign_2", webMI.query["symbolColor2"]);
+			webMI.trigger.fire("com.atvise.setButtonSymbolColor", {
+				"newColor": webMI.query["symbolColor2"],
+				"currentColor": webMI.query["symbolColorActive2"],
+				"buttonId": selfId + "_custom_button_3"
+			});
+		}
+	}
+}
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect("com.atvise.iframe.onloadFrame", function (e) {
+	if (e.value.name != "content") return;
+
+	activeDisplay = e.value.content;
+	if (webMI.rootWindow.displaysJs.postfix.indexOf("svg") > -1)
+		activeDisplay = activeDisplay.replace(".svg", "");
+
+	activeQuery = e.value.query;
+	checkDisplay();
+});
+
+webMI.trigger.connect("com.atvise.popup_status", function (e) {
+	checkDisplay(e.value);
+});
+
+]]></code>
+</script>

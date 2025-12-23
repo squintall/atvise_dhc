@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_006.level
+NodeClass: Variable
+BrowseName: 1:level
+DisplayName: en|level
+Description: en|level
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.level.high_limits
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.level.low_limits
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

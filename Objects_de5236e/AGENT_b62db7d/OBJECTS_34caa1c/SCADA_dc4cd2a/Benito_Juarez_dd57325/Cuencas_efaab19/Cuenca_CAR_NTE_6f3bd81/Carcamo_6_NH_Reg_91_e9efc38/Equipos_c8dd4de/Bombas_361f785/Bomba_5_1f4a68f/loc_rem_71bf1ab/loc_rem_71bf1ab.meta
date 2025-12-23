@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_6_NH_Reg_91.Equipos.Bombas.Bomba_5.loc_rem
+NodeClass: Variable
+BrowseName: 1:loc_rem
+DisplayName: en|loc_rem
+Description: en|loc_rem
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

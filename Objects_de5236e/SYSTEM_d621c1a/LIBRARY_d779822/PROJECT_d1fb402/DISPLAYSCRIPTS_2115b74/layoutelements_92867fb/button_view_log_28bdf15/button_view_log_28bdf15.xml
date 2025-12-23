@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element button alarm log object display
+ * ----------------------------------------
+ * This script supports the display showing the logger.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var alarmlist = null;
+var anchorX = parseInt(webMI.query["anchorX"]);
+var anchorY = parseInt(webMI.query["anchorY"]);
+var colorActive = webMI.query["alarm_color"];
+var colorInactive = webMI.gfx.getFill("button_logger_1_outer_frame");
+var height = parseInt(webMI.query["height"]);
+var isAlarm = false;
+var width = parseInt(webMI.query["width"]);
+var x = parseInt(webMI.query["x"]);
+var y = parseInt(webMI.query["y"]);
+
+var errorSmall = webMI.query["errorSmall"] == "true";
+var errorView = webMI.query["errorView"] == "true";
+
+var display = webMI.query["display"] ? webMI.query["display"] : "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.logger.logger_dialog";
+var displaySmall = webMI.query["displaySmall"] ? webMI.query["displaySmall"] : "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.logger.logger_dialog_small";
+display = webMI.getClientInfo() ? (webMI.getClientInfo().isDesktop ? display : (displaySmall ? displaySmall : display)) : display;
+display = errorSmall ? displaySmall : display;
+
+var displayTitle = webMI.query["displayTitle"];
+var displaySubTitle = webMI.query["displaySubTitle"];
+var displayIcon = webMI.query["displayIcon"];
+
+
+/**
+ * UI SETUP SECTION
+ */
+webMI.gfx.setWidth("button_logger_1_button_bg", webMI.gfx.getWidth("button_logger_1_button_bg") - 2);
+webMI.gfx.setHeight("button_logger_1_button_bg", webMI.gfx.getHeight("button_logger_1_button_bg") - 2);
+webMI.gfx.setX("button_logger_1_button_bg", "2");
+webMI.gfx.setY("button_logger_1_button_bg", "2");
+webMI.gfx.setWidth("button_logger_2_button_bg", webMI.gfx.getWidth("button_logger_2_button_bg") - 2);
+webMI.gfx.setHeight("button_logger_2_button_bg", webMI.gfx.getHeight("button_logger_2_button_bg") - 2);
+webMI.gfx.setX("button_logger_2_button_bg", "2");
+webMI.gfx.setY("button_logger_2_button_bg", "2");
+
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+if (webMI.query["buttonSize"] == "large") {
+	webMI.gfx.setVisible("button_logger_1", false);
+} else {
+	webMI.gfx.setVisible("button_logger_2", false);
+}
+
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * active/deactivate svg notification frame (blinking frame)
+ * @param active
+ */
+function loggerFrameActive(active) {
+	webMI.gfx.setFill("button_logger_1_outer_frame", active ? {
+		0: colorActive,
+		2: colorInactive,
+		4: colorActive,
+		6: colorInactive,
+		8: colorActive,
+		10: colorInactive
+	} : colorInactive);
+
+	webMI.gfx.setFill("button_logger_2_outer_frame", active ? {
+		0: colorActive,
+		2: colorInactive,
+		4: colorActive,
+		6: colorInactive,
+		8: colorActive,
+		10: colorInactive
+	} : colorInactive);
+}
+
+/**
+ * Open the log table display
+ */
+function handlelogger() {
+	var query = [];
+	query["errorSmall"] = display == displaySmall;
+	query["errorGroup"] = errorGroup;
+	query["errorSubgroup"] = errorSubgroup;
+	query["errorLabel"] = errorLabel;
+	query["errorStrictly"] = errorStrictly;
+	query["errorView"] = errorView;
+
+	query["displayTitle"] = displayTitle;
+	query["displaySubTitle"] = displaySubTitle;
+	query["displayIcon"] = displayIcon;
+
+	var w = display == displaySmall ? 800 : 1280;
+	var h = display == displaySmall ? 425 + 20 : 680 + 20;
+
+	var openedWindow = webMI.display.openWindow({
+		display: display,
+		extern: false,
+		menubar: false,
+		modal: true,
+		movable: true,
+		resizable: false,
+		scrollbars: false,
+		status: false,
+		title: "T{Log}",
+		toolbar: false,
+		width: w,
+		height: h,
+		query: query
+	});
+
+	var doc = openedWindow.getContentDocument();
+	webMI.addEvent(doc, "keydown", function (e) {
+		if (e.keyCode == 27)
+			openedWindow.close();
+	});
+
+	loggerFrameActive(false);
+}
+
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect("clicked", function (e) {
+	handlelogger();
+}, "button_logger_1");
+
+webMI.trigger.connect("clicked", function (e) {
+	handlelogger();
+}, "button_logger_2");
+
+]]></code>
+</script>

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_6.Sectorizacion Ejido Norte.AP_SOL_CAR_6_SEC_EJIDONTE_Caudal
+NodeClass: Variable
+BrowseName: 1:AP_SOL_CAR_6_SEC_EJIDONTE_Caudal
+DisplayName: en|AP_SOL_CAR_6_SEC_EJIDONTE_Caudal
+Description: en|AP_SOL_CAR_6_SEC_EJIDONTE_Caudal
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

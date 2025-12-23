@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_1_ZH_CREA.Equipos.Bombas
+NodeClass: Object
+BrowseName: 1:Bombas
+DisplayName: en|Bombas
+Description: en|Bombas
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

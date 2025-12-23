@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvObjectDisplays.CustomButtonsMenu.LayoutButtonAlarmsSmall
+NodeClass: Variable
+BrowseName: 1:LayoutButtonAlarmsSmall
+DisplayName: en|LayoutButtonAlarmsSmall
+Description: en|LayoutButtonAlarmsSmall
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

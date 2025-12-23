@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="input" type="filecontent" trigger="false" relative="false" value=""/>
+  <parameter name="debug" type="boolean" trigger="false" relative="false" value="false"/>
+  <code><![CDATA[/*
+	CSV IMPORT v3.9, 2023-09-08 (English description. For German translation, scroll down)
+
+	Prerequisites:
+		You need a CSV import file with the following fields (example file below):
+		x) #FOLDERS			[OPTIONAL]		A list of folder names seperated by "|". E.g.: "FOLDER1|SUBFOLDER1"
+		x) #OBJECT_NAME		[MANDATORY]		Name of the variable/object for the atvise address room
+		x) #DATATYPE		[MANDATORY]		Datatype ("BOOLEAN","INT16","UINT16","INT32","UINT32","FLOAT","DOUBLE","STRING","DATETIME") for variables, "OBJECT" for instances of object types, "VARIABLE" for instances of variable types
+		x) #DATASOURCE		[MANDATORY]		Servername for the mirroring property (without the "/")
+		x) #NAMESPACE		[OPTIONAL]		Namespace of the variable on the device (e.g. "ns=2")
+		x) #OPC_ITEM_NAME	[MANDATORY]		Variable name on the device (e.g. "myInt16" or "s=myString")
+		x) #COMMUNICATION	[OPTIONAL]		Communication direction for mirroring ("NONE", "Input", "Output" or "InputOutput") - CASE SENSITIVE!
+		x) #DESCRIPTION		[OPTIONAL]		Node description
+		x) #OBJECT_TYPE		[OPTIONAL]		If you specify "OBJECT" as datatype you need to specify the ObjectType here (e.g. "ObjectTypes.PROJECT.LightType")
+		x) #VARIABLE_TYPE	[OPTIONAL]		If you specify "VARTYPE" as datatype you need to specify the VariableType here (e.g. "VariableTypes.PROJECT.LightType")
+		x) #DELETE			[OPTIONAL]		If you specify "true" for remove flag, the variable/object will be removed (folders stay in system!) - NOT case sensitive
+		x) #HISTORY_GROUPS	[OPTIONAL]		Specify one history group (e.g. "datavalues")
+		x) #HISTORY_TEMPLATE [OPTIONAL]		Specify one history Template (e.g. "MyTemplate"^)
+		x) #INTERCEPT		[OPTIONAL]		Specifies the "intercept" value for linear conversion
+		x) #SLOPE			[OPTIONAL]		Specifies the "slope" value for linear conversion
+		x) #ON_DEMAND		[OPTIONAL]		Determines if "On Demand" feature will be used (true/false)
+		x) #SMOOTHING		[OPTIONAL]		Adds smoothing. (1 = ChangeComparison, 2 = Deadband absolut, 3 = Deadband relative, 4 = Suppress Flicker)
+		x) #SMOOTHING_VALUE [OPTIONAL]		Sets value of smoothing (1 is always true, 2 and 3 float, 4 is an integer)
+		x) #ALARM			[OPTIONAL*]		Flag to decide if an alarm config should be added to the node - NOT case sensitive (true, TRUE)
+		x) #ALARM_NAME      [*MANDATORY]    Set the name of the  Alarmconfiguration
+		x) #TYPE			[*MANDATORY]	Alarm type: DISCRETE for boolean variables, LIMIT for numeric variables - NOT case sensitive
+		x) #EXCLUSIVE		[*MANDATORY]	Flag whether the alarm needs exclusive acknowledgement or not - NOT case sensitive (true, TRUE)
+		x) #DISPLAY			[*MANDATORY]	Display attached to the alarm (e.g. "AGENT.DISPLAYS.MAIN.test1")		
+		x) #ALARM_NAME1     [*MANDATORY]    Set a name for the AlarmConfigurations
+		x) #CONDITION_NAME1	[*MANDATORY]	Name of first condition (e.g. "Alarm switch on" or "Limit low")
+		x) #CATEGORY_NAME1	[*MANDATORY]	Name of the alarm category (e.g. "Error" or "Information")
+		x) #ACTIVE_TEXT1	[*MANDATORY]	Active text of the condition
+		x) #INACTIVE_TEXT1	[*MANDATORY]	Inactive text of the condition
+		x) #OPERATOR1		[*MANDATORY]	Operator for the condition check (one of >, >=, <, <=, ==, !=)
+		x) #VALUE1			[*MANDATORY]	Value that will be compared to rise an alarm
+		x) #ALARM_NAME2     [*MANDATORY]    see ALARM_NAME1
+		x) #CONDITION_NAME2	[*MANDATORY]	see CONDITION_NAME1
+		x) #CATEGORY_NAME2	[*MANDATORY]	see CATEGORY_NAME1
+		x) #ACTIVE_TEXT2	[*MANDATORY]	see ACTIVE_TEXT1
+		x) #INACTIVE_TEXT2	[*MANDATORY]	see INACTIVE_TEXT1
+		x) #OPERATOR2		[*MANDATORY]	see OPERATOR1
+		x) #VALUE2			[*MANDATORY]	see VALUE1
+		x) #ALARM_NAME3     [*MANDATORY]    see ALARM_NAME1
+		x) #CONDITION_NAME3	[*MANDATORY]	see CONDITION_NAME1
+		x) #CATEGORY_NAME3	[*MANDATORY]	see CATEGORY_NAME1
+		x) #ACTIVE_TEXT3	[*MANDATORY]	see ACTIVE_TEXT1
+		x) #INACTIVE_TEXT3	[*MANDATORY]	see INACTIVE_TEXT1
+		x) #OPERATOR3		[*MANDATORY]	see OPERATOR1
+		x) #VALUE3			[*MANDATORY]	see VALUE1
+		x) #ALARM_NAME4     [*MANDATORY]    see ALARM_NAME1
+		x) #CONDITION_NAME4	[*MANDATORY]	see CONDITION_NAME1
+		x) #CATEGORY_NAME4	[*MANDATORY]	see CATEGORY_NAME1
+		x) #ACTIVE_TEXT4	[*MANDATORY]	see ACTIVE_TEXT1
+		x) #INACTIVE_TEXT4	[*MANDATORY]	see INACTIVE_TEXT1
+		x) #OPERATOR4		[*MANDATORY]	see OPERATOR1
+		x) #VALUE4			[*MANDATORY]	see VALUE1
+
+		How the script works:
+			1) Start the script by right clicking on your "OBJECTS" folder and choosing Node actions - PROJECT - importCsv
+			2) Choose the CSV input file in the appearing dialog
+			3) The script reads the given CSV file line by line - it will create folders/variables/objects OR update existing folders/variables/object if they already exist
+			4) Wait until the dialog "script finished succesfully" appears - atvise builder and project console can not be used while the import is running
+			5) Refresh your "OBJECTS" tree by right clicking it once
+
+
+	CSV IMPORT v3.9, 2023-09-08 (Deutsche Beschreibung)
+
+	Voraussetzungen:
+		Sie brauchen eine CSV-Import-Datei mit den folgenden Feldern (ein Beispiel finden Sie weiter unten.)
+		x) #FOLDERS			[OPTIONAL]		Eine Liste von Ordnern, welche mit "|" getrennt werden. Bsp.; "ORDNER1|UNTERORDNER1"
+		x) #OBJECT_NAME		[MANDATORY]		Name der Variable/ des Objekts für den atvise Adressplatz
+		x) #DATATYPE		[MANDATORY]		Datentypen ("BOOLEAN","INT16","UINT16","INT32","UINT32","FLOAT","DOUBLE","STRING","DATETIME") für Variablen, "OBJECT" für Instanzen von Objekttypen, "VARIABLE" für Instanzen von Variablentypen
+		x) #DATASOURCE		[MANDATORY]		Servername für die zu spiegelnde Eigenschaft (ohne den "/")
+		x) #NAMESPACE		[OPTIONAL]		Namespace für die Variable auf dem Gerät (z.B. "ns=2")
+		x) #OPC_ITEM_NAME	[MANDATORY]		Variablenname des Geräts (z.B. "myInt16" oder "s=myString")
+		x) #COMMUNICATION	[OPTIONAL]		Kommunikationsanweisung für das Spiegeln ("NONE", "Input", "Output" oder "InputOutput") - CASE SENSITIVE!
+		x) #DESCRIPTION		[OPTIONAL]		Objekt Beschreibung
+		x) #OBJECT_TYPE		[OPTIONAL]		Wenn Sie "OBJECT" als Datentyp angeben, müssen Sie hier einen Objekttypen angeben (z.B. "ObjectTypes.PROJECT.LightType")
+		x) #VARIABLE_TYPE	[OPTIONAL]		Wenn Sie "VARTYPE" als Datantyp angeben, müssen Sie hier einen Variablentypen angeben(z.B. "VariableTypes.PROJECT.LightType")
+		x) #DELETE			[OPTIONAL]		Wenn Sie "true" für remove flag angeben, wird die Variable/das Objekt entfernt (Ordner bleiben im System!) - NICHT case sensitive
+		x) #HISTORY_GROUPS	[OPTIONAL]		Gibt eine History Gruppe an, "datavalues"
+		x) #HISTORY_TEMPLATE [OPTIONAL]		Gibt eine History Vorlage an, "MyTemplate"
+		x) #INTERCEPT		[OPTIONAL]		Gibt das "intercept"-Ergebnis für eine lineare Konversation an
+		x) #SLOPE			[OPTIONAL]		Gibt das "slope"-Ergebnis für eine lineare Konversation an
+		x) #ON_DEMAND		[OPTIONAL]		Legt fest, ob "On Demand" benutzt werden soll (true/false)
+		x) #SMOOTHING		[OPTIONAL]		Fügt einen Glättungseffekt fest. (1 = Alt/Neu-Vergleich, 2 = Totband absolut, 3 = Totband relativ, 4 = Flatterunterdrückung)
+		x) #SMOOTHING_VALUE [OPTIONAL]		Legt den Wert des Glättungseffekts fest ( 1 ist immer true, 2 und 3 sind float-Werte, 4 ist ein Integer)
+		x) #ALARM			[OPTIONAL*]		Kennzeichnen, um zu entscheiden, ob eine Alarmkonfiguration zum Knoten hinzugefügt werden soll, oder nicht. (true, TRUE)
+		x) #ALARM_NAME      [*MANDATORY]    Name der Alarmkonfiguration
+		x) #TYPE			[*MANDATORY]	Alarmtyp: DISCRETE für boolsche Variablen, LIMIT für numerische Variablen - NICHT case sensitive
+		x) #EXCLUSIVE		[*MANDATORY]	Kennzeichnen, falls der Alarm eine alleinige Bestätigung braucht oder nicht - NICHT case sensitive (true, TRUE)
+		x) #DISPLAY			[*MANDATORY]	Display, welches an den Alarm anschließt. (z.B. "AGENT.DISPLAYS.MAIN.test1")
+		x) #CONDITION_NAME1	[*MANDATORY]	Name der ersten Bedingung (z.B. "Alarm switch on" oder "Limit low")
+		x) #CATEGORY_NAME1	[*MANDATORY]	Name der ersten Alarm Kategorie (z.B. "Error" oder "Information")
+		x) #ACTIVE_TEXT1	[*MANDATORY]	Aktiver Text der Bedingung
+		x) #INACTIVE_TEXT1	[*MANDATORY]	Inaktive Text der Bedingung
+		x) #OPERATOR1		[*MANDATORY]	Operator für die Bedingungsprüfung (mit >, >=, <, <=, ==, !=)
+		x) #VALUE1			[*MANDATORY]	Ergebnis, welches verglichen wird um einen Alarm auszulösen
+		x) #CONDITION_NAME2	[*MANDATORY]	siehe CONDITION_NAME1
+		x) #CATEGORY_NAME2	[*MANDATORY]	siehe CATEGORY_NAME1
+		x) #ACTIVE_TEXT2	[*MANDATORY]	siehe ACTIVE_TEXT1
+		x) #INACTIVE_TEXT2	[*MANDATORY]	siehe INACTIVE_TEXT1
+		x) #OPERATOR2		[*MANDATORY]	siehe OPERATOR1
+		x) #VALUE2			[*MANDATORY]	siehe VALUE1
+		x) #CONDITION_NAME3	[*MANDATORY]	siehe CONDITION_NAME1
+		x) #CATEGORY_NAME3	[*MANDATORY]	siehe CATEGORY_NAME1#080808
+		x) #ACTIVE_TEXT3	[*MANDATORY]	siehe ACTIVE_TEXT1
+		x) #INACTIVE_TEXT3	[*MANDATORY]	siehe INACTIVE_TEXT1
+		x) #OPERATOR3		[*MANDATORY]	siehe OPERATOR1
+		x) #VALUE3			[*MANDATORY]	siehe VALUE1
+		x) #CONDITION_NAME4	[*MANDATORY]	siehe CONDITION_NAME1
+		x) #CATEGORY_NAME4	[*MANDATORY]	siehe CATEGORY_NAME1
+		x) #ACTIVE_TEXT4	[*MANDATORY]	siehe ACTIVE_TEXT1
+		x) #INACTIVE_TEXT4	[*MANDATORY]	siehe INACTIVE_TEXT1
+		x) #OPERATOR4		[*MANDATORY]	siehe OPERATOR1
+		x) #VALUE4			[*MANDATORY]	siehe VALUE1
+
+		Wie das Skript funktioniert:
+			1) Starten Sie das Skript, indem Sie einen Rechtsklick auf den "OBJEKTE"-Ordner machen und wählen sie die Knotenaktionen - PROJEKT - importCsvVar
+			2) Wählen Sie die CSV-Import-Datei in dem angezeigten Dialog aus
+			3) Das Skript liest die ausgewählte CSV-Datei Zeile für Zeile - es wird Ordner/Variablen/Objekte erzeugen ODER bereits existierende Ordner/Variablen/Objekte aktualisieren
+			4) Warten Sie bis "Skript erfolgreich ausgeführt" erscheint - atvise builder und die Projektconsole können nicht benutzt werden, während der Import läuft
+			5) Aktualisieren Sie Ihren "OBJEKTE"-Baum, indem Sie einen Rechtsklick auf ihn ausführen
+
+		Beispieldatei (Überschriften benötigen ein # zur Identifikation!):
+
+#FOLDERS;#OBJECT_NAME;#DATATYPE;#DATASOURCE;#NAMESPACE;#OPC_ITEM_NAME;#COMMUNICATION;#DESCRIPTION;#OBJECT_TYPE;#VARIABLE_TYPE;#DELETE;#HISTORY_GROUPS;#HISTORY_TEMPLATE;#INTERCEPT;#SLOPE;#ON_DEMAND;#SMOOTHING;#SMOOTHING_VALUE;#ALARM;#ALARM_NAME;#TYPE;#EXCLUSIVE;#DISPLAY;#CONDITION_NAME1;#CATEGORY_NAME1;#ACTIVE_TEXT1;#INACTIVE_TEXT1;#OPERATOR1;#VALUE1;#CONDITION_NAME2;#CATEGORY_NAME2;#ACTIVE_TEXT2;#INACTIVE_TEXT2;#OPERATOR2;#VALUE2;#CONDITION_NAME3;#CATEGORY_NAME3;#ACTIVE_TEXT3;#INACTIVE_TEXT3;#OPERATOR3;#VALUE3;#CONDITION_NAME4;#CATEGORY_NAME4;#ACTIVE_TEXT4;#INACTIVE_TEXT4;#OPERATOR4;#VALUE4
+TEST1;test1;BOOLEAN;ServerName;NONE;Folder.variableName1;InputOutput;Beschreibung1;NONE;NONE;false;datavalues;MyTemplate;0;1;true;2;5;true;Alarm;DISCRETE;false;Main.test1;Condi1;Error;Alarm on;Alarm off;==;1;;;;;;;;;;;;;;;;;;
+TEST1|SUB1;test2;INT16;ServerName;NONE;Folder.variableName2;InputOutput;Beschreibung2;NONE;NONE;false;datavalues;MyTemplate;0;0.1;;1;true;true;Alarm;LIMIT;true;ABC.asd.sad;High;Error;High!;;>=;20;Low;Error;Low!;;<;0;;;;;;;;;;;;
+TEST1|SUB1|SUB2;test3;UINT16;ServerName;NONE;Folder.variableName3;InputOutput;Beschreibung3;NONE;NONE;false;datavalues;MyTemplate;0;1;;;;true;test;LIMIT;false;Keins.nix;HighA;Error;HighA!;;>;17;LowA;Error;LowA!;;<=;2;;;;;;;;;;;;
+TEST1;test4;INT32;ServerName;NONE;Folder.variableName4;InputOutput;Beschreibung4;NONE;NONE;false;datavalues;MyTemplate;0;1;;3;5;false;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TEST1|SUB1;test5;UINT32;ServerName;NONE;Folder.variableName5;InputOutput;Beschreibung5;NONE;NONE;false;datavalues;MyTemplate;0;1;;4;27;false;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TEST2;test6;FLOAT;Testserver;ns=2;s=VariableFloat.variableName6;InputOutput;Beschreibung6;NONE;NONE;false;datavalues;MyTemplate;0;1;;2;5;false;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TEST1;test7;DOUBLE;ServerName;NONE;DB49.0.1;InputOutput;Beschreibung7;NONE;NONE;false;datavalues;MyTemplate;0;1;;;;false;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TEST3;test8;STRING;Testserver;ns=2;s=VariableString;InputOutput;Beschreibung8;NONE;NONE;false;datavalues;MyTemplate;0;1;;3;5;false;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TEST1;test9;DATETIME;ServerName;NONE;Folder.variableName9;NONE;Beschreibung9;NONE;NONE;false;datavalues;MyTemplate;0;1;;;;false;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TEST1;LightObject1;OBJECT;Testserver;ns=2;s=L001;InputOutput;Beschreibung10;ObjectTypes.PROJECT.LightType;NONE;false;NONE;NONE;0;1;;2;5;false;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TEST1;test10;BOOLEAN;ServerName;NONE;Folder.variableName1;InputOutput;Beschreibung11;NONE;NONE;false;datavalues;MyTemplate;0;1;;1;true;true;ALARM;DISCRETE;false;Main.test1;Condi1AB;Information;Alarm on;Alarm off;!=;1;;;;;;;;;;;;;;;;;;
+TEST1;test11;UINT32;ServerName;NONE;Folder.variableName1;InputOutput;Beschreibung11;NONE;Word;false;datavalues;MyTemplate;0;1;;;;false;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+*/
+
+
+//TEMPORARY FIX FOR WRONG MODELLINGRULE ID
+var MODELLINGRULE_MANDATORY = 78;
+
+/* [1] START: variables that may be changed by the user */
+	// prefix for nodes in atvise address space
+	var addressPrefix = "AGENT.OBJECTS";
+/* [1] END: variables that may be changed by the user */
+
+/* [2] START: internal variables */
+	// expected headers in CSV file
+	var expectedHeaders = ["FOLDERS", "OBJECT_NAME", "DATATYPE", "DATASOURCE", "NAMESPACE", "OPC_ITEM_NAME", "COMMUNICATION", "DESCRIPTION", "OBJECT_TYPE", "VARIABLE_TYPE", "DELETE", "HISTORY_GROUPS", "HISTORY_TEMPLATE", "INTERCEPT", "SLOPE", "ON_DEMAND", "SMOOTHING", "SMOOTHING_VALUE", "ALARM", "ALARM_NAME", "TYPE", "EXCLUSIVE", "DISPLAY", "CONDITION_NAME1", "CATEGORY_NAME1", "ACTIVE_TEXT1", "INACTIVE_TEXT1", "OPERATOR1", "VALUE1", "CONDITION_NAME2", "CATEGORY_NAME2", "ACTIVE_TEXT2", "INACTIVE_TEXT2", "OPERATOR2", "VALUE2", "CONDITION_NAME3", "CATEGORY_NAME3", "ACTIVE_TEXT3", "INACTIVE_TEXT3", "OPERATOR3", "VALUE3","CONDITION_NAME4", "CATEGORY_NAME4", "ACTIVE_TEXT4", "INACTIVE_TEXT4", "OPERATOR4", "VALUE4"];
+	
+	// allowed datatypes
+	var allowedDatatypes = ["BOOLEAN","INT16","UINT16","BYTE","INT32","UINT32","FLOAT","DOUBLE","STRING","DATETIME","OBJECT","VARTYPE"];
+	var datatypeDefs = [Ua.DataType.BOOLEAN,Ua.DataType.INT16,Ua.DataType.UINT16,Ua.DataType.BYTE,Ua.DataType.INT32,Ua.DataType.UINT32,Ua.DataType.FLOAT,Ua.DataType.DOUBLE,Ua.DataType.STRING,Ua.DataType.DATETIME,"OBJECT","VARTYPE"];
+	var tempValues = [false, 0, 0, 0, 0, 0, 0, 0, "", new Date()];
+	
+	// error log
+	var errorCnt = 0;
+/* [2] END: internal variables */
+
+
+// function to get the UA datatype
+function getDataType(datatype) {
+	var typeIdx = null;
+	for (var i=0; i<allowedDatatypes.length; i++) {
+		if (datatype.toUpperCase() == allowedDatatypes[i]) {
+			typeIdx = i;
+			break;
+		}
+	}
+	return typeIdx;
+}
+
+// function to write to the server logfile
+function _log(message, error) {
+	if (debug) {
+		console.log(message);
+	}
+	if(error){
+		console.log(message);
+		errorCnt++;
+	}
+}
+
+// right trim a string
+function rtrim(str) {
+	return str.replace(/\s\s*$/, "");
+}
+
+// function to format date
+Date.prototype.toSortableString = function(_withMS) {
+	function _preNull(_nr) {
+		if (_nr < 10)
+			return "0" + _nr;
+		return _nr;
+	}
+	var _ret = this.getFullYear() + "-" + _preNull(this.getMonth()+1) + "-" + _preNull(this.getDate()) + " " +
+	_preNull(this.getHours()) + ":" + _preNull(this.getMinutes()) + ":" + _preNull(this.getSeconds());
+	if (_withMS)
+		_ret += "." + this.getMilliseconds();
+	return _ret;
+};
+
+// function for removing the alarm configuration
+function _removealarmconfig(parent) {
+	var alarmTypeConfig = Ua.findNode(parent.result.nodeId.address + ".AlarmConfiguration");
+	if(Ua.Status(alarmTypeConfig) == Ua.Status.GOOD) {
+		alarmTypeConfig.result.remove();
+	}
+}
+
+// function for adding the alarm configuration
+function _addalarmconfig(parent, alarmConfig, alarmName) {
+    if (!parent.result){
+        throw new Error("PARENT NOT DEFINED, _addalarmconfig");
+    }
+	var alarmTypeConfig = Ua.createNode(parent.result.nodeId.address + "." + alarmName, {
+		nodeClass: Ua.NodeClass.OBJECT,
+		parent: parent.result.nodeId.address,
+		reference: Ua.Reference.HASCOMPONENT,
+		typeDefinition: "ObjectTypes.ATVISE.AlarmConfiguration",
+		modellingRule: Ua.NodeId.MODELLINGRULE_MANDATORYSHARED
+	});
+
+	var node = Ua.findNode(alarmTypeConfig.result.nodeId.address + ".display");
+	node.result.value = alarmConfig.display;
+
+	var node = Ua.findNode(alarmTypeConfig.result.nodeId.address + ".exclusive");
+	node.result.value = alarmConfig.exclusive;
+
+	var node = Ua.findNode(alarmTypeConfig.result.nodeId.address + ".variable");
+	node.result.value = "<RelativePath><Elements/></RelativePath>";
+
+	alarmConfig.condition1.datatype = parent.result.dataType;
+	alarmConfig.condition2.datatype = parent.result.dataType;
+	alarmConfig.condition3.datatype = parent.result.dataType;
+	alarmConfig.condition4.datatype = parent.result.dataType;
+
+	if (alarmConfig.condition1.name != "") {
+		_addAlarmCondition(alarmTypeConfig, alarmConfig.condition1);
+	}
+	if (alarmConfig.condition2.name != "") {
+		_addAlarmCondition(alarmTypeConfig, alarmConfig.condition2);
+	}
+	if (alarmConfig.condition3.name != "") {
+		_addAlarmCondition(alarmTypeConfig, alarmConfig.condition3);
+	}
+	if (alarmConfig.condition4.name != "") {
+		_addAlarmCondition(alarmTypeConfig, alarmConfig.condition4);
+	}
+}
+
+function _addAlarmCondition(parent, alarmCondition) {
+	var type = (alarmCondition.type == "DISCRETE" ? "Discrete" : "Limit");
+	var condition = Ua.createNode(parent.result.nodeId.address + "." + alarmCondition.name, {
+		nodeClass: Ua.NodeClass.OBJECT,
+		parent: parent.result.nodeId.address,
+		reference: Ua.Reference.HASEVENTSOURCE,
+		typeDefinition: "ObjectTypes.ATVISE.AlarmConditionControl." + type,
+		modellingRule: MODELLINGRULE_MANDATORY
+	});
+
+	node = Ua.findNode(condition.result.nodeId.address + ".active_message");
+	node.result.value = {locale:"en", text:alarmCondition.active_text};
+
+	node = Ua.findNode(condition.result.nodeId.address + ".inactive_message");
+	node.result.value = {locale:"en", text:(alarmCondition.inactive_text != "") ? alarmCondition.inactive_text : alarmCondition.active_text};
+
+	if (alarmCondition.type == "DISCRETE") {
+		_log("[INFO ]: adding DISCRETE alarm configuration to " + parent.result.nodeId);
+		node = Ua.findNode(condition.result.nodeId.address + ".value");
+		node.result.value = {type:Ua.DataType.BOOLEAN, value: (alarmCondition.value.toLowerCase() == "true" ||alarmCondition.value.toLowerCase() == "1") };
+		node = Ua.findNode(condition.result.nodeId.address + ".value_compare");
+		node.result.value = alarmCondition.operator;
+	} else if (alarmCondition.type == "LIMIT") {
+		_log("[INFO ]: adding LIMIT alarm configuration to " + parent.result.nodeId);
+		var lowerLimitValue = "";
+		var lowerLimitCompare = ">=";
+		var lowerLimitDeadband = "";
+		var upperLimitValue = "";
+		var upperLimitCompare = "<";
+		var upperLimitDeadband = "";
+
+		if (alarmCondition.operator.indexOf("<") != -1) {
+			upperLimitValue =  parseInt(alarmCondition.value.trim());
+			if (alarmCondition.operator.indexOf("=") == -1) {
+				upperLimitCompare = "<=";
+			}
+		} else if (alarmCondition.operator.indexOf(">") != -1) {
+			lowerLimitValue = parseInt(alarmCondition.value.trim());
+			if (alarmCondition.operator.indexOf("=") == -1) {
+				lowerLimitCompare = ">";
+				upperLimitCompare = "<=";
+			}
+		}
+
+		var datatypeIdx = getDataType(alarmCondition.datatype.toString().toUpperCase());
+		if (datatypeIdx != null) {
+			node = Ua.findNode(condition.result.nodeId.address + ".lower_limit");
+			if (lowerLimitValue != "" && node.result) {
+				node.result.value = { type:datatypeDefs[datatypeIdx], value: lowerLimitValue };
+			}
+			node = Ua.findNode(condition.result.nodeId.address + ".lower_limit_compare");
+			node.result.value = lowerLimitCompare;
+			node = Ua.findNode(condition.result.nodeId.address + ".lower_limit_deadband");
+			if (lowerLimitDeadband && node.result){
+				node.result.value = lowerLimitDeadband;
+			}
+			node = Ua.findNode(condition.result.nodeId.address + ".upper_limit");
+			if (upperLimitValue != "" && node.result) {
+				node.result.value = { type:datatypeDefs[datatypeIdx], value: upperLimitValue };
+			}
+			node = Ua.findNode(condition.result.nodeId.address + ".upper_limit_compare");
+			node.result.value = upperLimitCompare;
+			if (upperLimitDeadband && node.result){
+				node = Ua.findNode(condition.result.nodeId.address + ".upper_limit_deadband");
+				node.result.value = upperLimitDeadband;
+			}
+		} else {
+			_log("[ERROR]: No datatype definition found for alarm node of " + parent.result.nodeId, true);
+		}
+	}
+	var categoryNode = Ua.findNode("AGENT.ALARMING.Categories." + alarmCondition.category_name);
+
+	if(categoryNode.result){
+		condition.result.deleteReference(Ua.Reference.HASCOMPONENT, 'AGENT.ALARMING.Categories');
+		condition.result.addReference(Ua.Reference.HASCOMPONENT, "AGENT.ALARMING.Categories." + alarmCondition.category_name);	
+	}else{
+		_log("[ERROR]: alarm category doesn't exist: " + "AGENT.ALARMING.Categories." + alarmCondition.category_name)
+	}
+}
+
+/* [3] END: internal functions */
+
+/* [4] START: main import function */
+function importCsv() {
+	var date = new Date();
+	try {
+			console.log("*********** STARTING CSV IMPORT        (" + date.toSortableString(true) + ") ****");
+			var csv = input;
+			var lines = csv.split("\n");			
+			var headerArray = lines[0].split(";");
+			if (lines && lines.length > 0) {
+				for (var i=0; i<lines.length; i++) {
+					var fields = lines[i].split(";");
+					if (fields.length == expectedHeaders.length) {
+						var folderNames = fields[headerArray.indexOf("#FOLDERS")];
+						var objectName = fields[headerArray.indexOf("#OBJECT_NAME")];
+						var datatypeName = fields[headerArray.indexOf("#DATATYPE")];
+						var datasource = fields[headerArray.indexOf("#DATASOURCE")];
+						var namespace = fields[headerArray.indexOf("#NAMESPACE")] == "NONE" ? "" : fields[headerArray.indexOf("#NAMESPACE")];
+						var opcItemName = fields[headerArray.indexOf("#OPC_ITEM_NAME")];
+						var direction = fields[headerArray.indexOf("#COMMUNICATION")] == "NONE" ? "" : fields[headerArray.indexOf("#COMMUNICATION")];
+						var objectDescription = fields[headerArray.indexOf("#DESCRIPTION")];
+						var objectType = fields[headerArray.indexOf("#OBJECT_TYPE")] == "NONE" ? "" : fields[headerArray.indexOf("#OBJECT_TYPE")];
+						var varType = fields[headerArray.indexOf("#VARIABLE_TYPE")] == "NONE" ? "" : fields[headerArray.indexOf("#VARIABLE_TYPE")];
+						var toDelete = (fields[headerArray.indexOf("#DELETE")].trim().toLowerCase()) == "true";
+						var historyArchive = fields[headerArray.indexOf("#HISTORY_GROUPS")] == "NONE" ? null : (fields[headerArray.indexOf("#HISTORY_GROUPS")]).trim();
+						var historyTemplate = fields[headerArray.indexOf("#HISTORY_TEMPLATE")] == "NONE" ? null : (fields[headerArray.indexOf("#HISTORY_TEMPLATE")]).trim();
+						var linearConversionIntercept = fields[headerArray.indexOf("#INTERCEPT")] == "" ? 0 : parseFloat(fields[headerArray.indexOf("#INTERCEPT")]);
+						var linearConversionSlope = fields[headerArray.indexOf("#SLOPE")] == "" ? 1 : parseFloat(fields[headerArray.indexOf("#SLOPE")]);
+						var onDemand = fields[headerArray.indexOf("#ON_DEMAND")];
+						var smoothing = fields[headerArray.indexOf("#SMOOTHING")];
+						var smoothingValue = fields[headerArray.indexOf("#SMOOTHING_VALUE")];
+						var alarmName = fields[headerArray.indexOf("#ALARM_NAME")];
+						var alarmConfig = {
+							necessary: (fields[headerArray.indexOf("#ALARM")].trim().toLowerCase()) == "true",
+							exclusive: (fields[headerArray.indexOf("#EXCLUSIVE")].trim().toLowerCase()) == "true",
+							display: fields[headerArray.indexOf("#DISPLAY")],
+							condition1: {
+								type: (fields[headerArray.indexOf("#TYPE")].trim().toLowerCase()) == "discrete" ? "DISCRETE" : "LIMIT",
+								name: fields[headerArray.indexOf("#CONDITION_NAME1")],
+								category_name: fields[headerArray.indexOf("#CATEGORY_NAME1")],
+								active_text: fields[headerArray.indexOf("#ACTIVE_TEXT1")],
+								inactive_text: fields[headerArray.indexOf("#INACTIVE_TEXT1")],
+								operator: fields[headerArray.indexOf("#OPERATOR1")],
+								value: fields[headerArray.indexOf("#VALUE1")]
+							},
+							condition2: {
+								type: (fields[headerArray.indexOf("#TYPE")].trim().toLowerCase()) == "discrete" ? "DISCRETE" : "LIMIT",
+								name: fields[headerArray.indexOf("#CONDITION_NAME2")],
+								category_name: fields[headerArray.indexOf("#CATEGORY_NAME2")],
+								active_text: fields[headerArray.indexOf("#ACTIVE_TEXT2")],
+								inactive_text: fields[headerArray.indexOf("#INACTIVE_TEXT2")],
+								operator: fields[headerArray.indexOf("#OPERATOR2")],
+								value: fields[headerArray.indexOf("#VALUE2")]
+							},
+							condition3: {
+								type: (fields[headerArray.indexOf("#TYPE")].trim().toLowerCase()) == "discrete" ? "DISCRETE" : "LIMIT",
+								name: fields[headerArray.indexOf("#CONDITION_NAME3")],
+								category_name: fields[headerArray.indexOf("#CATEGORY_NAME3")],
+								active_text: fields[headerArray.indexOf("#ACTIVE_TEXT3")],
+								inactive_text: fields[headerArray.indexOf("#INACTIVE_TEXT3")],
+								operator: fields[headerArray.indexOf("#OPERATOR3")],
+								value: fields[headerArray.indexOf("#VALUE3")]
+							},
+							condition4: {
+								type: (fields[headerArray.indexOf("#TYPE")].trim().toLowerCase()) == "discrete" ? "DISCRETE" : "LIMIT",
+								name: fields[headerArray.indexOf("#CONDITION_NAME4")],
+								category_name: fields[headerArray.indexOf("#CATEGORY_NAME4")],
+								active_text: fields[headerArray.indexOf("#ACTIVE_TEXT4")],
+								inactive_text: fields[headerArray.indexOf("#INACTIVE_TEXT4")],
+								operator: fields[headerArray.indexOf("#OPERATOR4")],
+								value: fields[headerArray.indexOf("#VALUE4")]
+							}													
+						}
+						
+						var plcAddress = datasource + "/" + (namespace == "" ? "" : namespace + ";") + opcItemName;
+		 				if (objectName.indexOf("#") == -1) {
+							_log("[INFO ]: --------------- LINE #" + i + "");
+							var datatypeIdx = getDataType(datatypeName);
+							if (datatypeIdx != null) {
+								var folderPrefix = "";
+								var folders = folderNames.split("|");
+								for (var j=0; j<folders.length; j++) {
+									var folderName = folders[j];
+									if (folderName != "" && folderName != null) {
+										var folder = Ua.findNode(addressPrefix + "." + (folderPrefix == "" ? folderPrefix : folderPrefix + ".") + folderName);
+										if (!folder.result) {
+											_log("[INFO ]: creating folder: " + addressPrefix + "." + (folderPrefix == "" ? folderPrefix : folderPrefix + ".") + folderName, false);
+											var parent = addressPrefix + (folderPrefix == "" ? folderPrefix : "." + folderPrefix);
+											var status=Ua.createNode(addressPrefix + "." + (folderPrefix == "" ? folderPrefix : folderPrefix + ".") + folderName, {
+												nodeClass: Ua.NodeClass.OBJECT,
+												parent: parent,
+												typeDefinition: Ua.ObjectType.FOLDERTYPE,
+												reference: Ua.Reference.HASCOMPONENT,
+												browseName: folderName
+											});
+										} else {
+											_log("[INFO ]: existing folder: " + addressPrefix + "." + folderPrefix + folderName, false)
+										}
+										folderPrefix += (folderPrefix == "") ? folderName : "." + folderName;
+									}
+								}
+								var parentName = addressPrefix + "." + folderPrefix;
+								var fullName = parentName + "." + objectName;
+								if (datatypeDefs[datatypeIdx] == "OBJECT") {
+									// create an object instance
+									if (objectType != "") {
+										var objectInstance = Ua.findNode(fullName);
+										if (!objectInstance.result && !toDelete) {
+											var status=Ua.createNode(fullName, {
+												nodeClass: Ua.NodeClass.OBJECT,
+												parent: parentName,
+												typeDefinition: objectType,
+												reference: Ua.Reference.HASCOMPONENT,
+												description: objectDescription,
+												browseName: objectName
+											});
+										}
+										if (objectInstance.result) {
+											_log("[INFO ]: existing object: " + fullName, false);
+											objectInstance.result.description = objectDescription;
+											if (toDelete) {
+												var status = objectInstance.result.remove();
+												_log("[INFO ]: removed object " + fullName + " with status: " + status + " (0=good)");
+											} else {
+												// add relative base mirror
+												var baseMirrorName = fullName + ".RelMirrorBase";
+												var baseMirrorNode = Ua.findNode(baseMirrorName);
+												if (!baseMirrorNode.result) {
+													var status=Ua.createNode(baseMirrorName, {
+														nodeClass: Ua.NodeClass.VARIABLE,
+														parent: fullName,
+														typeDefinition: "VariableTypes.ATVISE.Mirror.Relative.Base",
+														dataType: Ua.DataType.STRING,
+														value: plcAddress
+													});
+												} else {
+													baseMirrorNode.result.value = plcAddress;
+												}
+												
+											}
+										}
+									} else {
+										_log("[ERROR]: object " + fullName + " can't be created: no object_type specified.", true);
+									}
+								} else {
+									// create a node plus mirroring
+									var atvNode = Ua.findNode(fullName);
+									if (!atvNode.result && !toDelete) {
+										_log("[INFO ]: creating node: " + fullName);
+										var tmpValue = tempValues[datatypeIdx];
+										if (varType != "")
+										{
+										var atvNode=Ua.createNode(fullName, {
+											nodeClass: Ua.NodeClass.VARIABLE,
+											parent: parentName,
+											typeDefinition: "VariableTypes.PROJECT." + varType, 
+											reference: Ua.Reference.HASCOMPONENT,
+											dataType: datatypeDefs[datatypeIdx],
+											description: objectDescription,
+											value: tmpValue
+										});
+										}
+										else
+										{
+										var atvNode=Ua.createNode(fullName, {
+											nodeClass: Ua.NodeClass.VARIABLE,
+											parent: parentName,
+											typeDefinition: Ua.VariableType.BASEVARIABLETYPE,
+											reference: Ua.Reference.HASCOMPONENT,
+											dataType: datatypeDefs[datatypeIdx],
+											description: objectDescription,
+											value: tmpValue
+										});
+										}
+									}else{
+										
+									}
+									if (atvNode.result) {
+										_log("[INFO ]: existing variable: " + fullName, false);	
+										atvNode.result.description = objectDescription;										
+										_log("TEST: " + atvNode.result.description + "      " + objectDescription);																		
+										if (toDelete) {
+											var status = atvNode.result.remove();
+											_log("[INFO ]: removed variable: " + fullName + " with status: " + status + " (0=good)");
+										} else if (direction != "") {
+											var mirrorName = fullName + "." + "Mirror" + direction.trim();
+											var mirror = Ua.findNode(mirrorName);
+											var typedef = "VariableTypes.ATVISE.Mirror." + direction.trim();
+											// add mirroring
+											if (!mirror.result) {
+												 mirror=Ua.createNode(mirrorName, {
+													nodeClass: Ua.NodeClass.VARIABLE,
+													parent: fullName,
+													typeDefinition: typedef,
+													dataType: Ua.DataType.STRING,
+													value: plcAddress,
+												});
+											} else {
+												mirror.result.value = plcAddress;
+											}
+											// add conversion if necessary
+											if (linearConversionSlope != 1 || linearConversionIntercept != 0) {
+												var n = Ua.findNode(mirrorName + ".LinearConversionSlope");
+												if (!n.result) {
+													 n=Ua.createNode(mirrorName + ".LinearConversionSlope", {
+													   parent: mirrorName,
+													   reference: Ua.Reference.HASPROPERTY,
+													   typeDefinition: Ua.VariableType.PROPERTYTYPE,
+													   nodeClass: Ua.NodeClass.VARIABLE,
+													   dataType: Ua.DataType.DOUBLE,
+													   value: linearConversionSlope
+													});
+												} else {
+													n.result.value = linearConversionSlope;
+												}
+												var n = Ua.findNode(mirrorName + ".LinearConversionYIntercept");
+												if (!n.result) {
+													 n=Ua.createNode(mirrorName + ".LinearConversionYIntercept", {
+													   parent: mirrorName,
+													   reference: Ua.Reference.HASPROPERTY,
+													   typeDefinition: Ua.VariableType.PROPERTYTYPE,
+													   nodeClass: Ua.NodeClass.VARIABLE,
+													   dataType: Ua.DataType.DOUBLE,
+													   value: linearConversionIntercept
+													});
+												} else {
+													n.result.value = linearConversionIntercept;
+												}
+											}
+											// add OnDemand
+											if(onDemand == "true"){
+												var n = Ua.findNode(fullName + ".MirrorOnDemand");
+												if (!n.result) {
+													n=Ua.createNode(fullName + ".MirrorOnDemand", {
+														nodeClass: Ua.NodeClass.VARIABLE,
+														parent: fullName,
+														reference: Ua.Reference.HASPROPERTY,
+														typeDefinition: "VariableTypes.ATVISE.Mirror.OnDemand",
+														dataType: Ua.DataType.BOOLEAN,
+														value: onDemand
+													});
+												} else {
+													n.result.value = onDemand;
+												}
+											}
+											// add smoothing
+											if(smoothing == 1){
+												var n = Ua.findNode(fullName + ".ChangeComparison");
+												if (!n.result){
+													 n=Ua.createNode(fullName + ".ChangeComparison", {
+														nodeClass: Ua.NodeClass.VARIABLE,
+														parent: fullName,
+														reference: Ua.Reference.HASPROPERTY,
+														typeDefinition: "VariableTypes.ATVISE.Smoothing.ChangeComparison",
+														dataType: Ua.DataType.BOOLEAN,
+														value: smoothingValue
+													});
+												} else {
+													n.result.value = true;
+												}
+											} else if (smoothing == 2){
+												var n = Ua.findNode(fullName + ".DeadbandAbs");
+												if (!n.result){
+													 n=Ua.createNode(fullName + ".DeadbandAbs", {
+														nodeClass: Ua.NodeClass.VARIABLE,
+														parent: fullName,
+														reference: "47",
+														typeDefinition: "VariableTypes.ATVISE.Smoothing.Deadband.Absolute",
+														dataType: Ua.DataType.FLOAT,
+														value: smoothingValue
+													});
+												} else {
+													n.result.value = true;
+												}
+											} else if (smoothing == 3){
+												var n = Ua.findNode(fullName + ".DeadbandRel");
+												if (!n.result){
+													 n=Ua.createNode(fullName + ".DeadbandRel", {
+														nodeClass: Ua.NodeClass.VARIABLE,
+														parent: fullName,
+														reference: Ua.Reference.HASPROPERTY,
+														typeDefinition: "VariableTypes.ATVISE.Smoothing.Deadband.Relative",
+														dataType: Ua.DataType.FLOAT,
+														value: smoothingValue
+													});
+												} else {
+													n.result.value = true;
+												}
+											} else if (smoothing == 4){
+												var n = Ua.findNode(fullName + ".SuppressFlicker");
+												if (!n.result){
+													 n=Ua.createNode(fullName + ".SuppressFlicker", {
+														nodeClass: Ua.NodeClass.VARIABLE,
+														parent: fullName,
+														reference: Ua.Reference.HASPROPERTY,
+														typeDefinition: "VariableTypes.ATVISE.Smoothing.SuppressFlicker",
+														dataType: Ua.DataType.INT32,
+														value: smoothingValue
+													});
+												} else {
+													n.result.value = true;
+												}
+											}
+										}
+
+										// add history group
+										if (historyArchive != null && historyArchive != ""){
+											var historyArchiveNode = Ua.findNode("AGENT.HISTORY." + historyArchive);
+											if (historyArchiveNode.result) {
+												var existingHistConf = atvNode.result.browse({
+													reference: Ua.Reference.HASHISTORICALCONFIGURATION
+												});
+												if (existingHistConf.result.length > 0) {
+													for (var j = 0; j < existingHistConf.result.length; ++j) {					
+														if(existingHistConf.result[j].node.typeDefinition.toString() === "Data"){
+															atvNode.result.deleteReference(Ua.Reference.HASHISTORICALCONFIGURATION, existingHistConf.result[j].node.nodeId.address);
+														}	
+													}
+												}
+												atvNode.result.addReference(Ua.Reference.HASHISTORICALCONFIGURATION, "AGENT.HISTORY." + historyArchive);
+												_log("[INFO ]: added history group: " + historyArchive);
+											} else {
+												_log("[ERROR]: history archive " + historyArchives + " doesn't exist", true);
+											}
+										}
+
+										// add history Template
+										if (historyTemplate != null && historyTemplate != ""){
+											var historyTemplateNode = Ua.findNode("AGENT.HISTORY.AGGREGATETEMPLATES." + historyTemplate);
+											if (historyTemplateNode.result) {
+												var existingHistConf = atvNode.result.browse({
+													reference: Ua.Reference.HASHISTORICALCONFIGURATION
+												});
+												if (existingHistConf.result.length > 0) {
+													for (var k = 0; k < existingHistConf.result.length; ++k) {						
+														if(existingHistConf.result[k].node.typeDefinition.toString() == "AggregateTemplate"){
+															atvNode.result.deleteReference(Ua.Reference.HASHISTORICALCONFIGURATION, existingHistConf.result[k].node.nodeId.address);
+														}	
+													}
+												}
+												atvNode.result.addReference(Ua.Reference.HASHISTORICALCONFIGURATION, "AGENT.HISTORY.AGGREGATETEMPLATES." + historyTemplate);
+												_log("[INFO ]: added history group: " + historyTemplate);
+											} else {
+												_log("[ERROR]: history archive " + historyTemplate + " doesn't exist", true);
+											}
+										}
+										// add alarming
+										if (alarmConfig.necessary) {
+											_addalarmconfig(atvNode, alarmConfig, alarmName);
+										} else {
+											_removealarmconfig(atvNode);
+										}
+
+									} else {
+										_log("[ERROR]: " + objectName + " not found / could not be created.", true);
+									}
+								}
+							} else {
+								_log("[ERROR]: Datatype " + datatype + " of " + fullName + " is not supported.", true);
+							}
+						}
+					} else {
+						_log("[ERROR]: Field length is not the same as the expected field length (or empty line at end of file).", true);
+					}
+				}
+				
+			} else {
+				_log("[ERROR]: No entries to import found in CSV file.", true);
+			}
+
+	} catch(e) {
+		_log("[ERROR]:" + e.message, true);
+	}
+}
+/* [4] END: main import function */
+
+// start the import
+importCsv();
+date = new Date();
+console.log("*********** CSV IMPORT done. Errors: " + errorCnt + " (" + date.toSortableString(true) + ") ****");]]></code>
+</script>

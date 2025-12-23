@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Report
+NodeClass: Object
+BrowseName: 1:Report
+DisplayName: en|Report
+Description: en|Report
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

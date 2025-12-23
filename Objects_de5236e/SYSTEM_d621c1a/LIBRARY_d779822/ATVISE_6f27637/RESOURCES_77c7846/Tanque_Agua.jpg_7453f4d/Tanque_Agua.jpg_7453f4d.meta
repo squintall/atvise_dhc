@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/Tanque Agua.jpg
+NodeClass: Variable
+BrowseName: 1:Tanque Agua.jpg
+DisplayName: en|Tanque Agua.jpg
+Description: en|Tanque Agua.jpg
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Jpeg

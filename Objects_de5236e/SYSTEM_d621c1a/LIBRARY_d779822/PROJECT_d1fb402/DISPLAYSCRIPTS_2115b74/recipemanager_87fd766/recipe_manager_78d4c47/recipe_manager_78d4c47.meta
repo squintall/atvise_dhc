@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.recipemanager.recipe_manager
+NodeClass: Variable
+BrowseName: 1:recipe_manager
+DisplayName: en|recipe_manager
+Description: en|recipe_manager
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Ampliacion.Equipos.Caudalimetro.L1.Umbrales.Caudal.AlarmLow
+NodeClass: Variable
+BrowseName: 1:AlarmLow
+DisplayName: en|AlarmLow
+Description: en|AlarmLow
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

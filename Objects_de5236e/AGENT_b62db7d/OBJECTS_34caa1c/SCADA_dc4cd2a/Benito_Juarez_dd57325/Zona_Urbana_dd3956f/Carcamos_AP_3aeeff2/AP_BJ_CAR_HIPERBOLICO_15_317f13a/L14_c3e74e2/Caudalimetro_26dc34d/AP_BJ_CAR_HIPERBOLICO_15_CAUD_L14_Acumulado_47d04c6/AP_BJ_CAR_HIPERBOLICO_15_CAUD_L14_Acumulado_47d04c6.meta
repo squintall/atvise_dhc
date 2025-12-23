@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_HIPERBOLICO_15.L14.Caudalimetro.AP_BJ_CAR_HIPERBOLICO_15_CAUD_L14_Acumulado
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_HIPERBOLICO_15_CAUD_L14_Acumulado
+DisplayName: en|AP_BJ_CAR_HIPERBOLICO_15_CAUD_L14_Acumulado
+Description: en|AP_BJ_CAR_HIPERBOLICO_15_CAUD_L14_Acumulado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

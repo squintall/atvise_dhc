@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="nodes" type="array" trigger="false" relative="false" value=""/>
+  <parameter name="folder" type="string" trigger="false" relative="false" value="ATVISE"/>
+  <parameter name="alarms" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="scripts" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="mirrors" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="relmirrors" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="exportables" type="boolean" trigger="false" relative="false" value="false"/>
+  <code><![CDATA[/* Create different views of the address space
+Input (members of ua):
+	-nodes:ua.node[]{mandatory} Specifies the start nodes of views to create.
+		If a start node is a view then the whole address  space will be searched.
+	-folder:string Specifies the Folder under Views where the result will be stored.
+		If it is empty, the result will be stored under Views.
+	-alarms:bool{mandatory} Specifies if alarm views shall be recreated (true) or not (false).
+	-scripts:bool{mandatory} Specifies if script views shall be recreated (true) or not (false).
+	-mirrors:bool{mandatory} Specifies if mirror views shall be recreated (true) or not (false).
+	-relmirrors:bool{mandatory} Specifies if relative mirror views shall be recreated (true) or not (false).
+	-exportables:bool{mandatory} Specifies if exportable views shall be recreated (true) or not (false).
+Output (return value)	:
+	-none
+
+*/
+
+function isArray(x) {
+	return typeof x == "object" && x instanceof Array;
+}
+
+var baseView = Ua.findNode("Views." + folder);
+var baseViewExist = Ua.Status(baseView) != Ua.Status.BADNODEIDUNKNOWN;
+
+if (folder == "") {
+	baseView = Ua.findNode(Ua.NodeId.VIEWSFOLDER);
+} else {
+	if (!baseViewExist) {
+		Ua.createNode("Views." + folder, {
+			nodeClass: Ua.NodeClass.VIEW,
+			parent: Ua.NodeId.VIEWSFOLDER,
+			reference: Ua.Reference.ORGANIZES
+		});
+
+		baseView = Ua.findNode("Views." + folder);
+		baseViewExist = Ua.Status(baseView) != Ua.Status.BADNODEIDUNKNOWN;
+	} else {
+		var viewFolderNode = Ua.findNode(Ua.NodeId.VIEWSFOLDER);
+		viewFolderNode.result.addReference(Ua.Reference.ORGANIZES, baseView.result);
+	}
+}
+
+/* Create a recursive view structure
+Input:
+	-node:ua.node: Specifies the parent
+	-views:ua.node[[...]] Specifies the view structure.
+Output:
+	-ok:bool true if the specified view structure fully created, false otherwise.
+Example:
+        E.g. parent:V, views:[V1 [V11 [V111 V112] V12] V2]  depicts the tree:
+        V--+--V1--+--V11--+--V111
+           |      |       +--V112
+           |      +--V12
+           +--V2
+*/
+function createViewFolders(parent, views) {
+	if (!parent || !isArray(views)) return;
+
+	var ok = true;
+	var nextView = null;
+
+	for (var i = 0; i < views.length && ok; ++i) {
+		if (isArray(views[i])) {
+			ok = createViewFolders(nextView, views[i]);
+		} else {
+			var nextViewAddress = baseView.result.nodeId.address + "." + views[i];
+
+			nextView = Ua.findNode(nextViewAddress);
+			var nextViewExist = Ua.Status(nextView) != Ua.Status.BADNODEIDUNKNOWN;
+
+			if (nextViewExist) nextView.result.remove();
+
+			Ua.createNode(nextViewAddress, {
+				nodeClass: Ua.NodeClass.VIEW,
+				parent: parent.result,
+				reference: Ua.Reference.ORGANIZES
+			});
+
+			nextView = Ua.findNode(nextViewAddress);
+			var nextViewStatus = Ua.Status(nextView);
+
+			if (!nextViewStatus.good)
+				console.log("Creating view '", nextView.result.nodeId.address, "' [", nextViewStatus.toString(), "]");
+
+			ok = nextViewStatus;
+		}
+	}
+	return ok;
+}
+
+// Fill the view by searching for the specified types and calliing the given callback.
+function fillView(node, types, callbacks) {
+	var result = node.result.browse({
+		typeDefinition: types,
+		recursive: true
+	}).result;
+
+	for (var i = 0; i < result.length; ++i) {
+		for (var type = 0; type < types.length; ++type) {
+			if (node.result.equal(result[i].node.typeDefinition.valueOf(), types[type]).result) {
+				callbacks[type].func(result[i]);
+			}
+		}
+	}
+}
+
+// Callback object to create Declaration-Instance view.
+function DeclInstFill(parentView) {
+	var myBaseView = baseView.result.nodeId.address + "." + parentView;
+	this.declView = Ua.findNode(myBaseView + ".Declarations");
+	this.instView = Ua.findNode(myBaseView + ".Instances");
+
+	if (exportables) {
+		this.exportView = Ua.findNode(myBaseView + ".All Exportables");
+		this.exportViewExist = Ua.Status(this.exportView) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!this.exportViewExist) {
+			Ua.createNode(myBaseView + ".All Exportables", {
+				nodeClass: Ua.NodeClass.VIEW,
+				parent: myBaseView,
+				reference: Ua.Reference.ORGANIZES
+			});
+
+			this.exportView = Ua.findNode(myBaseView + ".All Exportables");
+			this.exportViewExist = Ua.Status(this.exportView) != Ua.Status.BADNODEIDUNKNOWN;
+		} else {
+			var myBaseViewNode = Ua.findNode(myBaseView);
+			myBaseViewNode.result.addReference(Ua.Reference.ORGANIZES, this.exportView.result);
+		}
+	}
+
+	this.func = function (result) {
+		var declAddress =
+			this.declView.result.nodeId.address +
+			"." +
+			result.node.nodeId.address
+				.replace(/\./g, "_")
+				.replace(/^AGENT_OBJECTS_/, "")
+				.replace(/^ObjectTypes_PROJECT_/, "ObjectTypes_");
+
+		var decl = Ua.findNode(declAddress);
+		var declExist = Ua.Status(decl) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!declExist) {
+			Ua.createNode(declAddress, {
+				nodeClass: Ua.NodeClass.VIEW,
+				parent: this.declView.result,
+				reference: Ua.Reference.ORGANIZES
+			});
+
+			decl = Ua.findNode(declAddress);
+			declExist = Ua.Status(decl) != Ua.Status.BADNODEIDUNKNOWN;
+		} else {
+			this.declView.result.addReference(Ua.Reference.ORGANIZES, decl.result);
+		}
+
+		if (declExist) {
+			decl.result.addReference(Ua.Reference.ORGANIZES, result.node);
+
+			var inst = Ua.findNode(decl.result.nodeId.address + ".Instances");
+			var instExist = Ua.Status(inst) != Ua.Status.BADNODEIDUNKNOWN;
+			if (!instExist) {
+				Ua.createNode(decl.result.nodeId.address + ".Instances", {
+					nodeClass: Ua.NodeClass.VIEW,
+					parent: decl.result,
+					reference: Ua.Reference.ORGANIZES
+				});
+
+				inst = Ua.findNode(decl.result.nodeId.address + ".Instances");
+				instExist = Ua.Status(inst) != Ua.Status.BADNODEIDUNKNOWN;
+			} else {
+				decl.result.addReference(Ua.Reference.ORGANIZES, inst.result);
+			}
+
+			if (instExist) {
+				var parentAddress =
+					inst.result.nodeId.address +
+					"." +
+					result.parent.nodeId.address.replace(/\./g, "_").replace(/^AGENT_OBJECTS_/, "");
+				var parentNode = Ua.findNode(parentAddress);
+				var parentExist = Ua.Status(parentNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+				if (!/^ObjectTypes\./.test(result.parent.nodeId.address)) {
+					if (!parentExist) {
+						Ua.createNode(parentAddress, {
+							nodeClass: Ua.NodeClass.VIEW,
+							parent: inst.result.nodeId.address,
+							reference: Ua.Reference.ORGANIZES
+						});
+
+						parentNode = Ua.findNode(parentAddress);
+						parentExist = Ua.Status(parentNode) != Ua.Status.BADNODEIDUNKNOWN;
+					} else {
+						inst.result.addReference(Ua.Reference.ORGANIZES, parentNode.result);
+					}
+					parentNode.result.addReference(Ua.Reference.ORGANIZES, result.parent);
+					this.instView.result.addReference(Ua.Reference.ORGANIZES, parentNode.result);
+				}
+			}
+
+			if (exportables) {
+				this.exportView.result.addReference(Ua.Reference.ORGANIZES, result.node);
+			}
+		}
+	};
+}
+
+// Callback object to create view based on the status of the parent node.
+function ParentStatusFill(parentView) {
+	var myBaseView = baseView.result.nodeId.address + "." + parentView;
+
+	this.goodView = Ua.findNode(myBaseView + ".Good");
+	this.goodViewExist = Ua.Status(this.goodView) != Ua.Status.BADNODEIDUNKNOWN;
+	this.badView = Ua.findNode(myBaseView + ".Bad");
+	this.badViewExist = Ua.Status(this.badView) != Ua.Status.BADNODEIDUNKNOWN;
+	this.uncertainView = Ua.findNode(myBaseView + ".Uncertain");
+	this.uncertainViewExist = Ua.Status(this.uncertainView) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (exportables) {
+		this.exportView = Ua.findNode(myBaseView + ".All Exportables");
+		this.exportViewExist = Ua.Status(this.exportView) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!this.exportViewExist) {
+			Ua.createNode(myBaseView + ".All Exportables", {
+				nodeClass: Ua.NodeClass.VIEW,
+				parent: myBaseView,
+				reference: Ua.Reference.ORGANIZES
+			});
+
+			this.exportView = Ua.findNode(myBaseView + ".All Exportables");
+			this.exportViewExist = Ua.Status(this.exportView) != Ua.Status.BADNODEIDUNKNOWN;
+		} else {
+			var myBaseViewNode = Ua.findNode(myBaseView);
+			myBaseViewNode.result.addReference(Ua.Reference.ORGANIZES, this.exportView.result);
+		}
+	}
+
+	this.func = function (result) {
+		var view = this.goodView;
+
+		if (result.parent.status.bad) view = this.badView;
+		if (result.parent.status.uncertain) view = this.uncertainView;
+
+		var parentAddress =
+			view.result.nodeId.address +
+			"." +
+			result.parent.nodeId.address
+				.replace(/\./g, "_")
+				.replace(/^AGENT_OBJECTS_/, "")
+				.replace(/^ObjectTypes_PROJECT_/, "ObjectTypes_");
+		var parentNode = Ua.findNode(parentAddress);
+		var parentExist = Ua.Status(parentNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+		if (!parentExist) {
+			Ua.createNode(parentAddress, {
+				nodeClass: Ua.NodeClass.VIEW,
+				parent: view.result.nodeId.address,
+				reference: Ua.Reference.ORGANIZES
+			});
+
+			parentNode = Ua.findNode(parentAddress);
+			parentExist = Ua.Status(parentNode) != Ua.Status.BADNODEIDUNKNOWN;
+		} else {
+			view.result.addReference(Ua.Reference.ORGANIZES, decl.result);
+		}
+
+		parentNode.result.addReference(Ua.Reference.ORGANIZES, result.node);
+		parentNode.result.addReference(Ua.Reference.ORGANIZES, result.parent);
+
+		if (exportables) {
+			this.exportView.result.addReference(Ua.Reference.ORGANIZES, result.node);
+		}
+	};
+}
+
+var searchTypes = [];
+var searchCallbacks = [];
+if (alarms) {
+	if (!createViewFolders(baseView, ["Alarms", ["Alarms.Declarations", "Alarms.Instances"]])) return;
+	searchTypes.push("ObjectTypes.ATVISE.AlarmConfiguration");
+	searchCallbacks.push(new DeclInstFill("Alarms"));
+}
+if (scripts) {
+	if (!createViewFolders(baseView, ["Scripts", ["Scripts.Declarations", "Scripts.Instances"]])) return;
+	searchTypes.push("VariableTypes.ATVISE.ScriptCode");
+	searchCallbacks.push(new DeclInstFill("Scripts"));
+}
+
+if (mirrors) {
+	if (
+		!createViewFolders(baseView, [
+			"Mirrors",
+			["Mirrors.Disable", ["Mirrors.Disable.Declarations", "Mirrors.Disable.Instances"]],
+			["Mirrors.Inputs", ["Mirrors.Inputs.Good", "Mirrors.Inputs.Bad", "Mirrors.Inputs.Uncertain"]],
+			["Mirrors.Outputs", ["Mirrors.Outputs.Good", "Mirrors.Outputs.Bad", "Mirrors.Outputs.Uncertain"]],
+			[
+				"Mirrors.InputOutputs",
+				["Mirrors.InputOutputs.Good", "Mirrors.InputOutputs.Bad", "Mirrors.InputOutputs.Uncertain"]
+			]
+		])
+	) {
+		return;
+	}
+
+	searchTypes.push("VariableTypes.ATVISE.Mirror.Input");
+	searchCallbacks.push(new ParentStatusFill("Mirrors.Inputs"));
+	searchTypes.push("VariableTypes.ATVISE.Mirror.Output");
+	searchCallbacks.push(new ParentStatusFill("Mirrors.Outputs"));
+	searchTypes.push("VariableTypes.ATVISE.Mirror.InputOutput");
+	searchCallbacks.push(new ParentStatusFill("Mirrors.InputOutputs"));
+	searchTypes.push("VariableTypes.ATVISE.Mirror.Disable");
+	searchCallbacks.push(new DeclInstFill("Mirrors.Disable"));
+}
+if (relmirrors) {
+	if (
+		!createViewFolders(baseView, [
+			"Relative Mirrors",
+			[
+				"Relative Mirrors.Disable",
+				["Relative Mirrors.Disable.Declarations", "Relative Mirrors.Disable.Instances"],
+				"Relative Mirrors.Bases",
+				["Relative Mirrors.Bases.Declarations", "Relative Mirrors.Bases.Instances"],
+				"Relative Mirrors.PathFragments",
+				["Relative Mirrors.PathFragments.Declarations", "Relative Mirrors.PathFragments.Instances"],
+				"Relative Mirrors.Inputs",
+				["Relative Mirrors.Inputs.Declarations", "Relative Mirrors.Inputs.Instances"],
+				"Relative Mirrors.Outputs",
+				["Relative Mirrors.Outputs.Declarations", "Relative Mirrors.Outputs.Instances"],
+				"Relative Mirrors.InputOutputs",
+				["Relative Mirrors.InputOutputs.Declarations", "Relative Mirrors.InputOutputs.Instances"]
+			]
+		])
+	)
+		return;
+	searchTypes.push("VariableTypes.ATVISE.Mirror.Relative.Input");
+	searchCallbacks.push(new DeclInstFill("Relative Mirrors.Inputs"));
+	searchTypes.push("VariableTypes.ATVISE.Mirror.Relative.Output");
+	searchCallbacks.push(new DeclInstFill("Relative Mirrors.Outputs"));
+	searchTypes.push("VariableTypes.ATVISE.Mirror.Relative.InputOutput");
+	searchCallbacks.push(new DeclInstFill("Relative Mirrors.InputOutputs"));
+	searchTypes.push("VariableTypes.ATVISE.Mirror.Relative.Disable");
+	searchCallbacks.push(new DeclInstFill("Relative Mirrors.Disable"));
+	searchTypes.push("VariableTypes.ATVISE.Mirror.Relative.Base");
+	searchCallbacks.push(new DeclInstFill("Relative Mirrors.Bases"));
+	searchTypes.push("VariableTypes.ATVISE.Mirror.Relative.PathFragment");
+	searchCallbacks.push(new DeclInstFill("Relative Mirrors.PathFragments"));
+}
+
+for (var i = 0; i < nodes.length; ++i) {
+	var node = Ua.findNode(nodes[i]);
+
+	if (node.result.nodeClass == Ua.NodeClass.VIEW) {
+		fillView(Ua.findNode("AGENT.OBJECTS"), searchTypes, searchCallbacks);
+		fillView(Ua.findNode("SYSTEM.LIBRARY.PROJECT"), searchTypes, searchCallbacks);
+		fillView(Ua.findNode("SYSTEM.INFORMATION"), searchTypes, searchCallbacks);
+		fillView(Ua.findNode("ObjectTypes.ATVISE"), searchTypes, searchCallbacks);
+		fillView(Ua.findNode("ObjectTypes.PROJECT"), searchTypes, searchCallbacks);
+	} else fillView(node, searchTypes, searchCallbacks);
+}
+]]></code>
+</script>

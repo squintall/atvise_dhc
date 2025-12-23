@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Almendros_TE.Voltaje_L1-L2
+NodeClass: Variable
+BrowseName: 1:Voltaje_L1-L2
+DisplayName: en|Voltaje_L1-L2
+Description: en|Voltaje_L1-L2
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Voltaje_L1-L2.high_limits
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Voltaje_L1-L2.low_limits

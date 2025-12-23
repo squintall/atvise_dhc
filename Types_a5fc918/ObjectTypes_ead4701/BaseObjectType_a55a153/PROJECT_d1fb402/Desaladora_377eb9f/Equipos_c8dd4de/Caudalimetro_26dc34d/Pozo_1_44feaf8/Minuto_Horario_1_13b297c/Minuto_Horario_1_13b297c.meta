@@ -1,0 +1,9 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Desaladora.Equipos.Caudalimetro.Pozo_1.Minuto_Horario_1
+NodeClass: Variable
+BrowseName: 1:Minuto_Horario_1
+DisplayName: en|Minuto_Horario_1
+Description: en|Minuto_Horario_1
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

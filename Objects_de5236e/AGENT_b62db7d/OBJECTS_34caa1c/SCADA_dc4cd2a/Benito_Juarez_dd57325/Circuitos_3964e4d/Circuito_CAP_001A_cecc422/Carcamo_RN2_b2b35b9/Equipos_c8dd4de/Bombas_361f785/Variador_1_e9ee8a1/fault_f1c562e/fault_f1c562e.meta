@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_RN2.Equipos.Bombas.Variador_1.fault
+NodeClass: Variable
+BrowseName: 1:fault
+DisplayName: en|fault
+Description: en|Tanque RN2 | Equipo Variador_1
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.fault.Falla
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

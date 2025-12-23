@@ -1,0 +1,795 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+var loadingDone = false;
+var archiveList = [];
+
+var INTERVAL_ENUM = Object.freeze({
+	h: "T{Hour(s)}",
+	d: "T{Day(s)}",
+	w: "T{Week(s)}",
+	m: "T{Month(s)}",
+	y: "T{Year(s)}"
+});
+
+var schedulerConfig = {
+	active: false,
+	report: { logfiles: true, email: false, mailFrom: "", mailTo: "", smtp: "" },
+	schedules: []
+};
+
+// object for icons
+var iconConfig = {
+	historydir: {
+		alt: "History",
+		title: "T{History directory}"
+	},
+	swapin: {
+		alt: "Swapin",
+		title: "T{Swapin directory}"
+	},
+	backup: {
+		alt: "Backup",
+		title: "T{Backup directory}"
+	},
+	data: {
+		alt: "Data",
+		title: "T{Data archive}"
+	},
+	aggr: {
+		alt: "Aggregate",
+		title: "T{Aggregated archive}"
+	},
+	event: {
+		alt: "Event",
+		title: "T{Event archive}"
+	},
+	systemdb: {
+		alt: "System Database",
+		title: "T{System database}"
+	}
+};
+
+webMI.table.loadResources(function () {
+	var config = [];
+	var tableControllerArchive;
+
+	config["columns"] = [
+		{
+			id: "archiveType",
+			name: "",
+			field: "type",
+			resizable: true,
+			width: 24,
+			sortable: true,
+			alignment: "center",
+			formatter: formatIcon
+		},
+		{
+			id: "archiveName",
+			name: "T{Archive}",
+			field: "archive",
+			resizable: true,
+			sortable: true,
+			filter: true,
+			formatter: formatArchiveName
+		},
+		{
+			id: "firstRun",
+			name: "T{First run}",
+			field: "firstRun",
+			resizable: true,
+			sortable: true,
+			filter: true,
+			formatter: formatFirstRun
+		},
+		{
+			id: "interval",
+			name: "T{Interval}",
+			field: "partInt",
+			resizable: true,
+			width: 48,
+			sortable: true,
+			filter: true,
+			formatter: formatInterval
+		},
+		{
+			id: "olderThan",
+			name: "T{Older than}",
+			field: "olderThan",
+			resizable: true,
+			width: 48,
+			sortable: true,
+			filter: true,
+			formatter: formatInterval
+		},
+		{
+			id: "action",
+			name: "T{Action}",
+			field: "action",
+			resizable: true,
+			width: 48,
+			sortable: true,
+			filter: true,
+			formatter: formatAction
+		},
+		{
+			id: "source",
+			name: "T{Source}",
+			field: "source",
+			resizable: true,
+			width: 24,
+			sortable: true,
+			alignment: "center",
+			formatter: formatIcon
+		},
+		{
+			id: "destination",
+			name: "T{Dest.}",
+			field: "destination",
+			resizable: true,
+			width: 24,
+			sortable: true,
+			alignment: "center",
+			formatter: formatIcon
+		},
+		{
+			id: "active",
+			name: "T{Active}",
+			field: "active",
+			resizable: true,
+			width: 24,
+			sortable: false,
+			alignment: "center",
+			formatter: formatCheckbox
+		},
+		{
+			id: "button",
+			name: "",
+			field: "button",
+			resizable: true,
+			width: 24,
+			sortable: false,
+			alignment: "center",
+			type: "button",
+			formatter: formatButton
+		}
+	];
+
+	config["mode"] = "once";
+
+	config["dataRequestFunction"] = function () {
+		GetDataAndUpdateTable();
+	};
+
+	// at least necessary for columns with formatter, so the sorting of these columns do work
+	config["customComparer"] = function (a, b, args) {
+		switch (args.sortCol.id) {
+			case "archiveName":
+				// sorting of column archiveName
+				if (a[args.sortCol.field] == "systemdb" && b[args.sortCol.field] != "systemdb") {
+					return 1;
+				} else if (a[args.sortCol.field] != "systemdb" && b[args.sortCol.field] == "systemdb") {
+					return -1;
+				} else {
+					if (a[args.sortCol.field] == b[args.sortCol.field]) {
+						sortId(a, b, args);
+					} else {
+						return a[args.sortCol.field] < b[args.sortCol.field] ? 1 : -1;
+					}
+				}
+			default:
+				if (a[args.sortCol.field] == b[args.sortCol.field]) {
+					sortId(a, b, args);
+				} else {
+					return a[args.sortCol.field] > b[args.sortCol.field] ? 1 : -1;
+				}
+		}
+	};
+
+	webMI.table.register("atvise_table_archive", "config", config);
+	webMI.table.setReady("atvise_table_archive", "config");
+
+	loadingDone = true;
+});
+
+function sortId(a, b, args) {
+	var aid = parseFloat(a.id.replace("id_", ""));
+	var bid = parseFloat(b.id.replace("id_", ""));
+
+	function isFloat(n) {
+		return Number(n) === n && n % 1 !== 0;
+	}
+
+	return aid > bid ? 1 : -1;
+}
+
+webMI.table.waitReady("atvise_table_archive", "controller", function () {
+	let tca = webMI.table.request("atvise_table_archive", "controller");
+
+	tca.grid.onClick.subscribe(function (e, args) {
+		var item = tca.grid.getDataItem(args.row);
+		var column = tca.grid.getColumns()[args.cell];
+		var info = {item: item, rowIndex: args.row, column: column}
+
+		if (info.column.id != "active" && info.column.id != "inheritDefault" && info.column.id != "button") {
+			return;
+		}
+
+		switch (info.column.id) {
+			case "active":
+				info.item.active = !info.item.active;
+				break;
+			case "button":
+				openAddScheduleDisplay("T{Save}", info.item);
+				break;
+		}
+
+		if (!tca) {
+			tca = webMI.table.request("atvise_table_archive", "controller");
+		}
+
+		tca.updateData(info.item.id, info.item);
+	});
+
+	tca.grid.onDblClick.subscribe(function (e, args) {
+		var scheduleConfig = tca.getData().find(function (data) {
+			return args.row == data.atvise_row;
+		});
+		openAddScheduleDisplay("T{Save}", scheduleConfig);
+	});
+});
+
+// duplicate the SVG icons from legend; for using later on in the table
+function duplicateSVG(iconType) {
+	var span = webMI.rootWindow.document.createElement("span");
+
+	span.style.display = "grid";
+	var icon = document.getElementById("icon_" + iconType).cloneNode(true);
+	icon.removeAttribute("id");
+	icon.querySelectorAll("[id]").forEach(function (node) {
+		node.removeAttribute("id");
+	});
+
+	// TODO
+	icon.setAttribute("transform", "matrix(0.78,0,0,0.78,0,0)");
+	span.appendChild(icon);
+
+	return span;
+}
+
+function openAddScheduleDisplay(label, config) {
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.archivemanagement.add_schedule",
+		height: 560,
+		width: 600,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		title: label == "T{Save}" ? "T{Edit schedule}" : "T{Add schedule}",
+		query: {
+			backup_mode: webMI.query.backup_mode,
+			add_edit: label,
+			schedule: JSON.stringify(config ? config : createConfigObj())
+		}
+	});
+}
+
+// formatter for slickgrid table to show a button
+function formatButton(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var span = webMI.rootWindow.document.createElement("span");
+	span.style = "width: 100%; text-align: center;";
+	var i = webMI.rootWindow.document.createElement("i");
+	i.className = "fas fa-external-link-square-alt";
+	span.appendChild(i);
+	return span.outerHTML;
+}
+
+// formatter for slickgrid table for archive name
+function formatArchiveName(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var ret = value;
+
+	if (ret == "systemdb") {
+		ret = "T{System database}";
+	}
+
+	return ret;
+}
+
+// formatter for slickgrid table for archive name
+function formatFirstRun(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var ret = value;
+
+	if (typeof ret == "number" && ret >= 0) {
+		var d = new Date(ret);
+		var day = d.getDate();
+		var month = d.getMonth() + 1;
+		var year = d.getFullYear();
+		var hours = d.getHours();
+		var minutes = d.getMinutes();
+		ret = lZ(day) + "." + lZ(month) + "." + year + " " + lZ(hours) + ":" + lZ(minutes);
+
+		function lZ(number) {
+			return number < 10 ? "0" + number : number;
+		}
+	}
+
+	return ret;
+}
+
+// formatter for slickgrid table for icons
+function formatIcon(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var icon = value in iconConfig && iconConfig[value].icon ? iconConfig[value].icon.cloneNode(true) : "";
+
+	if (icon) {
+		icon.title = iconConfig[value].title;
+		icon = icon.outerHTML;
+	}
+
+	return icon;
+}
+
+// formatter for slickgrid table for partition interval
+function formatInterval(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var partInt = /(\d+)_(.)/.exec(value);
+	var ret = "";
+
+	if (
+		(dataContext.archive != "systemdb" || columnDef.field != "olderThan") &&
+		partInt != null &&
+		partInt[2] in INTERVAL_ENUM
+	) {
+		ret = partInt[1] + " " + INTERVAL_ENUM[partInt[2]];
+	}
+
+	return ret;
+}
+
+// formatter for slickgrid table for partition interval
+function formatAction(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	switch (value) {
+		case "copy":
+			return "T{copy}";
+		case "move":
+			return "T{move}";
+		case "delete":
+			return "T{delete}";
+		default:
+			return value;
+	}
+}
+
+// formatter for slickgrid table to display checkboxes
+function formatCheckbox(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var ret = webMI.rootWindow.document.createElement("i");
+	ret.className = "far fa-" + (value ? "check-" : "") + "square";
+
+	return ret.outerHTML;
+}
+
+webMI.trigger.connect("AddSchedule.Config", function (newConfig) {
+	var tableControllerArchive = webMI.table.request("atvise_table_archive", "controller");
+	if ("id" in newConfig.value) {
+		tableControllerArchive.updateData(newConfig.value.id, newConfig.value);
+	} else {
+		tableControllerArchive.addData({ result: newConfig.value });
+	}
+});
+
+webMI.trigger.connect("DeleteSchedule", function (config) {
+	var tableControllerArchive = webMI.table.request("atvise_table_archive", "controller");
+	if ("id" in config.value) {
+		tableControllerArchive.removeData(config.value.id);
+	}
+});
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!loadingDone) {
+			return;
+		}
+		schedulerConfig.active = e.value == "true";
+	},
+	"chk_active"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!loadingDone) {
+			return;
+		}
+		schedulerConfig.report.logfiles = e.value == "true";
+	},
+	"chk_logfiles"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!loadingDone) {
+			return;
+		}
+		schedulerConfig.report.email = e.value == "true";
+		webMI.trigger.fire("com.atvise.setActive", schedulerConfig.report.email, "txt_email_from");
+		webMI.trigger.fire("valuechanged", schedulerConfig.report.mailFrom, "txt_email_from");
+		webMI.trigger.fire("com.atvise.setActive", schedulerConfig.report.email, "txt_email_to");
+		webMI.trigger.fire("valuechanged", schedulerConfig.report.mailTo, "txt_email_to");
+		webMI.trigger.fire("com.atvise.setActive", schedulerConfig.report.email, "cmb_smtp");
+	},
+	"chk_email"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!loadingDone) {
+			return;
+		}
+		schedulerConfig.report.mailFrom = "";
+		if (
+			!schedulerConfig.report.email ||
+			/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+				String(e.value)
+			)
+		) {
+			webMI.gfx.setVisible("txt_email_from_blinking_frame", false);
+			schedulerConfig.report.mailFrom = e.value;
+		} else {
+			webMI.gfx.setVisible("txt_email_from_blinking_frame", true);
+		}
+	},
+	"txt_email_from"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!loadingDone) {
+			return;
+		}
+		schedulerConfig.report.mailTo = "";
+		if (
+			!schedulerConfig.report.email ||
+			/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+				String(e.value)
+			)
+		) {
+			webMI.gfx.setVisible("txt_email_to_blinking_frame", false);
+			schedulerConfig.report.mailTo = e.value;
+		} else {
+			webMI.gfx.setVisible("txt_email_to_blinking_frame", true);
+		}
+	},
+	"txt_email_to"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!loadingDone) {
+			return;
+		}
+		schedulerConfig.report.smtp = e.value;
+	},
+	"cmb_smtp"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		var tableControllerArchive = webMI.table.request("atvise_table_archive", "controller");
+		schedulerConfig.schedules = tableControllerArchive
+			.getData()
+			.filter(function (data) {
+				return true;
+			})
+			.map(function (data) {
+				delete data.atvise_detail;
+				delete data.atvise_expand;
+				delete data.atvise_marker;
+				delete data.atvise_row;
+				delete data.id;
+
+				return data;
+			});
+
+		if (
+			!(
+				schedulerConfig.report.email === false ||
+				(schedulerConfig.report.email === true &&
+					schedulerConfig.report.mailFrom.trim() != "" &&
+					schedulerConfig.report.mailTo.trim() != "" &&
+					schedulerConfig.report.smtp != "")
+			)
+		) {
+			webMI.display.openWindow({
+				display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+				height: 160,
+				width: 400,
+				modal: true,
+				resizable: false,
+				movable: true,
+				scrollbars: false,
+				menubar: false,
+				status: false,
+				toolbar: false,
+				title: "T{Auto-scheduler}",
+				query: {
+					headline: "T{Error}",
+					message: "T{Invalid configuration, please check settings}.",
+					button: "T{OK}"
+				}
+			});
+			return;
+		}
+		webMI.data.write(webMI.query.configNode, JSON.stringify(schedulerConfig));
+		webMI.trigger.fire("clicked", e, "btn_cancel");
+	},
+	"btn_save"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.display.closeWindow();
+	},
+	"btn_cancel"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		openAddScheduleDisplay("T{Add}");
+	},
+	"btn_add"
+);
+
+function tryParseJSON(json) {
+	try {
+		return JSON.parse(json);
+	} catch (e) {
+		return false;
+	}
+}
+
+webMI.addOnload(function () {
+	var compareRights = [
+		{
+			node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes",
+			right: "execute"
+		},
+		{
+			node: "AGENT.SMTPSERVERS",
+			right: "read"
+		}
+	];
+	handleAccessControlResponse(compareRights, function () {
+		webMI.data.call(
+			"BrowseNodes",
+			{
+				startAddress: "AGENT.SMTPSERVERS",
+				vTypes: "ObjectTypes.ATVISE.SmtpServer"
+			},
+			function (nodes) {
+				var smtpservers = [];
+				for (var smtp in nodes) {
+					smtpservers.push({ text: smtp, value: smtp });
+				}
+				webMI.trigger.fire("setItems", smtpservers, "cmb_smtp");
+
+				webMI.data.read(webMI.query.configNode, function (node) {
+					var tmpSchedulerConfig = tryParseJSON(node.value);
+					if (!(node.error == -1 || node.status != 0 || tmpSchedulerConfig === false)) {
+						if (
+							typeof tmpSchedulerConfig == "object" &&
+							"active" in tmpSchedulerConfig &&
+							"report" in tmpSchedulerConfig &&
+							"schedules" in tmpSchedulerConfig
+						) {
+							schedulerConfig = tmpSchedulerConfig;
+						}
+					}
+
+					var config = schedulerConfig.schedules.find(function (schedule) {
+						return schedule.archive == "systemdb" && schedule.source == "" && schedule.destination == "backup";
+					});
+
+					if (config === undefined) {
+						config = createConfigObj("systemdb", "systemdb", "", "backup");
+						config.active = false;
+						config.firstRun = 0;
+						config.partInt = "1_h";
+						config.action = "copy";
+						schedulerConfig.schedules.push(config);
+					}
+
+					webMI.trigger.fire("setChecked", schedulerConfig.active, "chk_active");
+					webMI.trigger.fire("setChecked", !!schedulerConfig.report.logfiles, "chk_logfiles");
+					webMI.trigger.fire("setChecked", !!schedulerConfig.report.email, "chk_email");
+					webMI.trigger.fire("setValue", schedulerConfig.report.mailFrom, "txt_email_from");
+					webMI.trigger.fire("setValue", schedulerConfig.report.mailTo, "txt_email_to");
+					webMI.trigger.fire("setSelectedItem", schedulerConfig.report.smtp, "cmb_smtp");
+
+					GetDataAndUpdateTable();
+				});
+			}
+		);
+	});
+
+	// prepare SVG icons for table
+	for (var type in iconConfig) {
+		iconConfig[type].icon = duplicateSVG(type);
+	}
+
+	webMI.gfx.setVisible("txt_email_from_blinking_frame", false);
+	webMI.gfx.setStroke("txt_email_from_blinking_frame", "#ff0000");
+	webMI.gfx.setVisible("txt_email_to_blinking_frame", false);
+	webMI.gfx.setStroke("txt_email_to_blinking_frame", "#ff0000");
+});
+
+function createConfigObj(archiveName, type, source, destination) {
+	return {
+		active: true,
+		archive: archiveName ? archiveName : "",
+		type: type ? type : "",
+		firstRun: Date.now(),
+		partInt: "_",
+		olderThan: "_",
+		action: "",
+		source: source ? source : "",
+		destination: destination ? destination : "",
+		lastBackup: 0
+	};
+}
+
+function GetDataAndUpdateTable() {
+	if (!loadingDone) {
+		setTimeout(() => {
+			GetDataAndUpdateTable();
+		}, 200);
+		return;
+	}
+
+	var tableControllerArchive = webMI.table.request("atvise_table_archive", "controller");
+	if (tableControllerArchive.isReady !== true) {
+		return;
+	}
+	tableControllerArchive.clearData();
+
+	var compareRights = [
+		{
+			node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations",
+			right: "execute"
+		}
+	];
+
+	loadingDone = false;
+	handleAccessControlResponse(compareRights, function () {
+		webMI.data.call(
+			"FileOperations",
+			{
+				fn: "GetArchives",
+				directoryTypes: ["historydir", "swapin"]
+			},
+			function (archives) {
+				loadingDone = true;
+				schedulerConfig.schedules = schedulerConfig.schedules.filter(function (schedule) {
+					return (
+						schedule.archive == "default" ||
+						schedule.archive == "systemdb" ||
+						archives.some(function (archive) {
+							return archive.name == schedule.archive && archive.type == schedule.type;
+						})
+					);
+				});
+
+				var topOfList = schedulerConfig.schedules.filter(function (schedule) {
+					return schedule.archive == "systemdb";
+				});
+
+				archiveList = schedulerConfig.schedules.filter(function (schedule) {
+					return schedule.archive != "systemdb";
+				});
+
+				archiveList = archiveList.sort(function (a, b) {
+					return a.archive > b.archive ? 1 : -1;
+				});
+
+				archiveList = topOfList.concat(archiveList);
+
+				tableControllerArchive.addData({ result: archiveList });
+			}
+		);
+	});
+}
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback
+ */
+function handleAccessControlResponse(compareRights, callback) {
+	if (!accessControlManager) {
+		callback();
+		return;
+	}
+
+	var requiredRights = {
+		nodeIds: [
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations",
+			"AGENT.SMTPSERVERS"
+		],
+		rights: ["execute", "execute", "read"]
+	};
+
+	accessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, (response) => {
+		var right_active_visu_element =
+			response["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes"].execute &&
+			response["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations"].execute;
+
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "chk_active");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "chk_logfiles");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "chk_email");
+
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "btn_add");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "btn_save");
+
+		if (!schedulerConfig.report.email) right_active_visu_element = false;
+
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "txt_email_from");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "txt_email_to");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "cmb_smtp");
+
+		if (!Array.isArray(compareRights)) compareRights = [compareRights];
+
+		var allRights = [];
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights.push(response[compareRights[c].node][compareRights[c].right]);
+			} else {
+				allRights.push(false);
+			}
+		}
+
+		if (!allRights.includes(false)) {
+			callback();
+		} else {
+			handleAccessDenied("T{Access Denied}");
+		}
+	});
+
+	function handleAccessDenied(message) {
+		// UpdateStatusLabel(message);
+	}
+}
+]]></code>
+</script>

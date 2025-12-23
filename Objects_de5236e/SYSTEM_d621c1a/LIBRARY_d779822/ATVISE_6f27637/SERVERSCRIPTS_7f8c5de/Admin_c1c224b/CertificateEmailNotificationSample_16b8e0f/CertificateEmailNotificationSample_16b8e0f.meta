@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Admin.CertificateEmailNotificationSample
+NodeClass: Variable
+BrowseName: 1:CertificateEmailNotificationSample
+DisplayName: en|CertificateEmailNotificationSample
+Description: en|CertificateEmailNotificationSample
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

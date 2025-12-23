@@ -1,0 +1,25 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Fovissste_IM.Equipos.Caudalimetro.L1
+NodeClass: Object
+BrowseName: 1:L1
+DisplayName: en|L1
+Description: en|L1
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Caudalimetro
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.Alarmas
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.Insertar_PGSQL
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.graph
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.graph_flow
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.graph_pressure
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.hist_diaria
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.historizacion_00_05
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.historizacion_01_00
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.historizacion_diaria
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.historizacion_horaria
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_AR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_expanded
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_mini
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_mini_AR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_reduced
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_reduced_AR

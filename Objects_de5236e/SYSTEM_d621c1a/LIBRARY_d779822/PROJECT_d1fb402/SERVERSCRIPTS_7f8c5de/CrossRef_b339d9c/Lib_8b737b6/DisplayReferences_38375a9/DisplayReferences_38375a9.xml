@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="ua" type="uainput" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* Parse a display and collect references to other displays
+Input (members of uan):
+	-node:ua.nodeid{mandatory} Specifies the nodeid of the display to parse
+	-recursive:bool{optional, default=false} If true collect all descendant otherwise only next child
+Output (return value)	:
+	from:[ua.nodeid] Array of parents
+	to:[ua.nodeid] Array of children
+If no other displays are referenced empty arrays are returned.
+*/
+var recursive = ua.recursive;
+var nodeid = ua.node.result.nodeId.address;
+//console.log("Display References: ", nodeid, " recursive:", recursive);
+
+var display = Ua.findNode(nodeid);
+var displayExist = Ua.Status(display) != Ua.Status.BADNODEIDUNKNOWN;
+
+var xlink = "http://www.w3.org/1999/xlink";
+var from = [];
+var to = [];
+var parsedDisplays = {};
+var displaysToParse = [display];
+
+parsedDisplays[display.result.nodeId.address] = true;
+
+if (!displayExist)
+	throw new Error("Display:" + display.result.nodeId.address + " does not exist.");
+
+while (displaysToParse.length) {
+	if (display = displaysToParse.shift()) {
+		try {
+			var doc = new XMLDoc(display.result.value);
+		} catch (e) {
+			console.log("error", display.result.nodeId.address + ": " + e);
+			throw e;
+		}
+		if (doc.root) {
+			for (var xmlNode = doc.root.first("svg"); xmlNode; xmlNode = xmlNode.next("svg")) {
+
+				var childAddress = (unescape(xmlNode.attribute("href", xlink))).split('?', 1).shift();
+				var childNode = Ua.findNode(childAddress);
+				var childExist = Ua.Status(childNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+				if (childExist) {
+					if (recursive && !parsedDisplays[childNode.result.nodeId.address]) {
+						parsedDisplays[childNode.result.nodeId.address] = true;
+						displaysToParse.unshift(childNode.result);
+					}
+					from.push(display.result);
+					to.push(childNode.result);
+				}
+			}
+		}
+	}
+}
+//for (var i = 0; i < from.length; ++i) console.log(from[i].nodeid, " -> ", to[i].nodeid);
+return {"from": from, "to": to};]]></code>
+</script>

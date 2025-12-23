@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.dialogs.picker_color_dialog
+NodeClass: Variable
+BrowseName: 1:picker_color_dialog
+DisplayName: en|picker_color_dialog
+Description: en|picker_color_dialog
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

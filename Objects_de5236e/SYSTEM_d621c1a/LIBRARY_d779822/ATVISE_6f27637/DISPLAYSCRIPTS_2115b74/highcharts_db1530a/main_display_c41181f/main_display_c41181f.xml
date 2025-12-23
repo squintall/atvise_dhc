@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+    <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts main display object display
+ * ----------------------------------------
+ * This script supports the display to combines the highcharts, toolbar and legend displays.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var configNode = webMI.query.configNode;
+var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+var requiredRights = {
+	nodeIds: [
+		configNode,
+		"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AddNode",
+		"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.CheckNodeExists"
+	],
+	rights: ["read", "execute", "execute"]
+};
+
+webMI.addOnload(updateButtonStates);
+
+function updateButtonStates() {
+	if (!webMI.getAccessControlSupport()) return;
+
+	accessControlManager.getRights(requiredRights.nodeIds, requiredRights.rights, (response) => {
+		let readConfigNodeRight = response.result[0].value;
+		let callAddNodeRight = response.result[1].value;
+		let callCheckNodeRight = response.result[2].value;
+		let allRightsGranted = ![readConfigNodeRight, callAddNodeRight, callCheckNodeRight].includes(false);
+
+		setButtonsActive(allRightsGranted);
+	});
+}
+
+function setButtonsActive(active) {
+	webMI.trigger.fire("com.atvise.setActive", active, "toolbar");
+	webMI.trigger.fire("com.atvise.setActive", active, "configurationCombobox");
+	webMI.trigger.fire("com.atvise.setActive", active, "button_back");
+	webMI.trigger.fire("com.atvise.setActive", active, "button_forward");
+	webMI.trigger.fire("com.atvise.setActive", active, "datePickers");
+}
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect(
+	"com.atvise.highchart_options",
+	function (e) {
+		webMI.gfx.setVisible("highcharts", !e.value);
+		webMI.gfx.setVisible("configuration", e.value);
+	},
+	"toolbar"
+);
+
+webMI.trigger.connect("com.atvise.access_control_update", updateButtonStates);
+]]></code>
+</script>

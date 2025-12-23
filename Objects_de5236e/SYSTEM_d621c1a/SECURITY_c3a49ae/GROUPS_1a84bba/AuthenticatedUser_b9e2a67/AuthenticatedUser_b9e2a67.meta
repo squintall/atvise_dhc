@@ -1,0 +1,8 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.GROUPS.AuthenticatedUser
+NodeClass: Object
+BrowseName: 1:AuthenticatedUser
+DisplayName: en|AuthenticatedUser
+Description: en|AuthenticatedUser
+EventNotifier: 0
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.RIGHTS.VISU.View
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.Group

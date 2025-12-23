@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server.connection_timeout
+NodeClass: Variable
+BrowseName: 1:connection_timeout
+DisplayName: en|connection_timeout
+Description: en|connection_timeout
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

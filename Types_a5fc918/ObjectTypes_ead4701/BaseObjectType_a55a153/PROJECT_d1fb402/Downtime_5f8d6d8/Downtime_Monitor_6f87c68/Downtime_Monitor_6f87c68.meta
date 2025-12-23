@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Downtime.Downtime_Monitor
+NodeClass: Object
+BrowseName: 1:Downtime_Monitor
+DisplayName: en|Downtime_Monitor
+Description: en|Downtime_Monitor
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

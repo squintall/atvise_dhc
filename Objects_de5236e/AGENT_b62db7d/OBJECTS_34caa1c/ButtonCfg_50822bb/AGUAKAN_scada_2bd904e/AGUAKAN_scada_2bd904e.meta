@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ButtonCfg.AGUAKAN\scada
+NodeClass: Variable
+BrowseName: 1:AGUAKAN\scada
+DisplayName: en|AGUAKAN\scada
+Description: en|AGUAKAN\scada
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

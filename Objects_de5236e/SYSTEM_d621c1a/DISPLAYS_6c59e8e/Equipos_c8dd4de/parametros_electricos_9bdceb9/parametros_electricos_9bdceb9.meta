@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Equipos.parametros_electricos
+NodeClass: Variable
+BrowseName: 1:parametros_electricos
+DisplayName: en|parametros_electricos
+Description: en|parametros_electricos
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

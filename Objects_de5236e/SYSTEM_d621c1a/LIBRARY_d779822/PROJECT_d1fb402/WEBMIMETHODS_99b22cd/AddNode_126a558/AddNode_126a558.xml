@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[const address = request.postvalues.address;
+const archive = request.postvalues.archive;
+const typeDefinition = request.postvalues.typeDefinition;
+const dataType = request.postvalues.dataType;
+const value = request.postvalues.value;
+const reference = request.postvalues.reference;
+
+var nodeClass = request.postvalues.nodeClass;
+
+const pathFragments = address.split(".");
+const parents = [];
+let nodeParent = "";
+
+// Generate all parent nodes in advance for the subsequent check for existence
+pathFragments.forEach((fragment, index) => {
+	if (index === 0) {
+		parents[index] = fragment;
+		nodeParent = fragment;
+		return; // First element in path. Let it be.
+	}
+
+	if (index === pathFragments.length - 1) {
+		return;
+	}
+
+	parents[index] = `${parents[index - 1]}.${fragment}`;
+	nodeParent = parents[index];
+});
+
+// Make sure all fragments in path exist, so we don't end up with a ghost node
+parents.forEach((parentAddress, index) => {
+	const newNode = Ua.findNode(parentAddress);
+
+	if (Ua.Status(newNode) == Ua.Status.BADNODEIDUNKNOWN) {
+		Ua.createNode(parentAddress, {
+			nodeClass: Ua.NodeClass.OBJECT,
+			parent: parents[index - 1],
+			typeDefinition: Ua.ObjectType.FOLDERTYPE
+		});
+	}
+});
+
+/* todo: remove after lib side fix */
+nodeClass = nodeClass.replace("NODECLASS_", "");
+
+if (!archive) {
+
+	const newNode = Ua.findNode(address);
+
+	if (Ua.Status(newNode) == Ua.Status.BADNODEIDUNKNOWN) {
+		Ua.createNode(address, {
+			nodeClass: Ua.NodeClass[nodeClass],
+			parent: nodeParent,
+			typeDefinition: typeDefinition,
+			dataType: Ua.DataType[dataType],
+			value: value
+		});
+	}
+
+	if (reference && reference !== "false") {
+		const dataNode = Ua.findNode(address);
+		const historyNode =  Ua.findNode(reference);
+
+		dataNode.addReference(Ua.Reference.HASHISTORICALCONFIGURATION, historyNode);
+	}
+
+} else {
+
+	const newNode = Ua.findNode(address);
+
+	if (Ua.Status(newNode) == Ua.Status.BADNODEIDUNKNOWN) {
+		Ua.create(address, {
+			nodeClass: Ua.NodeClass[nodeClass],
+			parent: nodeParent,
+			typeDefinition: typeDefinition,
+			dataType: Ua.DataType[dataType]
+		});
+	}
+
+}
+
+]]></code>
+</script>

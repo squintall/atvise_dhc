@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="username" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="password" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/*
+  ScriptLogin: Sample script
+
+  Attention: If you want to use this example create a new script in the "Scripts" folder of the webserver and paste this source code into it.
+
+  username: Form login user name
+  password: Form login password in plain text
+  request: postvalues from client request including also user and (hashed) password sent from client
+*/
+
+// Initialize the return structure with default values
+var returnValue = {                     // Return structure to the webaccess modul (see atvise help). Unused values should be removed!
+  "success": true,                      // true = login successful | false = login not successful
+  //"usermode": 1,                      // Currently not used, only placeholder for future (Please do not change)
+  "userfallback": false,                // If success = false and user exists also as atvise user: try to login with the local user (password must be the same!)
+  "groups": [],                         // Array of strings with all the returned groups/roles for the user
+  "description": "",                    // Description of the user
+  "preferredlanguage": "",              // Interface language of the user [en|de|..]
+  "name": "",                           // Full name of the user
+  "defaultdisplay": "",                 // The default display for the user
+  "contentdisplay": "",                 // The content display for the user
+  //"loginopcua": false,                // Currently not used, only placeholder for future (Please do not change)
+  //"loginwebmi": true,                 // Currently not used, only placeholder for future (Please do not change)
+  "superuser": false,                   // Indicates if the user has full rigths
+  //"allownodebrowser": false,          // Currently not used, only placeholder for future (Please do not change)
+  "authcontext": {                      // Data of type object stored for logout: --- Free Form ---, could also be empty
+  	"username": username, 
+  	"password": password, 
+  	"access_token": "", 
+  	"token_type": "", 
+  	"scope": ""
+  },  
+  //"authresult": {                   // An optional authentication result to inform the 
+  //                                  // user if necessary (failed login, password is expired/expiring, ...)                        
+  //  "expiry": Number | Optional,    // Count of days until the password will be invalid.
+  //                                  //   <= 0: Password is invalid since n days (0 = yesterday, ...)
+  //                                  //    > 0: Password will be expiring in n days, login is still possible and will succeed.
+  //                                  // Usage:  If set to 1 the password will be only valid for the current day.
+  //                                  //         If used a notification of the password expiration will be shown.
+  //  "tries": Number | Optional,     // Count of remaining login attempts.
+  //  "locktime": Number | Optional,  // Lock time in milliseconds. Set to -1 to indicate that the user is locked indefinitely.
+  //  "delay": Number | Optional      // Login delay in milliseconds.
+  //},
+  "clientreturn": ""                    // string, also JSON.stringify object is possible, returned to the client (visu)
+}
+
+return returnValue;]]></code>
+</script>

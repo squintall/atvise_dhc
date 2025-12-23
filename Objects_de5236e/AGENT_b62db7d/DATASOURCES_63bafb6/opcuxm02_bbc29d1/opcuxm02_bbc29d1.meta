@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.opcuxm02
+NodeClass: Object
+BrowseName: 1:opcuxm02
+DisplayName: en|opcuxm02
+Description: en|opcuxm02
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.Datasource.OpcUa

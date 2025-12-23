@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.email_dialog
+NodeClass: Variable
+BrowseName: 1:email_dialog
+DisplayName: en|email_dialog
+Description: en|email_dialog
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

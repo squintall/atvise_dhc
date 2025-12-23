@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/numbers/v2/regulatoryCompliance.d.ts
+NodeClass: Variable
+BrowseName: 1:regulatoryCompliance.d.ts
+DisplayName: en|regulatoryCompliance.d.ts
+Description: en|regulatoryCompliance.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

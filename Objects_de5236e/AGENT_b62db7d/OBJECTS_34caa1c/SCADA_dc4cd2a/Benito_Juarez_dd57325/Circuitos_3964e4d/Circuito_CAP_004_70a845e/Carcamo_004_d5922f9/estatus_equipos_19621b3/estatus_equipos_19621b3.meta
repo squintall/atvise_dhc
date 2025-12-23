@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Carcamo_004.estatus_equipos
+NodeClass: Variable
+BrowseName: 1:estatus_equipos
+DisplayName: en|estatus_equipos
+Description: en|estatus_equipos
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

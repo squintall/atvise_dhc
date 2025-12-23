@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.011.Azul_Bonampak.AvMuyil_CPeten
+NodeClass: Object
+BrowseName: 1:011.Azul_Bonampak.AvMuyil_CPeten
+DisplayName: en|011.Azul_Bonampak.AvMuyil_CPeten
+Description: en|011.Azul_Bonampak.AvMuyil_CPeten
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.presion_min_max

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.MailManagement.MailScheduler
+NodeClass: Variable
+BrowseName: 1:MailScheduler
+DisplayName: en|MailScheduler
+Description: en|MailScheduler
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

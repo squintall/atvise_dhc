@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.presion_min_max
+NodeClass: Variable
+BrowseName: 1:presion_min_max
+DisplayName: en|presion_min_max
+Description: en|presion_min_max
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

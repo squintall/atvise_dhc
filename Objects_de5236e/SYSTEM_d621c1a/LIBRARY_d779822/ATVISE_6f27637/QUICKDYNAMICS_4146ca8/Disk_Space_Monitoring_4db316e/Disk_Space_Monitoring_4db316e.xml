@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">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</icon>
+    <visible>1</visible>
+    <title>Disk Space Monitoring</title>
+    <description>Monitors used space on the database, swapin, backup and restore directories.</description>
+  </metadata>
+  <parameter behavior="optional" config="Threshold" defaultvalue="70" desc="history warning from (%)" name="threshold_historydir_warning" valuetype="number"/>
+  <parameter behavior="optional" config="Threshold" defaultvalue="90" desc="history critical from (%)" name="threshold_historydir_critical" valuetype="number"/>
+  <parameter behavior="optional" config="Threshold" defaultvalue="70" desc="swapin warning from (%)" name="threshold_swapin_warning" valuetype="number"/>
+  <parameter behavior="optional" config="Threshold" defaultvalue="90" desc="swapin critical from (%)" name="threshold_swapin_critical" valuetype="number"/>
+  <parameter behavior="optional" config="Threshold" defaultvalue="70" desc="backup warning from (%)" name="threshold_backup_warning" valuetype="number"/>
+  <parameter behavior="optional" config="Threshold" defaultvalue="90" desc="backup critical from (%)" name="threshold_backup_critical" valuetype="number"/>
+  <parameter behavior="optional" config="Threshold" defaultvalue="70" desc="restore warning from (%)" name="threshold_restore_warning" valuetype="number"/>
+  <parameter behavior="optional" config="Threshold" defaultvalue="90" desc="restore critical from (%)" name="threshold_restore_critical" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="5" desc="checking interval (minutes)" name="interval" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig" desc="configuration node" name="config_node" valuetype="address"/>
+  <parameter behavior="optional" defaultvalue="true" desc="active" name="active" valuetype="bool"/>
+  <code><![CDATA[/** diskspace monitoring **/
+
+/**
+ * addNode require access control verifications
+ */
+var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+
+/**
+ * std settings
+ */
+var scriptNodeName = "monitoringScript";
+var scriptVersion = "1.1"; // on change of scriptCode, increase this
+
+(function () {
+	if (webMI.getMethodSupport().indexOf("CheckNodeExists") < 0 || webMI.getMethodSupport().indexOf("AddNode") < 0) {
+		return;
+	}
+
+	var compareRights = {node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations", right: "execute"};
+	handleAccessControlResponse("SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations", compareRights, function () {
+		webMI.data.call("FileOperations", {fn: "GetDirectories"}, function (dirTypes) {
+			UpdateNode(
+				base.config_node,
+				{
+					nodeClass: "VARIABLE",
+					typeDefinition: "i=62",
+					dataType: "STRING",
+					value: ""
+				},
+				function () {
+					webMI.data.call("CheckNodeExists", {address: base.config_node + ".active"}, function (e) {
+						if (e.result) {
+							webMI.data.read(base.config_node + ".active", function (activeNode) {
+								AddProp(base.config_node + ".active", "BOOLEAN", activeNode.value ? "1" : ""); // "" === false for dataType BOOLEAN
+							});
+						} else {
+							AddProp(base.config_node + ".active", "BOOLEAN", base.active ? "1" : ""); // "" === false for dataType BOOLEAN
+						}
+					});
+					AddProp(base.config_node + ".interval", "UINT16", base.interval, function () {
+						webMI.data.subscribe(base.config_node + ".interval", function (intervalNode) {
+							UpdateNode(
+								base.config_node + "." + scriptNodeName,
+								{
+									nodeClass: "VARIABLE",
+									typeDefinition: "VariableTypes.ATVISE.ScriptCode",
+									dataType: "XMLELEMENT",
+									value: ""
+								},
+								function (addressScript) {
+									AddProp(addressScript + ".scriptVersion", "STRING", "0.0", function (addressScriptVersion) {
+										var scriptOptions = {};
+
+										scriptOptions.scriptNodeName = scriptNodeName;
+										scriptOptions.scriptVersion = scriptVersion;
+
+										var repeatAsString = null;
+										if (intervalNode.value < 1440 && intervalNode.value > 0) {
+											var h = new String(Math.floor(intervalNode.value / 60));
+											var m = new String(intervalNode.value % 60);
+											repeatAsString = (h.length == 1 ? "0" : "") + h + ":" + (m.length == 1 ? "0" : "") + m + ":00";
+										}
+
+										scriptOptions.repeatAsString = repeatAsString;
+										scriptOptions.config_node = base.config_node;
+										scriptOptions.dirTypes = [];
+
+										webMI.data.call("FileOperations", {fn: "GetDirectories"}, function (dirTypes) {
+											dirTypes.forEach(function (type) {
+												scriptOptions.dirTypes.push(type);
+											});
+
+											AddProp(addressScript, "XMLELEMENT", scriptOptions);
+											AddProp(addressScriptVersion, "STRING", scriptVersion);
+										});
+									});
+								}
+							);
+						});
+					});
+					dirTypes.forEach(function (type) {
+						AddDirTypeFolderWithProps(base.config_node + "." + type.type);
+					});
+				}
+			);
+		});
+	});
+})();
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback
+ */
+function handleAccessControlResponse(nodeId, compareRights, callback) {
+	if (!accessControlManager) {
+		callback();
+		return;
+	}
+
+	var requiredRights = {
+		nodeIds: [
+			nodeId,
+			nodeId,
+			nodeId,
+			nodeId,
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AddNode",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.CheckNodeExists"
+		],
+		rights: ["read", "write", "engineer", "execute", "execute", "execute"]
+	};
+
+	accessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, (response) => {
+		if (!Array.isArray(compareRights)) compareRights = [compareRights];
+
+		var allRights = [];
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights.push(response[compareRights[c].node][compareRights[c].right]);
+			} else {
+				allRights.push(false);
+			}
+		}
+
+		if (!allRights.includes(false)) {
+			callback();
+		}
+	});
+}
+
+function call(callback, data) {
+	return typeof callback === "function" ? callback(data) : undefined;
+}
+
+function UpdateNode(address, options, callback) {
+	if (base.config_node == "SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig") {
+		var compareRights = {node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.DiskSpaceMonitoringConfig", right: "execute"};
+
+		handleAccessControlResponse(
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.DiskSpaceMonitoringConfig",
+			compareRights,
+			function () {
+				webMI.data.call(
+					"DiskSpaceMonitoringConfig",
+					{address: address, options: JSON.stringify(options)},
+					function (e) {
+						if (e.result) call(callback, address);
+					}
+				);
+			}
+		);
+	} else {
+		webMI.data.call("CheckNodeExists", {address: address}, function (e) {
+			if (!e.result) {
+				options.address = address;
+
+				var parentNode = address.substring(0, address.lastIndexOf("."));
+
+				var compareRights = [
+					{node: parentNode, right: "read"},
+					{node: parentNode, right: "write"},
+					{node: parentNode, right: "engineer"},
+					{node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AddNode", right: "execute"},
+					{node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.CheckNodeExists", right: "execute"}
+				];
+
+				handleAccessControlResponse(parentNode, compareRights, function () {
+					webMI.data.call("AddNode", options, function () {
+						call(callback, address);
+					});
+				});
+			} else {
+				if ("value" in options) {
+					webMI.data.call("SetNodeValue", {address: address, value: options.value});
+				}
+				call(callback, address);
+			}
+		});
+	}
+}
+
+function AddProp(nodeAddr, dataType, value, callback) {
+	UpdateNode(
+		nodeAddr,
+		{
+			nodeClass: "VARIABLE",
+			typeDefinition: "i=68",
+			dataType: dataType,
+			value: value
+		},
+		callback
+	);
+}
+
+function AddDirTypeFolderWithProps(nodeAddr) {
+	UpdateNode(
+		nodeAddr,
+		{
+			nodeClass: "OBJECT",
+			typeDefinition: "i=61"
+		},
+		function () {
+			var key = "threshold_" + nodeAddr.substring(nodeAddr.lastIndexOf(".") + 1);
+			AddProp(nodeAddr + ".exceeded_warning", "BOOLEAN", "");
+			AddProp(nodeAddr + ".exceeded_critical", "BOOLEAN", "");
+			AddProp(nodeAddr + ".threshold_warning", "DOUBLE", key + "_warning" in base ? base[key + "_warning"] : 0);
+			AddProp(nodeAddr + ".threshold_critical", "DOUBLE", key + "_critical" in base ? base[key + "_critical"] : 0);
+		}
+	);
+}
+
+/** diskspace monitoring **/
+
+]]></code>
+</script>

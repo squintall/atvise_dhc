@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Landscape.USER.LAYOUTS.Layout_Sofrel_Solidaridad
+NodeClass: Variable
+BrowseName: 1:Layout_Sofrel_Solidaridad
+DisplayName: en|Layout_Sofrel_Solidaridad
+Description: en|Layout_Sofrel_Solidaridad
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

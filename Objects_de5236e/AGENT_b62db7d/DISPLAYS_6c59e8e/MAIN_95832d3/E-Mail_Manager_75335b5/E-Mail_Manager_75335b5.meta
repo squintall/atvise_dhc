@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MAIN.E-Mail Manager
+NodeClass: Variable
+BrowseName: 1:E-Mail Manager
+DisplayName: en|E-Mail Manager
+Description: en|E-Mail Manager
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,21 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.GROUPS.Agua_NO_Contabilizada
+NodeClass: Object
+BrowseName: 1:Agua_NO_Contabilizada
+DisplayName: en|Agua_NO_Contabilizada
+Description: en|Agua_NO_Contabilizada
+EventNotifier: 0
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.RIGHTS.USER.Monitoreo_Red
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.RIGHTS.VISU.View
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\aguzman
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\cbroggi
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\ccanto
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\eavila
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\fvelazquez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\gsacramento
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jjimenez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\rvalencia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\squintal
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.ccanto
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.root
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.squintal
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.Group

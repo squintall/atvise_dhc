@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DISK.atviseHistoryDriveUsedPercent
+NodeClass: Variable
+BrowseName: 1:atviseHistoryDriveUsedPercent
+DisplayName: en|atviseHistoryDriveUsedPercent
+Description: en|atviseHistoryDriveUsedPercent
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType

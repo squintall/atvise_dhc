@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.layoutelements.redu_info
+NodeClass: Variable
+BrowseName: 1:redu_info
+DisplayName: en|redu_info
+Description: en|redu_info
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

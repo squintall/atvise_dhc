@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="req" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[console.log(req);]]></code>
+</script>

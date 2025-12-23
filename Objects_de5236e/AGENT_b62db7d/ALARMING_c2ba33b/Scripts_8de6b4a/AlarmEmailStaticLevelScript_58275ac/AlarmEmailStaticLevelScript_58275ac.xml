@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>11</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="alarm" type="alarm" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var alarmtext = "Nivel estático en " + alarm.description.es;
+
+call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Mail.SendMail",{
+	smtpserver: "Zimbra",
+	from: "monitoreo@aguakan.com",
+	to: "squintal@aguakan.com; rvalencia@aguakan.com",
+	subject: alarmtext,
+	body:"Favor de revisar niveles en: " + alarm.description.es + " o contactar a TI/Automatización para su revisión"
+});]]></code>
+</script>

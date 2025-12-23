@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Miraflores.Equipos.Bombas.Bomba_2.MANTTO
+NodeClass: Variable
+BrowseName: 1:MANTTO
+DisplayName: en|MANTTO
+Description: en|MANTTO
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

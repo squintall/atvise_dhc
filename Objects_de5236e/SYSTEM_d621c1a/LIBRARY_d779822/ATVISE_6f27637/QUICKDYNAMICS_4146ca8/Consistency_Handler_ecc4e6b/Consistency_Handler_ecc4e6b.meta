@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler
+NodeClass: Variable
+BrowseName: 1:Consistency Handler
+DisplayName: en|Consistency Handler
+Description: en|Consistency Handler
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

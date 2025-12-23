@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var saveTrigger;
+if (webMI.getAccessControlSupport()) {
+	gAccessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+ function handleAccessControlResponse(compareRights, successCallback, failCallback) {
+	if (!gAccessControlManager) {
+		successCallback();
+		return;
+	}
+	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		var allRights = true;
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights = allRights && response[compareRights[c].node][compareRights[c].right];
+			} else {
+				allRights = false;
+				break;
+			}
+		}
+		
+		if (allRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * success if any node/right comibination is true
+ * @param compareRights
+ * @param callback success
+ * @param callback fail
+ */
+function handleAccessControlResponseAny(compareRights, successCallback, failCallback) {
+	if (!gAccessControlManager) {
+		successCallback();
+		return;
+	}
+	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		// do the checks
+		var anyRights = false;
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				anyRights = anyRights || response[compareRights[c].node][compareRights[c].right];
+			}
+		}
+		
+		if (anyRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+webMI.addOnload(function(e){
+	handleAccessControlResponse([{ node: "SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.UserManagement.UserGroupManager", right: "execute" },{ node: "SYSTEM.SECURITY", right: "engineer" }], function() {
+		webMI.gfx.setVisible("no_access", false);
+		var toHighlight = webMI.query["buttonToHighlight"];
+		if (toHighlight == "Groups") {
+			saveTrigger = "saveGroups";
+			webMI.gfx.setFill("btn_groups_button_bg", webMI.query["btn_button_bg"]);
+			setTimeout(function () {	
+				webMI.display.openDisplay("SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.group_manager", "", "manager_frame");
+			},0);
+		} 
+		else if (toHighlight == "Users") {
+			saveTrigger = "saveUsers";
+			webMI.gfx.setFill("btn_users_button_bg", webMI.query["btn_button_bg"]);
+			setTimeout(function () {	
+				webMI.display.openDisplay("SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.user_manager", "", "manager_frame");
+			},0);
+		}
+	}, function() {
+		webMI.gfx.setFill("btn_groups_button_bg", "#b7b7b7");
+		webMI.gfx.setStroke("btn_groups_button_stroke", "#b7b7b7");
+		webMI.gfx.setFill("btn_users_button_bg", "#b7b7b7");
+		webMI.gfx.setStroke("btn_users_button_stroke", "#b7b7b7");
+		webMI.gfx.setFill("btn_save_button_bg", "#b7b7b7");
+		webMI.gfx.setStroke("btn_save_button_stroke", "#b7b7b7");
+		webMI.gfx.setVisible("no_access", true);	
+	});
+});
+
+
+webMI.addEvent("btn_groups", "click", function(e) {
+var id = "btn_groups";
+var value = true;
+saveTrigger = "saveGroups";
+
+handleAccessControlResponse([{ node: "SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.UserManagement.UserGroupManager", right: "execute" },{ node: "SYSTEM.SECURITY", right: "engineer" }], function() {
+return function(value) {
+	webMI.gfx.setFill("btn_groups_button_bg", webMI.query["btn_button_bg"]);
+	webMI.gfx.setFill("btn_users_button_bg", webMI.query["globalFillColor"]);
+	webMI.display.openDisplay("SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.group_manager", "", "manager_frame");
+} (value);
+}, function() {
+		webMI.gfx.setFill("btn_groups_button_bg", "#b7b7b7");
+		webMI.gfx.setStroke("btn_groups_button_stroke", "#b7b7b7");
+	});
+
+});
+
+
+webMI.addEvent("btn_users", "click", function(e) {
+var id = "btn_users";
+var value = true;
+saveTrigger = "saveUsers";
+handleAccessControlResponse([{ node: "SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.UserManagement.UserGroupManager", right: "execute" },{ node: "SYSTEM.SECURITY", right: "engineer" }], function() {
+return function(value) {
+	webMI.gfx.setFill("btn_users_button_bg", webMI.query["btn_button_bg"]);
+	webMI.gfx.setFill("btn_groups_button_bg", webMI.query["globalFillColor"]);
+	webMI.display.openDisplay("SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.usermanagement.user_manager", "", "manager_frame");;
+} (value);
+}, function() {
+		webMI.gfx.setFill("btn_users_button_bg", "#b7b7b7");
+		webMI.gfx.setStroke("btn_users_button_stroke", "#b7b7b7");
+	});
+});
+
+
+
+
+
+webMI.addEvent("btn_save", "click", function(e) {
+var id = "btn_save";
+var value = true;
+return function(value) {
+webMI.trigger.fire(saveTrigger, "1");
+} (value);
+});
+
+]]></code>
+</script>

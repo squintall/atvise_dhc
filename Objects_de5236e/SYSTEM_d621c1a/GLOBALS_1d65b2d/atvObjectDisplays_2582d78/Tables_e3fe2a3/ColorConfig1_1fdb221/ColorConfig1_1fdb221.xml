@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Value xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+	<uax:ListOfString>
+		<uax:String>&quot;detail_cell_color&quot;:{&quot;color&quot;:&quot;#f4f4f4&quot;}</uax:String>
+		<uax:String>&quot;detail_text_color&quot;:{&quot;color&quot;:&quot;#000000&quot;}</uax:String>
+		<uax:String>&quot;footer_text_color&quot;:{&quot;color&quot;:&quot;&quot;}</uax:String>
+		<uax:String>&quot;footer_cell_color&quot;:{&quot;color&quot;:&quot;&quot;}</uax:String>
+		<uax:String>&quot;footer_mode_color&quot;:{&quot;color&quot;:&quot;#000000&quot;}</uax:String>
+		<uax:String>&quot;header_border_color&quot;:{&quot;color&quot;:&quot;#d3d3d3&quot;}</uax:String>
+		<uax:String>&quot;header_cell_color&quot;:{&quot;color&quot;:&quot;&quot;}</uax:String>
+		<uax:String>&quot;header_text_color&quot;:{&quot;color&quot;:&quot;&quot;}</uax:String>
+		<uax:String>&quot;hover_text_color&quot;:{&quot;color&quot;:&quot;#8B4513&quot;}</uax:String>
+		<uax:String>&quot;row_border_color&quot;:{&quot;color&quot;:&quot;#d3d3d3&quot;}</uax:String>
+		<uax:String>&quot;row_cell_color_even&quot;:{&quot;color&quot;:&quot;#eeeeee&quot;}</uax:String>
+		<uax:String>&quot;row_cell_color_odd&quot;:{&quot;color&quot;:&quot;#f9f9f9&quot;}</uax:String>
+		<uax:String>&quot;row_text_color_odd&quot;:{&quot;color&quot;:&quot;#000000&quot;}</uax:String>
+		<uax:String>&quot;row_text_color_even&quot;:{&quot;color&quot;:&quot;#000000&quot;}</uax:String>
+		<uax:String>&quot;scrollbar_color&quot;:{&quot;color&quot;:&quot;#e5e5e5&quot;}</uax:String>
+		<uax:String>&quot;scrollbar_tumb_color&quot;:{&quot;color&quot;:&quot;#878787&quot;}</uax:String>
+		<uax:String>&quot;selection_cell_color&quot;:{&quot;color&quot;:&quot;red&quot;}</uax:String>
+		<uax:String>&quot;selection_text_color&quot;:{&quot;color&quot;:&quot;#8B4513&quot;}</uax:String>
+		<uax:String>&quot;table_icon_color&quot;:{&quot;color&quot;:&quot;&quot;}</uax:String>
+		<uax:String>&quot;hover_cell_color&quot;:{&quot;color&quot;:&quot;none&quot;}</uax:String>
+	</uax:ListOfString>
+</Value>

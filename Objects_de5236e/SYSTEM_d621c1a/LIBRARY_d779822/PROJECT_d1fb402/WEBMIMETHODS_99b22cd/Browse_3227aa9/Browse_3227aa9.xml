@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[const startAddress = request.postvalues.startAddress;
+let endLevel = request.postvalues.endLevel;
+let array = [];
+let node = Ua.findNode(startAddress).result;
+
+if (Ua.Status(node) === Ua.Status.BADNODEIDUNKNOWN) {
+	// Search in parent's children
+	const nodeName = startAddress.substring(startAddress.lastIndexOf(".") + 1);
+	node = Ua.findNode(startAddress.substr(0, startAddress.lastIndexOf(".")));
+	const parentArray = node.browse().result;
+
+	for (let i = 0; i < parentArray.length; i++) {
+		if (parentArray[i].node.browseName.name === nodeName) {
+			array = parentArray[i].node.browse().result;
+			i = parentArray.length;
+		}
+	}
+} else {
+	array = node.browse().result;
+}
+
+endLevel = (endLevel && isNaN(Number(endLevel)) ? 0 : Number(endLevel)) || 0;
+
+let level = 1;
+
+/*
+ * VariableTypes.ATVISE.Display							Display
+ * ObjectTypes.PROJECT									Objects
+ * ns=1;s=ObjectTypes.ATVISE.ArchiveGroup.Data			Data (archives)
+ * ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration			AlarmConfiguration
+ */
+var validTypes = [
+	"FolderType",
+	"BaseVariableType",
+	"BaseDataVariableType",
+	"VariableTypes.ATVISE.Display",
+	"ObjectTypes.PROJECT",
+	"ns=1;s=ObjectTypes.ATVISE.ArchiveGroup.Data",
+	"ns=1;s=ObjectTypes.ATVISE.Alarm"
+];
+var vTypes = request.postvalues.vTypes;
+
+if (vTypes && vTypes.length > 0) {
+	validTypes = vTypes;
+
+	// Requesting BaseVariableType always shall implicitely include BaseDataVariableType
+	if (validTypes.indexOf("BaseVariableType") > -1 && validTypes.indexOf("BaseDataVariableType") === -1) {
+		validTypes.push("BaseDataVariableType");
+	}
+}
+
+function checkType(type) {
+	let valid = false;
+	var typestring = type.toString();
+	type = type.valueOf();
+
+	for (let i in validTypes) {
+		if (type.indexOf(validTypes[i]) > -1 || typestring.indexOf(validTypes[i]) > -1) {
+			valid = true;
+			break;
+		}
+	}
+	return valid;
+}
+
+function addLevel(nodeDataObj, array, level, parentName) {
+	for (let i = 0; i < array.length; i++) {
+		if (checkType(array[i].node.typeDefinition)) {
+			const identifier = array[i].node.browseName.name;
+			const subarray = array[i].node.browse().result;
+
+			if (subarray != undefined && subarray.length > 0) {
+				let hasValidSub = false;
+
+				for (let j in subarray) {
+					if (checkType(subarray[j].node.typeDefinition)) {
+						hasValidSub = true;
+						break;
+					}
+				}
+
+				if (hasValidSub) {
+					level++;
+
+					if (endLevel === 0 || level <= endLevel) {
+						nodeDataObj[identifier] = {};
+						addLevel(nodeDataObj[identifier], subarray, level, parentName + "." + array[i].node.browseName.name);
+					} else {
+						nodeDataObj[identifier] = {
+							name: parentName + "." + array[i].node.browseName.name,
+							text: array[i].node.browseName.name,
+							sub: "true"
+						};
+					}
+				} else {
+					nodeDataObj[identifier] = {
+						name: parentName + "." + array[i].node.browseName.name,
+						text: array[i].node.browseName.name
+					};
+				}
+			} else {
+				nodeDataObj[identifier] = {
+					name: parentName + "." + array[i].node.browseName.name,
+					text: array[i].node.browseName.name
+				};
+			}
+		}
+	}
+
+	return nodeDataObj;
+}
+
+const nodeDataObj = addLevel({}, array, level, startAddress);
+
+return nodeDataObj;
+]]></code>
+</script>

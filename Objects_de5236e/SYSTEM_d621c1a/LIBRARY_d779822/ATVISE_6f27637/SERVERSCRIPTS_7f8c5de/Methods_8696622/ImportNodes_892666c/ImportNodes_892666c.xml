@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name = "address" type = "string" trigger = "false" relative = "false" value = "" />
+  <parameter name = "xmlnodeset" type = "string" trigger = "false" relative = "false" value = "" />
+  <code><![CDATA[/** atvise server wrapper for UA method "AGENT.OPCUA.METHODS.importNodes"
+This script is a standard atvise resource and must not be modified.
+
+var result = call("Methods.ImportNodes", {
+	address: "",
+	xmlnodeset: "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><UANodeSet ..."
+});
+
+if (result.error)
+	console.log(result.errorstring);
+else
+	console.log(result.result);
+
+Input:
+param address {string} If empty then the import is absolute, otherwise the import is relative to the specified node.
+param xmlnodeset {string} The nodes to import in XML format.
+
+Output:
+return {Object} A result object is returned with the following properties:
+- Object.error {number},{optional} Returns the error code of the call in case of an error. If no error occurred, it is undefined.
+- Object.errorstring {string},{optional} Returns the error string of the call in case of an error. If no error occurred, it is undefined.
+- Object.result {object},{optional} Returns the result of the call if no error occurred. It has the following properties:
+	- result.success {boolean} If true then all nodes were successfully imported. false if an error occurred.
+	- result.version_ok {boolean} If true then the version in the XML matched the atvise version, otherwise false.
+	- result.errors {[Object]},{optional} Returns the list of errors appeared during import.
+		- Object.error {number} Returns the error code.
+		- Object.errorstring {string} Returns the node causing the error.
+*/
+
+var importNodes = Ua.findNode("AGENT.OPCUA.METHODS.importNodes").result;
+var response = importNodes.call({
+	object: "AGENT.OPCUA.METHODS",
+	input: [
+		{ type: Ua.DataType.NODEID, value: address },
+		{ type: Ua.DataType.XMLELEMENT, value: xmlnodeset }
+	]
+});
+
+var result = {};
+
+if (response.error) {
+	result.error = response.error;
+	result.errorstring = Ua.Status(result).toString();
+
+	if (response.argumentError) {
+		var parameterNames = ["address", "xmlnodeset"];
+
+		for (var i = 0; i < response.argumentError.length; ++i)
+			if (response.argumentError[i]) {
+				result.errorstring += ", " + parameterNames[i] + ":" + Ua.Status(response.argumentError[i]).toString();
+			}
+	}
+} else {
+	result.result = {};
+
+	if (response.result.length > 0) {
+		result.result["success"] = response.result[0];
+		result.result["version_ok"] = response.result[1];
+	}
+
+	if (response.result.length === 4) {
+		result.result["errors"] = [];
+
+		for (var i = 0; i < response.result[2].length; ++i)
+			result.result["errors"].push({ error: response.result[2][i], errorstring: response.result[3][i] });
+	}
+}
+
+return result;
+]]></code>
+</script>

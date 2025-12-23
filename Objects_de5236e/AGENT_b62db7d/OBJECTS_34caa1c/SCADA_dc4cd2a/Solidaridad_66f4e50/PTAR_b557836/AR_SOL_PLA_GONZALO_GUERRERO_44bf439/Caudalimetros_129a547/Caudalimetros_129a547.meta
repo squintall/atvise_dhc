@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.PTAR.AR_SOL_PLA_GONZALO_GUERRERO.Caudalimetros
+NodeClass: Object
+BrowseName: 1:Caudalimetros
+DisplayName: en|Caudalimetros
+Description: en|Caudalimetros
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

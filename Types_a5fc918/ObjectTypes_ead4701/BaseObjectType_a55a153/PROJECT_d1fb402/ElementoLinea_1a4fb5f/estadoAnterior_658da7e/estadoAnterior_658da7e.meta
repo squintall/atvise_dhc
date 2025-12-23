@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.estadoAnterior
+NodeClass: Variable
+BrowseName: 1:estadoAnterior
+DisplayName: en|estadoAnterior
+Description: en|estadoAnterior
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

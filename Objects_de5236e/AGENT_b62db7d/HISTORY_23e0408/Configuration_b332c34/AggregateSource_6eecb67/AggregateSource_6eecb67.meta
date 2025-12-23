@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.HISTORY.Configuration.AggregateSource
+NodeClass: Object
+BrowseName: 1:AggregateSource
+DisplayName: en|AggregateSource
+Description: en|AggregateSource
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

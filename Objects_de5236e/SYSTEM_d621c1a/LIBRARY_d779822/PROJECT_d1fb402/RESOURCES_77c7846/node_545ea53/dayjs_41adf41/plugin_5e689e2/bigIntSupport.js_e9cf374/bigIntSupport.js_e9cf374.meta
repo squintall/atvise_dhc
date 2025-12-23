@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/dayjs/plugin/bigIntSupport.js
+NodeClass: Variable
+BrowseName: 1:bigIntSupport.js
+DisplayName: en|bigIntSupport.js
+Description: en|bigIntSupport.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

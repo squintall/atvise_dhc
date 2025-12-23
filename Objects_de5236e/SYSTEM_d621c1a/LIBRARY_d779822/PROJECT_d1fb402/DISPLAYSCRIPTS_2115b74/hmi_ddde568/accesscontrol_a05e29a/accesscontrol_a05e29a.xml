@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the access control log object display
+ * -----------------------------------------------------------------------
+ */
+
+var tableID = webMI.query["tableID"];
+var isPopup = webMI.query["mode"] == "popup";
+
+/**
+ * DECLARATION SECTION
+ */
+webMI.table.loadResources(function () {
+
+	/* Erstellen der Konfiguration */
+	var config = [];
+
+	/* Konfiguration der darzustellenden Spalten */
+	config["columns"] =
+		[
+			{
+				id: "timestamp",
+				name: "T{Timestamp}",
+				field: "timestamp",
+				type: ["datetime", "s"],
+				sortable: true,
+				filter: true
+			},
+			{
+				id: "user",
+				name: "T{User}",
+				field: "user",
+				sortable: true,
+				filter: false
+			},
+			{
+				id: "permission",
+				name: "T{Command}",
+				field: "permission",
+				sortable: true,
+				filter: true,
+				visible: true
+			},
+			{
+				id: "address",
+				name: "T{Address}",
+				field: "address",
+				sortable: true,
+				filter: false
+			},
+			{
+				id: "errortext",
+				name: "T{Error}",
+				field: "errortext",
+				sortable: true,
+				filter: true,
+				visible: !isPopup
+			}
+		];
+
+
+	/* Konfiguration des  Laufzeitverhalten */
+	config["mode"] = "once";
+
+	/* Konfiguration der Datenabfrage */
+	config["dataRequestFunction"] =
+		function customDataRequest(continuation) {
+			var accesslog = JSON.parse(JSON.stringify(webMI.data.getPermissionLog()));
+			var data = {
+				result: accesslog
+			}
+			var ids = this.addData(data);
+
+		};
+
+	/* Registierung der Konfiguration */
+	webMI.table.register(tableID, "config", config);
+	webMI.table.setReady(tableID, "config");
+
+	webMI.addEvent(webMI.data, "permissionnotification", function (notification) {
+
+		webMI.table.waitReady(tableID, "controller", function () {
+			var tableController = webMI.table.request(tableID, "controller");
+			var currentLog = JSON.parse(JSON.stringify(webMI.data.getPermissionLog()));
+
+			for(var i in currentLog) {
+				var entry = currentLog[i];
+				var item = tableController.search("timestamp", entry.timestamp);
+
+				if(!item || item.length == 0) {
+					var data = {
+						result: [entry]
+					}
+					var ids = tableController.addData(data);
+				}
+			}
+		});
+	});
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+/* Clear table and log data on button click */
+webMI.trigger.connect("clicked", function (e) {
+	webMI.data.clearPermissionLog();
+	webMI.table.waitReady(tableID, "controller", function () {
+		var tableController = webMI.table.request(tableID, "controller");
+		tableController.clearData();
+	});
+}, "cmd_clear_log");
+
+]]></code>
+</script>

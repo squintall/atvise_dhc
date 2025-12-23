@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Principal_trend
+NodeClass: Variable
+BrowseName: 1:Principal_trend
+DisplayName: en|Principal_trend
+Description: en|Principal_trend
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

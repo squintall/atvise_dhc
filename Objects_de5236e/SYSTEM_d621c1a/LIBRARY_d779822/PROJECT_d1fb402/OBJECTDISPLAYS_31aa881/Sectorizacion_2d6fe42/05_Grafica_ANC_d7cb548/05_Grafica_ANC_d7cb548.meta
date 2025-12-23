@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Sectorizacion.05_Grafica_ANC
+NodeClass: Variable
+BrowseName: 1:05_Grafica_ANC
+DisplayName: en|05_Grafica_ANC
+Description: en|05_Grafica_ANC
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

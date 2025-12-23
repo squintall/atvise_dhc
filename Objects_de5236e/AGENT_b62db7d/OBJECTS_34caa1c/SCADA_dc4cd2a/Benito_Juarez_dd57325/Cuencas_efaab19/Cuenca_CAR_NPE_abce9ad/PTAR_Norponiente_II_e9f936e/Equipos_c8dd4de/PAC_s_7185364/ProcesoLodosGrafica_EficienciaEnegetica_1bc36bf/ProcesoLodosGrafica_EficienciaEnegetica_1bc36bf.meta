@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.PTAR_Norponiente_II.Equipos.PAC´s.ProcesoLodosGrafica_EficienciaEnegetica
+NodeClass: Variable
+BrowseName: 1:ProcesoLodosGrafica_EficienciaEnegetica
+DisplayName: en|ProcesoLodosGrafica_EficienciaEnegetica
+Description: en|ProcesoLodosGrafica_EficienciaEnegetica
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

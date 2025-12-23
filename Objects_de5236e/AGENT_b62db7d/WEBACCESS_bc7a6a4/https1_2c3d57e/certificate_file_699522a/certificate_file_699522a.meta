@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.WEBACCESS.https1.certificate_file
+NodeClass: Variable
+BrowseName: 1:certificate_file
+DisplayName: en|certificate_file
+Description: en|certificate_file
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the user_display object display
+ * ----------------------------------------
+ * This control displays the currently logged in user or a default text if no user is logged in.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var loginText = (webMI.query["loginText"] != undefined) ? webMI.query["loginText"] : "Login";
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent(webMI.data, "clientvariableschange", function(e) {
+	if ("username" in e) {
+		var username = (e.username != "") ? e.username : loginText;
+		webMI.gfx.setText("user_label", username);
+		loggedIn = (e.username != "");
+		webMI.gfx.setVisible("button_symbol_user", !loggedIn);
+		webMI.gfx.setVisible("button_symbol_logout", loggedIn);
+	}
+});
+]]></code>
+</script>

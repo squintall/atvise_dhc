@@ -1,0 +1,55 @@
+{
+    "nodes": [
+        {
+            "id": "Carcamo_001",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_001",
+            "esForaneo": false,
+            "from": "",
+            "to": "Carcamo_002"
+        },
+        {
+            "id": "Carcamo_002",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_002",
+            "esForaneo": false,
+            "from": "Carcamo_001",
+            "to": "Carcamo_Infonavit14, Carcamo_Uxmal"
+        },
+        {
+            "id": "Carcamo_H23",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_H23",
+            "esForaneo": false,
+            "from": "Carcamo_Uxmal",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Infonavit14",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_Infonavit14",
+            "esForaneo": false,
+            "from": "Carcamo_002",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Uxmal",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_Uxmal",
+            "esForaneo": false,
+            "from": "Carcamo_002",
+            "to": "Carcamo_PJ"
+        }
+        ,
+        {
+            "id": "Carcamo_PJ",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ",
+            "esForaneo": true,
+            "from": "Carcamo_Uxmal",
+            "to": ""
+        }
+         ,
+        {
+            "id": "Carcamo_Aeropuerto_ZU",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Aeropuerto_ZU",
+            "esForaneo": true,
+            "from": "",
+            "to": "Carcamo_Uxmal"
+        }
+    ]
+}

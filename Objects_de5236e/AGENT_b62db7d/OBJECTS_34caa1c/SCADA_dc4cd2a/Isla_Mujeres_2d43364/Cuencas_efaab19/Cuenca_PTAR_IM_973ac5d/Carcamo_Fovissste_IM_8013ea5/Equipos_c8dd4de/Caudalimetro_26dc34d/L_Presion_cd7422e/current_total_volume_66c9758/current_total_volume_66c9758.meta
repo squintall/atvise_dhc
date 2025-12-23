@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Fovissste_IM.Equipos.Caudalimetro.L_Presion.current_total_volume
+NodeClass: Variable
+BrowseName: 1:current_total_volume
+DisplayName: en|current_total_volume
+Description: en|Acumulado total de Carcamo_Fovissste_IM en L_Presion
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Caudalimetros

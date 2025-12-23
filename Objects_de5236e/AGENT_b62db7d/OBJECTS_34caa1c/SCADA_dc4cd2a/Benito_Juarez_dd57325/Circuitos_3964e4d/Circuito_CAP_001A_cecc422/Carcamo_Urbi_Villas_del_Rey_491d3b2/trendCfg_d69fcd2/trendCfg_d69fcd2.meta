@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Urbi_Villas_del_Rey.trendCfg
+NodeClass: Variable
+BrowseName: 1:trendCfg
+DisplayName: en|trendCfg
+Description: en|trendCfg
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

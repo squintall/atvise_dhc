@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.0U3UFXDC_HDA.Nivel.ValuePrecision
+NodeClass: Variable
+BrowseName: 1:ValuePrecision
+DisplayName: en|ValuePrecision
+Description: en|ValuePrecision
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.2365.ValuePrecision.RelMirrorOutput

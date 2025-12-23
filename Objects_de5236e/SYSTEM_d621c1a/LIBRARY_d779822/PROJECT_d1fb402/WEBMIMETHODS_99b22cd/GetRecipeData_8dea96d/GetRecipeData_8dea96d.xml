@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="session" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[//Used to Retrieve all Recipe information from the server
+//Initialize RecipeDataprovider for Data access
+
+var dataRootAddress;
+var writeToLogger = true;
+
+if(session.postvalues.hasOwnProperty("configNode")){
+	dataRootAddress = session.postvalues.configNode;
+}else{
+	dataRootAddress = "AGENT.OBJECTS.recipes";
+}
+
+if(session.postvalues.hasOwnProperty("logMessages")){
+	writeToLogger = session.postvalues.logMessages == "true";
+}
+
+var recipeDataProvider = call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", {"dataRootAddress" : dataRootAddress, "writeToLogger": writeToLogger});
+var csvUtils = call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.CsvUtils");
+var mode = session.postvalues.mode;
+var result = "";
+
+if(mode=="RecipeTemplates"){
+	result = recipeDataProvider.templateData();
+}else if(mode=="TemplateParameterByName"){
+	var templateName = session.postvalues.templateName;
+	result = recipeDataProvider.templateParameterByName(templateName);
+}else if(mode=="CreateTemplate"){
+	var templateName = session.postvalues.templateName;
+	var data = session.postvalues.data;
+	var result = recipeDataProvider.createTemplate(templateName, data);
+}else if(mode=="DeleteTemplateByName"){
+	var templateName = session.postvalues.templateName;
+	result = recipeDataProvider.deleteTemplatebyName(templateName);
+}else if(mode=="recipesByTemplateName"){
+	var templateName = session.postvalues.templateName;
+	result = recipeDataProvider.recipesByTemplateName(templateName);
+}else if(mode=="Recipes"){	
+	result = recipeDataProvider.recipes();
+}else if(mode=="recipeDataByName"){
+	var templateName = session.postvalues.templateName;
+	var recipeName = session.postvalues.recipeName;
+	result = recipeDataProvider.recipeDataByName(templateName, recipeName);
+}else if(mode=="RecipeSelect"){
+	var recipeNodeId = session.postvalues.recipeNodeId;
+	var templateName = session.postvalues.templateName;
+	var recipeName = session.postvalues.recipeName;
+	result = recipeDataProvider.selectRecipe(templateName, recipeName);
+}else if(mode=="SaveRecipe"){
+	var templateName = session.postvalues.templateName;
+	var recipeName = session.postvalues.recipeName;
+	var data = session.postvalues.data;
+	result = recipeDataProvider.saveRecipe(templateName, recipeName, data);
+}else if(mode=="deleteRecipeByName"){
+	var templateName = session.postvalues.templateName;
+	var recipeName = session.postvalues.recipeName;
+	result = recipeDataProvider.deleteRecipeByName(templateName, recipeName);
+}else if(mode=="Export"){
+	try {
+		var exp = JSON.parse(session.postvalues.export);
+		result = csvUtils.export(dataRootAddress, exp);
+	} catch {
+		result = "";
+	}
+}else if(mode=="Import"){
+	var csvData = session.postvalues.csvData;
+	result = csvUtils.import(dataRootAddress, csvData);
+}else if(mode=="Update"){
+	recipeDataProvider.updateStructure();
+}
+
+return result;]]></code>
+</script>

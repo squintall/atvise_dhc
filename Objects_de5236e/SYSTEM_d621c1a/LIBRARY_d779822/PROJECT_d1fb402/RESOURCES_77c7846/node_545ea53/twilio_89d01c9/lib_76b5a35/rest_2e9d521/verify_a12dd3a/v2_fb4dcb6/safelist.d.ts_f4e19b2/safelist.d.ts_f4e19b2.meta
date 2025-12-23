@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/verify/v2/safelist.d.ts
+NodeClass: Variable
+BrowseName: 1:safelist.d.ts
+DisplayName: en|safelist.d.ts
+Description: en|safelist.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

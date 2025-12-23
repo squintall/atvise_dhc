@@ -1,0 +1,536 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="890" version="1.2" width="1675" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="AGENT.OBJECTS.Simulated.int32" name="base" valuetype="address"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="10" width="10"/>
+ </metadata>
+ <rect atv:refpx="385.135" atv:refpy="646.171" fill="#f5f5f5" height="160" id="id_21" stroke="#e5e5e5" stroke-width="2" width="780" x="40" y="350"/>
+ <rect atv:refpx="385.135" atv:refpy="544.781" fill="#f5f5f5" height="240.283" id="id_6" stroke="#e5e5e5" stroke-width="2" width="780" x="40" y="100"/>
+ <svg atv:refpx="446.324" atv:refpy="269.251" height="30" id="id_0" transform="matrix(5,0,0,2,0,0)" width="80" x="49.265" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="285">
+  <atv:argument name="label" value="T{Generar Reporte}"/>
+  <atv:argument name="fontSize" value="36"/>
+  <atv:overwrite height="74.501" id="id_2" transform="matrix(0.2,0,0,0.375,0,0)" width="394.5"/>
+  <atv:overwrite height="79.501" id="id_0" transform="matrix(0.2,0,0,0.375,0,0)" width="399.5"/>
+  <atv:overwrite height="58" id="id_6" transform="matrix(0.2,0,0,0.5,0,0)" width="398"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.2,0,0,0.5,0,0)" x="200" y="41.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.2,0,0,0.5,0,0)" x="200" y="26.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.2,0,0,0.5,0,0)" x="200" y="34.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.12,0,0,0.3,0,0)" x="323.167" y="51.292"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.12,0,0,0.3,0,0)" x="323.167" y="29.959"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.2,0,0,0.5,0,0)" x="190" y="20"/>
+  <atv:overwrite height="56" id="button_stroke" transform="matrix(0.2,0,0,0.5,0,0)" width="396"/>
+  <atv:overwrite height="58" id="button_bg" transform="matrix(0.2,0,0,0.5,0,0)" width="398"/>
+  <atv:overwrite height="60" id="outer_frame" transform="matrix(0.2,0,0,0.5,0,0)" width="400"/>
+ </svg>
+ <foreignObject height="877" id="id_1" width="820" x="854.236" y="5.797">
+  <div style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml">
+   <iframe allowtransparency="false" frameborder="0" height="100%" id="pdfFrame" marginheight="0" marginwidth="0" name="pdf" onload="" style="background-color: rgb(114, 114, 114)" width="100%"/>
+   <a download="" href="" id="downloader" style="display: none"/>
+  </div>
+ </foreignObject>
+ <svg atv:refpx="449.996" atv:refpy="716.247" height="30" id="id_3" transform="matrix(5,0,0,2,0,0)" width="80" x="50" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="330">
+  <atv:argument name="label" value="T{Download PDF}"/>
+  <atv:argument name="fontSize" value="36"/>
+  <atv:overwrite height="74.501" id="id_2" transform="matrix(0.2,0,0,0.375,0,0)" width="394.5"/>
+  <atv:overwrite height="79.501" id="id_0" transform="matrix(0.2,0,0,0.375,0,0)" width="399.5"/>
+  <atv:overwrite height="58" id="id_6" transform="matrix(0.2,0,0,0.5,0,0)" width="398"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.2,0,0,0.5,0,0)" x="200" y="41.5"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.2,0,0,0.5,0,0)" x="200" y="26.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.2,0,0,0.5,0,0)" x="200" y="34.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.12,0,0,0.3,0,0)" x="323.167" y="51.292"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.12,0,0,0.3,0,0)" x="323.167" y="29.959"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.2,0,0,0.5,0,0)" x="190" y="20"/>
+  <atv:overwrite height="56" id="button_stroke" transform="matrix(0.2,0,0,0.5,0,0)" width="396"/>
+  <atv:overwrite height="58" id="button_bg" transform="matrix(0.2,0,0,0.5,0,0)" width="398"/>
+  <atv:overwrite height="60" id="outer_frame" transform="matrix(0.2,0,0,0.5,0,0)" width="400"/>
+ </svg>
+ <svg atv:refpx="226.805" atv:refpy="472.921" height="102" id="id_4" transform="matrix(1.0453,0,0,0.9804,0,0)" width="287" x="73.476" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_datetime" y="202.9"/>
+ <text atv:refpx="120.921" atv:refpy="183.718" fill="#575757" font-family="Arial" font-size="18" font-weight="bold" id="id_7" x="81.305" y="188.218">Fecha Inicial:</text>
+ <text atv:refpx="507.806" atv:refpy="183.661" fill="#575757" font-family="Arial" font-size="18" font-weight="bold" id="id_8" x="470.837" y="188.161">Fecha Final:</text>
+ <svg atv:refpx="616.527" atv:refpy="472.85" height="102" id="id_9" transform="matrix(1.0453,0,0,0.9804,0,0)" width="287" x="446.309" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_datetime" y="202.825"/>
+ <text atv:refpx="105.893" atv:refpy="53" fill="#575757" font-family="Arial" font-size="36" font-weight="bold" id="id_5" x="35" y="57.5">Generación de Reporte</text>
+ <rect atv:refpx="453.523" atv:refpy="719.22" fill="#ebebeb" fill-opacity="0.619608" height="60" id="id_10" stroke="#e5e5e5" stroke-linejoin="round" stroke-width="0" width="396.42" x="255.312" y="661.763"/>
+ <svg atv:refpx="339.147" atv:refpy="584.764" height="30" id="id_14" transform="matrix(1.2394,0,0,1.0511,0,0)" width="160" x="193.642" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.checkbox" y="504.234">
+  <atv:argument name="valueOn" value="1"/>
+  <atv:argument name="outputValueOn" value="1"/>
+  <atv:argument name="outputValueOff" value="0"/>
+  <atv:argument name="preselected" value="true"/>
+  <atv:argument name="label" value="T{PDF autosave}"/>
+  <atv:argument name="fontSize" value="20"/>
+  <atv:overwrite id="checkbox_item" transform="matrix(0.8068,0,0,0.9514,0,0)" y="20.767"/>
+  <atv:overwrite id="checkbox_symbol" transform="matrix(0.8068,0,0,0.9514,0,0)" y="5.516"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.8068,0,0,0.9514,0,0)" y="4.516"/>
+  <atv:overwrite height="27.333" id="focus_frame" transform="matrix(0.8068,0,0,0.9514,0,0)"/>
+  <atv:overwrite id="checkbox_bg" transform="matrix(0.8068,0,0,0.9514,0,0)" y="4.516"/>
+  <atv:overwrite height="29.533" id="checkbox_frame" transform="matrix(0.8068,0,0,0.9514,0,0)"/>
+  <atv:overwrite height="31.533" id="checkbox_stroke" transform="matrix(0.8068,0,0,0.9514,0,0)"/>
+ </svg>
+ <line atv:refpx="442.5" atv:refpy="685.188" id="id_15" stroke="#cfcdce" stroke-width="2" x1="60" x2="825" y1="645.688" y2="645.688"/>
+ <svg atv:refpx="420" atv:refpy="460.011" height="30" id="id_16" transform="matrix(1,0,0,1.3333,0,0)" width="160" x="340" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.rocker_switch_horizontal" y="330.008">
+  <atv:argument name="base" value="AGENT.OBJECTS.Multiplo_Periodicidad"/>
+  <atv:argument name="min" value="0"/>
+  <atv:argument name="max" value="100"/>
+  <atv:overwrite id="icon_plus" transform="matrix(1,0,0,0.75,0,3.7497)"/>
+  <atv:overwrite height="37.999" id="inc_stroke" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="37.999" id="inc_bg" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="39.999" id="id_5" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="0.508" id="icon_minus" transform="matrix(1,0,0,0.75,0,0)" y="19.749"/>
+  <atv:overwrite height="37.999" id="dec_stroke" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="37.999" id="dec_bg" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="39.999" id="id_20" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite id="input_label" transform="matrix(1,0,0,0.75,0,0)" y="24.499"/>
+  <atv:overwrite height="31.999" id="blinking_frame" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="31.999" id="input_field_widget" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="36.999" id="focus_frame" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="37.999" id="input_bg" transform="matrix(1,0,0,0.75,0,0)"/>
+  <atv:overwrite height="39.999" id="border_area" transform="matrix(1,0,0,0.75,0,0)"/>
+ </svg>
+ <svg atv:refpx="639.066" atv:refpy="61.459" height="30" id="id_11" transform="matrix(1.3633,0,0,1.4306,0,0)" width="160" x="388.763" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.combobox" y="27.96">
+  <atv:argument name="base" value="AGENT.OBJECTS.Tipo_Reporte"/>
+  <atv:argument name="text1" value="T{Reporte_1}"/>
+  <atv:argument name="text1value" value="1"/>
+  <atv:argument name="text2" value="T{Reporte_2}"/>
+  <atv:argument name="text2value" value="2"/>
+  <atv:argument name="text3" value="T{Reporte_3}"/>
+  <atv:argument name="text3value" value="3"/>
+  <atv:argument name="mode" value="Enum List"/>
+  <atv:argument name="enumList" value="SYSTEM.GLOBALS.Combo_Reportes"/>
+  <atv:overwrite height="38.918" id="focus_frame" transform="matrix(0.7335,0,0,0.699,0,0)" width="214.128"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.7335,0,0,0.699,0,0)" x="193.128" y="11.459"/>
+  <atv:overwrite id="id_7" transform="matrix(0.7335,0,0,0.699,0,0)" x="193.128" y="12.459"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.7335,0,0,0.699,0,0)" x="193.128" y="11.459"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.7335,0,0,0.699,0,0)" x="183.628" y="25.959"/>
+  <atv:overwrite height="34.918" id="blinking_frame" transform="matrix(0.7335,0,0,0.699,0,0)" width="186.128"/>
+  <atv:overwrite height="34.918" id="combobox_bg" transform="matrix(0.7335,0,0,0.699,0,0)" width="186.128"/>
+  <atv:overwrite height="40.918" id="id_1" transform="matrix(0.7335,0,0,0.699,0,0)" width="216.128"/>
+  <atv:overwrite height="42.918" id="id_0" transform="matrix(0.7335,0,0,0.699,0,0)" width="218.128"/>
+ </svg>
+ <svg atv:refpx="189.065" atv:refpy="460.01" height="30" id="id_12" transform="matrix(1.3633,0,0,1.3333,0,0)" width="160" x="58.681" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.combobox" y="330.008">
+  <atv:argument name="base" value="AGENT.OBJECTS.Periodicidad"/>
+  <atv:argument name="text1" value="T{Tiempo Real}"/>
+  <atv:argument name="text1value" value="0"/>
+  <atv:argument name="text2" value="T{Segundos}"/>
+  <atv:argument name="text2value" value="1"/>
+  <atv:argument name="text3" value="T{Minutos}"/>
+  <atv:argument name="text3value" value="2"/>
+  <atv:argument name="enumList" value="SYSTEM.GLOBALS.Combo_Reportes"/>
+  <atv:argument name="text4" value="T{Horas}"/>
+  <atv:argument name="text4value" value="3"/>
+  <atv:argument name="text5" value="T{Dias}"/>
+  <atv:argument name="text5value" value="4"/>
+  <atv:overwrite height="35.999" id="focus_frame" transform="matrix(0.7335,0,0,0.75,0,0)" width="214.128"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.7335,0,0,0.75,0,0)" x="193.128" y="9.999"/>
+  <atv:overwrite id="id_7" transform="matrix(0.7335,0,0,0.75,0,0)" x="193.128" y="10.999"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.7335,0,0,0.75,0,0)" x="193.128" y="9.999"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.7335,0,0,0.75,0,0)" x="183.628" y="24.499"/>
+  <atv:overwrite height="31.999" id="blinking_frame" transform="matrix(0.7335,0,0,0.75,0,0)" width="186.128"/>
+  <atv:overwrite height="31.999" id="combobox_bg" transform="matrix(0.7335,0,0,0.75,0,0)" width="186.128"/>
+  <atv:overwrite height="37.999" id="id_1" transform="matrix(0.7335,0,0,0.75,0,0)" width="216.128"/>
+  <atv:overwrite height="39.999" id="id_0" transform="matrix(0.7335,0,0,0.75,0,0)" width="218.128"/>
+ </svg>
+ <text atv:refpx="2253.925" atv:refpy="826.27" fill="#545454" font-family="Arial" font-size="24" id="texto_info" transform="0" x="84.968" y="805.5">Texto Informativo</text>
+ <text atv:refpx="132.737" atv:refpy="133" fill="#575757" font-family="Arial" font-size="24" font-weight="bold" id="id_19" x="84.5" y="137.5">Rango de tiempo</text>
+ <line atv:refpx="190" atv:refpy="150.5" id="id_20" stroke="#5d5d5d" stroke-width="2" x1="80" x2="300" y1="150" y2="150"/>
+ <text atv:refpx="124.465" atv:refpy="383" fill="#575757" font-family="Arial" font-size="24" font-weight="bold" id="id_22" x="84.5" y="387.5">Configuración</text>
+ <line atv:refpx="190" atv:refpy="400.5" id="id_23" stroke="#5d5d5d" stroke-width="2" x1="80" x2="300" y1="400" y2="400"/>
+ <text atv:refpx="585.77" atv:refpy="27" fill="#575757" font-family="Arial" font-size="18" font-weight="bold" id="id_24" x="535" y="31.5">Tipo de Reporte:</text>
+ <text atv:refpx="154.12" atv:refpy="427" fill="#575757" font-family="Arial" font-size="18" font-weight="bold" id="id_25" x="85" y="431.5">Periodicidad de Datos:</text>
+ <text atv:refpx="419.157" atv:refpy="427" fill="#575757" font-family="Arial" font-size="18" font-weight="bold" id="id_26" x="345" y="431.5">Multiplo dePeriodicidad:</text>
+ <text atv:refpx="2253.457" atv:refpy="346.27" fill="#575757" font-family="Arial" font-size="20" id="texto_info_2" x="84.5" y="325.5">Texto Informativo</text>
+ <text atv:refpx="625.611" atv:refpy="427" fill="#575757" font-family="Arial" font-size="18" font-weight="bold" id="id_17" x="585" y="431.5">Metodo de Ajuste:</text>
+ <svg atv:refpx="689.065" atv:refpy="460.01" height="30" id="id_18" transform="matrix(1.3633,0,0,1.3333,0,0)" width="160" x="425.438" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.combobox" y="330.008">
+  <atv:argument name="base" value="AGENT.OBJECTS.Metodo_Ajuste"/>
+  <atv:argument name="text1" value="T{Valor Previo}"/>
+  <atv:argument name="text1value" value="0"/>
+  <atv:argument name="text2" value="T{Mejor Ajuste}"/>
+  <atv:argument name="text2value" value="1"/>
+  <atv:argument name="text3" value="T{Llena con Ceros}"/>
+  <atv:argument name="text3value" value="2"/>
+  <atv:argument name="enumList" value="SYSTEM.GLOBALS.Combo_Reportes"/>
+  <atv:overwrite height="35.999" id="focus_frame" transform="matrix(0.7335,0,0,0.75,0,0)" width="214.128"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.7335,0,0,0.75,0,0)" x="193.128" y="9.999"/>
+  <atv:overwrite id="id_7" transform="matrix(0.7335,0,0,0.75,0,0)" x="193.128" y="10.999"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.7335,0,0,0.75,0,0)" x="193.128" y="9.999"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.7335,0,0,0.75,0,0)" x="183.628" y="24.499"/>
+  <atv:overwrite height="31.999" id="blinking_frame" transform="matrix(0.7335,0,0,0.75,0,0)" width="186.128"/>
+  <atv:overwrite height="31.999" id="combobox_bg" transform="matrix(0.7335,0,0,0.75,0,0)" width="186.128"/>
+  <atv:overwrite height="37.999" id="id_1" transform="matrix(0.7335,0,0,0.75,0,0)" width="216.128"/>
+  <atv:overwrite height="39.999" id="id_0" transform="matrix(0.7335,0,0,0.75,0,0)" width="218.128"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[//----------Declaro Variables-----------//
+
+//Variables globales
+var timeStampFrom;
+var timeStampTo;
+var autosave;
+var basenode;
+var Per_listR="SYSTEM.GLOBALS.Combo_Periodicidad";
+var Rock_Max_Ar=[[0,0],[1,59],[1,59],[1,23],[0,30]];
+var Rock_Max=Rock_Max_Ar[0];
+
+//Variables Internas
+var Per_original=[
+    { text: "Tiempo Real", value: "0" },
+    { text: "Segundos", value: "1" },
+    { text: "Minutos", value: "2" },
+    { text: "Horas", value: "3" },
+    { text: "Dias", value: "4" }
+];
+
+var time_dif;//Variable donde guardo diferencia de tiempo
+	
+
+//----------Condiciones Iniciales-----------//
+
+webMI.addOnload(function(e) {
+	var id = "";
+	var value = true;
+	
+	//Texto Informativo Inicial
+	webMI.trigger.fire("set_text", "Seleccione fecha inicial, fecha final y el tipo de periodicidad");	
+		
+	
+	return function(value) {
+		//From
+		//var from = new Date(1681071984000).getTime();
+		var from = new Date().getTime() - (60*1000); //El ultimo minuto
+		
+		webMI.trigger.fire("setValue", from, "id_4_date");
+		webMI.trigger.fire("setValue", from, "id_4_time");	
+		webMI.trigger.fire("valuechanged", from, "id_4_time");	
+		
+		
+		//To
+		var to = new Date().getTime();
+		//var to = new Date(1681072154000).getTime();
+		
+		webMI.trigger.fire("setValue", to, "id_9_date");
+		webMI.trigger.fire("setValue", to, "id_9_time");		
+		webMI.trigger.fire("valuechanged", to, "id_9_time");
+		
+		console.log(timeStampFrom);
+		console.log(timeStampTo);
+		
+		document.getElementById("id_0_id_6").style.cursor = "pointer";
+		document.getElementById("id_3_id_6").style.cursor = "pointer";
+		
+		//Actualizo Rocker
+		webMI.data.write("AGENT.OBJECTS.Multiplo_Periodicidad", Rock_Max[0]);
+		
+		basenode = webMI.query["base"];
+		if(!basenode){
+			alert("Please define node in base.");
+		}
+	} (value);
+});
+
+
+//----------Generación de reportes-----------//
+
+webMI.addEvent("id_0", "click", function(e) {	
+
+	 webMI.trigger.fire("set_text", "Generando Reporte");
+	//Envío requisición HTTP request
+	webMI.data.customRequest("GET", "getPDF?timeStampFrom="+JSON.stringify(timeStampFrom)+"&timeStampTo="+JSON.stringify(timeStampTo)+"&SavePDF="+autosave+"&node="+encodeURI(basenode)+"&format=binary", "responseType=arraybuffer", function(e){
+		try {  
+			var frame = document.getElementById("pdfFrame");
+			var blob = new Blob([e], { type: 'application/pdf' });
+			frame.src = URL.createObjectURL(blob);
+			downloader = document.getElementById("downloader");
+			downloader.href = frame.src;
+			downloader.download = new Date().getTime();
+			webMI.gfx.setVisible("id_10", false);
+			
+			webMI.trigger.fire("set_text", "Reporte Generado");
+			setTimeout(function(){ //Darle tiempo al servidor de que actualice todo
+				webMI.trigger.fire("set_text", "Seleccione nueva fecha inicial, fecha final y el tipo de periodicidad");
+			},1500);	
+		} 
+		catch (error) {
+			webMI.trigger.fire("set_text_alert", "Se encontro un error");
+		}
+	});
+});
+
+//Descargo reporte al dar click
+webMI.addEvent("id_3", "click", function(e) {
+	var frame = document.getElementById("pdfFrame");
+	if (frame.src != "" && frame.src != 'http://127.0.0.1/') {
+		downloader = document.getElementById("downloader");	
+		downloader.click();
+	}else{
+		alert("Report has to be generated first!");
+	}
+});
+
+//----------Sección de Triggers-----------//
+
+//Actualizo variables
+webMI.trigger.connect("valuechanged", function(e) { 
+    timeStampFrom = e;
+    setTimeout(function(){ //Darle tiempo al servidor de que actualice todo
+		actualiza_Tiempos();
+		actualiza_Per_list();
+	},100);
+}, "id_4_date");
+
+webMI.trigger.connect("valuechanged", function(e) { 
+    timeStampFrom = e;
+    setTimeout(function(){ //Darle tiempo al servidor de que actualice todo
+		actualiza_Tiempos();
+		actualiza_Per_list();
+    },100);
+}, "id_4_time");
+
+webMI.trigger.connect("valuechanged", function(e) { 
+    timeStampTo = e;
+    setTimeout(function(){ //Darle tiempo al servidor de que actualice todo
+		actualiza_Tiempos();
+		actualiza_Per_list();
+	},100);
+}, "id_9_date");
+
+webMI.trigger.connect("valuechanged", function(e) { 
+    timeStampTo = e;
+    setTimeout(function(){ //Darle tiempo al servidor de que actualice todo
+		actualiza_Tiempos();
+		actualiza_Per_list();
+	},100);
+}, "id_9_time");
+
+
+webMI.trigger.connect("valuechanged", function(e) { 
+    autosave = e.value;
+}, "id_14");
+
+webMI.trigger.connect("set_text", function(e) { 
+    webMI.gfx.setText("texto_info", e.value);
+}, "texto_info");
+
+webMI.trigger.connect("set_text_alert", function(e) { 
+    
+	webMI.gfx.setFill("texto_info", "#aa0000");
+	webMI.trigger.fire("set_text", e.value);
+			
+	setTimeout(function(){ //Darle tiempo al servidor de que actualice todo
+		webMI.trigger.fire("set_text", "Seleccione fecha inicial, fecha final y el tipo de periodicidad");
+		webMI.gfx.setFill("texto_info", "#545454");	
+	},1500);
+		
+}, "texto_info");
+
+webMI.trigger.connect("set_text2", function(e) { 
+    webMI.gfx.setText("texto_info_2", e.value);
+}, "texto_info_2");
+
+
+//----------Sección de Subscribciones-----------//
+
+webMI.data.subscribe("AGENT.OBJECTS.Periodicidad", function(e) { //Cuando Cambia la periodicidad actualizo valores limites
+
+    //Actualizo máximos para el Rocker Switch
+	actualiza_Rock_Max_Ar(e.value);
+	
+});
+
+
+
+webMI.data.subscribe("AGENT.OBJECTS.Multiplo_Periodicidad", function(e) { //Cuando Cambia el multiplo de periodicidad me aseguro que se encuentra dentro de los rangos
+
+	console.log("Se actualizo el Multiplo de Periodicidad: "+e.value);
+	//El valor actual es menor al minimo   
+	console.log("e.value: "+e.value+" < "+"Rock_Max[0]: "+Rock_Max[0]);
+    if (e.value<Rock_Max[0]){
+		console.log("Debo Actulizar Multiplo a: "+Rock_Max[0]);
+		setTimeout(function(){ //Darle tiempo al servidor de que actualice todo
+			webMI.data.write("AGENT.OBJECTS.Multiplo_Periodicidad", Rock_Max[0]);
+			
+		},200);
+	}
+	else if(e.value>Rock_Max[1]){
+		setTimeout(function(){ //Darle tiempo al servidor de que actualice todo
+			webMI.data.write("AGENT.OBJECTS.Multiplo_Periodicidad", Rock_Max[1]);
+			
+		},200);
+	}
+});
+
+
+
+//Función que controla limites de tiempo 
+/*Casos limites:
+	-To mayor a fecha actual
+	-From mayor fecha actual
+	-From mayor que To
+	-To menor que From
+*/
+
+function actualiza_Tiempos(){
+
+	var Tiempo_Actual=new Date();
+	
+	if (timeStampFrom.value>=Tiempo_Actual.getTime()){ //Si el From es mayor al tiempo actual 
+		timeStampFrom.value=Tiempo_Actual.getTime()-(1000);
+		
+		//Texto Informativo
+		webMI.trigger.fire("set_text_alert", "La fecha inicial no puede ser mayor al tiempo actual");
+		
+	}
+	
+	if (timeStampFrom.value>=timeStampTo.value){ //Si el From es mayor a To
+		timeStampFrom.value=timeStampTo.value-(1000);
+		
+		//Texto Informativo
+		webMI.trigger.fire("set_text_alert", "La fecha inicial no puede ser mayor a la fecha final");
+	}	
+	
+	if (timeStampTo.value>Tiempo_Actual.getTime()){//Si el To es mayor al riempo actual
+	
+		timeStampTo.value=Tiempo_Actual.getTime()-(1000);
+		webMI.trigger.fire("set_text_alert", "La fecha final no puede ser mayor al tiempo actual");
+	}
+	
+	webMI.trigger.fire("setValue", timeStampFrom.value, "id_4_date");
+	webMI.trigger.fire("setValue", timeStampFrom.value, "id_4_time");
+	
+	webMI.trigger.fire("setValue", timeStampTo.value, "id_9_date");
+	webMI.trigger.fire("setValue", timeStampTo.value, "id_9_time");
+}
+
+//Función que actualiza lista de Periodicidad
+function actualiza_Per_list(){ 
+	
+	//Calculo diferencial de tiempo
+	console.log("timeStampTo: "+timeStampTo.value);
+	console.log("timeStampFrom: "+timeStampFrom.value);
+	
+	time_dif=timeStampTo.value-timeStampFrom.value;	
+	
+	console.log("Time_dif: "+time_dif);
+	var Per_array=[1,1,1,1,1];
+	var Per_temporal=new Array();
+	
+	time_dif=timeStampTo.value-timeStampFrom.value;
+	
+	if(time_dif<60000){ // Reporte Menos de un minuto 
+		Per_array=[1,1,0,0,0];	
+		Rock_Max_Ar=[[0,0],[1,59],[1,1],[1,1],[1,1]];	
+		console.log("Reporte Menos de un minuto");	
+		webMI.trigger.fire("set_text2", "Seleccion reporte de Menos de un minuto");
+    }
+    else if(60000<=time_dif && time_dif<=360000){ // Reporte Minutos 1-5
+		Per_array=[1,1,1,1,0];		
+		Rock_Max_Ar=[[0,0],[1,59],[1,28],[1,1],[1,1]];	
+		console.log("Reporte Minutos 1-5");	
+		webMI.trigger.fire("set_text2", "Seleccion reporte de 1-5 minutos");
+    }
+    else if(360000<time_dif && time_dif<=3600000){ // Reporte Minutos 6-59
+		Per_array=[1,0,1,1,0];	
+		Rock_Max_Ar=[[0,0],[10,59],[1,28],[1,1],[1,1]];
+		console.log("Reporte Minutos 6-59");
+		webMI.trigger.fire("set_text2", "Seleccion reporte de 6-59 minutos");	
+    }
+    else if(3600000<time_dif && time_dif<=18000000){ // Reporte Horas 1-4
+		Per_array=[1,0,1,1,0];	
+		Rock_Max_Ar=[[0,0],[1,1],[1,59],[1,2],[1,1]];
+		console.log("Reporte Horas 1-4");	
+		webMI.trigger.fire("set_text2", "Seleccion reporte de 1-4 horas");	
+    }
+    else if(18000000<time_dif && time_dif<=86400000){ // Reporte Horas 5-23
+		Per_array=[1,0,1,1,0];
+		Rock_Max_Ar=[[0,0],[1,1],[5,59],[1,2],[1,1]];		
+		console.log("Reporte Horas 5-23");
+		webMI.trigger.fire("set_text2", "Seleccion reporte de 5-23 horas");	
+    }
+    else if(86400000<time_dif && time_dif<=172800000){ // Reporte Diario 1-2
+		Per_array=[1,0,1,1,1];	
+		Rock_Max_Ar=[[0,0],[1,1],[5,59],[1,11],[1,1]];
+		console.log("Reporte Diario 1-2");	
+		webMI.trigger.fire("set_text2", "Seleccion reporte de 1-2 Dias");	
+    }
+    else if(172800000<time_dif && time_dif<=604800000){ // Reporte Diario 2-7
+		Per_array=[0,0,0,1,1];
+		Rock_Max_Ar=[[0,0],[1,1],[1,1],[1,23],[1,3]];		
+		console.log(" Reporte Diario 2-7");
+		webMI.trigger.fire("set_text2", "Seleccion reporte de 2-7 Dias");
+    }
+    else if(604800000<time_dif && time_dif<=1382400000){ // Reporte Diario 7-15 
+		Per_array=[0,0,0,1,1];	
+		Rock_Max_Ar=[[0,0],[1,1],[1,1],[2,23],[1,7]];
+		console.log("Reporte Diario 7-15 ");	
+		webMI.trigger.fire("set_text2", "Seleccion reporte de 7-15 Dias");
+    }
+    else if(1382400000<time_dif && time_dif<=2592000000){ // Reporte Diario 16-30
+		Per_array=[0,0,0,1,1];	
+		Rock_Max_Ar=[[0,0],[1,1],[1,1],[5,23],[1,14]];
+		console.log("Reporte Diario 16-30");	
+		webMI.trigger.fire("set_text2", "Seleccion reporte de 16-30 Dias");
+    }
+    else if(2592000000<time_dif && time_dif<=31104000000){ // Reporte Diario 30-350
+		Per_array=[0,0,0,0,1];
+		Rock_Max_Ar=[[0,0],[1,1],[1,1],[1,1],[3,30]];
+		console.log("Reporte Diario 30-350");	
+		webMI.trigger.fire("set_text2", "Seleccion reporte de 30-350 Dias");	
+    }
+    else if(time_dif>31104000000){ // Reporte Diario mayor a 350
+		Per_array=[0,0,0,0,1];
+		Rock_Max_Ar=[[0,0],[1,1],[1,1],[1,1],[3,30]];
+		console.log("Reporte Diario mayor a 350");	
+		webMI.trigger.fire("set_text2", "Seleccion reporte más de 350 Dias");	
+    };
+    
+    console.log("Per_array:");
+	console.log(Per_array);
+	
+    //Preparo el combobox correspondiente
+    for (i in Per_original){ //Recorro todos los elementos
+			if (Per_array[i]==1){
+				Per_temporal.push(Per_original[i]); //Agrego cuando es permitido
+			}
+		}
+	console.log("Per_temporal:");
+	console.log(Per_temporal);
+	
+	console.log("Rock_Max:");
+	console.log(Rock_Max_Ar[Per_temporal[0].value]);
+	
+	//Escribo el combobox
+	webMI.trigger.fire("setItems", Per_temporal, "id_12");
+	webMI.trigger.fire("setSelectedItem", Per_temporal[0].text, "id_12");
+	
+	//Actualizo máximos para el Rocker Switch
+	actualiza_Rock_Max_Ar(Per_temporal[0].value);
+}
+
+//Función para actulizar Maximos
+function actualiza_Rock_Max_Ar(Per_actual){
+	switch(Per_actual) {
+		case 0: //Tiempo Real
+			Rock_Max=Rock_Max_Ar[0];
+		break;
+		case 1: //Segundos
+			Rock_Max=Rock_Max_Ar[1];
+		break;
+		case 2: //Minutos
+			Rock_Max=Rock_Max_Ar[2];
+		break;
+		case 3: //Horas
+			Rock_Max=Rock_Max_Ar[3];
+		break;
+		case 4: //Dias
+			Rock_Max=Rock_Max_Ar[4];
+		break;
+	}
+	
+	webMI.data.write("AGENT.OBJECTS.Multiplo_Periodicidad", Rock_Max[0]); //Actualizo el valor minimo que puede tener
+}
+
+
+
+
+
+
+]]></script>
+</svg>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Landscape.USER.Layouts_SCADA.Main_Cuenca_PTARNTE
+NodeClass: Variable
+BrowseName: 1:Main_Cuenca_PTARNTE
+DisplayName: en|Main_Cuenca_PTARNTE
+Description: en|Main_Cuenca_PTARNTE
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout advanced fixed 1920x1080 object display
+ * ----------------------------------------
+ * This script supports the display to provides controls for the highcharts.
+ * It enables or disables live mode, shows or hide measurement markers and opens the configuration dialog.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var queryParameter = webMI.query;
+
+var chart, chartUpdate;
+var historyLoading = { start: null, ready: null };
+var chartname = queryParameter.chartname;
+var liveMode = null;
+
+/* Check button visibility and position */
+var xCorr = 0;
+
+/* Options button */
+var conf = false;
+var display = queryParameter["dialog_options"];
+var chartDummy = {}; // AT-D-14398 ... need dummy for multiple chart selection!
+
+if (typeof webMI.getClientInfo == "function" && !webMI.getClientInfo().isDesktop) {
+	display = queryParameter["dialog_options_small"];
+}
+
+/* setup buttons visibility */
+if (queryParameter.showLiveBtn != "true") {
+	webMI.gfx.setVisible("btn_live", false);
+	webMI.gfx.setVisible("btn_stop", false);
+	webMI.gfx.setVisible("line1", false);
+	xCorr += 40;
+	webMI.gfx.setMoveX("btn_marker1", -xCorr);
+	webMI.gfx.setMoveX("btn_marker2", -xCorr);
+	webMI.gfx.setMoveX("line2", -xCorr);
+	webMI.gfx.setMoveX("btn_options", -xCorr);
+}
+
+if (queryParameter.showMarker1 != "true") {
+	webMI.gfx.setVisible("btn_marker1", false);
+	xCorr += 31;
+	webMI.gfx.setMoveX("btn_marker2", -xCorr);
+	webMI.gfx.setMoveX("line2", -xCorr);
+	webMI.gfx.setMoveX("btn_options", -xCorr);
+}
+
+if (queryParameter.showMarker2 != "true") {
+	webMI.gfx.setVisible("btn_marker2", false);
+	xCorr += 31;
+	webMI.gfx.setMoveX("line2", -xCorr);
+	webMI.gfx.setMoveX("btn_options", -xCorr);
+}
+
+if (queryParameter.showMarker1 != "true" && queryParameter.showMarker2 != "true") {
+	webMI.gfx.setVisible("line1", false);
+	xCorr += 8;
+	webMI.gfx.setMoveX("line2", -xCorr);
+	webMI.gfx.setMoveX("btn_options", -xCorr);
+}
+
+if (queryParameter.showOptionsBtn != "true") {
+	webMI.gfx.setVisible("btn_options", false);
+	webMI.gfx.setVisible("line2", false);
+}
+
+/* deactivate all buttons before config is ready */
+setButtonsActivationState(false);
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+	checkChart();
+});
+
+webMI.addOnunload(function () {
+	if (chart && chart.control) chart.control.unregisterOnUpdatedCallback(chartUpdate);
+
+	if (chart && chart.chart) {
+		chart.chart.onHistoryLoadingUnregister(historyLoading.start);
+		chart.chart.onHistoryReadyUnregister(historyLoading.end);
+	}
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * check if chart is ready
+ */
+function checkChart() {
+	if (!chartname) {
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_live");
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_stop");
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_marker1");
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_marker2");
+		webMI.trigger.fire("com.atvise.setActive", true, "btn_options");
+		return;
+	}
+
+	chart = webMI.trendFactory.getTrendByName(chartname);
+
+	if (!chart) {
+		setTimeout(function () {
+			checkChart();
+		}, 250);
+		return;
+	}
+
+	/* get live mode state */
+	liveMode = chart.chart.options.atviseOptions.mode;
+
+	setButtonsActivationState(true);
+
+	historyLoading.start = chart.chart.onHistoryLoadingRegister(function disable() {
+		setButtonsActivationState(false);
+	});
+
+	historyLoading.end = chart.chart.onHistoryReadyRegister(function enable() {
+		setTimeout(
+			function () {
+				try {
+					setButtonsActivationState(true);
+				} catch (ex) {
+					// console.error("chart already invalidated");
+				}
+			},
+			chart.chart._setZoomed ? 1000 : 1000
+		);
+	});
+
+	chartUpdate = chart.control.registerOnUpdatedCallback(function () {
+		setLiveStopButton();
+	});
+}
+
+/**
+ * set activation state of buttons
+ * @param value
+ */
+function setButtonsActivationState(value) {
+	webMI.trigger.fire("com.atvise.setActive", value, "btn_live");
+	webMI.trigger.fire("com.atvise.setActive", value, "btn_stop");
+	webMI.trigger.fire("com.atvise.setActive", value, "btn_marker1");
+	webMI.trigger.fire("com.atvise.setActive", value, "btn_marker2");
+	webMI.trigger.fire("com.atvise.setActive", value, "btn_options");
+
+	setLiveStopButton();
+}
+
+/**
+ * setup start stop button (e.g. live mode running)
+ */
+function setLiveStopButton() {
+	if (!chart) return;
+
+	if (chart.control.isLiveModeRunning()) {
+		webMI.gfx.setVisible("btn_live", false);
+		webMI.gfx.setMoveX("btn_stop", 0);
+		webMI.gfx.setVisible("btn_stop", true);
+	} else {
+		webMI.gfx.setVisible("btn_live", true);
+		webMI.gfx.setVisible("btn_stop", false);
+		webMI.gfx.setMoveX("btn_stop", -30);
+	}
+}
+
+/**
+ * TRIGGER SECTION
+ */
+
+/**
+ * live start stop trigger (start button)
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		if (!chart || chart.chart.loadingShown) return;
+
+		if (chart.chart.options.atviseOptions.mode == "history")
+			chart.chart.options.atviseOptions.mode = liveMode ? liveMode : "mixed";
+
+		var resetZoomDelay = 1;
+		if (chart.chart._setZoomed) {
+			chart.chart.zoomOut();
+			resetZoomDelay = 1000;
+		}
+
+		if (liveMode == "live") for (var s in chart.chart.series) chart.chart.series[s].setData([]);
+
+		chart.control.setMode(liveMode);
+
+		setTimeout(function () {
+			if (chart.chart.options.atviseOptions.mode == "history") chart.control.startLiveMode("mixed");
+			else chart.control.startLiveMode();
+		}, resetZoomDelay);
+	},
+	"btn_live"
+);
+
+/**
+ * live start stop trigger (stop button)
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		if (!chart) return;
+
+		liveMode = chart.chart.options.atviseOptions.mode;
+		chart.control.stopLiveMode();
+	},
+	"btn_stop"
+);
+
+/**
+ * messuring cursor 1 trigger
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		var chart = webMI.trendFactory.getTrendByName(chartname);
+		if (!chart.control.isMeasuringCursor1Visible()) chart.control.showMeasuringCursor1();
+		else chart.control.hideMeasuringCursor1();
+	},
+	"btn_marker1"
+);
+
+/**
+ * messuring cursor 2 trigger
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		var chart = webMI.trendFactory.getTrendByName(chartname);
+		if (!chart.control.isMeasuringCursor2Visible()) chart.control.showMeasuringCursor2();
+		else chart.control.hideMeasuringCursor2();
+	},
+	"btn_marker2"
+);
+
+/**
+ * configuraton trigger (open config display)
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		if (queryParameter.optionsBtnMode == "trigger") {
+			conf = !conf;
+			webMI.trigger.fire(queryParameter.triggerName, conf);
+		} else if (queryParameter.optionsBtnMode == "frame") {
+			webMI.display.openDisplay(display, queryParameter, queryParameter.targetframe);
+		} else {
+			var chart = webMI.trendFactory.getTrendByName(chartname);
+			if (!chart) chart = chartDummy; // AT-D-14398 use dummy if no default chartname defined!
+
+			if (!chart._openConfigLock || chart._openConfigLock.closed)
+				chart._openConfigLock = webMI.display.openWindow({
+					display: display,
+					extern: false,
+					height: 600,
+					menubar: false,
+					modal: false,
+					movable: true,
+					resizable: true,
+					scrollbars: false,
+					status: false,
+					title: " T{Chart Configuration}",
+					toolbar: false,
+					width: 1200,
+					query: queryParameter
+				});
+		}
+	},
+	"btn_options"
+);
+
+/**
+ * general activation trigger
+ */
+webMI.trigger.connect("com.atvise.setActive", function (e) {
+	if (!chart) return;
+
+	setButtonsActivationState(e.value);
+});
+]]></code>
+</script>

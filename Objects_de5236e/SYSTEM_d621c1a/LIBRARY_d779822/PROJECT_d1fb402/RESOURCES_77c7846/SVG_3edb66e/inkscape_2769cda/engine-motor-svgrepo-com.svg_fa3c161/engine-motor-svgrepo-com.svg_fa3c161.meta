@@ -1,0 +1,11 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/SVG/inkscape/engine-motor-svgrepo-com.svg
+NodeClass: Variable
+BrowseName: 1:engine-motor-svgrepo-com.svg
+DisplayName: en|engine-motor-svgrepo-com.svg
+Description: en|engine-motor-svgrepo-com.svg
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Svg
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Compress
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Translate

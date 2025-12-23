@@ -1,0 +1,1846 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH4wkYBiEv53qKhQAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAMdSURBVFjD1ZffS1NhGMc/Zzset6lbeDQaOsyEQlIj1w8nRPQDutCLuiwoEsEbb2JFiNeC4F+QF3UjJXZRFwbBoptGYWWLrNDZctbAivlrx2lbp3NOF7OfFqXzrHrgcN73ed/z8uX7PN/nfQ6AkePnON+YCNDZ2ckurxczTVEUTre0rPCLANXV1fh8PlMBzM7O/tRvWcthuq4TCoVIJpNZAxNX+4FhGAQCAQKBAMXFxfj9fhwOx5oBWNZCZSQSoaurC19jIyMjI7llQJZl2tvbEQSBgwcOrE8IhoaGeL+0ZGoSLiwsfB62AvuXx+cFwNi3GzxucmbxGbh1FwC3CHCmFY7szx2Ah0++APh9Es7Ow9Q7+KDCiyjoOkRegfox4383ndnzNg6GYYIKno/Dpavw+BlcHMjQd+0mhF/CrSDcfwyXr8OdB6BpJsmwZhsEH4K3FkLPYFct3Hv0db2+BoYemSTD7VvBaoWGnZm5qkLZJti6JTOX8mCDCzZtzOxbdwDFGzJvV9H3/vIfVFNVsTYG/g0Z1u1pZ0ddnemF6Oy5cwC3gciye0kAjL6+Pg4fOmT6dby9pgbgBND/2xxQVZVYLEZBQQEOh4NEIoHNZiOVSqFpGqqqIkkSHzUNh91OOp3G4/EwEY2yuaICURSzk2F4fJxoNIqu6wwMDDDy9CmDg4NomoYkSbyIRJh68wYBiMfjXOjtZWxsjO7ubtLpdPZ1wFNejtPp5HUsRklJCQ1799LU1MTgjRukUqkV+30NDVzp7191KH/Jk9VqRZZlysrKqKyspKioiOnpaY4dPYosyxQWFiKKInPz85SWluLxeKj3epHy8sjPz18dgAVFYWZmZsWiy+UimUxitVhQFAVJkgBYXFzEYrGg6zoupxMATdOw22wAJBKJFWfNzc39usv66215T08PjSZ3xfOJBM3NzT8Pgdvtpqqq6v9oyxVFIRgMous6ExMThMPh3DalNpuNUCjE5OQkw8PDdHR0ZAVg1QxIkkRbWxu6YeD3+3G73bllAMBut3Pq5EkEQViftnx0dJSCLP5u/jR3/sk68AmabnSPzHvLkAAAAABJRU5ErkJggg==</icon>
+    <visible>0</visible>
+    <title>Navigation</title>
+    <description>Initializes navigation bar.</description>
+  </metadata>
+  <parameter behavior="optional" desc="custom menu structure as JSON string" name="customMenu" valuetype="string"/>
+  <parameter behavior="optional" desc="custom entry point" name="customEntry" valuetype="display"/>
+  <!-- panel -->
+  <parameter behavior="optional" config="bottom;left;right;top" defaultvalue="right" desc="alignment of the navigation" name="panelAlign" valuetype="enum"/>
+  <parameter behavior="optional" config="true;false" defaultvalue="true" desc="visibility after initialization" name="visible" valuetype="bool"/>
+  <parameter behavior="optional" config="none;slide-left;slide-right;fade" defaultvalue="fade" desc="animation type toggling visibility" name="animateType" valuetype="enum"/>
+  <parameter behavior="optional" defaultvalue="1" desc="animation speed factor" name="animateFactor" valuetype="number"/>
+  <parameter behavior="optional" desc="background color of the menu panel" name="panelBackgroundColor" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="#919191" desc="border color of the menu panel" name="panelBorderColor" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="0" desc="border width of the menu panel" name="panelBorderWidth" valuetype="number"/>
+  <parameter behavior="optional" config="solid;dotted;dashed" defaultvalue="solid" desc="border style of the menu panel" name="panelBorderStyle" valuetype="enum"/>
+  <parameter behavior="optional" defaultvalue="#d7d7d7" desc="border color of items" name="itemBorderColor" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="3" desc="border radius of items" name="itemBorderRadius" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="1" desc="border width of items" name="itemBorderWidth" valuetype="number"/>
+  <parameter behavior="optional" config="solid;dotted;dashed" defaultvalue="solid" desc="border style of items" name="itemBorderStyle" valuetype="enum"/>
+  <parameter behavior="optional" defaultvalue="5" desc="padding between items" name="itemPadding" valuetype="number"/>
+  <!-- home -->
+  <parameter behavior="optional" defaultvalue="true" desc="visibility of home element" name="homeActive" valuetype="bool"/>
+  <parameter behavior="optional" defaultvalue="HOME" desc="title displayed in the home element" name="homeText" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="AGENT.DISPLAYS.Main" desc="display when clicking on the home element" name="homeDisplay" valuetype="display"/>
+  <parameter behavior="optional" config="left;center;right" defaultvalue="center" desc="horizontal content position in home element" name="homeAlignHorizontal" valuetype="enum"/>
+  <parameter behavior="optional" config="top;middle;bottom" defaultvalue="middle" desc="vertical content position in home element" name="homeAlignVertical" valuetype="enum"/>
+  <parameter behavior="optional" defaultvalue="#e5e5e5" desc="background of the home element" name="homeBackground" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="#555555" desc="font color of the home element" name="homeColor" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="73" desc="height of the home element in vertical layouts" name="homeHeight" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="150" desc="width of the home element in horizontal layouts" name="homeWidth" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="true" desc="visibility of icon in home element" name="iconHomeActive" valuetype="bool"/>
+  <!-- arrow -->
+  <parameter behavior="optional" defaultvalue="true" desc="visibility of navigation elements" name="arrowActive" valuetype="bool"/>
+  <parameter behavior="optional" config="left;center;right" defaultvalue="center" desc="horizontal content position in navigation item" name="arrowAlignHorizontal" valuetype="enum"/>
+  <parameter behavior="optional" config="top;middle;bottom" defaultvalue="middle" desc="vertical content position in navigation item" name="arrowAlignVertical" valuetype="enum"/>
+  <parameter behavior="optional" defaultvalue="#f6f6f6" desc="background of the navigation elements" name="arrowBackground" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="#555555" desc="color of the navigation elements" name="arrowColor" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="73" desc="height of the navigation elements in vertical layouts" name="arrowHeight" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="73" desc="width of the navigation elements in horizontal layouts" name="arrowWidth" valuetype="number"/>
+  <!-- item -->
+  <parameter behavior="optional" defaultvalue="4" desc="number of visible menu items (0 ... use height and width properties)" name="itemCount" valuetype="number"/>
+  <parameter behavior="optional" config="left;center;right" defaultvalue="center" desc="horizontal content position in menu item" name="itemAlignHorizontal" valuetype="enum"/>
+  <parameter behavior="optional" config="top;middle;bottom" defaultvalue="middle" desc="vertical content position in menu item" name="itemAlignVertical" valuetype="enum"/>
+  <parameter behavior="optional" defaultvalue="#f2d600" desc="background color for active menu items" name="itemBackgroundActive" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="#cfcfcf" desc="background color for hovered menu items" name="itemBackgroundHover" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="#e5e5e5" desc="background color for inactive menu items" name="itemBackgroundInactive" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="100" desc="indentation of active menu items" name="itemIndentationActive" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="80" desc="indentation of inactive menu items" name="itemIndentationInactive" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="132" desc="height of menu items in vertical layouts" name="itemHeightSteady" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="200" desc="width of menu items in horizontal layouts" name="itemWidthSteady" valuetype="number"/>
+  <!-- icon -->
+  <parameter behavior="optional" defaultvalue="&lt;i class=&quot;fas fa-home&quot;&gt;&lt;/i&gt;" desc="icon for navigation home element" name="iconHomeIcon" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="&lt;i class=&quot;fas fa-chevron-down&quot;&gt;&lt;/i&gt;" desc="icon for navigation element down" name="iconArrowDown" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="&lt;i class=&quot;fas fa-chevron-left&quot;&gt;&lt;/i&gt;" desc="icon for navigation element left" name="iconArrowLeft" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="&lt;i class=&quot;fas fa-chevron-right&quot;&gt;&lt;/i&gt;" desc="icon for navigation element right" name="iconArrowRight" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="&lt;i class=&quot;fas fa-chevron-up&quot;&gt;&lt;/i&gt;" desc="icon for navigation element up" name="iconArrowUp" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="&lt;i class=&quot;fas fa-caret-right&quot;&gt;&lt;/i&gt;" desc="icon for navigation menu item open" name="iconFolderOpen" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="&lt;i class=&quot;fas fa-caret-left&quot;&gt;&lt;/i&gt;" desc="icon for navigation menu item close" name="iconFolderClose" valuetype="string"/>
+  <!-- font -->
+  <parameter behavior="optional" config="Arial;Courier;Tahoma;Verdana" defaultvalue="Arial" desc="font family" name="fontType" valuetype="enum"/>
+  <parameter behavior="optional" defaultvalue="#555555" desc="font color for active items" name="fontColorActive" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="#555555" desc="font color for hovered items" name="fontColorHover" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="#555555" desc="font color for inactive items" name="fontColorInactive" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="16" desc="font size" name="fontSize" valuetype="number"/>
+  <!-- options -->
+  <parameter behavior="optional" defaultvalue="content" desc="id of the content frame" name="content" valuetype="string"/>
+  <parameter behavior="optional" desc="id for visibility change" name="connectToButton" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="3000" desc="minimum z-Index" name="containerZIndex" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="100" desc="scroll factor for general clients" name="scrollFactorGeneral" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="15" desc="scroll factor for mobile clients" name="scrollFactorMobile" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="nav*" desc="parameters not to be passed" name="removeKeyFromQuery" valuetype="string"/>
+  <!-- security -->
+  <parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" desc="necessary right" name="securityRight" valuetype="address"/>
+  <parameter behavior="optional" desc="activation address" name="activeNode" valuetype="address"/>
+  <parameter behavior="optional" desc="activation value" name="activeValue" valuetype="string"/>
+  <!-- qd-only -->
+  <parameter behavior="hidden" defaultvalue="none" desc="id of menu container" name="id" valuetype="string"/>
+  <parameter behavior="hidden" defaultvalue="10" desc="scroll factor for panel clients" name="scrollFactorPanel" valuetype="number"/>
+  <parameter behavior="hidden" config="true;false" defaultvalue="false" desc="takeover of the color and frame definitions from the svg container" name="panelApplySettings" valuetype="bool"/>
+  <!-- internal -->
+  <parameter behavior="hidden" desc="internal only" name="setTop" valuetype="number"/>
+  <parameter behavior="hidden" desc="internal only" name="setLeft" valuetype="number"/>
+  <parameter behavior="hidden" desc="internal only" name="setWidth" valuetype="number"/>
+  <parameter behavior="hidden" desc="internal only" name="setHeight" valuetype="number"/>
+  <code><![CDATA[// Quickdynamic for navigation
+// This Quick Dynamic generates a navigation based on the existing display structure.
+// To use this quick dynamics, draw a rectangle and apply the dynamics to the rectangle.
+// Custom menus also can be passed as a JSON string.
+// For more information please refer to the help assigned to this quick dynamic.
+
+var id = "fo_" + base.id;
+var connectToButton = base.connectToButton;
+
+/* Parse parameter and/or set defaults */
+var action = {};
+action.point = {};
+
+/* Internal Data */
+var internal = {};
+internal.button = {};
+internal.button.active;
+internal.container = {};
+internal.container.id = "fo_" + base.id + "_container";
+internal.container.z = parseInt(base.containerZIndex, 10);
+internal.content = {};
+internal.content.frame = base.content;
+internal.index = {};
+internal.index.display = {};
+internal.index.item = {};
+internal.menu = {};
+internal.menu.homes = {};
+internal.menu.index = {};
+internal.menu.index.panel = 0;
+internal.menu.index.item = 0;
+internal.menu.item = {};
+internal.menu.panel = {};
+internal.menu.panel.active = 0;
+internal.visible = base.visible === "true";
+
+/* Configuration */
+var config = {};
+config.animate = {};
+config.animate.factor = typeof base.animateFactor === "undefined" ? 1 : parseInt(base.animateFactor, 10);
+config.animate.type = base.animateType;
+config.arrow = {};
+config.arrow.active = base.arrowActive === "true";
+config.arrow.align = {};
+config.arrow.align.horizontal = base.arrowAlignHorizontal;
+config.arrow.align.vertical = base.arrowAlignVertical;
+config.arrow.background = base.arrowBackground;
+config.arrow.color = base.arrowColor;
+config.font = {};
+config.font.size = parseInt(base.fontSize, 10);
+config.font.type = base.fontType;
+config.font.color = {};
+config.font.color.active = base.fontColorActive;
+config.font.color.hover = base.fontColorHover;
+config.font.color.inactive = base.fontColorInactive;
+config.home = {};
+config.home.active = base.homeActive === "true";
+config.home.align = {};
+config.home.align.horizontal = base.homeAlignHorizontal;
+config.home.align.vertical = base.homeAlignVertical;
+config.home.background = base.homeBackground;
+config.home.color = base.homeColor;
+config.home.display = base.homeDisplay;
+config.home.text = base.homeText;
+config.icon = {};
+config.icon.arrows = {};
+config.icon.arrows.down = base.iconArrowDown;
+config.icon.arrows.left = base.iconArrowLeft;
+config.icon.arrows.right = base.iconArrowRight;
+config.icon.arrows.up = base.iconArrowUp;
+config.icon.folder = {};
+config.icon.folder.open = base.iconFolderOpen;
+config.icon.folder.close = base.iconFolderClose;
+config.icon.home = {};
+config.icon.home.active = base.iconHomeActive === "true";
+config.icon.home.icon = base.iconHomeIcon;
+config.item = {};
+config.item.align = {};
+config.item.align.horizontal = base.itemAlignHorizontal;
+config.item.align.vertical = base.itemAlignVertical;
+config.item.count = parseInt(base.itemCount, 10);
+config.item.background = {};
+config.item.background.active = base.itemBackgroundActive;
+config.item.background.hover = base.itemBackgroundHover;
+config.item.background.inactive = base.itemBackgroundInactive;
+config.item.border = {};
+config.item.border.color = base.itemBorderColor;
+config.item.border.radius = base.itemBorderRadius;
+config.item.border.width = parseInt(base.itemBorderWidth, 10);
+config.item.border.style = base.itemBorderStyle;
+config.item.padding = parseInt(base.itemPadding, 10);
+config.menu = {};
+config.menu.align = {};
+config.menu.align.panel = base.panelAlign;
+config.menu.custom = base.customMenu;
+config.menu.entry = base.customEntry;
+config.menu.index = {};
+config.menu.panels = {};
+config.menu.structure = null;
+
+/* Setting for Scrolling */
+var scroll = {};
+scroll.factor = {};
+scroll.factor.general = parseInt(base.scrollFactorGeneral, 10);
+scroll.factor.mobile = parseInt(base.scrollFactorMobile, 10);
+scroll.factor.panel = parseInt(base.scrollFactorPanel, 10);
+
+/* Setting for the pannel */
+var panel = {};
+panel.apply = {};
+panel.apply.Settings = base.panelApplySettings === "true";
+panel.background = {};
+panel.background.color = base.panelBackgroundColor;
+panel.border = {};
+panel.border.color = base.panelBorderColor;
+panel.border.width = parseInt(base.panelBorderWidth, 10);
+panel.border.style = base.panelBorderStyle;
+/* Get container setup */
+var svg = window.document.getElementById(base.id);
+var css = applyStyling(svg);
+
+/* Setup layout for menu */
+var layout = {};
+layout.side = {};
+layout.side.width = {};
+layout.side.width.active = Math.floor(
+	(css.width * parseInt(base.itemWidthActive ? base.itemWidthActive : base.itemIndentationActive, 10)) / 100
+);
+layout.side.width.inactive = Math.floor(
+	(css.width * parseInt(base.itemWidthInactive ? base.itemWidthInactive : base.itemIndentationInactive, 10)) / 100
+);
+layout.side.height = {};
+layout.side.height.active = parseInt(base.itemHeightSteady, 10);
+layout.side.height.inactive = parseInt(base.itemHeightSteady, 10);
+layout.center = {};
+layout.center.width = {};
+layout.center.width.active = parseInt(base.itemWidthSteady, 10);
+layout.center.width.inactive = parseInt(base.itemWidthSteady, 10);
+layout.center.height = {};
+layout.center.height.active = Math.floor(
+	(css.height * parseInt(base.itemHeightActive ? base.itemHeightActive : base.itemIndentationActive, 10)) / 100
+);
+layout.center.height.inactive = Math.floor(
+	(css.height * parseInt(base.itemHeightInactive ? base.itemHeightInactive : base.itemIndentationInactive, 10)) / 100
+);
+
+/* Force alignment of panel for button and other components */
+layout.arrow = zCopy(isCenter() ? layout.center : layout.side);
+layout.home = zCopy(isCenter() ? layout.center : layout.side);
+layout.menu = zCopy(isCenter() ? layout.center : layout.side);
+layout.item = zCopy(isCenter() ? layout.center : layout.side);
+
+/* Corrections for home buttons */
+if (isCenter()) {
+	layout.home.width.active = parseInt(base.homeWidth, 10);
+	layout.home.width.inactive = parseInt(base.homeWidth, 10);
+} else {
+	layout.home.height.active = parseInt(base.homeHeight, 10);
+	layout.home.height.inactive = parseInt(base.homeHeight, 10);
+}
+
+/* Corrections for arrows */
+if (isCenter()) {
+	layout.arrow.width.active = parseInt(base.arrowWidth, 10);
+	layout.arrow.width.inactive = parseInt(base.arrowWidth, 10);
+} else {
+	layout.arrow.height.active = parseInt(base.arrowHeight, 10);
+	layout.arrow.height.inactive = parseInt(base.arrowHeight, 10);
+}
+
+/* Corrections for menu container */
+if (isCenter()) {
+	layout.menu.height = css.height;
+	layout.menu.width = css.width;
+	layout.menu.width -= config.home.active ? layout.home.width.active : 0;
+	layout.menu.width -= config.arrow.active ? layout.arrow.width.active * 2 : 0;
+	layout.menu.width += config.arrow.active ? config.item.padding : 0;
+} else {
+	layout.menu.height = css.height;
+	layout.menu.height -= config.home.active ? layout.home.height.active : 0;
+	layout.menu.height -= config.arrow.active ? layout.arrow.height.active * 2 : 0;
+	layout.menu.height += config.arrow.active ? config.item.padding : 0;
+	layout.menu.width = css.width;
+}
+
+/* Correction for items */
+if (config.item.count) {
+	var optimum = {};
+	optimum.height = layout.menu.height / config.item.count;
+	optimum.width = layout.menu.width / config.item.count;
+
+	if (isCenter()) {
+		layout.item.width.active = optimum.width;
+		layout.item.width.inactive = optimum.width;
+	} else {
+		layout.item.height.active = optimum.height;
+		layout.item.height.inactive = optimum.height;
+	}
+}
+
+/* Optional fill container based on items */
+layout.fill = zCopy(layout.item);
+
+/* Get container setup and init */
+var hasRight = applySecurity();
+var atviseMenu = createAtviseTable(svg, css);
+initAtviseMenu(atviseMenu, internal.visible);
+
+// ---------------------------------------------------------------------------------------------------------------
+// FUNCTION SECTION
+// ---------------------------------------------------------------------------------------------------------------
+
+/**
+ * Handle Security
+ */
+function applySecurity() {
+	hasRight = false;
+
+	/* Get some security infos */
+	var right = base["securityRight"] == undefined ? "" : base["securityRight"];
+	if (right.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1) {
+		right = right.substring(23, right.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+	}
+
+	if (right != "") {
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			hasRight = false;
+			if ("username" in e && e.username != "") {
+				hasRight = webMI.hasRight(right);
+			}
+
+			setTimeout(function () {
+				var element = webMI.rootWindow.document.getElementById(internal.container.id + "_navigation");
+				if (hasRight) element.style.filter = "brightness(1.0)";
+				else element.style.filter = "brightness(0.75)";
+			}, 250);
+		});
+	} else {
+		hasRight = true;
+	}
+
+	return hasRight;
+}
+
+/**
+ * Get parameter from svg an parse it into css
+ * Afterwards reset svg
+ * @param svg
+ */
+function applyStyling(svg) {
+	var css = {};
+
+	if (!panel.apply.Settings) {
+		css.borderColor = panel.border.color;
+		css.borderWidth = panel.border.width;
+		css.borderStyle = panel.border.style;
+		css.backgroundColor = panel.background.color;
+	} else {
+		css.borderColor = svg.getAttribute("stroke-opacity") === "0" ? "" : svg.getAttribute("stroke");
+		css.borderWidth = parseInt(svg.getAttribute("stroke-width"));
+		css.borderStyle = "solid";
+		css.backgroundColor = svg.getAttribute("fill-opacity") === "0" ? "" : svg.getAttribute("fill");
+	}
+
+	css.top = parseInt(base.setTop ? base.setTop : svg.getAttribute("y"), 10);
+	css.left = parseInt(base.setLeft ? base.setLeft : svg.getAttribute("x"), 10);
+	css.width = parseInt(base.setWidth ? base.setWidth : svg.getAttribute("width"), 10) - css.borderWidth * 2;
+	css.height = parseInt(base.setHeight ? base.setHeight : svg.getAttribute("height"), 10) - css.borderWidth * 2;
+
+	/* reset svg - set opacity to transparent */
+	svg.setAttribute("stroke-opacity", "0");
+	svg.setAttribute("fill-opacity", "0");
+	return css;
+}
+
+/**
+ * Create box for navigation arrows
+ * @param top
+ * @returns {HTMLDivElement}
+ */
+function createAtviseArrow(top) {
+	var html;
+
+	var icon = {};
+	icon.down = config.icon.arrows.down;
+	icon.left = config.icon.arrows.left;
+	icon.right = config.icon.arrows.right;
+	icon.up = config.icon.arrows.up;
+
+	if (top) html = isCenter() ? icon.left : icon.up;
+	else html = isCenter() ? icon.right : icon.down;
+
+	var height = layout.arrow.height.inactive;
+	var width = layout.arrow.width.inactive;
+
+	if (isCenter()) {
+		height -= config.item.border.width * 2;
+		width -= config.item.border.width * 2;
+		width -= config.item.padding;
+	} else {
+		height -= config.item.border.width * 2;
+		height -= config.item.padding;
+		width -= config.item.border.width * 2;
+	}
+
+	/* create top navigation container */
+	var divArrow = createAtviseElement({
+		background: config.arrow.background,
+		borderColor: config.item.border.color,
+		borderCollapse: "separate",
+		borderRadius: config.item.border.radius + "px",
+		borderStyle: config.item.border.style,
+		borderWidth: config.item.border.width + "px",
+		MozBorderRadius: config.item.border.radius + "px",
+		color: config.arrow.color,
+		display: "table",
+		overflow: "hidden",
+		textAlign: config.arrow.align.horizontal,
+		verticalAlign: config.arrow.align.vertical,
+		height: height + "px",
+		width: width + "px",
+		pointerEvents: "auto"
+	});
+
+	divArrow.setAttribute("id", internal.container.id + "_arrow_" + (top ? "top" : "bottom"));
+
+	divArrow.onmouseover = function () {
+		var currentBackgroundColor = zConvertRGB(divArrow.style.backgroundColor);
+		if (currentBackgroundColor != config.item.background.active) {
+			divArrow.style.background = config.item.background.hover;
+			divArrow.style.color = config.font.color.hover;
+		}
+	};
+
+	divArrow.onmouseout = function () {
+		var currentBackgroundColor = zConvertRGB(divArrow.style.backgroundColor);
+		if (currentBackgroundColor != config.item.background.active) {
+			divArrow.style.background = config.arrow.background;
+			divArrow.style.color = config.font.color.inactive;
+		}
+	};
+
+	if (top) {
+		divArrow.addEventListener("click", zActionClickTop, false);
+	} else {
+		divArrow.addEventListener("click", zActionClickBottom, false);
+	}
+
+	divArrow.appendChild(createAtviseSpan(html, config.arrow.align.vertical));
+
+	return divArrow;
+}
+
+/**
+ * Creating an atvise element and add css properties)
+ * @param style
+ * @param align
+ * @returns {HTMLDivElement}
+ */
+function createAtviseElement(style) {
+	var element = webMI.rootWindow.document.createElement("div");
+	for (const key in style) {
+		element.style[key] = style[key];
+	}
+	return element;
+}
+
+/**
+ * Create box for home button
+ * @returns {HTMLDivElement}
+ */
+function createAtviseHome(_id, content, parent) {
+	var text = content.text;
+	var icon = content.icon;
+	var html = text;
+
+	if (config.icon.home.active) {
+		html = (icon ? icon + " " : "") + html;
+	}
+
+	var height = layout.home.height.inactive;
+	var width = layout.home.width.inactive;
+
+	if (isCenter()) {
+		height -= config.item.border.width * 2;
+		width -= config.item.border.width * 2;
+		width -= config.item.padding;
+	} else {
+		height -= config.item.border.width * 2;
+		height -= config.item.padding;
+		width -= config.item.border.width * 2;
+	}
+
+	/* create top navigation container */
+	var divHome = createAtviseElement({
+		background: config.home.background,
+		borderColor: config.item.border.color,
+		borderCollapse: "separate",
+		borderRadius: config.item.border.radius + "px",
+		borderStyle: config.item.border.style,
+		borderWidth: config.item.border.width + "px",
+		MozBorderRadius: config.item.border.radius + "px",
+		color: config.home.color,
+		display: "table",
+		overflow: "hidden",
+		textAlign: config.home.align.horizontal,
+		verticalAlign: config.home.align.vertical,
+		height: height + "px",
+		width: width + "px",
+		pointerEvents: "auto"
+	});
+
+	divHome.setAttribute("id", internal.container.id + "_home");
+
+	divHome.onmouseover = function () {
+		var currentBackgroundColor = zConvertRGB(divHome.style.backgroundColor);
+		if (currentBackgroundColor != config.item.background.active) {
+			divHome.style.background = config.item.background.hover;
+			divHome.style.color = config.font.color.hover;
+		}
+	};
+
+	divHome.onmouseout = function () {
+		var currentBackgroundColor = zConvertRGB(divHome.style.backgroundColor);
+		if (currentBackgroundColor != config.item.background.active) {
+			divHome.style.background = config.item.background.inactive;
+			divHome.style.color = config.font.color.inactive;
+		}
+	};
+
+	/* add event listener */
+	if (typeof parent !== "undefined") {
+		divHome.addEventListener(
+			"click",
+			function () {
+				var currentBackgroundColor = zConvertRGB(divHome.style.backgroundColor);
+				if (currentBackgroundColor != config.item.background.active) {
+					divHome.style.background = config.item.background.inactive;
+					divHome.style.color = config.font.color.inactive;
+				}
+				togglePanel(parent);
+			},
+			false
+		);
+	} else if (config.home.display) {
+		divHome.addEventListener(
+			"click",
+			function () {
+				var currentBackgroundColor = zConvertRGB(divHome.style.backgroundColor);
+				if (currentBackgroundColor != config.item.background.active) {
+					divHome.style.background = config.item.background.inactive;
+					divHome.style.color = config.font.color.inactive;
+				}
+				webMI.display.openDisplay(config.home.display, getQuery(), internal.content.frame);
+			},
+			false
+		);
+	}
+
+	divHome.appendChild(createAtviseSpan(html, config.home.align.vertical));
+	divHome.title = text;
+
+	return divHome;
+}
+
+/**
+ * Create an atvise menu item (e.g. button)
+ * @param id
+ * @param text
+ * @param handler
+ * @param margin
+ * @returns {HTMLDivElement}
+ */
+// eslint-disable-next-line no-unused-vars
+function createAtviseItem(id, content, handler, _margin) {
+	var text = content.text;
+	var icon = content.icon;
+	var left = content.left === true;
+
+	var html = (left ? (icon ? icon + " " : "") : "") + text + (!left ? (icon ? " " + icon : "") : "");
+
+	var height = layout.item.height.inactive;
+	var width = layout.item.width.inactive;
+
+	if (isCenter()) {
+		height -= config.item.border.width * 2;
+		width -= config.item.border.width * 2;
+		width -= config.item.padding;
+	} else {
+		height -= config.item.border.width * 2;
+		height -= config.item.padding;
+		width -= config.item.border.width * 2;
+	}
+
+	var borderSpacing = webMI.getClientInfo().browserType.isChrome ? "0px" : "0px";
+
+	/* create top navigation container */
+	var divItem = createAtviseElement({
+		background: config.item.background.inactive,
+		borderColor: config.item.border.color,
+		borderCollapse: "separate",
+		borderSpacing: borderSpacing,
+		borderRadius: config.item.border.radius + "px",
+		borderStyle: config.item.border.style,
+		borderWidth: config.item.border.width + "px",
+		MozBorderRadius: config.item.border.radius + "px",
+		color: config.item.color,
+		display: "table",
+		textAlign: config.item.align.horizontal,
+		height: height + "px",
+		width: width + "px",
+		pointerEvents: "auto"
+	});
+
+	if (isCenter()) {
+		divItem.style.marginRight = config.item.padding + "px";
+		if (isBottom()) {
+			divItem.style.marginTop = css.height - layout.item.height.inactive + "px";
+		} else {
+			divItem.style.marginBottom = config.item.padding + "px";
+		}
+	} else {
+		divItem.style.marginBottom = config.item.padding + "px";
+	}
+
+	divItem.setAttribute("id", internal.container.id + "_item_" + id);
+
+	if (typeof handler.menu !== "undefined") {
+		var divItemLeft = createAtviseElement({
+			display: "table-cell",
+			textOverflow: "ellipsis",
+			overflow: "hidden",
+			verticalAlign: config.item.align.vertical,
+			width: "75%",
+			padding: "5px"
+		});
+
+		divItemLeft.setAttribute("id", internal.container.id + "_item_" + id + "_button");
+		divItemLeft.innerHTML = text;
+
+		var divItemLine = createAtviseElement({
+			display: "table-cell",
+			backgroundColor:
+				typeof handler.withDisplay !== "undefined" ? config.item.background.hover : config.item.background.inactive,
+			verticalAlign: "middle",
+			width: config.item.padding / 2 + "px",
+			minWidth: config.item.padding / 2 + "px"
+		});
+
+		var divItemRight = createAtviseElement({
+			display: "table-cell",
+			textOverflow: "ellipsis",
+			overflow: "hidden",
+			verticalAlign: config.item.align.vertical,
+			width: "25%",
+			padding: "5px"
+		});
+
+		divItemRight.innerHTML = icon;
+	}
+
+	/* HOVER */
+	function setHover(elements, bgColor, fontColor) {
+		for (const key in elements) {
+			elements[key].style.background = bgColor;
+			elements[key].style.borderColor = bgColor;
+			elements[key].style.color = fontColor;
+		}
+	}
+
+	if (typeof handler.withDisplay !== "undefined") {
+		divItemLeft.onmouseover = function () {
+			var currentBackgroundColor = zConvertRGB(divItemLeft.style.backgroundColor);
+			if (currentBackgroundColor != config.item.background.active) {
+				divItemLeft.style.background = config.item.background.hover;
+				divItemLeft.style.color = config.font.color.hover;
+			}
+		};
+		divItemLeft.onmouseout = function () {
+			var currentBackgroundColor = zConvertRGB(divItemLeft.style.backgroundColor);
+			if (currentBackgroundColor != config.item.background.active) {
+				divItemLeft.style.background = config.item.background.inactive;
+				divItemLeft.style.color = config.font.color.inactive;
+			}
+		};
+		divItemRight.onmouseover = function () {
+			var currentBackgroundColor = zConvertRGB(divItemRight.style.backgroundColor);
+			if (currentBackgroundColor != config.item.background.active) {
+				divItemRight.style.background = config.item.background.hover;
+				divItemRight.style.color = config.font.color.hover;
+			}
+		};
+		divItemRight.onmouseout = function () {
+			var currentBackgroundColor = zConvertRGB(divItemRight.style.backgroundColor);
+			if (currentBackgroundColor != config.item.background.active) {
+				divItemRight.style.background = config.item.background.inactive;
+				divItemRight.style.color = config.font.color.inactive;
+			}
+		};
+	} else if (typeof handler.menu !== "undefined") {
+		divItemLeft.onmouseover = function () {
+			setHover([divItemLeft, divItemLine, divItemRight], config.item.background.hover, config.font.color.hover);
+		};
+		divItemLeft.onmouseout = function () {
+			setHover([divItemLeft, divItemLine, divItemRight], config.item.background.inactive, config.font.color.inactive);
+		};
+		divItemLine.onmouseover = function () {
+			setHover([divItemLeft, divItemLine, divItemRight], config.item.background.hover, config.font.color.hover);
+		};
+		divItemLine.onmouseout = function () {
+			setHover([divItemLeft, divItemLine, divItemRight], config.item.background.inactive, config.font.color.inactive);
+		};
+		divItemRight.onmouseover = function () {
+			setHover([divItemLeft, divItemLine, divItemRight], config.item.background.hover, config.font.color.hover);
+		};
+		divItemRight.onmouseout = function () {
+			setHover([divItemLeft, divItemLine, divItemRight], config.item.background.inactive, config.font.color.inactive);
+		};
+	} else {
+		divItem.onmouseover = function () {
+			var currentBackgroundColor = zConvertRGB(divItem.style.backgroundColor);
+			if (currentBackgroundColor != config.item.background.active) {
+				divItem.style.background = config.item.background.hover;
+				divItem.style.color = config.font.color.hover;
+			}
+		};
+		divItem.onmouseout = function () {
+			var currentBackgroundColor = zConvertRGB(divItem.style.backgroundColor);
+			if (currentBackgroundColor != config.item.background.active) {
+				divItem.style.background = config.item.background.inactive;
+				divItem.style.color = config.font.color.inactive;
+			}
+		};
+	}
+
+	if (typeof handler !== "undefined") {
+		if (typeof handler.withDisplay !== "undefined") {
+			divItemLeft.onclick = function (e) {
+				if (!hasRight) {
+					return;
+				}
+				setButtonInactive();
+				setButtonActive(e.target.parentElement.id + "_button");
+				webMI.display.openDisplay(handler.withDisplay, getQuery(), internal.content.frame);
+			};
+			divItemRight.onclick = function () {
+				setButtonInactive();
+				setHover([divItemLeft, divItemRight], config.item.background.inactive, config.font.color.inactive);
+				divItem.style.background = config.item.background.inactive;
+				divItem.style.color = config.font.color.inactive;
+				togglePanel(handler.menu);
+				setButtonActive();
+			};
+		} else if (typeof handler.menu !== "undefined") {
+			divItem.onclick = function () {
+				setButtonInactive();
+				setHover([divItemLeft, divItemLine, divItemRight], config.item.background.inactive, config.font.color.inactive);
+				divItem.style.background = config.item.background.inactive;
+				divItem.style.color = config.font.color.inactive;
+				togglePanel(handler.menu);
+				setButtonActive();
+			};
+		} else if (typeof handler.display !== "undefined") {
+			divItem.onclick = function (e) {
+				if (!hasRight) {
+					return;
+				}
+				setButtonInactive();
+				setHover([divItem], config.item.background.inactive, config.font.color.inactive);
+				setButtonActive(e.target.parentElement.id);
+				webMI.display.openDisplay(handler.display, getQuery(), internal.content.frame);
+			};
+		} else if (typeof handler.url !== "undefined") {
+			divItem.onclick = function (e) {
+				if (!hasRight) {
+					return;
+				}
+				setButtonInactive();
+				setHover([divItem], config.item.background.inactive, config.font.color.inactive);
+				setButtonActive(e.target.parentElement.id);
+				webMI.display.openUrl(handler.url, {}, internal.content.frame);
+			};
+		}
+	}
+
+	if (typeof handler.menu !== "undefined") {
+		if (!left) {
+			divItem.appendChild(divItemLeft);
+			divItem.appendChild(divItemLine);
+		}
+		divItem.appendChild(divItemRight);
+		if (left) {
+			divItem.appendChild(divItemLine);
+			divItem.appendChild(divItemLeft);
+		}
+	} else {
+		divItem.appendChild(createAtviseSpan(html));
+	}
+	divItem.title = text;
+
+	return divItem;
+}
+
+/**
+ * Creating a clean Query for new displays
+ * @returns {query}
+ */
+function getQuery() {
+	var query = webMI.query;
+	var submit = {};
+	var removeKey = [];
+
+	var filters = [];
+	if (base.removeKeyFromQuery) filters = base.removeKeyFromQuery.split(",");
+
+	for (var f in filters) {
+		var filter = filters[f];
+
+		if (filter.indexOf("*")) {
+			filter = filter.split("*")[0];
+			for (const key in query) {
+				if (key.indexOf(filter) == 0) {
+					removeKey.push(key);
+				}
+			}
+		} else {
+			removeKey.push(filter);
+		}
+	}
+
+	/* remove all keys with nav prefix */
+	for (const key in query) {
+		if (removeKey.indexOf(key) > -1) {
+			// console.error("remove " + key);
+		} else {
+			submit[key] = query[key];
+		}
+	}
+	return submit;
+}
+
+/**
+ * Creating the container for the menu
+ * @returns {HTMLDivElement}
+ */
+function createAtviseMenu() {
+	var setDisplay;
+	var isIE11 = !!window.MSInputMethodContext && !!webMI.rootWindow.document.documentMode;
+
+	if (isIE11) {
+		setDisplay = isCenter() ? "flex" : "block";
+	} else {
+		setDisplay = isCenter() ? "-webkit-box" : "block";
+	}
+
+	var elementConfig = {
+		display: setDisplay,
+		overflow: "hidden",
+		verticalAlign: "top"
+	};
+
+	/* hack for webkit box at bottom */
+	if (config.menu.align.panel === "bottom") {
+		elementConfig = {
+			display: setDisplay,
+			overflow: "hidden",
+			verticalAlign: "top",
+			"-webkit-box-align": "end"
+		};
+	}
+
+	return createAtviseElement(elementConfig);
+}
+
+/**
+ * Returns a placeholder element
+ * @param dimension
+ * @returns {*}
+ */
+function createAtvisePlaceholder(dimension, margin) {
+	if (dimension.height < 0 || dimension.width < 0) return false;
+
+	var height = dimension.height;
+	var width = dimension.width;
+
+	if (isCenter()) {
+		height -= config.item.border.width * 2;
+		width -= config.item.border.width * 2;
+		width -= margin ? config.item.padding : "0";
+	} else {
+		height -= config.item.border.width * 2;
+		height -= margin ? config.item.padding : "0";
+		width -= config.item.border.width * 2;
+	}
+
+	var divSpace = createAtviseElement({
+		background: config.item.background.inactive,
+		borderColor: config.item.border.color,
+		borderCollapse: "separate",
+		borderRadius: config.item.border.radius + "px",
+		borderStyle: config.item.border.style,
+		borderWidth: config.item.border.width + "px",
+		MozBorderRadius: config.item.border.radius + "px",
+		color: config.item.color,
+		display: "table",
+		textAlign: config.item.align.horizontal,
+
+		height: height + "px",
+		width: width + "px"
+	});
+
+	if (isCenter()) {
+		divSpace.style.marginRight = config.item.padding + "px";
+		if (isBottom()) {
+			divSpace.style.marginTop = css.height - layout.item.height.inactive + "px";
+		} else {
+			divSpace.style.marginBottom = config.item.padding + "px";
+		}
+	} else {
+		divSpace.style.marginBottom = config.item.padding + "px";
+	}
+
+	return divSpace;
+}
+
+/**
+ * Returns a container for html content
+ * @param html
+ * @returns {HTMLDivElement}
+ */
+function createAtviseSpan(html, vertical) {
+	if (!vertical) vertical = config.item.align.vertical;
+	var out = createAtviseElement({
+		display: "table-cell",
+		margin: "5px",
+		padding: "5px",
+		maxWidth: "1px",
+		textOverflow: "ellipsis",
+		overflow: "hidden",
+		verticalAlign: vertical
+	});
+	out.innerHTML = html;
+	return out;
+}
+
+/**
+ * Create a box for the navigation
+ * @param svg
+ * @param container
+ * @param css
+ * @returns {HTMLDivElement}
+ */
+function createAtviseTable(svg, css) {
+	/* get box of container */
+	function getBoxOf(container, options) {
+		var containerBox = null;
+
+		if (!options) {
+			containerBox = webMI.rootWindow.document.getElementById(container);
+		} else {
+			containerBox = document.getElementById(container);
+		}
+
+		var box = null;
+		if (containerBox) box = containerBox.getBoundingClientRect();
+		return box;
+	}
+
+	/* create the panel */
+	var atviseMenuPanel = createAtviseElement({
+		backgroundColor: css.backgroundColor,
+		color: config.font.color.inactive,
+		fontFamily: config.font.type,
+		fontSize: config.font.size + "px"
+	});
+	atviseMenuPanel.setAttribute("id", internal.container.id + "_box");
+
+	/* create a table */
+	var atviseMenuTable = webMI.rootWindow.document.createElement("table");
+	atviseMenuTable.style.height = css.height + "px";
+	atviseMenuTable.style.width = css.width + "px";
+	atviseMenuTable.style.borderCollapse = "collapse";
+	atviseMenuTable.setAttribute("border", "0");
+
+	/* create some rows */
+	var atviseMenuHome = webMI.rootWindow.document.createElement("tr");
+	var atviseMenuTop = webMI.rootWindow.document.createElement("tr");
+	var atviseMenuNav = webMI.rootWindow.document.createElement("tr");
+	var atviseMenuBottom = webMI.rootWindow.document.createElement("tr");
+	var atviseMenuLine = webMI.rootWindow.document.createElement("tr");
+
+	/* fix for bottom/right padding */
+	var fix = {};
+	if (isCenter()) {
+		fix.height = 0;
+		fix.width = config.item.padding;
+	} else {
+		fix.height = config.item.padding;
+		fix.width = 0;
+	}
+
+	/* create some columns */
+	var cellHome = createAtviseTableCell(layout.home.height.inactive, layout.home.width.inactive);
+	var cellTop = createAtviseTableCell(layout.arrow.height.inactive, layout.arrow.width.inactive);
+	var cellNavigation = createAtviseTableCell(layout.menu.height, layout.menu.width);
+	var cellBottom = createAtviseTableCell(
+		layout.arrow.height.inactive - fix.height,
+		layout.arrow.width.inactive - fix.width
+	);
+
+	/* create some cells */
+	var divNavigation = createAtviseMenu();
+	divNavigation.setAttribute("id", internal.container.id + "_menu");
+
+	/* fit all together */
+	var content = { text: config.home.text, icon: false };
+	cellHome.appendChild(createAtviseHome(0, content));
+	cellTop.appendChild(createAtviseArrow(true));
+	cellNavigation.appendChild(divNavigation);
+	cellBottom.appendChild(createAtviseArrow(false));
+
+	if (isCenter()) {
+		if (config.home.active) atviseMenuLine.appendChild(cellHome);
+		if (config.arrow.active) atviseMenuLine.appendChild(cellTop);
+		atviseMenuLine.appendChild(cellNavigation);
+		if (config.arrow.active) atviseMenuLine.appendChild(cellBottom);
+
+		atviseMenuTable.appendChild(atviseMenuLine);
+	} else {
+		atviseMenuHome.appendChild(cellHome);
+		atviseMenuTop.appendChild(cellTop);
+		atviseMenuNav.appendChild(cellNavigation);
+		atviseMenuBottom.appendChild(cellBottom);
+
+		if (config.home.active) atviseMenuTable.appendChild(atviseMenuHome);
+		if (config.arrow.active) atviseMenuTable.appendChild(atviseMenuTop);
+		atviseMenuTable.appendChild(atviseMenuNav);
+		if (config.arrow.active) atviseMenuTable.appendChild(atviseMenuBottom);
+	}
+
+	atviseMenuPanel.appendChild(atviseMenuTable);
+
+	/* use webMI methods to add the box */
+	webMI.gfx.addForeignObject({
+		x: 0,
+		y: 0,
+		width: css.width + "px",
+		height: css.height + "px",
+		id: internal.container.id,
+		childNodes: [atviseMenuPanel]
+	}, svg);
+
+
+	if (scaleType == "native") {
+		/* add resize event */
+		setTimeout(function () {
+			var fO = webMI.rootWindow.document.getElementById(internal.container.id + "_navigation");
+
+			fO.style.width = css.width + "px";
+			fO.style.height = css.height + "px";
+			fO.style.zoom = 1;
+
+			var box = getBoxOf("mainframe", false);
+			internal.zoomHeight = parseFloat(box.height);
+		}, 0);
+
+		/* on resize */
+		webMI.addOnresize(function () {
+			var box = getBoxOf("mainframe", false);
+			var zoomHeight = parseFloat(box.height);
+			var fO = webMI.rootWindow.document.getElementById(internal.container.id + "_navigation");
+
+			fO.style.transform = "none !important";
+			fO.style.marginRight = "0 !important";
+			fO.style.marginBottom = "0 !important";
+			fO.style.transform = "scale(" + zoomHeight / internal.zoomHeight + ")";
+			fO.style.transformOrigin = "0 0";
+		});
+	}
+
+	return atviseMenuPanel;
+}
+
+/**
+ * Create a cell
+ * @param height
+ * @param width
+ * @returns {HTMLTableDataCellElement}
+ */
+function createAtviseTableCell(height, width) {
+	var element = webMI.rootWindow.document.createElement("td");
+	if (height) element.style.height = height + "px";
+	if (width) element.style.width = width + "px";
+	element.style.padding = "0px";
+	element.style.margin = "0px";
+
+	if (isCenter()) {
+		element.style.textAlign = "left";
+		if (isBottom()) {
+			element.style.verticalAlign = "bottom";
+		} else {
+			element.style.verticalAlign = "top";
+		}
+	} else {
+		element.style.verticalAlign = "top";
+		if (isRight()) {
+			element.style.textAlign = "-webkit-right";
+			element.style.textAlign = "-moz-right";
+			element.style.textAlign = "-o-right";
+			element.style.textAlign = "-ms-right";
+		} else {
+			element.style.textAlign = "left";
+		}
+	}
+
+	element.setAttribute("align", "right");
+
+	return element;
+}
+
+/**
+ * Init menu
+ * @param container
+ * @param internal.container.z
+ * @param div
+ * @param internal.visible
+ */
+function initAtviseMenu(div) {
+	var element = parseIndexOfElements("div");
+	div.parentElement.setAttribute("id", internal.container.id + "_navigation");
+	(div.parentElement.style.zIndex = element.index < internal.container.z ? internal.container.z : element.index), 10;
+	div.parentElement.style.borderColor = css.borderColor;
+	div.parentElement.style.borderWidth = css.borderWidth + "px";
+	div.parentElement.style.borderStyle = css.borderStyle;
+	div.parentElement.style.opacity = "1";
+	div.parentElement.style.pointerEvents = "none";
+}
+
+/**
+ * Shortcut for bottom alignment comparison
+ * @returns {boolean}
+ */
+function isBottom() {
+	return config.menu.align.panel === "bottom";
+}
+
+/**
+ * Shortcut for center comparison
+ * @returns {boolean}
+ */
+function isCenter() {
+	return config.menu.align.panel === "bottom" || config.menu.align.panel === "top";
+}
+
+/**
+ * Shortcut for right alignment comparison
+ * @returns {boolean}
+ */
+function isRight() {
+	return config.menu.align.panel === "right";
+}
+
+/**
+ * Parsing the result of the displays parsing trigger and create menu
+ * @param menuIndex
+ * @param menuStructure
+ * @param lastIndex
+ * @param lastName
+ */
+function parseDisplayMenu(index, menuStructure) {
+	var currentIndex = index;
+	var content;
+	var handler;
+
+	if (index === 0) {
+		content = { text: config.home.text, icon: config.icon.home.icon };
+		internal.menu.homes[0] = createAtviseHome(0, content);
+	}
+
+	var subList = []; // sub menu button (folder)
+	var odbList = []; // object display button (display)
+	for (const key in menuStructure) {
+		if (typeof menuStructure[key].sub !== "undefined") {
+			if (typeof menuStructure[key].display !== "undefined") odbList.push(key);
+			else subList.push(key);
+			content = { text: menuStructure[key].name, icon: config.icon.folder.close };
+			internal.menu.index.panel = internal.menu.index.panel + 1;
+			menuStructure[key].id = internal.menu.index.panel;
+			internal.menu.homes[internal.menu.index.panel] = createAtviseHome(
+				internal.menu.index.panel,
+				content,
+				currentIndex
+			);
+			parseDisplayMenu(internal.menu.index.panel, menuStructure[key].sub);
+		} else {
+			odbList.push(key);
+		}
+	}
+
+	var panelIndex = internal.container.id + "_menu";
+	internal.menu.panel[currentIndex] = createAtviseMenu();
+	internal.menu.panel[currentIndex].setAttribute("id", panelIndex);
+	internal.menu.panel[currentIndex].addEventListener("wheel", zActionMouseWheel, false);
+	internal.menu.panel[currentIndex].addEventListener("touchstart", zActionTouchStart, false);
+	internal.menu.panel[currentIndex].addEventListener("touchmove", zActionTouchMove, false);
+
+	var margin = false;
+
+	var dimension = {};
+	if (isCenter()) {
+		dimension.height = layout.item.height.inactive;
+		dimension.width = layout.menu.width;
+	} else {
+		dimension.height = layout.menu.height;
+		dimension.width = layout.item.width.inactive;
+	}
+
+	for (const key in subList) {
+		content = { text: menuStructure[subList[key]].name, icon: config.icon.folder.open };
+		handler = {};
+		handler.menu = menuStructure[subList[key]].id;
+
+		/* add display to button */
+		if (typeof menuStructure[subList[key]]["display"] != "undefined") {
+			handler.withDisplay = menuStructure[subList[key]].display;
+		}
+
+		internal.menu.index.item = internal.menu.index.item + 1;
+		internal.menu.item[internal.menu.index.item] = createAtviseItem(internal.menu.index.item, content, handler, margin);
+		internal.menu.panel[currentIndex].appendChild(internal.menu.item[internal.menu.index.item]);
+
+		/* add item to index */
+		if (typeof menuStructure[subList[key]]["display"] != "undefined") {
+			internal.index.item[internal.container.id + "_item_" + internal.menu.index.item] = {
+				id: internal.container.id + "_item_" + internal.menu.index.item,
+				index: internal.menu.index.item,
+				display: handler.withDisplay,
+				panel: currentIndex
+			};
+			internal.index.display[handler.withDisplay] =
+				internal.index.item[internal.container.id + "_item_" + internal.menu.index.item];
+		}
+
+		if (!isCenter()) {
+			dimension.height -= parseInt(internal.menu.item[internal.menu.index.item].style.height, 10);
+			if (margin) dimension.height -= parseInt(internal.menu.item[internal.menu.index.item].style.marginBottom, 10);
+			dimension.height -= config.item.border.width * 2;
+		} else {
+			dimension.width -= parseInt(internal.menu.item[internal.menu.index.item].style.width, 10);
+			if (margin) dimension.width -= parseInt(internal.menu.item[internal.menu.index.item].style.marginRight, 10);
+			dimension.width -= config.item.border.width * 2;
+		}
+
+		margin = true;
+	}
+
+	for (const key in odbList) {
+		content = { text: menuStructure[odbList[key]].name, icon: false };
+		handler = {};
+
+		/* add sub menu to button */
+		if (typeof menuStructure[odbList[key]]["sub"] != "undefined") {
+			content.icon = config.icon.folder.open;
+			handler.menu = menuStructure[odbList[key]].id;
+			handler.withDisplay = menuStructure[odbList[key]].display;
+		}
+
+		handler.display = menuStructure[odbList[key]].display;
+		handler.url = menuStructure[odbList[key]].url;
+
+		internal.menu.index.item = internal.menu.index.item + 1;
+		internal.menu.item[internal.menu.index.item] = createAtviseItem(internal.menu.index.item, content, handler, margin);
+		internal.menu.panel[currentIndex].appendChild(internal.menu.item[internal.menu.index.item]);
+
+		/* add item to index */
+		internal.index.item[internal.container.id + "_item_" + internal.menu.index.item] = {
+			id: internal.container.id + "_item_" + internal.menu.index.item,
+			index: internal.menu.index.item,
+			display: handler.display,
+			panel: currentIndex
+		};
+		internal.index.display[handler.display] =
+			internal.index.item[internal.container.id + "_item_" + internal.menu.index.item];
+
+		if (!isCenter()) {
+			dimension.height -= parseInt(internal.menu.item[internal.menu.index.item].style.height, 10);
+			if (margin) dimension.height -= parseInt(internal.menu.item[internal.menu.index.item].style.marginBottom, 10);
+			dimension.height -= config.item.border.width * 2;
+		} else {
+			dimension.width -= parseInt(internal.menu.item[internal.menu.index.item].style.width, 10);
+			if (margin) dimension.width -= parseInt(internal.menu.item[internal.menu.index.item].style.marginRight, 10);
+			dimension.width -= config.item.border.width * 2;
+		}
+
+		margin = true;
+	}
+
+	if (!isCenter()) {
+		dimension.height -= config.item.padding;
+	} else {
+		dimension.width -= config.item.padding;
+	}
+
+	var divSpace = createAtvisePlaceholder(dimension, margin);
+
+	if (divSpace) {
+		internal.menu.index.item = internal.menu.index.item + 1;
+		internal.menu.item[internal.menu.index.item] = divSpace;
+		internal.menu.panel[currentIndex].appendChild(internal.menu.item[internal.menu.index.item]);
+	}
+
+	if (currentIndex === 0) {
+		togglePanel(0);
+	}
+}
+
+/**
+ * get highest z-index
+ * @param id
+ * @returns {number}
+ */
+function parseIndexOfElements(tag) {
+	var elements = webMI.rootWindow.document.getElementsByTagName(tag);
+	var index = internal.container.z;
+	var content = "";
+	for (var i = 0; i < elements.length; i++) {
+		try {
+			var zIndex = parseInt(elements[i].style.zIndex, 10);
+			if (zIndex > index && zIndex !== "auto") {
+				index = zIndex;
+				content = elements[i];
+			}
+		} catch (na) {
+			// do nothing
+		}
+	}
+	return { content: content, index: index + 1 };
+}
+
+/**
+ * Set button with given id active
+ * @param activate
+ */
+function setButtonActive(activate) {
+	if (!activate && !internal.button.active) return;
+
+	activate = activate ? cropActivate(activate) : internal.button.active;
+	internal.button.active = activate;
+
+	function cropActivate(activate) {
+		var crop = activate.substring(activate.length - "_button".length, activate.length) === "_button";
+		if (crop) return activate.substring(0, activate.length - "_button".length);
+		return activate;
+	}
+
+	var index = internal.index.item[internal.button.active];
+	if (typeof index === "undefined") return;
+
+	var setActive = internal.menu.item[index.index];
+	var setButton = setActive.querySelector("#" + activate + "_button");
+
+	if (!setButton) {
+		setButton = setActive;
+	}
+
+	var setWidth = layout.item.width.active;
+	setWidth -= config.item.border.width * 2;
+	setWidth -= isCenter() ? config.item.padding : 0;
+
+	var setHeight = layout.item.height.active;
+	setHeight -= config.item.border.width * 2;
+	setHeight -= !isCenter() ? config.item.padding : 0;
+
+	setActive.style.width = setWidth + "px";
+	setActive.style.height = setHeight + "px";
+
+	setButton.style.backgroundColor = config.item.background.active;
+	setButton.style.color = config.font.color.active;
+
+	if (isBottom()) {
+		setActive.style.marginTop = css.height - layout.item.height.active + "px";
+	}
+}
+
+/**
+ * Set last active button inactive
+ */
+function setButtonInactive() {
+	if (!internal.button.active) return;
+
+	var index = internal.index.item[internal.button.active];
+	if (typeof index === "undefined") return;
+
+	var setInactive = internal.menu.item[index.index];
+	var setButton = setInactive.querySelector("#" + internal.button.active + "_button");
+
+	if (!setButton) {
+		setButton = setInactive;
+	}
+
+	var setWidth = layout.item.width.inactive;
+	setWidth -= config.item.border.width * 2;
+	setWidth -= isCenter() ? config.item.padding : 0;
+
+	var setHeight = layout.item.height.inactive;
+	setHeight -= config.item.border.width * 2;
+	setHeight -= !isCenter() ? config.item.padding : 0;
+
+	setInactive.style.width = setWidth + "px";
+	setInactive.style.height = setHeight + "px";
+
+	setButton.style.backgroundColor = config.item.background.inactive;
+	setButton.style.color = config.font.color.inactive;
+
+	if (isBottom()) {
+		setInactive.style.marginTop = css.height - layout.item.height.inactive + "px";
+	}
+}
+
+/**
+ * Switch between different panels
+ * @param open
+ * @param close
+ */
+function togglePanel(open) {
+	if (!(open == 0 || hasRight)) {
+		return;
+	}
+
+	if (config.home.active) {
+		var changeHome = webMI.rootWindow.document.getElementById(internal.container.id + "_home").parentElement;
+		changeHome.removeChild(changeHome.childNodes[0]);
+		changeHome.appendChild(internal.menu.homes[open]);
+	}
+
+	var changeMenu = webMI.rootWindow.document.getElementById(internal.container.id + "_menu").parentElement;
+	changeMenu.removeChild(changeMenu.childNodes[0]);
+	internal.menu.panel[open].style.width = changeMenu.offsetWidth + "px";
+	internal.menu.panel[open].style.height = changeMenu.offsetHeight + "px";
+	changeMenu.appendChild(internal.menu.panel[open]);
+
+	internal.menu.panel.active = open;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// ANIMATION SECTION
+// ---------------------------------------------------------------------------------------------------------------
+
+/**
+ * Action on click at top navigation
+ * @param event
+ */
+function zActionClickTop() {
+	zActionClickMove(true);
+}
+
+/**
+ * Action on click at bottom navigation
+ * @param event
+ */
+function zActionClickBottom() {
+	zActionClickMove(false);
+}
+
+/**
+ * Action on click scrolling
+ * @param event
+ */
+function zActionClickMove(direction) {
+	var element = webMI.rootWindow.document.getElementById(internal.container.id + "_menu");
+	var posX = element.scrollLeft;
+	var posY = element.scrollTop;
+
+	if (isCenter()) {
+		if (direction) {
+			if (element.scrollLeftMax < posX - layout.item.width.inactive) posX = element.scrollLeftMax;
+			element.scrollLeft = posX - layout.item.width.inactive;
+		} else {
+			element.scrollLeft = posX + layout.item.width.inactive;
+		}
+	} else {
+		if (direction) {
+			element.scrollTop = posY - layout.item.height.inactive;
+		} else {
+			if (element.scrollTopMax < posY + layout.item.height.inactive) posY = element.scrollTopMax;
+			element.scrollTop = posY + layout.item.height.inactive;
+		}
+	}
+}
+
+/**
+ * Action on mouse wheel move
+ * @param event
+ */
+function zActionMouseWheel(event) {
+	if (isCenter()) {
+		zAnimationScrollMenu(event["deltaY"], 0);
+	} else {
+		zAnimationScrollMenu(0, event["deltaY"]);
+	}
+}
+
+/**
+ * Action on touch start gesture
+ * @param event
+ */
+var moveInit = {};
+
+function zActionTouchStart(event) {
+	moveInit = { x: 0, y: 0 };
+	action.point.start = { x: event.touches[0].pageX, y: event.touches[0].pageY };
+}
+
+/**
+ * Action on touch move gesture
+ * @param event
+ */
+function zActionTouchMove(event) {
+	event.preventDefault();
+	action.point.end = {
+		x: event.touches[0].pageX,
+		y: event.touches[0].pageY
+	};
+
+	var deltaX = action.point.start.x - action.point.end.x;
+	var deltaY = action.point.start.y - action.point.end.y;
+
+	if (moveInit.x === 0) {
+		moveInit.x = deltaX > 0 ? 1 : -1;
+	}
+
+	if (moveInit.y === 0) {
+		moveInit.y = deltaY > 0 ? 1 : -1;
+	}
+
+	var movement = {
+		x: deltaX > 0 ? 1 : -1,
+		y: deltaY > 0 ? 1 : -1
+	};
+
+	if (moveInit.x == movement.x && moveInit.y == movement.y) {
+		zAnimationScrollMenu(deltaX, deltaY);
+	} else {
+		moveInit = { x: "f", y: "f" };
+	}
+}
+
+/**
+ * Starting animation
+ */
+function zAnimation(init) {
+	var element = parseIndexOfElements("*");
+	var div = webMI.rootWindow.document.getElementById(internal.container.id + "_navigation");
+	(div.style.zIndex = element.index < internal.container.z ? internal.container.z : element.index), 10;
+
+	if (init && !internal.visible) {
+		if (config.animate.type === "none") {
+			atviseMenu.parentElement.style.display = "none";
+		} else if (config.animate.type === "fade") {
+			atviseMenu.parentElement.style.opacity = 0;
+			atviseMenu.parentElement.style.display = "none";
+		} else if (config.animate.type === "slide-left") {
+			atviseMenu.parentElement.style.width = "0px";
+		} else if (config.animate.type === "slide-right") {
+			atviseMenu.parentElement.style.width = "0px";
+		}
+		atviseMenu.parentElement.style.borderWidth = "0px";
+	} else if (init) {
+		atviseMenu.parentElement.style.left = css.left + "px";
+		atviseMenu.parentElement.style.width = css.width + "px";
+	} else if (!init) {
+		internal.visible = !internal.visible;
+		if (config.animate.type === "none") {
+			zAnimationToggle();
+		} else if (config.animate.type === "fade") {
+			zAnimationFade();
+		} else if (config.animate.type === "slide-left") {
+			zAnimationSlide(true);
+		} else if (config.animate.type === "slide-right") {
+			zAnimationSlide(false);
+		}
+	}
+
+	togglePanel(internal.menu.panel.active);
+}
+
+/**
+ * Hide view menu with fading animation
+ */
+function zAnimationFade() {
+	var opacity = parseFloat(atviseMenu.parentElement.style.opacity, 10);
+
+	if (internal.visible && atviseMenu.parentElement.style.display === "none")
+		atviseMenu.parentElement.style.display = "inherit";
+
+	if (internal.visible && opacity < 1) {
+		atviseMenu.parentElement.style.opacity = opacity + config.animate.factor / 60;
+		setTimeout(zAnimationFade, config.animate.factor / 60);
+	} else if (!internal.visible && opacity > 0) {
+		atviseMenu.parentElement.style.opacity = opacity - config.animate.factor / 60;
+		setTimeout(zAnimationFade, config.animate.factor / 60);
+	} else if (internal.visible && opacity >= 1) {
+		/* correction of calculation inaccuracies */
+		atviseMenu.parentElement.style.opacity = 1;
+	} else if (!internal.visible && opacity <= 0) {
+		/* correction of calculation inaccuracies */
+		atviseMenu.parentElement.style.opacity = 0;
+		atviseMenu.parentElement.style.display = "none";
+	}
+}
+
+/**
+ * hide view menu with sliding animation
+ * @param isLeft
+ */
+function zAnimationSlide(isLeft) {
+	var animationTime = 1000 / 60 / config.animate.factor;
+	var configWidth = parseInt(css.width, 10);
+	var configLeft = parseInt(css.left, 10);
+	var width = parseFloat(atviseMenu.parentElement.style.width);
+	var newWidth, newLeft;
+
+	if (internal.visible && width < configWidth) {
+		newWidth = width + configWidth / animationTime;
+		// atviseMenu.style.width = (newWidth > configWidth ? configWidth : newWidth) - css.borderWidth * 2 + "px";
+		atviseMenu.parentElement.style.width = (newWidth > configWidth ? configWidth : newWidth) + "px";
+		setTimeout(function () {
+			zAnimationSlide(isLeft);
+		}, animationTime);
+	} else if (!internal.visible && width > 0) {
+		newWidth = width - configWidth / animationTime;
+		// atviseMenu.style.width = (newWidth < 0 ? 0 : newWidth - css.borderWidth * 2 - config.item.border.width * 2) + "px";
+		atviseMenu.parentElement.style.width = (newWidth < 0 ? 0 : newWidth) + "px";
+		setTimeout(function () {
+			zAnimationSlide(isLeft);
+		}, animationTime);
+	}
+
+	if (width <= 0) {
+		atviseMenu.parentElement.style.borderWidth = "0px";
+	} else {
+		atviseMenu.parentElement.style.borderWidth = css.borderWidth + "px";
+	}
+
+	if (!isLeft && typeof newWidth !== "undefined") {
+		newLeft = configLeft + (configWidth - newWidth);
+		atviseMenu.parentElement.style.left = newLeft + "px";
+	}
+}
+
+/**
+ * hide view menu without animation
+ */
+function zAnimationToggle() {
+	if (internal.visible) {
+		atviseMenu.parentElement.style.display = "inherit";
+		// atviseMenu.parentElement.style.opacity = 1;
+	} else {
+		atviseMenu.parentElement.style.display = "none";
+		// atviseMenu.parentElement.style.opacity = 0;
+	}
+}
+
+/**
+ * Moving elements e.g. scroll elements
+ * @param deltaX
+ * @param deltaY
+ */
+function zAnimationScrollMenu(deltaX, deltaY) {
+	var element = webMI.rootWindow.document.getElementById(internal.container.id + "_menu");
+
+	var posX = element.scrollLeft;
+	var posY = element.scrollTop;
+	var ajustment = scroll.factor.general;
+
+	var client = webMI.getClientInfo();
+	if (client.isMobile || client.isTablet) {
+		ajustment = scroll.factor.mobile;
+	}
+
+	if (deltaY < 0) {
+		element.scrollTop = posY - (layout.item.height.inactive * ajustment) / 100;
+	} else if (deltaY > 0) {
+		if (element.scrollTopMax < posY + layout.item.height.inactive) posY = element.scrollTopMax;
+		element.scrollTop = posY + (layout.item.height.inactive * ajustment) / 100;
+	}
+
+	if (deltaX > 0) {
+		element.scrollLeft = posX + (layout.item.width.inactive * ajustment) / 100;
+	} else if (deltaX < 0) {
+		if (element.scrollLeftMax < posX - layout.item.width.inactive) posX = element.scrollLeftMax;
+		element.scrollLeft = posX - (layout.item.width.inactive * ajustment) / 100;
+	}
+}
+
+/**
+ * Yet another json copy shortcutcreateAtviseHome
+ * @param obj
+ * @returns {any}
+ */
+function zCopy(obj) {
+	return JSON.parse(JSON.stringify(obj));
+}
+
+/**
+ * Convert rgb color to hex
+ * @param rgb
+ * @returns {string}
+ */
+function zConvertRGB(rgb) {
+	if (!rgb) return false;
+
+	rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+
+	function hexCode(i) {
+		return ("0" + parseInt(i).toString(16)).slice(-2);
+	}
+
+	return "#" + hexCode(rgb[1]) + hexCode(rgb[2]) + hexCode(rgb[3]);
+}
+
+/**
+ * simple compare function
+ * @param a
+ * @param b
+ * @returns {boolean}
+ */
+function zIsUndefined(a) {
+	return typeof a === "undefined";
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// TRIGGER SECTION
+// ---------------------------------------------------------------------------------------------------------------
+/**
+ * Helper to search identifier in structure
+ * @param structur to be parsed
+ * @param search display identifiert to be searched
+ * @returns {*}
+ */
+function findPath(structur, search) {
+	if (!structur) return false;
+	for (const key in structur) {
+		if (structur[key].identifier == search) {
+			return [structur[key]];
+		}
+		if (structur[key].sub) {
+			var retVal = findPath(structur[key].sub, search);
+			if (retVal) {
+				return retVal;
+			}
+		}
+	}
+	return false;
+}
+
+/**
+ * Trigger for parsing display menu structure
+ * or use custom menu settings
+ */
+if (zIsUndefined(config.menu.custom) || config.menu.custom === "") {
+	// eslint-disable-next-line no-unused-vars
+	webMI.trigger.fire("com.atvise.display_structure", function (e, _preload) {
+		if (typeof e == "undefined" || e == null) return;
+		var displayMenu = e.menu;
+		for (const key in displayMenu) {
+			if (zIsUndefined(displayMenu[key].sub)) delete displayMenu[key];
+		}
+		config.menu.structure = e.menu;
+
+		if (config.menu.entry) {
+			var path = findPath(e.menu, config.menu.entry);
+			if (path && path[0].sub) config.menu.structure = path[0].sub;
+			else if (path) config.menu.structure = path;
+		}
+
+		parseDisplayMenu(0, config.menu.structure);
+
+		zAnimation(true);
+	});
+} else {
+	config.menu.structure = JSON.parse(config.menu.custom);
+	var searchStructure = JSON.parse(config.menu.custom);
+
+	if (config.menu.entry) {
+		var path = findPath(searchStructure, config.menu.entry);
+		if (path && path[0].sub) config.menu.structure = path[0].sub;
+		else if (path) config.menu.structure = path;
+	}
+
+	parseDisplayMenu(0, config.menu.structure);
+	zAnimation(true);
+}
+
+/**
+ * Connection for handling display animation (hide/view)
+ */
+webMI.trigger.connect("com.atvise.menu_toggle", function (e) {
+	if (id === e.value || connectToButton === e.value) zAnimation();
+	else return;
+});
+
+/**
+ * Connection to monitor events of a particular display container and to update navigation
+ */
+webMI.trigger.connect("com.atvise.iframe.onloadFrame", function (e) {
+	var display;
+	var openItem;
+	/* do not listen to wrong frames */
+	if (e.value.name !== internal.content.frame) {
+		return;
+	}
+
+	if (e.value.content === config.home.display) {
+		/* change to home display */
+		togglePanel(0);
+
+		/* set active button inactive */
+		if (typeof internal.button.active !== "undefined") {
+			setButtonInactive();
+			internal.button.active = {};
+		}
+
+		/* prop match other home button */
+		display = decodeURI(e.value.content);
+		if (internal.index.display[display]) {
+			openItem = internal.index.display[display].id;
+			setButtonActive(openItem);
+		}
+	} else {
+		/* decode display */
+		display = decodeURI(e.value.content);
+
+		if (typeof internal.index.display[display] !== "undefined") {
+			openItem = internal.index.display[display].id;
+			var openPanel = internal.index.display[display].panel;
+
+			/* reset old active button */
+			if (typeof internal.button.active !== "undefined" && openItem !== internal.button.active) {
+				setButtonInactive();
+			}
+
+			/* jump to new panel */
+			if (openPanel !== internal.menu.panel.active) {
+				togglePanel(openPanel);
+			}
+
+			/* jump to new button */
+			if (openItem !== internal.button.active) {
+				setButtonActive(openItem);
+			}
+		} else if (typeof internal.button.active !== "undefined") {
+			setButtonInactive();
+			internal.button.active = {};
+		}
+	}
+});
+]]></code>
+</script>

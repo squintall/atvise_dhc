@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.TRANSLATIONS.es
+NodeClass: Variable
+BrowseName: 1:es
+DisplayName: en|Español_México
+Description: en|Español_México
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.TranslationTable

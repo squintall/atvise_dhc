@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for picker_color object display
+ * ------------------------------------
+ * This control opens a dialog to pick or enter color code in HEX.
+ * In addition the trigger "valuechanged" will be fired.
+ * An additional border indicates the current value's negative state or an additionally defined alarm. The colors and blinking intervals are defined in global lists.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var initValue = webMI.query["initValue"];
+var fillColor = typeof webMI.query["buttonFill"] != "undefined" ? webMI.query["buttonFill"] : webMI.query["fillColor"];
+var inputFill = typeof webMI.query["fill"] != "undefined" ? webMI.query["fill"] : webMI.query["inputFill"];
+var inputFillInactive =
+	typeof webMI.query["fillColorInactive"] != "undefined"
+		? webMI.query["fillColorInactive"]
+		: webMI.query["inputFillInactive"];
+var buttonStrokePressed = webMI.query["buttonStrokePressed"];
+var focusStrokeColor = webMI.query["focusStrokeColor"];
+var arrowFill = webMI.query["arrowFill"];
+var consistencyGroup = webMI.query["consistencyGroup"];
+var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+var openCentered = webMI.query["openCentered"];
+var color_picker_dialog = webMI.query["color_picker_dialog"];
+var right = webMI.query["right"] == undefined ? "" : webMI.query["right"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var lockInputEvents = false;
+var isActivationNodeSet = activeNode != "" && String(activeValue) != "";
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: document.getElementById("colorpicker_clickarea").id,
+	rights: [
+		{ nodeId: base, rights: "read", disable: true, notify: false },
+		{ nodeId: base, rights: "write", disable: true, notify: false },
+		{ nodeId: alarmToSubscribe, rights: "alarmRead", disable: false, notify: true },
+		{ nodeId: activeNode, rights: "read", disable: true, notify: true },
+		{
+			nodeId: "SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.dialogs.picker_color_dialog",
+			rights: "read",
+			disable: true,
+			notify: true
+		}
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: { activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"] },
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: right
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+if (webMI.getAccessControlSupport() && base != "") {
+	var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+	var compareRights = [{ node: webMI.query["base"], right: "read" }];
+
+	accessControlManager.assist.handleWithPermissions(compareRights, readGranted, readDenied);
+
+	function readGranted() {
+		// nothing to do
+	}
+
+	function readDenied() {
+		webMI.gfx.setText("input_label", "T{N/A}");
+	}
+}
+
+if (alarmToSubscribe != "") updateAlarmIndication(alarmToSubscribe);
+
+if (base != "" && consistencyGroup)
+	consistencyHandler.register(consistencyGroup, base, update);
+
+webMI.addOnload(function () {
+	if (initValue.indexOf("#") != 0) initValue = "#" + initValue;
+	webMI.gfx.setText("input_label", initValue.toUpperCase());
+	webMI.query["color"] = initValue.toUpperCase();
+	var doc = document.getElementById("colorpicker_clickarea").ownerDocument;
+	tabHandler.register(tabIndex, keyHandler, doc);
+
+	if (base) {
+		if (consistencyGroup) {
+			//handled in runtime section
+		} else {
+			webMI.data.subscribe(base, function (e) {
+				if(typeof e.value == "undefined") {
+					webMI.gfx.setText("input_label", "T{N/A}");
+					return;
+				}
+				update(e.value);
+				if (typeof e.status != "undefined" && typeof handleStatus === "function") handleStatus(e.status);
+                accessControlManager.clearRightsStorage(base, false);
+				accessControlManager.assist.handleWithPermissions(compareRights, readGranted, readDenied);
+			});
+		}
+	}
+});
+
+if (tooltip != "") {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "colorpicker_clickarea",
+		text: tooltip
+	});
+}
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setActiveLayout() {
+	lockInputEvents = false;
+
+	webMI.gfx.setFill("input_bg", inputFill);
+	webMI.gfx.setFill("button_bg", fillColor);
+	webMI.gfx.setVisible("button_stroke", null);
+}
+
+function setInactiveLayout() {
+	lockInputEvents = true;
+
+	webMI.gfx.setFill("input_bg", inputFillInactive);
+	webMI.gfx.setFill("button_bg", inputFillInactive);
+	webMI.gfx.setVisible("button_stroke", false);
+}
+
+function fetchCurrentRightsAndUpdateInputField() {
+	if (accessControlManager) {
+		var compareRights = [{ node: webMI.query["base"], right: "read" }];
+		accessControlManager.assist.handleWithPermissions(compareRights, readGranted, readDenied);
+	}
+}
+
+function focusTH() {
+	if (lockInputEvents) return;
+
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", focusStrokeColor);
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setStroke("input_bg", focusStrokeColor);
+	}
+}
+
+function blurTH() {
+	if (lockInputEvents) return;
+
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", "none");
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setStroke("input_bg", "none");
+	}
+}
+
+function applyTH() {
+	if (lockInputEvents) return;
+
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Picker", {
+		picker: color_picker_dialog,
+		openCentered: openCentered,
+		width: 220,
+		height: 370,
+		callingElementWidth: webMI.gfx.getWidth("id_0"),
+		callingElementHeight: webMI.gfx.getHeight("id_0"),
+		title: "",
+		parameters: webMI.query
+	});
+}
+
+function backTH() {}
+
+function arrowTH(dir) {}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		focusTH();
+	} else if (keyTH == "blur") {
+		blurTH();
+	} else if (keyTH == "apply") {
+		applyTH();
+	} else if (keyTH == "space") {
+		applyTH();
+	} else if (keyTH == "back") {
+		backTH();
+	} else if (keyTH == "arrow") {
+		arrowTH(param2);
+	} else if (keyTH == "isActive") {
+		return param2(document.getElementById("colorpicker_clickarea").parentNode);
+	}
+}
+
+function updateNodeValue(value) {
+	if (consistencyGroup) {
+		consistencyHandler.set(consistencyGroup, base, value);
+		update(value);
+	} else {
+		webMI.data.write(base, value);
+	}
+}
+
+function update(value) {
+	webMI.gfx.setText("input_label", (webMI.query["color"] = value));
+	webMI.trigger.fire("valuechanged", value, "");
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent("colorpicker_clickarea", "mousedown", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "colorpicker_clickarea";
+		var value = true;
+		return (function (value) {
+			if (lockInputEvents) return;
+
+			webMI.gfx.setStroke("button_stroke", buttonStrokePressed);
+			if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+				webMI.gfx.setStroke("focus_frame", buttonStrokePressed);
+				webMI.gfx.setFill("button_bg", "url(#linear_2)");
+			} else {
+				webMI.gfx.setStroke("input_bg", buttonStrokePressed);
+			}
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("colorpicker_clickarea", ["mouseup", "mouseout"], function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "colorpicker_clickarea";
+		var value = true;
+		return (function (value) {
+			if (lockInputEvents) {
+				webMI.gfx.setStroke("button_stroke", "none");
+				if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+					webMI.gfx.setStroke("focus_frame", "none");
+					webMI.gfx.setFill("button_bg", "none");
+				} else {
+					webMI.gfx.setStroke("input_bg", "none");
+				}
+			}
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("colorpicker_clickarea", "dragstart", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		if (e.preventDefault) {
+			e.preventDefault();
+		}
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+webMI.addEvent("colorpicker_clickarea", "click", function (e) {
+	if (webMI.getAccessControlSupport() && base != "") {
+		var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+		var compareRights = [{ node: webMI.query["base"], right: "write" }];
+
+		accessControlManager.assist.handleWithPermissions(compareRights, writeGranted, writeDenied);
+	} else {
+		writeGranted();
+	}
+
+	function writeGranted() {
+		var id = "colorpicker_clickarea";
+		var value = true;
+		return (function (value) {
+			if (lockInputEvents) return;
+
+			tabHandler.setCurrentIndex(keyHandler);
+			webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Picker", {
+				picker: color_picker_dialog,
+				openCentered: openCentered,
+				width: 220,
+				height: 370,
+				callingElementWidth: webMI.gfx.getWidth("id_0"),
+				callingElementHeight: webMI.gfx.getHeight("id_0"),
+				title: "",
+				parameters: webMI.query
+			});
+		})(value);
+	}
+
+	function writeDenied() {
+		// nothing to do
+	}
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.trigger.connect("valuechanged_" + webMI.query.name, function (e) {
+	var value = e.value;
+
+	if (base) {
+		updateNodeValue(value.hex);
+	} else {
+		update(value.hex);
+	}
+});
+
+webMI.trigger.connect("com.atvise.access_control_update", function (e) {
+	fetchCurrentRightsAndUpdateInputField();
+});
+]]></code>
+</script>

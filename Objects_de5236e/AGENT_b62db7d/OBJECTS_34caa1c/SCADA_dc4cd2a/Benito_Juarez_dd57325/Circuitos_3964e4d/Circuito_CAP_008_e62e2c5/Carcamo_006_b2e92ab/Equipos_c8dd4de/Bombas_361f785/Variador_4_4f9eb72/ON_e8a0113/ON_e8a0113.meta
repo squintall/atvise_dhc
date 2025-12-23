@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_006.Equipos.Bombas.Variador_4.ON
+NodeClass: Variable
+BrowseName: 1:ON
+DisplayName: en|ON
+Description: en|ON
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

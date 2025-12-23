@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/timer/imgs/controls.gif
+NodeClass: Variable
+BrowseName: 1:controls.gif
+DisplayName: en|controls.gif
+Description: en|controls.gif
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Gif

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA.Cuencas.Graficas.Grafica_CBE
+NodeClass: Variable
+BrowseName: 1:Grafica_CBE
+DisplayName: en|Grafica_CBE
+Description: en|Grafica_CBE
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

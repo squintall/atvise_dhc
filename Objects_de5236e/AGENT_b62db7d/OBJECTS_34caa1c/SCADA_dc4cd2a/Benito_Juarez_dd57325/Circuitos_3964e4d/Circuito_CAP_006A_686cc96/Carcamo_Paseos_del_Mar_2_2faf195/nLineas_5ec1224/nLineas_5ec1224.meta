@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Paseos_del_Mar_2.nLineas
+NodeClass: Variable
+BrowseName: 1:nLineas
+DisplayName: en|nLineas
+Description: en|nLineas
+DataType: Int16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

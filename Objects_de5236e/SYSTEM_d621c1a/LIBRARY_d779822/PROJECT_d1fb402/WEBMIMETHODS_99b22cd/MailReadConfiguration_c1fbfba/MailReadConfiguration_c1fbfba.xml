@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var name = request.postvalues["configuration"] ? request.postvalues["configuration"] : "";
+ return call("MailManagement.ConfigurationHandler", {action: "read", configuration: name});]]></code>
+</script>

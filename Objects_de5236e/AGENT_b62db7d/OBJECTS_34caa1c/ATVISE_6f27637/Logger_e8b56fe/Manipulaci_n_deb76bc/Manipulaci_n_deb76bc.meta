@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Logger.Manipulación
+NodeClass: Variable
+BrowseName: 1:Manipulación
+DisplayName: en|Manipulación
+Description: en|Manipulación
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

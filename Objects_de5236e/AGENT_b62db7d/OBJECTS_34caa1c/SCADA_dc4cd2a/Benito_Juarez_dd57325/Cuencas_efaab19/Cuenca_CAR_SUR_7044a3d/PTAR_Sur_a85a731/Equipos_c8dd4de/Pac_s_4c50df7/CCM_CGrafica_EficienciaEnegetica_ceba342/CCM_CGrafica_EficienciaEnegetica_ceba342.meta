@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.PTAR_Sur.Equipos.Pac´s.CCM_CGrafica_EficienciaEnegetica
+NodeClass: Variable
+BrowseName: 1:CCM_CGrafica_EficienciaEnegetica
+DisplayName: en|CCM_CGrafica_EficienciaEnegetica
+Description: en|CCM_CGrafica_EficienciaEnegetica
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

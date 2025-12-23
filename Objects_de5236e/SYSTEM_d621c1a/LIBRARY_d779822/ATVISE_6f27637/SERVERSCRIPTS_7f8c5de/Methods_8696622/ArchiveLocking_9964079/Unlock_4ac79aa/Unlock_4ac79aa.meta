@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Methods.ArchiveLocking.Unlock
+NodeClass: Variable
+BrowseName: 1:Unlock
+DisplayName: en|Unlock
+Description: en|Unlock
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

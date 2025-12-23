@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.ALARMING.Groups.Scrubber.Scrubber_activo.Sensor_activo.active_message
+NodeClass: Variable
+BrowseName: 1:active_message
+DisplayName: en|active_message
+Description: en|active_message
+DataType: LocalizedText
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

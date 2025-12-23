@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.1013.Connection.AskedSecondary
+NodeClass: Variable
+BrowseName: 1:AskedSecondary
+DisplayName: en|AskedSecondary
+Description: en|AskedSecondary
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseDataVariableType

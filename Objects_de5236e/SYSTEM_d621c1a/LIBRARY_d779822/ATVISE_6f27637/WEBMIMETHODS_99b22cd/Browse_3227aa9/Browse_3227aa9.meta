@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.Browse
+NodeClass: Variable
+BrowseName: 1:Browse
+DisplayName: en|Browse
+Description: en|Browse
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

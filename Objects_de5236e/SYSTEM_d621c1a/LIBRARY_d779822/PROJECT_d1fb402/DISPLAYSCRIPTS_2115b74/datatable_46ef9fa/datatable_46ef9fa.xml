@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[webMI.table.loadResources(function() {
+
+var config = [];
+// *** BEGIN CONFIGURATION SECTION ***
+
+config["columns"] = [
+	{id: "name", name: "T{Name}", field: "name", sortable: true, filter: true, visible: true, width:300, sortByDefault: true, sortByDefaultAsc: true},
+	{id: "description", name: "T{Description}", field: "description", sortable: true, filter: true, visible: true, width:300, sortByDefault: false, sortByDefaultAsc: true},
+	{id: "on", name: "T{On}", field: "on", sortable: true, filter: true, visible: true, width:300, sortByDefault: false, sortByDefaultAsc: true},
+	{id: "rpm", name: "T{RPM}", field: "rpm", sortable: true, filter: true, visible: true, width:300, sortByDefault: false, sortByDefaultAsc: true},
+	{id: "temperature", name: "T{Temperature} C°", field: "temperature", sortable: true, filter: true, visible: true, width:300, sortByDefault: false, sortByDefaultAsc: true},
+	
+];
+
+ 
+config["mode"] = "once";
+ 
+config["dataRequestFunction"] = function myRequest() {
+	var that = this;	
+	var data = [];
+	webMI.data.call("GetTableData",{}, function(e){
+		data.result = e;
+		that.addData(data);
+	});
+};
+
+
+// *** END CONFIGURATION SECTION ***
+
+webMI.table.register("simpleTable", "config", config);
+webMI.table.setReady("simpleTable", "config");
+
+});]]></code>
+</script>

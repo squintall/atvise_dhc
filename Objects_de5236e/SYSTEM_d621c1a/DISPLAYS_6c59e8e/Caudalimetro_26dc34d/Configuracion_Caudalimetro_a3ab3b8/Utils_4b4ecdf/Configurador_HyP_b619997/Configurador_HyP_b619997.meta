@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Caudalimetro.Configuracion_Caudalimetro.Utils.Configurador_HyP
+NodeClass: Variable
+BrowseName: 1:Configurador_HyP
+DisplayName: en|Configurador_HyP
+Description: en|Configurador_HyP
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

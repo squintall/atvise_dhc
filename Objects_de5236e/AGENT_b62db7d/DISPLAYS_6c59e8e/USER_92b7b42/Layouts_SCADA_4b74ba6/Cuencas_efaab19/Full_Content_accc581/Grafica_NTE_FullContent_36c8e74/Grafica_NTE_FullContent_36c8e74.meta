@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_SCADA.Cuencas.Full_Content.Grafica_NTE_FullContent
+NodeClass: Variable
+BrowseName: 1:Grafica_NTE_FullContent
+DisplayName: en|Grafica_NTE_FullContent
+Description: en|Grafica_NTE_FullContent
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

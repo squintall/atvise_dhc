@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION.GENERAL.ArchiveManagement.status
+NodeClass: Variable
+BrowseName: 1:status
+DisplayName: en|status
+Description: en|status
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

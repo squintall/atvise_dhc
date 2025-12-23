@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Carcamo_Aeropuerto_IM.Voltaje_L3-L1
+NodeClass: Variable
+BrowseName: 1:Voltaje_L3-L1
+DisplayName: en|Voltaje_L3-L1
+Description: en|Voltaje_L3-L1
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Voltaje_L3-L1.high_limits
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Voltaje_L3-L1.low_limits

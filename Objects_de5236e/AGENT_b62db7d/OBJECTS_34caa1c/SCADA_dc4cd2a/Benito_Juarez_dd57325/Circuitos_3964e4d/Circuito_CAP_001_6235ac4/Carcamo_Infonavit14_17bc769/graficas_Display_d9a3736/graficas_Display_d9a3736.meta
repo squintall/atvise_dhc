@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_Infonavit14.graficas_Display
+NodeClass: Variable
+BrowseName: 1:graficas_Display
+DisplayName: en|graficas_Display
+Description: en|graficas_Display
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

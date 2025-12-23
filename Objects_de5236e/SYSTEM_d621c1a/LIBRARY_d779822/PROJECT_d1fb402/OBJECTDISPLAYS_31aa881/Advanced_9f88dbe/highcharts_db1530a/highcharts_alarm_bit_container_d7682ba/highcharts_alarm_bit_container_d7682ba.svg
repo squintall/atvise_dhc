@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="890" version="1.2" width="1675" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="hidden" desc="" name="base" substitute="" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="Node address" name="node" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="Alarm address" name="alarm" valuetype="address"/>
+  <atv:parameter behavior="mandatory" defaultvalue="1" desc="Time span from now" name="span" valuetype="number"/>
+  <atv:parameter behavior="mandatory" config="s;m;h;d" defaultvalue="m" desc="Time unit" name="unit" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" group="Appearance" name="globalFillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="trend1" desc="" name="trendName" valuetype="string"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <foreignObject height="890" id="id_0" width="1675" x="0" y="-1.33">
+  <div style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml">
+   <div id="highcharts_container" style="width:100%; height:100%;"/>
+  </div>
+ </foreignObject>
+ <text atv:refpx="838.91" atv:refpy="445" fill="#5d5d5d" font-family="Arial" font-size="36" id="txt" text-anchor="middle" x="838.566" y="457.5">Please node address to generate charts</text>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.highcharts.highcharts_alarm_bit_container" atv:name="alarmHighcharts" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

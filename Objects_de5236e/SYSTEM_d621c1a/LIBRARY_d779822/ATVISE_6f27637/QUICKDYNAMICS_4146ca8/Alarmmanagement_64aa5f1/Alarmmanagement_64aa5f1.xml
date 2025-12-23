@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">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</icon>
+    <visible>0</visible>
+    <title>Alarmmanagement</title>
+    <description>Initializes scada alarm management.</description>
+  </metadata>
+  <code><![CDATA[Date.prototype.toSortableString = function(_withMS) {
+	function _preNull(_nr) {
+		if (_nr < 10)
+			return "0" + _nr;
+		return _nr;
+	}
+
+	var _ret = this.getFullYear() + "-" + _preNull(this.getMonth() + 1) + "-" + _preNull(this.getDate()) + " " +
+		_preNull(this.getHours()) + ":" + _preNull(this.getMinutes()) + ":" + _preNull(this.getSeconds());
+	if (_withMS)
+		_ret += "." + this.getMilliseconds();
+	return _ret;
+};
+
+var displaysDict = {};
+
+webMI.trigger.fire("com.atvise.display_structure", function (e) {
+
+	function getIdentifierDisplayDictionary(root) {
+		for (var element in root) {
+			if (typeof root[element].sub != "undefined") getIdentifierDisplayDictionary(root[element].sub);
+			else if (typeof root[element].display != "undefined") displaysDict[root[element].identifier] = root[element].display;
+		}
+	}
+
+	if (e != null)
+		getIdentifierDisplayDictionary(e.menu);
+});
+
+function initializeAlarmmanagement(alarmmanagement) {
+	webMI.addEvent(webMI.data, "serverstatechange", function (e) {
+		var state = e.active["connection-status"].primary || e.active["connection-status"].secondary;
+		if (!state) {
+			alarms = [];
+			webMI.trigger.fire("com.atvise.alarms_notify_item", false);
+			webMI.trigger.fire("com.atvise.alarms_notify", false);
+		}
+	});
+
+	if (alarmmanagement["subscriptionId"] != null) {
+		alarms.length = 0;
+		webMI.data.unsubscribeFilter(alarmmanagement["subscriptionId"]);
+	} else {
+		webMI.trigger.connect("com.atvise.alarms_items", function (e) {
+			if (typeof e.value == "function")
+				e.value(alarms);
+		});
+
+		webMI.trigger.connect("com.atvise.alarms_exist", function (e) {
+			if (typeof e.value == "function")
+				e.value(alarms.length > 0);
+		});
+
+		webMI.trigger.connect("com.atvise.alarms_next_display", function () {
+
+			for (var i in alarms) {
+				if (alarms[i] != undefined && alarms[i][1] != undefined) {
+					if ((alarms[i][1]).text == 1 && alarms[i][3] != undefined && alarms[i][3].text != "") {
+						webMI.display.openDisplay(displaysDict[(alarms[i][3]).text]);
+						break;
+					}
+				}
+			}
+		});
+	}
+
+	var filter = {};
+	filter.type = ["v:2"]
+	filter.select = select;
+	alarmmanagement["subscriptionId"] = webMI.data.subscribeFilter(filter, function (e) {
+
+		if (((e.ShelvingState == undefined || e.ShelvingState == "Unshelved") && (e.SuppressedStateId == undefined || e.SuppressedStateId == false))) {
+			if (webMI.getMethodSupport().indexOf("AlarmConditions") != -1) {
+				if (typeof e.AlarmId != "undefined" && e.state > 0 && e.ConditionState != 2 && e.retain == true) {
+					addAlarmItemManaged(e);
+					webMI.trigger.fire("com.atvise.alarms_notify_item", e);
+				} else {
+					removeAlarmItem(e);
+					if ((e.state > 0 || typeof e.AlarmId != "undefined" && typeof e.value != "undefined") && e.ConditionState != 2) webMI.trigger.fire("com.atvise.alarms_notify_item", e);
+				}
+			} else {
+				if (e.state > 0) addAlarmItemManaged(e);
+				else removeAlarmItem(e);
+				webMI.trigger.fire("com.atvise.alarms_notify_item", e);
+			}
+		} else removeAlarmItem(e);
+	});
+
+	function addAlarmItemManaged(itm) {
+		if (itm.state == 1 || itm.state == 3) {
+			var datarow = [];
+			if (itm.address) {
+				datarow.id = itm.address;
+				datarow.item = itm;
+				datarow[0] = {name: "display", text: itm.display ? itm.display : ""};
+				datarow[1] = {name: "status", text: typeof itm.state != "undefined" ? itm.state : -1};
+				datarow[2] = {name: "timestamp", text: itm.timestamp ? new Date(itm.timestamp).toSortableString() : ""};
+				datarow[3] = {name: "replaceddisplay", text: itm.display ? webMI.sprintf(itm.display, itm) : ""};
+				updateItem(datarow, "id");
+				webMI.trigger.fire("com.atvise.alarms_notify", true);
+			}
+		} else if (itm.state == 2) {
+			removeAlarmItem(itm);
+		}
+	};
+
+	function removeAlarmItem(itm) {
+		var datarow = [];
+		datarow.id = itm.address;
+		removeItem(datarow, "id");
+		if (alarms.length < 1) {
+			webMI.trigger.fire("com.atvise.alarms_notify", false);
+		}
+	};
+
+	function updateItem(dataItem, identifier) {
+		if (alarms.length > 0) {
+			var rowNr = -1;
+			var i = alarms.length - 1;
+			while (i > -1) {
+				if (alarms[i] != undefined) {
+					if (alarms[i][identifier] != undefined && alarms[i][identifier] == dataItem[identifier]) {
+						rowNr = i;
+						break;
+					}
+				}
+				i--;
+			}
+			if (rowNr > -1) {
+				alarms = _arrayInsertElement(alarms, rowNr, dataItem, true);
+			} else {
+				alarms.push(dataItem);
+			}
+		} else {
+			alarms.push(dataItem);
+		}
+	};
+
+	function removeItem(dataItem, identifier) {
+		if (alarms.length > 0) {
+			var rowNr = -1;
+			var i = alarms.length - 1;
+			while (i > -1) {
+				if (alarms[i] != undefined) {
+					if (alarms[i][identifier] != undefined && alarms[i][identifier] == dataItem[identifier]) {
+						rowNr = i;
+						break;
+					}
+				}
+				i--;
+			}
+			if (rowNr > -1) {
+				alarms.splice(rowNr, 1);
+			}
+		}
+	};
+
+	function _arrayInsertElement(arrayInstance, position, newElement, overwrite) {
+		if (arrayInstance.length > 0) {
+			if (overwrite) {
+				arrayInstance[position] = newElement;
+			} else {
+				var a = arrayInstance.slice();
+				var b = a.splice(position, a.length);
+				a[position] = newElement;
+				arrayInstance = a.concat(b);
+			}
+		} else {
+			arrayInstance.push(newElement);
+		}
+		return arrayInstance;
+	};
+}
+
+if (typeof this.alarmmanagement === "undefined") {
+	var alarms = [];
+	var select = [];
+	select.push("v:AlarmId");
+	select.push("v:ConditionState");
+	select.push("v:ShelvingState");
+	select.push("v:SuppressedStateId");
+	select.push("v:state");
+	select.push("v:address");
+	select.push("v:display");
+	select.push("v:timestamp");
+	select.push("v:eventtext");
+	select.push("v:priority");
+	select.push("v:retain");
+	select.push("v:value");
+
+	initializeAlarmmanagement({"subscriptionId": null});
+}]]></code>
+</script>

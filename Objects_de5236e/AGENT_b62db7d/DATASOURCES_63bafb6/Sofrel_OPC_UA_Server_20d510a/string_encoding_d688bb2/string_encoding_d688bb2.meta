@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server.string_encoding
+NodeClass: Variable
+BrowseName: 1:string_encoding
+DisplayName: en|string_encoding
+Description: en|string_encoding
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

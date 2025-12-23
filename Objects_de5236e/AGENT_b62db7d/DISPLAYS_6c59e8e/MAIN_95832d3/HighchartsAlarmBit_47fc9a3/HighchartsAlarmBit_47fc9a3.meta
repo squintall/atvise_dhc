@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MAIN.HighchartsAlarmBit
+NodeClass: Variable
+BrowseName: 1:HighchartsAlarmBit
+DisplayName: en|HighchartsAlarmBit
+Description: en|HighchartsAlarmBit
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

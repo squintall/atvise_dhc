@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <code><![CDATA[const now = new Date();
+const currentMonth = now.toString().split(" ")[1];
+const currentYear = now.getFullYear();
+const dateString = currentMonth + " " + currentYear;
+return { energySaving: "23.48", reportDate: dateString };]]></code>
+</script>

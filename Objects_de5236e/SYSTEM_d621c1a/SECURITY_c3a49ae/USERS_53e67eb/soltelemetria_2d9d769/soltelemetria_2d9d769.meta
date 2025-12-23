@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.soltelemetria
+NodeClass: Object
+BrowseName: 1:soltelemetria
+DisplayName: en|soltelemetria
+Description: en|soltelemetria
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

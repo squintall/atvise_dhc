@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Final_PTAR_IM.Equipos.Caudalimetro.L_Presion.Umbrales.Caudal
+NodeClass: Object
+BrowseName: 1:Caudal
+DisplayName: en|Caudal
+Description: en|Caudal
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

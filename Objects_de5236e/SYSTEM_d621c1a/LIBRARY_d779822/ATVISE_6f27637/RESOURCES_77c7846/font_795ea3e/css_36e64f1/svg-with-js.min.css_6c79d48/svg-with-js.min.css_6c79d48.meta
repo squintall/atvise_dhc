@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/font/css/svg-with-js.min.css
+NodeClass: Variable
+BrowseName: 1:svg-with-js.min.css
+DisplayName: en|svg-with-js.min.css
+Description: en|svg-with-js.min.css
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Css
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Css.Compress

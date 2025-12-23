@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="195.50999999999999" version="1.2" width="895.09000000000003" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".Volumen Diario", function(e) {
+var id = "id_13";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+]]><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".Caudal", function(e) {
+var id = "id_12";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+]]><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".Presion", function(e) {
+var id = "id_11";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+]]><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".NivelPorcentaje", function(e) {
+var id = "id_18";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+]]></script>
+ <rect atv:refpx="267.623" atv:refpy="123.962" fill="#b4b9be" height="535.255" id="id_7" stroke="none" stroke-width="2" transform="matrix(0,1,-1,0,0,0)" width="44.608" x="101.658" y="-535.255"/>
+ <rect atv:refpx="657.723" atv:refpy="123.962" fill="#b4b9be" height="40.486" id="id_14" stroke="none" stroke-width="2" transform="matrix(0,1,-1,0,0,0)" width="44.608" x="101.658" y="-677.966"/>
+ <rect atv:refpx="587.499" atv:refpy="123.962" fill="#b4b9be" height="70" id="id_10" stroke="#000000" stroke-width="2" width="100" x="536.499" y="88.962"/>
+ <rect atv:refpx="22.304" atv:refpy="50.901" fill="#b4b9be" height="101.8" id="id_0" stroke="none" stroke-width="2" width="44.608" x="0" y="0"/>
+ <polygon atv:refpx="709.108" atv:refpy="121.963" fill="#b4b9be" id="id_16" points="677.046,72.802 677.046,175.122 739.169,126.398" stroke="none" stroke-width="2"/>
+ <text atv:refpx="578.138" atv:refpy="100.955" fill="#f2f9ff" font-family="Arial" font-size="18" id="id_11" x="556.638" y="105.455">Presion</text>
+ <text atv:refpx="577.413" atv:refpy="125.775" fill="#f2f9ff" font-family="Arial" font-size="18" id="id_12" x="557.443" y="130.275">Caudal</text>
+ <text atv:refpx="573.876" atv:refpy="152.718" fill="#f2f9ff" font-family="Arial" font-size="18" id="id_13" x="540.568" y="157.218">VolumenDia</text>
+ <text atv:refpx="783.886" atv:refpy="125.14" fill="#000000" font-family="Arial" font-size="14" id="id_17" x="748.001" y="129.64">Cárc Destino</text>
+ <text atv:refpx="864.899" atv:refpy="126.466" fill="#000000" font-family="Arial" font-size="14" id="id_18" x="845.59" y="130.966">Nivel %</text>
+</svg>

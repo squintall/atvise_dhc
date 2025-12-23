@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element date object display
+ * ----------------------------------------
+ * This script supports the display showing the current date.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var dateFormat = webMI.query["dateFormat"];
+
+
+/**
+ * RUNTIME SECTION
+ */
+displayDate();
+
+
+/**
+ * FUNCTION SECTION
+ */
+function displayDate() {
+	var date = new Date();
+	var day = ("0" + date.getDate()).slice(-2);
+	var month = ("0" + (date.getMonth() + 1)).slice(-2);
+	var year = ("0" + date.getFullYear()).slice(-2);
+	var YEAR = (date.getFullYear()); //.slice(-2);
+
+	var dateString = dateFormat;
+	dateString = dateString.replace(/%Y/, YEAR);
+	dateString = dateString.replace(/%y/, year);
+	dateString = dateString.replace(/%m/, month);
+	dateString = dateString.replace(/%d/, day);
+
+	webMI.gfx.setText("date", dateString);
+	setTimeout(displayDate, 500);
+}
+]]></code>
+</script>

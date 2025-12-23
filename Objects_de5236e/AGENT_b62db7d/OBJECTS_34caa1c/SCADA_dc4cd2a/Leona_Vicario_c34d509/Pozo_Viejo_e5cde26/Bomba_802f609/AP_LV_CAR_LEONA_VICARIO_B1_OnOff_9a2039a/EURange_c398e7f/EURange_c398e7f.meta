@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Leona_Vicario.Pozo_Viejo.Bomba.AP_LV_CAR_LEONA_VICARIO_B1_OnOff.EURange
+NodeClass: Object
+BrowseName: 1:EURange
+DisplayName: en|EU range of this tag
+Description: en|EURange
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

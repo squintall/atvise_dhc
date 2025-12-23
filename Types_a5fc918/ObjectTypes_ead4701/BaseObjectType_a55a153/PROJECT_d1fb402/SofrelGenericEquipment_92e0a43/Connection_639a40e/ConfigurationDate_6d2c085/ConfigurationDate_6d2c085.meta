@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.1012.Connection.ConfigurationDate
+NodeClass: Variable
+BrowseName: 1:ConfigurationDate
+DisplayName: en|ConfigurationDate
+Description: en|ConfigurationDate
+DataType: DateTime
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseDataVariableType

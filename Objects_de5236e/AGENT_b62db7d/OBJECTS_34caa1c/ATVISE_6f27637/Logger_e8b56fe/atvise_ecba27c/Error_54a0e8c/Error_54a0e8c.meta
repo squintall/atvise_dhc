@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Logger.atvise.Error
+NodeClass: Variable
+BrowseName: 1:Error
+DisplayName: en|Error
+Description: en|Error
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.atvLogger

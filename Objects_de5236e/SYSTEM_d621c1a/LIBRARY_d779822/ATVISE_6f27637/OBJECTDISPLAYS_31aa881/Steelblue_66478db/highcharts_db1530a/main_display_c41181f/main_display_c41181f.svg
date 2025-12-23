@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="680" version="1.2" width="1280" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Main display with chart container, toolbar and legend.</desc>
+ <title>Main Display</title>
+ <metadata>
+  <atv:parameter behavior="mandatory" defaultvalue="trend1" desc="chart name" name="chartname" valuetype="string"/>
+  <atv:parameter behavior="mandatory" defaultvalue="group1" desc="chart group" name="chartgroup" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="skip default modules" name="skipDefaultModules" substitute="" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="additional modules" name="additionalModules" substitute="" valuetype="string"/>
+  <atv:parameter behavior="mandatory" defaultvalue="AGENT.OBJECTS.TrendCfg" desc="configuration node" name="configNode" valuetype="address"/>
+  <atv:parameter behavior="mandatory" defaultvalue="default" desc="config name" name="configName" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="configuration file (in filesystem)" name="configFile" valuetype="string"/>
+  <atv:parameter behavior="optional" config="Multiple nodes;Single node;File system" defaultvalue="Multiple nodes" desc="saving method" name="saveMethod" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="compression" name="saveCompressed" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="opcUA" desc="datasource" name="datasource" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="datasource options" name="datasourceOptions" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="treeView/datasources/opcua.js" desc="path to data source implementation for tree view" name="treeViewDataSourcePath" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="set caching behavior for tree view" name="treeViewNodeCacheActive" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="AGENT.OBJECTS" desc="node entry path" name="startAddress" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="100" desc="back/fwd step in percent" name="stepPercent" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="1000" desc="legend update interval (min 100ms)" name="legendOptions_updateTimeout" valuetype="number"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security: options menu" name="options_right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security: options menu" name="options_activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security: options menu" name="options_activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security: load configuration" name="load_right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security: load configuration" name="load_activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security: load configuration" name="load_activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security: save configuration" name="save_right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security: save configuration" name="save_activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security: save configuration" name="save_activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="change compression" group="Security: save configuration" name="save_changecompression" valuetype="bool"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" defaultvalue="" desc="necessary right" group="Security: export menu" name="export_right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security: export menu" name="export_activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security: export menu" name="export_activeValue" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show full node address names" group="Options" name="showfullAddressNames" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="sort configurations by name" group="Options" name="sortConfigurations" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="load configurations by selection" group="Options" name="autoloadConfigurations" valuetype="bool"/>
+  <atv:parameter behavior="optional" config="x axis;y axis;xy axis" defaultvalue="x axis" desc="zoom type" group="Options" name="zoomType" valuetype="enum"/>
+  <!-- navigation options -->
+  <atv:parameter desc="menu button line color" defaultvalue="#676767" name="gnavigation_buttonOptions_symbolStroke" group="Export-Menu" valuetype="color" behavior="optional"/>
+  <atv:parameter desc="menu button background color" defaultvalue="#ffffff" name="gnavigation_buttonOptions_theme_fill" group="Export-Menu" valuetype="color" behavior="optional"/>
+  <atv:parameter desc="menu button hover color" defaultvalue="#e6e6e6" name="gnavigation_buttonOptions_theme_states_hover_fill" group="Export-Menu" valuetype="color" behavior="optional"/>
+  <atv:parameter desc="menu button selected color" defaultvalue="#e6e6e6" name="gnavigation_buttonOptions_theme_states_select_fill" group="Export-Menu" valuetype="color" behavior="optional"/>
+  <atv:parameter desc="menu text color" defaultvalue="#000000" name="gnavigation_menuItemStyle_color" group="Export-Menu" valuetype="color" behavior="optional"/>
+  <atv:parameter desc="menu background color" defaultvalue="#ffffff" name="gnavigation_menuStyle_background" group="Export-Menu" valuetype="color" behavior="optional"/>
+  <atv:parameter desc="menu hover text color" defaultvalue="#eeeeee" name="gnavigation_menuItemHoverStyle_color" group="Export-Menu" valuetype="color" behavior="optional"/>
+  <atv:parameter desc="menu hover background color" defaultvalue="#676767" name="gnavigation_menuItemHoverStyle_background" group="Export-Menu" valuetype="color" behavior="optional"/>
+  <!-- further options -->
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <svg atv:refpx="401.875" atv:refpy="600" height="160" id="legend" transform="matrix(0.9922,0,0,1,0,0)" width="1280" x="5.039" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.highcharts.legend" y="520">
+  <atv:argument name="_trendName" prefix="chartname"/>
+  <atv:argument name="options_right" prefix="options_right"/>
+  <atv:argument name="startAddress" prefix="startAddress" value=""/>
+  <atv:argument name="showfullAddressNames" prefix="showfullAddressNames"/>
+  <atv:argument name="legendOptions_updateTimeout" prefix="legendOptions_updateTimeout"/>
+  <atv:overwrite id="id_1" transform="matrix(1.0079,0,0,1,0,0)" x="577.008"/>
+ </svg>
+ <svg atv:refpx="75.5" atv:refpy="20" height="30" id="toolbar" width="141" x="5" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.highcharts.toolbar" y="5">
+  <atv:argument name="optionsBtnMode" value="pop-up"/>
+  <atv:argument name="triggerName" value="com.atvise.highchart_options"/>
+  <atv:argument name="chartname" prefix="chartname"/>
+  <atv:argument name="options_right" prefix="options_right"/>
+  <atv:argument name="options_activeNode" prefix="options_activeNode"/>
+  <atv:argument name="options_activeValue" prefix="options_activeValue"/>
+  <atv:argument name="load_right" prefix="load_right"/>
+  <atv:argument name="load_activeNode" prefix="load_activeNode"/>
+  <atv:argument name="load_activeValue" prefix="load_activeValue"/>
+  <atv:argument name="save_right" prefix="save_right"/>
+  <atv:argument name="save_activeNode" prefix="save_activeNode"/>
+  <atv:argument name="save_activeValue" prefix="save_activeValue"/>
+  <atv:argument name="export_right" prefix="export_right"/>
+  <atv:argument name="export_activeNode" prefix="export_activeNode"/>
+  <atv:argument name="export_activeValue" prefix="export_activeValue"/>
+  <atv:argument name="save_changecompression" prefix="save_changecompression"/>
+  <atv:argument name="startAddress" prefix="startAddress" value=""/>
+  <atv:argument name="treeViewDataSourcePath" prefix="treeViewDataSourcePath" value=""/>
+  <atv:argument name="treeViewNodeCacheActive" prefix="treeViewNodeCacheActive" value=""/>
+ </svg>
+ <svg atv:refpx="640" atv:refpy="280" height="400" id="highcharts" transform="matrix(3.175,0,0,1.2,0,0)" width="400" x="1.575" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.highcharts.highcharts" y="33.333">
+  <atv:argument name="gshowExportMenu" value="true"/>
+  <atv:argument name="trendName" prefix="chartname"/>
+  <atv:argument name="trendGroup" prefix="chartgroup"/>
+  <atv:argument name="gatviseOptions_configNode" prefix="configNode"/>
+  <atv:argument name="gatviseOptions_configName" prefix="configName"/>
+  <atv:argument name="export_right" prefix="export_right"/>
+  <atv:argument name="gatviseOptions_configFile" prefix="configFile"/>
+  <atv:argument name="gatviseOptions_saveMethod" prefix="saveMethod"/>
+  <atv:argument name="gatviseOptions_saveCompressed" prefix="saveCompressed"/>
+  <atv:argument name="gatviseOptions_source" prefix="datasource"/>
+  <atv:argument name="gatviseOptions_sourceOptions" prefix="datasourceOptions"/>
+  <atv:argument name="skipDefaultModules" prefix="skipDefaultModules"/>
+  <atv:argument name="additionalModules" prefix="additionalModules"/>
+  <atv:argument name="zoomType" prefix="zoomType"/>
+  <!-- navigation options -->
+  <atv:argument name="gnavigation_buttonOptions_symbolStroke" prefix="gnavigation_buttonOptions_symbolStroke"/>
+  <atv:argument name="gnavigation_buttonOptions_theme_fill" prefix="gnavigation_buttonOptions_theme_fill"/>
+  <atv:argument name="gnavigation_buttonOptions_theme_states_hover_fill" prefix="gnavigation_buttonOptions_theme_states_hover_fill"/>
+  <atv:argument name="gnavigation_buttonOptions_theme_states_select_fill" prefix="gnavigation_buttonOptions_theme_states_select_fill"/>
+  <atv:argument name="gnavigation_menuStyle_background" prefix="gnavigation_menuStyle_background"/>
+  <atv:argument name="gnavigation_menuItemStyle_color" prefix="gnavigation_menuItemStyle_color"/>
+  <atv:argument name="gnavigation_menuItemHoverStyle_background" prefix="gnavigation_menuItemHoverStyle_background"/>
+  <atv:argument name="gnavigation_menuItemHoverStyle_color" prefix="gnavigation_menuItemHoverStyle_color"/>
+  <!-- further options -->
+  <atv:overwrite id="label" transform="matrix(0.315,0,0,0.8333,0,0)" x="480" y="251"/>
+  <atv:argument name="export_activeNode" prefix="export_activeNode"/>
+  <atv:argument name="export_activeValue" prefix="export_activeValue"/>
+  <atv:overwrite height="478" id="border" transform="matrix(0.315,0,0,0.8333,0,0)" width="1268"/>
+  <atv:overwrite height="480" id="id_3" transform="matrix(0.315,0,0,0.8333,0,0)" width="1270"/>
+ </svg>
+ <svg atv:refpx="728.125" atv:refpy="15" height="30" id="button_back" width="50" x="705" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.highcharts.button_back_small" y="5">
+  <atv:argument name="chartname" prefix="chartname"/>
+  <atv:argument name="stepPercent" prefix="stepPercent"/>
+ </svg>
+ <svg atv:refpx="1248.75" atv:refpy="20" height="30" id="button_forward" width="50" x="1225" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.highcharts.button_forward_small" y="5">
+  <atv:argument name="chartname" prefix="chartname"/>
+  <atv:argument name="options_right" prefix="options_right"/>
+  <atv:argument name="stepPercent" prefix="stepPercent"/>
+ </svg>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.highcharts.main_display" atv:name="main_display" atv:type="text/ecmascript"/>
+ <svg atv:refpx="989.5" atv:refpy="20" height="30" id="datePickers" width="459" x="760" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.highcharts.buttons_start_end_time" y="5">
+  <atv:argument name="chartname" prefix="chartname"/>
+ </svg>
+ <svg atv:refpx="280" atv:refpy="20" height="30" id="configurationCombobox" width="260" x="150" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.highcharts.button_config" y="5">
+  <atv:argument name="chartname" prefix="chartname"/>
+  <atv:argument name="export_right" prefix="export_right"/>
+  <atv:argument name="sortConfigurations" prefix="sortConfigurations"/>
+  <atv:argument name="autoloadConfigurations" prefix="autoloadConfigurations"/>
+  <atv:argument name="zoomType" prefix="zoomType"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

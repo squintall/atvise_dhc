@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.realm
+NodeClass: Variable
+BrowseName: 1:realm
+DisplayName: en|realm
+Description: en|realm
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/* ============================================================================
+   Header Sparkline + Conectividad: Histórico 12h (QF) + Tiempo Real (RT)
+   IDs esperados en el SVG: tk_svg, tk_line, tk_area, tk_dot, tk_pct, tk_fill,
+                            tk_now, tk_minv, tk_maxv, tk_cnt
+   Header/Conn IDs: hdr_name, hdr_key, hdr_resp, conn_ip, conn_box,
+                    conn_state, conn_quality, conn_value, conn_code,
+                    conn_hint, conn_since, chip_power
+   ========================================================================== */
+
+/* --------- Base y nodos por defecto (como nivel) --------- */
+var BASE   = (webMI && webMI.query && (webMI.query.base || webMI.query["base"])) || "";
+var ADDR_H = BASE + ".historic_level_percent";  // histórico ya muestreado en backend
+var ADDR_R = BASE + ".level_percent";           // tiempo real
+
+/* --------- Config histórico --------- */
+var INTERVAL_MIN = 5;                  // minutos por muestra en QF
+var HOURS        = 12;                 // rango default
+var MAX_POINTS   = Math.ceil((HOURS*60)/Math.max(1,INTERVAL_MIN));
+
+/* --------- Buffers --------- */
+var hist = [];          // valores %
+var histTS = [];        // timestamps ms UNIX
+var histStartTs = 0;
+var histEndTs   = 0;
+
+/* --------- Helpers --------- */
+function $(id){ return document.getElementById(id); }
+function clamp(n,a,b){ n = parseFloat(n)||0; if(n<a) n=a; if(n>b) n=b; return n; }
+function rgba(hex, a){
+  var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex||"#000000");
+  var r = parseInt(m[1],16), g=parseInt(m[2],16), b=parseInt(m[3],16);
+  return "rgba("+r+","+g+","+b+","+a+")";
+}
+function setTextById(id, txt){
+  try { webMI.gfx.setText(id, (txt==null? "—" : String(txt))); return; } catch(_){}
+  var el = $(id); if (el) el.textContent = (txt==null? "—" : String(txt));
+}
+function setBorderById(id, color){
+  var el = $(id); if(!el) return;
+  try { el.style.borderColor = color; } catch(_){}
+}
+
+/* --------- Theme (AP/AR) --------- */
+var ACTIVE_AP="#4dc3ff", ACTIVE_AR="#b9d8a9";
+var esAP = BASE.indexOf("Circuito") >= 0;
+var baseCol = esAP ? ACTIVE_AP : ACTIVE_AR;
+var THEME = { water: rgba(baseCol,0.45), area: rgba(baseCol,0.25), line: esAP ? "#0b78d1" : "#2e7d32" };
+
+/* --------- Geometría sparkline --------- */
+var W = 240, H = 240, PADX = 0, BASEY = H, TOPY = 0;
+
+/* --------- Refs DOM --------- */
+function refs(){
+  return {
+    svg  : $("tk_svg"),
+    line : $("tk_line"),
+    area : $("tk_area"),
+    dot  : $("tk_dot"),
+    pct  : $("tk_pct"),
+    fill : $("tk_fill"),
+    nowL : $("tk_now"),
+    minL : $("tk_minv"),
+    maxL : $("tk_maxv"),
+    cntL : $("tk_cnt")
+  };
+}
+
+/* --------- Aplica tema (retry corto) --------- */
+function applyTheme(){
+  var tries = 0;
+  (function step(){
+    var r = refs();
+    if (r.svg && r.fill && r.line && r.area){
+      r.svg.style.background = "transparent";
+      r.svg.style.zIndex = "3";
+      r.fill.style.zIndex = "2";
+      r.fill.style.background = THEME.water;
+      r.fill.style.borderTop = "1px solid " + rgba(baseCol,0.6);
+      r.fill.style.willChange = "height";
+      r.area.setAttribute("fill", THEME.area);
+      r.line.setAttribute("stroke", THEME.line);
+      r.line.setAttribute("stroke-width","2.5");
+      r.line.setAttribute("stroke-linecap","round");
+      r.line.setAttribute("stroke-linejoin","round");
+      return;
+    }
+    if (tries++ < 30) setTimeout(step, 100);
+  })();
+}
+applyTheme();
+
+/* --------- Pintado en vivo --------- */
+function paintRT(v){
+  var r = refs(), val = clamp(v,0,100);
+  if (r.pct ) r.pct.textContent = Math.round(val) + "%";
+  if (r.nowL) r.nowL.textContent = val.toFixed(1) + " %";
+  if (r.fill) r.fill.style.height = val + "%";
+}
+
+/* --------- Dibujo de paths --------- */
+function buildPaths(series){
+  var r = refs();
+  if (!r.line || !r.area || !r.dot) return;
+
+  if(!series || !series.length){
+    r.line.setAttribute("d",""); r.area.setAttribute("d","");
+    r.dot.setAttribute("cx","-10"); r.dot.setAttribute("cy","-10");
+    if (r.minL) r.minL.textContent = "-- %";
+    if (r.maxL) r.maxL.textContent = "-- %";
+    if (r.cntL) r.cntL.textContent = "0";
+    return;
+  }
+
+  // extremos de datos (en %)
+  var vals = new Array(series.length);
+  var vminData = +Infinity, vmaxData = -Infinity;
+  for (var i=0;i<series.length;i++){
+    var v = clamp(series[i],0,100);
+    vals[i] = v;
+    if (v < vminData) vminData = v;
+    if (v > vmaxData) vmaxData = v;
+  }
+
+  // mapping 0..100 -> 240..0
+  var vmin = 0, vmax = 100;
+  var k  = (BASEY - TOPY) / (vmax - vmin);
+  var dx = (W - 2*PADX) / Math.max(1, vals.length - 1);
+
+  var xs = new Array(vals.length), ys = new Array(vals.length);
+  for(var j=0;j<vals.length;j++){
+    xs[j] = PADX + j*dx;
+    ys[j] = BASEY - (vals[j] - vmin) * k;
+  }
+
+  var d = "M"+xs[0]+","+ys[0];
+  for(var k2=1;k2<xs.length;k2++) d += "L"+xs[k2]+","+ys[k2];
+  var a = d + "L"+xs[xs.length-1]+","+BASEY+"L"+xs[0]+","+BASEY+"Z";
+
+  r.line.setAttribute("d", d);
+  r.area.setAttribute("d", a);
+  r.dot.setAttribute("cx", xs[xs.length-1]);
+  r.dot.setAttribute("cy", ys[ys.length-1]);
+
+  if (r.minL) r.minL.textContent = vminData.toFixed(1)+" %";
+  if (r.maxL) r.maxL.textContent = vmaxData.toFixed(1)+" %";
+  if (r.cntL) r.cntL.textContent = String(vals.length);
+}
+
+/* --------- Empuja RT a spark --------- */
+function pushRTtoSpark(v){
+  if (!Array.isArray(hist) || !hist.length) return;
+  var val = clamp(v,0,100);
+  hist.push(val);
+  histTS.push(Date.now());
+  if (hist.length > MAX_POINTS){ hist.shift(); histTS.shift(); }
+  buildPaths(hist);
+}
+
+/* --------- Histórico (12h) --------- */
+function loadHistoricQF12h(){
+  var now  = Date.now();
+  var from = now - HOURS*60*60*1000;
+
+  var f = {
+    type     : ["v:1"],
+    address  : ["g:"+ADDR_H],
+    select   : ["v:timestamp","v:value"],
+    numrows  : ["v:"+MAX_POINTS],
+    timestamp: ["n:>=" + from, "n:<" + now],
+    order    : ["v:desc"]
+  };
+
+  function fixTs(ts){
+    var n = Number(ts);
+    return (n && n < 1e12) ? (n * 1000) : n;  // s -> ms si aplica
+  }
+
+  try{
+    webMI.data.queryFilter(f, function(res){
+      if (!res || !res.result){ hist=[]; histTS=[]; buildPaths([]); return; }
+
+      var rows = res.result;
+      var rawTs   = rows.map(r => (r && (r.timestamp ?? (Array.isArray(r) ? r[0] : null))));
+      var rawVals = rows.map(r => (r && (r.value     ?? (Array.isArray(r) ? r[1] : null))));
+
+      var convTs   = rawTs.map(fixTs);
+      var convVals = rawVals.map(v => (v==null ? null : clamp(Number(v),0,100)));
+
+      var vv=[], tt=[];
+      for (var j=0;j<convVals.length;j++){
+        if (convTs[j]!=null && !isNaN(convTs[j]) && convVals[j]!=null && !isNaN(convVals[j])){
+          vv.push(convVals[j]); tt.push(convTs[j]);
+        }
+      }
+
+      if (tt.length>=2 && tt[0] > tt[tt.length-1]) { vv.reverse(); tt.reverse(); }
+      if (vv.length > MAX_POINTS){ vv = vv.slice(-MAX_POINTS); tt = tt.slice(-MAX_POINTS); }
+
+      hist = vv; histTS = tt;
+      histStartTs = histTS[0] || 0;
+      histEndTs   = histTS[histTS.length-1] || 0;
+
+      buildPaths(hist);
+    });
+  }catch(e){
+    try{ console.error("[HeaderSpark] QF ERROR:", e && e.message, e); }catch(_){}
+  }
+}
+
+/* --------- Refresco alineado a :00, :05, :10, ... --------- */
+function startAlignedHistoryRefresh(){
+  loadHistoricQF12h();
+
+  try { if (window.__HIST_TIMER) clearInterval(window.__HIST_TIMER); } catch(_){}
+  try { if (window.__HIST_ALIGN_T) clearTimeout(window.__HIST_ALIGN_T); } catch(_){}
+
+  var step = INTERVAL_MIN * 60 * 1000;
+  var now  = Date.now();
+  var next = Math.ceil(now / step) * step;
+  var delay = Math.max(50, next - now + 50);
+
+  window.__HIST_ALIGN_T = setTimeout(function(){
+    loadHistoricQF12h();
+    window.__HIST_TIMER = setInterval(loadHistoricQF12h, step);
+  }, delay);
+}
+startAlignedHistoryRefresh();
+
+/* --------- RT: pintado + empuje a spark --------- */
+try{
+  webMI.data.read(ADDR_R, function(r){ if (r && typeof r.value!=="undefined") paintRT(r.value); });
+  webMI.data.subscribe(ADDR_R, function(e){
+    var v = e && e.value;
+    if (typeof v === "undefined" || v===null) return;
+    paintRT(v);
+    pushRTtoSpark(v);
+  });
+}catch(e){}
+
+/* ===================== Conectividad + Header ===================== */
+var HINTS = {
+  2150760448: "Esperando datos iniciales",
+  1083179008: "Último valor usable (incierto)",
+  2150694912: "Sin comunicación con el PLC",
+  2147483648: "Error desconocido (Bad)"
+};
+var CONN_COLORS = {
+  ok:"#1a8b22", down:"#ff0000", waiting:"#7c1536", lastUsable:"#883fb2",
+  transition:"#954120", unavailable:"#9ca3af", unknownError:"#ff8f05",
+  unknownState:"#000000", ack:"#fde047"
+};
+
+/* Header básico (nombres/IP) + pill de energía + estado de comunicación */
+function initHeaderAndConnectivity(){
+  var base = BASE;
+
+  // Header: textos básicos
+  try { webMI.data.read(base + ".short_name",  function(e){ setTextById("hdr_name", (e && e.value!=null) ? e.value : "—"); }); }catch(_){}
+  try { webMI.data.read(base + ".sap_name",    function(e){ setTextById("hdr_key",  (e && e.value!=null) ? e.value : "—"); }); }catch(_){}
+  try { webMI.data.read(base + ".Responsable", function(e){ setTextById("hdr_resp", (e && e.value!=null) ? e.value : "—"); }); }catch(_){}
+
+  // IP
+  try {
+    webMI.data.read(base + ".ip", function(e){
+      setTextById("conn_ip", (e && e.value!=null) ? e.value : "—");
+    });
+  }catch(_){}
+
+  // ===== Alimentación (pill) =====
+  var COL_POWER = {
+    CFE   : {bg:"#ecfdf5", bd:"#34d399", fg:"#065f46", txt:"CFE"},
+    PE    : {bg:"#e0f2fe", bd:"#38bdf8", fg:"#075985", txt:"Planta"},
+    UPS   : {bg:"#fef9c3", bd:"#fde047", fg:"#713f12", txt:"UPS"},
+    ERROR : {bg:"#fee2e2", bd:"#ef4444", fg:"#991b1b", txt:"ERROR"}
+  };
+  function paintPill(id, cfg){
+    var el = $(id); if(!el) return;
+    el.textContent = cfg.txt;
+    el.style.background = cfg.bg;
+    el.style.borderColor = cfg.bd;
+    el.style.color = cfg.fg;
+  }
+  function setPower(val){
+    var cfg = COL_POWER.CFE;
+    if (val === 2) cfg = COL_POWER.PE;
+    else if (val === 3) cfg = COL_POWER.UPS;
+    else if (val === 4) cfg = COL_POWER.ERROR;
+    else if (val === 1) cfg = COL_POWER.CFE;
+    paintPill("chip_power", cfg);
+    if (val === 4) setBorderById("conn_box", cfg.bd);
+  }
+  try {
+    webMI.data.read(base + ".energy", function(r){
+      if (!r || typeof r.value === "undefined") { setPower(0); return; }
+      setPower(r.value);
+      webMI.data.subscribe(base + ".energy", function(e){ setPower(e && e.value); });
+    });
+  }catch(_){ setPower(0); }
+
+  // ===== Conectividad (pinta marco + textos) =====
+  function updateConnectivity(alarmEvt){
+    webMI.data.read(base + ".connectivity", function(cn){
+      var status = cn && cn.status;
+      var value  = cn && cn.value;
+
+      var fill  = CONN_COLORS.unavailable, state="—", hint="—", quality="—";
+      var code  = (status!=null) ? String(status) : "—";
+
+      if (status === 0){
+        if (value === true){ fill = CONN_COLORS.ok;   state="Con comunicación"; quality="Good"; }
+        else               { fill = CONN_COLORS.down; state="Sin comunicación"; quality="Bad"; }
+      } else if (status === undefined){
+        fill = CONN_COLORS.unavailable; state="No disponible";
+      } else if (status === 2150760448){
+        fill = CONN_COLORS.waiting;     state="En espera de datos"; hint="BadWaitingForInitialData"; quality="Bad";
+      } else if (status === 1083179008){
+        fill = CONN_COLORS.lastUsable;  state="Último valor recibido"; hint="UncertainLastUsableValue"; quality="Uncertain";
+      } else if (status === 2150694912){
+        fill = CONN_COLORS.down;        state="Sin comunicación"; hint="BadNoCommunication"; quality="Bad";
+      } else if (status === 2147483648){
+        fill = CONN_COLORS.unknownError; state="Error desconocido"; hint="Bad"; quality="Bad";
+      } else {
+        fill = CONN_COLORS.unknownState; state="Estado desconocido";
+      }
+      if (alarmEvt && alarmEvt.state === 2){ fill = CONN_COLORS.transition;  state="Transición"; }
+      if (alarmEvt && alarmEvt.state === 3 && value){ fill = CONN_COLORS.ok; state="Con comunicación"; }
+      if (alarmEvt && alarmEvt.state === 5){ fill = CONN_COLORS.ack; }
+
+      if (status === 0) {
+        hint = value === true ? "OK" : "Revisar código";
+      } else if (status in HINTS) {
+        hint = HINTS[status];
+      } else if (status === undefined) {
+        hint = "No disponible";
+      }
+
+      setBorderById("conn_box", fill);
+      setTextById("conn_state",   state);
+      setTextById("conn_quality", quality);
+      setTextById("conn_value",   (value===true)?"true":(value===false)?"false": String(value));
+      setTextById("conn_code",    code);
+      setTextById("conn_hint",    hint);
+      setTextById("conn_since",   new Date().toLocaleTimeString());
+    });
+  }
+
+  try { updateConnectivity(null); }catch(_){}
+  try { webMI.alarm.subscribe(base + ".com.Comunicacion.Fallo", function(al){ updateConnectivity(al); }); } catch(_){}
+}
+initHeaderAndConnectivity();
+
+/* ===================== Energía (V, I, P, FP) ===================== */
+function wireEnergy(){
+  const N = (s) => BASE + s;
+  function txt(id, s){ try{ document.getElementById(id).textContent = (s ?? "—"); }catch(_){} }
+  function fmtV(v){ if (typeof v!=="number" || isNaN(v)) return "—"; return Math.round(v) + " V"; }
+  function fmtA(v){ if (typeof v!=="number" || isNaN(v)) return "—"; return v.toFixed(1) + " A"; }
+  function fmtFP(v){
+    if (typeof v!=="number" || isNaN(v)) return "—";
+    if (v > 1.2) v = v/100;
+    if (v < 0) v = 0; if (v > 1) v = 1;
+    return v.toFixed(2);
+  }
+  function fmtP(v){
+    if (typeof v!=="number" || isNaN(v)) return "—";
+    if (Math.abs(v) < 1000) return Math.round(v) + " W";
+    return (v/1000).toFixed(1) + " kW";
+  }
+  function bind(node, formatter, id){
+    try{ webMI.data.read(node, function(r){ if (r && typeof r.value !== "undefined") txt(id, formatter(r.value)); }); }catch(_){}
+    try{ webMI.data.subscribe(node, function(e){ txt(id, formatter(e && e.value)); }); }catch(_){}
+  }
+  // Voltajes L–L
+  bind(N(".Voltaje_L1-L2"), fmtV, "en_v12");
+  bind(N(".Voltaje_L2-L3"), fmtV, "en_v23");
+  bind(N(".Voltaje_L3-L1"), fmtV, "en_v31");
+  // Corrientes por fase
+  bind(N(".Corriente_L1"), fmtA, "en_i1");
+  bind(N(".Corriente_L2"), fmtA, "en_i2");
+  bind(N(".Corriente_L3"), fmtA, "en_i3");
+  // Potencia activa y FP
+  bind(N(".Potencia_Activa"), fmtP,  "en_p");
+  bind(N(".FP"),              fmtFP, "en_fp");
+}
+wireEnergy();
+]]></code>
+</script>

@@ -1,0 +1,489 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="590" version="1.2" width="1024" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <svg atv:refpx="276.665" atv:refpy="145.003" height="600" id="circuito_1" transform="matrix(0.6917,0,0,0.4833,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="0">
+  <atv:argument name="frameName" value="circuito_1"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="display" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Control"/>
+ </svg>
+ <svg atv:refpx="831.502" atv:refpy="144.987" height="600" id="control_1" transform="matrix(0.6924,0,0,0.4833,0,0)" width="800" x="795.979" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="0">
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="control_1"/>
+  <atv:argument name="display" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_006.Control"/>
+ </svg>
+ <svg atv:refpx="1516.447" atv:refpy="512.211" height="600" id="topologia" transform="matrix(1.0188,0,0,0.975,0,0)" width="800" x="1084.663" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="312.821">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Circuitos.Circuito_CAP_Carcamo_Intermedio"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+ </svg>
+ <svg atv:refpx="276.683" atv:refpy="435.014" height="600" id="circuito_2" transform="matrix(0.6917,0,0,0.4833,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="599.962">
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="circuito_2"/>
+  <atv:argument name="display" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_012.Control"/>
+ </svg>
+ <svg atv:refpx="831.501" atv:refpy="435.004" height="600" id="control_2" transform="matrix(0.6924,0,0,0.4833,0,0)" width="800" x="795.979" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="600.003">
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="control_2"/>
+  <atv:argument name="display" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_002.Control"/>
+ </svg>
+ <svg atv:refpx="276.683" atv:refpy="735.048" height="600" id="circuito_3" transform="matrix(0.6917,0,0,0.5167,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="1122.364">
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="circuito_3"/>
+  <atv:argument name="display" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_011.Control"/>
+ </svg>
+ <svg atv:refpx="831.501" atv:refpy="735.072" height="600" id="control_3" transform="matrix(0.6924,0,0,0.5167,0,0)" width="800" x="795.979" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="1122.508">
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="frameName" value="control_3"/>
+  <atv:argument name="display" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_001.Control"/>
+ </svg>
+ <foreignObject height="305" id="mapa" width="815" x="1105" y="0">
+  <div style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml"/>
+ </foreignObject>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[//----------------Inicializo variables -------------------//
+
+
+//Variable interna
+var Info_Windowact=false;
+var Markeract=false;
+var Markeractdc;
+var Markers= new Array();
+var Rutas= new Array();
+var Pos_origen;
+var Pos_destination;
+var WayPoints = new Array();
+
+var google = webMI.rootWindow.google; //Clase Principal
+var map; //Variable donde va a vivir el mapa
+var m,n;
+var circuito =
+	[[20.626959653495383, -87.08309798083616],
+	 [20.619924377818183, -87.09001413054767],
+	 [20.633428993736562, -87.07689460949538],
+	 [20.639972888983102, -87.07089472638611],	 
+	 [20.647660204469954, -87.06471739151733],	 
+	 [20.640534939933175, -87.09582209819163],				
+	 [20.64045081010522, -87.09523325445339],	 
+	 [20.657057616804302, -87.08052634567784],
+	 [20.688268076433992, -87.05631333693968],
+	 [20.688100167116897, -87.05659609621588],
+	 [20.66978582484261, -87.10696052271985],
+	 [20.671446937945404, -87.0900605909811],	 
+	 [20.650379193110428, -87.1091465305157],
+	 [20.6788245038729, -87.12686385564015],	 
+	 [20.691455616592272, -87.04773700438193],
+	 [20.62587732242582, -87.10383510721105],
+	 [20.6633982024213, -87.14396456630527]]
+
+					
+var circuito_s =
+	[[{lat:20.626959653495383, lng:-87.08309798083616},
+	"Cárcamo 1, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_001",
+	1, "startpoint"],
+	[{lat:20.619924377818183, lng:-87.09001413054767},
+	"Cárcamo 2, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_002",
+	2, "midpoint"],
+	[{lat:20.633428993736562, lng:-87.07689460949538},
+	"Cárcamo 3, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_003",
+	3, "endpoint"],
+	[{lat:20.639972888983102, lng:-87.07089472638611},
+	"Cárcamo 4, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_004",
+	4, "startpoint"],
+	[{lat:20.647660204469954, lng:-87.06471739151733},
+	"Cárcamo 5, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_005",
+	5, "midpoint"],
+	[{lat:20.640534939933175, lng:-87.09582209819163},
+	"Cárcamo 6, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_006",
+	6, "endpoint"],
+	[{lat:20.64045081010522, lng:-87.09523325445339},
+	"Desaladora 6, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Desaladora_006",
+	7, "endpoint"],
+	[{lat:20.657057616804302, lng:-87.08052634567784},
+	"Cárcamo 7, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_007",
+	8, "startpoint"],
+	[{lat:20.688268076433992, lng:-87.05631333693968},
+	"Cárcamo 8, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_008",
+	9, "endpoint"],
+	[{lat:20.688100167116897, lng:-87.05659609621588},
+	"Desaladora 8, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Desaladora_008",
+	10, "endpoint"],
+	[{lat:20.66978582484261, lng:-87.10696052271985},
+	"Cárcamo 9, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_009",
+	11, "endpoint"],
+	[{lat:20.671446937945404, lng:-87.0900605909811},
+	"Cárcamo 10, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_010",
+	12, "endpoint"],
+	[{lat:20.650379193110428, lng:-87.1091465305157},
+	"Cárcamo 11, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_011",
+	13, "endpoint"],
+	[{lat:20.6788245038729, lng:-87.12686385564015},
+	"Cárcamo 12, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_012",
+	14, "endpoint"],
+	[{lat:20.691455616592272, lng:-87.04773700438193},
+	"Cárcamo 15, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_015",
+	15, "midpoint"],
+	[{lat:20.62587732242582, lng:-87.10383510721105},
+	"Cárcamo Diamante, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Diamante",
+	16, "endpoint"],
+	[{lat:20.6633982024213, lng:-87.14396456630527},
+	"Cárcamo Intermedio, Agua Potable",
+	"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio",
+	17, "endpoint"]];
+					
+var infowindow;					
+var circuito_centro;
+const symbolSofrel = "/icons/carcamo_31_40px.png";
+
+
+
+//----------------Ejecución -------------------//
+
+
+
+//Determinación del dispositivo
+var infoCliente;
+infoCliente = new webMI.getClientInfo();
+
+//Preprocesamiento de variables
+
+//Calculo del Centro
+var suma=[0,0];
+for (var i=0; i<circuito.length; i++){
+	suma[0]=suma[0]+circuito[i][0]; //Latitud 
+	suma[1]=suma[1]+circuito[i][1]; //Longitud
+}
+
+circuito_centro=[suma[0]/circuito.length,suma[1]/circuito.length];
+
+
+webMI.addOnload(function() {
+	
+	//Posiciones en el mapa
+	var position1 = new google.maps.LatLng(circuito_centro[0], circuito_centro[1]);
+	
+	//Opciones del mapa
+	var myOptions = {
+		zoom: 12,
+		center: position1,
+		mapTypeId: google.maps.MapTypeId.roadmap
+	};
+	
+
+	//Inicializo el mapa
+	map = new google.maps.Map(document.getElementById("mapa"), myOptions);
+	
+	
+		
+	
+		
+	// Instantiate an info window to hold step text.
+	const stepDisplay = new google.maps.InfoWindow();
+	
+	
+	//-------Inicializo Marcadores
+	
+	circuito_s.forEach(([position,title,object,order,type],i) =>{
+		const marker = new google.maps.Marker({
+			position, 
+			map,
+			icon: symbolSofrel,
+			title: ` ${order}`,
+			optimized: false,
+		});
+		
+		marker.setMap(map);
+		
+		//Agrego marcador a lista de marcadores
+		Markers.push(marker);
+	
+		//-------Listener de Marcadores
+		
+		//DOBLECLICK (Fija Carcamo)
+		google.maps.event.addListener(marker,'dblclick',function(event) {
+					
+			//Condición para abrir los displays dependiendo del tipo
+			//######################################################################################
+			if (type == 'startpoint'){
+			//_______________________________________________________________________________________
+			//Abrir display en frame de la izquierda, en la primera posición, relativo a la base		
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Eslabon",
+			{base:   object}, "circuito_1");
+
+			//Abrir display no relativo al object type en el frame de en medio en la primera posición
+			webMI.display.openDisplay( object + ".Control",
+			webMI.query, "control_1");
+			map.panTo(this.getPosition());
+			map.setZoom(14);
+			
+			
+			//Condición para no mostrar un endpoint o startpoint en la segunda fila, por las posiciones que ocupa en el array
+			m=1;	
+				while((circuito_s[i+m][4] != 'midpoint') && ((i+m) < (circuito_s.leght-1))){
+				m++;
+				}
+			//________________________________________________________________________________________
+			//Abrir display en frame de la izquierda, en la segunda posición, relativo a la base	
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Eslabon",
+			{base:   circuito_s[i+m][2]}, "circuito_2");
+
+			
+			//Abrir display no relativo al object type en el frame de en medio en la segunda posición
+			webMI.display.openDisplay( circuito_s[i+m][2] + ".Control",
+			webMI.query, "control_2");
+			
+			//Condición para no mostrar un endpoint o startpoint en la tercera fila, por las posiciones que ocupa en el array
+			n=2;						
+				while((circuito_s[i+n][4] != 'midpoint') || (n == m)){
+				n++;
+				}
+		
+			
+			//_____________________________________________________________________________________
+			//Abrir display en frame de la izquierda, en la tercera posición, relativo a la base		
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Eslabon",
+			{base:   circuito_s[i+n][2]}, "circuito_3");
+		
+
+			
+			//Abrir display no relativo al object type en el frame de en medio en la tercera posición
+			webMI.display.openDisplay( circuito_s[i+n][2] + ".Control",
+			webMI.query, "control_3");
+			
+			//#######################################################################################
+				
+			} else if (type == 'midpoint'){
+			//_______________________________________________________________________________________
+			//Abrir display en frame de la izquierda, en la primera posición, relativo a la base		
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Eslabon",
+			{base:   object}, "circuito_2");
+			
+			//Abrir display no relativo al object type en el frame de en medio en la primera posición
+			webMI.display.openDisplay( object + ".Control",
+			webMI.query, "control_2");
+			map.panTo(this.getPosition());
+			map.setZoom(14);
+			
+			
+			//Condición para no mostrar un endpoint o startpoint en la primera fila, por las posiciones que ocupa en el array
+			 m=1;	
+				while((circuito_s[i-m][4] != 'midpoint') && ((i-m) > 0)){
+				m++;
+				}
+				
+				
+					
+			//________________________________________________________________________________________
+			//Abrir display en frame de la izquierda, en la segunda posición, relativo a la base		
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Eslabon",
+			{base:   circuito_s[i-m][2]}, "circuito_1");
+
+			
+			//Abrir display no relativo al object type en el frame de en medio en la segunda posición
+			webMI.display.openDisplay( circuito_s[i-m][2] + ".Control",
+			webMI.query, "control_1");
+			
+			
+			//Condición para no mostrar un endpoint o startpoint en la primera fila, por las posiciones que ocupa en el array
+			 n=1;	
+			while((circuito_s[i+n][4] != 'midpoint') && ((i+n) < (circuito_s.length-1))){
+					n++;
+				}
+				
+			//_____________________________________________________________________________________
+			//Abrir display en frame de la izquierda, en la tercera posición, relativo a la base		
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Eslabon",
+			{base:   circuito_s[i+n][2]}, "circuito_3");
+			
+
+			
+			//Abrir display no relativo al object type en el frame de en medio en la tercera posición
+			webMI.display.openDisplay( circuito_s[i+n][2] + ".Control",
+			webMI.query, "control_3");
+			
+			//##########################################################################################
+			
+			} else if (type == 'endpoint'){
+			//_______________________________________________________________________________________
+			//Abrir display en frame de la izquierda, en la tercera posición, relativo a la base		
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Eslabon",
+			{base:   object}, "circuito_3");
+			
+			//Abrir display no relativo al object type en el frame de en medio en la tercera posición
+			webMI.display.openDisplay( object + ".Control",
+			webMI.query, "control_3");
+			map.panTo(this.getPosition());
+			map.setZoom(14);
+			
+			
+			//Condición para no mostrar un endpoint o startpoint en la segunda fila, por las posiciones que ocupa en el array
+			 m=1;	
+				while((circuito_s[i-m][4] != 'midpoint') && ((i-m) > 0)){
+				m++;
+				}
+			
+			//________________________________________________________________________________________
+			//Abrir display en frame de la izquierda, en la segunda posición, relativo a la base		
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Eslabon",
+			{base:   circuito_s[i-m][2]}, "circuito_2");
+
+			
+			//Abrir display no relativo al object type en el frame de en medio en la segunda posición
+			webMI.display.openDisplay( circuito_s[i-m][2] + ".Control",
+			webMI.query, "control_2");
+			
+			
+			
+			//Condición para no mostrar un endpoint o startpoint en la tercera fila, y no repetir midpoint
+			n=2;			
+				while( (n == m)  || ((circuito_s[i-n][4] != 'midpoint') &&  ((i-n) > 0)) ){
+				n++;
+				}
+			
+			//_____________________________________________________________________________________
+			//Abrir display en frame de la izquierda, en la primera posición, relativo a la base		
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Eslabon",
+			{base:   circuito_s[i-n][2]}, "circuito_1");
+			
+			//Abrir display no relativo al object type en el frame de en medio en la primera posición
+			webMI.display.openDisplay( circuito_s[i-n][2] + ".Control",
+			webMI.query, "control_1");
+			}
+			
+			
+			/*
+			//Abrir display en frame de la izquierda, en la primera posición, relativo a la base		
+			webMI.display.openDisplay("SYSTEM.DISPLAYS.Circuito.Eslabon",
+			{base:   object}, "circuito_1");
+			
+			//Abrir display no relativo al object type en el frame de en medio
+			webMI.display.openDisplay( object + ".Control",
+			webMI.query, "control_1");
+			map.panTo(this.getPosition());
+			map.setZoom(14);*/
+
+			Markeract=true;
+			Markeractdc=marker;
+			Pos_origen=position;
+		
+			
+			//Limpio
+			Elimina_Ruta(Rutas);
+				
+		});
+	/*	map.addListener("zoom_changed", () => {
+    infowindow.setContent("Zoom: " + map.getZoom());
+  });*/
+		
+		
+		//CLICK (Abre Infowindow)
+		/*google.maps.event.addListener(marker,'click',function(event) {	
+			
+			//Abro en temporal
+			if (marker!=Markeractdc && Markeract==true ){		
+				webMI.display.openDisplay("ObjectTypes.PROJECT.DataLogger"+ type +".Grafico_SectorizacionB", {base:  "AGENT.OBJECTS.Sofrel." + object}, "SectorizacionB");
+				Pos_destination=position;	
+				
+				//Limpio
+				Elimina_Ruta(Rutas);
+				
+				//Dibujo
+				//Dibuja_Ruta(Pos_origen,Pos_destination);
+			}
+			
+			//webMI.display.openDisplay("SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.LAYOUTS.Blanc_Layout",{}, "detallesCarcamoNext");
+			
+		});	*/
+			
+		
+		//MOUSEOVER
+		google.maps.event.addListener(marker, "mouseover", function(event){
+			infowindow = new google.maps.InfoWindow();
+			//Abro marcador
+			infowindow.open(marker.getMap,marker);
+			Info_Windowact=true;
+			//Defino que objeto va a ser el seleccionado para mostrar su información
+			webMI.data.subscribe( object +".pressure",
+			function(e){
+				infowindow.setContent(title+" - Presión: " +
+				e.value.toFixed(2) + "kg/cm2");
+				}
+			);
+			
+				//infowindow.setContent(title);
+		
+		});	
+		
+		//MOUSEOUT
+		google.maps.event.addListener(marker, "mouseout", function(event){
+			
+			
+			if (Info_Windowact){
+				infowindow.close();
+				Info_Windowact=false;
+			}			
+		});
+		
+		
+		
+	});	
+			
+});
+
+
+
+function Dibuja_Ruta(Origen,Destination){
+	
+	if(Markeract && (Origen!=Destination)){
+			
+		//////////// Servicios Rutas en el mapa
+		var directionsService = new google.maps.DirectionsService();
+		var directionsRenderer = new google.maps.DirectionsRenderer({ map: map });		
+		
+		//Crea el request
+		var request = {
+			origin: Origen,
+			destination:Destination,
+			travelMode: google.maps.TravelMode.DRIVING // Puedes ajustar el modo de transporte según tus necesidades
+		  };    
+		
+		
+		directionsService.route(request, function(response, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  directionsRenderer.setDirections(response);
+			  Rutas.push(directionsRenderer);
+			}
+		  });
+	 }
+    
+ }
+
+
+function Elimina_Ruta(Rutas){
+	
+	Rutas.forEach(function(ruta) {
+		ruta.setMap(null);
+	});
+	
+	Rutas=new Array();
+    
+ }
+]]></script>
+</svg>

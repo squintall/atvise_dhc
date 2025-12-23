@@ -1,0 +1,839 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the picker_address object display
+ * ------------------------------------------
+ * This control allows you to select a node.
+ * In addition the trigger "valuechanged" will be fired.
+ * An additional border indicates the current value's negative state or an additionally defined alarm. The colors and blinking intervals are defined in global lists.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var isTouch = navigator.userAgent.indexOf("Mobi") > -1;
+
+var useSVGKeyboard = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Configuration", {
+	action: "existsIndexParameter",
+	parameterName: "useSVGKeyboard"
+});
+if (useSVGKeyboard == "true") {
+	isTouch = true;
+}
+
+/* node settings */
+var browseNode = typeof webMI.query["base"] == "undefined" ? "" : webMI.query["base"];
+var writeNode = typeof webMI.query["baseNode"] == "undefined" ? "" : webMI.query["baseNode"];
+
+/* security setting */
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var activeRight = typeof webMI.query["right"] == "undefined" ? "" : webMI.query["right"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var hasRight = false;
+var lockInputEvents = true;
+
+if (activeRight.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1) {
+	activeRight = activeRight.substring(23, activeRight.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+}
+
+var isActiveInput = false;
+var isActiveBrowse = false;
+
+/* layout settings */
+var inputFill = typeof webMI.query["fill"] != "undefined" ? webMI.query["fill"] : webMI.query["inputFill"];
+var buttonFill = typeof webMI.query["fillColor"] != "undefined" ? webMI.query["fillColor"] : webMI.query["buttonFill"];
+var fillColorInactive =
+	typeof webMI.query["inputFillInactive"] != "undefined"
+		? webMI.query["inputFillInactive"]
+		: webMI.query["fillColorInactive"];
+var strokeFillPressed = webMI.query["strokePressed"];
+var focusStrokeColor = webMI.query["focusStrokeColor"];
+var contextFill = typeof webMI.query["contextFill"] == "undefined" ? "#ffffff" : webMI.query["contextFill"];
+var contextFontColor = webMI.query["contextFontColor"] == undefined ? "#000000" : webMI.query["contextFontColor"];
+var contextStroke = typeof webMI.query["contextStroke"] == "undefined" ? "#000000" : webMI.query["contextStroke"];
+var contextStrokeWidth =
+	typeof webMI.query["contextStrokeWidth"] == "undefined" ? 2 : parseInt(webMI.query["contextStrokeWidth"]);
+var contextHoverColor = webMI.query["contextHoverColor"] == undefined ? "#efefef" : webMI.query["contextHoverColor"];
+var contextFontColorHover =
+	typeof webMI.query["context_menu_font_color_hover"] == "undefined"
+		? contextFontColor
+		: webMI.query["context_menu_font_color_hover"];
+var onDemand = webMI.query["onDemand"] == "No" ? "0" : "1";
+var itemsCount = webMI.query["itemsCount"];
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+
+/* consistensy and alarming */
+var consistencyGroup = webMI.query["consistencyGroup"];
+var alarmToSubscribe = webMI.query["alarm"];
+var alarmIndication = webMI.query["alarmIndication"];
+var checkAlarmRights = false;
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+
+/* others */
+var showBaseVariables = webMI.query["showBaseVariables"];
+var showObjects = webMI.query["showObjects"];
+var showDisplays = webMI.query["showDisplays"];
+var showArchives = webMI.query["showArchives"];
+var showAlarms = webMI.query["showAlarms"];
+var showVariableTypes = webMI.query["showVariableTypes"];
+var keyboard = webMI.query["keyboard"];
+
+/* context menu */
+var contextMenuStyle = {};
+if (typeof webMI.query["context_menu_font_family"] != "undefined")
+	contextMenuStyle.fontFamily = webMI.query["context_menu_font_family"];
+if (typeof webMI.query["context_menu_font_size"] != "undefined")
+	contextMenuStyle.fontSize = parseInt(webMI.query["context_menu_font_size"]);
+if (typeof webMI.query["contextMenuTextAlignment"] != "undefined")
+	contextMenuStyle.showType = webMI.query["contextMenuTextAlignment"];
+contextMenuStyle.fontFill = contextFontColor;
+contextMenuStyle.fill = contextFill;
+contextMenuStyle.stroke = contextStroke;
+contextMenuStyle.strokeWidth = contextStrokeWidth;
+contextMenuStyle.hoverFill = contextHoverColor;
+contextMenuStyle.hoverFontFill = contextFontColorHover;
+
+var myWidth = 160;
+var curValue = "";
+
+/* input */
+var storedEvent = { keyCode: null, shiftKey: false };
+var foreignObject;
+var inputActive = false;
+var inputFO = webMI.dom.createElement("http://www.w3.org/1999/xhtml", "input");
+inputFO.type = "text";
+inputFO.id = document.getElementById("addresspicker_input_clickarea").id + "_html_input";
+inputFO.style.width = "100%";
+inputFO.style.height = "100%";
+inputFO.style.borderWidth = "0px";
+inputFO.style.boxSizing = "border-box";
+inputFO.style.padding = "0px 5px 0px 0px";
+inputFO.style.textAlign = "right";
+inputFO.style.color = webMI.query["fontColor"];
+inputFO.style.fontFamily = webMI.query["fontFamily"];
+inputFO.style.fontSize = parseFloat(webMI.query["fontSize"]) + "px";
+
+var isActivationNodeSet = activeNode != "" && String(activeValue) != "";
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager = false;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * handling access notifications (show symbol on config errors)
+ */
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+// In case of FO-overlay, set it as event target
+let elementEventTarget;
+if (document.getElementById("clickareaFO")) {
+	elementEventTarget = document.getElementById("clickareaFO").id;
+}
+
+var notifierConfig = {
+	id: document.getElementById("addresspicker_stroke").id,
+	elementEventTarget: elementEventTarget,
+	rights: [
+		{ nodeId: browseNode, rights: "read", disable: true, notify: false },
+		{ nodeId: writeNode, rights: "read", disable: true, notify: false },
+		{ nodeId: writeNode, rights: "write", disable: true, notify: false },
+		{ nodeId: alarmToSubscribe, rights: "alarmRead", disable: false, notify: true },
+		{ nodeId: activeNode, rights: "read", disable: true, notify: true },
+		{ nodeId: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes", rights: "execute", disable: true, notify: true }
+	],
+	menuLayout: menuLayout
+};
+
+notifierConfig.elementId = notifierConfig.id;
+
+var rightsHandlingProperties = {
+	activationNodeSet: { activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"] },
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: activeRight
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+/**
+ * handling browse node right
+ * @param callback if allowed
+ * @param fallback if disallowed
+ */
+function handleBrowseNode(callback, fallback) {
+	var hasBrowseNodes = webMI.getMethodSupport().indexOf("BrowseNodes") !== -1;
+	if (!hasBrowseNodes) {
+		fallback();
+		return;
+	}
+
+	var compareRights = [
+		{ node: browseNode, right: "browse" },
+		{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes", right: "execute" }
+	];
+
+	if (accessControlManager) {
+		accessControlManager.assist.handleWithPermissions(compareRights, callback, fallback);
+	} else {
+		callback();
+	}
+}
+
+/**
+ * handling node right for read
+ * @param callback if allowed
+ * @param fallback if disallowed
+ */
+function handleReadNode(callback, fallback) {
+	if (!writeNode) {
+		fallback();
+		return;
+	}
+
+	var compareRights = [{ node: writeNode, right: "read" }];
+
+	if (accessControlManager) {
+		accessControlManager.assist.handleWithPermissions(compareRights, callback, fallback);
+	} else {
+		callback();
+	}
+}
+
+/**
+ * handling node right for write
+ * @param callback if allowed
+ * @param fallback if disallowed
+ */
+function handleWriteNode(callback, fallback) {
+	if (!writeNode) {
+		fallback();
+		return;
+	}
+
+	var compareRights = [{ node: writeNode, right: "write" }];
+
+	if (accessControlManager) {
+		accessControlManager.assist.handleWithPermissions(compareRights, callback, fallback);
+	} else {
+		callback();
+	}
+}
+
+/**
+ * RUNTIME SECTION
+ */
+if (writeNode) {
+	if (consistencyGroup) {
+		var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+		consistencyHandler.register(consistencyGroup, writeNode, updateDisplayValue);
+	} else {
+		handleReadNode(
+			function callback() {
+				webMI.data.subscribe(writeNode, function (e) {
+					if(typeof e.value == "undefined") {
+						webMI.gfx.setText("input_label", "T{N/A}");
+						return;
+					}
+					updateDisplayValue(e.value);
+					if (typeof e.status != "undefined" && typeof handleStatus === "function") handleStatus(e.status);
+				});
+			},
+			function fallback() {
+				webMI.gfx.setText("input_label", "T{N/A}");
+			}
+		);
+	}
+}
+
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+
+if (tooltip != "") {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "addresspicker_clickarea",
+		text: tooltip
+	});
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "addresspicker_input_clickarea",
+		text: tooltip
+	});
+}
+
+inputFO.onblur = blurHandler;
+
+webMI.addOnload(function () {
+	var doc = document.getElementById("addresspicker_clickarea").ownerDocument;
+	tabHandler.register(tabIndex, keyHandler, doc);
+
+	if (alarmToSubscribe != "") {
+		if (checkAlarmRights) {
+			handleAlarmNode(
+				function () {
+					updateAlarmIndication(alarmToSubscribe);
+				},
+				function () {
+					console.warn("no alarm for you");
+					return;
+				}
+			);
+		} else {
+			updateAlarmIndication(alarmToSubscribe);
+		}
+	}
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * changing to active layout
+ * @param element (input | button)
+ */
+function setActiveLayout() {
+	lockInputEvents = false;
+
+	webMI.gfx.setFill("addresspicker_bg", inputFill);
+	isActiveInput = true;
+
+	webMI.gfx.setFill("button_bg", buttonFill);
+	webMI.gfx.setVisible("button_symbol", null);
+	isActiveBrowse = true;
+}
+
+/**
+ * changing to inactive layout
+ * @param element (input | button)
+ */
+function setInactiveLayout() {
+	lockInputEvents = true;
+
+	webMI.gfx.setFill("addresspicker_bg", fillColorInactive);
+	isActiveInput = false;
+
+	webMI.gfx.setFill("button_bg", fillColorInactive);
+	isActiveBrowse = false;
+}
+
+function fetchCurrentRightsAndUpdateInputField() {
+	if (accessControlManager) {
+		var compareRights = [{ node: webMI.query.baseNode, right: "read" }];
+		accessControlManager.assist.handleWithPermissions(
+			compareRights,
+			() => {},
+			() => {
+				webMI.gfx.setText("input_label", "T{N/A}");
+			}
+		);
+	}
+}
+
+function updateDisplayValue(value) {
+	if (typeof value != "undefined" && typeof value.indexOf === 'function') {
+		webMI.trigger.fire("valuechanged", value, "");
+		if (value.indexOf(browseNode) > -1) value = value.substring(value.indexOf(browseNode) + browseNode.length + 1);
+		webMI.gfx.setText("input_label", value);
+		curValue = value;
+	} else if (typeof value.indexOf != 'function') {
+		console.warn("Warning: String cannot be written on node!");
+	}
+}
+
+function updateNodeValue(value) {
+	handleWriteNode(writeValueAllowed, writeValueForbidden);
+
+	function writeValueAllowed() {
+		if (consistencyGroup) {
+			consistencyHandler.set(consistencyGroup, writeNode, value);
+			updateDisplayValue(value);
+		} else {
+			webMI.data.write(writeNode, value);
+		}
+	}
+
+	function writeValueForbidden() {
+		// console.error("Error write to node: " + writeNode + " (Permission denied)");
+	}
+}
+
+// moeglichkeit ueber parameter nur "historisierte" Datenpunkte einzuschraenkeN!?!
+function createMenuFromAdress(startAddress, callback) {
+	var types = ["FolderType"]; // i=61
+	if (showBaseVariables == "Yes") types.push("BaseVariableType"); // i=62
+	if (showObjects == "Yes") types.push("ObjectTypes.PROJECT");
+	if (showDisplays == "Yes") types.push("VariableTypes.ATVISE.Display");
+	if (showArchives == "Yes") types.push("ns=1;s=ObjectTypes.ATVISE.ArchiveGroup.Data");
+	if (showAlarms == "Yes") types.push("ns=1;s=ObjectTypes.ATVISE.Alarm");
+	if (showVariableTypes == "Yes") types.push("VariableTypes.PROJECT");
+
+	webMI.data.call(
+		"BrowseNodes",
+		{
+			startAddress: startAddress,
+			endLevel: onDemand,
+			vTypes: types,
+			mapping: [
+				{ alias: "name", keys: ["nodeId", "xml"], removeNsTag: true },
+				{
+					alias: "text",
+					keys: ["browseName", "name"]
+				}
+			]
+		},
+		function (e) {
+			var nodes = e;
+			if (nodes == null) return;
+
+			function getFn(value) {
+				return function (e) {
+					if (writeNode) {
+						updateNodeValue(value);
+					} else {
+						updateDisplayValue(value);
+					}
+				};
+			}
+			var menuObj = {};
+			if (startAddress == browseNode) menuObj["none"] = { text: "[none]", value: getFn("") };
+
+			function translateMenu(submenuObj, subnodes) {
+				for (i in subnodes) {
+					if (typeof subnodes[i]["name"] == "undefined") continue;
+					submenuObj[i] = {};
+					submenuObj[i]["text"] = subnodes[i]["text"];
+					submenuObj[i]["value"] = getFn(subnodes[i]["name"]);
+					submenuObj[i]["address"] = subnodes[i]["address"];
+					if (typeof subnodes[i]["childs"] == "undefined" || subnodes[i]["childs"] == null) continue;
+					else if (typeof subnodes[i]["childs"] == "object") {
+						submenuObj[i]["sub"] = {};
+						translateMenu(submenuObj[i]["sub"], subnodes[i]["childs"]);
+					} else if (typeof subnodes[i]["childs"] == "string") {
+						submenuObj[i]["sub"] = function (address, callback) {
+							return createMenuFromAdress(this.boundAddress, callback);
+						}.bind({ boundAddress: subnodes[i].name });
+						submenuObj[i]["browseNode"] = subnodes[i]["name"];
+					}
+				}
+				// Check if two Portal DB spaces exist
+				var dbspaces = {};
+				for (var propertyText in submenuObj) {
+					if (!isNaN(propertyText.substr(0, propertyText.indexOf("."))))
+						dbspaces[propertyText.substr(0, propertyText.indexOf("."))] = true;
+				}
+
+				if (Object.keys(dbspaces).length > 1) {
+					for (var propertyText in submenuObj) {
+						if (typeof submenuObj[propertyText].address != "undefined") {
+							submenuObj[propertyText].text = submenuObj[propertyText].address;
+							submenuObj[propertyText].value = getFn(submenuObj[propertyText].address);
+						}
+					}
+				}
+			}
+
+			translateMenu(menuObj, nodes);
+			if (typeof callback == "function") callback(menuObj);
+		}
+	);
+}
+
+function focusTH() {
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", focusStrokeColor);
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setStroke("addresspicker_bg", focusStrokeColor);
+	}
+}
+
+function blurTH() {
+	backTH();
+	if (typeof webMI.gfx.getX("focus_frame") != "undefined") {
+		webMI.gfx.setStroke("focus_frame", "none");
+	} else {
+		// only old styles (Standard, Steelblue)
+		webMI.gfx.setStroke("addresspicker_bg", "none");
+	}
+}
+
+function applyTH() {
+	if (lockInputEvents) return;
+
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+		id: "addresspicker_clickarea",
+		menuObj: function (callback) {
+			createMenuFromAdress(browseNode, callback);
+		},
+		outputNode: null,
+		x: 0,
+		y: 30,
+		minWidth: myWidth,
+		onEvent: "immediately",
+		active: function () {
+			return isActiveBrowse;
+		},
+		itemsCount: itemsCount,
+		style: contextMenuStyle
+	});
+}
+
+function getDisplayParameters() {
+	var communicationID = new Date().getTime().toString();
+	webMI.trigger.connect(communicationID, function (e) {
+		if (writeNode) {
+			updateNodeValue(e.value);
+		} else {
+			updateDisplayValue(e.value);
+		}
+	});
+
+	var passObj = {
+		trigger: communicationID
+	};
+	return passObj;
+}
+
+function applyTH2() {
+	if (active) {
+		backTH();
+		var tmp = null;
+		if (useSVGKeyboard) {
+			var keyboardParam = getDisplayParameters();
+			webMI.display.openWindow({
+				display: keyboard,
+				extern: false,
+				height: 300,
+				menubar: false,
+				modal: true,
+				movable: true,
+				resizable: false,
+				scrollbars: false,
+				status: false,
+				title: "T{Keyboard}",
+				toolbar: false,
+				width: 700,
+				query: keyboardParam
+			});
+		} else {
+			switchToInputMode();
+		}
+	}
+}
+
+function backTH() {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+		id: "",
+		onEvent: "immediately"
+	});
+}
+
+function arrowTH(dir) {}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		focusTH();
+	} else if (keyTH == "blur") {
+		blurTH();
+	} else if (keyTH == "apply") {
+		applyTH2();
+	} else if (keyTH == "space") {
+		applyTH();
+	} else if (keyTH == "back") {
+		backTH();
+	} else if (keyTH == "arrow") {
+		arrowTH(param2);
+	} else if (keyTH == "isActive") {
+		return param2(document.getElementById("addresspicker_clickarea").parentNode);
+	}
+}
+
+function stopPropagation(event) {
+	/*
+	 * If the ALT key is pressed together with one or more other keys on
+	 * Firefox (only Windows), there will be no keyup event when the ALT
+	 * key gets released. Since the ALT key is being used for paning in
+	 * atvise visualization, we have to make sure that key listeners in the
+	 * global document do not get triggered if someone is currently entering
+	 * something in the inputFO (like "someone@example.com").
+	 **/
+	if (event.altKey) {
+		if (event.stopPropagation) event.stopPropagation();
+		else event.cancelBubble = true;
+	}
+}
+
+function touchstartHandler(e) {
+	if (e.target !== inputFO && inputActive) {
+		blurHandler();
+	}
+}
+
+function blurHandler() {
+	switchToOutputMode();
+	tabHandler.setAcceptKeys(true);
+
+	if (storedEvent["keyCode"] != null) {
+		if (storedEvent["shiftKey"] && storedEvent["keyCode"] == "9") tabHandler.prevTab();
+		else if (storedEvent["keyCode"] == "9") tabHandler.nextTab();
+	}
+
+	if (storedEvent["keyCode"] != "27") {
+		//workaround: setTimeout for Chrome crash error (clicking out from the input field or clicking enter while holding a button pressed).
+		setTimeout(function () {
+			var value = inputFO.value;
+			if (value !== undefined) {
+				if (writeNode) {
+					updateNodeValue(value);
+				} else {
+					updateDisplayValue(value);
+				}
+			}
+		}, 0);
+	}
+
+	storedEvent["keyCode"] = null;
+}
+
+function switchToInputMode() {
+	tabHandler.setAcceptKeys(false);
+	inputFO.value = curValue;
+	webMI.gfx.setVisible("input_clickarea", false);
+
+	var inputElement = document.getElementById("input_element");
+	foreignObject = webMI.gfx.addForeignObject(
+		{
+			x: 0,
+			y: 0,
+			width: 160,
+			height: 30,
+			id: "input_fo",
+			childNodes: [inputFO]
+		},
+		inputElement
+	);
+	foreignObject.style.outline = "black 2px solid";
+	foreignObject.style.outlineOffset = "-2px";
+	foreignObject.style.width = foreignObject.style.width.replace("px", "") - 30 + "px";
+	inputFO.focus();
+	inputActive = true;
+}
+
+function switchToOutputMode() {
+	if (inputActive) {
+		inputActive = false;
+		webMI.gfx.setVisible("input_clickarea", true);
+
+		if (foreignObject) {
+			webMI.gfx.removeForeignObject(foreignObject);
+			foreignObject = undefined;
+		}
+	}
+}
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent("addresspicker_input_clickarea", "click", function (e) {
+	if (!isActiveInput) return;
+
+	if (!writeNode) {
+		writeNodeAllowed();
+	} else {
+		handleWriteNode(writeNodeAllowed, writeNodeDenied);
+	}
+
+	function writeNodeAllowed() {
+		var id = "addresspicker_input_clickarea";
+		var value = true;
+		return (function (value) {
+			tabHandler.setCurrentIndex(keyHandler);
+			var tmp = null;
+			if (useSVGKeyboard) {
+				var keyboardParam = getDisplayParameters();
+				webMI.display.openWindow({
+					display: keyboard,
+					extern: false,
+					height: 300,
+					menubar: false,
+					modal: true,
+					movable: true,
+					resizable: false,
+					scrollbars: false,
+					status: false,
+					title: "T{Keyboard}",
+					toolbar: false,
+					width: 700,
+					query: keyboardParam
+				});
+			} else {
+				switchToInputMode();
+			}
+		})(value);
+	}
+
+	function writeNodeDenied() {
+		return;
+	}
+});
+
+webMI.addEvent("addresspicker_clickarea", ["click", "touchstart"], function (e) {
+	if (!isActiveBrowse) return;
+
+	handleBrowseNode(browseNodeAllowed, browseNodeDenied);
+
+	function browseNodeAllowed() {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+			id: "addresspicker_clickarea",
+			menuObj: function (callback) {
+				createMenuFromAdress(browseNode, callback);
+			},
+			outputNode: null,
+			x: 0,
+			y: 30,
+			minWidth: myWidth,
+			onEvent: "immediately",
+			active: function () {
+				return isActiveBrowse;
+			},
+			itemsCount: itemsCount,
+			style: contextMenuStyle
+		});
+	}
+
+	function browseNodeDenied() {
+		return;
+	}
+});
+
+webMI.addEvent("addresspicker_clickarea", "mousedown", function (e) {
+	if (!isActiveBrowse) return;
+
+	handleBrowseNode(browseNodeAllowed, browseNodeDenied);
+
+	function browseNodeAllowed() {
+		var id = "addresspicker_clickarea";
+		var value = true;
+		return (function (value) {
+			tabHandler.setCurrentIndex(keyHandler);
+			webMI.gfx.setStroke("button_stroke", strokeFillPressed);
+			webMI.gfx.setStroke("focus_frame", strokeFillPressed);
+			webMI.gfx.setFill("button_bg", "url(#linear_2)");
+		})(value);
+	}
+
+	function browseNodeDenied() {
+		return;
+	}
+});
+
+webMI.addEvent("addresspicker_clickarea", ["mouseup", "mouseout"], function (e) {
+	if (!isActiveBrowse) return;
+
+	handleBrowseNode(browseNodeAllowed, browseNodeDenied);
+
+	function browseNodeAllowed() {
+		var id = "addresspicker_clickarea";
+		var value = true;
+		return (function (value) {
+			webMI.gfx.setStroke("button_stroke", "none");
+			webMI.gfx.setStroke("focus_frame", "none");
+			webMI.gfx.setFill("button_bg", "none");
+		})(value);
+	}
+
+	function browseNodeDenied() {
+		return;
+	}
+});
+
+webMI.addEvent("addresspicker_clickarea", "dragstart", function (e) {
+	if (!isActiveBrowse) return;
+
+	handleBrowseNode(browseNodeAllowed, browseNodeDenied);
+
+	function browseNodeAllowed() {
+		if (e.preventDefault) {
+			e.preventDefault();
+		}
+	}
+
+	function browseNodeDenied() {
+		return;
+	}
+});
+
+webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+	hasRight = false;
+	if ("username" in e && e.username != "") {
+		hasRight = webMI.hasRight(activeRight);
+	}
+});
+
+/**
+ * keyboard events
+ */
+webMI.addEvent(inputFO, "keyup", stopPropagation);
+
+webMI.addEvent(inputFO, "keydown", function (e) {
+	var keyCode = e.keyCode;
+	if (/MSIE/.test(navigator.userAgent)) {
+		storedEvent["keyCode"] = e.keyCode;
+		storedEvent["shiftKey"] = e.shiftKey;
+	}
+	if (keyCode == "13" || keyCode == "9") {
+		inputFO.blur();
+		if (keyCode == "13") tabHandler.setAcceptKeysPrevent(true);
+	} else if (keyCode == "27") {
+		storedEvent["keyCode"] = "27";
+		tabHandler.setAcceptKeysPrevent(true);
+		inputFO.blur();
+	}
+
+	stopPropagation(e);
+});
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect(
+	"setValue",
+	function (e) {
+		if (writeNode) {
+			updateNodeValue(e.value);
+		} else {
+			updateDisplayValue(e.value);
+		}
+	},
+	""
+);
+
+webMI.trigger.connect("com.atvise.access_control_update", function (e) {
+	fetchCurrentRightsAndUpdateInputField();
+});
+]]></code>
+</script>

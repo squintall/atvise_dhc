@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the button_open_display object display
+ * -----------------------------------------------
+ * This button opens another display in the specified frame.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+
+var targetFrame = webMI.query["frame"];
+var strokeNormal = "none";
+var strokePressed = webMI.query["strokePressed"];
+var extraBorderColor = webMI.query["extraBorderColor"];
+var focusStrokeColor = webMI.query["focusStrokeColor"];
+var fillColor = webMI.query["fillColor"];
+var fillColorInactive = webMI.query["fillColorInactive"];
+var display = webMI.query["display"] == undefined ? "" : webMI.query["display"];
+var smallDisplay = webMI.query["smallDisplay"] == undefined ? "" : webMI.query["smallDisplay"];
+
+display = webMI.getClientInfo()
+	? webMI.getClientInfo().isDesktop
+		? display
+		: smallDisplay
+			? smallDisplay
+			: display
+	: display;
+
+var tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var tabIndex = webMI.query["tabIndex"] == undefined ? "" : webMI.query["tabIndex"];
+var tooltip = webMI.query["tooltip"] == undefined ? "" : webMI.query["tooltip"];
+var right = webMI.query["right"] == undefined ? "" : webMI.query["right"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var isSetActive = true; //isSetActive is set by the com.atvise.setActive trigger
+var isActivationNodeSet = activeNode != "" && String(activeValue) != "";
+var lockInputEvents = true;
+
+/** advanced menu layout wiht corrections **/
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: document.getElementById("button_clickarea").id,
+	rights: [
+		{nodeId: display, rights: "read", disable: true, notify: false},
+		{nodeId: webMI.query["symbol"], rights: "read", disable: true, notify: true},
+		{nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true}
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: {activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"]},
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: right
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+if (typeof extraBorderColor != "undefined" && extraBorderColor != "none" && extraBorderColor != "") {
+	webMI.gfx.setStroke("button_stroke", extraBorderColor);
+}
+
+webMI.addOnload(function () {
+	var doc = document.getElementById("button_clickarea").ownerDocument;
+	tabHandler.register(tabIndex, keyHandler, doc);
+});
+
+if (tooltip != "") {
+	webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tooltip", {
+		auto: "true",
+		id: "button_clickarea",
+		text: tooltip
+	});
+}
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setActiveLayout() {
+	lockInputEvents = false;
+
+	webMI.gfx.setFill("button_bg", fillColor);
+	webMI.gfx.setVisible("button_stroke", null);
+}
+
+function setInactiveLayout() {
+	lockInputEvents = true;
+
+	webMI.gfx.setFill("button_bg", fillColorInactive);
+	webMI.gfx.setVisible("button_stroke", false);
+}
+
+function release(stayFocused) {
+	webMI.gfx.setFill("button_stroke", "url(#linear_1)");
+	if (typeof extraBorderColor == "undefined" || extraBorderColor == "none" || extraBorderColor == "") {
+		if (stayFocused == false) webMI.gfx.setStroke("button_stroke", strokeNormal);
+	} else {
+		webMI.gfx.setStroke("button_stroke", extraBorderColor);
+		webMI.gfx.setStrokeWidth("button_stroke", 1);
+	}
+}
+
+function focusTH() {
+	if (lockInputEvents) return;
+
+	webMI.gfx.setStroke("button_stroke", focusStrokeColor);
+	if (typeof extraBorderColor != "undefined" && extraBorderColor != "none" && extraBorderColor != "") {
+		webMI.gfx.setStrokeWidth("button_stroke", 2);
+	}
+}
+
+function applyTH() {
+	if (lockInputEvents) return;
+
+	if (display != "") {
+		if (targetFrame == "") webMI.display.openDisplay(display, webMI.query);
+		else webMI.display.openDisplay(display, webMI.query, targetFrame);
+	}
+}
+
+function backTH() {
+}
+
+function arrowTH(dir) {
+}
+
+function keyHandler(keyTH, param2) {
+	if (keyTH == "focus") {
+		focusTH();
+	} else if (keyTH == "blur") {
+		release(false);
+	} else if (keyTH == "apply") {
+		webMI.gfx.setFill("button_stroke", "url(#linear_2)");
+		applyTH();
+	} else if (keyTH == "releaseClick") {
+		webMI.gfx.setFill("button_stroke", "url(#linear_1)");
+	} else if (keyTH == "back") {
+		backTH();
+	} else if (keyTH == "arrow") {
+		arrowTH(param2);
+	} else if (keyTH == "isActive") {
+		return param2(document.getElementById("button_clickarea").parentNode);
+	}
+}
+
+/*
+-------------------
+---- EVENTS ----
+-------------------
+*/
+
+webMI.addEvent("button_clickarea", "click", function (e) {
+	if (lockInputEvents) return;
+
+	if (display != "") {
+		tabHandler.setCurrentIndex(keyHandler);
+		if (targetFrame == "") webMI.display.openDisplay(display, webMI.query);
+		else webMI.display.openDisplay(display, webMI.query, targetFrame);
+	}
+});
+
+webMI.addEvent("button_clickarea", "mousedown", function (e) {
+	if (lockInputEvents) return;
+
+	webMI.gfx.setFill("button_stroke", "url(#linear_2)");
+	webMI.gfx.setStroke("button_stroke", strokePressed);
+});
+
+webMI.addEvent("button_clickarea", "mouseup", function (e) {
+	var id = "button_clickarea";
+	var value = true;
+	return (function (value) {
+		release(true);
+	})(value);
+});
+webMI.addEvent("button_clickarea", "mouseout", function (e) {
+	var id = "button_clickarea";
+	var value = true;
+	return (function (value) {
+		release(false);
+	})(value);
+});
+
+webMI.addEvent("button_clickarea", "dragstart", function (e) {
+	if (e.preventDefault) {
+		e.preventDefault();
+	}
+});
+]]></code>
+</script>

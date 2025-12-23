@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.HISTORY.BackupPath
+NodeClass: Variable
+BrowseName: 1:BackupPath
+DisplayName: en|BackupPath
+Description: en|BackupPath
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

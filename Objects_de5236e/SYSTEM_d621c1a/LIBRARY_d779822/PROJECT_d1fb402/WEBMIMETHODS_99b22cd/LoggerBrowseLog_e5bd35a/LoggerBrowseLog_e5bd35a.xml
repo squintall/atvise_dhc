@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <runcontext>owner</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* begin */
+
+var group = request.postvalues.group;
+var subgroup = request.postvalues.subgroup;
+
+var result = call("Logger.BrowseLog", {
+	"group": group,
+	"subgroup": subgroup,
+	"path": "false"
+});
+
+return result;
+
+/* end */]]></code>
+</script>

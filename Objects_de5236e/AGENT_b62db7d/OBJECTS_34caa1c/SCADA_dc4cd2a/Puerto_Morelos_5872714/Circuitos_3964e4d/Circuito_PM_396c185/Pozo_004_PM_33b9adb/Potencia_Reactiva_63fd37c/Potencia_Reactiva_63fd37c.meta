@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Pozo_004_PM.Potencia_Reactiva
+NodeClass: Variable
+BrowseName: 1:Potencia_Reactiva
+DisplayName: en|Potencia_Reactiva
+Description: en|Potencia_Reactiva
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.dead_band
+NodeClass: Variable
+BrowseName: 1:dead_band
+DisplayName: en|dead_band
+Description: en|dead_band
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

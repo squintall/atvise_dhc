@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_reduced_AR
+NodeClass: Variable
+BrowseName: 1:line_reduced_AR
+DisplayName: en|line_reduced_AR
+Description: en|line_reduced_AR
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

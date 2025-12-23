@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist_small_portrait
+NodeClass: Variable
+BrowseName: 1:alarmlist_small_portrait
+DisplayName: en|alarmlist_small_portrait
+Description: en|alarmlist_small_portrait
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

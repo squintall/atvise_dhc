@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ButtonCfg.AGUAKAN\cpool
+NodeClass: Variable
+BrowseName: 1:AGUAKAN\cpool
+DisplayName: en|AGUAKAN\cpool
+Description: en|AGUAKAN\cpool
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

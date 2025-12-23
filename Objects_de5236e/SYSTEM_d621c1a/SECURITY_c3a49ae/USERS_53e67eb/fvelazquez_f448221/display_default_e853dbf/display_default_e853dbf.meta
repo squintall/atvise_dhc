@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.fvelazquez.display_default
+NodeClass: Variable
+BrowseName: 1:display_default
+DisplayName: en|display_default
+Description: en|display_default
+DataType: NodeId
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

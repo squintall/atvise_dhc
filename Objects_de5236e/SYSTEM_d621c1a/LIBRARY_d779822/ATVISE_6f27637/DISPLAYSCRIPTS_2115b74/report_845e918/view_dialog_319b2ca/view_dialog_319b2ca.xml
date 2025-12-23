@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[const configuration = encodeURIComponent(webMI.query["configuration"]);
+const itemsCount = Number(webMI.query["itemsCount"]);
+
+const treeView = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.TreeView", {
+	busyIndicatorTolerance: "100",
+	dataSourceFilePath: "",
+	dataSourceOptions: "{}",
+	dataSourceType: "",
+	dialogDisplay: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+	expandoOffset: "3",
+	fontSize: "12",
+	imagePaths: '{"baseVariableImage":"/treeView/icons/baseVariable.svg"}',
+	leafIndentation: "15",
+	leafPadding: "2",
+	nodeCacheActive: "true",
+	renderTo: "report_treeview",
+	searchDepth: "100",
+	selectableTypes: '["baseVariable"]',
+	startAddress: ""
+});
+
+let currentReportList;
+
+webMI.gfx.setText("configuration_label", decodeURIComponent(configuration));
+
+/**
+ * Show an error message in the message overlay.
+ *
+ * @param {string} error The error message to display.
+ */
+function showErrorMessage(error) {
+	const messageOverlay = document.getElementById("message_overlay"); // The message overlay element.
+
+	messageOverlay.children[0].textContent = error; // Set the error message as the text content of the first child of the message overlay.
+	messageOverlay.style.display = null; // Show the message overlay.
+}
+
+webMI.data.customRequest("GET", `report/ReportViewer?configuration=${configuration}`, function (response) {
+	if (!response.errorstring) {
+		currentReportList = response.result;
+	} else {
+		showErrorMessage(response.errorstring);
+		currentReportList = [];
+	}
+
+	if (itemsCount) {
+		currentReportList = currentReportList.slice(0, itemsCount);
+	}
+
+	// Add some meta data for the tree view
+	for (const file of currentReportList) {
+		file.address = file.path;
+		file.type = "baseVariable";
+		file.icon = "/treeView/icons/baseVariable.svg";
+	}
+
+	treeView.setTreeStructure(currentReportList);
+});
+
+treeView.on("ready", () => {
+	setTimeout(() => {
+		if (currentReportList[0]) {
+			treeView.selectNode(currentReportList[0].address);
+		}
+	}, 150);
+});
+
+treeView.on("select", (e) => {
+	const reportPath = encodeURI(e.data.address);
+
+	// Send an HTTP GET request to retrieve the report.
+	// The response is expected as an array buffer (likely a PDF file).
+	// The customRequest method provides a callback to handle the response.
+	webMI.data.customRequest(
+		"GET",
+		`report/ReportViewer?configuration=${configuration}&report=${reportPath}`,
+		"responseType=arraybuffer",
+		function (response) {
+			// If the response size is less than 1000 bytes, it's probably not a valid PDF file.
+			// It's likely a JSON object with an error message, so we need to decode and inspect it.
+			if (response.byteLength < 1000) {
+				// Convert the array buffer to text so we can parse it as JSON.
+				const decoder = new TextDecoder();
+				const responseText = JSON.parse(decoder.decode(response));
+
+				if (responseText.errorstring) {
+					showErrorMessage(responseText.errorstring);
+					return;
+				}
+
+				return;
+			} else {
+				// If the response is a valid PDF (based on size), open the PDF in the viewer.
+				// Here we use `webMI.display.openUrl` to load the PDF directly.
+				// The `openUrl` method does NOT offer a callback function, so we cannot handle errors here.
+				// This is why we handle error checking in the `customRequest` callback above.
+				// We open the PDF URL to display the actual server script path in the PDF viewer instead of a blob URL.
+				// (Issue AT-D-16775)
+				webMI.display.openUrl(
+					`report/ReportViewer?configuration=${configuration}&report=${reportPath}#title=test`,
+					{},
+					"report_frame"
+				);
+			}
+		}
+	);
+});
+]]></code>
+</script>

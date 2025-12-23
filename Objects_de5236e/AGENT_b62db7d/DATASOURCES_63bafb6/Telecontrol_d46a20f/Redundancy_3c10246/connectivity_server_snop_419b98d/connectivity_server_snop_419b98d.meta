@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.Redundancy.connectivity_server_snop
+NodeClass: Variable
+BrowseName: 1:connectivity_server_snop
+DisplayName: en|connectivity_server_snop
+Description: en|connectivity_server_snop
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/scmp/HISTORY.md
+NodeClass: Variable
+BrowseName: 1:HISTORY.md
+DisplayName: en|HISTORY.md
+Description: en|HISTORY.md
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

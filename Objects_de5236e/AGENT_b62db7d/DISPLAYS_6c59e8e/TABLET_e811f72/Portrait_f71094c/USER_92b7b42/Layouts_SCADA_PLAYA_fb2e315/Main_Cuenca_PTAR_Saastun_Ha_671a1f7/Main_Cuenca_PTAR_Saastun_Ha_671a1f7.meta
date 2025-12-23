@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.Layouts_SCADA_PLAYA.Main_Cuenca_PTAR_Saastun_Ha
+NodeClass: Variable
+BrowseName: 1:Main_Cuenca_PTAR_Saastun_Ha
+DisplayName: en|Main_Cuenca_PTAR_Saastun_Ha
+Description: en|Main_Cuenca_PTAR_Saastun_Ha
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

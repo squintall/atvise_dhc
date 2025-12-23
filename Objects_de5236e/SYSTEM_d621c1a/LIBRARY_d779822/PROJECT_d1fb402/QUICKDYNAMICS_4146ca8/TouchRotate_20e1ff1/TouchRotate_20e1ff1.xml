@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABAVJREFUeNq8Vl9IU1EYP5OEpaEXhrCE2CDJPQi7+KYV7kGIgsiHYIEvCxSk+Sf8Ez4M62EPiRhY1AKhRhrYWKig00DYRkEgIlcpVFi66UTWGg4no1hw+77L3bi7f5Zu6geHe+6953zf7/v3O4ewLEuEo7u727y/v88eRXCd1+vlhtIe/JdLzhGRVFdX36QoiuSS+fn5v9Fo1L+6ujpZW1t7u66u7obcnmAwSPR6vaKezc3NhASARqOpyrVhZmbmXVdX1wV4pWG8Byde9vf3X6usrLxXUVFRVVpaqsW1qVTqcG9vT9Pe3m6Q0xWPx4nH43lMxCmYnZ0NyIVqa2uLHRkZuZVeB+KEwcCgxDrSw+12f1EK/fT0NINrisTISkpKLssh9vv9Hzs7Oz0wbdrd3XWAArq+vv4SROybSqWSxN9ms+ng31WlaC4uLrq5iRBxR0fHQ6Vic7lcU6Ojo0mj0Yjus/iEeuHmmA6x90q6UBYWFg7T67IiUAUih3ZpaYnt6+u7Mz4+fr6trS0WDodfGwyGFxsbG0Sr1VpBEUOOIZD/zPqsIsQiktuwvr6uGhwcjJrN5keYewi5BZ5vYdyHQnPK7ampqaGVAMRisYAsgHQFiwWAofErCJ7/xBkHz51KRra3twPCd4ZhuMqn6WxcWSmAvjbiQrFEIhGXwDjmTpXLOMrBwcGhsOVQTCYTBwT0pSQAenp6zNCzWRvS81Ao9JkcU8rKyibTzvh8voznCAJI7LsEABDHRWQzXCiMArRLZHh4+MNxAdjt9tDa2tonnOdi1iJx0aBxYZ6Wl5edJE9ZWVmxI3uKGbC4uHiPCPLJjd7e3jfiw2NoaCigxHJHHS0tLV/hTMjoxaeQNzJdALR5HYiFNDY2krm5OZJIJLzQ+0UwTLDQl08EoF1N8PgDpNWtVqu7ksmkbmdn5wdP43QmAvwLfqQGBgYCDQ0NCBY343iSr/e4F6kb5hSQ2NbY2JhNcI7QEiaED/Hm5uZnra2twfRBQwoXbCkaaFwPnXFX8leAlhFzOnYQRqGACGAEfTBvwrMDT0A+2oykBkCQXqcgb1M8ahO/0Jev67gX9PkcDscr6AisK4w46m+StCF/oND8AjRqgW8PC40/6MA6UEMEsChdfJQZSQpOcViwqPEol03TKRunJiYmfup0Ohbo/OmZAwDS8ZaXl7MIAsGcGgC+gFmh52gcK99qtf6Gd1px70kZ54uWyzl6jJ7zxi059xdiHK5jD9A4XFaewzUNus3xCwsOc86Hnf6vAwV4ji3LXUyFF1Wsdr7gqCPpKQAABdfuMFzNY8hwGAFkvOPqUfHKSJ6nHcWTFjKmJR8dRQWyXJqyaQDjPHMAIhB5nZwFpeAk5J8AAwC+AypNt2aPvgAAAABJRU5ErkJggg==</icon>
+    <visible>1</visible>
+    <title>TouchRotate</title>
+    <description>Enables touch rotation</description>
+  </metadata>
+  <code><![CDATA[var move = false;
+var finger = -1;
+var reach = "";
+var rotAngle = 0;
+var baseValue = 0;
+var startPosition = {};
+var signPosition = {};
+var startAngle = 0;
+var currentAngle = 0;
+var maxReached = null;
+var minReached = null;
+var centerPoint = {};
+
+function normalizeAngle(ang) {
+	return (ang + 2 * Math.PI) % (2 * Math.PI);
+}
+
+function near(ang) {
+	if (Math.abs(ang - base.maxAngle * Math.PI / 180) < Math.abs(ang -  normalizeAngle(base.minAngle * Math.PI / 180)))
+		return "max";
+	else
+		return "min";
+}
+
+function transform(value) {
+	value = Math.min(Math.max(value, base.minValue), base.maxValue)
+	var _t = (value - base.minValue) * (base.maxAngle - base.minAngle) / (base.maxValue - base.minValue) + base.minAngle;
+	return _t * Math.PI / 180;
+}
+
+function invtransform(value) {
+	var _ang = (value > Math.PI) ? (value - 2 * Math.PI) * 180 / Math.PI : value * 180 / Math.PI;
+	return (_ang - base.minAngle) * (base.maxValue - base.minValue) / (base.maxAngle - base.minAngle) + base.minValue;
+}
+
+function getCenter(ele) {
+	var bcr = ele.getBBox();
+	return webMI.gfx.createPoint(bcr.width / 2, bcr.height / 2);
+}
+
+var isTouchDevice;
+
+function getPosition(event) {
+	if (event.changedTouches) {
+		if (isTouchDevice === undefined) isTouchDevice = true;
+		if (event.type == "touchstart" && finger == -1) {
+			finger = event.changedTouches[0].identifier;
+		}
+		else if (finger != event.changedTouches[0].identifier) {
+			return {x: -1};
+		}
+		return webMI.gfx.createPoint(event.changedTouches[0].clientX, event.changedTouches[0].clientY)
+			.matrixTransform(webMI.gfx.getScreenCTM().inverse());
+	} else {
+		if (isTouchDevice === undefined) isTouchDevice = false;
+		else if (isTouchDevice) return { x: -1 };
+
+		return webMI.gfx.createPoint(event.clientX, event.clientY)
+			.matrixTransform(webMI.gfx.getScreenCTM().inverse());
+	}
+}
+
+webMI.addOnload(function(e) {
+	webMI.data.subscribe(base.node, function(e) {
+		if (!move) {
+			baseValue = e.value;
+			rotAngle = transform(e.value);
+			webMI.gfx.setRotation(base.id, webMI.translate(rotAngle, 0, 2*Math.PI, 0, 360));			
+		}
+	});
+
+	centerPoint = getCenter(base.ele);
+	webMI.addEvent(base.id, ["mousedown", "touchstart"], function(e) {
+		e.preventDefault();
+
+		if (!_active) return;
+
+		move = true;
+		startPosition = getPosition(e);
+		signPosition = { x: 2 * centerPoint.x - 2 * startPosition.x, y: 2 * centerPoint.y - 2 * startPosition.y};
+		startAngle = currentAngle = normalizeAngle(rotAngle);
+	});
+	
+	webMI.addEvent(document, ["mousemove", "touchmove"], function(e) {
+		var currentPosition = getPosition(e);
+	
+		if (move && currentPosition.x != -1) {
+			e.preventDefault();
+			var sign = (signPosition.x * (currentPosition.y - startPosition.y) - signPosition.y * (currentPosition.x - startPosition.x) < 0) ? 1 : -1;
+			var _a = Math.pow(startPosition.x - centerPoint.x, 2) + Math.pow(startPosition.y - centerPoint.y, 2);
+			var _b = Math.pow(currentPosition.x - centerPoint.x, 2) + Math.pow(currentPosition.y - centerPoint.y, 2);
+			var _c = Math.pow(currentPosition.x - startPosition.x, 2) + Math.pow(currentPosition.y - startPosition.y, 2);
+			var _ang = sign * Math.acos((_a + _b - _c) / (2 * Math.sqrt(_a * _b)));
+			currentAngle = normalizeAngle(startAngle + _ang);
+
+			if (reach == "" && currentAngle > base.maxAngle * Math.PI / 180 && currentAngle < normalizeAngle(base.minAngle * Math.PI / 180)) {
+				reach = near(currentAngle);
+				if (reach == "min")
+					webMI.gfx.setRotation(base.id, webMI.translate(normalizeAngle(base.minAngle * Math.PI / 180), 0, 2*Math.PI, 0, 360));
+				else
+					webMI.gfx.setRotation(base.id, webMI.translate(base.maxAngle * Math.PI / 180, 0, 2*Math.PI, 0, 360));
+			} else if (reach == "") {
+				webMI.gfx.setRotation(base.id, webMI.translate(currentAngle, 0, 2*Math.PI, 0, 360));
+			} else if ((reach == "max" && near(currentAngle) == "max" && currentAngle <= base.maxAngle * Math.PI / 180) ||
+					   (reach == "min" && near(currentAngle) == "min" && currentAngle >= normalizeAngle(base.minAngle * Math.PI / 180))) {
+				reach = "";
+			}
+			webMI.trigger.fire("rotateValue" + base.node, (reach == "min") ? base.minValue : (reach == "max") ? base.maxValue : Math.round(invtransform(currentAngle)));
+		}
+	});
+	
+	webMI.addEvent(document, ["mouseup", "touchend"], function(e) {
+		var currentPosition = getPosition(e);
+
+		if (move && currentPosition.x != -1) {
+			e.preventDefault();
+			move = false;
+			webMI.data.write(base.node, (reach == "min") ? base.minValue : (reach == "max") ? base.maxValue : Math.round(invtransform(currentAngle)));
+			reach = "";
+			finger = -1;
+		}
+	});
+
+	var _active = true;
+	webMI.trigger.connect('com.atvise.setActive', function(e) {
+		_active = e.value;
+	});
+});]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Presiones_Solidaridad.Faltantes
+NodeClass: Variable
+BrowseName: 1:Faltantes
+DisplayName: en|Faltantes
+Description: en|Faltantes
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Leona_Vicario.Carcamo_Leona_Vicario.Bombas.Bomba_3.run_stop
+NodeClass: Variable
+BrowseName: 1:run_stop
+DisplayName: en|run_stop
+Description: en|run_stop
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

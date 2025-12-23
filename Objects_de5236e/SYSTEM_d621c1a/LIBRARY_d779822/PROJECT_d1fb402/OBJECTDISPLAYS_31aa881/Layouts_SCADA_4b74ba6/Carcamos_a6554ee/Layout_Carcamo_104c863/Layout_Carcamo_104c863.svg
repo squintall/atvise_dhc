@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="890" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="10" width="10"/>
+ </metadata>
+ <g atv:insensitive="true" atv:refpx="0" atv:refpy="0" id="id_32" transform="matrix(1.5,0,0,1.3088,0,0)">
+  <rect atv:refpx="640" atv:refpy="340" fill="#c1f2ff" fill-opacity="0.38823529411764707" height="680.00" id="id_33" width="1280.00" x="0" y="0"/>
+ </g>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <svg atv:refpx="740" atv:refpy="809.994" height="600" id="id_43" transform="matrix(0.25,0,0,0.2667,0,0)" width="800" x="2560" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="2737.5">
+  <atv:argument name="frameName" value="equipment"/>
+ </svg>
+ <svg atv:refpx="940" atv:refpy="809.994" height="600" id="id_44" transform="matrix(0.25,0,0,0.2667,0,0)" width="800" x="3360" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="2737.158">
+  <atv:argument name="frameName" value="energy"/>
+ </svg>
+ <svg atv:refpx="1140" atv:refpy="809.994" height="600" id="id_45" transform="matrix(0.25,0,0,0.2667,0,0)" width="800" x="4160" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="2737.158">
+  <atv:argument name="frameName" value="metrics"/>
+ </svg>
+ <rect atv:refpx="175" atv:refpy="765" fill="#C4DAFA" height="250" id="id_1" stroke="#5fb1b7" stroke-width="2" width="350" x="0" y="640"/>
+ <rect atv:refpx="1744" atv:refpy="764" fill="#C4DAFA" height="250" id="id_7" stroke="#5fb1b7" stroke-width="2" width="350" x="1569" y="639"/>
+ <rect atv:refpx="1751.25" atv:refpy="671.727" fill="#5d7cc8" height="39.251" id="id_11" stroke="#5d7ac8" stroke-width="2" width="262.5" x="1616" y="654.101"/>
+ <svg atv:refpx="962.188" atv:refpy="492.423" height="426.94" id="id_16" transform="matrix(1.2602,0,0,1.0419,0,0)" width="447.83" x="514.186" xlink:href="ObjectTypes.PROJECT.Tanque.tank" y="259.132">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Captacion.Carcamos.AP_BJ_CAR_1.Tanque.Tanque_1"/>
+ </svg>
+ <text atv:refpx="1747.25" atv:refpy="680.269" fill="#ffffff" font-family="Arial" font-size="12" id="id_22" transform="matrix(1.7737,0,0,1.7065,-1250.3723,-462.1054)" x="1620.568" y="670.07">Parámetros de operación</text>
+ <svg atv:refpx="1745" atv:refpy="565" height="160" id="id_23" transform="matrix(2.1875,0,0,0.8125,0,0)" width="160" x="717.714" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.chart_bar_tile" y="615.385">
+  <atv:argument name="title" value="T{Presión del cárcamo}"/>
+  <atv:argument name="series1Name" value="T{Presión L1}"/>
+  <atv:argument name="series2Name" value=""/>
+  <atv:argument name="series3Name" value=""/>
+  <atv:argument name="max" value="4"/>
+  <atv:argument name="seriesCount" value="0"/>
+  <atv:argument name="postDecimals" value="1"/>
+  <atv:argument name="series1Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Captacion.Carcamos.AP_BJ_CAR_1.Caudalimetro.L1.pressure"/>
+  <atv:argument name="unit" value="T{kg/cm2}"/>
+  <atv:argument name="fontSizeTitle" value="20"/>
+  <atv:overwrite height="105" id="clickarea_display" transform="matrix(0.4571,0,0,1.2308,0,0)" width="350"/>
+  <atv:overwrite height="5" id="clickarea_title" transform="matrix(0.4571,0,0,-1.2308,0,0)" width="350"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.4571,0,0,1.2308,0,0)" x="175" y="94.246"/>
+  <atv:overwrite id="main_label" transform="matrix(0.4571,0,0,1.2308,0,0)" x="175" y="75.5"/>
+  <atv:overwrite height="126" id="blinking_frame" transform="matrix(0.4571,0,0,1.2308,0,0)" width="346"/>
+  <atv:overwrite height="100" id="content_frame" transform="matrix(0.4571,0,0,1.2308,0,0)" width="340"/>
+  <atv:overwrite id="chart" transform="matrix(1.0331,0,0,0.9372,0,0)" x="2.434" y="33.485"/>
+  <atv:overwrite id="title" transform="matrix(0.4571,0,0,1.2308,0,0)" x="175"/>
+  <atv:overwrite height="128" id="background" transform="matrix(0.4571,0,0,1.2308,0,0)" width="348"/>
+ </svg>
+ <svg atv:refpx="505" atv:refpy="460" height="600" id="id_36" transform="matrix(0.3125,0,0,0.4667,0,0)" width="800" x="1216" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="685.714">
+  <atv:argument name="frameName" value="previous"/>
+ </svg>
+ <svg atv:refpx="1375" atv:refpy="460" height="600" id="id_37" transform="matrix(0.3125,0,0,0.4667,0,0)" width="800" x="4000" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="685.665">
+  <atv:argument name="frameName" value="next"/>
+ </svg>
+ <svg atv:refpx="174.999" atv:refpy="425" height="160" id="id_38" transform="matrix(2.1875,0,0,0.8125,0,0)" width="160" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.chart_bar_tile" y="443.077">
+  <atv:argument name="title" value="T{Flujo del cárcamo}"/>
+  <atv:argument name="series1Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Captacion.Carcamos.AP_BJ_CAR_1.Caudalimetro.L1.flow"/>
+  <atv:argument name="series1Name" value="T{Caudal L1}"/>
+  <atv:argument name="series2Name" value=""/>
+  <atv:argument name="series3Name" value=""/>
+  <atv:argument name="max" value="400"/>
+  <atv:argument name="seriesCount" value="0"/>
+  <atv:argument name="postDecimals" value="1"/>
+  <atv:argument name="unit" value="T{l/s}"/>
+  <atv:argument name="fontSizeTitle" value="20"/>
+  <atv:overwrite height="105" id="clickarea_display" transform="matrix(0.4571,0,0,1.2308,0,0)" width="350"/>
+  <atv:overwrite height="5" id="clickarea_title" transform="matrix(0.4571,0,0,-1.2308,0,0)" width="350"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.4571,0,0,1.2308,0,0)" x="175" y="94.246"/>
+  <atv:overwrite id="main_label" transform="matrix(0.4571,0,0,1.2308,0,0)" x="175" y="75.5"/>
+  <atv:overwrite height="126" id="blinking_frame" transform="matrix(0.4571,0,0,1.2308,0,0)" width="346"/>
+  <atv:overwrite height="100" id="content_frame" transform="matrix(0.4571,0,0,1.2308,0,0)" width="340"/>
+  <atv:overwrite id="chart" transform="matrix(1.0331,0,0,0.9372,0,0)" x="2.434" y="33.485"/>
+  <atv:overwrite id="title" transform="matrix(0.4571,0,0,1.2308,0,0)" x="175"/>
+  <atv:overwrite height="128" id="background" transform="matrix(0.4571,0,0,1.2308,0,0)" width="348"/>
+ </svg>
+ <svg atv:refpx="175" atv:refpy="565" height="160" id="id_39" transform="matrix(2.1875,0,0,0.8125,0,0)" width="160" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.base_value_tile" y="615.385">
+  <atv:argument name="title" value="T{Producción}"/>
+  <atv:argument name="unit" value="T{m3}"/>
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Captacion.Carcamos.AP_BJ_CAR_1.Caudalimetro.L1.cumulative"/>
+  <atv:argument name="oneLine" value="true"/>
+  <atv:argument name="titleFontSize" value="20"/>
+  <atv:argument name="valueFontSize" value="28"/>
+  <atv:argument name="unitFontSize" value="28"/>
+  <atv:argument name="onelineFontSize" value="28"/>
+  <atv:argument name="fontFamily" value="MS Trebuchet,ITC Avant Garde Gothic,MS Arial,MS Verdana,Univers,Futura,ITC Stone Sans,Gill Sans,Akzidenz Grotesk,Helvetica,sans-serif"/>
+  <atv:argument name="postDecimals" value="1"/>
+  <atv:argument name="outputMode" value="number"/>
+  <atv:argument name="fadeInAtHover" value="No"/>
+  <atv:overwrite height="105" id="clickarea_display" transform="matrix(0.4571,0,0,1.2308,0,0)" width="350"/>
+  <atv:overwrite height="5" id="clickarea_title" transform="matrix(0.4571,0,0,-1.2308,0,0)" width="350"/>
+  <atv:overwrite id="value_unit_label" transform="matrix(0.4571,0,0,1.2308,0,0)" x="175" y="75"/>
+  <atv:overwrite id="unit_label" transform="matrix(0.4571,0,0,1.2308,0,0)" x="175" y="97"/>
+  <atv:overwrite id="value_label" transform="matrix(0.4571,0,0,1.2308,0,0)" x="175" y="53"/>
+  <atv:overwrite id="sub_label" transform="matrix(1.254,0,0,-0.1367,-20.3198,122.6667)"/>
+  <atv:overwrite id="main_label" transform="matrix(1.2923,0,0,0.0769,-23.3846,77.3077)"/>
+  <atv:overwrite height="126" id="blinking_frame" transform="matrix(0.4571,0,0,1.2308,0,0)" width="346"/>
+  <atv:overwrite height="100" id="content_frame" transform="matrix(0.4571,0,0,1.2308,0,0)" width="340"/>
+  <atv:overwrite id="title" transform="matrix(0.4571,0,0,1.2308,0,0)" x="175"/>
+  <atv:overwrite height="128" id="background" transform="matrix(0.4571,0,0,1.2308,0,0)" width="348"/>
+ </svg>
+ <svg atv:refpx="545" atv:refpy="125" height="160" id="id_40" transform="matrix(2.1875,0,0,1.5625,0,0)" width="160" x="169.143" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.chart_line_tile" y="0">
+  <atv:argument name="fontSizeTitle" value="20"/>
+  <atv:argument name="title" value="T{Nivel}"/>
+  <atv:argument name="unit" value="T{%}"/>
+  <atv:argument name="trendName" value="level"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="minute(s)"/>
+  <atv:argument name="series1series_name" value="T{Nivel}"/>
+  <atv:argument name="series1series_address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Captacion.Carcamos.AP_BJ_CAR_1.Carcamo_1.level"/>
+  <atv:argument name="series1series_marker_enabled" value="false"/>
+  <atv:argument name="yAxis1yAxis_min" value="0"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="30"/>
+  <atv:argument name="yAxis1yAxis_max" value="100"/>
+  <atv:argument name="series1series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series1series_tooltip_valueSuffix" value="%"/>
+  <atv:argument name="gshowTooltip" value="true"/>
+  <atv:overwrite height="225" id="clickarea_display" transform="matrix(0.4571,0,0,0.64,0,0)" width="350"/>
+  <atv:overwrite height="115" id="clickarea_title" transform="matrix(0.4571,0,0,0.64,0,0)" width="350"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.4571,0,0,0.64,0,0)" x="175" y="154.246"/>
+  <atv:overwrite id="main_label" transform="matrix(0.4571,0,0,0.64,0,0)" x="175" y="135.5"/>
+  <atv:overwrite id="chart" transform="matrix(0.3874,0,0,0.3504,0,0)" x="6.49" y="46.575"/>
+  <atv:overwrite height="246" id="blinking_frame" transform="matrix(0.4571,0,0,0.64,0,0)" width="346"/>
+  <atv:overwrite height="220" id="content_frame" transform="matrix(0.4571,0,0,0.64,0,0)" width="340"/>
+  <atv:overwrite id="title" transform="matrix(0.4571,0,0,0.64,0,0)" x="175"/>
+  <atv:overwrite height="248" id="background" transform="matrix(0.4571,0,0,0.64,0,0)" width="348"/>
+ </svg>
+ <svg atv:refpx="920.001" atv:refpy="125" height="160" id="id_41" transform="matrix(2.5,0,0,1.5625,0,0)" width="160" x="288" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.chart_line_tile" y="0">
+  <atv:argument name="fontSizeTitle" value="20"/>
+  <atv:argument name="title" value="T{Presión}"/>
+  <atv:argument name="unit" value="T{kg/cm2}"/>
+  <atv:argument name="trendName" value="pressure"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="minute(s)"/>
+  <atv:argument name="series1series_address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Captacion.Carcamos.AP_BJ_CAR_1.Caudalimetro.L1.pressure"/>
+  <atv:argument name="series1series_name" value="T{Presión}"/>
+  <atv:argument name="series1series_marker_enabled" value="false"/>
+  <atv:argument name="yAxis1yAxis_min" value="0"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="30"/>
+  <atv:argument name="series1series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series1series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="gshowTooltip" value="true"/>
+  <atv:overwrite height="225" id="clickarea_display" transform="matrix(0.4,0,0,0.64,0,0)" width="400"/>
+  <atv:overwrite height="115" id="clickarea_title" transform="matrix(0.4,0,0,0.64,0,0)" width="400"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.4,0,0,0.64,0,0)" x="200" y="154.246"/>
+  <atv:overwrite id="main_label" transform="matrix(0.4,0,0,0.64,0,0)" x="200" y="135.5"/>
+  <atv:overwrite id="chart" transform="matrix(0.389,0,0,0.3504,0,0)" x="5.655" y="46.575"/>
+  <atv:overwrite height="246" id="blinking_frame" transform="matrix(0.4,0,0,0.64,0,0)" width="396"/>
+  <atv:overwrite height="220" id="content_frame" transform="matrix(0.4,0,0,0.64,0,0)" width="390"/>
+  <atv:overwrite id="title" transform="matrix(0.4,0,0,0.64,0,0)" x="200"/>
+  <atv:overwrite height="248" id="background" transform="matrix(0.4,0,0,0.64,0,0)" width="398"/>
+ </svg>
+ <svg atv:refpx="1295" atv:refpy="125" height="160" id="id_42" transform="matrix(2.1875,0,0,1.5625,0,0)" width="160" x="512" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.chart_line_tile" y="0">
+  <atv:argument name="fontSizeTitle" value="20"/>
+  <atv:argument name="title" value="T{Caudal}"/>
+  <atv:argument name="unit" value="T{l/s}"/>
+  <atv:argument name="trendName" value="flow"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="minute(s)"/>
+  <atv:argument name="series1series_address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Captacion.Carcamos.AP_BJ_CAR_1.Caudalimetro.L1.flow"/>
+  <atv:argument name="series1series_name" value="T{Caudal}"/>
+  <atv:argument name="series1series_marker_enabled" value="false"/>
+  <atv:argument name="yAxis1yAxis_min" value="0"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="30"/>
+  <atv:argument name="series1series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series1series_tooltip_valueSuffix" value="m3"/>
+  <atv:argument name="gshowTooltip" value="true"/>
+  <atv:overwrite height="225" id="clickarea_display" transform="matrix(0.4571,0,0,0.64,0,0)" width="350"/>
+  <atv:overwrite height="115" id="clickarea_title" transform="matrix(0.4571,0,0,0.64,0,0)" width="350"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.4571,0,0,0.64,0,0)" x="175" y="154.246"/>
+  <atv:overwrite id="main_label" transform="matrix(0.4571,0,0,0.64,0,0)" x="175" y="135.5"/>
+  <atv:overwrite id="chart" transform="matrix(0.3874,0,0,0.3504,0,0)" x="6.49" y="46.575"/>
+  <atv:overwrite height="246" id="blinking_frame" transform="matrix(0.4571,0,0,0.64,0,0)" width="346"/>
+  <atv:overwrite height="220" id="content_frame" transform="matrix(0.4571,0,0,0.64,0,0)" width="340"/>
+  <atv:overwrite id="title" transform="matrix(0.4571,0,0,0.64,0,0)" x="175"/>
+  <atv:overwrite height="248" id="background" transform="matrix(0.4571,0,0,0.64,0,0)" width="348"/>
+ </svg>
+</svg>

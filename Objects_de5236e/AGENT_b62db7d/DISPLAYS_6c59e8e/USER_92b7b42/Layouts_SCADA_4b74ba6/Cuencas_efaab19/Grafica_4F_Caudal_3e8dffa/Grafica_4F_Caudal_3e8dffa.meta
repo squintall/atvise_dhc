@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_SCADA.Cuencas.Grafica_4F_Caudal
+NodeClass: Variable
+BrowseName: 1:Grafica_4F_Caudal
+DisplayName: en|Grafica_4F_Caudal
+Description: en|Grafica_4F_Caudal
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

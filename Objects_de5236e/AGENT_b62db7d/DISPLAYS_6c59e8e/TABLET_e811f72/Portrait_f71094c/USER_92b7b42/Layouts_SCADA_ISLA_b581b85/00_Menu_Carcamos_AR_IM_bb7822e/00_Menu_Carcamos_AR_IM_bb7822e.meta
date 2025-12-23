@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.Layouts_SCADA_ISLA.00_Menu_Carcamos_AR_IM
+NodeClass: Variable
+BrowseName: 1:00_Menu_Carcamos_AR_IM
+DisplayName: en|00_Menu_Carcamos_AR_IM
+Description: en|00_Menu_Carcamos_AR_IM
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

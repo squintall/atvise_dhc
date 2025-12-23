@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_LAS_AMERICAS.Bombas.Variador_3.switch
+NodeClass: Variable
+BrowseName: 1:switch
+DisplayName: en|switch
+Description: en|switch
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

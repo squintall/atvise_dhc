@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Logger.atvise
+NodeClass: Variable
+BrowseName: 1:atvise
+DisplayName: en|atvise
+Description: en|atvise
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/https-proxy-agent/dist/agent.d.ts
+NodeClass: Variable
+BrowseName: 1:agent.d.ts
+DisplayName: en|agent.d.ts
+Description: en|agent.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

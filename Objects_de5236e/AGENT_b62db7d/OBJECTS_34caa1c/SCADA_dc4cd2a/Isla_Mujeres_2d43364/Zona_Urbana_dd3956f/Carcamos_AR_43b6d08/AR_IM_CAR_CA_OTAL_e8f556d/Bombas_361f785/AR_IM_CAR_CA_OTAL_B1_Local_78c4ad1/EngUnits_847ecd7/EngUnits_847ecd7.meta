@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AR.AR_IM_CAR_CAÑOTAL.Bombas.AR_IM_CAR_CAÑOTAL_B1_Local.EngUnits
+NodeClass: Variable
+BrowseName: 1:EngUnits
+DisplayName: en|Engineering units
+Description: en|EngUnits
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.EngUnits.RelMirrorInputOutput

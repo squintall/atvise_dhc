@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_008.Corriente_L3
+NodeClass: Variable
+BrowseName: 1:Corriente_L3
+DisplayName: en|Corriente_L3
+Description: en|Corriente_L3
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_8.Caudalimetros.L2.L2_MAYAKOBAH.diameter
+NodeClass: Variable
+BrowseName: 1:diameter
+DisplayName: en|diameter
+Description: en|diameter
+DataType: Int16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_LV.Pozo_Viejo_LV.Potencia_Activa
+NodeClass: Variable
+BrowseName: 1:Potencia_Activa
+DisplayName: en|Potencia_Activa
+Description: en|Potencia_Activa
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.1012.General.Type.RelMirrorInputOutput
+NodeClass: Variable
+BrowseName: 1:RelMirrorInputOutput
+DisplayName: en|RelMirrorInputOutput
+Description: en|RelMirrorInputOutput
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.Relative.InputOutput

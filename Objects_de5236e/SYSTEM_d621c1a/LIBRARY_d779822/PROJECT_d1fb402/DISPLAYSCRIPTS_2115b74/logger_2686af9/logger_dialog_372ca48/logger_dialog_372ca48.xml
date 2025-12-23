@@ -1,0 +1,1005 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+    <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[
+/**
+ * Code for the logger dialog object display
+ * -----------------------------------------
+ * This Script supports the logger display viewing history of log nodes
+ */
+var TabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+var tableID = webMI.query["tableID"];
+
+var accessControlManager;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+
+/**
+ * providing a simple uglify function with no encyrption
+ * use uglify.do to uglify a string
+ * use uglify.undo to prettify a string
+ */
+var uglify = new function () {
+	for (var n = {}, r = 0; r < 16; r++) n[t(r)] = String.fromCharCode(r + 65) + (r + 81 < 91 ? String.fromCharCode(r + 81) : r - 9);
+
+	function t(n) {
+		for (var r = (n >>> 0).toString(2); r.length < 4;) r = "0" + r;
+		return r
+	}
+
+	this.do = function (r) {
+		var t = r.split("").map(function (n) {
+			var r = n.charCodeAt(0).toString(2);
+			return 6 == r.length && (r = "0" + r), 7 == r.length && (r = "0" + r), r
+		}).join("");
+		return t = (t = t.match(/.{1,4}/g)).map(function (r) {
+			return n[r].charAt(Math.floor(Math.random() * n[r].length))
+		}).join("")
+	}, this.undo = function (r) {
+		var t = r.match(/.{1,1}/g);
+		return t = (t = (t = t.map(function (r) {
+			for (var t in n) if (n[t].indexOf(r) > -1) return t
+		}).join("")).match(/.{1,8}/g).join(" ")).split(" ").map(function (n) {
+			return String.fromCharCode(parseInt(n, 2))
+		}).join("")
+	}
+};
+
+
+/**
+ * DECLARATION SECTION
+ */
+var define = {
+	"hour": 1 * 60 * 60 * 1000,
+	"day": 24 * 60 * 60 * 1000,
+	"week": 7 * 60 * 60 * 1000
+};
+
+/* parse settings */
+var errorUser = "";
+var errorGroup = webMI.query["errorGroup"] ? webMI.query["errorGroup"] : "";
+var errorSubgroup = webMI.query["errorSubgroup"] ? webMI.query["errorSubgroup"] : "";
+var errorLabel = webMI.query["errorLabel"] ? webMI.query["errorLabel"] : "";
+var errorMessage = "";
+var errorNodes = [];
+var errorOffset = (typeof(webMI.query["errorOffset"]) === "undefined" || webMI.query["errorOffset"] == "") ? define.day : webMI.query["errorOffset"] * 1000;
+var errorSmall = webMI.query["errorSmall"] == "true" ? true : false;
+var errorStrictly = webMI.query["errorStrictly"] == "true" ? true : false;
+var errorView = webMI.query["errorView"] == "true" ? true : false;
+
+/* set some time values */
+var date_to = (new Date()).getTime() + 60 * 1000; // 1 minuten look ahead
+var date_from = date_to - errorOffset;
+var onClickCallbackLock = false;
+
+/* prepare for query */
+var createQueryResult = {};
+var createQueryReady = false;
+var createQueryFirst = false;
+var createFilterReady = false;
+
+var tableFilterDefault = [];
+tableFilterDefault["read"] = true;
+
+/* dialog and trigger handler for update read/done */
+var handleDialog = webMI.query["displayMessageDialog"];
+var handleItems = {};
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+
+	/* set filter */
+	webMI.trigger.fire("com.atvise.datepicker_date_from", date_from, "date_from");
+	webMI.trigger.fire("com.atvise.datepicker_date_to", date_to, "date_to");
+	webMI.trigger.fire("setValue", errorLabel, "txt_label");
+	webMI.trigger.fire("setValue", errorMessage, "txt_message");
+
+	var compareRights = [{
+		node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.LoggerBrowseLog",
+		right: "execute"
+	}];
+	handleAccessControlResponse(compareRights,
+		function () {
+			/* build filter */
+			createQuery(errorGroup, errorSubgroup, date_from, date_to);
+			createFilter(errorGroup, errorSubgroup, errorLabel);
+
+			/* create table */
+			webMI.table.loadResources(function () {
+
+				/* Erstellen der Konfiguration */
+				var config = [];
+
+				/* Konfiguration der darzustellenden Spalten */
+				config["columns"] = [
+					{
+						id: "firstTimestamp",
+						name: "T{Timestamp}",
+						field: "firstTimestamp",
+						sortable: true,
+						sortByDefault: true,
+						sortByDefaultAsc: false,
+						filter: true,
+						formatter: new webMI.rootWindow.SlickFormatter().AtviseCellItem,
+						type: ["datetime", "s"],
+						visible: true,
+						width: 50
+					},
+					{
+						id: "occurance",
+						name: "T{Modified}",
+						field: "occurance",
+						sortable: true,
+						filter: true,
+						formatter: new webMI.rootWindow.SlickFormatter().AtviseCellItem,
+						type: ["datetime", "s"],
+						visible: !errorSmall,
+						width: 50
+					},
+					{
+						id: "group",
+						name: "T{Group}",
+						field: "group",
+						sortable: true,
+						filter: true,
+						visible: !errorSmall,
+						width: 35
+					},
+					{
+						id: "subgroup",
+						name: "T{Subgroup}",
+						field: "subgroup",
+						sortable: true,
+						filter: true,
+						visible: !errorSmall,
+						width: 25
+					},
+					{
+						id: "status",
+						name: "T{Status}",
+						field: "status",
+						sortable: true,
+						filter: true,
+						visible: true,
+						width: 25
+					},
+					{
+						id: "label",
+						name: "T{Label}",
+						field: "label",
+						sortable: true,
+						filter: true,
+						width: 35
+					},
+					{
+						id: "message",
+						name: "T{Message}",
+						field: "message",
+						sortable: true,
+						filter: true
+					},
+					{
+						id: "user",
+						name: "T{User}",
+						field: "user",
+						sortable: true,
+						filter: true,
+						visible: true,
+						width: 55
+					},
+					{
+						id: "read",
+						name: "T{Read#past}",
+						field: "read",
+						sortable: true,
+						filter: true,
+						filterExtension: {
+							"type": "checkbox",
+							"active": "fas fa-list-alt",
+							"inactive": "far fa-square",
+							"search": "false"
+						},
+						visible: true,
+						type: "button",
+						alignment: "center",
+						formatter: iconFormatter,
+						width: 20
+					}
+					/*,{
+						id: "done",
+						name: "T{Done}",
+						field: "done",
+						sortable: true,
+						filter: false,
+						visible: false,
+						type: "button",
+						alignment: "center",
+						formatter: iconFormatter,
+						width: 20
+					}*/
+				];
+
+				/* configuration runtime behavior */
+				config["mode"] = "continue";
+
+				/* configuration of requests */
+				config["dataRequestFunction"] =
+					function customDataRequest(continuation) {
+
+						if (createQueryReady && createQueryFirst) {
+							var that = this;
+							if (typeof continuation != "undefined") {
+								filter = continuation.CP.value;
+								webMI.data.queryNext(
+									filter,
+									addDataToController
+								);
+							} else {
+								filter = createQueryResult;
+								// filter.numrows = ["v:5"];
+
+								webMI.data.queryFilter(
+									filter,
+									addDataToController
+								);
+							}
+
+							function addDataToController(e) {
+								var data = {};
+								if (typeof e.More != "undefined" && e.More != false && e.continuationpoint > 0) {
+									data.continuationpoint = e.continuationpoint;
+									data.CP = {};
+									data.CP.field = null;
+									data.CP.value = e.continuationpoint;
+									data.More = e.More;
+								} else {
+									data.More = false;
+								}
+
+								data.preResult = {};
+								data.result = [];
+
+								for (var key in e.result) {
+									var dataObject = createDataObject(e.result[key]);
+									if (typeof(data.preResult[dataObject.reference]) == "undefined") {
+										data.preResult[dataObject.reference] = dataObject;
+									} else {
+										var oldLen = data.preResult[dataObject.reference].value.length;
+										var newLen = dataObject.value.length;
+										if (newLen > oldLen)
+											data.preResult[dataObject.reference] = dataObject;
+									}
+								}
+
+								var tableController = webMI.table.request(tableID, "controller");
+
+								if (tableController && typeof(tableController.search) === "function") {
+									for (var key in data.preResult) {
+										var dataObject = data.preResult[key];
+										var item = tableController.search("reference", dataObject.reference);
+										if (item.length > 0) {
+											if (item[0].value.length < dataObject.value.length) {
+												updateItem(tableController, item, dataObject);
+											}
+										} else if (item == false) {
+											data.result.push(dataObject);
+										}
+									}
+
+								} else {
+									console.error("TableController error: search not available");
+								}
+
+								delete(data.preResult);
+
+								var ids = that.addData(data);
+							}
+						}
+					};
+
+				/* handle table interactions */
+				config["onClickCallback"] = function (e, info) {
+					onClickCallback(info.item, info.rowIndex, info.column);
+				};
+
+				config["filterConversion"] = {
+					"firstTimestamp": ["datetime"],
+					"occurance": ["datetime"]
+				};
+
+				/* register configruations */
+				webMI.table.register(tableID, "config", config);
+				webMI.table.setReady(tableID, "config");
+
+				/* update on value changes */
+				var subscriptionId = webMI.data.subscribe("AGENT.OBJECTS.ATVISE.Logger", function (e) {
+					if (e.value && e.value != "") {
+						var resultObj = {};
+						resultObj.value = uglify.undo(e.value);
+
+						/* conversion check */
+						try {
+							var compatible = JSON.parse(resultObj.value);
+						} catch(ex) {
+							resultObj.value = e.value;
+						}
+
+						webMI.table.waitReady(tableID, "controller", function () {
+							var tableController = webMI.table.request(tableID, "controller");
+
+							var dataObject = createDataObject(resultObj);
+							var item = tableController.search("reference", dataObject.reference);
+
+							if (item.length > 0 && item.value != "") {
+								updateItem(tableController, item, dataObject);
+							}
+						});
+					}
+				});
+
+				/* unsubscibe at unload */
+				webMI.addOnunload(function () {
+					webMI.data.unsubscribe(subscriptionId);
+				});
+			});
+
+			if (!errorView) {
+				setTableDefaultFilter();
+			}
+
+			/**
+			 * Set default filters for table
+			 */
+			function setTableDefaultFilter() {
+				if (tableFilterDefault["read"]) {
+					webMI.table.waitReady(tableID, "controller", function () {
+						var tableController = webMI.table.request(tableID, "controller");
+						tableController.setFilterBar("read", "false");
+					});
+				}
+			}
+
+
+			/**
+			 * create query and update table
+			 * @param group
+			 * @param subgroup
+			 * @param from
+			 * @param to
+			 */
+			function createQuery(group, subgroup, from, to) {
+				createQueryReady = false;
+				webMI.data.call("LoggerBrowseLog",
+					{
+						group: group,
+						subgroup: subgroup
+					},
+					function (result) {
+						var nodes = [];
+						for (var key in result) {
+							var parts = key.split(".");
+
+							if (parts.length > 5) {
+								if (group && subgroup) {
+									if (group && group == parts[4] && subgroup && subgroup == parts[5]) {
+										nodes.push("v:" + key);
+									}
+								} else if (group && group == parts[4]) {
+									nodes.push("v:" + key);
+								} else if (subgroup && subgroup == parts[5]) {
+									nodes.push("v:" + key);
+								} else if (!group && !subgroup) {
+									nodes.push("v:" + key);
+								}
+							}
+						}
+
+						createQueryResult = {};
+						createQueryResult.address = nodes;
+						createQueryResult.init = ["v:false"];
+						createQueryResult.select = ["v:priority", "v:value", "v:username", "v:address", "v:timestamp", "v:type", "v:status", "v:ReplacementNames", "v:ReplacementValues"];
+						createQueryResult.type = ["v:1"];
+
+						if (errorLabel && errorMessage) {
+							createQueryResult.value = ["g:*label*" + errorLabel + "*message*" + errorMessage + "*reference*"];
+						} else if (errorLabel && !errorMessage) {
+							createQueryResult.value = ["g:*label*" + errorLabel + "*message*"];
+						} else if (!errorLabel && errorMessage) {
+							createQueryResult.value = ["g:*message*" + errorMessage + "*reference*"];
+						}
+
+						if (to && from) {
+							createQueryResult.timestamp = ["n:>=" + from + "<" + to];
+						} else if (to) {
+							createQueryResult.timestamp = ["n:>=" + from];
+						} else if (from) {
+							createQueryResult.timestamp = ["n:<" + to];
+						}
+
+						if (nodes.length < 1) {
+							createQueryReady = false;
+						} else {
+							createQueryReady = true;
+						}
+
+						webMI.table.waitReady(tableID, "controller", function () {
+							var tableController = webMI.table.request(tableID, "controller");
+							tableController.clearData();
+							if (createQueryReady) {
+								setTimeout(function () {
+									createQueryFirst = true;
+									tableController.startDataRequest()
+								}, 125);
+							}
+						});
+
+					}
+				);
+			}
+
+
+			/**
+			 * create filter for querys
+			 * @param group
+			 * @param subgroup
+			 * @param label
+			 */
+			function createFilter(group, subgroup, label) {
+				webMI.data.call("LoggerBrowseLog",
+					{
+						group: group,
+						subgroup: subgroup
+					},
+					function (result) {
+						var indexKey = [];
+
+						var nodes = [];
+						for (var key in result) {
+							nodes.push(key);
+						}
+
+						var filterGroup = [
+							{text: "T{All}", value: ""}
+						];
+						var filterSubgroup = [
+							{text: "T{All}", value: ""}
+						];
+						var filterLable = [
+							{text: "T{All}", value: ""}
+						];
+
+						if (errorStrictly && errorGroup != "") {
+							filterGroup = [];
+						}
+
+						if (errorStrictly && filterSubgroup != "") {
+							filterSubgroup = [];
+						}
+
+
+						var groupIndex = {};
+						var subgroupIndex = {};
+
+						for (var key in nodes) {
+							var node = nodes[key].split(".");
+							groupIndex[node[4]] = node[4];
+							subgroupIndex[node[5]] = node[5];
+						}
+
+						indexKey = [];
+						for (var key in groupIndex) {
+							if (indexKey.indexOf(key) == -1) {
+								if (errorStrictly == false || errorGroup == "" || errorGroup == key) {
+									indexKey.push(key);
+									filterGroup.push({text: key, value: key});
+								}
+							}
+						}
+						webMI.trigger.fire("setItems", filterGroup, "cbb_group");
+						webMI.trigger.fire("setSelectedItem", errorGroup ? errorGroup : "T{All}", "cbb_group");
+
+						indexKey = [];
+						for (var key in subgroupIndex) {
+							if (indexKey.indexOf(key) == -1) {
+								if (errorStrictly == false || errorSubgroup == "" || errorSubgroup == key) {
+									indexKey.push(key);
+									filterSubgroup.push({text: map(key), value: key});
+								}
+							}
+						}
+						webMI.trigger.fire("setItems", filterSubgroup, "cbb_subgroup");
+						webMI.trigger.fire("setSelectedItem", errorSubgroup ? map(errorSubgroup) : "T{All}", "cbb_subgroup");
+
+						createFilterReady = true;
+					}
+				);
+			}
+
+
+			/**
+			 * create formatted data object
+			 * @param obj
+			 * @returns {{address: *, status: *, timestamp: *, type: *, value: *}}
+			 */
+			function createDataObject(obj) {
+				var dataObject = {
+					address: obj.address,
+					status: obj.status,
+					value: obj.value,
+					timestamp: obj.timestamp
+				}
+
+				var logObject;
+
+				try {
+					logObject = JSON.parse(obj.value);
+					var event = logObject.event.length - 1;
+
+					dataObject.firstTimestamp = logObject.event[0].occurance;
+					dataObject.reference = logObject.reference;
+					dataObject.group = logObject.group;
+					dataObject.subgroup = map(logObject.subgroup);
+					dataObject.label = logObject.label;
+					dataObject.message = createTranslation(logObject.message);
+					dataObject.comment = logObject.event[event].comment;
+					dataObject.occurance = logObject.event[event].occurance;
+					dataObject.status = map(logObject.event[event].status);
+					dataObject.user = logObject.event[event].user;
+
+					dataObject.read = false;
+					dataObject.done = false;
+
+					if (logObject.event[event].status == "done") {
+						dataObject.read = true;
+						dataObject.done = true;
+					}
+					if (logObject.event[event].status == "read") {
+						dataObject.read = true;
+					}
+				} catch (ex) {
+					if (typeof(obj.value) != "undefined" && obj.value != "")
+						console.error("Logger: Could not parse log object (" + obj.value + ")!");
+				}
+
+				return dataObject;
+			}
+
+
+			/**
+			 * simple translation of language objects
+			 * @param stringObj
+			 * @returns {*}
+			 */
+			function createTranslation(stringObj) {
+				var langString;
+				try {
+					var stringObj = JSON.parse(stringObj);
+					langString = stringObj["T{}"];
+				} catch (execption) {
+					langString = stringObj;
+				}
+
+				return langString
+			}
+
+
+			/**
+			 * simple mapping for status and labels
+			 * @param stringObj
+			 * @returns {*}
+			 */
+			function map(stringObj) {
+				var map = {
+					"all": "T{All}",
+					"done": "T{Done}",
+					"new": "T{New}",
+					"read": "T{Read#past}",
+					"error": "T{Error}",
+					"info": "T{Info}",
+					"warning": "T{Warning}",
+					"permission": "T{Permission}"
+				}
+
+				var mapping = stringObj;
+				var toMap = stringObj.toLowerCase();
+				if (map[toMap]) {
+					mapping = map[toMap];
+				}
+
+				return mapping;
+			}
+
+
+			/**
+			 * formatter for read/done icons
+			 * @param row
+			 * @param cell
+			 * @param value
+			 * @param columnDef
+			 * @param dataContext
+			 * @returns {string}
+			 */
+			function iconFormatter(row, cell, value, columnDef, dataContext) {
+				var title = value;
+				var icon = '<i class="fas fa-list-alt"></i>';
+				if (value) {
+					icon = '<i class="far fa-list-alt"></i>';
+				}
+				return '<div class="slick-cell-item" title="' + title + '">' + icon + '</div>';
+			}
+
+
+			/**
+			 * handle click events on table cells
+			 * @param item
+			 * @param rowIndex
+			 * @param column
+			 */
+			function onClickCallback(item, rowIndex, column) {
+				if (column.id === "read" || column.id === "done") {
+
+					var compareRights = [{
+						node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.LoggerWriteHistory",
+						right: "execute"
+					}];
+					handleAccessControlResponse(compareRights, function () {
+						if (!onClickCallbackLock) {
+							onClickCallbackLock = true;
+
+							webMI.table.waitReady(tableID, "controller", function () {
+								var tableController = webMI.table.request(tableID, "controller");
+								var items = tableController.getSelectedItems();
+
+								handleItems = {
+									"column": column,
+									"marked": items,
+									"single": [item]
+								}
+
+								if (items.length > 0) {
+									showConfirmDialog();
+								} else {
+									processItems(handleItems.column, handleItems.single);
+								}
+
+								onClickCallbackLock = false;
+							});
+						}
+
+						/* release if blocked */
+						setTimeout(function () {
+							onClickCallbackLock = false;
+						}, 25);
+					});
+				}
+			}
+
+
+			/**
+			 * opening the confirmation for marked lines
+			 */
+			function showConfirmDialog() {
+				var openedWindow = webMI.display.openWindow({
+					display: handleDialog,
+					height: 400,
+					width: 600,
+					modal: true,
+					resizable: false,
+					movable: true,
+					scrollbars: false,
+					menubar: false,
+					status: false,
+					toolbar: false,
+					query: {
+						headline: "T{Confirm}",
+						msg1: "T{The selection can be applied to all marked lines!} T{Should all marked lines be set as read?}",
+						btn1: "T{YES, mark all as read.}",
+						btn2: "T{NO, only the current line!}",
+						action_btn1: "com.atvise.logger_dialog.marked",
+						action_btn2: "com.atvise.logger_dialog.single"
+					}
+				});
+
+				var doc = openedWindow.getContentDocument();
+				webMI.addEvent(doc, "keydown", function (e) {
+					if (e.keyCode == 27)
+						openedWindow.close();
+				});
+			}
+
+
+			/**
+			 * opening the info dialoge
+			 */
+			function showInformationDialog(single) {
+				var msg1 = "T{Some status updates could not be carried out due to a rights restriction!}";
+				var msg2 = "T{Please check the current status of the entries.}";
+				var msg3 = "T{Contact your administrator for permission changes.}";
+				if (single) {
+					msg1 = "T{The status update could not be carried out due to a rights restriction!}";
+					msg2 = "T{Please check the current status of the entry.}";
+				}
+
+				var openedWindow = webMI.display.openWindow({
+					display: handleDialog,
+					height: 400,
+					width: 600,
+					modal: true,
+					resizable: false,
+					movable: true,
+					scrollbars: false,
+					menubar: false,
+					status: false,
+					toolbar: false,
+					query: {
+						headline: "T{Information}",
+						msg1: msg1,
+						msg2: msg2,
+						msg3: msg3
+					}
+				});
+
+				var doc = openedWindow.getContentDocument();
+				webMI.addEvent(doc, "keydown", function (e) {
+					if (e.keyCode == 27)
+						openedWindow.close();
+				});
+			}
+
+
+			/**
+			 * processing items marked for update
+			 * @param column
+			 * @param items
+			 */
+			function processItems(column, items) {
+				var single = items.length == 1;
+				var processError = false;
+				for (var i in items) {
+					var item = items[i];
+
+					if (column.id === "read" && item.read == false) {
+						updateItem(item, "read");
+					} else if (column.id === "done" && item.done == false) {
+						updateItem(item, "done");
+					}
+
+					function updateItem(item, status) {
+						webMI.data.call("LoggerWriteHistory", {
+							"address": items[i].address,
+							"value": items[i].value,
+							"status": status,
+							"timestamp": items[i].timestamp,
+							"user": errorUser
+						}, function (e) {
+							if (!processError && !e.result) {
+								showInformationDialog(single);
+								processError = true;
+							}
+						});
+					}
+				}
+			}
+
+
+			/**
+			 * update item
+			 * @param tableController
+			 * @param item
+			 * @param dataObject
+			 */
+			function updateItem(tableController, item, dataObject) {
+				item = item[0];
+				item.comment = dataObject.comment;
+				item.done = dataObject.done;
+				item.occurance = dataObject.occurance;
+				item.read = dataObject.read;
+				item.status = dataObject.status;
+				item.timestamp = dataObject.firstTimestamp;
+				item.user = dataObject.user;
+				item.value = dataObject.value;
+				tableController.updateData(item.id, item);
+			}
+
+
+			/**
+			 * dispatcher for all enter events
+			 * @param element
+			 * @private
+			 */
+			function _dispatchEnter(element) {
+				_dispatchEnterEvent(element, "keydown");
+				_dispatchEnterEvent(element, "keypress");
+				_dispatchEnterEvent(element, "keyup");
+			}
+
+
+			/**
+			 * dispatcher for specific enter event
+			 * @param element
+			 * @param type
+			 * @private
+			 */
+			function _dispatchEnterEvent(element, type) {
+				var keyboardEvent = webMI.rootWindow.document.createEvent('KeyboardEvent');
+				delete keyboardEvent.which;
+				var initMethod = typeof keyboardEvent.initKeyboardEvent !== 'undefined' ? 'initKeyboardEvent' : 'initKeyEvent';
+				keyboardEvent[initMethod](
+					type, // event type : keydown, keyup, keypress
+					true, // bubbles
+					true, // cancelable
+					webMI.rootWindow, // window, // viewArg: should be window
+					false, // ctrlKeyArg
+					false, // altKeyArg
+					false, // shiftKeyArg
+					false, // metaKeyArg
+					13, // keyCodeArg : unsigned long the virtual key code, else 0
+					13 // charCodeArgs : unsigned long the Unicode character associated with the depressed key, else 0
+				);
+				element.dispatchEvent(keyboardEvent);
+			}
+
+
+			/**
+			 * TRIGGER SECTION
+			 */
+			webMI.trigger.connect("clicked", function (e) {
+				if (createFilterReady) {
+					createQuery(errorGroup, errorSubgroup, date_from, date_to);
+				}
+			}, "btn_filter");
+
+
+			webMI.trigger.connect("clicked", function (e) {
+				/* set some time values */
+				var date_to = (new Date()).getTime() + 60 * 1000; // 1 minuten look ahead;
+				var date_from = date_to - errorOffset;
+
+				webMI.trigger.fire("com.atvise.datepicker_date_from", date_from, "date_from");
+				webMI.trigger.fire("com.atvise.datepicker_date_to", date_to, "date_to");
+				webMI.trigger.fire("setSelectedItem", "T{All}", "cbb_group");
+				webMI.trigger.fire("setSelectedItem", "T{All}", "cbb_subgroup");
+				webMI.trigger.fire("setValue", "", "txt_label");
+				webMI.trigger.fire("setValue", "", "txt_message");
+			}, "btn_reset");
+
+
+			webMI.trigger.connect("valuechanged", function (e) {
+				date_from = e.value;
+			}, "date_from");
+
+
+			webMI.trigger.connect("valuechanged", function (e) {
+				date_to = e.value;
+			}, "date_to");
+
+
+			webMI.trigger.connect("valuechanged", function (e) {
+				if (createFilterReady) {
+					errorGroup = e.value;
+				}
+			}, "cbb_group");
+
+
+			webMI.trigger.connect("valuechanged", function (e) {
+				if (createFilterReady) {
+					errorSubgroup = e.value;
+				}
+			}, "cbb_subgroup");
+
+
+			webMI.trigger.connect("valuechanged", function (e) {
+				if (createFilterReady) {
+					errorLabel = e.value;
+				}
+			}, "txt_label");
+
+
+			webMI.trigger.connect("valuechanged", function (e) {
+				if (createFilterReady) {
+					errorMessage = e.value;
+				}
+			}, "txt_message");
+
+
+			webMI.trigger.connect("com.atvise.logger_dialog.marked", function (e) {
+				processItems(handleItems.column, handleItems.marked);
+				e.value.close();
+			});
+
+
+			webMI.trigger.connect("com.atvise.logger_dialog.single", function (e) {
+				processItems(handleItems.column, handleItems.single);
+				e.value.close();
+			});
+		}
+	);
+});
+
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback
+ */
+function handleAccessControlResponse(compareRights, callback) {
+	if (!accessControlManager) {
+		callback();
+		return;
+	}
+
+	var requiredRights = {
+		nodeIds: [
+			"AGENT.OBJECTS.ATVISE.Logger",
+			"AGENT.OBJECTS.ATVISE.Logger",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.LoggerBrowseLog",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.LoggerWriteHistory"
+		],
+		rights: [
+			"read",
+			"write",
+			"execute",
+			"execute"
+		]
+	};
+
+	accessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, (response) => {
+		var right_active_visu_element =
+			response["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.LoggerBrowseLog"].execute;
+
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "date_from");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "date_to");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "cbb_group");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "cbb_subgroup");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "txt_label");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "txt_message");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "btn_filter");
+		webMI.trigger.fire("com.atvise.setActive", right_active_visu_element, "btn_reset");
+
+		webMI.gfx.setVisible(tableID, right_active_visu_element);
+
+		if (!Array.isArray(compareRights))
+			compareRights = [compareRights];
+
+		var allRights = [];
+
+		for (var c in compareRights) {
+			if (typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined") {
+				allRights.push(response[compareRights[c].node][compareRights[c].right]);
+			} else {
+				allRights.push(false);
+			}
+		}
+
+		if (!allRights.includes(false)) {
+			callback();
+		} else {
+			handleAccessDenied("T{Access Denied}");
+		}
+
+	});
+
+	function handleAccessDenied(message) {
+		webMI.gfx.setVisible("access_contol_warning", true);
+		webMI.gfx.setText("access_contol_warning", message);
+	}
+}
+
+
+/**
+ * andle user changes
+ */
+webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+	errorUser = e.username;
+});
+
+]]></code>
+</script>

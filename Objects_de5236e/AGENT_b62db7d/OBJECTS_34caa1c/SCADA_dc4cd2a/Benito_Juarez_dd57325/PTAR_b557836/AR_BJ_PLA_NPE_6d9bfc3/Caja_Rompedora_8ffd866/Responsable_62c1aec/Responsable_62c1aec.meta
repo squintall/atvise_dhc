@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.PTAR.AR_BJ_PLA_NPE.Caja_Rompedora.Responsable
+NodeClass: Variable
+BrowseName: 1:Responsable
+DisplayName: en|Responsable
+Description: en|Responsable
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

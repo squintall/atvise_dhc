@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.PTAR.AR_SOL_PLA_SAASTUN_HA.Basculas Gas Cloro.Bascula 2.AR_SOL_PLA_SAASTUN_HA_BASC_B1_PorcentajeTara
+NodeClass: Variable
+BrowseName: 1:AR_SOL_PLA_SAASTUN_HA_BASC_B1_PorcentajeTara
+DisplayName: en|AR_SOL_PLA_SAASTUN_HA_BASC_B1_PorcentajeTara
+Description: en|AR_SOL_PLA_SAASTUN_HA_BASC_B1_PorcentajeTara
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.level_percent.Nivel.Tanque_lleno
+NodeClass: Object
+BrowseName: 1:Tanque_lleno
+DisplayName: en|Tanque_lleno
+Description: en|Tanque_lleno
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConditionControl.Limit
+Reference: forward HasComponent ns=1;s=AGENT.ALARMING.Categories.Error

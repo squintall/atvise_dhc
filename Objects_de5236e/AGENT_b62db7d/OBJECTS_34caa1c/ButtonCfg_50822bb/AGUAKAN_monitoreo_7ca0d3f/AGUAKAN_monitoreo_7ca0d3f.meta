@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ButtonCfg.AGUAKAN\monitoreo
+NodeClass: Variable
+BrowseName: 1:AGUAKAN\monitoreo
+DisplayName: en|AGUAKAN\monitoreo
+Description: en|AGUAKAN\monitoreo
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

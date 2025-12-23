@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_013.Telefono_Responsable
+NodeClass: Variable
+BrowseName: 1:Telefono_Responsable
+DisplayName: en|Telefono_Responsable
+Description: en|Telefono_Responsable
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

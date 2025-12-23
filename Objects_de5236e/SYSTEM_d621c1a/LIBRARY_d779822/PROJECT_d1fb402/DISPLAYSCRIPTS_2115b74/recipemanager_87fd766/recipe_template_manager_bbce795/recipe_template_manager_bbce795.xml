@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var gTemplateTableController;
+var gParameterTablecontroller;
+var gAccessControlManager;
+const gConfigNode = webMI.query["configNode"];
+const PARAMETER_TABLE_NAME = webMI.query["tableID"];
+const PARAMETER_TABLE_NAME2 = webMI.query["tableID2"];
+
+if (webMI.getAccessControlSupport()) {
+	gAccessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback success
+ * @param callback fail
+ */
+function handleAccessControlResponse(compareRights, successCallback, failCallback) {
+	if (!gAccessControlManager) {
+		successCallback();
+		return;
+	}
+	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		// do the checks
+		var allRights = true;
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights = allRights && response[compareRights[c].node][compareRights[c].right];
+			} else {
+				allRights = false;
+				break;
+			}
+		}
+		
+		if (allRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * success if any node/right comibination is true
+ * @param compareRights
+ * @param callback success
+ * @param callback fail
+ */
+function handleAccessControlResponseAny(compareRights, successCallback, failCallback) {
+	if (!gAccessControlManager) {
+		successCallback();
+		return;
+	}
+	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		// do the checks
+		var anyRights = false;
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				anyRights = anyRights || response[compareRights[c].node][compareRights[c].right];
+			}
+		}
+		
+		if (anyRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+									
+/**
+ * create recipe template table data
+ */   
+function getTableData(){
+	webMI.data.call("GetRecipeData", {"mode":"RecipeTemplates", "configNode": gConfigNode}, function(e){
+		var templateData = e;
+		var rows =[];
+		rows.result = [];
+		for(key in templateData){	
+			var templateNode = templateData[key];
+			var templateRowItem = {};
+            var template = JSON.parse(templateNode.value);
+            templateRowItem.id = template.id;
+			templateRowItem.name = template.id;
+            templateRowItem.description = template.description;
+			templateRowItem.edit = "edit";
+            rows.push(templateRowItem);
+		}			
+		
+		initRecipeTemplates(rows);
+	});
+}
+
+   
+																 
+							
+/**
+ * create recipe template table data
+ */   
+function updateTemplates(){
+	if (gTemplateTableController === undefined) {
+		return;
+	}
+
+	webMI.data.call("GetRecipeData", {"mode":"RecipeTemplates", "configNode": gConfigNode}, function(templateData){
+		var rows = [];
+		for (var t in templateData) {
+			var json = JSON.parse(templateData[t].value);
+			json.name = json.id;
+			delete json.id;
+			rows.push(json);
+		}
+		gTemplateTableController.clearData();
+		gTemplateTableController.addData({ result: rows });
+		
+		// remove "active" class from template table
+		for (var node of webMI.rootWindow.document.querySelectorAll("[id^=tbl_templates_] [class*=active]")) {
+			node.classList.remove("active");
+		}
+	});
+}
+
+/**
+ * create recipe template parameter table data for given template
+ * @param recipeTemplatename
+ */   
+function updateRecipeParameters(recipeTemplatename){
+	if (gParameterTablecontroller === undefined) {
+		return;
+	}
+
+	if(recipeTemplatename === undefined){
+		gParameterTablecontroller.clearData();
+		return;
+	}
+	
+	webMI.data.call("GetRecipeData", {"mode":"TemplateParameterByName", "templateName" : recipeTemplatename, "configNode": gConfigNode}, function(parameterData){
+		gParameterTablecontroller.clearData();
+		gParameterTablecontroller.addData({ result: parameterData });
+	});
+}
+
+webMI.addOnload(function(e){
+	updateRecipeStructure(gConfigNode, function(){
+		setAddBtnActive();
+		if (
+			webMI.getMethodSupport().indexOf("AddNode") < 0 ||
+			webMI.getMethodSupport().indexOf("CheckNodeExists") < 0
+		) {
+			console.warn("The necessary webMI methods are not supported, please add the configuration node manually");
+		} else {
+			handleAccessControlResponse({ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.CheckNodeExists", right: "execute" }, function() {
+				webMI.data.call("CheckNodeExists", { address: gConfigNode }, function(e) {
+					setAddBtnActive();
+					if (e.result) {
+						// config node exists
+						initTables();
+						return;
+					}
+					
+					handleAccessControlResponse([
+						{ node: gConfigNode.substring(0, gConfigNode.lastIndexOf(".")), right: "engineer"},
+						{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AddNode", right: "execute"}
+					], function() {
+						gAccessControlManager.assist.addNode(
+							{
+								address: gConfigNode,
+								nodeClass: "NODECLASS_OBJECT",
+								typeDefinition: "i=61"
+							},
+							function () {
+								gAccessControlManager.assist.addNode(
+									{
+										address: gConfigNode + ".templates",
+										nodeClass: "NODECLASS_OBJECT",
+										typeDefinition: "i=61"
+									},
+									function () {
+										setAddBtnActive();
+										initTables();								
+									},
+									function (error) {
+										console.error(gConfigNode + ".templates", error);
+										permissionMissing();
+									}	
+								);
+							},
+							function (error) {
+								console.error(gConfigNode, error);
+								permissionMissing();
+							}	
+						);
+					}, function() {
+						permissionMissing();
+					});
+				});
+			}, function() {
+				permissionMissing();
+			});
+		}
+		
+		webMI.gfx.setText("lbl_selected_recipe_template", "");
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_delete");
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_export");
+		handleAccessControlResponse({ node: gConfigNode, right: "engineer" }, function() {
+			webMI.trigger.fire("com.atvise.setActive", true, "btn_import");
+		}, function() {
+			webMI.trigger.fire("com.atvise.setActive", false, "btn_import");
+		});
+	});
+});
+
+/**
+ * initiate both tables
+ */
+function initTables() {
+	handleAccessControlResponse({ node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", right: "execute" }, function() {
+		getTableData();
+	}, function() {});
+}
+
+/**
+ * show missing permission message
+ */
+function permissionMissing() {
+	webMI.gfx.setText("not_authorized_message", "T{Permission(s) missing for recipe management!}")
+	webMI.gfx.setVisible("not_authorized_message", null);
+	webMI.gfx.setVisible("id_1", false);
+	webMI.gfx.setVisible("id_11", false);
+	removeTableFooter("tbl_templates");
+	removeTableFooter("tbl_params");
+}
+
+/**
+ * remove footer from DOM from slickgrid for table id
+ * @param id
+ */
+function removeTableFooter(id) {
+	var nodes = webMI.rootWindow.document.querySelectorAll('tr[id*="' + id + '"][id$="footerBar1"]');
+	nodes.forEach(function(n) {
+		while(n.firstChild != null) {
+		  n.removeChild(n.firstChild);
+		}
+	});
+}
+
+/**
+ * set add button active based on access control right
+ */
+function setAddBtnActive() {
+	handleAccessControlResponse({ node: gConfigNode, right: "engineer" }, function() {
+		webMI.trigger.fire("com.atvise.setActive", true, "btn_add");
+	}, function() {
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_add");
+	});
+}
+
+/**
+ * initialize template slick grid table with given row data
+ * @param rows
+ */
+function initRecipeTemplates(rows){
+	try {
+		webMI.table.loadResources(function() {
+			var config = {};
+			
+			// always add an edit column
+			config["columns"] = createTableColumnsFromGlobalList(webMI.query.columnsTemplates, "Main", {}, {}).concat({
+				id: "edit",
+				name: "T{Edit}",
+				field: "edit",
+				sortable: false,
+				filter: false,
+				visible: true, 
+				resizable: true,
+				width: 10,
+				formatter : function (row, cell, value, columnDef, dataContext) {
+					return "<div style='width:100%; text-align:center;'><i class='fas fa-edit'></i></div>";
+				}
+			});
+	
+			config["mode"] = "once"; // or live/triggered
+			config["bufferInterval"] = 75;
+			config["onClickCallback"] = function(e, info){
+				/*workaround for duplicate click executes
+				because click is also detected on the selected element afterwards*/
+				if(e.target.classList.contains("active")){
+					return;
+				}
+				
+				gParameterTablecontroller.clearData();
+				
+				if(info.column.id == "edit"){
+					webMI.query.templateName = info.item.name;	
+					webMI.display.openDisplay("SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.recipe_template_editor", webMI.query);	
+					return;						
+				}					
+				webMI.gfx.setText("lbl_selected_recipe_template", info.item.name);
+				updateRecipeParameters(info.item.name);				
+				
+				setDeleteExportButtonInActive();
+			};
+			config["onHeaderClickCallback"] = function(e, info){
+				if (info.column.id != "atvise_marker") {
+					return;
+				}
+				
+				setDeleteExportButtonInActive();
+			};
+			var data = {};		
+			data.result = rows;
+			config["dataRequestFunction"] =
+				function customDataRequest(continuation) {
+					var self = this;
+					self.clearData();
+					var ids = self.addData(data);
+				};
+	
+			webMI.table.register(PARAMETER_TABLE_NAME, "config", config);
+			webMI.table.setReady(PARAMETER_TABLE_NAME, "config");
+			gTemplateTableController = webMI.table.request(PARAMETER_TABLE_NAME, "controller");
+					
+			initRecipeParameters([]);        
+		});
+	} catch(ex){}
+}
+
+
+/**
+ * activate/deactivate delete and export button based on selected items
+ */
+function setDeleteExportButtonInActive() {
+	if (gTemplateTableController == null || gTemplateTableController.isReady !== true) {
+		return;
+	}
+	
+	if (gTemplateTableController.getSelectedItems().length > 0) {
+		var compareRightsDelete = [];
+		var compareRightsExport = [];
+		for (const item of gTemplateTableController.getSelectedItems()) {
+			compareRightsDelete.push({
+				node: gConfigNode + "." + item.name,
+				right: "engineer"
+			});
+			compareRightsExport.push({
+				node: gConfigNode + "." + item.name,
+				right: "read"
+			});
+		}
+		
+		handleAccessControlResponseAny(compareRightsDelete, function() {
+			webMI.trigger.fire("com.atvise.setActive", true, "btn_delete");
+		}, function() {
+			webMI.trigger.fire("com.atvise.setActive", false, "btn_delete");
+		});
+		
+		handleAccessControlResponseAny(compareRightsExport, function() {
+			webMI.trigger.fire("com.atvise.setActive", true, "btn_export");
+		}, function() {
+			webMI.trigger.fire("com.atvise.setActive", false, "btn_export");
+		});
+	} else {
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_delete");
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_export");
+	}
+}
+
+
+/**
+ * open delete template dialog to ask user if he wants to delete a template
+ */   
+function deleteSelectedTemplate(){
+	webMI.query.triggerName = "remove_recipe_template";
+	webMI.query.dialogTitle = "T{Remove recipe template}:";
+	webMI.query.dialogMessageLine1 = "T{Do you want to delete the selected recipe template(s)?}";
+	webMI.query.dialogMessageLine2 = "T{Recipes of selected template(s) will be deleted too!}";
+	
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.recipe_delete",
+		height: 310, width: 600, remember: true,
+		modal: true, resizable: false, movable: true,
+		scrollbars: true, menubar: false, status: false, toolbar: false, query:webMI.query
+	});
+}
+
+/*format a Number value according to the set decimals*/
+function formatNumberValue(dataContext, value) {
+	if ((!dataContext.hasOwnProperty("options") || (dataContext.options || "").trim() == "") &&
+		(dataContext.datatype == "Number" || dataContext.datatype == "Range")) {
+		value = parseFloat(value);
+		if (isNaN(value)) {
+			value = "";
+		} else {
+			if (dataContext.hasOwnProperty("decimals") && !isNaN(parseInt(dataContext.decimals)) && parseInt(dataContext.decimals) == parseFloat(dataContext.decimals)) {
+				value = webMI.sprintf("%." + dataContext.decimals + "f", value);
+			}
+		}
+	}
+	
+	return value;
+}
+
+/**
+ * initialize template parameter slick grid table with given row data
+ * @param rows
+ */   
+function initRecipeParameters(rows){
+	var config = {};
+	
+	config["columns"] = createTableColumnsFromGlobalList(webMI.query.columnsParameters, "Main", {}, {
+		defaultvalue: function (row, cell, value, columnDef, dataContext) {
+			return "<div style='width:100%; text-align: center'>" + formatNumberValue(dataContext, value) + "</div>";
+		}
+	});
+
+	config["mode"] = "once"; // or live/triggered
+	config["bufferInterval"] = 75;
+
+	config["onClickCallback"] = function(e, info) {}
+	/* Example set of data */		
+	var data = {};		
+	data.result = rows;
+	config["dataRequestFunction"] =
+		function customDataRequest(continuation) {
+			var self = this;
+			self.clearData();
+			var ids = self.addData(data);
+	};
+
+	webMI.table.register(PARAMETER_TABLE_NAME2, "config", config);
+	webMI.table.setReady(PARAMETER_TABLE_NAME2, "config");
+	gParameterTablecontroller = webMI.table.request(PARAMETER_TABLE_NAME2, "controller");
+}
+
+
+/**
+ * trigger to add a template
+ */   
+webMI.trigger.connect("add_recipe_template", function(e){
+	// do nothing if no template name provided
+	if (e.value.value1 == "") {
+		return;
+	}
+	
+	handleAccessControlResponse([
+		{
+			node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider",
+			right: "execute"
+		},
+		{
+			node: gConfigNode,
+			right: "engineer"
+		}
+	], function() {
+		webMI.data.call("GetRecipeData", {"mode":"CreateTemplate", "templateName" : e.value.value1, "configNode": gConfigNode, "data": JSON.stringify({
+			id: e.value.value1,
+			description: e.value.value2,
+			parameters: []
+		})}, function(e){
+			updateTemplates();
+		});
+	}, function() {});
+});
+
+
+/**
+ * trigger to delete the currently selected template
+ */   
+webMI.trigger.connect("remove_recipe_template", function(e){
+	handleAccessControlResponse({ node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", right: "execute" }, function() {
+		deleteTemplateCallback(gTemplateTableController.getSelectedItems());
+	}, function() {});
+});
+
+function deleteTemplateCallback(items) {
+	if (([].concat(items)).length == 0) {
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_delete");
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_export");
+		updateTemplates();
+		return;
+	}
+	
+	handleAccessControlResponse({ node: gConfigNode + "." + items[0].name, right: "engineer" }, function() {
+		webMI.data.call("GetRecipeData", {
+			mode: "DeleteTemplateByName",
+			configNode: gConfigNode,
+			templateName: items[0].name
+		}, function(e) {
+			deleteTemplateCallback(items.slice(1));
+		});
+	}, function() {
+		deleteTemplateCallback(items.slice(1));
+	});
+}
+
+webMI.trigger.connect("clicked", function(e){
+	deleteSelectedTemplate();
+}, "btn_delete");
+
+webMI.trigger.connect("clicked", function(e){
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.add_popup",
+		height: 310,
+		width: 600,
+		remember: true,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: true,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			configNode: gConfigNode,
+			mode: "templates",
+			dialogTitle: "T{Add recipe template}:",
+			triggerName: "add_recipe_template",
+			label1: "T{Template name}:",
+			value1: "",
+			useSecondValue: true,
+			label2: "T{Description}:",
+			value2: ""
+		}
+	});
+}, "btn_add");
+
+webMI.trigger.connect("clicked", function(e){
+	handleAccessControlResponse({ node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", right: "execute" }, function() {
+		var exp = JSON.stringify(gTemplateTableController.getSelectedItems().reduce(function(obj, r) {
+			obj[r.name] = [];
+			return obj;
+		}, {}));
+		webMI.data.call("GetRecipeData", {"mode":"Export", "export" : exp, "configNode": gConfigNode}, function(e){
+			var blob = new Blob([e.result], { type: 'text/csv' });
+			var downloadCsv = document.getElementById("downloadCsv");
+			downloadCsv.download = "export.csv";
+			downloadCsv.href = URL.createObjectURL(blob);
+			downloadCsv.click();
+		});
+	}, function() {});
+}, "btn_export");
+
+webMI.trigger.connect("clicked", function(e){
+	var selectCsv = document.getElementById("selectCsv");
+	if (selectCsv.onchange == null) {
+		selectCsv.onchange = function(e) {
+			if (e.target.files.length != 1) {
+				return;
+			}
+			
+			const fr = new FileReader();
+			fr.onload = function(ev) {
+				handleAccessControlResponse({ node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider", right: "execute" }, function() {
+					webMI.data.call("GetRecipeData", {"mode":"Import", "csvData": ev.target.result, "configNode": gConfigNode}, function(result) {
+						webMI.trigger.fire("com.atvise.setActive", false, "btn_delete");
+						webMI.trigger.fire("com.atvise.setActive", false, "btn_export");
+						updateTemplates();
+					});
+				}, function() {});
+			};
+			fr.readAsText(e.target.files[0]);
+		};
+	}
+	selectCsv.click();
+}, "btn_import");]]></code>
+</script>

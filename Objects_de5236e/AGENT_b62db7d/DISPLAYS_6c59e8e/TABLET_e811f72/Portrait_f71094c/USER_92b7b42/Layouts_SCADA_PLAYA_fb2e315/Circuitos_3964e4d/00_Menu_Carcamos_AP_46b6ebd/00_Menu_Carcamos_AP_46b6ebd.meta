@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.Layouts_SCADA_PLAYA.Circuitos.00_Menu_Carcamos_AP
+NodeClass: Variable
+BrowseName: 1:00_Menu_Carcamos_AP
+DisplayName: en|00_Menu_Carcamos_AP
+Description: en|00_Menu_Carcamos_AP
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="554" version="1.2" width="1912" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <text atv:refpx="77.429" atv:refpy="16.286" fill="#000000" font-family="Arial" font-size="20" font-weight="bold" id="id_0" transform="matrix(1.335,0,0,1.4286,0,4.6533)" x="4.5" y="12.643">$pumping_station$</text>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[webMI.data.subscribe(webMI.query["base"] + ".name", function(e) {
+var id = "id_0";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});]]></script>
+ <svg atv:refpx="956" atv:refpy="313.5" height="400" id="id_4" transform="matrix(4.78,0,0,1.2025,0,0)" width="400" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.highcharts" y="60.707">
+  <atv:argument name="trendName" value="equipo"/>
+  <atv:argument name="gatviseOptions_disableDownSampling" value="false"/>
+  <atv:argument name="yAxis1yAxis_id" value="bin"/>
+  <atv:argument name="yAxis2yAxis_id" value="fp"/>
+  <atv:argument name="yAxis3yAxis_id" value="f"/>
+  <atv:argument name="yAxis4yAxis_id" value="i"/>
+  <atv:argument name="yAxis1yAxis_title_text" value="Estados"/>
+  <atv:argument name="yAxis1yAxis_title_style_color" value="#000000"/>
+  <atv:argument name="yAxis1yAxis_lineColor" value="#000000"/>
+  <atv:argument name="yAxis1yAxis_labels_style_color" value="#000000"/>
+  <atv:argument name="yAxis1yAxis_crosshair_color" value="#000000◘"/>
+  <atv:argument name="yAxis2yAxis_title_text" value="Factor de potencia"/>
+  <atv:argument name="yAxis2yAxis_title_style_color" value="#28832e"/>
+  <atv:argument name="yAxis2yAxis_lineColor" value="#28832e"/>
+  <atv:argument name="yAxis2yAxis_labels_style_color" value="#28832e"/>
+  <atv:argument name="yAxis2yAxis_crosshair_color" value="#28832e"/>
+  <atv:argument name="yAxis3yAxis_title_text" value="Frecuencia"/>
+  <atv:argument name="yAxis3yAxis_title_style_color" value="#24359f"/>
+  <atv:argument name="yAxis3yAxis_lineColor" value="#24359f"/>
+  <atv:argument name="yAxis3yAxis_crosshair_color" value="#24359f"/>
+  <atv:argument name="yAxis3yAxis_labels_style_color" value="#24359f"/>
+  <atv:argument name="yAxis4yAxis_title_text" value="Corriente"/>
+  <atv:argument name="yAxis4yAxis_title_style_color" value="#a67616"/>
+  <atv:argument name="yAxis4yAxis_lineColor" value="#a67616"/>
+  <atv:argument name="yAxis4yAxis_labels_style_color" value="#a67616"/>
+  <atv:argument name="yAxis4yAxis_crosshair_color" value="#a67616"/>
+  <atv:argument name="xAxisxAxis_title_text" value="Tiempo"/>
+  <atv:argument name="xAxisxAxis_title_style_color" value="#363636"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="12"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="hour(s)"/>
+  <atv:argument name="xAxisxAxis_tickInterval" value="8600000"/>
+  <atv:argument name="series1series_address" prefix="base" value=".status"/>
+  <atv:argument name="series1series_interpolation" value="step"/>
+  <atv:argument name="series1series_name" value="T{On/Off}"/>
+  <atv:argument name="series1series_color" value="#000000"/>
+  <atv:argument name="series1series_xAxis" value="Tiempo"/>
+  <atv:argument name="series1series_yAxis" value="bin"/>
+  <atv:argument name="yAxis1yAxis_min" value="-1"/>
+  <atv:argument name="yAxis1yAxis_max" value="2"/>
+  <atv:argument name="series2series_address" prefix="base" value=".FP"/>
+  <atv:argument name="series2series_name" value="T{Factor de potencia}"/>
+  <atv:argument name="series2series_color" value="#28832e"/>
+  <atv:argument name="series2series_xAxis" value="Tiempo"/>
+  <atv:argument name="series2series_yAxis" value="fp"/>
+  <atv:argument name="yAxis2yAxis_min" value="0"/>
+  <atv:argument name="yAxis3yAxis_min" value="0"/>
+  <atv:argument name="yAxis3yAxis_max" value="60"/>
+  <atv:argument name="series3series_address" prefix="base" value=".freq"/>
+  <atv:argument name="series3series_name" value="T{Frecuencia}"/>
+  <atv:argument name="series3series_color" value="#24359f"/>
+  <atv:argument name="series3series_xAxis" value="Tiempo"/>
+  <atv:argument name="series3series_yAxis" value="f"/>
+  <atv:argument name="yAxis2yAxis_max" value="1"/>
+  <atv:argument name="series4series_address" prefix="base" value=".current"/>
+  <atv:argument name="series4series_yAxis" value="i"/>
+  <atv:argument name="series4series_xAxis" value="Tiempo"/>
+  <atv:argument name="series4series_name" value="T{Corriente L1}"/>
+  <atv:argument name="yAxis4yAxis_min" value="0"/>
+  <atv:argument name="series4series_tooltip_valueDecimals" value="1"/>
+  <atv:argument name="series4series_tooltip_valueSuffix" value=" A"/>
+  <atv:argument name="series3series_tooltip_valueDecimals" value="1"/>
+  <atv:argument name="series3series_tooltip_valueSuffix" value=" Hz"/>
+  <atv:argument name="series2series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series4series_color" value="#a67616"/>
+  <atv:argument name="performance_sampling_factor" value="3"/>
+  <atv:argument name="series1series_marker_enabled" value="false"/>
+  <atv:argument name="series2series_marker_enabled" value="false"/>
+  <atv:argument name="series3series_marker_enabled" value="false"/>
+  <atv:argument name="series4series_marker_enabled" value="false"/>
+  <atv:argument name="series4series_lineWidth" value="3"/>
+  <atv:argument name="series3series_lineWidth" value="3"/>
+  <atv:argument name="series2series_lineWidth" value="3"/>
+  <atv:argument name="series1series_lineWidth" value="3"/>
+  <atv:argument name="series4series_interpolation" value="spline"/>
+  <atv:argument name="series5series_address" prefix="base" value=".current2"/>
+  <atv:argument name="series5series_interpolation" value="spline"/>
+  <atv:argument name="series5series_lineWidth" value="3"/>
+  <atv:argument name="series5series_marker_enabled" value="false"/>
+  <atv:argument name="series6series_address" prefix="base" value=".current3"/>
+  <atv:argument name="series6series_interpolation" value="spline"/>
+  <atv:argument name="series6series_lineWidth" value="3"/>
+  <atv:argument name="series6series_marker_enabled" value="false"/>
+  <atv:argument name="series7series_address" prefix="base" value=".voltage"/>
+  <atv:argument name="series7series_lineWidth" value="3"/>
+  <atv:argument name="series5series_name" value="T{Corriente L2}"/>
+  <atv:argument name="series6series_name" value="T{Corriente L3}"/>
+  <atv:argument name="series5series_xAxis" value="Tiempo"/>
+  <atv:argument name="series5series_yAxis" value="i"/>
+  <atv:argument name="series5series_tooltip_valueDecimals" value="1"/>
+  <atv:argument name="series5series_tooltip_valueSuffix" value="A"/>
+  <atv:argument name="series6series_xAxis" value="Tiempo"/>
+  <atv:argument name="series6series_yAxis" value="i"/>
+  <atv:argument name="series6series_tooltip_valueDecimals" value="1"/>
+  <atv:argument name="series6series_tooltip_valueSuffix" value="a"/>
+  <atv:argument name="series7series_xAxis" value="Tiempo"/>
+  <atv:argument name="series7series_tooltip_valueDecimals" value="1"/>
+  <atv:argument name="series7series_tooltip_valueSuffix" value="V"/>
+  <atv:argument name="series7series_interpolation" value="spline"/>
+  <atv:argument name="series7series_name" value="T{Voltaje}"/>
+  <atv:argument name="series7series_marker_enabled" value="false"/>
+  <atv:argument name="gatviseOptions_configNode" prefix="base" value=".conf"/>
+  <atv:argument name="gatviseOptions_configName" value="Equipo"/>
+  <atv:overwrite id="highchart_label" transform="matrix(0.2092,0,0,0.8316,0,0)" x="785.5" y="251.5"/>
+  <atv:overwrite height="479" id="border" transform="matrix(0.2092,0,0,0.8316,0,0)" width="1910"/>
+  <atv:overwrite height="481" id="id_3" transform="matrix(0.2092,0,0,0.8316,0,0)" width="1912"/>
+ </svg>
+ <svg atv:refpx="1338" atv:refpy="15" height="30" id="id_6" width="460" x="1210" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.buttons_start_end_time" y="0">
+  <atv:argument name="chartname" value="equipo"/>
+ </svg>
+ <svg atv:refpx="1770.5" atv:refpy="15" height="30" id="id_9" width="141" x="1763" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.toolbar" y="0">
+  <atv:argument name="chartname" value="equipo"/>
+ </svg>
+ <svg atv:refpx="1063" atv:refpy="15" height="30" id="id_10" width="80" x="1125" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_back" y="0">
+  <atv:argument name="chartname" value="equipo"/>
+ </svg>
+ <svg atv:refpx="1621" atv:refpy="15" height="30" id="id_12" width="80" x="1675" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_forward" y="0">
+  <atv:argument name="chartname" value="equipo"/>
+ </svg>
+ <svg atv:refpx="381" atv:refpy="58" height="30" id="id_1" width="160" x="206" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="43">
+  <atv:argument name="base" prefix="base" value=".R"/>
+  <atv:argument name="unit" value="T{Hz}"/>
+  <atv:argument name="postDecimal" value="0"/>
+  <atv:argument name="min" value="0"/>
+  <atv:argument name="max" value="60"/>
+  <atv:argument name="selectTextOnFocus" value="true"/>
+  <atv:argument name="right" value="SYSTEM.SECURITY.RIGHTS.USER.Control"/>
+  <atv:overwrite id="input_label" transform="matrix(1.2055,0,0,1,-13.9839,0)" x="136.555"/>
+ </svg>
+ <svg atv:refpx="171.998" atv:refpy="54" height="30" id="id_2" transform="matrix(2.5,0,0,1,0,0)" width="80" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.label" y="39">
+  <atv:argument name="text" value="Frecuencia deseada"/>
+  <atv:argument name="font-size" value="16"/>
+  <atv:argument name="font-weight" value="bold"/>
+  <atv:argument name="vertical-align" value="middle"/>
+ </svg>
+ <svg atv:refpx="875.5" atv:refpy="37" height="66" id="id_18" width="586" x="514" xlink:href="SYSTEM.DISPLAYS.Equipos.status_bomba" y="0">
+  <atv:argument name="base" prefix="base"/>
+ </svg>
+</svg>

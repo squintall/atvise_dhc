@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_LV.Carcamo_Leona_Vicario.Equipos.Caudalimetro.Pozo_Viejo.current_total_volume
+NodeClass: Variable
+BrowseName: 1:current_total_volume
+DisplayName: en|current_total_volume
+Description: en|Acumulado total de Tanque Leona_Vicario en Pozo_Viejo
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Caudalimetros

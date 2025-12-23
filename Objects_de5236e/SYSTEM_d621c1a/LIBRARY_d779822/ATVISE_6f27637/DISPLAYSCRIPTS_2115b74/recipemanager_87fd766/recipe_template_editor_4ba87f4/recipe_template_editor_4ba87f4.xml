@@ -1,0 +1,1022 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var PREFIX = "AGENT.OBJECTS.";
+
+const PARAMETER_TABLE_NAME = webMI.query["tableID"];
+const gStartAddress = webMI.query["navEntryPoint"];
+var gTableController;
+const gConfigNode = webMI.query["configNode"];
+
+var gCurrentTemplateName = "";
+var gCurrentTemplateDescription = "";
+
+if (webMI.getAccessControlSupport()) {
+	var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+var updateRecipeStructure = updateRecipeStructure ? updateRecipeStructure : undefined;
+var gValidData = gValidData ? gValidData : undefined;
+var fieldValidFormatter = fieldValidFormatter ? fieldValidFormatter : undefined;
+var createTableColumnsFromGlobalList = createTableColumnsFromGlobalList ? createTableColumnsFromGlobalList : undefined;
+var validateTableData = validateTableData ? validateTableData : undefined;
+var openErrorPopup = openErrorPopup ? openErrorPopup : undefined;
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback
+ */
+function handleAccessControlResponse(compareRights, successCallback, failCallback) {
+	if (!accessControlManager) {
+		successCallback();
+		return;
+	}
+
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function (r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	accessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function (response) {
+		// do the checks
+		var allRights = true;
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights = allRights && response[compareRights[c].node][compareRights[c].right];
+			} else {
+				allRights = false;
+				break;
+			}
+		}
+
+		if (allRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+webMI.addOnload(function () {
+	webMI.trigger.fire("com.atvise.setActive", false, "btn_delete");
+	webMI.table.loadResources(function () {
+		webMI.libraryLoader.load(
+			["slickgrid/adaptations/slick.recipe.editors.js"],
+			["slickgrid/adaptations/slick.recipe.editors.css"],
+			function () {
+				updateRecipeStructure(gConfigNode, function () {
+					var rows = [];
+					if (typeof webMI.query.templateName !== "undefined" && webMI.query.templateName !== "") {
+						gCurrentTemplateName = webMI.query.templateName;
+					}
+
+					initTable(rows);
+
+					webMI.trigger.fire("com.atvise.setActive", false, "btn_save");
+					webMI.trigger.fire("com.atvise.setActive", false, "btn_save_as");
+				});
+			}
+		);
+	});
+});
+
+/**
+ * create recipe template table data by given templateName
+ * @param templateName
+ */
+function initParameterTable() {
+	handleAccessControlResponse(
+		{ node: gConfigNode + ".templates." + gCurrentTemplateName, right: "read" },
+		function () {
+			gTableController.clearData();
+			webMI.data.read(gConfigNode + ".templates." + gCurrentTemplateName, function (e) {
+				var template = JSON.parse(e.value);
+				setTimeout(
+					function (t) {
+						webMI.trigger.fire("setValue", t.description || "", "txt_description");
+						webMI.gfx.setText("lbl_templatename", t.id);
+					}.bind(null, template),
+					1000
+				);
+
+				var rows = {};
+				rows.result = template.parameters.map(function (p) {
+					if (Object.hasOwn(p, "node")) {
+						p.node = p.node.replace(PREFIX, "");
+						p.startAddr = gStartAddress;
+					}
+					if ("options" in p && (p.options || "") != "") {
+						p["defaultvalue-editorType"] = "Options";
+					} else {
+						p["defaultvalue-editorType"] = { field: "datatype" };
+					}
+					p["defaultvalue-editorSettings"] = { step: p.stepsize, min: p.min, max: p.max };
+					p["decimals-editorSettings"] = { min: 0, max: 10 };
+					p["min-editorSettings"] = {};
+					p["max-editorSettings"] = {};
+					p["stepsize-editorSettings"] = { min: 0 };
+					return p;
+				});
+
+				gTableController.addData(rows);
+				gTableController.getData().forEach(function (item) {
+					validateRow(item);
+				});
+			});
+		},
+		function () {}
+	);
+}
+
+/**
+ * init recipe template slick grid table for given data rows
+ * @param rows
+ */
+var validNode = true;
+function initTable(rows) {
+	/* Loading the table resources */
+	webMI.table.loadResources(function () {
+		/* Create the configuration */
+		var config = {};
+
+		/* Configuration of the runtime behavior */
+		config["mode"] = "once";
+
+		// eslint-disable-next-line no-unused-vars
+		config["onClickCallback"] = function (_e, _info) {
+			if (gTableController.getSelectedItems().length > 0) {
+				handleAccessControlResponse(
+					{ node: gConfigNode + ".templates." + gCurrentTemplateName, right: "engineer" },
+					function () {
+						webMI.trigger.fire("com.atvise.setActive", true, "btn_delete");
+					},
+					function () {
+						webMI.trigger.fire("com.atvise.setActive", false, "btn_delete");
+					}
+				);
+			} else {
+				webMI.trigger.fire("com.atvise.setActive", false, "btn_delete");
+			}
+		};
+
+		/* Example set of data */
+		var data = { result: rows };
+
+		/* Configuration of the data query */
+		// eslint-disable-next-line no-unused-vars
+		config["dataRequestFunction"] = function customDataRequest(_continuation) {
+			var self = this;
+			self.addData(data);
+			self.grid.setOptions({ enableCellNavigation: true, editable: true, editorCellNavOnLRKeys: true });
+			if (gCurrentTemplateName !== "") {
+				initParameterTable();
+			}
+			self.grid.onCellChange.subscribe(function (e, args) {
+				//set Datatype on NodeChange
+				if (args.cell == args.grid.getColumnIndex("node")) {
+					webMI.data.call("GetDataType", { node: PREFIX + args.item.node }, function (e) {
+						var previousDataType = args.item.datatype;
+						if (e.result != "not found") {
+							args.item.datatype = parseDataType(e.result);
+							if (previousDataType !== args.item.datatype) {
+								switch (args.item.datatype) {
+									case "Bool":
+										args.item.defaultvalue = false;
+										break;
+									case "Number":
+										args.item.defaultvalue = 0;
+										break;
+									case "String":
+										args.item.defaultvalue = "";
+										break;
+								}
+							}
+							validNode = true;
+							self.updateData(args.item.id, args.item);
+							updateRow(args);
+						} else {
+							validNode = false;
+							args.item.datatype = e.result;
+							self.updateData(args.item.id, args.item);
+							updateRow(args);
+						}
+					});
+				} else {
+					updateRow(args);
+				}
+			});
+
+			self.grid.onBeforeEditCell.subscribe(function (e, args) {
+				var cell = args.grid.getCellNode(args.row, args.cell);
+				if (cell.firstChild != null && cell.firstChild.className == "inactive-value") {
+					return false;
+				}
+			});
+
+			// eslint-disable-next-line no-unused-vars
+			self.grid.onBeforeCellEditorDestroy.subscribe(function (_e, _args) {
+				webMI.gfx.setText("lblMessages", "");
+			});
+
+			self.grid.onActiveCellChanged.subscribe(function (e, args) {
+				webMI.gfx.setText("lblMessages", "");
+				var itemId = args.grid.getDataItem(args.row).id;
+				var field = args.grid.getColumns()[args.cell].field;
+				if (
+					itemId in gValidData &&
+					field in gValidData[itemId] &&
+					"valid" in gValidData[itemId][field] &&
+					"errors" in gValidData[itemId][field] &&
+					gValidData[itemId][field].valid === false &&
+					Array.isArray(gValidData[itemId][field].errors)
+				) {
+					webMI.gfx.setText(
+						"lblMessages",
+						gValidData[itemId].parameterName +
+							": " +
+							gValidData[itemId][field].errors
+								.filter(function (element, index) {
+									return index < 2;
+								})
+								.join(", ")
+					);
+				}
+			});
+		};
+
+		var formatters = {
+			name: fieldValidFormatter,
+			node: fieldValidFormatter,
+			min: NullableNumberFormatter,
+			max: NullableNumberFormatter,
+			stepsize: NullableNumberFormatter,
+			decimals: DecimalsFormatter,
+			defaultvalue: DefaultvalueFormatter,
+			options: OptionsFormatter,
+			datatype: DatatypeFormatter
+		};
+
+		/* Configuration of the columns to be displayed */
+		handleAccessControlResponse(
+			{ node: gConfigNode + ".templates." + gCurrentTemplateName, right: "write" },
+			function () {
+				var editors = {
+					name: webMI.rootWindow.Slick.Recipe.Editors.String,
+					description: webMI.rootWindow.Slick.Recipe.Editors.String,
+					node: webMI.rootWindow.Slick.Recipe.Editors.Node,
+					decimals: webMI.rootWindow.Slick.Recipe.Editors.Number,
+					options: webMI.rootWindow.Slick.Recipe.Editors.String,
+					defaultvalue: webMI.rootWindow.Slick.Recipe.Editors.IndividualType,
+					min: webMI.rootWindow.Slick.Recipe.Editors.Number,
+					max: webMI.rootWindow.Slick.Recipe.Editors.Number,
+					stepsize: webMI.rootWindow.Slick.Recipe.Editors.Number,
+					unit: webMI.rootWindow.Slick.Recipe.Editors.String
+				};
+				config["columns"] = createTableColumnsFromGlobalList(webMI.query.columns, "Main", editors, formatters);
+				/* Registration of the configuration */
+				webMI.table.register(PARAMETER_TABLE_NAME, "config", config);
+				webMI.table.setReady(PARAMETER_TABLE_NAME, "config");
+				gTableController = webMI.table.request(PARAMETER_TABLE_NAME, "controller");
+				setBtnActive();
+			},
+			function () {
+				config["columns"] = createTableColumnsFromGlobalList(webMI.query.columns, "Main", {}, formatters);
+
+				/* Registration of the configuration */
+				webMI.table.register(PARAMETER_TABLE_NAME, "config", config);
+				webMI.table.setReady(PARAMETER_TABLE_NAME, "config");
+				gTableController = webMI.table.request(PARAMETER_TABLE_NAME, "controller");
+				setBtnActive();
+			}
+		);
+	});
+}
+
+function updateRow(args) {
+	if (args.item.datatype != "Bool" && Object.hasOwn(args.item, "options") && (args.item.options || "") != "") {
+		args.item["defaultvalue-editorSettings"] = {};
+		args.item["defaultvalue-editorType"] = "Options";
+	} else {
+		args.item["defaultvalue-editorType"] = { field: "datatype" };
+	}
+	validateRow(args.item);
+	args.grid.updateRow(args.row);
+
+	if (!Object.hasOwn(args.item, "options") || (args.item.options || "") == "") {
+		args.item["defaultvalue-editorSettings"].min = args.item.min;
+		args.item["defaultvalue-editorSettings"].max = args.item.max;
+		args.item["defaultvalue-editorSettings"].step = args.item.stepsize;
+		args.item["defaultvalue-editorSettings"].decimals = args.item.decimals;
+	}
+	args.item["min-editorSettings"].decimals = args.item.decimals;
+	args.item["min-editorSettings"].step = args.item.stepsize;
+	args.item["max-editorSettings"].decimals = args.item.decimals;
+	args.item["max-editorSettings"].step = args.item.stepsize;
+	args.item["stepsize-editorSettings"].decimals = args.item.decimals;
+}
+
+function DatatypeFormatter(row, cell, value, columnDef, dataContext) {
+	if (dataContext.id in gValidData && !gValidData[dataContext.id].datatype.valid) {
+		return fieldValidFormatter(row, cell, value, columnDef, dataContext);
+	}
+
+	return (
+		"<div class='test' style='width: 100%; height: 100%; display: grid; align-items: center; background-color: rgba(170,170,170,.5)'>" +
+		value +
+		"</div>"
+	);
+}
+
+function OptionsFormatter(row, cell, value, columnDef, dataContext) {
+	if (dataContext.datatype == "Bool") {
+		return InActiveFormatter([], dataContext.datatype, value || "");
+	}
+
+	return fieldValidFormatter(row, cell, value, columnDef, dataContext);
+}
+
+function DefaultvalueFormatter(row, cell, value, columnDef, dataContext) {
+	return fieldValidFormatter(
+		row,
+		cell,
+		Object.hasOwn(dataContext, "options") && (dataContext.options || "").trim() != ""
+			? value
+			: formatNumberValue(dataContext, value),
+		columnDef,
+		dataContext
+	);
+}
+
+function DecimalsFormatter(row, cell, value, columnDef, dataContext) {
+	if (Object.hasOwn(dataContext, "options") && dataContext.options.trim() != "") {
+		return InActiveFormatter([], dataContext.datatype, value || "");
+	}
+
+	var retValue = fieldValidFormatter(row, cell, value || "", columnDef, dataContext);
+
+	if (value != retValue) {
+		return retValue;
+	}
+
+	return InActiveFormatter(["Number", "Range"], dataContext.datatype, value || "");
+}
+
+function NullableNumberFormatter(row, cell, value, columnDef, dataContext) {
+	if (
+		!Object.hasOwn(dataContext, "options") ||
+		(dataContext.options || "").trim() == "" ||
+		(dataContext.options || "").trim() !== ""
+	) {
+		value = formatNumberValue(dataContext, value);
+	}
+
+	if (
+		(Object.hasOwn(dataContext, "options") && (dataContext.options || "").trim() != "") ||
+		(dataContext.datatype != "Number" && dataContext.datatype != "Range")
+	) {
+		return "<div style='width:100%; text-align: center' class='inactive-value'></div>";
+	} else {
+		return "<div style='width:100%; text-align: center'>" + value + "</div>";
+	}
+}
+
+function InActiveFormatter(activeDatatypes, check, value) {
+	if (
+		[].concat(activeDatatypes).some(function (dt) {
+			return dt == check;
+		})
+	) {
+		return "<div style='width:100%; text-align: center'>" + value + "</div>";
+	} else {
+		return "<div style='width:100%; text-align: center' class='inactive-value'></div>";
+	}
+}
+
+/*format a Number value according to the set decimals*/
+function formatNumberValue(dataContext, value) {
+	if (dataContext.datatype == "Number" || dataContext.datatype == "Range") {
+		value = parseFloat(value);
+		if (isNaN(value)) {
+			value = "";
+		} else {
+			if (
+				Object.hasOwn(dataContext, "decimals") &&
+				!isNaN(parseInt(dataContext.decimals)) &&
+				parseInt(dataContext.decimals) == parseFloat(dataContext.decimals)
+			) {
+				value = webMI.sprintf("%." + dataContext.decimals + "f", value);
+			}
+		}
+	}
+
+	return value;
+}
+
+/**
+ * parse OPCUA data type name into possible table data type names
+ * @param uaType
+ */
+function parseDataType(uaType) {
+	var basicType = "";
+
+	if (uaType == "String") {
+		basicType = "String";
+	} else if (uaType == "Boolean") {
+		basicType = "Bool";
+	} else {
+		basicType = "Number";
+	}
+
+	return basicType;
+}
+
+function setBtnActive() {
+	if (gCurrentTemplateName != "") {
+		handleAccessControlResponse(
+			{ node: gConfigNode + ".templates." + gCurrentTemplateName, right: "write" },
+			function () {
+				if (gTableController.dataView.getLength() > 0) {
+					webMI.trigger.fire("com.atvise.setActive", true, "btn_save");
+					webMI.trigger.fire("com.atvise.setActive", true, "btn_save_as");
+				}
+				webMI.trigger.fire("com.atvise.setActive", true, "btn_addRow");
+				gTableController.columns.forEach(function (item) {
+					if (!Object.hasOwn(item, "editor") || item.editor == null) {
+						return;
+					}
+				});
+			},
+			function () {
+				webMI.trigger.fire("com.atvise.setActive", false, "btn_save");
+				webMI.trigger.fire("com.atvise.setActive", false, "btn_save_as");
+				webMI.trigger.fire("com.atvise.setActive", false, "btn_addRow");
+			}
+		);
+	}
+}
+
+/**
+ * parse checks if an row is valid and will set a [fieldname]-valid property for validated fields
+ * @param item
+ * @param gTableController
+ */
+function validateRow(item) {
+	/*----------validate value-------------*/
+	var valueValid = true;
+	var valueErrors = [];
+
+	gValidData[item.id] = { parameterName: item.name };
+	gValidData[item.id].defaultvalue = { valid: valueValid, errors: valueErrors };
+	gValidData[item.id].name = { valid: Object.hasOwn(item, "name") && item.name !== "", errors: [] };
+
+	if (!gValidData[item.id].name.valid) {
+		gValidData[item.id].name.errors.push("T{invalid name}");
+	}
+
+	gValidData[item.id].node = { valid: Object.hasOwn(item, "node") && item.node !== "", errors: [] };
+
+	if (!gValidData[item.id].node.valid) {
+		gValidData[item.id].node.errors.push("T{node not configured}");
+	}
+
+	gValidData[item.id].datatype = { valid: Object.hasOwn(item, "datatype") && item.datatype !== "", errors: [] };
+
+	if (!gValidData[item.id].datatype.valid) {
+		gValidData[item.id].datatype.errors.push("T{invalid data type}");
+	}
+	if (Object.hasOwn(item, "node") && item.node !== "") {
+		// NOAB
+		valueValid = true;
+		var existNodes = gTableController.dataView.getItems();
+		for (var i = 0; i < existNodes.length; i++) {
+			if (existNodes[i].node == item.node && existNodes[i].id != item.id) {
+				valueValid = false;
+				valueErrors.push(item.node + " T{can only appear once in a template}");
+			}
+		}
+		if (validNode == false) {
+			valueValid = false;
+			valueErrors.push(item.node + " T{does not exist}");
+		}
+		gValidData[item.id].node = { valid: valueValid, errors: valueErrors };
+	}
+	if (Object.hasOwn(item, "min") && item.datatype == "Number" && String(item.min).trim() != "") {
+		// NOAB
+		valueValid = true;
+		if (Object.hasOwn(item, "max") && item.datatype == "Number") {
+			if (!isNaN(item.max)) {
+				var max = parseFloat(item.max);
+				var value = parseFloat(item.min);
+				if (value > max) {
+					valueValid = false;
+					valueErrors.push("T{minimum value is greater than defined maximum} " + max);
+				}
+			}
+		}
+		if (Object.hasOwn(item, "stepsize")) {
+			if (
+				!isNaN(item.stepsize) &&
+				!isNaN(item.min) &&
+				item.stepsize != null &&
+				item.stepsize != "" &&
+				item.min != null &&
+				item.min != ""
+			) {
+				var decimals = 0;
+				if (Object.hasOwn(item, "decimals") && !isNaN(item.decimals) && item.decimals != null && item.decimals != "") {
+					decimals = parseInt(item.decimals);
+				}
+				var factor = Math.pow(10, decimals);
+				var stepsize = parseFloat(item.stepsize) * factor;
+				value = parseFloat(item.min) * factor;
+
+				if (value % stepsize != 0) {
+					valueValid = false;
+					valueErrors.push("T{minimum value is not in stepsize} " + stepsize / factor);
+				}
+			}
+		}
+		gValidData[item.id].min = { valid: valueValid, errors: valueErrors };
+	}
+
+	if (Object.hasOwn(item, "max") && item.datatype == "Number" && String(item.max).trim() != "") {
+		// NOAB
+		valueValid = true;
+		if (Object.hasOwn(item, "stepsize")) {
+			if (
+				!isNaN(item.stepsize) &&
+				!isNaN(item.max) &&
+				item.stepsize != null &&
+				item.stepsize != "" &&
+				item.max != null &&
+				item.max != ""
+			) {
+				decimals = 0;
+				if (Object.hasOwn(item, "decimals") && !isNaN(item.decimals) && item.decimals != null && item.decimals != "") {
+					decimals = parseInt(item.decimals);
+				}
+				factor = Math.pow(10, decimals);
+				stepsize = parseFloat(item.stepsize) * factor;
+				value = parseFloat(item.max) * factor;
+
+				if (value % stepsize != 0) {
+					valueValid = false;
+					valueErrors.push("T{maximum value is not in stepsize} " + stepsize / factor);
+				}
+			}
+		}
+		gValidData[item.id].max = { valid: valueValid, errors: valueErrors };
+	}
+
+	if (Object.hasOwn(item, "defaultvalue") && item.datatype == "Number" && String(item.defaultvalue).trim() != "") {
+		valueValid = true;
+		if (Object.hasOwn(item, "min") && item.datatype == "Number") {
+			if (!isNaN(item.min)) {
+				var min = parseFloat(item.min);
+				value = parseFloat(item.defaultvalue);
+
+				if (value < min) {
+					valueValid = false;
+					valueErrors.push("T{value is less than defined minimum} " + min);
+				}
+			}
+		}
+
+		if (Object.hasOwn(item, "max") && item.datatype == "Number") {
+			if (!isNaN(item.max)) {
+				max = parseFloat(item.max);
+				value = parseFloat(item.defaultvalue);
+
+				if (value > max) {
+					valueValid = false;
+					valueErrors.push("T{value is greater than defined maximum} " + max);
+				}
+			}
+		}
+
+		if (Object.hasOwn(item, "stepsize") && Object.hasOwn(item, "min") && item.datatype == "Number") {
+			if (
+				!isNaN(item.stepsize) &&
+				!isNaN(item.min) &&
+				item.stepsize != null &&
+				item.stepsize != "" &&
+				item.min != null &&
+				item.min != ""
+			) {
+				decimals = 0;
+				if (Object.hasOwn(item, "decimals") && !isNaN(item.decimals) && item.decimals != null && item.decimals != "") {
+					decimals = parseInt(item.decimals);
+				}
+				factor = Math.pow(10, decimals);
+				stepsize = parseFloat(item.stepsize) * factor;
+				min = parseFloat(item.min) * factor;
+				value = parseFloat(item.defaultvalue) * factor;
+
+				if (value % stepsize != 0) {
+					valueValid = false;
+					valueErrors.push("T{value is not in stepsize} " + stepsize / factor);
+				}
+			}
+		}
+		gValidData[item.id].defaultvalue = { valid: valueValid, errors: valueErrors };
+	}
+	if (valueValid == false) {
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_save");
+		webMI.trigger.fire("com.atvise.setActive", false, "btn_save_as");
+	} else {
+		webMI.trigger.fire("com.atvise.setActive", true, "btn_save");
+		webMI.trigger.fire("com.atvise.setActive", true, "btn_save_as");
+	}
+
+	if (
+		Object.hasOwn(item, "decimals") &&
+		item.datatype == "Number" &&
+		!isNaN(item.decimals) &&
+		item.decimals != null &&
+		item.decimals != ""
+	) {
+		decimals = parseInt(item.decimals);
+		if (parseFloat(item.decimals) !== decimals) {
+			gValidData[item.id].decimals = { valid: false, errors: ["T{value is not allowed to have decimals}"] };
+		} else {
+			var re = RegExp("^-?\\d*(\\.\\d{0," + decimals + "})?$");
+			["defaultvalue", "min", "max", "stepsize"].forEach(function (property) {
+				if (Object.hasOwn(item, property) && !isNaN(item[property]) && item[property] != null && item[property] != "") {
+					if (!Object.hasOwn(gValidData[item.id], property)) {
+						gValidData[item.id][property] = { valid: true, errors: [] };
+					}
+					var value = parseFloat(item[property]);
+
+					if (re.exec(value) == null) {
+						gValidData[item.id][property].valid = false;
+						gValidData[item.id][property].errors.push("T{value exceeds max number of decimals} " + decimals);
+					}
+				}
+			});
+		}
+	}
+
+	if (item.datatype != "Bool" && Object.hasOwn(item, "options") && (item.options || "").trim() != "") {
+		gValidData[item.id].options = { valid: true, errors: [] };
+		// reseting errors of the defaultvalue so far, "options" overrules other settings
+		gValidData[item.id].defaultvalue = { valid: true, errors: [] };
+		var options = item.options.split(";");
+		var defaultvalue = item.defaultvalue;
+		var validDefaultvalue = false;
+
+		gValidData[item.id].options.valid = options.reduce(function (val, o) {
+			switch (item.datatype) {
+				case "Number":
+					var parsed = parseFloat(o);
+					val &= !isNaN(parsed);
+					validDefaultvalue |= parsed == parseFloat(defaultvalue);
+					break;
+				case "String":
+					val &= o != "";
+					validDefaultvalue |= o == defaultvalue;
+					break;
+				case "Bool":
+					validDefaultvalue |= String(defaultvalue) == "true";
+					validDefaultvalue |= String(defaultvalue) == "false";
+					break;
+			}
+
+			return Boolean(val);
+		}, true);
+
+		if (!gValidData[item.id].options.valid) {
+			gValidData[item.id].options.errors.push(
+				"T{at least one item is invalid for the selected data type} " + item.datatype
+			);
+		}
+		gValidData[item.id].defaultvalue.valid = Boolean(validDefaultvalue);
+		if (!gValidData[item.id].defaultvalue.valid) {
+			gValidData[item.id].defaultvalue.errors.push("T{value is not in the list of options}");
+		}
+	}
+
+	if (item.datatype == "Bool") {
+		gValidData[item.id].defaultvalue.valid = Boolean(
+			String(item.defaultvalue) == "true" || String(item.defaultvalue) == "false"
+		);
+
+		if (!gValidData[item.id].defaultvalue.valid) {
+			gValidData[item.id].defaultvalue.errors.push("T{invalid value}");
+		}
+	}
+
+	/*-----------------------------------*/
+}
+webMI.trigger.connect("tableCellValueChanged", function () {
+	setBtnActive();
+});
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		gCurrentTemplateDescription = e.value;
+		setBtnActive();
+	},
+	"txt_description"
+);
+
+/**
+ * handle template data storage, writes current template state to template structure
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		var valid = validateTableData();
+
+		if (valid.valid == false) {
+			openErrorPopup(valid.errors);
+			return;
+		}
+
+		updateTemplate(gCurrentTemplateName);
+	},
+	"btn_save"
+);
+
+/**
+ * handle template data storage, writes current template state to new template structure
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		var valid = validateTableData();
+
+		if (valid.valid == false) {
+			openErrorPopup(valid.errors);
+			return;
+		}
+
+		webMI.display.openWindow({
+			display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.add_popup",
+			height: 310,
+			width: 600,
+			remember: true,
+			modal: true,
+			resizable: false,
+			movable: true,
+			scrollbars: true,
+			menubar: false,
+			status: false,
+			toolbar: false,
+			query: {
+				configNode: gConfigNode,
+				mode: "templates",
+				dialogTitle: "T{Save recipe template as}:",
+				triggerName: "add_recipe_template",
+				label1: "T{Template name}:",
+				value1: gCurrentTemplateName,
+				CheckRecipe: true,
+				label: "T{include recipes}:",
+				CheckValue: 0
+			}
+		});
+	},
+	"btn_save_as"
+);
+
+/**
+ * trigger to save template with another name
+ */
+webMI.trigger.connect("add_recipe_template", function (e) {
+	handleAccessControlResponse(
+		[
+			{
+				node: "SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.RecipeManagement.RecipeDataProvider",
+				right: "execute"
+			},
+			{
+				node: gConfigNode,
+				right: "engineer"
+			}
+		],
+		function () {
+			if (e.value.value1 != gCurrentTemplateName) {
+				webMI.data.call(
+					"GetRecipeData",
+					{
+						mode: "CreateTemplate",
+						templateName: e.value.value1,
+						configNode: gConfigNode,
+						data: JSON.stringify({
+							id: e.value.value1
+						})
+					},
+					function () {
+						if (e.value.recipe == true) {
+							webMI.data.call(
+								"GetRecipeData",
+								{
+									mode: "recipesByTemplateName",
+									templateName: gCurrentTemplateName,
+									configNode: gConfigNode
+								},
+								function (recipes) {
+									addRecipesToTemplate(e.value.value1, recipes);
+								}
+							);
+						} else {
+							updateTemplate(e.value.value1);
+						}
+					}
+				);
+			} else {
+				webMI.data.call(
+					"GetRecipeData",
+					{
+						mode: "recipesByTemplateName",
+						templateName: gCurrentTemplateName,
+						configNode: gConfigNode
+					},
+					function (recipes) {
+						addRecipesToTemplate(e.value.value1, recipes);
+					}
+				);
+			}
+		},
+		function () {}
+	);
+});
+
+function addRecipesToTemplate(templateName, recipes) {
+	if ([].concat(recipes).length == 0) {
+		updateTemplate(templateName);
+		return;
+	}
+
+	webMI.data.call(
+		"GetRecipeData",
+		{
+			mode: "recipeDataByName",
+			templateName: gCurrentTemplateName,
+			recipeName: recipes[0].name,
+			configNode: gConfigNode
+		},
+		function (recipeData) {
+			webMI.data.call(
+				"GetRecipeData",
+				{
+					mode: "SaveRecipe",
+					templateName: templateName,
+					recipeName: recipeData.name,
+					configNode: gConfigNode,
+					data: JSON.stringify(recipeData)
+				},
+				function () {
+					addRecipesToTemplate(templateName, recipes.slice(1));
+				}
+			);
+		}
+	);
+}
+
+function updateTemplate(templateName) {
+	var template = {};
+	template.id = templateName;
+	template.description = gCurrentTemplateDescription;
+	var tableModel = gTableController.getData();
+
+	template.parameters = JSON.parse(JSON.stringify(tableModel)).map(function (row) {
+		for (var key in row) {
+			if (key.startsWith("atvise_") || key.endsWith("-editorType") || key.endsWith("-editorSettings")) {
+				delete row[key];
+			}
+		}
+		delete row["id"];
+		row.node = PREFIX + row.node;
+		return row;
+	});
+	handleAccessControlResponse(
+		[{ node: gConfigNode + ".templates." + templateName, right: "write" }],
+		function () {
+			// update template
+			webMI.data.write(gConfigNode + ".templates." + templateName, JSON.stringify(template));
+			webMI.trigger.fire("com.atvise.setActive", false, "btn_save");
+			webMI.trigger.fire("com.atvise.setActive", false, "btn_save_as");
+			if (gCurrentTemplateName != templateName) {
+				webMI.trigger.fire("setValue", template.description || "", "txt_description");
+				webMI.gfx.setText("lbl_templatename", template.id);
+				gCurrentTemplateName = templateName;
+			}
+		},
+		function () {}
+	);
+}
+
+/**
+ * creates a new empaty row for table, triggeres table refresh
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		var tableModel = gTableController.getData();
+		var newRow = {};
+		/*var rows = {};
+		rows.result = tableModel;*/
+
+		//Create blank row
+		newRow.name = "";
+		newRow.description = "";
+		newRow.node = "";
+		newRow.defaultvalue = "0"; // needs to be in quotes, so the default value can be empty
+		newRow["defaultvalue-editorType"] = { field: "datatype" };
+		newRow.decimals = ""; // needs to be in quotes, so the input textbox can distinguish between no value and 0
+		newRow.options = "";
+		newRow.min = "";
+		newRow.max = "";
+		newRow.stepsize = "1";
+		newRow.startAddr = gStartAddress;
+		newRow.unit = "";
+		newRow.id = "id_" + tableModel.length;
+		newRow.datatype = "Number";
+		newRow["defaultvalue-editorSettings"] = { step: newRow.stepsize, min: newRow.min, max: newRow.max };
+		newRow["decimals-editorSettings"] = { min: 0 };
+		newRow["min-editorSettings"] = {};
+		newRow["max-editorSettings"] = {};
+		newRow["stepsize-editorSettings"] = {};
+
+		gTableController.addData({ result: newRow });
+		gTableController.getData().forEach(function (item) {
+			validateRow(item);
+		});
+
+		setTimeout(function () {
+			//should be replaced with event based solution
+			gTableController.paging.gotoLastPage();
+		}, 500);
+	},
+	"btn_addRow"
+);
+
+/**
+ * opens the delete parameter delete dialog to ask for user permission
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.query.triggerName = "remove_recipe_template_parameter";
+		webMI.query.dialogTitle = "T{Remove recipe template parameter}:";
+		webMI.query.dialogMessageLine1 = "T{Do you want to delete the selected recipe template parameter?}";
+		webMI.query.dialogMessageLine2 = "";
+		webMI.display.openWindow({
+			display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.recipemanager.recipe_delete",
+			height: 310,
+			width: 600,
+			remember: false,
+			modal: true,
+			resizable: false,
+			movable: true,
+			scrollbars: true,
+			menubar: false,
+			status: false,
+			toolbar: false,
+			query: webMI.query
+		});
+	},
+	"btn_delete"
+);
+
+/**
+ * removes currently selected recipe parameter
+ */
+webMI.trigger.connect("remove_recipe_template_parameter", function () {
+	var selectedRows = gTableController.getSelectedItems();
+	var tableModel = gTableController.getData();
+
+	for (var i = 0; i < selectedRows.length; i++) {
+		delete gValidData[selectedRows[i].id];
+		for (var j = tableModel.length - 1; j >= 0; j--) {
+			var currentRow = tableModel[j];
+
+			if (currentRow.id == selectedRows[i].id) {
+				tableModel.splice(j, 1);
+			}
+		}
+	}
+	var rows = {};
+	rows.result = tableModel;
+	gTableController.clearData();
+	gTableController.addData(rows);
+	setBtnActive();
+	webMI.trigger.fire("com.atvise.setActive", false, "btn_delete");
+});
+]]></code>
+</script>

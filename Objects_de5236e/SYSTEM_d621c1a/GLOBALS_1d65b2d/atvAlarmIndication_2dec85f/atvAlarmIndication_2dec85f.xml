@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Value xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+	<uax:ListOfString>
+		<uax:String>&quot;AlarmStatusOnUnacknowledged&quot;:{&quot;color&quot;:&quot;#ff0000&quot;,&quot;description&quot;:&quot;alarm state \&quot;On Unacknowledged\&quot;&quot;,&quot;interval&quot;:&quot;250&quot;,&quot;fontColor&quot;:&quot;#000000&quot;,&quot;fillColor&quot;:&quot;#ff8688&quot;,&quot;fontFlashInterval&quot;:&quot;0&quot;,&quot;fillFlashInterval&quot;:&quot;1000&quot;}</uax:String>
+		<uax:String>&quot;AlarmStatusOnAcknowledged&quot;:{&quot;color&quot;:&quot;#ff8080&quot;,&quot;description&quot;:&quot;alarm state \&quot;On Acknowledged\&quot;&quot;,&quot;interval&quot;:&quot;500&quot;,&quot;fontColor&quot;:&quot;#000000&quot;,&quot;fillColor&quot;:&quot;#ff8688&quot;,&quot;fontFlashInterval&quot;:&quot;0&quot;,&quot;fillFlashInterval&quot;:&quot;0&quot;}</uax:String>
+		<uax:String>&quot;AlarmStatusOffUnacknowledged&quot;:{&quot;color&quot;:&quot;#ff6600&quot;,&quot;description&quot;:&quot;alarm state \&quot;Off Unacknowledged\&quot;&quot;,&quot;interval&quot;:&quot;750&quot;,&quot;fontColor&quot;:&quot;#000000&quot;,&quot;fillColor&quot;:&quot;#ffea7d&quot;,&quot;fontFlashInterval&quot;:&quot;0&quot;,&quot;fillFlashInterval&quot;:&quot;2000&quot;}</uax:String>
+		<uax:String>&quot;AlarmStatusOnOffUnacknowledged&quot;:{&quot;color&quot;:&quot;#ff6600&quot;,&quot;description&quot;:&quot;alarm state \&quot;On Off Unacknowledged\&quot;&quot;,&quot;interval&quot;:&quot;1500&quot;,&quot;fontColor&quot;:&quot;#000000&quot;,&quot;fillColor&quot;:&quot;#ff8688&quot;,&quot;fontFlashInterval&quot;:&quot;0&quot;,&quot;fillFlashInterval&quot;:&quot;1000&quot;}</uax:String>
+	</uax:ListOfString>
+</Value>

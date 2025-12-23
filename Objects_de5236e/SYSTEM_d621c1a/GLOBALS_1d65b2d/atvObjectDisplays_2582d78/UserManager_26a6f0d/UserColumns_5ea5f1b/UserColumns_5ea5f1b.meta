@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvObjectDisplays.UserManager.UserColumns
+NodeClass: Variable
+BrowseName: 1:UserColumns
+DisplayName: en|UserColumns
+Description: en|UserColumns
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

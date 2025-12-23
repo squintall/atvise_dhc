@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_DHC.Display_AP
+NodeClass: Variable
+BrowseName: 1:Display_AP
+DisplayName: en|Display_AP
+Description: en|Display_AP
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

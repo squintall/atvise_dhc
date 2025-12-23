@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoPozo.diametro
+NodeClass: Variable
+BrowseName: 1:diametro
+DisplayName: en|diametro
+Description: en|diametro
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

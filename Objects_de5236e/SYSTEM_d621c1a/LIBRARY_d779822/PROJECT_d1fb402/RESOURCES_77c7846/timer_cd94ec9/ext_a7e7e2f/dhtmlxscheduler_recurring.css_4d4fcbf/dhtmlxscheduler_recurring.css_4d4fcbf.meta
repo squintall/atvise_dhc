@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/timer/ext/dhtmlxscheduler_recurring.css
+NodeClass: Variable
+BrowseName: 1:dhtmlxscheduler_recurring.css
+DisplayName: en|dhtmlxscheduler_recurring.css
+Description: en|dhtmlxscheduler_recurring.css
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Css
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Css.Compress

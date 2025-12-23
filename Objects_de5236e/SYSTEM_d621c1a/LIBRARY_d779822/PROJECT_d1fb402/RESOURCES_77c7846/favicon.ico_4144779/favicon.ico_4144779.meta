@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/favicon.ico
+NodeClass: Variable
+BrowseName: 1:favicon.ico
+DisplayName: en|favicon.ico
+Description: en|favicon.ico
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Icon

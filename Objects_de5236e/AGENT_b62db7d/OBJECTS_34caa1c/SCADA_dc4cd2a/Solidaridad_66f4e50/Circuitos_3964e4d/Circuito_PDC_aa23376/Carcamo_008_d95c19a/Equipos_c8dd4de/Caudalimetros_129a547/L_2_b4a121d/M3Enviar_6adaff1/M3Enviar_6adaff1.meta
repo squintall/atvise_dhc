@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_008.Equipos.Caudalimetros.L_2.M3Enviar
+NodeClass: Variable
+BrowseName: 1:M3Enviar
+DisplayName: en|M3Enviar
+Description: en|M3Enviar
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

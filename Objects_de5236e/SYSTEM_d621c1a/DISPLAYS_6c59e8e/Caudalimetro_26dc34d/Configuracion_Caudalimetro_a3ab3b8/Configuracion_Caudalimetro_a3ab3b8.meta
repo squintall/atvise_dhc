@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Caudalimetro.Configuracion_Caudalimetro
+NodeClass: Variable
+BrowseName: 1:Configuracion_Caudalimetro
+DisplayName: en|Configuracion_Caudalimetro
+Description: en|Configuracion_Caudalimetro
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

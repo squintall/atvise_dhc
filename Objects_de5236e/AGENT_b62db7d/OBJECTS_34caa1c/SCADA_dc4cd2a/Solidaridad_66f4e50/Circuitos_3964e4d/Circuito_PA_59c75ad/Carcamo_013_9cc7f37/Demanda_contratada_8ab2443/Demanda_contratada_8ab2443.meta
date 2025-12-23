@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_013.Demanda_contratada
+NodeClass: Variable
+BrowseName: 1:Demanda_contratada
+DisplayName: en|Demanda_contratada
+Description: en|Demanda_contratada
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

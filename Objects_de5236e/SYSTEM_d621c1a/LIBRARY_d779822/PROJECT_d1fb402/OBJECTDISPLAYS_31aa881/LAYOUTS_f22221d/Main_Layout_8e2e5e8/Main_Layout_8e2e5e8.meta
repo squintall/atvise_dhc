@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.LAYOUTS.Main_Layout
+NodeClass: Variable
+BrowseName: 1:Main_Layout
+DisplayName: en|Main_Layout
+Description: en|Main_Layout
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

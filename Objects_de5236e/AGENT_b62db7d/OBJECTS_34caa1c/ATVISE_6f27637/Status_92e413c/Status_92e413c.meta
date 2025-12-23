@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Status
+NodeClass: Variable
+BrowseName: 1:Status
+DisplayName: en|Status
+Description: en|Status
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

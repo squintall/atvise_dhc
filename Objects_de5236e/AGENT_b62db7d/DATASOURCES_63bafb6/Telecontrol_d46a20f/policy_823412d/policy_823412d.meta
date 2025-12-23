@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.policy
+NodeClass: Variable
+BrowseName: 1:policy
+DisplayName: en|policy
+Description: en|policy
+DataType: Int16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

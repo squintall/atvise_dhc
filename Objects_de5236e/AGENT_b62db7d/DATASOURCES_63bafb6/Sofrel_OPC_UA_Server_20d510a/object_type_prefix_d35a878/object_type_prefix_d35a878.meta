@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server.object_type_prefix
+NodeClass: Variable
+BrowseName: 1:object_type_prefix
+DisplayName: en|object_type_prefix
+Description: en|object_type_prefix
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,1046 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts legend object display
+ * ----------------------------------------
+ * This script supports the display creating a table supplying more information about the data shown in the chart.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+
+var queryParameter = webMI.query;
+
+var clicklock = false;
+var deltaTimeFormat = queryParameter["legendOptions_dateTimeDeltaFormat"];
+var defaultTimeout = parseInt(queryParameter["legendOptions_updateTimeout"], 10);
+/* defined miniumum is 100ms otherwise set to default 1000 */
+defaultTimeout = defaultTimeout > 100 ? defaultTimeout : 1000;
+
+var display = {
+	dialog_color_picker: queryParameter["dialog_color_picker"],
+	dialog_options: queryParameter["dialog_options"]
+};
+
+var legendUpdate = false;
+
+var typeMap = {
+	line: "T{line}",
+	spline: "T{spline}",
+	area: "T{area}",
+	areaspline: "T{areaspline}",
+	column: "T{column}",
+	bar: "T{bar}",
+	pie: "T{pie}",
+	scatter: "T{scatter}",
+	gauge: "T{gauge}",
+	arearange: "T{arearange}",
+	areasplinerange: "T{areasplinerange}",
+	columnrange: "T{columnrange}"
+};
+
+var openSeries;
+var tableID = queryParameter["_trendName"] + "legende";
+var trendName = queryParameter["_trendName"];
+var startAddress = queryParameter["startAddress"];
+
+var colorName = getParameter("columnOptions_color_name", "string")
+	? getParameter("columnOptions_color_name", "string")
+	: "<i class='fas fa-palette' title='" + "T{Color}" + "'></i>";
+
+var visibilityName = getParameter("columnOptions_seriesVisibility_name", "string")
+	? getParameter("columnOptions_seriesVisibility_name", "string")
+	: "<i class='fas fa-eye' title='" + "T{Visibility}" + "'></i>";
+
+var settingsName = getParameter("columnOptions_seriesSettings_name", "string")
+	? getParameter("columnOptions_seriesSettings_name", "string")
+	: "<i class='fas fa-cog' title='" + "T{Settings}" + "'></i>";
+
+var showfullAddressNames = queryParameter["showfullAddressNames"] == "true" ? true : false;
+
+/**
+ * UI SETUP SECTION
+ * Remove descriptions for preview in builder
+ */
+webMI.addOnload(function () {
+	webMI.gfx.setVisible("preview", false);
+});
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed within table resources to take care table is ready
+ * Load resources for table and setup configuration
+ */
+webMI.table.loadResources(function () {
+	/* create configuration */
+	var config = [];
+	var minWidth = 40;
+	var maxWidth = 1000;
+
+	/* define some columns */
+	config["columns"] = [
+		{
+			id: "zindex",
+			name: "T{z-index}",
+			field: "zindex",
+			sortable: false,
+			filter: false,
+			width: 25,
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			sortByDefault: true,
+			sortByDefaultAsc: true,
+			visible: false
+		},	
+		{
+			id: "series",
+			name: "T{ID}",
+			field: "series",
+			sortable: false,
+			filter: false,
+			width: 150,
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: false
+		},
+		{
+			id: "name",
+			name: getParameter("columnOptions_seriesLabel_name", "string"),
+			field: "name",
+			sortable: false,
+			filter: false,
+			width: getParameter("columnOptions_seriesLabel_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: getParameter("columnOptions_seriesLabel_visibility", "boolean")
+		},
+		{
+			id: "address",
+			name: getParameter("columnOptions_nodeAddress_name", "string"),
+			field: "address",
+			sortable: false,
+			filter: false,
+			width: getParameter("columnOptions_nodeAddress_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: getParameter("columnOptions_nodeAddress_visibility", "boolean")
+		},
+		{
+			id: "aggregate",
+			name: getParameter("columnOptions_aggregate_name", "string"),
+			field: "aggregate",
+			sortable: false,
+			filter: false,
+			width: getParameter("columnOptions_aggregate_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: getParameter("columnOptions_aggregate_visibility", "boolean")
+		},
+		{
+			id: "value",
+			name: getParameter("columnOptions_value_name", "string"),
+			field: "value",
+			sortable: false,
+			filter: false,
+			width: getParameter("columnOptions_value_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: getParameter("columnOptions_value_visibility", "boolean")
+		},
+		{
+			id: "marker_1_x_value",
+			name: getParameter("columnOptions_cursorXValue1_name", "string"),
+			field: "marker_1_x_value",
+			sortable: false,
+			filter: false,
+			type: ["datetime", "s"],
+			width: getParameter("columnOptions_cursorXValue1_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: webMI.getClientInfo().isDesktop
+				? getParameter("columnOptions_cursorXValue1_visibility", "boolean")
+				: false
+		},
+
+		{
+			id: "marker_1_y_value",
+			name: getParameter("columnOptions_cursorYValue1_name", "string"),
+			field: "marker_1_y_value",
+			sortable: false,
+			filter: false,
+			width: getParameter("columnOptions_cursorYValue1_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: webMI.getClientInfo().isDesktop
+				? getParameter("columnOptions_cursorYValue1_visibility", "boolean")
+				: false
+		},
+		{
+			id: "marker_2_x_value",
+			name: getParameter("columnOptions_cursorXValue2_name", "string"),
+			field: "marker_2_x_value",
+			sortable: false,
+			filter: false,
+			type: ["datetime", "s"],
+			width: getParameter("columnOptions_cursorXValue2_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: webMI.getClientInfo().isDesktop
+				? getParameter("columnOptions_cursorXValue2_visibility", "boolean")
+				: false
+		},
+		{
+			id: "marker_2_y_value",
+			name: getParameter("columnOptions_cursorYValue2_name", "string"),
+			field: "marker_2_y_value",
+			sortable: false,
+			filter: false,
+			width: getParameter("columnOptions_cursorYValue2_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: webMI.getClientInfo().isDesktop
+				? getParameter("columnOptions_cursorYValue2_visibility", "boolean")
+				: false
+		},
+		{
+			id: "marker_x_delta",
+			name: getParameter("columnOptions_cursorXDelta_name", "string"),
+			field: "marker_x_delta",
+			sortable: false,
+			filter: false,
+			width: getParameter("columnOptions_cursorXDelta_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: webMI.getClientInfo().isDesktop
+				? getParameter("columnOptions_cursorXDelta_visibility", "boolean")
+				: false
+		},
+		{
+			id: "marker_y_delta",
+			name: getParameter("columnOptions_cursorYDelta_name", "string"),
+			field: "marker_y_delta",
+			sortable: false,
+			filter: false,
+			width: getParameter("columnOptions_cursorYDelta_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: webMI.getClientInfo().isDesktop
+				? getParameter("columnOptions_cursorYDelta_visibility", "boolean")
+				: false
+		},
+		{
+			id: "axis",
+			name: getParameter("columnOptions_axis_name", "string"),
+			field: "axis",
+			sortable: false,
+			filter: false,
+			width: getParameter("columnOptions_axis_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: getParameter("columnOptions_axis_visibility", "boolean")
+		},
+		{
+			id: "type",
+			name: getParameter("columnOptions_type_name", "string"),
+			field: "type",
+			sortable: false,
+			filter: false,
+			width: getParameter("columnOptions_type_width", "number"),
+			minWidth: minWidth,
+			maxWidth: maxWidth,
+			visible: getParameter("columnOptions_type_visibility", "boolean")
+		},
+		{
+			id: "visibility",
+			name: visibilityName,
+			field: "visibility",
+			sortable: false,
+			filter: false,
+			formatter: formatter_visibility,
+			width: getParameter("columnOptions_seriesVisibility_width", "number"),
+			minWidth: 30,
+			maxWidth: maxWidth,
+			visible: getParameter("columnOptions_seriesVisibility_visibility", "boolean"),
+			type: "button",
+			toolTip: getParameter("columnOptions_seriesVisibility_name", "string")
+				? getParameter("columnOptions_seriesVisibility_name", "string")
+				: "T{Visibility}"
+		},
+		{
+			id: "color",
+			name: colorName,
+			field: "color",
+			sortable: false,
+			filter: false,
+			formatter: formatter_color,
+			width: getParameter("columnOptions_color_width", "number"),
+			minWidth: 30,
+			maxWidth: maxWidth,
+			visible: getParameter("columnOptions_color_visibility", "boolean"),
+			type: "button",
+			toolTip: getParameter("columnOptions_color_name", "string")
+				? getParameter("columnOptions_color_name", "string")
+				: "T{Color}"
+		},
+		{
+			id: "settings",
+			name: settingsName,
+			field: "settings",
+			sortable: false,
+			filter: false,
+			formatter: formatter_settings,
+			width: getParameter("columnOptions_seriesSettings_width", "number"),
+			minWidth: 30,
+			maxWidth: maxWidth,
+			visible: webMI.getClientInfo().isDesktop
+				? getParameter("columnOptions_seriesSettings_visibility", "boolean")
+				: false,
+			type: "button",
+			toolTip: getParameter("columnOptions_seriesSettings_name", "string")
+				? getParameter("columnOptions_seriesSettings_name", "string")
+				: "T{Settings}"
+		}
+	];
+
+	/* table will run in no data mode > so use once */
+	config["mode"] = "once";
+
+	/* no initial data required > so blank customer request */
+	config["dataRequestFunction"] = function customDataRequest() {};
+
+	/* turn of initial clear of table */
+	config["options"] = {
+		clear_table: false
+	};
+
+	config.onClickCallback = function (_e, clickinfo) {
+		clickHandler(clickinfo);
+	};
+
+	config.bufferInterval = 0;
+
+	/* Register configuration */
+	webMI.table.register(tableID, "config", config);
+	webMI.table.setReady(tableID, "config");
+
+	/* Create legend after table ready */
+	webMI.table.waitReady(tableID, "controller", function () {
+		tableController = webMI.table.request(tableID, "controller");
+		new Legend(tableController);
+	});
+});
+
+/**
+ * FUNCTION SECTION
+ */
+function getParameter(key, type) {
+	var value = queryParameter[key];
+	if (type == "number") return parseInt(value, 10);
+	if (type == "boolean") return value == "true" ? true : false;
+	return value;
+}
+
+/**
+ * Formatter for visibility
+ */
+function formatter_visibility(_row, _cell, value) {
+	if (value === "") return "wait";
+	return value
+		? '<span style="width: 100%; text-align: center"><i class="fas fa-check-square"></i></span>'
+		: '<span style="width: 100%; text-align: center"><i class="far fa-square"></i></span>';
+}
+
+/**
+ * Formatter for color
+ * @param > !predefined by slick grid!
+ */
+function formatter_color(_row, _cell, value) {
+	if (value == false) return "";
+
+	var style = "border: 1px solid black;padding: 0px;width: 95%;height: 95%;background-color:" + value + ";";
+
+	var html = '<div style="' + style + '"></div>';
+	return html;
+}
+
+/**
+ * Formatter for settings
+ * @param > !predefined by slick grid!
+ */
+function formatter_settings(_row, _cell, value) {
+	if (value == false) return "";
+	return '<span style="width: 100%; text-align: center"><i class="fas fa-external-link-square-alt"></i></span>';
+}
+
+/**
+ * Add click handler for functional table cells
+ * @param clickinfo > holds information about clicked cell
+ */
+function clickHandler(clickinfo) {
+	var self = this;
+	if (legendUpdate) return;
+
+	var clickColumns = ["visibility", "color", "settings"];
+
+	if (clickColumns.indexOf(clickinfo.column.id) < 0) {
+		return;
+	}
+
+	/* prevent double click events of fast changes */
+	if (typeof clicklock != "undefined" && clicklock) return;
+	else clicklock = true;
+
+	setTimeout(function preventDoubleClick() {
+		clicklock = false;
+	}, 250);
+
+	/* handle if visibility is tried to be changed */
+	if (clickinfo.column.id == "visibility") {
+		webMI.trendFactory.getTrendByName(trendName, function (trendInstance) {
+			if (trendInstance.control.getLoadingState()) {
+				return;
+			}
+
+			var item = JSON.parse(JSON.stringify(clickinfo.item));
+			item.visibility = !item.visibility;
+			self.tableController.updateData(item.id, item);
+
+			var serie = null;
+			var series = trendInstance.chart.series;
+
+			for (var key in series) {
+				if (series[key].userOptions.id == clickinfo.item.series) {
+					serie = series[key];
+					break;
+				}
+			}
+
+			serie.setVisible(item.visibility, true);
+		});
+		return;
+	}
+
+	/* handle if color is tried to be changed */
+	if (clickinfo.column.id == "color") {
+		webMI.trendFactory.getTrendByName(trendName, function (trendInstance) {
+			var series = trendInstance.chart.series;
+
+			for (var key in series) {
+				if (series[key].userOptions.id == clickinfo.item.series) {
+					openSeries = series[key];
+					break;
+				}
+			}
+
+			var displayOptions = {
+				display: display.dialog_color_picker,
+				extern: false,
+				height: 370,
+				menubar: false,
+				modal: true,
+				movable: true,
+				resizable: false,
+				scrollbars: false,
+				status: false,
+				title: "",
+				toolbar: false,
+				width: 220,
+				query: { name: trendName, color: openSeries.color }
+			};
+
+			webMI.display.openWindow(displayOptions);
+		});
+		return;
+	}
+
+	/* handle if settings is tried to be changed */
+	if (clickinfo.column.id == "settings") {
+		var chart = webMI.trendFactory.getTrendByName(trendName);
+		if (!chart._openConfigLock || chart._openConfigLock.closed) {
+			var displayOptions = {
+				display: display.dialog_options,
+				extern: false,
+				height: 600,
+				menubar: false,
+				modal: false,
+				movable: true,
+				resizable: true,
+				scrollbars: false,
+				status: false,
+				title: " Diagrammkonfiguration",
+				toolbar: false,
+				width: 1200,
+				query: { chartname: trendName, seriesId: clickinfo.item.series, startAddress: startAddress }
+			};
+
+			chart._openConfigLock = webMI.display.openWindow(displayOptions);
+		}
+
+		return;
+	}
+}
+
+/**
+ * Creates a Legend instance to display series and measurement cursor values.
+ * @constructor
+ */
+class Legend {
+	constructor(tableController) {
+		this.tableController = tableController;
+		this.options = {
+			trendName
+		};
+		this.measurementCursorValues = {};
+		this.initialize();
+	}
+
+	initialize() {}
+}
+
+/**
+ * call at starup
+ */
+Legend.prototype.initialize = function () {
+	var self = this;
+	this.historyLoading = { start: null, ready: null };
+	this.idx1Mapping = {};
+	this.idx2Mapping = {};
+	this.trendInstance = {};
+	this.seriesStore = {};
+
+	/* add right check */
+	var right = queryParameter["options_right"] == undefined ? "" : queryParameter["options_right"];
+	if (right.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1) {
+		right = right.substring(23, right.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+	}
+
+	/* bind destroy */
+	webMI.addOnunload(function () {
+		if (self.trendInstance && self.trendInstance.chart) {
+			self.trendInstance.chart.resetLegend = function () {};
+			delete self.trendInstance.chart.resetLegend;
+			self.trendInstance.chart.onHistoryLoadingUnregister(self.historyLoading.start);
+			self.trendInstance.chart.onHistoryReadyUnregister(self.historyLoading.end);
+		}
+
+		delete self.historyLoading.start;
+		delete self.historyLoading.end;
+
+		if (self.trendInstance && self.trendInstance.control) {
+			if (self.measurementCursor1CallbackId)
+				self.trendInstance.control.unregisterMeasuringCursor1Callback(self.measurementCursor1CallbackId);
+
+			if (self.measurementCursor2CallbackId)
+				self.trendInstance.control.unregisterMeasuringCursor2Callback(self.measurementCursor2CallbackId);
+		}
+
+		delete self.measurementCursor1CallbackId;
+		delete self.measurementCursor2CallbackId;
+
+		self.destroy.bind(self);
+	});
+
+	/* connect to highcharts trend */
+	webMI.trendFactory.getTrendByName(this.options.trendName, function (trendInstance) {
+		self.trendInstance = trendInstance;
+		self.series = trendInstance.chart.series;
+
+		self.trendInstance.chart.resetLegend = function () {
+			self.tableController.clearData();
+			self.idx1Mapping = {};
+			self.idx2Mapping = {};
+			self.seriesStore = {};
+		};
+
+		self.historyLoading.start = self.trendInstance.chart.onHistoryLoadingRegister(function disable() {
+			self.updateHistory = true;
+			setButtonsActivationState(false);
+		});
+
+		self.historyLoading.end = self.trendInstance.chart.onHistoryReadyRegister(function enable() {
+			var extremes = self.trendInstance.chart.xAxis[0].getExtremes();
+			var timespan = extremes.max - extremes.min;
+			var fpsTiming = (timespan / self.trendInstance.chart.chartWidth) * 25;
+
+			if (fpsTiming > 2500) fpsTiming = 2500;
+
+			setButtonsActivationState(true);
+			setTimeout(function () {
+				if (self && "updateHistory" in self) self.updateHistory = false;
+			}, fpsTiming);
+		});
+
+		webMI.trigger.connect("valuechanged_" + trendName, function (data) {
+			openSeries.update({ color: data.value.hex });
+			trendInstance.control.updated();
+		});
+
+		setTimeout(function () {
+			self.measurementCursor1CallbackId = self.trendInstance.control.registerMeasuringCursor1Callback(
+				self.measurementCursorHandler.bind(self, 1, function () {
+					handleUpdate();
+				})
+			);
+			self.measurementCursor2CallbackId = self.trendInstance.control.registerMeasuringCursor2Callback(
+				self.measurementCursorHandler.bind(self, 2, function () {
+					handleUpdate();
+				})
+			);
+		}, 1000);
+
+		self.submitSeries = false;
+		self.updating = false;
+		self.updateInit = false;
+		self.updateTimer = null;
+		self.updateTimeout = defaultTimeout;
+
+		trendInstance.chart.renderTo.addEventListener("trendRedrawPoint", function () {
+			handleUpdate();
+		});
+
+		trendInstance.chart.renderTo.addEventListener("trendAddLivePoint", function (data) {
+			handleUpdate(data);
+		});
+
+		function handleUpdate(data) {
+			/* close fastlane for livedata if history is ready */
+			if (!self.updateHistory && data) {
+				return;
+			}
+
+			/* fastlane if series first submit or data recieved while history is still loading */
+			/* otherwise dont update while update still in progress */
+			if (self.submitSeries && (self.updating || (self.updateHistory && !data))) {
+				if (self.updateTimer != null) clearTimeout(self.updateTimer);
+
+				self.updateTimer = setTimeout(function () {
+					if (!self.updateInit && !self.updateHistory) self.updating = false;
+
+					if (typeof handleUpdate == "function") {
+						handleUpdate(data);
+					}
+				}, self.updateTimeout);
+
+				return;
+			}
+
+			/* update */
+			self.submitSeries = true;
+			self.updating = true;
+			self.updateInit = true;
+
+			var activeSeries = [];
+
+			/* add new series if not exist */
+			for (var id in self.series) {
+				if (!self.series[id] || !self.series[id].userOptions) return;
+
+				var idx_1 = self.idx1Mapping[self.series[id].userOptions.id];
+				var idx_2 = self.idx2Mapping[self.series[id].userOptions.id];
+
+				if (typeof self.series[id].type != "undefined") {
+					var area = self.series[id].type.indexOf("area") > -1;
+
+					if (typeof idx_1 == "undefined") {
+						idx_1 = self.idx1Mapping[self.series[id].userOptions.id] = self.addDataObject(self.series, id, true);
+					}
+
+					if (area && typeof idx_2 == "undefined" && self.series[id].userOptions.address2) {
+						idx_2 = self.idx2Mapping[self.series[id].userOptions.id] = self.addDataObject(self.series, id, false);
+					}
+
+					if (typeof idx_1 != "undefined") {
+						activeSeries.push(idx_1);
+					}
+					if (area && typeof idx_2 != "undefined") {
+						activeSeries.push(idx_2);
+					}
+				}
+			}
+
+			/* remove series if not exist */
+			for (var key in self.idx1Mapping) {
+				const search = self.idx1Mapping[key];
+				if (activeSeries.indexOf(search) < 0) {
+					self.tableController.removeData(search);
+					delete activeSeries[search];
+					delete self.idx1Mapping[key];
+				}
+			}
+
+			/* remove second series for areas if not exists */
+			for (const key in self.idx2Mapping) {
+				const search = self.idx2Mapping[key];
+				if (activeSeries.indexOf(search) < 0) {
+					self.tableController.removeData(search);
+					delete activeSeries[search];
+					delete self.idx2Mapping[key];
+				}
+			}
+
+			/* rearrange live data values */
+			var liveData = {};
+			if (data) {
+				let detail = data.detail;
+				liveData[detail.series] = detail.pointArray[1];
+			}
+
+			/* update values */
+			for (const id in self.series) {
+				const idx_1 = self.idx1Mapping[self.series[id].userOptions.id];
+				const idx_2 = self.idx2Mapping[self.series[id].userOptions.id];
+
+				if (typeof idx_1 != "undefined") {
+					self.updateDataObject(self.series[id], idx_1, true, liveData[self.series[id].userOptions.id]);
+				}
+				if (typeof idx_2 != "undefined") {
+					self.updateDataObject(self.series[id], idx_2, false);
+				}
+			}
+
+			setTimeout(function () {
+				self.updating = false;
+			}, self.updateTimeout);
+		}
+
+		function setButtonsActivationState(value) {
+			legendUpdate = !value;
+		}
+	});
+};
+
+/**
+ * Create a object representing a table row
+ * @param series
+ * @param idx
+ * @param value
+ * @param cursors
+ * @param parent
+ * @returns Object
+ */
+Legend.prototype.createDataObject = function (series, idx, value, cursors, parent) {
+	var aggregate = this.buildAggregateText(series.userOptions.aggregate);
+	var deltaX = cursors["m1"]["x"] && cursors["m2"]["x"] ? Math.abs(cursors["m2"]["x"] - cursors["m1"]["x"]) : "";
+	var deltaY = cursors["m1"]["y"] && cursors["m2"]["y"] ? Math.abs(cursors["m2"]["y"] - cursors["m1"]["y"]) : "";
+	var convertX = "";
+	if (deltaX != "") convertX = this.convertTimeToString(this, deltaTimeFormat, deltaX, true);
+
+	var createName = webMI.escapeHTML(series.userOptions.name);
+	if (createName == "undefined") createName = "";
+	
+	var zIndex = (typeof series.userOptions.zIndex != "undefined")  ? series.userOptions.zIndex + 1 : (typeof series.options.zIndex != "undefined") ? series.options.zIndex + 1 : 100;
+
+	var obj = {
+		zindex: zIndex,
+		series: series.userOptions.id ? series.userOptions.id : "series-is-loading",
+		name: series.userOptions.id ? createName : "series data loading",
+		address: parent ? series.userOptions.address : series.userOptions.address2,
+		aggregate: aggregate ? aggregate : "",
+		axis: getAxisName(),
+		type: typeMap[series.userOptions.type ? series.userOptions.type : series.type],
+		visibility: parent ? series.visible : -1,
+		color: parent ? series.color : false,
+		marker_1_x_value: cursors["m1"]["x"] != null ? cursors["m1"]["x"] : "",
+		marker_1_y_value: cursors["m1"]["y"] != null ? cursors["m1"]["y"] : "",
+		marker_2_x_value: cursors["m2"]["x"] != null ? cursors["m2"]["x"] : "",
+		marker_2_y_value: cursors["m2"]["y"] != null ? cursors["m2"]["y"] : "",
+		marker_x_delta: convertX,
+		marker_y_delta: deltaY,
+		settings: parent ? true : false
+	};
+
+	function getAxisName() {
+		var axisName = "";
+		try {
+			axisName = series.yAxis.userOptions.title.text;
+		} catch (ex) {
+			// console.error("no vaild axis name found");
+		}
+		return axisName;
+	}
+
+	if (!showfullAddressNames) obj.address = obj.address.replace("AGENT.OBJECTS.", "");
+
+	if (idx) obj["id"] = idx;
+	if (value !== false) obj["value"] = value;
+
+	return obj;
+};
+
+/**
+ * Adds an table object to the table
+ * @param series
+ * @param id
+ * @param parent
+ * @returns {*}
+ */
+Legend.prototype.addDataObject = function (series, id, parent) {
+	var self = this;
+	var data = {};
+
+	data.result = [
+		self.createDataObject(
+			series[id],
+			false,
+			"n/a",
+			{
+				m1: { x: null, y: null },
+				m2: { x: null, y: null }
+			},
+			parent
+		)
+	];
+
+	var idx = self.tableController.addData(data);
+
+	if (typeof self.seriesStore[parent] == "undefined") {
+		self.seriesStore[parent] = [];
+	}
+
+	if (typeof self.seriesStore[parent][idx] == "undefined") {
+		self.seriesStore[parent][idx] = {};
+		self.seriesStore[parent][idx]["name"] = null;
+		self.seriesStore[parent][idx]["axis"] = null;
+		self.seriesStore[parent][idx]["value"] = null;
+		self.seriesStore[parent][idx]["visible"] = null;
+		self.seriesStore[parent][idx]["newCursor"] = { m1: { x: null, y: null }, m2: { x: null, y: null } };
+		self.seriesStore[parent][idx]["oldCursor"] = { m1: { x: null, y: null }, m2: { x: null, y: null } };
+	}
+
+	return idx[0];
+};
+
+/**
+ * Updates a table object in the table
+ * @param series
+ * @param idx
+ * @param parent
+ */
+Legend.prototype.updateDataObject = function (series, idx, parent, liveData) {
+	/* no updates while user action */
+	if (clicklock) return;
+
+	var self = this;
+	var update = false;
+
+	var axis = getAxisName();
+	var color = series.color;
+	var length = series.yData.length;
+	var name = series.name == "undefined" ? "" : series.name;
+	var value = null;
+	var visible = series.visible;
+	var type = typeMap[series.userOptions.type ? series.userOptions.type : series.type];
+
+	function getAxisName() {
+		var axisName = "";
+		try {
+			axisName = series.yAxis.userOptions.title.text;
+		} catch (ex) {
+			// console.error("no vaild axis name found");
+		}
+		return axisName;
+	}
+
+	if (length > 0 && series.yData[length - 1] != null) {
+		if (series.yData[length - 1].length == 2) {
+			if (parent) value = series.yData[length - 1][0];
+			else value = series.yData[length - 1][1];
+		} else {
+			value = series.yData[length - 1];
+		}
+
+		if (series.options.tooltip && series.options.tooltip.valueDecimals)
+			value = value.toFixed(series.options.tooltip.valueDecimals);
+        if (series.options.tooltip && series.options.tooltip.valueExponential)
+            value = webMI.sprintf("%.2e", value);
+		if (series.options.tooltip && series.options.tooltip.valuePrefix)
+			value = series.options.tooltip.valuePrefix + value;
+		if (series.options.tooltip && series.options.tooltip.valueSuffix)
+			value = value + series.options.tooltip.valueSuffix;
+	} else {
+		value = "n/a";
+	}
+
+	if (!visible) value = "n/a";
+
+	if (axis != self.seriesStore[parent][idx]["axis"]) {
+		self.seriesStore[parent][idx]["axis"] = axis;
+		update = true;
+	}
+
+	if (value != self.seriesStore[parent][idx]["value"] || (liveData != "undefined" && value != liveData)) {
+		self.seriesStore[parent][idx]["value"] = liveData != "undefined" ? liveData : value;
+		update = true;
+	}
+
+	if (visible != self.seriesStore[parent][idx]["visible"]) {
+		self.seriesStore[parent][idx]["visible"] = visible;
+		update = true;
+	}
+
+	if (name != self.seriesStore[parent][idx]["name"]) {
+		self.seriesStore[parent][idx]["name"] = name;
+		update = true;
+	}
+
+	if (color != self.seriesStore[parent][idx]["color"]) {
+		self.seriesStore[parent][idx]["color"] = color;
+		update = true;
+	}
+
+	if (type != self.seriesStore[parent][idx]["type"]) {
+		self.seriesStore[parent][idx]["type"] = type;
+		update = true;
+	}
+
+	var cursors = self.seriesStore[parent][idx]["newCursor"];
+	var oldCursor = JSON.stringify(self.seriesStore[parent][idx]["oldCursor"]);
+	var newCursor = JSON.stringify(self.seriesStore[parent][idx]["newCursor"]);
+	var areEqual = oldCursor.toUpperCase() === newCursor.toUpperCase();
+
+	if (!areEqual) {
+		self.seriesStore[parent][idx]["oldCursor"] = JSON.parse(JSON.stringify(self.seriesStore[parent][idx]["newCursor"]));
+		update = true;
+	}
+
+	if (update && "updateData" in self.tableController) {
+		var data = {};
+		data = self.createDataObject(series, idx, value, cursors, parent);
+		self.tableController.updateData(idx, data);
+	}
+};
+
+/**
+ * tbd
+ * @param instance
+ * @param data
+ */
+Legend.prototype.measurementCursorHandler = function (instance, updateFunc, data) {
+	var self = this;
+
+	for (var series in data) {
+		var idx1 = self.idx1Mapping[series];
+		var idx2 = self.idx2Mapping[series];
+
+		if (!idx1) return;
+
+		var x = data[series].x;
+
+		/** this fallback is for series without valid timestamp **/
+		if (x == 2145916800000) {
+			x = "";
+		}
+
+		var decimals = 2;
+		for (var s = 0; s < self.series.length; s++) {
+			if (
+				self.seriesStore[true][idx1] &&
+				self.series[s].name == self.seriesStore[true][idx1].name &&
+				self.series[s].options.tooltip &&
+				self.series[s].options.tooltip.valueDecimals
+			)
+				decimals = self.series[s].options.tooltip.valueDecimals;
+			else if (
+				self.seriesStore[true][idx2] &&
+				self.series[s].name == self.seriesStore[true][idx1].name &&
+				self.series[s].options.tooltip &&
+				self.series[s].options.tooltip.valueDecimals
+			)
+				decimals = self.series[s].options.tooltip.valueDecimals;
+		}
+
+		if (data[series] && data[series].y && data[series].y.length == 2) {
+			if (instance == 1) {
+				self.seriesStore[true][idx1]["newCursor"]["m1"] = {
+					x: x,
+					y: typeof data[series].y[0] == "number" ? data[series].y[0].toFixed(decimals) : data[series].y[0]
+				};
+				if (idx2)
+					self.seriesStore[false][idx2]["newCursor"]["m1"] = {
+						x: x,
+						y: typeof data[series].y[1] == "number" ? data[series].y[1].toFixed(decimals) : data[series].y[1]
+					};
+			} else {
+				self.seriesStore[true][idx1]["newCursor"]["m2"] = {
+					x: x,
+					y: typeof data[series].y[0] == "number" ? data[series].y[0].toFixed(decimals) : data[series].y[0]
+				};
+				if (idx2)
+					self.seriesStore[false][idx2]["newCursor"]["m2"] = {
+						x: x,
+						y: typeof data[series].y[1] == "number" ? data[series].y[1].toFixed(decimals) : data[series].y[1]
+					};
+			}
+		} else if (self.seriesStore[true][idx1]["newCursor"]) {
+			if (instance == 1)
+				self.seriesStore[true][idx1]["newCursor"]["m1"] = {
+					x: x,
+					y: typeof data[series].y == "number" ? data[series].y.toFixed(decimals) : data[series].y
+				};
+			else
+				self.seriesStore[true][idx1]["newCursor"]["m2"] = {
+					x: x,
+					y: typeof data[series].y == "number" ? data[series].y.toFixed(decimals) : data[series].y
+				};
+		}
+	}
+
+	updateFunc();
+};
+
+/**
+ * Converts a time value (in milliseconds since 1970) into a string, formatted in the specfied manner. (uses internally dateFormat - from highcharts)
+ * @param {Object} self The Legend instance.
+ * @param {String} format The format string that defines how the date-time string should look like.
+ * @param {Boolean} timeDelta A setting to use when the conversion of delta times is needed. (to avoid time zone offsets)
+ * @return {String} timeString
+ * @memberOf Legend
+ * @private
+ */
+Legend.prototype.convertTimeToString = function (self, format, timeValue, timeDelta) {
+	var highcharts = self.trendInstance.chart.renderTo.ownerDocument.defaultView["Highcharts"];
+	var utcOffset = 0;
+	if (timeDelta && !self.trendInstance.chart.options.global.useUTC) {
+		utcOffset = new Date(timeValue).getTimezoneOffset() * 60 * 1000;
+	}
+	var timeString = highcharts.dateFormat(format, timeValue + utcOffset);
+	return timeString;
+};
+
+/**
+ * A helper method that builds a string out of an aggregate object.
+ * @param {Object} aggregateObj The aggregate object build the string out of.
+ * @return {String} text
+ * @memberOf Legend
+ * @private
+ */
+Legend.prototype.buildAggregateText = function (aggregate) {
+	if (typeof aggregate == "undefined") return false;
+
+	var text = "";
+	if (aggregate && aggregate.aggregate) {
+		text = aggregate.aggregate + " (" + aggregate.interval + " " + aggregate.unit + ")";
+	}
+	return text;
+};
+
+/**
+ * The methode that destroys the component on unload event
+ */
+Legend.prototype.destroy = function () {
+	if (this.trendInstance && this.trendInstance.control)
+		this.trendInstance.control.unregisterMeasuringCursor1Callback(this.measurementCursor1CallbackId);
+	if (this.trendInstance && this.trendInstance.control)
+		this.trendInstance.control.unregisterMeasuringCursor2Callback(this.measurementCursor1CallbackId);
+	this.measurementCursor1CallbackId = null;
+	this.measurementCursor2CallbackId = null;
+	this.trendInstance = null;
+	this.tableController = null;
+};
+]]></code>
+</script>

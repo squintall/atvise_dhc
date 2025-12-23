@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvBorderColor2
+NodeClass: Variable
+BrowseName: 1:atvBorderColor2
+DisplayName: en|atvBorderColor2
+Description: en|atvBorderColor2
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

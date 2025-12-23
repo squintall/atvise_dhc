@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_La_Joya.Equipos.Bombas.Variador_1.arm_I5
+NodeClass: Variable
+BrowseName: 1:arm_I5
+DisplayName: en|arm_I5
+Description: en|arm_I5
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.arm_I5.DeadbandRel
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.arm_I5.SuppressFlicker
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

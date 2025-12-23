@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.acknowledge_comment
+NodeClass: Variable
+BrowseName: 1:acknowledge_comment
+DisplayName: en|acknowledge_comment
+Description: en|acknowledge_comment
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

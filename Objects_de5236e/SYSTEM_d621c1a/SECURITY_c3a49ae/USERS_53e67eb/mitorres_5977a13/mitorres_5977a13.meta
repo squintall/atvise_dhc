@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.mitorres
+NodeClass: Object
+BrowseName: 1:mitorres
+DisplayName: en|mitorres
+Description: en|mitorres
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

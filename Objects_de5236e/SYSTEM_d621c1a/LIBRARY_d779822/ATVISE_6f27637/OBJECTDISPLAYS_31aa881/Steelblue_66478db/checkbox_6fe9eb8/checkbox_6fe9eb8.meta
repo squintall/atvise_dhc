@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.checkbox
+NodeClass: Variable
+BrowseName: 1:checkbox
+DisplayName: en|checkbox
+Description: en|checkbox
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

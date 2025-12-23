@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_Colosio.connect
+NodeClass: Variable
+BrowseName: 1:connect
+DisplayName: en|connect
+Description: en|Conectividad de Colosio
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.connect.Comunicacion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.connect.fallo_comunicacion
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

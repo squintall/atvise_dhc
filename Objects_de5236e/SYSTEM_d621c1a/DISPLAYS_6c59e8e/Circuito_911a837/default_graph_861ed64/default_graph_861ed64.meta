@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Circuito.default_graph
+NodeClass: Variable
+BrowseName: 1:default_graph
+DisplayName: en|default_graph
+Description: en|default_graph
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

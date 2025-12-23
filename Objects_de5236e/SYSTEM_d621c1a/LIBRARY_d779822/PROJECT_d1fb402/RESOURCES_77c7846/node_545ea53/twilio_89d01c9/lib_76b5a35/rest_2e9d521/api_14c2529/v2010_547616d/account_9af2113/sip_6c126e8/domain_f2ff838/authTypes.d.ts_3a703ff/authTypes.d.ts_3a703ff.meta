@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/api/v2010/account/sip/domain/authTypes.d.ts
+NodeClass: Variable
+BrowseName: 1:authTypes.d.ts
+DisplayName: en|authTypes.d.ts
+Description: en|authTypes.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

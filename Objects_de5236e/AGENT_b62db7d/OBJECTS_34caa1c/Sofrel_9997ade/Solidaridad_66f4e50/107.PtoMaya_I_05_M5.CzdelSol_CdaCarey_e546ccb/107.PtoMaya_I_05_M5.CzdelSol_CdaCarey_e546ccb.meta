@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Solidaridad.107.PtoMaya_I_05_M5.CzdelSol_CdaCarey
+NodeClass: Object
+BrowseName: 1:107.PtoMaya_I_05_M5.CzdelSol_CdaCarey
+DisplayName: en|107.PtoMaya_I_05_M5.CzdelSol_CdaCarey
+Description: en|107.PtoMaya_I_05_M5.CzdelSol_CdaCarey
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.presion_min_max

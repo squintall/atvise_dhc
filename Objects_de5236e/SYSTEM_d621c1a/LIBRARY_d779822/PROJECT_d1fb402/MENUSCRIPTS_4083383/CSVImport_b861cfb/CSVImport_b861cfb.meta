@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.MENUSCRIPTS.CSVImport
+NodeClass: Variable
+BrowseName: 1:CSVImport
+DisplayName: en|CSVImport
+Description: en|CSVImport
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

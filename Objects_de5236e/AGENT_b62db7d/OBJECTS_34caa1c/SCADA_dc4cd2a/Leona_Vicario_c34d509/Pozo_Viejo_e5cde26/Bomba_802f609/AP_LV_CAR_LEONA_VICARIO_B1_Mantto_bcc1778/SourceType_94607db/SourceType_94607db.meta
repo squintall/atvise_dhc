@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Leona_Vicario.Pozo_Viejo.Bomba.AP_LV_CAR_LEONA_VICARIO_B1_Mantto.SourceType
+NodeClass: Variable
+BrowseName: 1:SourceType
+DisplayName: en|Source type
+Description: en|SourceType
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.SourceType.RelMirrorInputOutput

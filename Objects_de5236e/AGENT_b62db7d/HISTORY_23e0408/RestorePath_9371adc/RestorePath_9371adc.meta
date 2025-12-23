@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.HISTORY.RestorePath
+NodeClass: Variable
+BrowseName: 1:RestorePath
+DisplayName: en|RestorePath
+Description: en|RestorePath
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

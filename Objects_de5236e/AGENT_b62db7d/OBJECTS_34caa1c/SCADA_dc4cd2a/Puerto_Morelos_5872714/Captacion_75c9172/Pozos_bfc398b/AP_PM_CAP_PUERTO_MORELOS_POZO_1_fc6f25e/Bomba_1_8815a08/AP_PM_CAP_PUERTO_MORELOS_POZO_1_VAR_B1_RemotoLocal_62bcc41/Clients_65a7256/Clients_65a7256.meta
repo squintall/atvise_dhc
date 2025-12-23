@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Captacion.Pozos.AP_PM_CAP_PUERTO_MORELOS_POZO_1.Bomba_1.AP_PM_CAP_PUERTO_MORELOS_POZO_1_VAR_B1_RemotoLocal.Clients
+NodeClass: Variable
+BrowseName: 1:Clients
+DisplayName: en|Monitoring clients number
+Description: en|Clients
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Clients.RelMirrorInputOutput

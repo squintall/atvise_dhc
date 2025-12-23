@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/tanque_agua.png
+NodeClass: Variable
+BrowseName: 1:tanque_agua.png
+DisplayName: en|tanque_agua.png
+Description: en|tanque_agua.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

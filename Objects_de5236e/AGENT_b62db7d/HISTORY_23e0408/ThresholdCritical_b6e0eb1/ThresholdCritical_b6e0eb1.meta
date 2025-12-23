@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.HISTORY.ThresholdCritical
+NodeClass: Variable
+BrowseName: 1:ThresholdCritical
+DisplayName: en|ThresholdCritical
+Description: en|ThresholdCritical
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

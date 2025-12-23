@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_VISTA_REAL.Caudalimetro.AP_BJ_CAR_VISTA_REAL_CAUD_L1_AcumuladoDiario
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_VISTA_REAL_CAUD_L1_AcumuladoDiario
+DisplayName: en|AP_BJ_CAR_VISTA_REAL_CAUD_L1_AcumuladoDiario
+Description: en|AP_BJ_CAR_VISTA_REAL_CAUD_L1_AcumuladoDiario
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

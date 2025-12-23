@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_2000P.Corriente_L1
+NodeClass: Variable
+BrowseName: 1:Corriente_L1
+DisplayName: en|Corriente_L1
+Description: en|Corriente_L1
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

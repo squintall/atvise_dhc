@@ -1,0 +1,9 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.level_percent.Nivel.Nivel_alto
+NodeClass: Object
+BrowseName: 1:Nivel_alto
+DisplayName: en|Nivel_alto
+Description: en|Nivel_alto
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConditionControl.Limit
+Reference: forward HasComponent ns=1;s=AGENT.ALARMING.Categories.Information

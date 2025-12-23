@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the datepicker object display
+ * ----------------------------------------
+ * * This script supports the display for "Picker Date" and shall not be used as standalone control.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var curTime = 0;
+var popupId = webMI.query["popupId"];
+var timestamp = parseInt(webMI.query["timestamp"], 10);
+if (isNaN(timestamp)) timestamp = 0;
+
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+
+webMI.addOnload(function () {
+	webMI.trigger.fire("setValue", curTime = timestamp, "id_0");
+});
+
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect("valuechanged", function (e) {
+	curTime = e.value;
+}, "id_0");
+
+webMI.trigger.connect("clicked", function (e) {
+	var id = "id_1";
+	var value = e.value;
+	return function (value) {
+		webMI.trigger.fire("com.atvise.datepicker_" + popupId, curTime);
+		webMI.display.closeWindow();
+	}(value);
+}, "id_1");
+
+webMI.trigger.connect("clicked", function (e) {
+	var id = "id_2";
+	var value = e.value;
+	return function (value) {
+		webMI.trigger.fire("setValue", curTime = 0, "id_0");
+	}(value);
+}, "id_2");
+
+webMI.trigger.connect("clicked", function (e) {
+	var id = "id_3";
+	var value = e.value;
+	return function (value) {
+		var now = (new Date()).getTime();
+		curTime = now;
+		webMI.trigger.fire("setValue", now, "id_0");
+	}(value);
+}, "id_3");]]></code>
+</script>

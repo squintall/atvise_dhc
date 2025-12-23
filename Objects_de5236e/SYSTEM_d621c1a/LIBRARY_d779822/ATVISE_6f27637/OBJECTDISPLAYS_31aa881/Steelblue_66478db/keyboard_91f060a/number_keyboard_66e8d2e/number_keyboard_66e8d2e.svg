@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="355.5" version="1.2" width="429" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_12" x1="0.119403" x2="0.119403" y1="0.970149" y2="-0.0159425">
+   <stop offset="0" stop-color="#29394b"/>
+   <stop offset="1" stop-color="#788ba3"/>
+  </linearGradient>
+ </defs>
+ <desc>On-screen keyboard display for numerical input.</desc>
+ <title>Numerical Keyboard</title>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="" desc="unit" name="unit" substitute="$unit$" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="address" name="value" substitute="$value$" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="minimum" name="minValue" valuetype="number"/>
+  <atv:parameter behavior="optional" desc="maximum" name="maxValue" valuetype="number"/>
+  <atv:parameter behavior="optional" desc="digits before point" name="digitsBeforePoint" valuetype="number"/>
+  <atv:parameter behavior="optional" desc="digits after point" name="digitsAfterPoint" valuetype="number"/>
+  <atv:parameter behavior="optional" desc="target" name="target" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="query confirm" name="queryConfirm" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Do you really want to set the value?}" desc="query confirm text" name="queryConfirmText" valuetype="trstring"/>
+  <atv:parameter behavior="optional" config="Yes;No" defaultvalue="No" desc="password mode" name="password" valuetype="enum"/>
+  <atv:parameter behavior="optional" desc="trigger to be fired" name="trigger" valuetype="string"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <rect atv:refpx="214.499" atv:refpy="37.5" fill="#c8c8c8" height="75" id="id_0" rx="0" ry="0" stroke="none" width="428.915" x="0.041" y="0"/>
+ <text atv:dynamic="true" atv:refpx="414" atv:refpy="37.5" fill="#000000" font-family="Arial" font-size="36" font-weight="bold" id="textValue" text-anchor="end" x="414.5" y="50">$value$ $unit$</text>
+ <rect atv:refpx="60.498" atv:refpy="110" fill="url(#linear_12)" height="70" id="btn7" stroke="#646464" stroke-width="1" width="107" x="0.5" y="75"/>
+ <text atv:refpx="60.5" atv:refpy="35" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="text7" x="44" y="122.5">7</text>
+ <rect atv:refpx="413.375" atv:refpy="786.275" fill="url(#linear_12)" height="70" id="btn8" stroke="#646464" stroke-width="1" width="107" x="107.5" y="75"/>
+ <text atv:refpx="167.5" atv:refpy="110" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="text8" x="151" y="122.5">8</text>
+ <rect atv:refpx="274.5" atv:refpy="35" fill="url(#linear_12)" height="70" id="btn9" stroke="#646464" stroke-width="1" width="107" x="214.5" y="75"/>
+ <text atv:refpx="274.5" atv:refpy="35" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="text9" x="258" y="122.5">9</text>
+ <rect atv:refpx="60.498" atv:refpy="105" fill="url(#linear_12)" height="70" id="btn4" stroke="#646464" stroke-width="1" width="107" x="0.5" y="145"/>
+ <text atv:refpx="60.5" atv:refpy="105" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="text4" x="44" y="192.5">4</text>
+ <rect atv:refpx="167.5" atv:refpy="105" fill="url(#linear_12)" height="70" id="btn5" stroke="#646464" stroke-width="1" width="107" x="107.5" y="145"/>
+ <text atv:refpx="167.5" atv:refpy="105" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="text5" x="151" y="192.5">5</text>
+ <rect atv:refpx="274.5" atv:refpy="105" fill="url(#linear_12)" height="70" id="btn6" stroke="#646464" stroke-width="1" width="107" x="214.5" y="145"/>
+ <text atv:refpx="274.5" atv:refpy="105" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="text6" x="258" y="192.5">6</text>
+ <rect atv:refpx="381.5" atv:refpy="180" fill="url(#linear_12)" height="70" id="btnCancel" stroke="#646464" stroke-width="1" width="107" x="321.5" y="145"/>
+ <text atv:refpx="381.5" atv:refpy="180" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="textCancel" x="363" y="192.5">X</text>
+ <rect atv:refpx="60.498" atv:refpy="175" fill="url(#linear_12)" height="70" id="btn1" stroke="#646464" stroke-width="1" width="107" x="0.5" y="215"/>
+ <text atv:refpx="60.5" atv:refpy="175" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="text1" x="44" y="262.5">1</text>
+ <rect atv:refpx="167.5" atv:refpy="175" fill="url(#linear_12)" height="70" id="btn2" stroke="#646464" stroke-width="1" width="107" x="107.5" y="215"/>
+ <text atv:refpx="167.5" atv:refpy="175" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="text2" x="151" y="262.5">2</text>
+ <rect atv:refpx="274.5" atv:refpy="175" fill="url(#linear_12)" height="70" id="btn3" stroke="#646464" stroke-width="1" width="107" x="214.5" y="215"/>
+ <text atv:refpx="274.5" atv:refpy="175" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="text3" x="258" y="262.5">3</text>
+ <rect atv:refpx="381.5" atv:refpy="285" fill="url(#linear_12)" height="140" id="btnOk" stroke="#646464" stroke-width="1" width="107" x="321.5" y="215"/>
+ <polyline atv:refpx="381.28" atv:refpy="285" fill="#ffffff" fill-opacity="0" id="id_6" points="356.645,287.807 370.327,302.761 392.914,267.238" stroke="#ffffff" stroke-width="6"/>
+ <rect atv:refpx="60.498" atv:refpy="245" fill="url(#linear_12)" height="70" id="btnMinus" stroke="#646464" stroke-width="1" width="107" x="0.5" y="285"/>
+ <text atv:refpx="60.5" atv:refpy="245" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="textMinus" x="44" y="332.5">-</text>
+ <rect atv:refpx="167.5" atv:refpy="245" fill="url(#linear_12)" height="70" id="btn0" stroke="#646464" stroke-width="1" width="107" x="107.5" y="285"/>
+ <text atv:refpx="167.5" atv:refpy="245" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="text0" x="151" y="332.5">0</text>
+ <rect atv:refpx="274.5" atv:refpy="245" fill="url(#linear_12)" height="70" id="btnComma" stroke="#646464" stroke-width="1" width="107" x="214.5" y="285"/>
+ <text atv:refpx="274.5" atv:refpy="245" fill="#feffff" font-family="Arial" font-size="36" font-weight="bold" id="textComma" x="258" y="332.5">.</text>
+ <rect atv:refpx="381.5" atv:refpy="110" fill="url(#linear_12)" height="70" id="btnDel" stroke="#646464" stroke-width="1" width="107" x="321.5" y="75"/>
+ <polyline atv:refpx="405.683" atv:refpy="94.1" fill="#ffffff" id="id_3" points="391.834,101 391.834,119 367.834,119 357.834,110 367.834,101 391.834,101" stroke="none" stroke-width="2"/>
+ <line atv:refpx="418.211" atv:refpy="188.732" id="id_4" stroke="#151c26" stroke-width="1.374" x1="375.201" x2="383.936" y1="106.513" y2="113.487"/>
+ <line atv:refpx="418.211" atv:refpy="188.732" id="id_5" stroke="#151c26" stroke-width="1.374" x1="383.936" x2="375.201" y1="106.513" y2="113.487"/>
+ <g atv:refpx="214.5" atv:refpy="215" id="id_2">
+  <rect atv:dynamic="true" atv:refpx="54" atv:refpy="185" fill="#1c7eff" fill-opacity="0" height="70" id="seven" stroke="none" width="107" x="0.5" y="75"/>
+  <rect atv:dynamic="true" atv:refpx="161.5" atv:refpy="110" fill="#1c7eff" fill-opacity="0" height="70" id="eight" stroke="none" width="107" x="107.5" y="75"/>
+  <rect atv:dynamic="true" atv:refpx="482.5" atv:refpy="110" fill="#1c7eff" fill-opacity="0" height="70" id="nine" stroke="none" width="107" x="214.5" y="75"/>
+  <rect atv:dynamic="true" atv:refpx="54" atv:refpy="325" fill="#1c7eff" fill-opacity="0" height="70" id="four" stroke="none" width="107" x="0.5" y="145"/>
+  <rect atv:dynamic="true" atv:refpx="161" atv:refpy="325" fill="#1c7eff" fill-opacity="0" height="70" id="five" stroke="none" width="107" x="107.5" y="145"/>
+  <rect atv:dynamic="true" atv:refpx="482.5" atv:refpy="180" fill="#1c7eff" fill-opacity="0" height="70" id="six" stroke="none" width="107" x="214.5" y="145"/>
+  <rect atv:dynamic="true" atv:refpx="696.5" atv:refpy="180" fill="#1c7eff" fill-opacity="0" height="70" id="cancel" stroke="none" width="107" x="321.5" y="145"/>
+  <rect atv:dynamic="true" atv:refpx="54" atv:refpy="465" fill="#1c7eff" fill-opacity="0" height="70" id="one" stroke="none" width="107" x="0.5" y="215"/>
+  <rect atv:dynamic="true" atv:refpx="161" atv:refpy="465" fill="#1c7eff" fill-opacity="0" height="70" id="two" stroke="none" width="107" x="107.5" y="215"/>
+  <rect atv:dynamic="true" atv:refpx="268" atv:refpy="465" fill="#1c7eff" fill-opacity="0" height="70" id="three" stroke="none" width="107" x="214.5" y="215"/>
+  <rect atv:dynamic="true" atv:refpx="696.06" atv:refpy="250" fill="#1c7eff" fill-opacity="0" height="140" id="ok" stroke="none" width="107" x="321.28" y="215"/>
+  <rect atv:dynamic="true" atv:refpx="54" atv:refpy="605" fill="#1c7eff" fill-opacity="0" height="70" id="minus" stroke="none" width="107" x="0.5" y="285"/>
+  <rect atv:dynamic="true" atv:refpx="161" atv:refpy="605" fill="#1c7eff" fill-opacity="0" height="70" id="zero" stroke="none" width="107" x="107.5" y="285"/>
+  <rect atv:dynamic="true" atv:refpx="268" atv:refpy="605" fill="#1c7eff" fill-opacity="0" height="70" id="comma" stroke="none" width="107" x="214.5" y="285"/>
+  <rect atv:dynamic="true" atv:refpx="696.5" atv:refpy="110" fill="#1c7eff" fill-opacity="0" height="70" id="del" stroke="none" width="107" x="321.5" y="75"/>
+ </g>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.keyboard.number_keyboard" atv:name="number_keyboard" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

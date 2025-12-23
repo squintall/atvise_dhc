@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_DHC.Display_value
+NodeClass: Variable
+BrowseName: 1:Display_value
+DisplayName: en|Display_value
+Description: en|Display_value
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

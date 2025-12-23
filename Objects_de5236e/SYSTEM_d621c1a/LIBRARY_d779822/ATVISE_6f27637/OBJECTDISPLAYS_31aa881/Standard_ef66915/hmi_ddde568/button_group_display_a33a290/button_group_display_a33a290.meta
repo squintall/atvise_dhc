@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.hmi.button_group_display
+NodeClass: Variable
+BrowseName: 1:button_group_display
+DisplayName: en|button_group_display
+Description: en|button_group_display
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

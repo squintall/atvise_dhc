@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_PUNTA_SAM.Bombas.AP_BJ_CAR_PUNTA_SAM_VAR_B2_Rpm.Persistency
+NodeClass: Variable
+BrowseName: 1:Persistency
+DisplayName: en|Persistency
+Description: en|Persistency
+DataType: Byte
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Persistency.RelMirrorInputOutput

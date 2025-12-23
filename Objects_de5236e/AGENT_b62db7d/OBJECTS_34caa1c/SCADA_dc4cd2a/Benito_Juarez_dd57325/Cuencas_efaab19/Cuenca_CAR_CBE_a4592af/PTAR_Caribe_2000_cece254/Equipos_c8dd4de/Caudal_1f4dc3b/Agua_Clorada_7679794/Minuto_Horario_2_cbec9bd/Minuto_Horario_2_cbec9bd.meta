@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.PTAR_Caribe_2000.Equipos.Caudal.Agua_Clorada.Minuto_Horario_2
+NodeClass: Variable
+BrowseName: 1:Minuto_Horario_2
+DisplayName: en|Minuto_Horario_2
+Description: en|Minuto_Horario_2
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

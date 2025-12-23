@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Caudalimetro.historizacion_horaria
+NodeClass: Variable
+BrowseName: 1:historizacion_horaria
+DisplayName: en|historizacion_horaria
+Description: en|historizacion_horaria
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[// WebMI method: ListarEquipos  (versión browse completo por niveles, sin typeDefinition en browse)
+
+var q = request.query || {};
+var p = request.postvalues || {};
+var b = request.body || {};
+
+// ----------------- utils -----------------
+function has(v){ return v !== undefined && v !== null && v !== ""; }
+function getParam(k, d){
+  if (has(p[k])) return p[k];
+  if (has(q[k])) return q[k];
+  if (has(b[k])) return b[k];
+  return d;
+}
+function toBool(v, d){ if (!has(v)) return !!d; return String(v) === "true" || v === true; }
+function toInt(v, d){ var n = parseInt(v,10); return isNaN(n) ? (d|0) : n; }
+function safeName(n){
+  try {
+    if (n.displayName && n.displayName.text) return n.displayName.text;
+    if (n.browseName) return String(n.browseName);
+  } catch(e){}
+  return "";
+}
+function pickNode(e){ return (e && e.node) ? e.node : e || null; }
+function short(addr){ var s=String(addr||""); var i=s.indexOf("s="); return i>=0 ? s.slice(i+2) : s; }
+function depthOf(address){ return String(address||"").split(".").length; }
+// -----------------------------------------
+
+try {
+  // Parámetros
+  var base      = String(getParam("base", getParam("startAddress", "")));
+  var recursive = toBool(getParam("recursive", "true"), true);
+  var endLevel  = toInt(getParam("endLevel", 0), 0);     // 0 = sin límite
+  var levelMode = String(getParam("levelMode", "max"));  // "max" (<=) | "exact" (==)
+  var maxOut    = toInt(getParam("max", 0), 0);
+  var includeStartAddress = toBool(getParam("includeStartAddress", "false"), false);
+
+  // Filtro suave opcional por nombre de tipo / browseName (ej. "Bomba"), vacío = no filtra
+  var filterTypeName = String(getParam("filterTypeName", "")).toLowerCase();
+
+  // Depuración
+  var debug  = toBool(getParam("debug", "true"), true);
+  var debugLog = [];
+
+  if (!base) return { error: "Parámetro 'base'/'startAddress' es obligatorio", items: [] };
+
+  // Localiza nodo base (acepta con o sin 'ns=1;s=')
+  var baseId = (base.indexOf("ns=")===0) ? base : ("ns=1;s=" + base);
+  var baseObj = Ua.findNode(baseId);
+  if (!baseObj || !baseObj.result) {
+    return { error: "Base not found: " + base, items: [], base: base };
+  }
+
+  var baseShort = short(baseId);
+  var baseDepth = depthOf(baseShort);
+
+  var found = [];
+
+  // Incluir explícitamente la base si se solicita
+  if (includeStartAddress) {
+    var rb = baseObj.result.node;
+    if (rb && rb.nodeId && rb.nodeId.address){
+      var addrB = short(rb.nodeId.address);
+      found.push({
+        address: addrB,
+        name: safeName(rb),
+        type: "Folder"
+      });
+      if (debug) debugLog.push("BASE: " + addrB + " | " + safeName(rb) + " | lvl=0");
+    }
+  }
+
+  // --- Browse SIN typeDefinition (recorre todo) ---
+  var ret;
+  try {
+    ret = baseObj.result.browse({
+      direction: Ua.Node.BROWSEDIRECTION_FORWARD,
+      reference: Ua.Reference.HIERARCHICALREFERENCES,
+      subType: true,
+      nodeClass: Ua.NodeClass.OBJECT,
+      recursive: recursive,
+      maxResult: 0
+      // Nota: sin 'typeDefinition' para no descartar carpetas intermedias (L1, Equipos, etc.)
+    });
+  } catch (eBrowse) {
+    return { error: "Fallo en browse()", errorDetail: String(eBrowse), items: [], base: base };
+  }
+
+  // Recolecta todos y aplica filtros posteriores
+  if (ret && ret.result){
+    for (var i=0;i<ret.result.length;i++){
+      var n = pickNode(ret.result[i]);
+      if (!n || !n.nodeId || !n.nodeId.address) {
+        if (debug) debugLog.push("[skip] item sin nodeId en idx " + i);
+        continue;
+      }
+      var addrFull = n.nodeId.address;
+      var addr = short(addrFull);
+      var name = safeName(n);
+
+      // Detecta typeDefinition si está disponible
+      var td = null;
+      if (n.typeDefinition && (n.typeDefinition.address || n.typeDefinition.toString)) {
+        td = n.typeDefinition.address ? short(n.typeDefinition.address) : String(n.typeDefinition);
+      } else {
+        // Fallback: no todos los runtimes exponen typeDefinition en el browse; dejamos null
+        td = null;
+      }
+
+      // Filtro suave por nombre (si se solicitó). Compara con browseName y/o typeDefinition string
+      var accept = true;
+      if (filterTypeName) {
+        var bn = String(n.browseName || "").toLowerCase();
+        accept = (bn.indexOf(filterTypeName) !== -1) || (td && String(td).toLowerCase().indexOf(filterTypeName)!==-1);
+      }
+
+      // Filtrado por nivel relativo a base (se aplicará también abajo, pero calculamos ya para log)
+      var lvl = depthOf(addr) - baseDepth;
+
+      if (debug) {
+        debugLog.push(
+          (accept ? "[✔]" : "[ ]") + " " +
+          addr + " | " + name +
+          " | typeDef=" + (td || "(n/a)") +
+          " | lvl=" + lvl
+        );
+      }
+
+      if (!accept) continue;
+
+      found.push({
+        address: addr,              // devolvemos corto (sin 'ns=1;s=')
+        name: name,
+        type: td || ""              // si había typeDefinition la exponemos, útil para depurar
+      });
+    }
+  }
+
+  // --- Filtro por nivel relativo a base ---
+  if (endLevel > 0) {
+    found = found.filter(function(it){
+      var d = depthOf(it.address) - baseDepth;
+      return (levelMode === "exact") ? (d === endLevel) : (d >= 0 && d <= endLevel);
+    });
+  }
+
+  // Orden y recorte
+  found.sort(function(a,b){ return (a.name||"").localeCompare(b.name||"", "es", {numeric:true, sensitivity:"base"}); });
+  if (maxOut > 0 && found.length > maxOut) found = found.slice(0, maxOut);
+
+  var resp = {
+    items: found,
+    count: found.length,
+    base: base,
+    recursive: recursive,
+    endLevel: endLevel,
+    levelMode: levelMode,
+    max: maxOut
+  };
+  if (debug) resp.debugLog = debugLog;
+
+  return resp;
+
+} catch (e) {
+  return { error: "Excepción en ListarEquipos", errorDetail: String(e), items: [] };
+}
+]]></code>
+</script>

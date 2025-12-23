@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="120" version="1.2" width="800" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_21" x1="-0.0150911" x2="-0.0150911" y1="-7.18755e-05" y2="1.10539">
+   <stop offset="0" stop-color="#75899f"/>
+   <stop offset="0.7117903930131004" stop-color="#293646"/>
+  </linearGradient>
+ </defs>
+ <desc>A small version of the default "top" display (e.g. for panel screens).</desc>
+ <title>Topframe Small (800x120)</title>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.dialogs.message_dialog" desc="message dialog" name="message_dialog" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.dialogs.message_dialog_small" desc="small message dialog" name="message_dialog_small" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.dialogs.user_editor" desc="user editor dialog" name="user_dialog" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.dialogs.pw_editor" desc="password editor dialog" name="password_dialog" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="0" desc="min alarm priority" group="Alarm" name="minAlarmPriority" scope="" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="0" desc="max alarm priority" group="Alarm" name="maxAlarmPriority" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.redundancy.warning_dialog" group="Notifications" desc="redundancy warning dialog" name="redundancy_warning_dialog" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.dialogs.message_dialog" group="Notifications" desc="redundancy connection dialog" name="redundancy_connection_dialog" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="true" group="Notifications" desc="show SOP notification" name="show_sop_change" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="true" group="Notifications" desc="show connection notification" name="show_con_change" valuetype="bool"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="10" width="10"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <path atv:refpx="355.987" atv:refpy="59.436" d="M0,0" fill="#000088" id="id_33" stroke="#0000ff" stroke-width="2"/>
+ <path atv:refpx="640" atv:refpy="59.501" d="M801,99.166C801,99.166 801,119 781,119C761,119 20,119 20,119C20,119 0,119 0,99.166C0,79.333 0,0 0,0C0,0 801,0 801,0C801,0 801,99.166 801,99.166" fill="url(#linear_21)" id="id_10" stroke="#c8c8c8" stroke-width="1"/>
+ <svg atv:refpx="726.498" atv:refpy="37.501" height="30" id="id_29" transform="matrix(0.5625,0,0,1.5,0,0)" width="80" x="1251.556" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.button_open_display" y="10">
+  <atv:argument name="display" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.hmi.historylist"/>
+  <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.history"/>
+  <atv:argument name="symbolPressed" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.history"/>
+  <atv:argument name="symbolColor" value="#ffffff"/>
+  <atv:argument name="visibilityLabel" value="hidden"/>
+  <atv:argument name="visibilitySymbol" value="inherit"/>
+  <atv:argument name="tabIndex" value="-999999"/>
+  <atv:overwrite id="button_symbol_pressed" transform="matrix(1.7778,0,0,0.6667,0,0)" x="12.5" y="12.5"/>
+  <atv:overwrite height="39.5" id="id_2" transform="matrix(1.7778,0,0,0.6667,0,0)" width="39.5"/>
+  <atv:overwrite height="44.5" id="id_0" transform="matrix(1.7778,0,0,0.6667,0,0)" width="44.5"/>
+  <atv:overwrite height="37" id="button_stroke" transform="matrix(1.7778,0,0,0.6667,0,0)" width="37"/>
+  <atv:overwrite id="button_label" transform="matrix(1.7778,0,0,0.6667,0,0)" x="22.5" y="27"/>
+  <atv:overwrite id="button_symbol" transform="matrix(1.7778,0,0,0.6667,0,0)" x="12.5" y="12.5"/>
+  <atv:overwrite height="37" id="button_bg" transform="matrix(1.7778,0,0,0.6667,0,0)" width="37"/>
+ </svg>
+ <svg atv:refpx="86" atv:refpy="87.5" height="45" id="id_22" width="160" x="6" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.hmi.button_group_display" y="65">
+  <atv:argument name="symbolColor" value="#000000"/>
+  <atv:argument name="symbolColor2" value="#ffffff"/>
+ </svg>
+ <svg atv:refpx="219.613" atv:refpy="80" height="45" id="id_13" width="160" x="168" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.hmi.button_group_zoom" y="65"/>
+ <svg atv:refpx="410" atv:refpy="87.5" height="45" id="id_15" width="160" x="330" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.hmi.button_group_alarm" y="65"/>
+ <svg atv:refpx="708.998" atv:refpy="87.498" height="30" id="id_11" transform="matrix(1.5,0,0,1.5,0,0)" width="30" x="457.667" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.hmi.button_login" y="43.333">
+  <atv:overwrite height="37.5" id="button_stroke" transform="matrix(0.6667,0,0,0.6667,0,0)" width="37.5"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.6667,0,0,0.6667,0,0)" x="12.5" y="12.5"/>
+  <atv:overwrite id="button_symbol_pressed" transform="matrix(0.6667,0,0,0.6667,0,0)" x="12.5" y="12.5"/>
+  <atv:overwrite height="37.5" id="button_bg" transform="matrix(0.6667,0,0,0.6667,0,0)" width="37.5"/>
+  <atv:overwrite height="39.5" id="id_3" transform="matrix(0.6667,0,0,0.6667,0,0)" width="39.5"/>
+  <atv:overwrite height="44.5" id="id_0" transform="matrix(0.6667,0,0,0.6667,0,0)" width="44.5"/>
+ </svg>
+ <svg atv:refpx="662" atv:refpy="87.5" height="45" id="id_12" width="45" x="639.5" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.hmi.button_switch_language" y="65">
+  <atv:argument name="symbolColor" value="#ffffff"/>
+ </svg>
+ <rect atv:refpx="3050.497" atv:refpy="61.731" fill="#12181f" height="45" id="id_1" rx="4.971" ry="5" stroke="#b1b1b1" stroke-width="1" width="696" x="6" y="15"/>
+ <svg atv:refpx="512.003" atv:refpy="38.955" height="37.91" id="id_16" width="650" x="46.5" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.hmi.alarmlog_1row" y="20">
+  <atv:argument name="fontColor" value="#ffffff"/>
+  <atv:argument name="symbolColor" value="#ffffff"/>
+  <atv:argument name="minAlarmPriority" prefix="minAlarmPriority"/>
+  <atv:argument name="maxAlarmPriority" prefix="maxAlarmPriority"/>
+ </svg>
+ <rect atv:refpx="980.655" atv:refpy="95.84" fill="#12181f" height="45" id="id_5" rx="5" ry="5" stroke="#b1b1b1" stroke-width="1" width="145" x="492.5" y="65"/>
+ <text atv:refpx="296.061" atv:refpy="-0.261" fill="#ffffff" font-family="Courier New" font-size="14" font-weight="bold" id="username_label" text-anchor="end" x="632" y="82"/>
+ <text atv:refpx="-1325.289" atv:refpy="-207.5" fill="#ffffff" font-family="Courier New" font-size="14" font-weight="bold" id="id_20" x="498" y="82">T{User}:</text>
+ <text atv:refpx="-715.528" atv:refpy="17.739" fill="#ffffff" font-family="Courier New" font-size="14" font-weight="bold" id="language_label" text-anchor="end" x="632" y="100">T{}</text>
+ <text atv:refpx="-1533.906" atv:refpy="-9.5" fill="#ffffff" font-family="Courier New" font-size="14" font-weight="bold" id="id_25" x="498" y="100">T{Language}:</text>
+ <g atv:refpx="23.658" atv:refpy="37.521" id="logo_clickarea">
+  <svg atv:refpx="23.592" atv:refpy="37.46" height="80" id="atvise_logo" transform="matrix(0.313,0,0,0.313,0,0)" width="80" x="35.516" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.atvise_logo" y="79.878"/>
+  <rect atv:refpx="246.1" atv:refpy="52.1" fill="#000000" fill-opacity="0.0001" height="25" id="logo_click" stroke="none" stroke-width="0" width="25" x="11.2" y="25"/>
+ </g>
+ <g atv:refpx="767" atv:refpy="62" id="redu_info" visibility="hidden">
+  <g atv:refpx="767.39" atv:refpy="85.161" id="id_36" transform="matrix(1,0,0,1,-374.993,-12.235)">
+   <text atv:refpx="779.3" atv:refpy="78.495" fill="#d4d4d4" font-family="Arial" font-size="8" id="id_31" text-anchor="start" x="1133.293" y="94.23">T{STATUS}:</text>
+   <text atv:refpx="19.602" atv:refpy="64.681" fill="#d4d4d4" font-family="Arial" font-size="10" font-weight="bold" id="redu_status" text-anchor="start" x="1126.993" y="106.734"/>
+  </g>
+  <text atv:refpx="1333.888" atv:refpy="302.315" fill="#d4d4d4" font-family="Arial" font-size="26" font-weight="bold" id="redu_role" x="736" y="94.5"/>
+  <svg atv:refpx="1372.659" atv:refpy="249.828" height="30" id="id_43" transform="matrix(0.5625,0,0,1.5,0,0)" width="80" x="1335.111" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.button_open_display" y="10">
+   <atv:argument name="display" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.redundancy.status"/>
+   <atv:argument name="symbol" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.info"/>
+   <atv:argument name="symbolPressed" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.20x20.info"/>
+   <atv:argument name="symbolColor" value="#ffffff"/>
+   <atv:argument name="visibilityLabel" value="hidden"/>
+   <atv:argument name="visibilitySymbol" value="inherit"/>
+   <atv:argument name="tabIndex" value="-999999"/>
+   <atv:overwrite id="button_symbol_pressed" transform="matrix(1.7778,0,0,0.6667,0,0)" x="12.5" y="12.5"/>
+   <atv:overwrite height="39.5" id="id_2" transform="matrix(1.7778,0,0,0.6667,0,0)" width="39.5"/>
+   <atv:overwrite height="44.5" id="id_0" transform="matrix(1.7778,0,0,0.6667,0,0)" width="44.5"/>
+   <atv:overwrite height="37" id="button_stroke" transform="matrix(1.7778,0,0,0.6667,0,0)" width="37"/>
+   <atv:overwrite id="button_label" transform="matrix(1.7778,0,0,0.6667,0,0)" x="22.5" y="27"/>
+   <atv:overwrite id="button_symbol" transform="matrix(1.7778,0,0,0.6667,0,0)" x="12.5" y="12.5"/>
+   <atv:overwrite height="37" id="button_bg" transform="matrix(1.7778,0,0,0.6667,0,0)" width="37"/>
+  </svg>
+ </g>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.hmi.top" atv:name="top" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

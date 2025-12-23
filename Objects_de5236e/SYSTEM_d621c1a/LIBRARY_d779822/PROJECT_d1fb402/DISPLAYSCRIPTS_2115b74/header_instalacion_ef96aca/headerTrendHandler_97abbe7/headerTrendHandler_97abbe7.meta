@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.header_instalacion.headerTrendHandler
+NodeClass: Variable
+BrowseName: 1:headerTrendHandler
+DisplayName: en|headerTrendHandler
+Description: en|headerTrendHandler
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

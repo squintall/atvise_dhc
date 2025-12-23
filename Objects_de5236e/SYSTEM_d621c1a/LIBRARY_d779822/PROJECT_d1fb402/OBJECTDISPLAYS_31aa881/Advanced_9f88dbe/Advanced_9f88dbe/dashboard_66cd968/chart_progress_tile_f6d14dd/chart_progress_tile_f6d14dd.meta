@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.Advanced.dashboard.chart_progress_tile
+NodeClass: Variable
+BrowseName: 1:chart_progress_tile
+DisplayName: en|chart_progress_tile
+Description: en|chart_progress_tile
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

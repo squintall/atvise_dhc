@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Captacion.Carcamos.AP_LV_CAR_LEONA_VICARIO.Caudalimetros.AP_LV_CAR_LEONA_VICARIO_CAUD_L1_AcumuladoPasado
+NodeClass: Variable
+BrowseName: 1:AP_LV_CAR_LEONA_VICARIO_CAUD_L1_AcumuladoPasado
+DisplayName: en|AP_LV_CAR_LEONA_VICARIO_CAUD_L1_AcumuladoPasado
+Description: en|AP_LV_CAR_LEONA_VICARIO_CAUD_L1_AcumuladoPasado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

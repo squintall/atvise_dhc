@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Circuitos.Presion_Puerto_Aventuras
+NodeClass: Variable
+BrowseName: 1:Presion_Puerto_Aventuras
+DisplayName: en|Presion_Puerto_Aventuras
+Description: en|Presion_Puerto_Aventuras
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

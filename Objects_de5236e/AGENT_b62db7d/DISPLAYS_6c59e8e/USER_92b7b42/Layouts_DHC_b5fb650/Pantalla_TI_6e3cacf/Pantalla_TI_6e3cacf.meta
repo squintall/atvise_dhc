@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI
+NodeClass: Variable
+BrowseName: 1:Pantalla_TI
+DisplayName: en|Pantalla_TI
+Description: en|Pantalla_TI
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

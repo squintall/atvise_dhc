@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Morelos_II.Equipos.Bombas.Bomba_1.status.STS
+NodeClass: Object
+BrowseName: 1:STS
+DisplayName: en|STS
+Description: en|STS
+EventNotifier: 0
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

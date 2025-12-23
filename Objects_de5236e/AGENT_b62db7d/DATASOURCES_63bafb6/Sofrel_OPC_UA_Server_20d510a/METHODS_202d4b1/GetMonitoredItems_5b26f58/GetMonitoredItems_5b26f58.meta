@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server.METHODS.GetMonitoredItems
+NodeClass: Variable
+BrowseName: 1:GetMonitoredItems
+DisplayName: en|GetMonitoredItems
+Description: en|GetMonitoredItems
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Final_Salida.Equipos.Caudalimetros.Clorada.Umbrales.Caudal.AlarmHigh
+NodeClass: Variable
+BrowseName: 1:AlarmHigh
+DisplayName: en|AlarmHigh
+Description: en|AlarmHigh
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

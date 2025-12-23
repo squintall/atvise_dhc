@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/svg+xml">PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCA4LjQ2NjY2NjcgOC40NjY2NjY3IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxjaXJjbGUgc3R5bGU9ImZpbGw6cmVkO3N0cm9rZTojMDAwO3N0cm9rZS13aWR0aDouMzY1O3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lIiBjeD0iNC4yMzMzMzMxIiBjeT0iNC4yMzMzMzMxIiByPSIzLjgyNjI4NDQiLz48dGV4dCB4bWw6c3BhY2U9InByZXNlcnZlIiBzdHlsZT0iZm9udC1zdHlsZTpub3JtYWw7Zm9udC13ZWlnaHQ6NDAwO2ZvbnQtc2l6ZTo2LjM1cHg7bGluZS1oZWlnaHQ6MS4yNTtmb250LWZhbWlseTpzYW5zLXNlcmlmO3RleHQtYWxpZ246Y2VudGVyO3RleHQtYW5jaG9yOm1pZGRsZTtmaWxsOiMwMDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOi4yNjQ1ODMiIHg9IjQuMjMzMzMzMSIgeT0iNi41NDE3MTk0Ij48dHNwYW4gc3R5bGU9ImZvbnQtc3R5bGU6bm9ybWFsO2ZvbnQtdmFyaWFudDpub3JtYWw7Zm9udC13ZWlnaHQ6NzAwO2ZvbnQtc3RyZXRjaDpub3JtYWw7Zm9udC1zaXplOjYuMzVweDtmb250LWZhbWlseTpBcmlhbDstaW5rc2NhcGUtZm9udC1zcGVjaWZpY2F0aW9uOidBcmlhbCBCb2xkJzt0ZXh0LWFsaWduOmNlbnRlcjt0ZXh0LWFuY2hvcjptaWRkbGU7ZmlsbDojZmZmO3N0cm9rZTpub25lO3N0cm9rZS13aWR0aDouMjY0NTgzIiB4PSI0LjIzMzMzMzEiIHk9IjYuNTQxNzE5NCI+ITwvdHNwYW4+PC90ZXh0Pjwvc3ZnPg==</icon>
+    <visible>0</visible>
+    <title>Access Control Manager</title>
+    <description>Handles permission notifications</description>
+  </metadata>
+  <parameter behavior="optional" defaultvalue="false" desc="enable notification dialog" name="dialogEnabled" valuetype="bool"/>
+  <parameter behavior="optional" defaultvalue="true" desc="enable element notification" name="elementNotification" valuetype="bool"/>
+  <parameter behavior="optional" defaultvalue="300" desc="rights buffertime (s)" name="bufferTime" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="true" desc="clear rights cache on display change" name="updateCacheOnDisplayChange" valuetype="bool"/>
+  <parameter behavior="optional" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small" desc="dialog display" name="dialogDisplay" valuetype="display"/>
+  <parameter behavior="optional" config="Example: &lt;i class='fas fa-ban'&gt;&lt;/i&gt;;&lt;i class='fas fa-exclamation-circle'&gt;&lt;/i&gt;" defaultvalue="&lt;i class='fas fa-exclamation-circle'&gt;&lt;/i&gt;" desc="element notification symbol" name="elementSymbol" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="#ff0000" desc="element notification color" name="elementColor" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="#ffffff" desc="element notification background" name="elementBackground" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="#ffffff" desc="element notification border color" name="elementBorderColor" valuetype="color"/>
+  <parameter behavior="optional" defaultvalue="0" desc="element notification margin" name="elementMargin" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="true" desc="element notification error only" name="elementErrorOnly" valuetype="bool"/>
+  <code><![CDATA[// This Quick Dynamic manages access control messanges and erros
+var self = this;
+
+if (self.rights_storage == undefined) {
+	self.rights_storage = {};
+	self.currentUser = "";
+	self.requestBufferNodes = [];
+	self.requestCallbacks = [];
+	self.requestActive = false;
+	self.debouncingTimerReference = false;
+	self.dialog = null;
+	self.nodesToUpdate = [];
+	self.configuration = {
+		dialogEnabled: base.dialogEnabled == "true" || base.dialogEnabled == true ? true : false,
+		elementNotification: base.elementNotification == "true" || base.elementNotification == true ? true : false,
+		bufferTime: parseInt(base.bufferTime),
+		updateCacheOnDisplayChange: base.updateCacheOnDisplayChange,
+		dialogDisplay: base.dialogDisplay,
+		dialogWidth: 600,
+		dialogHeight: 400,
+		elementSymbol: base.elementSymbol,
+		elementColor: base.elementColor,
+		elementBackground: base.elementBackground,
+		elementBorderColor: base.elementBorderColor,
+		elementMargin: base.elementMargin,
+		elementErrorOnly: base.elementErrorOnly,
+		maxNotificationElements: 100000,
+		maxRightsElements: 100000,
+		requestBufferTime: 250,
+		debug_response: ""
+	};
+}
+
+if (!webMI.getAccessControlSupport()) return false;
+
+if (!webMI.rootWindow.acManagerEventsAttached) {
+	webMI.rootWindow.acManagerEventsAttached = true;
+
+	webMI.addEvent(webMI.rootWindow.webMI.data, "clientvariableschange", function (e) {
+		if (e.username === undefined) return;
+
+		// Delete rights for logged out user
+		if (e.username == "" && self.currentUser != "" && self.configuration.bufferTime > 0) {
+			delete self.rights_storage[self.currentUser];
+		}
+
+		// Set current user and fire update
+		self.currentUser = e.username;
+		webMI.trigger.fire("com.atvise.access_control_update", { username: self.currentUser });
+	});
+
+	webMI.addEvent(webMI.rootWindow.webMI.data, "permissionnotification", function (notification) {
+		clearTimeout(self.debouncingTimerReference);
+
+		if (notification && notification.address) {
+			if (self.nodesToUpdate.indexOf(notification.address) == -1) self.nodesToUpdate.push(notification.address);
+		}
+
+		self.debouncingTimerReference = setTimeout(() => {
+			if (self.nodesToUpdate.length == 0) return;
+
+			getRightsFromServer(self.nodesToUpdate, () => {
+				AccessControlManager.update({ notification: notification });
+
+				// Show Dialog when enabled
+				if (self.configuration.dialogEnabled) AccessControlManager.showDialog(notification);
+			});
+
+			self.nodesToUpdate = [];
+		}, 500);
+	});
+}
+
+function getTotalRightsCount() {
+	let rightsCount = 0;
+
+	for (const user in self.rights_storage) {
+		rightsCount += Object.keys(self.rights_storage[user]).length;
+	}
+
+	return rightsCount;
+}
+
+function addRightsToStorage(user, node, rights, timestamp) {
+	const now = Date.now();
+
+	if (!self.rights_storage[user]) {
+		self.rights_storage[user] = {};
+	}
+
+	self.rights_storage[user][node] = { rights: rights, timestamp: timestamp };
+
+	// Delete old objects if the limit exceeds the maxRightsElements setting
+	var length = getTotalRightsCount();
+
+	if (length > self.configuration.maxRightsElements) {
+		for (const user in self.rights_storage) {
+			for (const nodeId in self.rights_storage[user]) {
+				const timestamp = self.rights_storage[user][nodeId].timestamp;
+
+				if (timestamp < now - self.configuration.bufferTime) {
+					delete self.rights_storage[user][nodeId];
+				}
+			}
+		}
+	}
+}
+
+function getRightsFromServer(nodes, callback) {
+	for (let i = 0; i < nodes.length; i++) {
+		if (self.requestBufferNodes.indexOf(nodes[i]) == -1) self.requestBufferNodes.push(nodes[i]);
+	}
+
+	self.requestCallbacks.push(callback);
+
+	if (self.requestActive) return;
+	self.requestActive = true;
+	setTimeout(() => {
+		var callbacks = self.requestCallbacks;
+
+		if (webMI.data.getRights && self.configuration.debug_response == "") {
+			let requestBufferNodes = self.requestBufferNodes;
+
+			webMI.data.getRights(self.requestBufferNodes, (e) => {
+				var now = Date.now();
+
+				for (let i = 0; i < e.length; i++) {
+					addRightsToStorage(self.currentUser, requestBufferNodes[i], e[i], now);
+				}
+
+				for (const n in callbacks) callbacks[n]();
+			});
+		} else {
+			var now = Date.now();
+
+			for (let i = 0; i < self.requestBufferNodes.length; i++) {
+				addRightsToStorage(self.currentUser, self.requestBufferNodes[i], self.configuration.debug_response, now);
+			}
+
+			for (const n in callbacks) callbacks[n]();
+		}
+
+		self.requestBufferNodes = [];
+		self.requestCallbacks = [];
+		self.requestActive = false;
+	}, self.configuration.requestBufferTime);
+}
+
+var AccessControlManager = new (function () {
+	var that = this;
+
+	this.getConfiguration = function (option) {
+		if (option) return self.configuration[option];
+		else return self.configuration;
+	};
+
+	this.setConfiguration = function (options, values) {
+		// Convert strings to arrays
+		if (typeof options === "string") options = options.split(";");
+
+		if (typeof values === "string") values = values.split(";");
+		if (typeof values === "boolean") values = [values];
+
+		if (options.length != values.length) return false;
+
+		var successful = false;
+		for (var n = 0; n < options.length; n++) {
+			if (self.configuration[options[n]] != "undefined") {
+				self.configuration[options[n]] = values[n];
+				successful = true;
+			}
+		}
+
+		if (successful) webMI.trigger.fire("com.atvise.access_control_update", { configuration: options, value: values });
+
+		return successful;
+	};
+
+	this.clearRightsStorage = function (address, update) {
+		var ret = false;
+
+		if (typeof address === "string") {
+			if (self.rights_storage[self.currentUser] && self.rights_storage[self.currentUser][address]) {
+				delete self.rights_storage[self.currentUser][address];
+				ret = true;
+			}
+		} else if (typeof address === "object" && address !== null) {
+			for (var i in address) {
+				if (self.rights_storage[self.currentUser] && self.rights_storage[self.currentUser][address[i]]) {
+					delete self.rights_storage[self.currentUser][address[i]];
+					ret = true;
+				}
+			}
+		} else {
+			self.rights_storage = {};
+			ret = true;
+		}
+
+		if (update !== false) webMI.trigger.fire("com.atvise.access_control_update", { rigthsstorage: null });
+		return ret;
+	};
+
+	this.update = function (message) {
+		if (typeof message == "undefined") message = { update: true };
+		webMI.trigger.fire("com.atvise.access_control_update", message);
+	};
+
+	this.isFunction = function (arg) {
+		return typeof arg === "function" || (arg != null && typeof arg === "object" && "call" in arg);
+	};
+
+	this.getRights = function (nodeList, rightOrCallback, guaranteedCallback) {
+		var now = Date.now();
+		var user = self.currentUser;
+		var nodeIds = nodeList;
+		var rights = this.isFunction(rightOrCallback) ? undefined : rightOrCallback;
+		var callback = this.isFunction(rightOrCallback) ? rightOrCallback : guaranteedCallback;
+		var nodesToRequest = [];
+
+		if (nodeIds === "" || !nodeIds || !nodeIds.length) return;
+
+		// Convert strings to arrays
+		if (typeof nodeIds === "string") nodeIds = nodeIds.split(";");
+		if (typeof rights === "string") rights = rights.split(";");
+
+		for (const nodeId of nodeIds) {
+			// Check if right exists or buffertime is exceeded
+			if (self.rights_storage[user] && self.rights_storage[user][nodeId]) {
+				if (
+					self.configuration.bufferTime > 0 &&
+					self.rights_storage[user][nodeId].timestamp < now - self.configuration.bufferTime * 1000
+				) {
+					nodesToRequest.push(nodeId);
+				}
+			} else {
+				nodesToRequest.push(nodeId);
+			}
+		}
+
+		if (nodesToRequest.length > 0) {
+			getRightsFromServer(nodesToRequest, function () {
+				getRightsFromStorage();
+			});
+		} else {
+			getRightsFromStorage();
+		}
+
+		function getRightsFromStorage() {
+			var response = [];
+
+			if (typeof rights === "string") {
+				if (rights === "none" || rights === "raw") {
+					let response = Object.keys(self.rights_storage[self.currentUser]).map((key) => {
+						return self.rights_storage[self.currentUser][key].rights;
+					});
+
+					callback({ result: response });
+
+					return;
+				}
+			}
+
+			if (Array.isArray(rights)) {
+				if (rights.includes("none") || rights.includes("raw")) {
+					let response = Object.keys(self.rights_storage[self.currentUser]).map((key) => {
+						return self.rights_storage[self.currentUser][key].rights;
+					});
+
+					callback({ result: response });
+
+					return;
+				}
+			}
+
+			if (rights) {
+				nodeIds.forEach((nodeId, nodeIndex) => {
+					response[nodeIndex] = {};
+
+					if (
+						self.rights_storage[self.currentUser][nodeId] !== undefined &&
+						self.rights_storage[self.currentUser][nodeId].rights.rights !== undefined
+					) {
+						response[nodeIndex].address = nodeId;
+						response[nodeIndex].right = rights[nodeIndex];
+						response[nodeIndex].value = self.rights_storage[self.currentUser][nodeId].rights.rights[rights[nodeIndex]];
+					}
+
+					if (response[nodeIndex].value === undefined) {
+						console.warn(`Right of type ${rights[nodeIndex]} for ${nodeId} doesn't exist.`);
+					}
+				});
+			} else {
+				nodeIds.forEach((nodeId, nodeIndex) => {
+					response[nodeIndex] = self.rights_storage[self.currentUser][nodeId].rights;
+				});
+			}
+
+			// If only strings containing one value have been passed, return a single value instead of an array.
+			if (
+				rights &&
+				nodeIds.length === 1 &&
+				rights.length === 1 &&
+				response[0] &&
+				typeof nodeList === "string" &&
+				typeof rightOrCallback === "string"
+			) {
+				response = response[0].value;
+			}
+
+			if (!response) {
+				response = false;
+			}
+
+			callback({ result: response });
+		}
+	};
+
+	this.getRightsDict = function (nodeList, rightOrCallback, guaranteedCallback) {
+		const rights = this.isFunction(rightOrCallback) ? undefined : rightOrCallback;
+		const proxyCallback = this.isFunction(rightOrCallback) ? rightOrCallback : guaranteedCallback;
+
+		const innerCallback = (response) => {
+			const responseDict = {};
+
+			nodeList.forEach((nodeId, nodeIdIndex) => {
+				if (!responseDict[nodeId]) {
+					responseDict[nodeId] = {};
+				}
+
+				rights.forEach((rightName) => {
+					if (response.result[nodeIdIndex].right === rightName) {
+						responseDict[nodeId][rightName] = response.result[nodeIdIndex].value;
+					}
+				});
+			});
+
+			proxyCallback(responseDict);
+		};
+
+		if (rights) {
+			this.getRights(nodeList, rights, innerCallback);
+		} else {
+			this.getRights(nodeList, innerCallback);
+		}
+	};
+
+	// Information dialog for access control messanges and erros
+	this.showDialog = function (_notification, width, height, x, y, anchorX, anchorY) {
+		width = width ? width : self.configuration.dialogWidth;
+		height = height ? height : self.configuration.dialogHeight;
+		x = x ? x : null;
+		y = y ? y : null;
+		anchorX = anchorX ? anchorX : null;
+		anchorY = anchorY ? anchorY : null;
+		var text = "T{Request denied by Access Control. Please see error log for details.}";
+
+		if (self.dialog == null) {
+			self.dialog = webMI.display.openWindow({
+				display: self.configuration.dialogDisplay,
+				height: height,
+				width: width,
+				x: x,
+				y: y,
+				anchorX: anchorX,
+				anchorY: anchorY,
+				modal: true,
+				resizable: false,
+				movable: true,
+				scrollbars: false,
+				menubar: false,
+				status: false,
+				toolbar: false,
+				query: {
+					headline: "T{Permission denied}!",
+					message: text,
+					action_btn1: "com.atvise.access_control_confirm_dialog"
+				}
+			});
+
+			self.dialog.cuba = function () {
+				self.dialog = null;
+			};
+
+			webMI.trigger.connect("com.atvise.access_control_confirm_dialog", () => {
+				webMI.display.closeWindow(self.dialog);
+				self.dialog = null;
+			});
+		}
+	};
+
+	/**
+	 * Assistant function set
+	 */
+	this.assist = new (function () {
+		/**
+		 * create node with method and permission checks
+		 * @param nodeOptions
+		 * @param callback
+		 * @param fallback
+		 */
+		this.addNode = function (nodeOptions, callback, fallback) {
+			if (webMI.getMethodSupport().indexOf("AddNode") > -1) {
+				var node = nodeOptions["address"];
+				var parentInNode = nodeOptions["_parent"] ? nodeOptions["address"].indexOf(nodeOptions["_parent"]) == 0 : false;
+
+				/** if parent in options an node starts with parent use parent as default permission node AT-D-14680 **/
+				var baseNode = parentInNode ? nodeOptions["_parent"] : node.substring(0, node.lastIndexOf("."));
+				delete nodeOptions["_parent"];
+
+				var compareRights = [
+					{ node: baseNode, right: "engineer" },
+					{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AddNode", right: "execute" }
+				];
+
+				this.handleWithPermissions(
+					compareRights,
+					function success() {
+						webMI.data.call("AddNode", nodeOptions, function () {
+							that.clearRightsStorage(node);
+							if (callback) {
+								callback();
+							}
+						});
+					},
+					function failure() {
+						if (fallback) {
+							fallback();
+						}
+					}
+				);
+			} else {
+				console.warn("Can´t create " + node + " (AddNode support is not available)");
+			}
+		};
+
+		/**
+		 * add access control right to node item (opj)
+		 * @param item
+		 * @param compareRights
+		 * @param callback
+		 */
+		this.addRights = function (item, compareRights, callback) {
+			var requiredRights = {
+				nodeIds: [],
+				rights: []
+			};
+
+			for (var c in compareRights) {
+				if (compareRights[c].node && compareRights[c].right) {
+					requiredRights.nodeIds.push(compareRights[c].node);
+					requiredRights.rights.push(compareRights[c].right);
+				}
+			}
+
+			that.getRightsDict(requiredRights.nodeIds, requiredRights.rights, (response) => {
+				item.ac_rights = {};
+
+				for (var c in compareRights) {
+					var responseNode = typeof response[compareRights[c].node] != "undefined";
+					var responseRight = typeof response[compareRights[c].node][compareRights[c].right] != "undefined";
+					if (responseNode && responseRight) {
+						item.ac_rights[compareRights[c].right] = response[compareRights[c].node][compareRights[c].right];
+					} else {
+						item.ac_rights[compareRights[c].right] = false;
+					}
+				}
+
+				callback(item);
+			});
+		};
+
+		/**
+		 * checks node existence with method and permission checks
+		 * @param node
+		 * @param callback
+		 * @param fallback
+		 */
+		this.checkNodeExists = function (node, callback, fallback) {
+			if (webMI.getMethodSupport().indexOf("CheckNodeExists") > -1) {
+				var compareRights = [{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.CheckNodeExists", right: "execute" }];
+
+				this.handleWithPermissions(
+					compareRights,
+					function success() {
+						webMI.data.call("CheckNodeExists", { address: node }, function (e) {
+							if (e.result) {
+								if (callback) {
+									callback();
+								}
+							} else {
+								if (fallback) {
+									fallback();
+								}
+							}
+						});
+					},
+					function failure() {
+						if (fallback) {
+							fallback();
+						}
+					}
+				);
+			} else {
+				console.warn("Can´t check " + node + " (CheckNodeExists support is not available)");
+			}
+		};
+
+		/**
+		 * right response check with callback and fallback in order of success
+		 * @param compareRights
+		 * @param callback ... on success
+		 * @param fallback ... on failure
+		 */
+		this.getPermissions = function (compareRights, callback) {
+			var requiredRights = {
+				nodeIds: [],
+				rights: []
+			};
+
+			for (var c in compareRights) {
+				if ((compareRights[c].node || compareRights[c].nodeId) && (compareRights[c].right || compareRights[c].rights)) {
+					requiredRights.nodeIds.push(compareRights[c].node ? compareRights[c].node : compareRights[c].nodeId);
+					requiredRights.rights.push(compareRights[c].right ? compareRights[c].right : compareRights[c].rights);
+				}
+			}
+
+			that.getRightsDict(requiredRights.nodeIds, requiredRights.rights, (response) => {
+				callback(response);
+				return;
+			});
+		};
+
+		/**
+		 * right response check with callback and fallback in order of success
+		 * @param compareRights
+		 * @param callback ... on success
+		 * @param fallback ... on failure
+		 */
+		this.handleWithPermissions = function (compareRights, callback, fallback) {
+			var requiredRights = {
+				nodeIds: [],
+				rights: []
+			};
+
+			for (var c in compareRights) {
+				if (compareRights[c].node && compareRights[c].right) {
+					requiredRights.nodeIds.push(compareRights[c].node);
+					requiredRights.rights.push(compareRights[c].right);
+				}
+			}
+
+			that.getRightsDict(requiredRights.nodeIds, requiredRights.rights, (response) => {
+				var allRights = [];
+
+				for (var c in compareRights) {
+					var responseNode = typeof response[compareRights[c].node] != "undefined";
+					var responseRight = typeof response[compareRights[c].node][compareRights[c].right] != "undefined";
+
+					if (responseNode && responseRight) {
+						allRights.push(response[compareRights[c].node][compareRights[c].right]);
+					} else {
+						allRights.push(false);
+					}
+				}
+
+				if (!allRights.includes(false) && callback) {
+					try {
+						callback();
+					} catch (ex) {
+						// console.warn("Callback allready invalidated (e.g. page changed during request)!");
+					}
+				} else if (fallback) {
+					try {
+						fallback();
+					} catch (ex) {
+						// console.warn("Fallback allready invalidated (e.g. page changed during request)!");
+					}
+				} else {
+					// console.warn("No fallback defined, skipping progress.");
+				}
+			});
+		};
+	})();
+})();
+
+return AccessControlManager;
+]]></code>
+</script>

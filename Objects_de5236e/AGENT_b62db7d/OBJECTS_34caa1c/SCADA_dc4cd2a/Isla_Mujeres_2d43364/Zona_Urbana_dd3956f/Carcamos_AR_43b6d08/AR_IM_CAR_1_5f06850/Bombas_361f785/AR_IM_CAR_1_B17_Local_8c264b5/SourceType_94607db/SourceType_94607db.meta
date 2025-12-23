@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AR.AR_IM_CAR_1.Bombas.AR_IM_CAR_1_B17_Local.SourceType
+NodeClass: Variable
+BrowseName: 1:SourceType
+DisplayName: en|Source type
+Description: en|SourceType
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.SourceType.RelMirrorInputOutput

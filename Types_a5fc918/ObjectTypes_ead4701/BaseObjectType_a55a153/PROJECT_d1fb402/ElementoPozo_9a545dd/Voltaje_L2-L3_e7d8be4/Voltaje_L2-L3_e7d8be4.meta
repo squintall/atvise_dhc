@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoPozo.Voltaje_L2-L3
+NodeClass: Variable
+BrowseName: 1:Voltaje_L2-L3
+DisplayName: en|Voltaje_L2-L3
+Description: en|Voltaje_L2-L3
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

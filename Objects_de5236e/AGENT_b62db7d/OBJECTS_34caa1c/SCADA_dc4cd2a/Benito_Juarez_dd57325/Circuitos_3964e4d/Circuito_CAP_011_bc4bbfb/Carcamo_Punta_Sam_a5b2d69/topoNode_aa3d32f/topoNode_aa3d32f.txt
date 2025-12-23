@@ -1,0 +1,151 @@
+{
+    "nodes": [
+        {
+            "id": "Carcamo_0+000",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_0+000",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_010",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_010",
+            "esForaneo": false,
+            "from": "Carcamo_011",
+            "to": "Carcamo_Aeropuerto_ZU, Carcamo_Santa_Fe"
+        },
+        {
+            "id": "Carcamo_011",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_011",
+            "esForaneo": false,
+            "from": "",
+            "to": "Carcamo_010"
+        },
+        {
+            "id": "Carcamo_2000_Oriente",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_2000_Oriente",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": "Carcamo_Almendros, Carcamo_Almendros_TE, Carcamo_Andalucia"
+        },
+        {
+            "id": "Carcamo_Aeropuerto_ZU",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Aeropuerto_ZU",
+            "esForaneo": false,
+            "from": "Carcamo_010",
+            "to": "Carcamo_Uxmal, Carcamo_Las_Americas, Carcamo_Luciernagas_1, Carcamo_Luciernagas_1_TE, Carcamo_Bonampak, Carcamo_Cumbres, Carcamo_0+000, Carcamo_2000_Oriente,  Carcamo_El_Table, Carcamo_Fonatur_SM10, Carcamo_Luciernagas_2, Carcamo_Quetzales, Carcamo_Puerto_Cancun"
+        },
+        {
+            "id": "Carcamo_Almendros",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Almendros",
+            "esForaneo": false,
+            "from": "Carcamo_2000_Oriente",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Almendros_TE",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Almendros_TE",
+            "esForaneo": false,
+            "from": "Carcamo_2000_Oriente",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Andalucia",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Andalucia",
+            "esForaneo": false,
+            "from": "Carcamo_2000_Oriente",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Bonampak",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Bonampak",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": "Carcamo_Punta_Sam"
+        },
+        {
+            "id": "Carcamo_Cumbres",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Cumbres",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_El_table",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_El_table",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Fonatur_SM10",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Fonatur_SM10",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Las_Americas",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Las_Americas",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Luciernagas_1",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Luciernagas_1",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Luciernagas_1_TE",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Luciernagas_1_TE",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Luciernagas_2",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Luciernagas_2",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Puerto_Cancun",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Puerto_Cancun",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Punta_Sam",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Punta_Sam",
+            "esForaneo": false,
+            "from": "Carcamo_Bonampak",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Quetzales",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Quetzales",
+            "esForaneo": false,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Santa_Fe",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Santa_Fe",
+            "esForaneo": false,
+            "from": "Carcamo_010",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Uxmal",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_Uxmal",
+            "esForaneo": true,
+            "from": "Carcamo_Aeropuerto_ZU",
+            "to": ""
+        }
+    ]
+}

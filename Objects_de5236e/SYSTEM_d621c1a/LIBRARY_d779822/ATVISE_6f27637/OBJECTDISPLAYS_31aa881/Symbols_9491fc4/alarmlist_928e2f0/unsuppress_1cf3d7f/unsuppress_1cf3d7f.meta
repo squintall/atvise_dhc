@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarmlist.unsuppress
+NodeClass: Variable
+BrowseName: 1:unsuppress
+DisplayName: en|unsuppress
+Description: en|unsuppress
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

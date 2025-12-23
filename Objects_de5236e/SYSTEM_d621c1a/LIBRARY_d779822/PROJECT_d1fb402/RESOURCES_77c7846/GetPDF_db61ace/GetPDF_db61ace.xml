@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <parameter name="response" type="http.response" trigger="false" relative="false" value=""/>
+  <code><![CDATA[//load pdf file project directory and send to browser
+
+console.error("Aus:",request.getvalues.name);
+var ifs = new InputFileStream(request.getvalues.name, "binary");
+ifs.open();
+response.setHeader("Content-Type", "application/pdf");
+response.write(ifs.read(0), "binary");
+ifs.close();]]></code>
+</script>

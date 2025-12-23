@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Laguna_de_oxidacion.Equipos.Valvulas.Valvula_Pozos.Abrir
+NodeClass: Variable
+BrowseName: 1:Abrir
+DisplayName: en|Abrir
+Description: en|Abrir
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

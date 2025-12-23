@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Grafica_Cuenca_LOX.Caudal_LOX
+NodeClass: Variable
+BrowseName: 1:Caudal_LOX
+DisplayName: en|Caudal_LOX
+Description: en|Caudal_LOX
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

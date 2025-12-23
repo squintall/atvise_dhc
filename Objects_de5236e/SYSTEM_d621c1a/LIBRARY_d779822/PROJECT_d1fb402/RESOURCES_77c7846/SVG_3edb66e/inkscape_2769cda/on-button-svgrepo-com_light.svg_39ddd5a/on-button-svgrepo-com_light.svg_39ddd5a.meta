@@ -1,0 +1,11 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/SVG/inkscape/on-button-svgrepo-com_light.svg
+NodeClass: Variable
+BrowseName: 1:on-button-svgrepo-com_light.svg
+DisplayName: en|on-button-svgrepo-com_light.svg
+Description: en|on-button-svgrepo-com_light.svg
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Svg
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Compress
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Translate

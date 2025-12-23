@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.ALARMING.Scripts.AlarmEmailStaticLevelScript
+NodeClass: Variable
+BrowseName: 1:AlarmEmailStaticLevelScript
+DisplayName: en|AlarmEmailStaticLevelScript
+Description: en|AlarmEmailStaticLevelScript
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode.AlarmModification

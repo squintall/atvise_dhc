@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.PTAR.AR_SOL_PLA_SAASTUN_HA.Caudalimetros.Flujo_Total_SaastunHa.trendCfg
+NodeClass: Variable
+BrowseName: 1:trendCfg
+DisplayName: en|trendCfg
+Description: en|trendCfg
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

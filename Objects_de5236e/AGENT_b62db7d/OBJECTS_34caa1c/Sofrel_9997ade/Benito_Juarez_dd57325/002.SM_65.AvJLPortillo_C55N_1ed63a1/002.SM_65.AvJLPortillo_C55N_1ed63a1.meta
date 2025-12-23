@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.002.SM_65.AvJLPortillo_C55N
+NodeClass: Object
+BrowseName: 1:002.SM_65.AvJLPortillo_C55N
+DisplayName: en|002.SM_65.AvJLPortillo_C55N
+Description: en|002.SM_65.AvJLPortillo_C55N
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.presion_min_max

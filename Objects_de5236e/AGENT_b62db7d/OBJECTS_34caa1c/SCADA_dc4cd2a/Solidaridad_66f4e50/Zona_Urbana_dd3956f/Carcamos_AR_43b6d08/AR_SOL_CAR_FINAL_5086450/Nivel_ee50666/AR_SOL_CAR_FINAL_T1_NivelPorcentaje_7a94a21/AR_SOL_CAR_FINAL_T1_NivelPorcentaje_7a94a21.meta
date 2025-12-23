@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AR.AR_SOL_CAR_FINAL.Nivel.AR_SOL_CAR_FINAL_T1_NivelPorcentaje
+NodeClass: Variable
+BrowseName: 1:AR_SOL_CAR_FINAL_T1_NivelPorcentaje
+DisplayName: en|AR_SOL_CAR_FINAL_T1_NivelPorcentaje
+Description: en|AR_SOL_CAR_FINAL_T1_NivelPorcentaje
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

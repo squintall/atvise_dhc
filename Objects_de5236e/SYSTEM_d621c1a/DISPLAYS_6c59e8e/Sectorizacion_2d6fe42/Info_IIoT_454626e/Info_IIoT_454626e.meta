@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Sectorizacion.Info_IIoT
+NodeClass: Variable
+BrowseName: 1:Info_IIoT
+DisplayName: en|Info_IIoT
+Description: en|Info_IIoT
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

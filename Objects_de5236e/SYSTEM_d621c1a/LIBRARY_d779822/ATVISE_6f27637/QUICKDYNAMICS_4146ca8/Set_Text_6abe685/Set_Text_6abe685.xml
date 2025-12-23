@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAAEEfUpiAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAylJREFUeNpi/P//PwMyYAIRERHhAjABRqwqoKoMQDRAAGGoYAAJhIeHOUDp/4xA4gBQ3B6IHwKxPFgFDINUAAQQusAHNL4BC5KtKLYB+R+AFD+GK6Ce2ADl2jOhSYJUP1ixYqUD1GEMAAGE7gYFZD4IM6H6kuE+mokHkINmARZHHmCBci4AKX00hyYA3bKBCcQBMgyAmBEouBCqBqSgAGtgQ40GmWgP1oTmiwvIwQyisYYkkP0AJgYQQAzo/kaPLHzyKDagubMBSC1gwAOgLprIgkXiA9BzAlBDcBmuAOVuQI6IBFA6BWmGCgUA8UF0W4HyIAPAYQBkH2CBxmA8KMUCBRSQYlUfyUaQBlhcgUA9Sh4gNSBBYhjRhMWvoJTQj2QrVsAIzlcUAIAAIuT8D4S8yITHCxOIcQATDs2gqMyHJnpcFnzAaQAsnkEZEo/r+LEaAMooSInpAhZ5BajrML0AjboAJKEPWByAUq7AMzzU3++RJdHTANTfCjB1IHnkhPQeWQOWkhTkuglANR+AbAZoYc0AL7TwpTio6xqQwgYe0ExQZ+lDbYDlyg9Q9gYk1wmgmXsAew2DafsFtMAUgOZUR3B2JqAZFCMg7yUgiYHqhf0wQ1kIpNT1WMLGARoDF/ClRFgsCGKRSkDmYCsTD8CrLkh8MyJVy+fRLPhIcXkAEKDXqr1BEIihxNx/cAM2wA3ACYwTiCO4gW7iBsQJPDZxBNhAmryS2twHnAn9dST0en19fW20CpHqVDHFiplJCEyV7fDZJz6+RVcUZqWjBQ+17KxGjh9vFjoxd8/g73vtAxRycyfuFjhSO5OA7mmhEVPZK7ge5DqXFITGItP+NgWW86UUcmkXIvci6RDIZUElwGbQwIkvysTKQTYuyLpmzdK7DiuJcWRtIb2t5+LKN64Ucr1q0YM49z9tCL23YOd1cnwGthWpyi6+nIis4EvmKp18PClZ44g1MEQiqyKA+IAE8oA21OL8wJaYJSuh4svFk7UmI9uRCWz+CFwCyg9adAj83igC2mQpVlnPUEZM1n9MmgWAsUXgNSjdlU9OCXCX+Ui4mRlFjs3tC+NaNmjDIwxGAAAAAElFTkSuQmCC</icon>
+	<visible>1</visible>
+	<title>Set Text</title>
+	<description>Displays the text according to a node value.</description>
+  </metadata>
+  <parameter name="nodeId" description="node from which value will be taken" valuetype="address" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="decimalPlaces" description="decimal places" valuetype="number" defaultvalue="0" config="" behavior="optional" group=""/>
+  <code><![CDATA[// This Quick Dynamic sets the text of the applied text element according to the value of the defined node with the defined decimal places (max. 9).
+// Parameters:
+//	nodeId:			node from which the value will be taken (variable should be of type "number" or "boolean" or "strings". strings shall only contain numbers)
+//	decimalPlaces:	number of decimal places which shall be used to display numbers (not more than 9)
+if (base.decimalPlaces > 9) { // more than 9 decimalplaces do not work with "sprintf"
+	base.decimalPlaces = 9;
+}
+var format = "%." + base.decimalPlaces + "f";
+var AggregateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Aggregate Manager");
+webMI.addOnunload(function unloadAggregateManager() {
+	AggregateManager.destroy();
+	AggregateManager = null;
+});
+
+AggregateManager.subscribeNodeOrAggregate(base.nodeId, handleResult);
+
+function handleResult(e) {
+	var value = e.value;
+
+	if (typeof value == "boolean" || typeof value == "string") {
+		webMI.gfx.setText(base.id, value);
+	} else {
+		webMI.gfx.setText(base.id, webMI.sprintf(format, value));
+	}
+}
+]]></code>
+</script>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="t" type="interval" trigger="true" relative="false" value="" offset="00:00:00" interval="12:00:00"/>
+  <code><![CDATA[var nombre = Ua.findNode(base + ".short_name");
+var nivel = Ua.findNode(base + ".level_percent");
+var _Level_Static = Ua.findNode(base + ".Alarmas._LEVEL_STATIC");
+var com = Ua.findNode(base + ".com");
+
+
+com.result.description = "Conectividad de " + nombre.result.value;
+nivel.result.description = "Nivel de " + nombre.result.value;
+_Level_Static.result.description = "Nivel de " + nombre.result.value;]]></code>
+</script>

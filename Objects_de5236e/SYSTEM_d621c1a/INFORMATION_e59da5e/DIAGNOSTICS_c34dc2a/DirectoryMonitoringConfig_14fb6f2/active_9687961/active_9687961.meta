@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.active
+NodeClass: Variable
+BrowseName: 1:active
+DisplayName: en|active
+Description: en|active
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType

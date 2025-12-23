@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/timer/imgs_glossy/blue_tab.png
+NodeClass: Variable
+BrowseName: 1:blue_tab.png
+DisplayName: en|blue_tab.png
+Description: en|blue_tab.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

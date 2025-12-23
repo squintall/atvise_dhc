@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="100" version="1.2" width="100" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_12" x1="1" x2="1" y1="-0.0183441" y2="1">
+   <stop offset="0" stop-color="#494949"/>
+   <stop offset="1" stop-color="#000000"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_15" x1="0.0136429" x2="0.875142" y1="1" y2="1">
+   <stop offset="0" stop-color="#ff0000"/>
+   <stop offset="1" stop-color="#620000"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_16" x1="1" x2="1" y1="-0.0183441" y2="1">
+   <stop offset="0" stop-color="#c4c4c4"/>
+   <stop offset="1" stop-color="#000000"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_17" x1="1" x2="1" y1="-0.0183441" y2="1">
+   <stop offset="0" stop-color="#494949"/>
+   <stop offset="1" stop-color="#000000"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_4" x1="1" x2="1" y1="-0.0183441" y2="1">
+   <stop offset="0" stop-color="#ffffff" stop-opacity="0.392156862745098"/>
+   <stop offset="0.5065502183406113" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_2" x1="0.25299" x2="0.25299" y1="0.971197" y2="-0.0183441">
+   <stop offset="0" stop-color="#494949"/>
+   <stop offset="1" stop-color="#000000"/>
+  </linearGradient>
+ </defs>
+ <desc>Displays value of an address as gauge.</desc>
+ <title>Gauge</title>
+ <metadata>
+  <atv:parameter behavior="mandatory" desc="base" name="base" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="alarm address" name="alarm" valuetype="address"/>
+  <atv:parameter behavior="optional" config="Yes;No" defaultvalue="Yes" desc="enable status monitoring" name="statusEnabled" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="fire status trigger" name="statusTrigger" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="T{Label}" desc="label" name="label" substitute="$LABEL$" valuetype="trstring"/>
+  <atv:parameter behavior="mandatory" defaultvalue="0" desc="minimum" name="min" valuetype="number"/>
+  <atv:parameter behavior="mandatory" defaultvalue="100" desc="maximum" name="max" valuetype="number"/>
+  <atv:parameter behavior="optional" config="Times New Roman=Times New Roman,Bodoni,Garamond,Minion Web,ITC Stone Serif,MS Georgia,Bitstream Cyberbit,serif;Arial=MS Trebuchet,ITC Avant Garde Gothic,MS Arial,MS Verdana,Univers,Futura,ITC Stone Sans,Gill Sans,Akzidenz Grotesk,Helvetica,sans-serif;Courier=Courier,MS Courier New,Prestige,Everson Mono,monospace;Zapf-Chancery=Caflisch Script,Adobe Poetica,Sanvito,Ex Ponto,Snell Roundhand,Zapf-Chancery,cursive;Alpha Geometrique=Alpha Geometrique,Critter,Cottonwood,FB Reactor,Studz,fantasy" defaultvalue="Arial" desc="family" group="Font" name="fontFamily" substitute="$FONTFAMILY$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="#d0d0d0" desc="color" group="Font" name="fontColor" substitute="$FONTCOLOR$" valuetype="color"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="12" desc="size for value" group="Font" name="fontSizeValue" substitute="$FONTSIZEVALUE$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="10" desc="size for label" group="Font" name="fontSizeLabels" substitute="$FONTSIZELABELS$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="0" desc="decimal places" group="Appearance" name="decimalPositions" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="off" desc="limit low low (off=no limit)" group="Appearance" name="limitLowLow" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="off" desc="limit low (off=no limit)" group="Appearance" name="limitLow" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="off" desc="limit high (off=no limit)" group="Appearance" name="limitHigh" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="off" desc="limit high high (off=no limit)" group="Appearance" name="limitHighHigh" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="#ff0000" desc="limit low low color" group="Appearance" name="limitLowLowFill" substitute="$LIMITLOWLOWFILL$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffff00" desc="limit low color" group="Appearance" name="limitLowFill" substitute="$LIMITLOWFILL$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffff00" desc="limit high color" group="Appearance" name="limitHighFill" substitute="$LIMITHIGHFILL$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ff0000" desc="limit high high color" group="Appearance" name="limitHighHighFill" substitute="$LIMITHIGHHIGHFILL$" valuetype="color"/>
+  <atv:parameter behavior="optional" config="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.scales" defaultvalue="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.scales.scale_60_gauge" desc="displayed scale" group="Appearance" name="scale" substitute="$SCALE$" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="scale color" group="Appearance" name="scaleColor" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#000000" desc="fill color" group="Appearance" name="fill" substitute="$FILLCOLOR$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#b7b7b7" desc="fill color when inactive" group="Appearance" name="backgroundColorInactive" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvStatusIndication" desc="status indication" group="Appearance" name="statusIndication" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvAlarmIndication" desc="alarm indication" group="Appearance" name="alarmIndication" valuetype="global"/>
+  <atv:parameter behavior="optional" desc="address for minimum" group="Options" name="nodeMin" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="address for maximum" group="Options" name="nodeMax" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="address for limit low low" group="Options" name="nodeLowLow" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="address for limit low" group="Options" name="nodeLow" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="address for limit high" group="Options" name="nodeHigh" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="address for limit high high" group="Options" name="nodeHighHigh" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show access control notification" group="Security" name="displayAcNotification" valuetype="bool"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="2" width="2"/>
+  <atv:snapconfig enabled="true" height="2" width="2"/>
+ </metadata>
+ <circle atv:refpx="50" atv:refpy="50" cx="50" cy="50" fill="url(#linear_12)" id="outer_shape" r="49.5" stroke="#646464" stroke-width="0.5"/>
+ <circle atv:refpx="50" atv:refpy="50" cx="50" cy="50" fill="url(#linear_2)" id="id_49" r="47" stroke="none" stroke-width="2"/>
+ <circle atv:refpx="50" atv:refpy="50" cx="50" cy="50" fill="none" id="blinking_frame" r="47" stroke="none" stroke-width="2"/>
+ <circle atv:refpx="55" atv:refpy="55" cx="50" cy="50" fill="$FILLCOLOR$" id="bg_scale" r="45" stroke="none" stroke-width="2"/>
+ <circle atv:refpx="50" atv:refpy="50" cx="50" cy="50" fill="url(#linear_4)" id="id_270" r="45" stroke="none" stroke-width="2"/>
+ <svg atv:refpx="50" atv:refpy="50" height="88" id="scale" width="88" x="6" xlink:href="$SCALE$" y="6">
+  <atv:argument name="scaleColor" prefix="scaleColor"/>
+ </svg>
+ <text atv:refpx="50" atv:refpy="73.5" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="$FONTSIZELABELS$" id="label" text-anchor="middle" x="50" y="78">$LABEL$</text>
+ <text atv:dynamic="true" atv:refpx="50" atv:refpy="62.37" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="$FONTSIZEVALUE$" id="gauge_value" text-anchor="middle" x="50" y="66.87">00000000</text>
+ <g atv:refpx="50" atv:refpy="50" id="gauge_pointer">
+  <path atv:refpx="96.937" atv:refpy="32" d="M46.937,50L53.062,50L50,14Z" fill="url(#linear_15)" id="id_1" stroke="#c4c4c4" stroke-width="0.5"/>
+ </g>
+ <circle atv:refpx="18.66" atv:refpy="18.66" cx="50" cy="50" fill="url(#linear_16)" id="id_65" r="6.507" stroke="none" stroke-width="1.66"/>
+ <circle atv:refpx="50" atv:refpy="50" cx="50" cy="50" fill="url(#linear_17)" id="id_66" r="6.242" stroke="none" stroke-width="1.66"/>
+ <path atv:refpx="50" atv:refpy="50" d="M49.991,12.515L49.991,2.938C49.991,2.938 48.586,2.979 47.607,3.024C46.628,3.066 45.009,3.24 45.009,3.24C45.009,3.24 48.757,8.29 48.757,8.29C48.757,8.29 48.757,12.521 48.757,12.521C48.757,12.521 49.993,12.517 49.991,12.515" fill="$LIMITLOWFILL$" id="limit_low" stroke="none" stroke-width="2"/>
+ <path atv:refpx="50" atv:refpy="50" d="M49.989,12.514L49.99,2.936C49.99,2.936 48.584,2.978 47.606,3.022C46.626,3.064 45.008,3.239 45.008,3.239C45.008,3.239 48.755,8.289 48.755,8.289C48.755,8.289 48.755,12.521 48.755,12.521C48.755,12.521 49.992,12.513 49.989,12.514" fill="$LIMITLOWLOWFILL$" id="limit_low_low" stroke="none" stroke-width="2"/>
+ <path atv:refpx="50" atv:refpy="50" d="M50.008,12.516L50.008,2.939C50.008,2.939 51.413,2.98 52.392,3.024C53.371,3.066 54.989,3.241 54.989,3.241C54.989,3.241 51.242,8.291 51.242,8.291C51.242,8.291 51.242,12.523 51.242,12.523C51.242,12.523 50.005,12.513 50.008,12.516" fill="$LIMITHIGHFILL$" id="limit_high" stroke="none" stroke-width="2"/>
+ <path atv:refpx="50" atv:refpy="50" d="M50.008,12.514L50.008,2.94C50.008,2.94 51.413,2.98 52.392,3.024C53.371,3.067 54.989,3.241 54.989,3.241C54.989,3.241 51.243,8.291 51.243,8.291C51.243,8.291 51.243,12.523 51.243,12.523C51.243,12.523 50.005,12.515 50.008,12.514" fill="$LIMITHIGHHIGHFILL$" id="limit_high_high" stroke="none" stroke-width="2"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.common.indicator_handling" atv:name="indicator_handling" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.common.rights_handling" atv:name="rights_handling" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.gauge" atv:name="gauge" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

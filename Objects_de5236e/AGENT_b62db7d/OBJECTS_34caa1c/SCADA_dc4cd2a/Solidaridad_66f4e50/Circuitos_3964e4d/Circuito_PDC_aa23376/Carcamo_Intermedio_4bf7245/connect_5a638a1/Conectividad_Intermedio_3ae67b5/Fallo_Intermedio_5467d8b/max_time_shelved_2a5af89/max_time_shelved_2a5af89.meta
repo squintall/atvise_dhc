@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.connect.Conectividad_Intermedio.Fallo Intermedio.max_time_shelved
+NodeClass: Variable
+BrowseName: 1:max_time_shelved
+DisplayName: en|max_time_shelved
+Description: en|max_time_shelved
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

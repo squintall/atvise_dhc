@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.imtelemetria
+NodeClass: Object
+BrowseName: 1:imtelemetria
+DisplayName: en|imtelemetria
+Description: en|imtelemetria
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

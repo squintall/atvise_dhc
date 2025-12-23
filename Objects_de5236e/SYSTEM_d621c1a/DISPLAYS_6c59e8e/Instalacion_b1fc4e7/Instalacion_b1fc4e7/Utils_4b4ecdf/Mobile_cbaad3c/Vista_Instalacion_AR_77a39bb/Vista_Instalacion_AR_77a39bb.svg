@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="1100" version="1.2" width="646" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="10" width="10"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <text atv:refpx="320.488" atv:refpy="152.572" fill="#000000" font-family="Arial" font-size="14" font-weight="bold" id="id_6" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-91.234,-40.2837)" x="246" y="158">Información de referencia</text>
+ <text atv:refpx="244.058" atv:refpy="212.788" fill="#000000" font-family="Arial" font-size="14" id="id_8" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-91.234,-56.2012)" x="247" y="213.714">Responsable: </text>
+ <text atv:refpx="245.825" atv:refpy="234.788" fill="#000000" font-family="Arial" font-size="14" id="id_5" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-91.234,-62.4866)" x="246.5" y="235.714">Responsable</text>
+ <text atv:refpx="244.872" atv:refpy="260.788" fill="#000000" font-family="Arial" font-size="14" id="id_11" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-90.4552,-69.9148)" x="245.434" y="261.714">Tel: 998 185 5431</text>
+ <text atv:refpx="273.85" atv:refpy="27.002" fill="#000000" font-family="Arial" font-size="22" font-weight="bold" id="id_0" transform="matrix(1.377,0,0,1.2857,-88.595,0)" x="239.5" y="25.5">Nombre</text>
+ <text atv:refpx="-330" atv:refpy="-5" fill="#000000" font-family="Arial" font-size="20" id="id_1" transform="matrix(1.377,0,0,1.2857,-88.595,-11.1423)" x="239.5" y="62.5">Clave</text>
+ <svg atv:refpx="314.934" atv:refpy="305" height="30" id="id_4" transform="matrix(1.875,0,0,1,0,0)" width="80" x="127.965" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="290">
+  <atv:argument name="label" value="T{Mostrar gráfico}"/>
+  <atv:argument name="fontSize" value="16"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:argument name="fontWeight2" value="bold"/>
+  <atv:overwrite id="id_6" transform="matrix(0.5333,0,0,1,0,0)" width="148"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5333,0,0,1,0,0)" x="75"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.623,0,0,1,-0.8519,0)" x="66"/>
+  <atv:overwrite id="button_label" transform="matrix(0.623,0,0,1,-0.8519,0)" x="66"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.32,0,0,0.6,0,0)" x="114.833"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.32,0,0,0.6,0,0)" x="114.833"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5333,0,0,1,0,0)" x="65"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.5333,0,0,1,0,0)" width="146"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.5333,0,0,1,0,0)" width="148"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.5333,0,0,1,0,0)" width="150"/>
+ </svg>
+ <svg atv:refpx="479.998" atv:refpy="305" height="30" id="id_10" transform="matrix(1.875,0,0,1,0,0)" width="80" x="216" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="290">
+  <atv:argument name="label" value="T{Recargar página}"/>
+  <atv:argument name="fontSize" value="16"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:argument name="fontWeight2" value="bold"/>
+  <atv:overwrite id="id_6" transform="matrix(0.5333,0,0,1,0,0)" width="148"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5333,0,0,1,0,0)" x="75"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6144,0,0,1,-0.2837,0)" x="66"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6144,0,0,1,-0.2837,0)" x="66"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.32,0,0,0.6,0,0)" x="114.833"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.32,0,0,0.6,0,0)" x="114.833"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5333,0,0,1,0,0)" x="65"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.5333,0,0,1,0,0)" width="146"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.5333,0,0,1,0,0)" width="148"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.5333,0,0,1,0,0)" width="150"/>
+ </svg>
+ <svg atv:refpx="110.962" atv:refpy="172.426" height="600" id="id_7" transform="matrix(0.2775,0,0,0.5367,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="13.957">
+  <atv:argument name="frameName" value="tanque"/>
+  <atv:argument name="base" prefix="base"/>
+  <atv:argument name="display" value="ObjectTypes.PROJECT.ElementoLineaAR.Tanque"/>
+ </svg>
+ <svg atv:refpx="112.5" atv:refpy="186.322" height="400" id="id_9" transform="matrix(0.5625,0,0,0.975,0,0)" width="400" x="0" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.Advanced.highcharts.highcharts_mod" y="0">
+  <atv:argument name="base" prefix="base"/>
+  <atv:argument name="trendName" prefix="base" value=".level_percent"/>
+  <atv:argument name="series1series_address" prefix="base" value=".level_percent"/>
+  <atv:argument name="series1series_name" value="T{Nivel}"/>
+  <atv:argument name="series1series_marker_enabled" value="false"/>
+  <atv:argument name="series1series_color" value="#000000"/>
+  <atv:argument name="yAxis1yAxis_id" value="level"/>
+  <atv:argument name="yAxis1yAxis_title_text" value="Nivel"/>
+  <atv:argument name="yAxis1yAxis_min" value="0"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="12"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="hour(s)"/>
+  <atv:argument name="xAxisxAxis_labels_enabled" value="false"/>
+  <atv:argument name="xAxisxAxis_tickInterval" value="10000000"/>
+  <atv:argument name="series1series_lineWidth" value="3"/>
+  <atv:argument name="series1series_tooltip_valueSuffix" value="%"/>
+  <atv:argument name="series1series_tooltip_valueDecimals" value="0"/>
+  <atv:argument name="zoomType" value="xy axis"/>
+  <atv:argument name="gshowExportMenu" value="false"/>
+  <atv:argument name="yAxis1yAxis_max" value="100"/>
+  <atv:argument name="yAxis1yAxis_visible" value="false"/>
+  <atv:argument name="yAxis1yAxis_labels_enabled" value="false"/>
+  <atv:argument name="xAxisxAxis_lineWidth" value="2"/>
+  <atv:argument name="gatviseOptions_disableDownSampling" value="false"/>
+  <atv:argument name="performance_update_interval" value="3000"/>
+  <atv:overwrite id="highchart_label" transform="matrix(1.7778,0,0,1.0256,0,0)" x="-58" y="206"/>
+  <atv:overwrite height="388" id="border" transform="matrix(1.7778,0,0,1.0256,0,0)" width="223"/>
+  <atv:overwrite height="390" id="id_3" transform="matrix(1.7778,0,0,1.0256,0,0)" width="225"/>
+ </svg>
+ <svg atv:refpx="112.442" atv:refpy="168.935" height="600" id="id_13" transform="matrix(0.2813,0,0,0.55,0,0)" width="800" x="0.21" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="0.001">
+  <atv:argument name="frameName" value="clickarea"/>
+  <atv:argument name="base" prefix="base"/>
+ </svg>
+ <svg atv:refpx="322.5" atv:refpy="980.025" height="300" id="id_19" transform="matrix(1,0,0,0.8,0,0)" width="645" x="0" xlink:href="SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Mobile.alarmlist_small_portrait" y="1075">
+  <atv:argument name="alarm_condition" prefix="base"/>
+  <atv:argument name="columnsAlarm" value="SYSTEM.GLOBALS.atvObjectDisplays.Alarmlist.Columns.Alarm"/>
+  <atv:argument name="header_font_size" value="16"/>
+  <atv:argument name="footer_font_size" value="10"/>
+  <atv:argument name="base" prefix="base"/>
+  <atv:argument name="menuWidth" value="400"/>
+  <atv:argument name="menuHeight" value="400"/>
+  <atv:argument name="showMenu" value="false"/>
+ </svg>
+ <svg atv:refpx="322.117" atv:refpy="529.995" height="600" id="energy" transform="matrix(0.8063,0,0,0.6667,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="494.975">
+  <atv:argument name="frameName" value="energy"/>
+  <atv:argument name="display" value="SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Mobile.Energy"/>
+  <atv:argument name="base" prefix="base"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[//Se obtiene la dirección base del objeto
+var address = webMI.query["base"];
+
+//Se valida si es tanque de Agua Potable
+var esTanque = address.includes("Circuito");
+
+//Se valida si es cárcamo de Agua Residual
+var esCarcamo = address.includes("Cuenca");
+
+
+webMI.data.read(webMI.query["base"] + ".short_name", function(e) {
+var id = "id_0";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+webMI.data.read(webMI.query["base"] + ".sap_name", function(e) {
+var id = "id_1";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+webMI.data.read(webMI.query["base"] + ".Responsable", function(e) {
+var id = "id_5";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+
+webMI.addEvent("id_4", "click", function(e) {
+	var id = "id_4";
+	var value = true;
+	webMI.display.openWindow({display:"SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Mobile.Tendencia_AR",
+	extern:false,height:600,menubar:false,modal:false,movable:true,resizable:true,scrollbars:false,
+	status:false,title:"T{Gráfico de operación}",toolbar:false,width:645,x:0,y:430,query:webMI.query});
+});
+
+
+webMI.data.read(webMI.query["base"] + ".level_percent", function(e) {
+	var id = "id_16";
+	var value = e.value;
+	if (value == 0)
+		webMI.gfx.setVisible(id, false);
+
+});
+
+webMI.data.read(webMI.query["base"] + ".level_percent", function(e) {
+	var id = "id_2";
+	var value = e.value;
+	if (value == 0)
+		webMI.gfx.setVisible(id, false);
+
+});
+
+
+webMI.addEvent("id_10", "click", function(e) {
+	var id = "id_10";
+	var value = true;
+	webMI.display.openDisplay("SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Mobile.Vista_Instalacion_AR", webMI.query, "content");
+
+});]]></script>
+ <svg atv:refpx="112.442" atv:refpy="164.934" height="600" id="id_14" transform="matrix(0.2813,0,0,0.55,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="0">
+  <atv:argument name="frameName" value="clickarea"/>
+  <atv:argument name="base" prefix="base"/>
+  <atv:argument name="display" value="ObjectTypes.PROJECT.ElementoLineaAR.cliackarea"/>
+ </svg>
+</svg>

@@ -1,0 +1,116 @@
+{
+    "nodes": [
+        {
+            "id": "Carcamo_001A",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_001A",
+            "esForaneo": false,
+            "from": "",
+            "to": "Carcamo_Punta_Sam"
+        },
+        {
+            "id": "Carcamo_Ara",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Ara",
+            "esForaneo": false,
+            "from": "Carcamo_001A, Carcamo_006A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Infovir_R227",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Infovir_R227",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Kusamil",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Kusamil",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Los_Heroes",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Los_Heroes",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Paraiso_Maya_1",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Paraiso_Maya_1",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Paraiso_Maya_2",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Paraiso_Maya_2",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_RN2",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_RN2",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_RN3",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_RN3",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Tierra_Maya_1",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Tierra_Maya_1",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Urbi_Villas_del_Rey",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Urbi_Villas_del_Rey",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Villas_del_Mar_1",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Villas_del_Mar_1",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Villas_Otoch",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Villas_Otoch",
+            "esForaneo": false,
+            "from": "Carcamo_001A",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_Punta_Sam",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Punta_Sam",
+            "esForaneo": true,
+            "from": "Carcamo_001A",
+            "to": "Carcamo_Aeropuerto_IM"
+        },
+        {
+            "id": "Carcamo_Aeropuerto_IM",
+            "base": "AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Carcamo_Aeropuerto_IM",
+            "esForaneo": true,
+            "from": "Carcamo_Punta_Sam",
+            "to": ""
+        },
+        {
+            "id": "Carcamo_011",
+            "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_011",
+            "esForaneo": true,
+            "from": "",
+            "to": "Carcamo_001A"
+        }
+    ]
+}

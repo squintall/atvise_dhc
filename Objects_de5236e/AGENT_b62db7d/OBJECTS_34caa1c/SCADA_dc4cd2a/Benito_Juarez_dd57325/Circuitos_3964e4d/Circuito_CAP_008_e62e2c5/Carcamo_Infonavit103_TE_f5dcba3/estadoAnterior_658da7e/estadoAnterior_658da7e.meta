@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_Infonavit103_TE.estadoAnterior
+NodeClass: Variable
+BrowseName: 1:estadoAnterior
+DisplayName: en|estadoAnterior
+Description: en|estadoAnterior
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

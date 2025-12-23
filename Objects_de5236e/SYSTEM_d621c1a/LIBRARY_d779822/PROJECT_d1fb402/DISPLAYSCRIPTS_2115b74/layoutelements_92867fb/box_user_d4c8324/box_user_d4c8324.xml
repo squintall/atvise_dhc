@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element box user object display
+ * ----------------------------------------
+ * This script supports the display showing user and login dialog.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var fillColor = webMI.query["fillColor"];
+var login_dialog = webMI.query["loginDisplay"];
+var user_dialog = webMI.query["userDisplay"];
+var message_dialog = webMI.query["messageDisplay"];
+var buttonFillColorInactive = webMI.query["buttonFillColorInactive"];
+var height = webMI.query["height"];
+var width = webMI.query["width"];
+var loggedIn = false;
+var loginmethod = null;
+var activatedEvents = true;
+var symbolScaling = parseInt(webMI.query["symbolScaling"], 10);
+
+/** access log part **/
+var accesslist = null;
+var anchorX = parseInt(webMI.query["anchorX"]);
+var anchorY = parseInt(webMI.query["anchorY"]);
+var colorActive = webMI.query["alarm_color"];
+var colorInactive = webMI.gfx.getFill("access_container");
+var fillColorActive = webMI.query["fillColorActive"];
+var isAccessLog = false;
+var isAccessButtonAvailable = document.getElementById("access_clickarea");
+var popup_height = parseInt(webMI.query["popup_height"]);
+var popup_width = parseInt(webMI.query["popup_width"]);
+var symbolColor = webMI.query["symbolColor"];
+var x = parseInt(webMI.query["x"]);
+var y = parseInt(webMI.query["y"]);
+
+var accessControlManager;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+} else {
+	deactiveAccessControlFunctionality();
+}
+
+function deactiveAccessControlFunctionality() {
+	webMI.gfx.setVisible("ac_symbol", false);
+	webMI.gfx.setVisible("user", false);
+	webMI.gfx.setVisible("user_no_access_control", null);
+}
+
+/**
+ * UI SETUP SECTION
+ */
+webMI.gfx.setStrokeWidth("button_login_id_0", 3);
+webMI.gfx.setRadiusX("button_login_id_0", 5);
+webMI.gfx.setRadiusY("button_login_id_0", 5);
+webMI.gfx.setFill("button_login_id_3", webMI.gfx.getFill("button_login_id_0"));
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+	webMI.data.call("info", {}, function (e) {
+		//get information from webmi.js
+		loginmethod = e.loginmethod;
+		if (loginmethod == "none") {
+			setButton(false);
+			return;
+		}
+		webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+			loggedIn = e.username != "" && e.username != undefined;
+			if (loggedIn && loginmethod == "form")
+				webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", { action: "start" });
+			if ("username" in e) {
+				if (loginmethod == "http" || loginmethod == "ntlm") {
+					//ntml is not defined in webmi
+					setButton(false);
+				} else if (loginmethod == "form") {
+					setButton(true);
+				}
+			} else if (e.username == undefined)
+				//webMI2ADS 2.0.1 specific fix to enable login
+				setButton(true);
+		});
+	});
+
+	/* set and scale icon position */
+	var FRAME = {};
+	FRAME.element = document.getElementById("clickarea");
+	FRAME.height = parseInt(FRAME.element.getAttribute("height"));
+	FRAME.width = parseInt(FRAME.element.getAttribute("width"));
+
+	var SYMBOL = {};
+	SYMBOL.element = document.getElementById("button_symbol").parentNode;
+	SYMBOL.height = parseInt(SYMBOL.element.getAttribute("height"));
+	SYMBOL.width = parseInt(SYMBOL.element.getAttribute("width"));
+
+	if (symbolScaling != 0 && symbolScaling != 100) {
+		var scale = {};
+		scale.x = FRAME.width / SYMBOL.width;
+		scale.y = FRAME.height / SYMBOL.height;
+		scale.value = symbolScaling / 100;
+
+		var offset = {};
+		offset.x = (20 * (scale.x - scale.value)) / 2;
+		offset.y = (20 * (scale.y - scale.value)) / 2;
+
+		var icon = document.getElementById("button_symbol");
+		icon.setAttribute("viewBox", "0,0,20,20");
+		icon.setAttribute("x", 4.694 * scale.x + offset.x);
+		icon.setAttribute("y", 4.694 * scale.y + offset.y);
+		icon.setAttribute("width", 20 * scale.value);
+		icon.setAttribute("height", 20 * scale.value);
+	}
+});
+
+webMI.addOnload(function (e) {
+	if (isAccessButtonAvailable)
+		webMI.addEvent(webMI.data, "permissionnotification", function (notification) {
+			setActive(true);
+		});
+});
+
+/**
+ * FUNCTION SECTION
+ */
+function setButton(active) {
+	webMI.gfx.setVisible("button_symbol_pressed", loggedIn);
+	webMI.gfx.setVisible("button_symbol", !loggedIn);
+	webMI.gfx.setFill("button_bg", active ? fillColor : buttonFillColorInactive);
+	activatedEvents = active;
+}
+
+function setActive(activate) {
+	if (!isAccessButtonAvailable) return;
+
+	if (accesslist == null) {
+		webMI.gfx.setStroke(
+			"access_clickarea",
+			activate
+				? {
+						0: colorActive,
+						2: colorInactive,
+						4: colorActive,
+						6: colorInactive,
+						8: colorActive,
+						10: colorInactive
+				  }
+				: colorInactive
+		);
+	} else {
+		webMI.gfx.setStroke("access_clickarea", activate ? colorActive : colorInactive);
+	}
+	isAccessLog = activate;
+}
+
+function handleAccessLog() {
+	if (!isAccessButtonAvailable) return;
+
+	if (accesslist == null) {
+		webMI.gfx.setFill("access_container", fillColorActive);
+		webMI.gfx.setStroke("access_clickarea", isAccessLog ? colorActive : fillColorActive);
+
+		var box = webMI.gfx.getBoundingClientRect("access_clickarea");
+		var scale = webMI.gfx.getAbsoluteScaleFactor(true);
+
+		accesslist = webMI.display.openWindow({
+			display: webMI.query["accessDisplay"],
+			extern: false,
+			width: popup_width,
+			height: popup_height,
+			x: x ? x : box.left / scale,
+			y: y,
+			menubar: false,
+			modal: false,
+			movable: true,
+			resizable: true,
+			scrollbars: false,
+			status: false,
+			title: "T{Access Control Log}",
+			titlebar: false,
+			toolbar: false,
+			query: {
+				mode: "popup"
+			}
+		});
+		accesslist.cuba = function () {
+			accesslist = null;
+		};
+	} else {
+		webMI.gfx.setFill("access_container", colorInactive);
+
+		accesslist.close();
+		accesslist = null;
+		setActive(false);
+	}
+}
+
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback
+ */
+function handleAccessControlResponse(callback) {
+	if (!accessControlManager) {
+		callback();
+		return;
+	}
+
+	var requiredRights = {
+		nodeIds: [
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/jquery/jquery-3.6.0.min.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/jquery/jquery-ui-1.11.3.custom.css",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/jquery/jquery-ui-1.13.1.min.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/jquery/jquery.event.drag-2.3.0.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/jquery/jquery.ui.touch-punch.min.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/jquery/images/ui-bg_glass_75_e6e6e6_1x400.png",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/config/custom.css",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/core/DataController.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/controller/SlickController.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/controller/SlickController.css",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/controller/helper/SlickConfigurator.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/controller/helper/SlickStyler.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/controller/helper/SlickFormatter.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/controller/helper/SlickDialogs.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/controller/helper/SlickFiltering.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/controller/helper/SlickPaging.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/controller/helper/SlickExport.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/slick.core.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/slick.grid.css",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/slick.grid.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/slick.groupitemmetadataprovider.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/slick.dataview.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/controls/slick.pager.css",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/controls/slick.gridmenu.css",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/plugins/slick.cellcopymanager.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/plugins/slick.cellrangedecorator.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/plugins/slick.cellrangeselector.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/plugins/slick.rowdetailview.css",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/adaptations/slick.gridmenu.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/adaptations/slick.rowselectionmodel.js",
+			"SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/adaptations/slick.autotooltips.js",
+		],
+		rights: [
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read",
+			"read"
+		]
+	};
+
+	accessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, (response) => {
+		var allRights = [];
+
+		for (var r in response) {
+			allRights.push(response[r].read);
+		}
+
+		if (!allRights.includes(false)) {
+			callback();
+		} else {
+			console.error("T{Access Denied}");
+			handleAccessDenied("T{Access Denied}");
+		}
+
+	});
+
+	function handleAccessDenied(message) {
+		webMI.gfx.setVisible("access_contol_warning", true);
+		webMI.gfx.setText("access_contol_warning", message);
+
+		webMI.display.openWindow({
+			display: message_dialog,
+			height: 160,
+			width: 400,
+			modal: true,
+			resizable: false,
+			movable: true,
+			scrollbars: false,
+			menubar: false,
+			status: false,
+			toolbar: false,
+			query: {
+				headline: "T{Access Denied}",
+				message: "T{You do not have the required permissions.}",
+				button: "T{OK}"
+			}
+		});
+	}
+}
+
+function openLoginDialog() {
+	webMI.display.openWindow({
+		display: login_dialog,
+		extern: false,
+		height: height,
+		menubar: false,
+		modal: true,
+		movable: true,
+		resizable: false,
+		scrollbars: false,
+		status: false,
+		title: "T{Login}",
+		toolbar: false,
+		width: width,
+		query: webMI.query
+	});
+}
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+	if ("username" in e) {
+		username = e.username != "" ? e.username : null;
+		loggedIn = e.username != "";
+		if (loggedIn) {
+			webMI.gfx.setText("user", username);
+			webMI.gfx.setText("user_no_access_control", username);
+		} else {
+			webMI.gfx.setText("user", "T{Login}");
+			webMI.gfx.setText("user_no_access_control", "T{Login}");
+		}
+	}
+});
+
+webMI.addEvent("access_clickarea", "click", function (e) {
+	handleAccessControlResponse(handleAccessLog);
+});
+
+webMI.addEvent("user_clickarea", "click", function (e) {
+	if (loggedIn == false && loginmethod == "form") {
+		openLoginDialog();
+	} else if (loggedIn == false && loginmethod == "http") {
+		//webMI2ADS 2.0.1 specific fix to enable login
+		webMI.data.login();
+	} else if (loggedIn == true) {
+		webMI.display.openWindow({
+			display: user_dialog,
+			extern: false,
+			height: 520,
+			menubar: false,
+			modal: false,
+			movable: false,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{User Editor}",
+			toolbar: false,
+			width: 430,
+			query: webMI.query
+		});
+	}
+});
+
+webMI.addEvent("clickarea", "click", function (e) {
+	if (loggedIn == false && loginmethod == "form") {
+		openLoginDialog();
+	} else if (loggedIn == false && loginmethod == "http") {
+		//webMI2ADS 2.0.1 specific fix to enable login
+		webMI.data.login();
+	} else if (loggedIn == true && loginmethod == "form") {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout", { action: "manualLogout" });
+		webMI.data.logout(function () {});
+	}
+});
+]]></code>
+</script>

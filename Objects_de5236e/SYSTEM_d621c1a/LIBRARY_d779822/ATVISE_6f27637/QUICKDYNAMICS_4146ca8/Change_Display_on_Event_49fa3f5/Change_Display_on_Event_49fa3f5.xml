@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+	<icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAYCAYAAACbU/80AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAFzSURBVEiJ7ZY9L0RBFIafWeu6m/gIQTSS1YkGldItJToJU1Io/Yj9ETrNKq2EbKPeLUVDSFRio6AQQnCNO3vvUVihEma2UOxJTmZycj6enJniVVrrCE8zxhxXq9UHl9p8GhQ27qcWnkkFrEWMhSSBNwuJJbMpmAQSi+pWr7nZyUL++fFKgiBIg8LY0NlBbxiyCdRcAHIAvxmOtWAz5OmVLI7Jrm8hTqDZdJn7tYGuJB4eOd07+zEraDnAxfln1PBAA1QEyh0ApLazs1tybaD1cskTwNdyZWOM0wf0AtBaRyJSBmmEYQ9ar/y5hwhFrw08TczV7maWVuXFILGB1ikvLf8ea2Yn4fridHZzty1pVuwaH50fPNja9gLouzyM+huH9R+TuoGB1n2/XgeKABxRFyHyAlBKyr4fOOcD0A7rAHQAOgB5EbWm9UrkUFtqC0ClUim6FLZDScE/eIIOgKcgUdGHInKvdwYwxhyHYVjykWNA7R0WX7Nf1LKVyQAAAABJRU5ErkJggk6+wMAApP9/A+KvUAxkw8SAUXyRPdlb/9/ztwsZ/v1TYJIRsxfaPnshCyXBx3v/xIOt7YWMpOmSR3hi3S3Ki4IBz4dD3gGgNJAAbUCQChqo4gBgFlQgNxcMiygg2ILFEwICQMqAUgcAAMhpkulR42b0AAAAAElFTkSuQmCC</icon>
+	<visible>1</visible>
+	<title>Change Display on Event</title>
+	<description>Changes the display by various mouse events.</description>
+  </metadata>
+  <parameter name="display" description="display to be opened" valuetype="display" defaultvalue="" config="" behavior="optional" group=""/>
+  <parameter name="onEvent" description="trigger event" valuetype="enum" defaultvalue="click" config="click;dblclick;mousedown;mouseup;mouseover;mousemove;mouseout" behavior="optional" group=""/>
+  <code><![CDATA[// This Quick Dynamic opens a new display depending on one of the events defined by "onEvent".
+// Parameters:
+//	display:	display which will be opened
+//	onEvent:	the event triggering this Quick Dynamic, which is one of the following:
+//		click:		mouse click
+//		dblclick:	double click of mouse button
+//		mousedown:	press down the mouse button
+//		mouseup:	release the mouse button
+//		muuseover:	move the mouse cursor over the applied graphical element
+//		mousemove:	move the mouse anywhere over the applied graphical element
+//		mouseout:	move the mouse cursor out of the applied graphical element
+
+webMI.addEvent(base.id, base.onEvent, function() {
+	webMI.display.openDisplay(base.display, {});
+});]]></code>
+</script>

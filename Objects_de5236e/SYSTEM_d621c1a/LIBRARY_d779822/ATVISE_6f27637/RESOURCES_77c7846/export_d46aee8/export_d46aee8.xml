@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <parameter name="response" type="http.response" trigger="false" relative="false" value=""/>
+  <parameter name="allowedTypes" type="string" trigger="false" relative="false" value="text/plain,text/csv,application/json"/>
+  <parameter name="allowedExtensions" type="string" trigger="false" relative="false" value="csv,txt,rtf,json"/>
+  <code><![CDATA[var post = request.postvalues;
+var postType = post["type"];
+var fileName = post["name"];
+
+var re = /(?:\.([^.]+))?$/;
+var extension = re.exec(fileName)[1];
+
+var failPage = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"+
+  "<html><head>\n"+
+  "<title>400  Bad Request</title>\n"+
+  "</head><body>\n"+
+  "<h1>Bad Request</h1>\n"+
+  "<p>File export failed because of invalid file extension or file type. Additional extensions and types can be specified in the export script.\n"+
+  "</body></html>";
+
+if (allowedExtensions.split(",").indexOf(extension) == -1)
+	return response.write(failPage);
+
+if (allowedTypes.split(",").indexOf(postType) == -1)
+	return response.write(failPage);
+
+response.setHeader("Content-Type", postType);
+response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+response.write(post["content"]);]]></code>
+</script>

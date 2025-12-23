@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.ALARMING.Mirroring.Indication
+NodeClass: Object
+BrowseName: 1:Indication
+DisplayName: en|Indication
+Description: en|Indication
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

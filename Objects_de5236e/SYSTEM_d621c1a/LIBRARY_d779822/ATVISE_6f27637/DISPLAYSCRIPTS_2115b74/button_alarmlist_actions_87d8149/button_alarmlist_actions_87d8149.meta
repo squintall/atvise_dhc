@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.button_alarmlist_actions
+NodeClass: Variable
+BrowseName: 1:button_alarmlist_actions
+DisplayName: en|button_alarmlist_actions
+Description: en|button_alarmlist_actions
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

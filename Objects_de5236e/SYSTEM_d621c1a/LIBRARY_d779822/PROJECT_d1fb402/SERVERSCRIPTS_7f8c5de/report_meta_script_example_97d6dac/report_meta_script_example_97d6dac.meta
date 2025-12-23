@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.report_meta_script_example
+NodeClass: Variable
+BrowseName: 1:report_meta_script_example
+DisplayName: en|report_meta_script_example
+Description: en|report_meta_script_example
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

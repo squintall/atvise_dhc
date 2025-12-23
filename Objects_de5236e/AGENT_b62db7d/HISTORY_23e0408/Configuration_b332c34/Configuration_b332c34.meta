@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.HISTORY.Configuration
+NodeClass: Object
+BrowseName: 1:Configuration
+DisplayName: en|Configuration
+Description: en|Configuration
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

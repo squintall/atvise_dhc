@@ -1,0 +1,27 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.GROUPS.TI-Tecnologías de la Información
+NodeClass: Object
+BrowseName: 1:TI-Tecnologías de la Información
+DisplayName: en|TI-Tecnologías de la Información
+Description: en|TI-Tecnologías de la Información
+EventNotifier: 0
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.RIGHTS.USER.Log
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.RIGHTS.VISU.View
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\aguzman
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\aroque
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\ccanto
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\eloeza
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\eromero
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\fvelazquez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\gmdelaguardia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\grosado
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\gsacramento
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\lzarco
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\plopez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\prangel
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\rcab
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\rvalencia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\squintal
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.ccanto
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.root
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.squintal
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.Group

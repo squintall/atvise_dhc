@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the numeric keyboard object display
+ * ----------------------------------------
+ * This script supports the display parsing inputs and optional limit the numerical input.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var actualText;
+var decSeparator = '.';
+var delDown;
+var digitsAfterPoint = webMI.query["digitsAfterPoint"];
+var digitsBeforePoint = webMI.query["digitsBeforePoint"];
+var isOkButtonEnabled = false;
+var maxValue = webMI.query["maxValue"];
+var minValue = webMI.query["minValue"];
+var password = webMI.query["password"];
+var queryConfirm = webMI.query["queryConfirm"];
+var queryConfirmText = webMI.query["queryConfirmText"];
+var mousedowns = [
+	'zero', 'one', 'two', 'three', 'four',
+	'five', 'six', 'seven', 'eight', 'nine'
+];
+var numbers = [
+	'minValue', 'maxValue', 'digitsBeforePoint', 'digitsAfterPoint'
+];
+var target = webMI.query["target"];
+var trigger = webMI.query["trigger"];
+var unit = (webMI.query["unit"] != "") ? " " + webMI.query["unit"] : webMI.query["unit"];
+var value = webMI.query["value"];
+var q = webMI.query;
+
+
+/**
+ * KEY SETUP SECTION
+ */
+for (var i in numbers) {
+	webMI.query[numbers[i]] = parseFloat(webMI.query[numbers[i]]);
+}
+
+
+/**
+ * RUNTIME SECTION
+ */
+setButtonEnabled("btnOk", isValid(
+	parseFloat(value)
+));
+
+// ####
+//setText(value + " " + unit);
+setText0(value + " " + unit);
+// ####
+
+for (var i = 0; i < mousedowns.length; i++) {
+	mouseFunction('mousedown', mousedowns[i], 0.5);
+	mouseFunction('mouseup', mousedowns[i], 0);
+	setFunction(mousedowns[i], 'btn' + i, i);
+}
+
+mouseFunction('mousedown', 'cancel', 0.5);
+mouseFunction('mousedown', 'ok', 0.5);
+mouseFunction('mousedown', 'minus', 0.5);
+mouseFunction('mousedown', 'comma', 0.5);
+
+mouseFunction('mouseup', 'cancel', 0);
+mouseFunction('mouseup', 'ok', 0);
+mouseFunction('mouseup', 'minus', 0);
+mouseFunction('mouseup', 'comma', 0);
+
+
+/**
+ * FUNCTION SECTION
+ */
+function setButtonEnabled(button, value) {
+	isOkButtonEnabled = value;
+	webMI.gfx.setFill(button, value ? "url(#linear_12)" : "#c8c8c8");
+	
+	if(value!=true) {
+		webMI.gfx.setText("id_minmaxVal","Value invalid: "+q.minValue+" to "+q.maxValue+" allowed");
+	} else {
+		webMI.gfx.setText("id_minmaxVal","");
+	}
+}
+
+function isValid(value) {
+	if (isNaN(value))
+		return false;
+	if (!isNaN(maxValue) && value > maxValue)
+		return false;
+	if (!isNaN(minValue) && value < minValue)
+		return false;
+
+	return true;
+}
+
+function makeStars(length) {
+	return new Array(length + 1).join("*");
+}
+
+function setText(text) {
+	actualText = text;
+
+	if (text !== undefined && password == "Yes")
+		text = makeStars(cutUnit(text).length) + unit;
+
+	webMI.gfx.setText("textValue", text);
+}
+
+// ####
+function setText0(text) {
+	actualText = unit;
+
+	if (text !== undefined && password == "Yes")
+		text = makeStars(cutUnit(text).length) + unit;
+
+	webMI.gfx.setText("textValue", text);
+}
+// ####
+
+function cutUnit(text) {
+	if (unit.length == 0) return text;
+	return text.substr(0, text.indexOf(unit));
+}
+
+
+function mouseFunction(mouse, group, color) {
+	var _func = function (e) {
+		if (group == "ok" && !isOkButtonEnabled)
+			return;
+
+		webMI.gfx.setFillOpacity(group, color);
+	};
+
+	webMI.addEvent(group, mouse, _func);
+
+	if (mouse == 'mouseup')
+		webMI.addEvent(group, 'mouseout', _func);
+};
+
+function setFunction(group, item, number) {
+
+	webMI.addEvent(group, 'click', function (e) {
+		var val = cutUnit(actualText) + number;
+		var minus = (val.indexOf('-') == -1) ? 0 : 1;
+		var indexOfDec = val.indexOf(decSeparator);
+		var digitsAfter = val.substr(indexOfDec + 1).length;
+		var digitsBefore = val.substr(minus, indexOfDec - minus).length;
+
+		if (indexOfDec == -1) {
+			digitsBefore = digitsAfter - minus;
+			digitsAfter = 0;
+		}
+
+		if (digitsBefore > digitsBeforePoint || digitsAfter > digitsAfterPoint)
+			return;
+
+		setButtonEnabled("btnOk", isValid(
+			parseFloat(val)
+		));
+		setText(val + unit);
+	});
+
+};
+
+function delMouseUp(e) {
+	webMI.gfx.setFillOpacity('del', 0);
+	clearTimeout(delDown);
+};
+
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent('del', 'mousedown', function (e) {
+	webMI.gfx.setFillOpacity('del', 0.5);
+	delDown = setTimeout(function () {
+		setButtonEnabled("btnOk", false);
+		setText(' ' + unit);
+	}, 1500);
+});
+
+webMI.addEvent('del', 'mouseup', delMouseUp);
+
+webMI.addEvent('del', 'mouseout', delMouseUp);
+
+webMI.addEvent('minus', 'click', function (e) {
+	var textValue = cutUnit(actualText);
+	var value = (-1) * parseFloat(textValue);
+
+	if (isNaN(value))
+		return;
+
+	setButtonEnabled("btnOk", isValid(value));
+	setText(value + unit);
+});
+
+webMI.addEvent('del', 'click', function (e) {
+	var text = cutUnit(actualText);
+	text = text.substr(0, text.length - 1) + unit;
+
+	setButtonEnabled("btnOk", isValid(
+		parseFloat(text)
+	));
+	setText(text);
+});
+
+webMI.addEvent('cancel', 'click', function (e) {
+	webMI.display.closeWindow();
+});
+
+webMI.addEvent('ok', 'click', function (e) {
+	if (!isOkButtonEnabled)
+		return;
+
+	if (queryConfirm == 'true' && !confirm(queryConfirmText)) return;
+
+	var value = parseFloat(cutUnit(actualText));
+
+	if (target != undefined) {
+		webMI.data.write(target, value);
+	}
+
+	webMI.trigger.fire("valuechanged", value, "");
+
+	if (trigger)
+		webMI.trigger.fire(trigger, value);
+
+	webMI.display.closeWindow();
+});
+
+webMI.addEvent('comma', 'click', function (e) {
+	var textValue = cutUnit(actualText);
+
+	if (textValue.indexOf(decSeparator) == -1) textValue += decSeparator;
+
+	setText(textValue + unit);
+});
+
+]]></code>
+</script>

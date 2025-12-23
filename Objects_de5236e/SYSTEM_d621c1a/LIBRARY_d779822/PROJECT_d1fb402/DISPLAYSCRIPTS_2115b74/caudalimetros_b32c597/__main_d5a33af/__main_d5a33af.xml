@@ -1,0 +1,1970 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/*
+ * Display script for Caudalimetros (without iframes).
+ *
+ * This script replaces the legacy implementation that relied on
+ * SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe elements for
+ * rendering each line and the card view. Instead, it builds the list of
+ * caudalímetros and the detail panel directly inside a single
+ * <foreignObject> (fo_root_host) as pure HTML. This avoids iframe
+ * overhead while preserving the original functionality: paginated list,
+ * per-device metrics, click-to-select behaviour and editing of alarm
+ * thresholds. The script fetches the list of devices using the
+ * ListarEquipos method and subscribes to the necessary data nodes via
+ * webMI.data.subscribe.
+ */
+
+/**
+ * Namespace for the caudalímetros display script. Encapsulates all
+ * state and functions to avoid conflicts with other display scripts
+ * loaded in the same global scope. The object is attached to
+ * `window.caudalMain` so that it can be referenced externally if
+ * necessary.
+ */
+// Prevent the script from loading multiple times when reloaded via the
+// Display Designer or runtime reloads. We avoid using an immediately
+// invoked function expression (IIFE) to keep the code simple and
+// maintainable. Instead we conditionally initialize our namespace on
+// the first load. Subsequent loads will reuse the existing object.
+if (typeof window !== 'undefined') {
+  if (window.__caudalMainLoaded) {
+    // If already loaded, do not reinitialize. Export the existing object.
+    // eslint-disable-next-line no-undef
+    var caudalMain = window.caudalMain;
+  } else {
+    window.__caudalMainLoaded = true;
+    // eslint-disable-next-line no-undef
+    var caudalMain = window.caudalMain || {};
+    window.caudalMain = caudalMain;
+
+    /*** Configuration ***/
+    // Query parameters determine pagination and maximum number of entries.
+    var QUERY = (typeof webMI !== 'undefined' && webMI.query) || {};
+    var PER_PAGE = Math.max(1, Number(QUERY.perPage || 5));
+    // Clamp to a reasonable upper bound. In the original display PER_PAGE
+    // seldom exceeded 5; however, users can override via query string.
+    if (PER_PAGE > 12) PER_PAGE = 12;
+    var MAX_TOTAL = Math.max(PER_PAGE, Number(QUERY.maxTotal || 60));
+
+    // Paths to trend or table displays used when clicking on metric cards.
+    var PATHS = {
+      flowTrend: 'SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Tendencia_Caudal',
+      pressureTrend: 'SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Tendencia_Presion',
+      dailyTable: 'SYSTEM.DISPLAYS.Caudalimetro.daily_prod_table'
+    };
+
+    // Threshold node suffixes. They map to relative node names appended to the
+    // selected base address for editing alarm levels from the card view.
+    var THRESHOLDS = {
+      flow: { wl: '.thr_flow_warn_low', al: '.thr_flow_alarm_low', wh: '.thr_flow_warn_high', ah: '.thr_flow_alarm_high' },
+      pressure: { wl: '.thr_press_warn_low', al: '.thr_press_alarm_low', wh: '.thr_press_warn_high', ah: '.thr_press_alarm_high' }
+    };
+
+    /*** Internal state ***/
+    // Cache for metadata keyed by device address. Used to avoid re-allocating
+    // objects every time the list is refreshed.
+    var CAUDAL_ITEM_CACHE = Object.create(null);
+    // Map of line instance IDs to their current subscriptions. Allows
+    // unsubscribing when the page changes.
+    var CAUDAL_LINE_INSTANCES = Object.create(null);
+    // Reference to the current card instance and its subscriptions.
+    var CAUDAL_CARD_INSTANCE = null;
+    // Layout container. Populated by caudalEnsureLayout() on first use.
+    var CAUDAL_LAYOUT = null;
+    // List of caudalímetros returned by ListarEquipos(). Each element has
+    // {address: string, name: string}.
+    var caudalItems = [];
+    // Current page index (0-based).
+    var caudalPage = 0;
+    // Address currently selected (shown in the card). Used to maintain
+    // selection when navigating pages.
+    var CAUDAL_SELECTED_ADDR = null;
+    // Flag used to bypass detection of unchanged signatures on first load.
+    var CAUDAL_ONE_SHOT = true;
+    // Signature of the last item list; used to detect when the list has
+    // changed. Not strictly necessary but helps avoid unnecessary re-renders.
+    var CAUDAL_LAST_SIG = '';
+    // Last page index; used to detect when the user has navigated.
+    var CAUDAL_LAST_PAGE = 0;
+
+    /*** Utility functions ***/
+    function caudalSlotId(i) {
+      return 'slot_' + ('0' + i).slice(-2);
+    }
+
+    function caudalClamp(val, min, max) {
+      return Math.max(min, Math.min(max, val));
+    }
+
+    /**
+     * Format a numeric value according to the configured locale (es-MX) with
+     * optional decimal places. Returns '--' for invalid numbers.
+     *
+     * @param {number} value
+     * @param {number} decimals
+     * @returns {string}
+     */
+    function formatNumber(value, decimals) {
+      if (typeof value !== 'number' || !isFinite(value)) return '--';
+      var d = (typeof decimals === 'number') ? decimals : 0;
+      try {
+        return new Intl.NumberFormat('es-MX', {
+          minimumFractionDigits: d,
+          maximumFractionDigits: d
+        }).format(value);
+      } catch (_) {
+        return value.toFixed(d);
+      }
+    }
+
+    /**
+     * Append a unit to a formatted value. If the value is invalid, returns
+     * '--'.
+     *
+     * @param {number} value
+     * @param {string} unit
+     * @param {number} decimals
+     * @returns {string}
+     */
+    function formatUnit(value, unit, decimals) {
+      var txt = formatNumber(value, decimals);
+      if (txt === '--') return txt;
+      return unit ? (txt + ' ' + unit) : txt;
+    }
+
+    /*** Debug helpers ***/
+    // Parse a value into boolean. Recognises "1", "true", "yes", "on".
+    function caudalToBool(val) {
+      if (val === undefined || val === null) return false;
+      if (val === true || val === false) return !!val;
+      var str = String(val).trim().toLowerCase();
+      return str === '1' || str === 'true' || str === 'yes' || str === 'on';
+    }
+    // Determine whether debug mode is enabled via query string (?debug=true)
+    var CAUDAL_DEBUG_MODE = caudalToBool(QUERY.debug || QUERY['debug']);
+    // ID of the debug overlay text element defined in the SVG
+    var CAUDAL_STATUS_ID = 'dbg_text';
+    /**
+     * Set the status overlay with a message. When debug mode is enabled or
+     * force is true, the overlay will be visible; otherwise it remains hidden.
+     *
+     * @param {string} msg
+     * @param {boolean} force
+     */
+    function caudalSetStatusOverlay(msg, force) {
+      var show = !!msg && (force || CAUDAL_DEBUG_MODE);
+      try { webMI.gfx.setText(CAUDAL_STATUS_ID, msg || ''); } catch (_) { }
+      try { webMI.gfx.setVisible(CAUDAL_STATUS_ID, show); } catch (_) { }
+    }
+    /**
+     * Log a message to the console and optionally to the status overlay when
+     * debug mode is active. Prepends a prefix for easier identification.
+     *
+     * @param {string} msg
+     */
+    function caudalDebugLog(msg) {
+      try { console.log('[caudalMain] ' + msg); } catch (_) { }
+      if (CAUDAL_DEBUG_MODE) caudalSetStatusOverlay(msg, false);
+    }
+
+    /**
+     * Ensure that we have a metadata object for a given address. Metadata
+     * contains a human-friendly name and diameter; additional properties can
+     * be added here if needed. If the item does not exist, a default is
+     * created based on the address.
+     *
+     * @param {string} address
+     * @returns {{address: string, name: string}}
+     */
+    function caudalEnsureItem(address) {
+      if (!address) return { address: '', name: '' };
+      var meta = CAUDAL_ITEM_CACHE[address];
+      if (!meta) {
+        meta = {
+          address: address,
+          name: address.split('.').pop() || address
+        };
+        CAUDAL_ITEM_CACHE[address] = meta;
+      }
+      return meta;
+    }
+
+    /**
+     * Normalize the payload returned by webMI data subscription. Some
+     * subscriptions return {value, status}, others return raw value.
+     *
+     * @param {*} raw
+     * @returns {{value: *, status: *}}
+     */
+    function normalizePayload(raw) {
+      if (raw == null) return { value: undefined, status: undefined };
+      if (typeof raw === 'object' && ('value' in raw || 'status' in raw)) {
+        return { value: raw.value, status: raw.status };
+      }
+      return { value: raw, status: undefined };
+    }
+
+    /**
+     * Subscribe to a data node and invoke callback whenever the value or
+     * status changes. Returns a handle that can be used to unsubscribe later.
+     *
+     * @param {string} path
+     * @param {function(*, number=): void} cb
+     * @returns {{type: string, id: number}}
+     */
+    function caudalSubscribeValue(path, cb) {
+      var handler = function (raw) {
+        var payload = normalizePayload(raw);
+        cb(payload.value, payload.status);
+      };
+      var subId = null;
+      try {
+        subId = webMI.data.subscribe(path, handler);
+      } catch (_) {
+        // ignore
+      }
+      try {
+        webMI.data.read(path, handler);
+      } catch (_) {
+        // ignore
+      }
+      return { type: 'data', id: subId };
+    }
+
+    /**
+     * Unsubscribe from a list of subscriptions. Each entry should be the
+     * object returned from subscribeValue().
+     *
+     * @param {Array<{type:string,id:number}>} list
+     */
+    function caudalUnsubscribeAll(list) {
+      if (!Array.isArray(list)) return;
+      for (var i = 0; i < list.length; i++) {
+        var sub = list[i];
+        if (sub && sub.type === 'data' && sub.id) {
+          try {
+            webMI.data.unsubscribe(sub.id);
+          } catch (_) {
+            // ignore
+          }
+        }
+      }
+    }
+
+    /**
+     * Remove all subscriptions and DOM nodes associated with a line slot.
+     * Called before mounting a new line into the slot to avoid leaks.
+     *
+     * @param {HTMLElement} slotEl
+     */
+    function caudalCleanupLine(slotEl) {
+      if (!slotEl) return;
+      var id = slotEl.id || '';
+      var inst = CAUDAL_LINE_INSTANCES[id];
+      if (inst) {
+        caudalUnsubscribeAll(inst.subs);
+        delete CAUDAL_LINE_INSTANCES[id];
+      }
+      slotEl.innerHTML = '';
+    }
+
+    /**
+     * Mount a caudalímetro row into a slot element. Creates the DOM
+     * structure, subscribes to data nodes and registers click handlers. The
+     * row displays device name, diameter, address and four metrics: flow,
+     * pressure (AP only), daily volume and total volume. Clicking a metric
+     * with a trend defined opens the corresponding trend display; clicking
+     * anywhere on the row opens the detail card.
+     *
+     * @param {HTMLElement} slotEl
+     * @param {string} address
+     * @param {{address: string, name: string}} meta
+     * @returns {void}
+     */
+    function caudalMountLine(slotEl, address, meta) {
+      caudalCleanupLine(slotEl);
+      if (!slotEl || !address) return;
+
+      var doc = slotEl.ownerDocument || document;
+      // Root wrapper for the row
+      var wrapper = doc.createElement('div');
+      wrapper.style.display = 'flex';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.justifyContent = 'space-between';
+      wrapper.style.width = '100%';
+      wrapper.style.boxSizing = 'border-box';
+      wrapper.style.padding = '8px 16px';
+      wrapper.style.border = '1px solid #cbd5e1';
+      wrapper.style.borderRadius = '10px';
+      wrapper.style.background = '#ffffff';
+      wrapper.style.boxShadow = '0 1px 2px rgba(15,23,42,0.08)';
+      wrapper.style.cursor = 'pointer';
+      slotEl.appendChild(wrapper);
+
+      // Left section: diameter and name
+      var left = doc.createElement('div');
+      left.style.display = 'flex';
+      left.style.flexDirection = 'column';
+      left.style.gap = '2px';
+      left.style.minWidth = '0';
+      wrapper.appendChild(left);
+
+      var titleRow = doc.createElement('div');
+      titleRow.style.display = 'flex';
+      titleRow.style.alignItems = 'center';
+      titleRow.style.gap = '8px';
+      left.appendChild(titleRow);
+
+      var diaEl = doc.createElement('span');
+      diaEl.style.fontWeight = '700';
+      diaEl.style.fontSize = '14px';
+      diaEl.style.color = '#1f2937';
+      diaEl.textContent = meta.diameter ? (meta.diameter + '"') : '--"';
+      titleRow.appendChild(diaEl);
+
+      var nameEl = doc.createElement('span');
+      nameEl.style.fontWeight = '700';
+      nameEl.style.fontSize = '15px';
+      nameEl.style.color = '#0f172a';
+      nameEl.style.whiteSpace = 'nowrap';
+      nameEl.style.overflow = 'hidden';
+      nameEl.style.textOverflow = 'ellipsis';
+      nameEl.textContent = meta.name || address.split('.').pop() || 'Caudalímetro';
+      titleRow.appendChild(nameEl);
+
+      // Address alias below name
+      var aliasEl = doc.createElement('div');
+      aliasEl.style.fontSize = '11px';
+      aliasEl.style.color = '#475569';
+      aliasEl.style.whiteSpace = 'nowrap';
+      aliasEl.style.overflow = 'hidden';
+      aliasEl.style.textOverflow = 'ellipsis';
+      aliasEl.textContent = meta.address || address;
+      left.appendChild(aliasEl);
+
+      // Right section: metrics grid (4 metrics)
+      var metrics = doc.createElement('div');
+      metrics.style.display = 'grid';
+      metrics.style.gridAutoFlow = 'column';
+      metrics.style.gridAutoColumns = 'minmax(120px,auto)';
+      metrics.style.gap = '16px';
+      metrics.style.marginLeft = 'auto';
+      wrapper.appendChild(metrics);
+
+      var isAP = (address || '').indexOf('Circuito') >= 0;
+      var metricDefs = [
+        { key: 'flow', label: 'Caudal', suffix: '.current_flow', unit: 'l/s', decimals: 1, trend: PATHS.flowTrend },
+        { key: 'pressure', label: 'Presión', suffix: '.current_pressure', unit: 'kg/cm2', decimals: 2, trend: PATHS.pressureTrend, onlyAP: true },
+        { key: 'daily', label: 'Prod. día', suffix: '.current_daily_volume', unit: 'm3', decimals: 0, trend: PATHS.dailyTable },
+        { key: 'total', label: 'Prod. total', suffix: '.current_total_volume', unit: 'm3', decimals: 0 }
+      ];
+
+      var valueRefs = Object.create(null);
+      metricDefs.forEach(function (def) {
+        if (def.onlyAP && !isAP) return;
+        var block = doc.createElement('div');
+        block.style.display = 'flex';
+        block.style.flexDirection = 'column';
+        block.style.gap = '2px';
+        block.style.cursor = def.trend ? 'pointer' : 'default';
+        metrics.appendChild(block);
+        var label = doc.createElement('span');
+        label.textContent = def.label;
+        label.style.fontSize = '10px';
+        label.style.textTransform = 'uppercase';
+        label.style.letterSpacing = '0.03em';
+        label.style.color = '#64748b';
+        block.appendChild(label);
+        var value = doc.createElement('span');
+        value.textContent = '--';
+        value.style.fontSize = '16px';
+        value.style.fontWeight = '600';
+        value.style.color = '#0f172a';
+        block.appendChild(value);
+        if (def.trend) {
+          // Use the namespaced trend opener to avoid referencing undefined globals.
+          block.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            caudalOpenTrendDisplay(def.trend, address);
+          });
+        }
+        valueRefs[def.key] = { el: value, def: def };
+      });
+
+      var subs = [];
+      // Subscribe to basic properties: short_name, name, diameter
+      subs.push(caudalSubscribeValue(address + '.short_name', function (val) {
+        if (val) nameEl.textContent = val;
+      }));
+      subs.push(caudalSubscribeValue(address + '.name', function (val) {
+        if (val) nameEl.textContent = val || nameEl.textContent;
+      }));
+      subs.push(caudalSubscribeValue(address + '.diameter', function (val) {
+        diaEl.textContent = val ? (val + '"') : '--"';
+      }));
+      // Subscribe to metric values; color red if status indicates an alarm
+      Object.keys(valueRefs).forEach(function (key) {
+        var ref = valueRefs[key];
+        subs.push(caudalSubscribeValue(address + ref.def.suffix, function (val, status) {
+          ref.el.textContent = formatUnit(val, ref.def.unit, ref.def.decimals);
+          ref.el.style.color = (status == null || status === 0) ? '#0f172a' : '#b91c1c';
+        }));
+      });
+
+      wrapper.addEventListener('click', function () {
+        caudalOpenCard(address);
+      });
+
+      CAUDAL_LINE_INSTANCES[slotEl.id] = { base: address, root: wrapper, subs: subs };
+    }
+
+    /**
+     * Build the metrics grid for the card. Returns the DOM element and a map
+     * of references for updating values. The grid displays up to four
+     * metrics similarly to the line, but with larger font sizes and
+     * responsive layout.
+     *
+     * @param {Document} doc
+     * @param {string} address
+     * @param {boolean} isAP
+     * @returns {{grid: HTMLElement, refs: Object<string,{el:HTMLElement,def:Object}>>}}
+     */
+    function caudalBuildMetricsGrid(doc, address, isAP) {
+      var defs = [
+        { key: 'flow', label: 'Caudal', suffix: '.current_flow', unit: 'l/s', decimals: 1, trend: PATHS.flowTrend },
+        { key: 'pressure', label: 'Presión', suffix: '.current_pressure', unit: 'kg/cm2', decimals: 2, trend: PATHS.pressureTrend, onlyAP: true },
+        { key: 'daily', label: 'Prod. día', suffix: '.current_daily_volume', unit: 'm3', decimals: 0, trend: PATHS.dailyTable },
+        { key: 'total', label: 'Prod. total', suffix: '.current_total_volume', unit: 'm3', decimals: 0 }
+      ];
+      var grid = doc.createElement('div');
+      grid.style.display = 'grid';
+      grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(150px, 1fr))';
+      grid.style.gap = '16px';
+      var refs = Object.create(null);
+      defs.forEach(function (def) {
+        if (def.onlyAP && !isAP) return;
+        var card = doc.createElement('div');
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.gap = '6px';
+        card.style.padding = '12px';
+        card.style.border = '1px solid #e2e8f0';
+        card.style.borderRadius = '10px';
+        card.style.background = '#f8fafc';
+        card.style.cursor = def.trend ? 'pointer' : 'default';
+        grid.appendChild(card);
+        var label = doc.createElement('div');
+        label.textContent = def.label;
+        label.style.fontSize = '12px';
+        label.style.color = '#475569';
+        label.style.textTransform = 'uppercase';
+        label.style.letterSpacing = '0.03em';
+        card.appendChild(label);
+        var value = doc.createElement('div');
+        value.textContent = '--';
+        value.style.fontSize = '26px';
+        value.style.fontWeight = '700';
+        value.style.color = '#0f172a';
+        card.appendChild(value);
+        if (def.trend) {
+          card.addEventListener('click', function () {
+            caudalOpenTrendDisplay(def.trend, address);
+          });
+        }
+        refs[def.key] = { el: value, def: def };
+      });
+      return { grid: grid, refs: refs };
+    }
+
+    /**
+     * Build the thresholds editor for the card. For each metric (flow and
+     * optionally pressure) we create a column with four rows (Warn low,
+     * Alarm low, Warn high, Alarm high). Each cell shows the current value
+     * of the corresponding threshold and allows editing via prompt. The
+     * subs array is populated with subscriptions to update the displayed
+     * values whenever they change.
+     *
+     * @param {Document} doc
+     * @param {string} address
+     * @param {boolean} isAP
+     * @param {Array} subs
+     * @returns {HTMLElement}
+     */
+    function caudalBuildThresholds(doc, address, isAP, subs) {
+      var container = doc.createElement('div');
+      container.style.display = 'grid';
+      container.style.gridTemplateColumns = isAP ? 'repeat(2, minmax(0, 1fr))' : '1fr';
+      container.style.gap = '16px';
+
+      function createColumn(title, defs) {
+        var col = doc.createElement('div');
+        col.style.display = 'flex';
+        col.style.flexDirection = 'column';
+        col.style.gap = '8px';
+        var hdr = doc.createElement('div');
+        hdr.textContent = title;
+        hdr.style.fontSize = '12px';
+        hdr.style.color = '#475569';
+        hdr.style.textTransform = 'uppercase';
+        hdr.style.letterSpacing = '0.03em';
+        col.appendChild(hdr);
+        defs.forEach(function (d) {
+          var row = doc.createElement('div');
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.justifyContent = 'space-between';
+          row.style.padding = '8px 10px';
+          row.style.border = '1px solid #e2e8f0';
+          row.style.borderRadius = '8px';
+          row.style.background = '#ffffff';
+          col.appendChild(row);
+          var lab = doc.createElement('span');
+          lab.textContent = d.label;
+          lab.style.fontSize = '12px';
+          lab.style.color = '#475569';
+          row.appendChild(lab);
+          var val = doc.createElement('span');
+          val.textContent = '--';
+          val.style.fontSize = '14px';
+          val.style.fontWeight = '700';
+          val.style.color = '#0f172a';
+          val.style.cursor = 'pointer';
+          row.appendChild(val);
+          var node = address + d.node;
+          subs.push(caudalSubscribeValue(node, function (v) {
+            val.textContent = formatNumber(+v || 0, 2);
+          }));
+          val.addEventListener('click', function () {
+            var current = val.textContent.replace(/[^0-9.+-]/g, '');
+            var input = prompt('Nuevo valor', current);
+            if (input === null) return;
+            var num = parseFloat(input);
+            if (isNaN(num)) {
+              alert('Valor inválido');
+              return;
+            }
+            webMI.data.write(node, num);
+          });
+        });
+        return col;
+      }
+
+      var flowCol = createColumn('Umbrales de caudal', [
+        { label: 'Warn low', node: THRESHOLDS.flow.wl },
+        { label: 'Alarm low', node: THRESHOLDS.flow.al },
+        { label: 'Warn high', node: THRESHOLDS.flow.wh },
+        { label: 'Alarm high', node: THRESHOLDS.flow.ah }
+      ]);
+      container.appendChild(flowCol);
+      if (isAP) {
+        var pressCol = createColumn('Umbrales de presión', [
+          { label: 'Warn low', node: THRESHOLDS.pressure.wl },
+          { label: 'Alarm low', node: THRESHOLDS.pressure.al },
+          { label: 'Warn high', node: THRESHOLDS.pressure.wh },
+          { label: 'Alarm high', node: THRESHOLDS.pressure.ah }
+        ]);
+        container.appendChild(pressCol);
+      }
+      return container;
+    }
+
+    /**
+     * Open a trend display in a new window. Delegates to webMI.display.openWindow
+     * with options similar to the legacy implementation. If either path or
+     * address is missing, the function does nothing.
+     *
+     * @param {string} path
+     * @param {string} address
+     */
+    function caudalOpenTrendDisplay(path, address) {
+      if (!path || !address) return;
+      try {
+        var opts = { width: 900, height: 600, resizable: true, menubar: false, toolbar: false };
+        webMI.display.openWindow(path, Object.assign({}, QUERY, { base: address }), opts);
+      } catch (_) {
+        // ignore
+      }
+    }
+
+    /**
+     * Highlight the row corresponding to the selected address. Applies a
+     * distinct border and shadow to the row's wrapper. Called whenever
+     * selection changes or page navigation occurs.
+     *
+     * @param {string} address
+     */
+    function caudalMarkSlotSelected(address) {
+      Object.keys(CAUDAL_LINE_INSTANCES).forEach(function (id) {
+        var inst = CAUDAL_LINE_INSTANCES[id];
+        if (!inst || !inst.root) return;
+        var active = (inst.base === address);
+        inst.root.style.borderColor = active ? '#2c99d8' : '#cbd5e1';
+        inst.root.style.boxShadow = active ? '0 0 0 2px rgba(44,153,216,0.15)' : '0 1px 2px rgba(15,23,42,0.08)';
+      });
+    }
+
+    /**
+     * Clear the current card and its subscriptions. Called before mounting
+     * a new card. Resets the placeholder visibility and hides the card
+     * container.
+     */
+    function caudalCleanupCard() {
+      if (!CAUDAL_LAYOUT) return;
+      if (CAUDAL_CARD_INSTANCE) {
+        caudalUnsubscribeAll(CAUDAL_CARD_INSTANCE.subs);
+      }
+      CAUDAL_CARD_INSTANCE = null;
+      if (CAUDAL_LAYOUT.cardHost) {
+        CAUDAL_LAYOUT.cardHost.innerHTML = '';
+        CAUDAL_LAYOUT.cardHost.style.display = 'none';
+      }
+      if (CAUDAL_LAYOUT.placeholder) {
+        CAUDAL_LAYOUT.placeholder.style.display = 'block';
+      }
+    }
+
+    /**
+     * Mount the detail card for the selected address. Displays the device
+     * name, full address, metrics and threshold editors. Subscribes to all
+     * relevant data nodes and stores the subscriptions in CARD_INSTANCE for
+     * later cleanup.
+     *
+     * @param {string} address
+     */
+    function caudalOpenCard(address) {
+      if (!CAUDAL_LAYOUT || !address) return;
+      if (CAUDAL_SELECTED_ADDR === address && CAUDAL_CARD_INSTANCE) return;
+      caudalCleanupCard();
+      CAUDAL_SELECTED_ADDR = address;
+      caudalMarkSlotSelected(address);
+
+      // Use the same document as the card host to create elements.
+      var doc = CAUDAL_LAYOUT && CAUDAL_LAYOUT.cardHost ? (CAUDAL_LAYOUT.cardHost.ownerDocument || document) : document;
+      var host = CAUDAL_LAYOUT.cardHost;
+      // Hide placeholder and show card container
+      CAUDAL_LAYOUT.placeholder.style.display = 'none';
+      host.style.display = 'flex';
+      host.style.flexDirection = 'column';
+      host.style.gap = '16px';
+
+      var subs = [];
+      // Header with name and address
+      var header = doc.createElement('div');
+      header.style.display = 'flex';
+      header.style.alignItems = 'center';
+      header.style.justifyContent = 'space-between';
+      host.appendChild(header);
+      var hleft = doc.createElement('div');
+      hleft.style.display = 'flex';
+      hleft.style.flexDirection = 'column';
+      hleft.style.gap = '4px';
+      header.appendChild(hleft);
+      var title = doc.createElement('div');
+      title.style.fontSize = '18px';
+      title.style.fontWeight = '700';
+      title.style.color = '#111827';
+      title.textContent = address.split('.').pop() || 'Caudalímetro';
+      hleft.appendChild(title);
+      // Subscribe to the full name of the caudalímetro for the card header.
+      subs.push(caudalSubscribeValue(address + '.name', function (v) {
+        if (v) title.textContent = v;
+      }));
+      var sub = doc.createElement('div');
+      sub.style.fontSize = '12px';
+      sub.style.color = '#6b7280';
+      sub.textContent = address;
+      hleft.appendChild(sub);
+
+      // Metrics grid in card
+      var isAP = (address || '').indexOf('Circuito') >= 0;
+      var mg = caudalBuildMetricsGrid(doc, address, isAP);
+      host.appendChild(mg.grid);
+      Object.keys(mg.refs).forEach(function (k) {
+        var ref = mg.refs[k];
+        subs.push(caudalSubscribeValue(address + ref.def.suffix, function (val) {
+          ref.el.textContent = formatUnit(val, ref.def.unit, ref.def.decimals);
+        }));
+      });
+
+      // Threshold editors
+      var thr = caudalBuildThresholds(doc, address, isAP, subs);
+      host.appendChild(thr);
+
+      CAUDAL_CARD_INSTANCE = { base: address, subs: subs };
+    }
+
+    /**
+     * Ensure the layout is built inside fo_root_host. Creates the list panel
+     * and card panel with placeholders only once. Returns the layout
+     * object containing references to commonly accessed elements.
+     *
+     * @returns {{host: HTMLElement, slotsWrap: HTMLElement, slots: HTMLElement[], emptyMsg: HTMLElement, cardPanel: HTMLElement, cardHost: HTMLElement, placeholder: HTMLElement}}
+     */
+    function caudalEnsureLayout() {
+      var host = document.getElementById('fo_root_host');
+      if (!host) return null;
+      // Reuse existing layout if the host is unchanged
+      if (CAUDAL_LAYOUT && CAUDAL_LAYOUT.host === host) return CAUDAL_LAYOUT;
+
+      // Clear previous content. Removing children or assigning innerHTML can
+      // cause "Illegal invocation" in the atvise runtime depending on the
+      // underlying object. Attempt multiple methods in a safe fallback
+      // sequence: try removeChild, then textContent, then give up if both
+      // fail. Avoid crashing the script during initialisation.
+      try {
+        while (host.firstChild) host.removeChild(host.firstChild);
+      } catch (e) {
+        try {
+          host.textContent = '';
+        } catch (_) {
+          // If both methods fail, we leave existing children untouched.
+        }
+      }
+      // NOTE: Do not set style properties on the host directly. In some
+      // atvise runtimes this can trigger "Illegal invocation" exceptions
+      // because the underlying object is not a standard HTMLElement. The
+      // original XML defines width, height and other properties on the
+      // <div id="fo_root_host"> element, so we leave those untouched here.
+
+      // Always create elements using the ownerDocument of the host. In the atvise
+      // runtime, different documents may be used for HTML within foreignObject.
+      var doc = host.ownerDocument || document;
+      var container = doc.createElement('div');
+      container.style.fontFamily = 'Arial, Helvetica, sans-serif';
+      // o bien:
+      host.style.fontFamily = 'Arial, Helvetica, sans-serif';
+      container.style.display = 'flex';
+      container.style.gap = '24px';
+      container.style.width = '100%';
+      container.style.height = '100%';
+      container.style.boxSizing = 'border-box';
+      container.style.padding = '0 24px';
+      host.appendChild(container);
+
+      // Left panel: list of caudalímetros
+      var listPanel = doc.createElement('div');
+      listPanel.style.flex = '1';
+      listPanel.style.display = 'flex';
+      listPanel.style.flexDirection = 'column';
+      listPanel.style.gap = '12px';
+      container.appendChild(listPanel);
+      var listTitle = doc.createElement('div');
+      listTitle.textContent = 'Listado de caudalímetros';
+      listTitle.style.fontSize = '16px';
+      listTitle.style.fontWeight = '700';
+      listTitle.style.color = '#1f2937';
+      listPanel.appendChild(listTitle);
+      var slotsWrap = doc.createElement('div');
+      slotsWrap.style.flex = '1';
+      slotsWrap.style.minHeight = '0';
+      slotsWrap.style.display = 'flex';
+      slotsWrap.style.flexDirection = 'column';
+      slotsWrap.style.gap = '10px';
+      slotsWrap.style.overflowY = 'auto';
+      slotsWrap.style.paddingRight = '4px';
+      listPanel.appendChild(slotsWrap);
+      var emptyMsg = doc.createElement('div');
+      emptyMsg.textContent = 'Sin elementos para mostrar';
+      emptyMsg.style.display = 'none';
+      emptyMsg.style.padding = '16px';
+      emptyMsg.style.border = '1px dashed #cbd5e1';
+      emptyMsg.style.borderRadius = '8px';
+      emptyMsg.style.textAlign = 'center';
+      emptyMsg.style.color = '#475569';
+      emptyMsg.style.background = '#f8fafc';
+      listPanel.appendChild(emptyMsg);
+      // Pre-create slot elements to avoid re-creating DOM nodes on every render
+      var slots = [];
+      for (var i = 1; i <= PER_PAGE; i++) {
+        var slot = doc.createElement('div');
+        slot.id = caudalSlotId(i);
+        slot.style.minHeight = '56px';
+        slotsWrap.appendChild(slot);
+        slots.push(slot);
+      }
+
+      // Right panel: card
+      var cardPanel = doc.createElement('div');
+      cardPanel.style.flex = '0 0 720px';
+      cardPanel.style.height = '100%';
+      cardPanel.style.boxSizing = 'border-box';
+      cardPanel.style.border = '1px solid #e2e8f0';
+      cardPanel.style.borderRadius = '12px';
+      cardPanel.style.background = '#ffffff';
+      cardPanel.style.boxShadow = '0 12px 28px -18px rgba(15,23,42,0.35)';
+      cardPanel.style.padding = '18px 20px';
+      cardPanel.style.display = 'flex';
+      cardPanel.style.flexDirection = 'column';
+      cardPanel.style.overflow = 'auto';
+      container.appendChild(cardPanel);
+      var placeholder = doc.createElement('div');
+      placeholder.textContent = 'Selecciona un caudalímetro para ver el detalle';
+      placeholder.style.margin = 'auto';
+      placeholder.style.maxWidth = '340px';
+      placeholder.style.textAlign = 'center';
+      placeholder.style.color = '#64748b';
+      placeholder.style.fontSize = '13px';
+      placeholder.style.lineHeight = '1.4';
+      cardPanel.appendChild(placeholder);
+      var cardHost = doc.createElement('div');
+      cardHost.id = 'ca_side_host';
+      cardHost.style.display = 'none';
+      cardHost.style.flex = '1';
+      cardHost.style.minHeight = '0';
+      cardPanel.appendChild(cardHost);
+
+      CAUDAL_LAYOUT = {
+        host: host,
+        slotsWrap: slotsWrap,
+        slots: slots,
+        emptyMsg: emptyMsg,
+        cardPanel: cardPanel,
+        cardHost: cardHost,
+        placeholder: placeholder
+      };
+      return CAUDAL_LAYOUT;
+    }
+
+    /**
+     * Render the current page of items into the layout. Handles paging,
+     * showing/hiding navigation buttons and updating the card selection.
+     */
+    function caudalRender() {
+      var lay = caudalEnsureLayout();
+      if (!lay) return;
+      var total = Math.min(caudalItems.length, MAX_TOTAL);
+      // Do not manipulate pagination controls or page label here. The display
+      // shows all items in a scrollable list, so previous/next buttons are
+      // unused.
+      // Clear existing line content. Iterate over current children of
+      // slotsWrap, clean up their subscriptions, then remove them from the DOM.
+      var wrap = lay.slotsWrap;
+      try {
+        var children = Array.prototype.slice.call(wrap.children);
+        children.forEach(function (child) {
+          caudalCleanupLine(child);
+        });
+        while (wrap.firstChild) {
+          wrap.removeChild(wrap.firstChild);
+        }
+      } catch (_) { }
+      if (!total) {
+        lay.emptyMsg.style.display = '';
+        caudalCleanupCard();
+        return;
+      }
+      lay.emptyMsg.style.display = 'none';
+      var firstAddr = null;
+      // Create a new line element for each item and mount it. Use the
+      // ownerDocument of the wrap to create the div.
+      var doc = wrap.ownerDocument || document;
+      for (var idx = 0; idx < total; idx++) {
+        var item = caudalItems[idx];
+        if (!item || !item.address) continue;
+        if (!firstAddr) firstAddr = item.address;
+        var el = doc.createElement('div');
+        // Assign a unique id for tracking subscriptions
+        el.id = 'slot_' + idx;
+        wrap.appendChild(el);
+        caudalMountLine(el, item.address, caudalEnsureItem(item.address));
+      }
+      // If the selected address is not in the list, select the first one
+      var keep = false;
+      if (CAUDAL_SELECTED_ADDR) {
+        for (var m = 0; m < total; m++) {
+          if ((caudalItems[m] && caudalItems[m].address) === CAUDAL_SELECTED_ADDR) {
+            keep = true;
+            break;
+          }
+        }
+      }
+      if (!keep) {
+        caudalOpenCard(firstAddr);
+      } else {
+        caudalMarkSlotSelected(CAUDAL_SELECTED_ADDR);
+      }
+    }
+
+    /**
+     * Update the global items array and re-render if necessary. Only re-renders
+     * when the signature of the item list changes or when the page index
+     * changes. This avoids unnecessary DOM churn when the list remains
+     * identical between refreshes.
+     *
+     * @param {Array<{address:string,name:string}>} newItems
+     */
+    function caudalApplyNewItems(newItems) {
+      var newSig = (newItems || []).map(function (it) {
+        return it.address;
+      }).join('|');
+      if (CAUDAL_ONE_SHOT) {
+        caudalItems = newItems;
+        CAUDAL_LAST_SIG = newSig;
+        caudalRender();
+        return;
+      }
+      if (newSig !== CAUDAL_LAST_SIG) {
+        caudalItems = newItems;
+        CAUDAL_LAST_SIG = newSig;
+        caudalRender();
+      } else if (CAUDAL_LAST_PAGE !== caudalPage) {
+        caudalRender();
+      }
+      CAUDAL_LAST_PAGE = caudalPage;
+    }
+
+    /**
+     * Load the list of caudalímetros from the ListarEquipos method. The
+     * server returns an array of items; each item is normalized to an
+     * object containing address and name. Leading "s=" segments are
+     * removed. After obtaining the list the function delegates to
+     * applyNewItems().
+     */
+    function caudalLoadFromMethod() {
+      var base = QUERY.base || QUERY['base'] || '';
+      if (!base) return;
+      try {
+        webMI.data.call('ListarEquipos', {
+          startAddress: base,
+          endLevel: '3',
+          levelMode: 'exact',
+          recursive: 'true',
+          max: '0',
+          includeStartAddress: 'false',
+          filterTypeName: 'Caudalimetro',
+          debug: 'false'
+        }, function (ret) {
+          var newItems = [];
+          if (ret && Array.isArray(ret.items)) {
+            newItems = ret.items.map(function (n) {
+              var addr = String((n && n.address) || '');
+              var i = addr.indexOf('s=');
+              if (i >= 0) addr = addr.slice(i + 2);
+              return { address: addr, name: (n && n.name) || '' };
+            }).filter(function (it) {
+              return !!it.address;
+            });
+          }
+          // Always show an overlay indicating how many items were loaded.
+          try {
+            caudalSetStatusOverlay('Se cargaron ' + newItems.length + ' caudalímetro(s)', true);
+          } catch (_) { }
+          // Log the raw response and the processed array to the developer console.
+          try {
+            console.log('ListarEquipos returned:', ret);
+            console.log('Processed caudalimetros array:', newItems);
+            // Also log with our own helper for overlay if debug=true
+            caudalDebugLog('Retrieved ' + newItems.length + ' caudalímetro(s).');
+            if (CAUDAL_DEBUG_MODE) {
+              newItems.forEach(function (it, idx) {
+                caudalDebugLog('  [' + (idx + 1) + '] ' + it.address + ' (' + (it.name || '-') + ')');
+              });
+            }
+          } catch (_) { }
+          caudalApplyNewItems(newItems);
+        });
+      } catch (_) {
+        // In case of error, do not crash the script. You may use debug
+        // overlay or console.log for diagnostics.
+        caudalApplyNewItems([]);
+      }
+    }
+
+    /*** Navigation handlers are no longer required.
+     *
+     * The original display included "Previo" and "Siguiente" buttons for
+     * pagination. Now that the SVG has been simplified and these buttons
+     * removed, this function is left empty for backward compatibility. If
+     * you have removed the navigation elements from the display, you can
+     * safely delete this function.
+     */
+    function caudalBindNavHandlers() {
+      // No-op: navigation buttons have been removed from the display.
+    }
+
+    /*** Initialization ***/
+    function caudalInit() {
+      caudalEnsureLayout();
+      // Navigation buttons are not used when the list scrolls. Do not
+      // bind events to btnPrev and btnNext.
+      caudalLoadFromMethod();
+    }
+
+    try {
+      if (typeof webMI !== 'undefined' && webMI.addOnload) {
+        webMI.addOnload(caudalInit);
+      } else {
+        caudalInit();
+      }
+    } catch (_) {
+      caudalInit();
+    }
+
+    // Expose a limited API for external debugging or interaction
+    caudalMain.reload = caudalLoadFromMethod;
+    caudalMain.render = caudalRender;
+    caudalMain.select = caudalOpenCard;
+  }
+}
+
+/*** Configuration ***/
+// Query parameters determine pagination and maximum number of entries.
+var QUERY = (typeof webMI !== 'undefined' && webMI.query) || {};
+var PER_PAGE = Math.max(1, Number(QUERY.perPage || 5));
+// Clamp to a reasonable upper bound. In the original display PER_PAGE
+// seldom exceeded 5; however, users can override via query string.
+if (PER_PAGE > 12) PER_PAGE = 12;
+var MAX_TOTAL = Math.max(PER_PAGE, Number(QUERY.maxTotal || 60));
+
+// Paths to trend or table displays used when clicking on metric cards.
+var PATHS = {
+  flowTrend: 'SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Tendencia_Caudal',
+  pressureTrend: 'SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Tendencia_Presion',
+  dailyTable: 'SYSTEM.DISPLAYS.Caudalimetro.daily_prod_table'
+};
+
+// Threshold node suffixes. They map to relative node names appended to the
+// selected base address for editing alarm levels from the card view.
+var THRESHOLDS = {
+  flow: { wl: '.Umbrales.Caudal.WarnLow', al: '.Umbrales.Caudal.AlarmLow', wh: '.Umbrales.Caudal.WarnHigh', ah: '.Umbrales.Caudal.AlarmHigh' },
+  pressure: { wl: '.Umbrales.Presion.WarnLow', al: '.Umbrales.Presion.AlarmLow', wh: '.Umbrales.Presion.WarnHigh', ah: '.Umbrales.Presion.AlarmHigh' }
+};
+
+/*** Internal state ***/
+// Cache for metadata keyed by device address. Used to avoid re-allocating
+// objects every time the list is refreshed.
+var CAUDAL_ITEM_CACHE = Object.create(null);
+// Map of line instance IDs to their current subscriptions. Allows
+// unsubscribing when the page changes.
+var CAUDAL_LINE_INSTANCES = Object.create(null);
+// Reference to the current card instance and its subscriptions.
+var CAUDAL_CARD_INSTANCE = null;
+// Layout container. Populated by caudalEnsureLayout() on first use.
+var CAUDAL_LAYOUT = null;
+// List of caudalímetros returned by ListarEquipos(). Each element has
+// {address: string, name: string}.
+var caudalItems = [];
+// Current page index (0-based).
+var caudalPage = 0;
+// Address currently selected (shown in the card). Used to maintain
+// selection when navigating pages.
+var CAUDAL_SELECTED_ADDR = null;
+// Flag used to bypass detection of unchanged signatures on first load.
+var CAUDAL_ONE_SHOT = true;
+// Signature of the last item list; used to detect when the list has
+// changed. Not strictly necessary but helps avoid unnecessary re-renders.
+var CAUDAL_LAST_SIG = '';
+// Last page index; used to detect when the user has navigated.
+var CAUDAL_LAST_PAGE = 0;
+
+/*** Utility functions ***/
+function caudalSlotId(i) {
+  return 'slot_' + ('0' + i).slice(-2);
+}
+
+function caudalClamp(val, min, max) {
+  return Math.max(min, Math.min(max, val));
+}
+
+/**
+ * Format a numeric value according to the configured locale (es-MX) with
+ * optional decimal places. Returns '--' for invalid numbers.
+ *
+ * @param {number} value
+ * @param {number} decimals
+ * @returns {string}
+ */
+function formatNumber(value, decimals) {
+  if (typeof value !== 'number' || !isFinite(value)) return '--';
+  var d = (typeof decimals === 'number') ? decimals : 0;
+  try {
+    return new Intl.NumberFormat('es-MX', {
+      minimumFractionDigits: d,
+      maximumFractionDigits: d
+    }).format(value);
+  } catch (_) {
+    return value.toFixed(d);
+  }
+}
+
+/**
+ * Append a unit to a formatted value. If the value is invalid, returns
+ * '--'.
+ *
+ * @param {number} value
+ * @param {string} unit
+ * @param {number} decimals
+ * @returns {string}
+ */
+function formatUnit(value, unit, decimals) {
+  var txt = formatNumber(value, decimals);
+  if (txt === '--') return txt;
+  return unit ? (txt + ' ' + unit) : txt;
+}
+
+/*** Debug helpers ***/
+// Parse a value into boolean. Recognises "1", "true", "yes", "on".
+function caudalToBool(val) {
+  if (val === undefined || val === null) return false;
+  if (val === true || val === false) return !!val;
+  var str = String(val).trim().toLowerCase();
+  return str === '1' || str === 'true' || str === 'yes' || str === 'on';
+}
+// Determine whether debug mode is enabled via query string (?debug=true)
+var CAUDAL_DEBUG_MODE = caudalToBool(QUERY.debug || QUERY['debug']);
+// ID of the debug overlay text element defined in the SVG
+var CAUDAL_STATUS_ID = 'dbg_text';
+/**
+ * Set the status overlay with a message. When debug mode is enabled or
+ * force is true, the overlay will be visible; otherwise it remains hidden.
+ *
+ * @param {string} msg
+ * @param {boolean} force
+ */
+function caudalSetStatusOverlay(msg, force) {
+  var show = !!msg && (force || CAUDAL_DEBUG_MODE);
+  try { webMI.gfx.setText(CAUDAL_STATUS_ID, msg || ''); } catch (_) { }
+  try { webMI.gfx.setVisible(CAUDAL_STATUS_ID, show); } catch (_) { }
+}
+/**
+ * Log a message to the console and optionally to the status overlay when
+ * debug mode is active. Prepends a prefix for easier identification.
+ *
+ * @param {string} msg
+ */
+function caudalDebugLog(msg) {
+  try { console.log('[caudalMain] ' + msg); } catch (_) { }
+  if (CAUDAL_DEBUG_MODE) caudalSetStatusOverlay(msg, false);
+}
+
+/**
+ * Ensure that we have a metadata object for a given address. Metadata
+ * contains a human-friendly name and diameter; additional properties can
+ * be added here if needed. If the item does not exist, a default is
+ * created based on the address.
+ *
+ * @param {string} address
+ * @returns {{address: string, name: string}}
+ */
+function caudalEnsureItem(address) {
+  if (!address) return { address: '', name: '' };
+  var meta = CAUDAL_ITEM_CACHE[address];
+  if (!meta) {
+    meta = {
+      address: address,
+      name: address.split('.').pop() || address
+    };
+    CAUDAL_ITEM_CACHE[address] = meta;
+  }
+  return meta;
+}
+
+/**
+ * Normalize the payload returned by webMI data subscription. Some
+ * subscriptions return {value, status}, others return raw value.
+ *
+ * @param {*} raw
+ * @returns {{value: *, status: *}}
+ */
+function normalizePayload(raw) {
+  if (raw == null) return { value: undefined, status: undefined };
+  if (typeof raw === 'object' && ('value' in raw || 'status' in raw)) {
+    return { value: raw.value, status: raw.status };
+  }
+  return { value: raw, status: undefined };
+}
+
+/**
+ * Subscribe to a data node and invoke callback whenever the value or
+ * status changes. Returns a handle that can be used to unsubscribe later.
+ *
+ * @param {string} path
+ * @param {function(*, number=): void} cb
+ * @returns {{type: string, id: number}}
+ */
+function caudalSubscribeValue(path, cb) {
+  var handler = function (raw) {
+    var payload = normalizePayload(raw);
+    cb(payload.value, payload.status);
+  };
+  var subId = null;
+  try {
+    subId = webMI.data.subscribe(path, handler);
+  } catch (_) {
+    // ignore
+  }
+  try {
+    webMI.data.read(path, handler);
+  } catch (_) {
+    // ignore
+  }
+  return { type: 'data', id: subId };
+}
+
+/**
+ * Unsubscribe from a list of subscriptions. Each entry should be the
+ * object returned from subscribeValue().
+ *
+ * @param {Array<{type:string,id:number}>} list
+ */
+function caudalUnsubscribeAll(list) {
+  if (!Array.isArray(list)) return;
+  for (var i = 0; i < list.length; i++) {
+    var sub = list[i];
+    if (sub && sub.type === 'data' && sub.id) {
+      try {
+        webMI.data.unsubscribe(sub.id);
+      } catch (_) {
+        // ignore
+      }
+    }
+  }
+}
+
+/**
+ * Remove all subscriptions and DOM nodes associated with a line slot.
+ * Called before mounting a new line into the slot to avoid leaks.
+ *
+ * @param {HTMLElement} slotEl
+ */
+function caudalCleanupLine(slotEl) {
+  if (!slotEl) return;
+  var id = slotEl.id || '';
+  var inst = CAUDAL_LINE_INSTANCES[id];
+  if (inst) {
+    caudalUnsubscribeAll(inst.subs);
+    delete CAUDAL_LINE_INSTANCES[id];
+  }
+  slotEl.innerHTML = '';
+}
+
+/**
+ * Mount a caudalímetro row into a slot element. Creates the DOM
+ * structure, subscribes to data nodes and registers click handlers. The
+ * row displays device name, diameter, address and four metrics: flow,
+ * pressure (AP only), daily volume and total volume. Clicking a metric
+ * with a trend defined opens the corresponding trend display; clicking
+ * anywhere on the row opens the detail card.
+ *
+ * @param {HTMLElement} slotEl
+ * @param {string} address
+ * @param {{address: string, name: string}} meta
+ * @returns {void}
+ */
+function caudalMountLine(slotEl, address, meta) {
+  caudalCleanupLine(slotEl);
+  if (!slotEl || !address) return;
+
+  var doc = slotEl.ownerDocument || document;
+  // Root wrapper for the row
+  var wrapper = doc.createElement('div');
+  wrapper.style.display = 'flex';
+  wrapper.style.alignItems = 'center';
+  wrapper.style.justifyContent = 'space-between';
+  wrapper.style.width = '100%';
+  wrapper.style.boxSizing = 'border-box';
+  wrapper.style.padding = '8px 16px';
+  wrapper.style.border = '1px solid #cbd5e1';
+  wrapper.style.borderRadius = '10px';
+  wrapper.style.background = '#ffffff';
+  wrapper.style.boxShadow = '0 1px 2px rgba(15,23,42,0.08)';
+  wrapper.style.cursor = 'pointer';
+  slotEl.appendChild(wrapper);
+
+  // Left section: diameter and name
+  var left = doc.createElement('div');
+  left.style.display = 'flex';
+  left.style.flexDirection = 'column';
+  left.style.gap = '2px';
+  left.style.minWidth = '0';
+  wrapper.appendChild(left);
+
+  var titleRow = doc.createElement('div');
+  titleRow.style.display = 'flex';
+  titleRow.style.alignItems = 'center';
+  titleRow.style.gap = '8px';
+  left.appendChild(titleRow);
+
+  var diaEl = doc.createElement('span');
+  diaEl.style.fontWeight = '700';
+  diaEl.style.fontSize = '14px';
+  diaEl.style.color = '#1f2937';
+  diaEl.textContent = meta.diameter ? (meta.diameter + '"') : '--"';
+  titleRow.appendChild(diaEl);
+
+  var nameEl = doc.createElement('span');
+  nameEl.style.fontWeight = '700';
+  nameEl.style.fontSize = '15px';
+  nameEl.style.color = '#0f172a';
+  nameEl.style.whiteSpace = 'nowrap';
+  nameEl.style.overflow = 'hidden';
+  nameEl.style.textOverflow = 'ellipsis';
+  nameEl.textContent = meta.name || address.split('.').pop() || 'Caudalímetro';
+  titleRow.appendChild(nameEl);
+
+  // Address alias below name
+  var aliasEl = doc.createElement('div');
+  aliasEl.style.fontSize = '11px';
+  aliasEl.style.color = '#475569';
+  aliasEl.style.whiteSpace = 'nowrap';
+  aliasEl.style.overflow = 'hidden';
+  aliasEl.style.textOverflow = 'ellipsis';
+  aliasEl.textContent = meta.address || address;
+  left.appendChild(aliasEl);
+
+  // Right section: metrics grid (4 metrics)
+  var metrics = doc.createElement('div');
+  metrics.style.display = 'grid';
+  metrics.style.gridAutoFlow = 'column';
+  metrics.style.gridAutoColumns = 'minmax(120px,auto)';
+  metrics.style.gap = '16px';
+  metrics.style.marginLeft = 'auto';
+  wrapper.appendChild(metrics);
+
+  var isAP = (address || '').indexOf('Circuito') >= 0;
+  var metricDefs = [
+    { key: 'flow', label: 'Caudal', suffix: '.current_flow', unit: 'l/s', decimals: 1, trend: PATHS.flowTrend },
+    { key: 'pressure', label: 'Presión', suffix: '.current_pressure', unit: 'kg/cm2', decimals: 2, trend: PATHS.pressureTrend, onlyAP: true },
+    { key: 'daily', label: 'Prod. día', suffix: '.current_daily_volume', unit: 'm3', decimals: 0, trend: PATHS.dailyTable },
+    { key: 'total', label: 'Prod. total', suffix: '.current_total_volume', unit: 'm3', decimals: 0 }
+  ];
+
+  var valueRefs = Object.create(null);
+  metricDefs.forEach(function (def) {
+    if (def.onlyAP && !isAP) return;
+    var block = doc.createElement('div');
+    block.style.display = 'flex';
+    block.style.flexDirection = 'column';
+    block.style.gap = '2px';
+    block.style.cursor = def.trend ? 'pointer' : 'default';
+    metrics.appendChild(block);
+    var label = doc.createElement('span');
+    label.textContent = def.label;
+    label.style.fontSize = '10px';
+    label.style.textTransform = 'uppercase';
+    label.style.letterSpacing = '0.03em';
+    label.style.color = '#64748b';
+    block.appendChild(label);
+    var value = doc.createElement('span');
+    value.textContent = '--';
+    value.style.fontSize = '16px';
+    value.style.fontWeight = '600';
+    value.style.color = '#0f172a';
+    block.appendChild(value);
+    if (def.trend) {
+      // Use the namespaced trend opener to avoid referencing undefined globals.
+      block.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        caudalOpenTrendDisplay(def.trend, address);
+      });
+    }
+    valueRefs[def.key] = { el: value, def: def };
+  });
+
+  var subs = [];
+  // Subscribe to basic properties: short_name, name, diameter
+  subs.push(caudalSubscribeValue(address + '.short_name', function (val) {
+    if (val) nameEl.textContent = val;
+  }));
+  subs.push(caudalSubscribeValue(address + '.name', function (val) {
+    if (val) nameEl.textContent = val || nameEl.textContent;
+  }));
+  subs.push(caudalSubscribeValue(address + '.diameter', function (val) {
+    diaEl.textContent = val ? (val + '"') : '--"';
+  }));
+  // Subscribe to metric values; color red if status indicates an alarm
+  Object.keys(valueRefs).forEach(function (key) {
+    var ref = valueRefs[key];
+    subs.push(caudalSubscribeValue(address + ref.def.suffix, function (val, status) {
+      ref.el.textContent = formatUnit(val, ref.def.unit, ref.def.decimals);
+      ref.el.style.color = (status == null || status === 0) ? '#0f172a' : '#b91c1c';
+    }));
+  });
+
+  wrapper.addEventListener('click', function () {
+    caudalOpenCard(address);
+  });
+
+  CAUDAL_LINE_INSTANCES[slotEl.id] = { base: address, root: wrapper, subs: subs };
+}
+
+/**
+ * Build the metrics grid for the card. Returns the DOM element and a map
+ * of references for updating values. The grid displays up to four
+ * metrics similarly to the line, but with larger font sizes and
+ * responsive layout.
+ *
+ * @param {Document} doc
+ * @param {string} address
+ * @param {boolean} isAP
+ * @returns {{grid: HTMLElement, refs: Object<string,{el:HTMLElement,def:Object}>>}}
+ */
+function caudalBuildMetricsGrid(doc, address, isAP) {
+  var defs = [
+    { key: 'flow', label: 'Caudal', suffix: '.current_flow', unit: 'l/s', decimals: 1, trend: PATHS.flowTrend },
+    { key: 'pressure', label: 'Presión', suffix: '.current_pressure', unit: 'kg/cm2', decimals: 2, trend: PATHS.pressureTrend, onlyAP: true },
+    { key: 'daily', label: 'Prod. día', suffix: '.current_daily_volume', unit: 'm3', decimals: 0, trend: PATHS.dailyTable },
+    { key: 'total', label: 'Prod. total', suffix: '.current_total_volume', unit: 'm3', decimals: 0 }
+  ];
+  var grid = doc.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(150px, 1fr))';
+  grid.style.gap = '16px';
+  var refs = Object.create(null);
+  defs.forEach(function (def) {
+    if (def.onlyAP && !isAP) return;
+    var card = doc.createElement('div');
+    card.style.display = 'flex';
+    card.style.flexDirection = 'column';
+    card.style.gap = '6px';
+    card.style.padding = '12px';
+    card.style.border = '1px solid #e2e8f0';
+    card.style.borderRadius = '10px';
+    card.style.background = '#f8fafc';
+    card.style.cursor = def.trend ? 'pointer' : 'default';
+    grid.appendChild(card);
+    var label = doc.createElement('div');
+    label.textContent = def.label;
+    label.style.fontSize = '12px';
+    label.style.color = '#475569';
+    label.style.textTransform = 'uppercase';
+    label.style.letterSpacing = '0.03em';
+    card.appendChild(label);
+    var value = doc.createElement('div');
+    value.textContent = '--';
+    value.style.fontSize = '26px';
+    value.style.fontWeight = '700';
+    value.style.color = '#0f172a';
+    card.appendChild(value);
+    if (def.trend) {
+      card.addEventListener('click', function () {
+        caudalOpenTrendDisplay(def.trend, address);
+      });
+    }
+    refs[def.key] = { el: value, def: def };
+  });
+  return { grid: grid, refs: refs };
+}
+
+/**
+ * Build the thresholds editor for the card. For each metric (flow and
+ * optionally pressure) we create a column with four rows (Warn low,
+ * Alarm low, Warn high, Alarm high). Each cell shows the current value
+ * of the corresponding threshold and allows editing via prompt. The
+ * subs array is populated with subscriptions to update the displayed
+ * values whenever they change.
+ *
+ * @param {Document} doc
+ * @param {string} address
+ * @param {boolean} isAP
+ * @param {Array} subs
+ * @returns {HTMLElement}
+ */
+function caudalBuildThresholds(doc, address, isAP, subs) {
+  var container = doc.createElement('div');
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = isAP ? 'repeat(2, minmax(0, 1fr))' : '1fr';
+  container.style.gap = '16px';
+
+  function createColumn(title, defs) {
+    var col = doc.createElement('div');
+    col.style.display = 'flex';
+    col.style.flexDirection = 'column';
+    col.style.gap = '8px';
+    var hdr = doc.createElement('div');
+    hdr.textContent = title;
+    hdr.style.fontSize = '12px';
+    hdr.style.color = '#475569';
+    hdr.style.textTransform = 'uppercase';
+    hdr.style.letterSpacing = '0.03em';
+    col.appendChild(hdr);
+    defs.forEach(function (d) {
+      var row = doc.createElement('div');
+      row.style.display = 'flex';
+      row.style.alignItems = 'center';
+      row.style.justifyContent = 'space-between';
+      row.style.padding = '8px 10px';
+      row.style.border = '1px solid #e2e8f0';
+      row.style.borderRadius = '8px';
+      row.style.background = '#ffffff';
+      col.appendChild(row);
+      var lab = doc.createElement('span');
+      lab.textContent = d.label;
+      lab.style.fontSize = '12px';
+      lab.style.color = '#475569';
+      row.appendChild(lab);
+      var val = doc.createElement('span');
+      val.textContent = '--';
+      val.style.fontSize = '14px';
+      val.style.fontWeight = '700';
+      val.style.color = '#0f172a';
+      val.style.cursor = 'pointer';
+      row.appendChild(val);
+      var node = address + d.node;
+      subs.push(caudalSubscribeValue(node, function (v) {
+        val.textContent = formatNumber(+v || 0, 2);
+      }));
+      val.addEventListener('click', function () {
+        var current = val.textContent.replace(/[^0-9.+-]/g, '');
+        var input = prompt('Nuevo valor', current);
+        if (input === null) return;
+        var num = parseFloat(input);
+        if (isNaN(num)) {
+          alert('Valor inválido');
+          return;
+        }
+        webMI.data.write(node, num);
+      });
+    });
+    return col;
+  }
+
+  var flowCol = createColumn('Umbrales de caudal', [
+    { label: 'Warn low', node: THRESHOLDS.flow.wl },
+    { label: 'Alarm low', node: THRESHOLDS.flow.al },
+    { label: 'Warn high', node: THRESHOLDS.flow.wh },
+    { label: 'Alarm high', node: THRESHOLDS.flow.ah }
+  ]);
+  container.appendChild(flowCol);
+  if (isAP) {
+    var pressCol = createColumn('Umbrales de presión', [
+      { label: 'Warn low', node: THRESHOLDS.pressure.wl },
+      { label: 'Alarm low', node: THRESHOLDS.pressure.al },
+      { label: 'Warn high', node: THRESHOLDS.pressure.wh },
+      { label: 'Alarm high', node: THRESHOLDS.pressure.ah }
+    ]);
+    container.appendChild(pressCol);
+  }
+  return container;
+}
+
+/**
+ * Open a trend display in a new window. Delegates to webMI.display.openWindow
+ * with options similar to the legacy implementation. If either path or
+ * address is missing, the function does nothing.
+ *
+ * @param {string} path
+ * @param {string} address
+ */
+function caudalOpenTrendDisplay(path, address) {
+  if (!path || !address) return;
+  try {
+    var opts = { width: 900, height: 600, resizable: true, menubar: false, toolbar: false };
+    webMI.display.openWindow(path, Object.assign({}, QUERY, { base: address }), opts);
+  } catch (_) {
+    // ignore
+  }
+}
+
+/**
+ * Highlight the row corresponding to the selected address. Applies a
+ * distinct border and shadow to the row's wrapper. Called whenever
+ * selection changes or page navigation occurs.
+ *
+ * @param {string} address
+ */
+function caudalMarkSlotSelected(address) {
+  Object.keys(CAUDAL_LINE_INSTANCES).forEach(function (id) {
+    var inst = CAUDAL_LINE_INSTANCES[id];
+    if (!inst || !inst.root) return;
+    var active = (inst.base === address);
+    inst.root.style.borderColor = active ? '#2c99d8' : '#cbd5e1';
+    inst.root.style.boxShadow = active ? '0 0 0 2px rgba(44,153,216,0.15)' : '0 1px 2px rgba(15,23,42,0.08)';
+  });
+}
+
+/**
+ * Clear the current card and its subscriptions. Called before mounting
+ * a new card. Resets the placeholder visibility and hides the card
+ * container.
+ */
+function caudalCleanupCard() {
+  if (!CAUDAL_LAYOUT) return;
+  if (CAUDAL_CARD_INSTANCE) {
+    caudalUnsubscribeAll(CAUDAL_CARD_INSTANCE.subs);
+  }
+  CAUDAL_CARD_INSTANCE = null;
+  if (CAUDAL_LAYOUT.cardHost) {
+    CAUDAL_LAYOUT.cardHost.innerHTML = '';
+    CAUDAL_LAYOUT.cardHost.style.display = 'none';
+  }
+  if (CAUDAL_LAYOUT.placeholder) {
+    CAUDAL_LAYOUT.placeholder.style.display = 'block';
+  }
+}
+
+/**
+ * Mount the detail card for the selected address. Displays the device
+ * name, full address, metrics and threshold editors. Subscribes to all
+ * relevant data nodes and stores the subscriptions in CARD_INSTANCE for
+ * later cleanup.
+ *
+ * @param {string} address
+ */
+function caudalOpenCard(address) {
+  if (!CAUDAL_LAYOUT || !address) return;
+  if (CAUDAL_SELECTED_ADDR === address && CAUDAL_CARD_INSTANCE) return;
+  caudalCleanupCard();
+  CAUDAL_SELECTED_ADDR = address;
+  caudalMarkSlotSelected(address);
+
+  // Use the same document as the card host to create elements.
+  var doc = CAUDAL_LAYOUT && CAUDAL_LAYOUT.cardHost ? (CAUDAL_LAYOUT.cardHost.ownerDocument || document) : document;
+  var host = CAUDAL_LAYOUT.cardHost;
+  // Hide placeholder and show card container
+  CAUDAL_LAYOUT.placeholder.style.display = 'none';
+  host.style.display = 'flex';
+  host.style.flexDirection = 'column';
+  host.style.gap = '16px';
+
+  var subs = [];
+  // Header with name and address
+  var header = doc.createElement('div');
+  header.style.display = 'flex';
+  header.style.alignItems = 'center';
+  header.style.justifyContent = 'space-between';
+  host.appendChild(header);
+  var hleft = doc.createElement('div');
+  hleft.style.display = 'flex';
+  hleft.style.flexDirection = 'column';
+  hleft.style.gap = '4px';
+  header.appendChild(hleft);
+  var title = doc.createElement('div');
+  title.style.fontSize = '18px';
+  title.style.fontWeight = '700';
+  title.style.color = '#111827';
+  title.textContent = address.split('.').pop() || 'Caudalímetro';
+  hleft.appendChild(title);
+  // Subscribe to the full name of the caudalímetro for the card header.
+  subs.push(caudalSubscribeValue(address + '.name', function (v) {
+    if (v) title.textContent = v;
+  }));
+  var sub = doc.createElement('div');
+  sub.style.fontSize = '12px';
+  sub.style.color = '#6b7280';
+  sub.textContent = address;
+  hleft.appendChild(sub);
+
+  // Metrics grid in card
+  var isAP = (address || '').indexOf('Circuito') >= 0;
+  var mg = caudalBuildMetricsGrid(doc, address, isAP);
+  host.appendChild(mg.grid);
+  Object.keys(mg.refs).forEach(function (k) {
+    var ref = mg.refs[k];
+    subs.push(caudalSubscribeValue(address + ref.def.suffix, function (val) {
+      ref.el.textContent = formatUnit(val, ref.def.unit, ref.def.decimals);
+    }));
+  });
+
+  // Threshold editors
+  var thr = caudalBuildThresholds(doc, address, isAP, subs);
+  host.appendChild(thr);
+
+  CAUDAL_CARD_INSTANCE = { base: address, subs: subs };
+}
+
+/**
+ * Ensure the layout is built inside fo_root_host. Creates the list panel
+ * and card panel with placeholders only once. Returns the layout
+ * object containing references to commonly accessed elements.
+ *
+ * @returns {{host: HTMLElement, slotsWrap: HTMLElement, slots: HTMLElement[], emptyMsg: HTMLElement, cardPanel: HTMLElement, cardHost: HTMLElement, placeholder: HTMLElement}}
+ */
+function caudalEnsureLayout() {
+  var host = document.getElementById('fo_root_host');
+  if (!host) return null;
+  // Reuse existing layout if the host is unchanged
+  if (CAUDAL_LAYOUT && CAUDAL_LAYOUT.host === host) return CAUDAL_LAYOUT;
+
+  // Clear previous content. Removing children or assigning innerHTML can
+  // cause "Illegal invocation" in the atvise runtime depending on the
+  // underlying object. Attempt multiple methods in a safe fallback
+  // sequence: try removeChild, then textContent, then give up if both
+  // fail. Avoid crashing the script during initialisation.
+  try {
+    while (host.firstChild) host.removeChild(host.firstChild);
+  } catch (e) {
+    try {
+      host.textContent = '';
+    } catch (_) {
+      // If both methods fail, we leave existing children untouched.
+    }
+  }
+  // NOTE: Do not set style properties on the host directly. In some
+  // atvise runtimes this can trigger "Illegal invocation" exceptions
+  // because the underlying object is not a standard HTMLElement. The
+  // original XML defines width, height and other properties on the
+  // <div id="fo_root_host"> element, so we leave those untouched here.
+
+  // Always create elements using the ownerDocument of the host. In the atvise
+  // runtime, different documents may be used for HTML within foreignObject.
+  var doc = host.ownerDocument || document;
+  var container = doc.createElement('div');
+  container.style.display = 'flex';
+  container.style.gap = '24px';
+  container.style.width = '100%';
+  container.style.height = '100%';
+  container.style.boxSizing = 'border-box';
+  container.style.padding = '0 24px';
+  host.appendChild(container);
+
+  // Left panel: list of caudalímetros
+  var listPanel = doc.createElement('div');
+  listPanel.style.flex = '1';
+  listPanel.style.display = 'flex';
+  listPanel.style.flexDirection = 'column';
+  listPanel.style.gap = '12px';
+  container.appendChild(listPanel);
+  var listTitle = doc.createElement('div');
+  listTitle.textContent = 'Listado de caudalímetros';
+  listTitle.style.fontSize = '16px';
+  listTitle.style.fontWeight = '700';
+  listTitle.style.color = '#1f2937';
+  listPanel.appendChild(listTitle);
+  var slotsWrap = doc.createElement('div');
+  slotsWrap.style.flex = '1';
+  slotsWrap.style.minHeight = '0';
+  slotsWrap.style.display = 'flex';
+  slotsWrap.style.flexDirection = 'column';
+  slotsWrap.style.gap = '10px';
+  slotsWrap.style.overflowY = 'auto';
+  slotsWrap.style.paddingRight = '4px';
+  listPanel.appendChild(slotsWrap);
+  var emptyMsg = doc.createElement('div');
+  emptyMsg.textContent = 'Sin elementos para mostrar';
+  emptyMsg.style.display = 'none';
+  emptyMsg.style.padding = '16px';
+  emptyMsg.style.border = '1px dashed #cbd5e1';
+  emptyMsg.style.borderRadius = '8px';
+  emptyMsg.style.textAlign = 'center';
+  emptyMsg.style.color = '#475569';
+  emptyMsg.style.background = '#f8fafc';
+  listPanel.appendChild(emptyMsg);
+  // Pre-create slot elements to avoid re-creating DOM nodes on every render
+  var slots = [];
+  for (var i = 1; i <= PER_PAGE; i++) {
+    var slot = doc.createElement('div');
+    slot.id = caudalSlotId(i);
+    slot.style.minHeight = '56px';
+    slotsWrap.appendChild(slot);
+    slots.push(slot);
+  }
+
+  // Right panel: card
+  var cardPanel = doc.createElement('div');
+  cardPanel.style.flex = '0 0 720px';
+  cardPanel.style.height = '100%';
+  cardPanel.style.boxSizing = 'border-box';
+  cardPanel.style.border = '1px solid #e2e8f0';
+  cardPanel.style.borderRadius = '12px';
+  cardPanel.style.background = '#ffffff';
+  cardPanel.style.boxShadow = '0 12px 28px -18px rgba(15,23,42,0.35)';
+  cardPanel.style.padding = '18px 20px';
+  cardPanel.style.display = 'flex';
+  cardPanel.style.flexDirection = 'column';
+  cardPanel.style.overflow = 'hidden';
+  container.appendChild(cardPanel);
+  var placeholder = doc.createElement('div');
+  placeholder.textContent = 'Selecciona un caudalímetro para ver el detalle';
+  placeholder.style.margin = 'auto';
+  placeholder.style.maxWidth = '340px';
+  placeholder.style.textAlign = 'center';
+  placeholder.style.color = '#64748b';
+  placeholder.style.fontSize = '13px';
+  placeholder.style.lineHeight = '1.4';
+  cardPanel.appendChild(placeholder);
+  var cardHost = doc.createElement('div');
+  cardHost.id = 'ca_side_host';
+  cardHost.style.display = 'none';
+  cardHost.style.flex = '1';
+  cardHost.style.minHeight = '0';
+  cardPanel.appendChild(cardHost);
+
+  CAUDAL_LAYOUT = {
+    host: host,
+    slotsWrap: slotsWrap,
+    slots: slots,
+    emptyMsg: emptyMsg,
+    cardPanel: cardPanel,
+    cardHost: cardHost,
+    placeholder: placeholder
+  };
+  return CAUDAL_LAYOUT;
+}
+
+/**
+ * Render the current page of items into the layout. Handles paging,
+ * showing/hiding navigation buttons and updating the card selection.
+ */
+function caudalRender() {
+  var lay = caudalEnsureLayout();
+  if (!lay) return;
+  var total = Math.min(caudalItems.length, MAX_TOTAL);
+  // Do not manipulate pagination controls or page label here. The display
+  // shows all items in a scrollable list, so previous/next buttons are
+  // unused.
+  // Clear existing line content. Iterate over current children of
+  // slotsWrap, clean up their subscriptions, then remove them from the DOM.
+  var wrap = lay.slotsWrap;
+  try {
+    var children = Array.prototype.slice.call(wrap.children);
+    children.forEach(function (child) {
+      caudalCleanupLine(child);
+    });
+    while (wrap.firstChild) {
+      wrap.removeChild(wrap.firstChild);
+    }
+  } catch (_) { }
+  if (!total) {
+    lay.emptyMsg.style.display = '';
+    caudalCleanupCard();
+    return;
+  }
+  lay.emptyMsg.style.display = 'none';
+  var firstAddr = null;
+  // Create a new line element for each item and mount it. Use the
+  // ownerDocument of the wrap to create the div.
+  var doc = wrap.ownerDocument || document;
+  for (var idx = 0; idx < total; idx++) {
+    var item = caudalItems[idx];
+    if (!item || !item.address) continue;
+    if (!firstAddr) firstAddr = item.address;
+    var el = doc.createElement('div');
+    // Assign a unique id for tracking subscriptions
+    el.id = 'slot_' + idx;
+    wrap.appendChild(el);
+    caudalMountLine(el, item.address, caudalEnsureItem(item.address));
+  }
+  // If the selected address is not in the list, select the first one
+  var keep = false;
+  if (CAUDAL_SELECTED_ADDR) {
+    for (var m = 0; m < total; m++) {
+      if ((caudalItems[m] && caudalItems[m].address) === CAUDAL_SELECTED_ADDR) {
+        keep = true;
+        break;
+      }
+    }
+  }
+  if (!keep) {
+    caudalOpenCard(firstAddr);
+  } else {
+    caudalMarkSlotSelected(CAUDAL_SELECTED_ADDR);
+  }
+}
+
+/**
+ * Update the global items array and re-render if necessary. Only re-renders
+ * when the signature of the item list changes or when the page index
+ * changes. This avoids unnecessary DOM churn when the list remains
+ * identical between refreshes.
+ *
+ * @param {Array<{address:string,name:string}>} newItems
+ */
+function caudalApplyNewItems(newItems) {
+  var newSig = (newItems || []).map(function (it) {
+    return it.address;
+  }).join('|');
+  if (CAUDAL_ONE_SHOT) {
+    caudalItems = newItems;
+    CAUDAL_LAST_SIG = newSig;
+    caudalRender();
+    return;
+  }
+  if (newSig !== CAUDAL_LAST_SIG) {
+    caudalItems = newItems;
+    CAUDAL_LAST_SIG = newSig;
+    caudalRender();
+  } else if (CAUDAL_LAST_PAGE !== caudalPage) {
+    caudalRender();
+  }
+  CAUDAL_LAST_PAGE = caudalPage;
+}
+
+/**
+ * Load the list of caudalímetros from the ListarEquipos method. The
+ * server returns an array of items; each item is normalized to an
+ * object containing address and name. Leading "s=" segments are
+ * removed. After obtaining the list the function delegates to
+ * applyNewItems().
+ */
+function caudalLoadFromMethod() {
+  var base = QUERY.base || QUERY['base'] || '';
+  if (!base) return;
+  try {
+    webMI.data.call('ListarEquipos', {
+      startAddress: base,
+      endLevel: '3',
+      levelMode: 'exact',
+      recursive: 'true',
+      max: '0',
+      includeStartAddress: 'false',
+      filterTypeName: 'Caudalimetro',
+      debug: 'false'
+    }, function (ret) {
+      var newItems = [];
+      if (ret && Array.isArray(ret.items)) {
+        newItems = ret.items.map(function (n) {
+          var addr = String((n && n.address) || '');
+          var i = addr.indexOf('s=');
+          if (i >= 0) addr = addr.slice(i + 2);
+          return { address: addr, name: (n && n.name) || '' };
+        }).filter(function (it) {
+          return !!it.address;
+        });
+      }
+      // Always show an overlay indicating how many items were loaded.
+      try {
+        caudalSetStatusOverlay('Se cargaron ' + newItems.length + ' caudalímetro(s)', true);
+      } catch (_) { }
+      // Log the raw response and the processed array to the developer console.
+      try {
+        console.log('ListarEquipos returned:', ret);
+        console.log('Processed caudalimetros array:', newItems);
+        // Also log with our own helper for overlay if debug=true
+        caudalDebugLog('Retrieved ' + newItems.length + ' caudalímetro(s).');
+        if (CAUDAL_DEBUG_MODE) {
+          newItems.forEach(function (it, idx) {
+            caudalDebugLog('  [' + (idx + 1) + '] ' + it.address + ' (' + (it.name || '-') + ')');
+          });
+        }
+      } catch (_) { }
+      caudalApplyNewItems(newItems);
+    });
+  } catch (_) {
+    // In case of error, do not crash the script. You may use debug
+    // overlay or console.log for diagnostics.
+    caudalApplyNewItems([]);
+  }
+}
+
+
+/*** Initialization ***/
+function caudalInit() {
+  caudalEnsureLayout();
+  // Navigation buttons are not used when the list scrolls. Do not
+  // bind events to btnPrev and btnNext.
+  caudalLoadFromMethod();
+}
+
+try {
+  if (typeof webMI !== 'undefined' && webMI.addOnload) {
+    webMI.addOnload(caudalInit);
+  } else {
+    caudalInit();
+  }
+} catch (_) {
+  caudalInit();
+}
+// Expose a limited API if needed for external debugging or interaction
+return {
+  reload: caudalLoadFromMethod,
+  render: caudalRender,
+  select: caudalOpenCard
+};
+]]></code>
+</script>

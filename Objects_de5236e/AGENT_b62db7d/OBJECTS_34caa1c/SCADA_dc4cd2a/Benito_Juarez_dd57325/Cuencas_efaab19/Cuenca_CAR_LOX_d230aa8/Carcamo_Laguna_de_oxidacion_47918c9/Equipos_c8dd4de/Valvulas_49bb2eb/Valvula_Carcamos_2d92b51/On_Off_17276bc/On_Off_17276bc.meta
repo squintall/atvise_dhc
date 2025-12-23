@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_Laguna_de_oxidacion.Equipos.Valvulas.Valvula_Carcamos.On_Off
+NodeClass: Variable
+BrowseName: 1:On_Off
+DisplayName: en|On_Off
+Description: en|On_Off
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

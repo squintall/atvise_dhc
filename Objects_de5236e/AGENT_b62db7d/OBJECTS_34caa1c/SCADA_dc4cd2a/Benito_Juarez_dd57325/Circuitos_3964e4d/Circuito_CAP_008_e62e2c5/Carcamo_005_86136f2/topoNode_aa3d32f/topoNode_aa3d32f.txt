@@ -1,0 +1,20 @@
+{
+  "nodes": [
+    { "id": "Carcamo_005",           "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_005",           "esForaneo": false, "from": "Carcamo_006,Carcamo_007", "to": "Carcamo_2000P,Infonavit103,Carcamo_Infonavit103_TE,Carcamo_3000" },
+    { "id": "Carcamo_006",           "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_006",           "esForaneo": false, "to": "Carcamo_005" },
+    { "id": "Carcamo_007",           "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007",           "esForaneo": false, "from": "Carcamo_008", "to": "Carcamo_005" },
+    { "id": "Carcamo_008",           "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_008",           "esForaneo": false, "to": "Carcamo_007" },
+    { "id": "Carcamo_2000P",        "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_2000P",        "esForaneo": false, "from": "Carcamo_005", "to": "Carcamo_CTM" },
+    { "id": "Carcamo_3000",         "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_3000",         "esForaneo": false, "to": "Carcamo_2000P" },
+    { "id": "Carcamo_CTM",          "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_CTM",          "esForaneo": false, "from": "Carcamo_2000P", "to": "Carcamo_PJ" },
+    { "id": "Carcamo_Donceles",     "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_Donceles",     "esForaneo": false, "from": "Carcamo_RN1" },
+    { "id": "Carcamo_FOVISSSTE",    "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_FOVISSSTE",    "esForaneo": false, "from": "Carcamo_RN1" },
+    { "id": "Carcamo_FOVISSSTE_TE", "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_FOVISSSTE_TE", "esForaneo": false,  "to": "Carcamo_FOVISSSTE" },
+    { "id": "Carcamo_Infonavit103", "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_Infonavit103", "esForaneo": false, "from": "Carcamo_005" },
+    { "id": "Carcamo_Infonavit103_TE", "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_Infonavit103_TE", "esForaneo": false },
+    { "id": "Carcamo_Lombardo",     "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_Lombardo",     "esForaneo": false, "from": "Carcamo_RN1" },
+    { "id": "Carcamo_PJ",           "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ",           "esForaneo": false, "from": "Carcamo_CTM,Carcamo_RN1" },
+    { "id": "Carcamo_RN1",          "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_RN1",          "esForaneo": false, "from": "Carcamo_Donceles,Carcamo_Lombardo,Carcamo_FOVISSSTE_TE", "to": "Carcamo_PJ" },
+    { "id": "Carcamo_Uxmal",        "base": "AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_Uxmal",        "esForaneo": true, "to": "Carcamo_PJ" }
+  ]
+}

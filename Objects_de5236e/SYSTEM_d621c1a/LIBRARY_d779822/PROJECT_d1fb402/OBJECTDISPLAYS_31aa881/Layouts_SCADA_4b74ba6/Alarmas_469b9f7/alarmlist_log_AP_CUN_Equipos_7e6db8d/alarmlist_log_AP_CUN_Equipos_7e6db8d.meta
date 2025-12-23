@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Alarmas.alarmlist_log_AP_CUN_Equipos
+NodeClass: Variable
+BrowseName: 1:alarmlist_log_AP_CUN_Equipos
+DisplayName: en|alarmlist_log_AP_CUN_Equipos
+Description: en|alarmlist_log_AP_CUN_Equipos
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

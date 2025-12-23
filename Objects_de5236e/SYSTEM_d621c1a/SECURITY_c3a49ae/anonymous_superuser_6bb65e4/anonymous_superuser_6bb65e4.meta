@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.anonymous_superuser
+NodeClass: Variable
+BrowseName: 1:anonymous_superuser
+DisplayName: en|anonymous_superuser
+Description: en|anonymous_superuser
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Equipos.Caudalimetro.APC7-L1-AcumuladoDiario
+NodeClass: Variable
+BrowseName: 1:APC7-L1-AcumuladoDiario
+DisplayName: en|APC7-L1-AcumuladoDiario
+Description: en|APC7-L1-AcumuladoDiario
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

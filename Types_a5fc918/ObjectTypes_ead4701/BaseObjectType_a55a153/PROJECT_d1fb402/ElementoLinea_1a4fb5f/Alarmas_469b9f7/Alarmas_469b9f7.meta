@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Alarmas
+NodeClass: Object
+BrowseName: 1:Alarmas
+DisplayName: en|Alarmas
+Description: en|Alarmas
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

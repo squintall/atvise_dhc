@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.Colors.statusIndication
+NodeClass: Variable
+BrowseName: 1:statusIndication
+DisplayName: en|statusIndication
+Description: en|statusIndication
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

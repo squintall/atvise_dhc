@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_HEROES.LHEROES
+NodeClass: Object
+BrowseName: 1:LHEROES
+DisplayName: en|LHEROES
+Description: en|LHEROES
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

@@ -1,0 +1,37 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.GROUPS.Control
+NodeClass: Object
+BrowseName: 1:Control
+DisplayName: en|Control
+Description: en|Control
+EventNotifier: 0
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.RIGHTS.USER.Control
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.RIGHTS.VISU.View
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\acastillo
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\alperez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\amonsalvo
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\apaez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\aricardez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\arjimenez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\ccanto
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\cpool
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\dpuc
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\fgomez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\francisco.gomez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\frgonzalez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\hector.foglia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\hrodriguez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jbcelis
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jpat
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jpech
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jpuc
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\leuan
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\lheredia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\mmendez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\mrivas
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\parceo
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\scruz
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\squintal
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.ccanto
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.root
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.squintal
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.Group

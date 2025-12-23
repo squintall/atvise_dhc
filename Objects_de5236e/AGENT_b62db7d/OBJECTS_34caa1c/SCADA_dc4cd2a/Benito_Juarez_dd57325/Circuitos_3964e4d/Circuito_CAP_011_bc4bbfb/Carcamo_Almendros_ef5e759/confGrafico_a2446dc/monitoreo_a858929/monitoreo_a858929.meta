@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Almendros.confGrafico.monitoreo
+NodeClass: Variable
+BrowseName: 1:monitoreo
+DisplayName: en|monitoreo
+Description: en|monitoreo
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

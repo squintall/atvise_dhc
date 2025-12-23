@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="request" type="http.request" trigger="false" relative="false" value=""/>
+  <code><![CDATA[// Variable declaration
+var result = {};
+var nodeAddress = request.postvalues.address;
+
+// Helper functions
+function getData(nodeid){
+	var node = Ua.findNode(nodeid);
+	if(node.result){
+		var connectonValue = "none";
+		var currentMirrors = call("Utilities.BrowseNodes", {
+			"startAddress": nodeid,
+			"endLevel" : 1,
+			"mapping" : ["name:nodeid:splitnamespace","text:browsename","type:typedefinition:splitnamespace", "value:value"],
+			"vTypes": ["VariableTypes.ATVISE.Mirror.InputOutput", "VariableTypes.ATVISE.Mirror.Input", "VariableTypes.ATVISE.Mirror.Output"],
+			"includeStartAddress": false
+		});	
+		for(var key in currentMirrors){
+			connectonValue = currentMirrors[key].value;
+		}
+		
+		return connectonValue;
+	} else {
+		return undefined;
+	}
+}
+
+if (typeof nodeAddress === "object"){
+	for (var i = 0; i < nodeAddress.length; i++) {
+		result[nodeAddress[i]] = getData(nodeAddress[i]);
+	}
+} else if (typeof nodeAddress === "string") {
+	result[nodeAddress] = getData(nodeAddress);
+}
+
+return result;]]></code>
+</script>

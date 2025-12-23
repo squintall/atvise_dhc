@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Grafica_Circuito_6A.Caudal_TAP06A
+NodeClass: Variable
+BrowseName: 1:Caudal_TAP06A
+DisplayName: en|Caudal_TAP06A
+Description: en|Caudal_TAP06A
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

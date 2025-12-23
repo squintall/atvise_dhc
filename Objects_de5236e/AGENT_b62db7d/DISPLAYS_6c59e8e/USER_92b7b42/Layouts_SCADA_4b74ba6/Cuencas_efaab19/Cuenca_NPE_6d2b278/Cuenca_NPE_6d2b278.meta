@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_SCADA.Cuencas.Cuenca_NPE
+NodeClass: Variable
+BrowseName: 1:Cuenca_NPE
+DisplayName: en|Cuenca_NPE
+Description: en|Cuenca_NPE
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

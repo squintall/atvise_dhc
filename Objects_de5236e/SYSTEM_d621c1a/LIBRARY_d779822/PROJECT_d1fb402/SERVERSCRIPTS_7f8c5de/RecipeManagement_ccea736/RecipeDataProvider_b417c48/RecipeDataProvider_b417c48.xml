@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="dataRootAddress" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="writeToLogger" type="boolean" trigger="false" relative="false" value=""/>
+  <code><![CDATA[function RecipeDataprovider(){
+	var dataRoot = dataRootAddress;
+	var logger = {
+		persistMessages: writeToLogger,
+		user: "", //userNameForLogger
+		types: {
+			error: {
+				group: "atvise", //webMI.query.logger_group_error,
+				subgroup: "Error", //webMI.query.logger_subgroup_error,
+				label: "Recipe Management" //webMI.query.logger_label_error
+			},
+			warn: {
+				group: "atvise", //webMI.query.logger_group_error,
+				subgroup: "Warning", //webMI.query.logger_subgroup_error,
+				label: "Recipe Management" //webMI.query.logger_label_error
+			},
+			info: {
+				group: "atvise", //webMI.query.logger_group_info,
+				subgroup: "Info", //webMI.query.logger_subgroup_info,
+				label: "Recipe Management" //webMI.query.logger_label_info
+			}
+		}
+	};
+	
+	this.log = function(type, msg) {
+		if (!logger.persistMessages) {
+			return;
+		}
+		
+		var writeObj = {
+			user: logger.user,
+			message: msg
+		};
+		
+		if (type in logger.types) {
+			writeObj.group = logger.types[type].group;
+			writeObj.subgroup = logger.types[type].subgroup;
+			writeObj.label = logger.types[type].label;
+		} else {
+			writeObj.group = "atvise";
+			writeObj.subgroup = "Error";
+			writeObj.label = "Recipe Management";
+		}
+		call("Logger.WriteLog", writeObj);
+	};
+	
+	//RetrieveTemplates
+	this.deleteTemplatebyName = function(templateName){
+		// delete template node
+		var templateNode = Ua.findNode(dataRoot + ".templates." + templateName);
+		var message = "Node not found";
+		if (Ua.Status(templateNode) != Ua.Status.BADNODEIDUNKNOWN) {
+			var status = templateNode.result.remove();
+			message = status.errorstring;
+			if (Ua.Status(status) != Ua.Status.GOOD) {
+				this.log("Error", "While removing got " + message + " for node: " + dataRoot + "." + templateName);
+			}
+		} else {
+			this.log("Error", message + ": " + dataRoot + "." + templateName);
+		}
+		
+		// delete folder for recipes
+		var templateRecipeFolder = Ua.findNode(dataRoot + "." + templateName);
+		var message = "Folder not found";
+		if (Ua.Status(templateRecipeFolder) != Ua.Status.BADNODEIDUNKNOWN) {
+			var status = templateRecipeFolder.result.remove();
+			message = status.errorstring;
+			if (Ua.Status(status) != Ua.Status.GOOD) {
+				this.log("Error", "While removing got " + message + " for folder: " + dataRoot + "." + templateName);
+			}
+		} else {
+			this.log("Error", message + ": " + dataRoot + "." + templateName);
+		}
+		
+		return message;
+	}
+	this.deleteRecipeByName = function(templateName, recipeName){
+		var templateNode = Ua.findNode(dataRoot + "." + templateName + "." + recipeName);
+		var message = "Node not found";
+
+		if (Ua.Status(templateNode) != Ua.Status.BADNODEIDUNKNOWN) {
+			var status = templateNode.result.remove();
+			message = status.errorstring;
+			if (Ua.Status(status) != Ua.Status.GOOD) {
+				this.log("Error", "While removing got " + message + " for node: " + dataRoot + "." + templateName + "." + recipeName);
+			}
+		} else {
+			this.log("Error", message + ": " + dataRoot + "." + templateName);
+		}
+		return message;		
+	}
+	this.createTemplate = function(templateName, data){
+		var returnState = [];
+		
+		// create template node
+		var templateNode = Ua.findNode(dataRoot + ".templates." + templateName);
+		if (Ua.Status(templateNode) == Ua.Status.BADNODEIDUNKNOWN) {
+			var status = Ua.createNode(dataRoot + ".templates." + templateName, {
+				nodeClass: Ua.NodeClass.VARIABLE,
+				parent: dataRoot + ".templates",
+				typeDefinition: Ua.VariableType.BASEVARIABLETYPE,
+				reference: Ua.Reference.HASCOMPONENT,
+				dataType: Ua.DataType.STRING,
+				valueRank: Ua.ValueRank.SCALAR,
+				value: data
+			});
+			if (status.error != Ua.Status.GOOD) {
+				this.log("Error", "Error while creating template: " + status.errorstring);
+			}
+			returnState.push(status.error);
+		} else {
+			this.log("Error", "Node already exists: " + dataRoot + ".templates." + templateName);
+			returnState.push("Node already exists");
+		}
+		
+		// create folder for recipes
+		var templateRecipeFolder = Ua.findNode(dataRoot + "." + templateName);
+		if (Ua.Status(templateRecipeFolder) == Ua.Status.BADNODEIDUNKNOWN) {
+			var status = Ua.createNode(dataRoot + "." + templateName, {
+				nodeClass: Ua.NodeClass.OBJECT,
+				parent: dataRoot,
+				typeDefinition: Ua.ObjectType.FOLDERTYPE
+			});
+			if (status.error != Ua.Status.GOOD) {
+				this.log("Error", "Error while creating template: " + status.errorstring);
+			}
+			returnState.push(status.error);
+		} else {
+			this.log("Error", "Folder already exists: " + dataRoot + "." + templateName);
+			returnState.push("Folder already exists");
+		}
+		
+		return returnState;
+	};
+	
+	
+	this.templateData = function(){
+	
+		var recipeTemplates = call("Utilities.BrowseNodes", {
+			"startAddress": dataRoot + ".templates",
+			"endLevel" : 1,
+			"mapping" : ["name:nodeid:splitnamespace","text:browsename","type:typedefinition:splitnamespace", "value:value"],
+			"vTypes": ["i=62"],
+			"includeStartAddress": false
+		});			
+		return recipeTemplates;
+	};
+	
+	//Retrieve Parameter for given Template
+	this.templateParameterByName = function(templateName){	
+		var templateNode = Ua.findNode(dataRoot + ".templates." + templateName);
+		
+		if (Ua.Status(templateNode) == Ua.Status.GOOD) {
+			try {
+				var template = JSON.parse(templateNode.result.value);
+				return template.parameters;
+			} catch (e) {
+				this.log("Error", "Value of node not a valid JSON: " + dataRoot + "." + templateName);
+				return [];
+			}
+		} else {
+			this.log("Error", templateNode.errorstring + " for node: " + dataRoot + "." + templateName);
+			return [];
+		}
+	};
+	this.recipes = function(){
+
+		var recipeTemplates = call("Utilities.BrowseNodes", {
+			"startAddress": dataRoot,
+			"endLevel" : 2,
+			"mapping" : ["name:nodeid:splitnamespace","text:browsename","type:typedefinition:splitnamespace", "value:value"],
+			"vTypes": ["i=62", "i=61"],
+			"includeStartAddress": false
+		});	
+		
+		var recipes = [];
+
+		for(var key in recipeTemplates){
+			if(key !== "templates"){
+				var template = recipeTemplates[key];
+				if(template.childs !=null){
+					for(var recipeKey in template.childs){
+						template.childs[recipeKey].templateName = template.text;
+						recipes.push(template.childs[recipeKey]);		
+					}				
+				}
+			}
+		}
+		return recipes;
+		
+	}
+	
+	this.recipesByTemplateName = function(templateName){
+
+		var templateNode = Ua.findNode(dataRoot + "." + templateName);
+		var recipes = [];
+		
+		if (templateNode.error != Ua.Status.GOOD) {
+			this.log("Error", templateNode.errorstring + " for node: " + dataRoot + ".templates." + templateName);
+			return recipes;
+		}
+		
+		var ret = templateNode.result.browse();
+		
+		for (var i = 0; i < ret.result.length; i++){
+			try {
+				var recipeNode = Ua.findNode(ret.result[i].node.nodeId.address).result;
+				var recipeData = JSON.parse(recipeNode.value);
+				
+				if (recipeData.hasOwnProperty("name") &&
+					recipeData.hasOwnProperty("description")) {
+					recipes.push({name: recipeData.name != undefined ? recipeData.name : "", description: recipeData.description != undefined ? recipeData.description : "", address: ret.result[i].node.nodeId.address});
+				}
+			} catch (err) {}
+			finally {}
+		}
+		
+		return recipes;
+	};	
+	
+	this.recipeDataByName = function(templateName, recipeName){
+		var recipeNodeAddress = dataRoot + "." + templateName + "." + recipeName;
+		var recipeNode = Ua.findNode(recipeNodeAddress);
+		
+		if (Ua.Status(recipeNode) == Ua.Status.GOOD) {
+			try {
+				return JSON.parse(recipeNode.result.value);
+			} catch {
+				this.log("Error", "Value of node not a valid JSON: " + recipeNodeAddress);
+				return { error: 1, errorstring: "Can't get data for address " + recipeNodeAddress };
+			}
+		} else {
+			this.log("Error", recipeNode.errorstring + " for node: " + recipeNodeAddress);
+			return { error: 1, errorstring: recipeNode.errorstring };
+		}
+	};	
+	
+	/*selects a recipe, sets it as activeRecipe in the template and trys to set all nodes to the configured recipe values
+		returns templateDate if sucessfull
+		returns object with errorcode in case some node is not accessible:
+			1 -> could not open variable (status bad)
+			2 -> no write rights for variable	
+			3 -> no read rights for variable
+			4 -> value not valid JSON
+	 */
+	this.selectRecipe = function(templateName, recipeName){
+		var templateNodeAddress = dataRoot + ".templates." + templateName;
+		var templateNode = Ua.findNode(templateNodeAddress);
+		var recipeNodeAddress = dataRoot + "." + templateName + "." + recipeName;
+		var recipeNode = Ua.findNode(recipeNodeAddress);
+		
+
+		/*---check if template node has write rights----*/	
+		if(!templateNode.result.permissions.session.write){
+			this.log("Error", "User is not allowed to modify node: " + templateNodeAddress);
+			return {errorcode: 2, node: templateNodeAddress}; 
+		}
+		
+		/*---check if recipe node has read rights----*/
+		if(!recipeNode.result.permissions.session.read){
+			this.log("Error", "Unable to read value of node: " + recipeNodeAddress);
+			return {errorcode: 3, node: recipeNodeAddress};
+		}
+		
+		try {
+			var templateData = JSON.parse(templateNode.result.value);
+		} catch {
+			this.log("Error", "Value is not valid JSON for node: " + templateNodeAddress);
+			return {errorcdoe: 4, node: templateNodeAddress};
+		}
+		
+		try {
+			var recipeData = JSON.parse(recipeNode.result.value);
+		} catch {
+			this.log("Error", "Value is not valid JSON for node: " + recipeNodeAddress);
+			return {errorcdoe: 4, node: recipeNodeAddress};
+		}
+		
+		/*before writing any node - check if all nodes exist and if all have write rights*/
+		for(var i =0; i<templateData.parameters.length; i++){
+			var parameter = templateData.parameters[i];			
+			var parameterNode = Ua.findNode(parameter.node);	
+			
+			//check if node exists
+			if(Ua.Status(parameterNode).bad){
+				this.log("Error", "Node has status BAD: " + parameter.node);
+				return {errorcode: 1, node: parameter.node}; 
+			}
+			
+			//check if user has write rights 
+			if(!parameterNode.result.permissions.session.write){
+				this.log("Error", "User is not allowed to modify node: " + parameter.node);
+				return {errorcode: 2, node: parameter.node}; 
+			}
+		}
+		
+		/*---write values from receipe on all nodes---*/
+		for(var i =0; i<templateData.parameters.length; i++){
+			var parameter = templateData.parameters[i];			
+			var parameterNode = Ua.findNode(parameter.node);
+			
+			var valueToWrite = parameter.defaultvalue;
+
+			if(recipeData.hasOwnProperty("values") && recipeData.values.hasOwnProperty(parameter.name)){
+				valueToWrite = recipeData.values[parameter.name];
+			}			
+			
+			parameterNode.result.assign({value: valueToWrite});
+		}	
+		/*-------------------*/	
+		
+		/*---set active receipe in template---*/
+		templateData.activeRecipe = recipeName;
+		templateNode.result.assign({value: JSON.stringify(templateData)});
+		/*-------------------*/	
+		
+		return JSON.parse(templateNode.result.value);//return new template Data
+	};
+	
+	this.saveRecipe = function(templateName, recipeName, data){
+		var recipeNodeAddress = dataRoot + "." + templateName + "." + recipeName;
+		var recipeNode = Ua.findNode(recipeNodeAddress);
+
+		var status = {};
+		if (Ua.Status(recipeNode) == Ua.Status.BADNODEIDUNKNOWN) {
+			//recipe node not existing -> save on new node
+			status = Ua.createNode(recipeNodeAddress, {
+				nodeClass: Ua.NodeClass.VARIABLE,
+				parent: dataRoot + "." + templateName,
+				typeDefinition: Ua.VariableType.BASEVARIABLETYPE,
+				reference: Ua.Reference.HASCOMPONENT,
+				dataType: Ua.DataType.STRING,
+				valueRank: Ua.ValueRank.SCALAR,
+				value: data				
+			});
+		} else {
+			//recipe node existing -> save on this node
+			status = recipeNode.result.assign({value: data});
+		}
+
+		return status.error;	
+	};
+	
+	this.updateStructure = function(){
+		/*
+			update routine
+				check if templates folder exists
+				check if node on first level exists
+					if yes then copy value of first element to tempaltes directory,
+					browse structure of node and store information (value) temporary
+					
+					delete old existing node
+					
+					create folder and subnodes with temporary stored information
+					
+					update routine completed
+					
+					todo berechtigungen übernehmen
+		*/
+		var templateNodeAddress = dataRoot + ".templates";
+		var rootNode = Ua.findNode(dataRoot);
+		var templateNode = Ua.findNode(templateNodeAddress);
+
+		if (Ua.Status(rootNode) !== Ua.Status.BADNODEIDUNKNOWN){
+			// continue if rootNode exists
+			var oldElements = call("Utilities.BrowseNodes", {
+				"startAddress": dataRoot,
+				"endLevel" : 2,
+				"mapping" : ["name:nodeid:splitnamespace","text:browsename","value:value"],
+				"vTypes": ["i=62"],
+				"includeStartAddress": false
+			});
+
+			if(Ua.Status(templateNode) == Ua.Status.BADNODEIDUNKNOWN){
+				// create templates folder
+				Ua.createNode(templateNodeAddress, {
+					nodeClass: Ua.NodeClass.OBJECT,
+					parent: dataRoot,
+					typeDefinition: Ua.ObjectType.FOLDERTYPE
+				});
+			}
+
+			for(var template in oldElements){
+				var childs = oldElements[template].childs;
+				var element = oldElements[template];
+
+				// create node in template
+				var status = Ua.createNode(templateNodeAddress + "." + template, {
+					nodeClass: Ua.NodeClass.VARIABLE,
+					parent: templateNodeAddress,
+					typeDefinition: Ua.VariableType.BASEVARIABLETYPE,
+					reference: Ua.Reference.HASCOMPONENT,
+					dataType: Ua.DataType.STRING,
+					valueRank: Ua.ValueRank.SCALAR,
+					value: element.value
+				});
+
+				// delete old element and create new ones with previous configuration
+				var templateNode = Ua.findNode(element.name);
+				var templateNodePermission = Ua.findNode(element.name + "NodePermission");
+				var permissionValue;
+				
+				// delete old template config and permission
+				templateNode.result.remove();
+
+				// create folder for templates
+				Ua.createNode(element.name, {
+					nodeClass: Ua.NodeClass.OBJECT,
+					parent: dataRoot,
+					typeDefinition: Ua.ObjectType.FOLDERTYPE
+				});
+
+				for(var key in childs){			
+					Ua.createNode(childs[key].name, {
+						nodeClass: Ua.NodeClass.VARIABLE,
+						parent: element.name,
+						typeDefinition: Ua.VariableType.BASEVARIABLETYPE,
+						reference: Ua.Reference.HASCOMPONENT,
+						dataType: Ua.DataType.STRING,
+						valueRank: Ua.ValueRank.SCALAR,
+						value: childs[key].value
+					});
+				}
+			}
+		}
+	}
+}
+
+return new RecipeDataprovider();]]></code>
+</script>

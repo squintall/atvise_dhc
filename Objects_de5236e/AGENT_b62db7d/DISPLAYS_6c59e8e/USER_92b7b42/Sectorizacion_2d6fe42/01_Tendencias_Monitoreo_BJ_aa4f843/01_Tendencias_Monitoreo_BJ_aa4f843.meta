@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Sectorizacion.01_Tendencias_Monitoreo_BJ
+NodeClass: Variable
+BrowseName: 1:01_Tendencias_Monitoreo_BJ
+DisplayName: en|01_Tendencias_Monitoreo_BJ
+Description: en|01_Tendencias_Monitoreo_BJ
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

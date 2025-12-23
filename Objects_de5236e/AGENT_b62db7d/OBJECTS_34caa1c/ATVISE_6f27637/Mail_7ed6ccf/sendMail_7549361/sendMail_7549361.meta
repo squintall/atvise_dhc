@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Mail.sendMail
+NodeClass: Variable
+BrowseName: 1:sendMail
+DisplayName: en|sendMail
+Description: en|sendMail
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

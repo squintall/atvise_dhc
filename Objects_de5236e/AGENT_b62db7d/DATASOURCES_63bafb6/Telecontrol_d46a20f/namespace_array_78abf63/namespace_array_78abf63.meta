@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol.namespace_array
+NodeClass: Variable
+BrowseName: 1:namespace_array
+DisplayName: en|namespace_array
+Description: en|namespace_array
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

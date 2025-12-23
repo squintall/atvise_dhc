@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/xmlbuilder/lib/XMLDeclaration.js
+NodeClass: Variable
+BrowseName: 1:XMLDeclaration.js
+DisplayName: en|XMLDeclaration.js
+Description: en|XMLDeclaration.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

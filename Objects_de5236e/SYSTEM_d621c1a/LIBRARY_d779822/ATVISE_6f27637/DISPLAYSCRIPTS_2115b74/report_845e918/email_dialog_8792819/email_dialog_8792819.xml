@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the report email_dialog object display
+ * -------------------------------------------
+ * This display creates or edits report configurations.
+ *
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var hasBrowseNodes = webMI.getMethodSupport().indexOf("BrowseNodes") !== -1;
+var baseDir = "AGENT.OBJECTS.ATVISE.Report";
+var globalsnode = baseDir + ".schedulerGlobals";
+var globals = {};
+globals.email = {}
+globals.email.active = false;
+globals.email.smtp = "";
+globals.email.from = "";
+
+
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager = false;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+/**
+ * FUNCTION SECTION
+ */
+function lockInputs(bool) {
+		webMI.trigger.fire("com.atvise.setActive", !bool, "active_toggle");
+		webMI.trigger.fire("com.atvise.setActive", !bool, "smtp_input");
+		webMI.trigger.fire("com.atvise.setActive", !bool, "sender_input");
+}
+
+function setValues() {
+	if (typeof globals.email == "undefined") globals.email = {};
+	if (!globals.email.active) globals.email.active = false;
+	if (!globals.email.smtp) globals.email.smtp = "";
+	if (!globals.email.from) globals.email.from = "";
+
+	webMI.trigger.fire("setChecked", globals.email.active, "active_toggle");
+	webMI.trigger.fire("setSelectedItem", globals.email.smtp, "smtp_input");
+	webMI.trigger.fire("setValue", globals.email.from, "sender_input");
+}
+ 
+function setMessage(msg, error) {
+	if (typeof msg == "undefined")
+		msg = "";
+
+	if (error)
+		webMI.gfx.setFill("message", "#FF0000");
+	else 
+		webMI.gfx.setFill("message", "#00BB30");
+	
+	webMI.gfx.setText("message", msg);
+}
+
+function browseSMTP() {
+	webMI.trigger.fire("addItem", { text: "T{[none]}", value: "" }, "smtp_input");
+	if (!hasBrowseNodes) return;
+
+	function browse(startAddress) {
+		webMI.data.call(
+			"BrowseNodes",
+			{
+				startAddress: startAddress,
+				vTypes: ["ns=1;s=ObjectTypes.ATVISE.SmtpServer"]
+			},
+			function (e) {
+				for (var i in e) {
+					if (typeof e[i].text == "undefined") continue;
+					webMI.trigger.fire("addItem", { text: e[i].text, value: e[i].text }, "smtp_input");
+				}
+			}
+		);
+	}
+
+	var startAddress = "AGENT.SMTPSERVERS";
+	if (accessControlManager) {
+		var compareRights = [
+			{ node: startAddress, right: "browse" },
+			{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes", right: "execute" }
+		];
+
+		accessControlManager.assist.handleWithPermissions(
+			compareRights,
+			function success() {
+				browse(startAddress);
+			},
+			function failure() {
+				return;
+			}
+		);
+	} else {
+		browse(startAddress);
+	}
+}
+
+/**
+ * RUNTIME SECTION
+ */
+setMessage();
+browseSMTP();
+
+if(webMI.getAccessControlSupport() && accessControlManager) {
+	lockInputs(true);
+	webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+
+	function readerror() {
+		setMessage("T{Error}: T{Cannot read mandatory configuration node.}", true);
+	}
+
+	accessControlManager.getRights(globalsnode, (response) => {
+		if (response.result[0].rights.read) {
+			webMI.data.read(globalsnode, function(e) {
+				if (e.value) {
+					try {
+						globals = JSON.parse(e.value);
+						setValues();
+						lockInputs(false);
+						webMI.trigger.fire("com.atvise.setActive", true, "save_button");
+						
+					} catch (ex) {
+						readerror();
+					}
+				} else {
+					readerror();		
+				}
+			});
+		} else {
+			readerror();
+		}	
+	});
+}
+
+/**
+ * TRIGGERS
+ */
+webMI.trigger.connect("valuechanged", function (e) {
+	globals.email.active =  e.value == "true" ? true : false;
+},"active_toggle");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	globals.email.smtp  = e.value;
+},"smtp_input");
+
+webMI.trigger.connect("valuechanged", function (e) {
+	if(e.value != "" && (e.value.indexOf("@") == -1 || e.value.indexOf(".") == -1)) {
+		webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+		setMessage("T{Error}: " + "T{E-mail address has invalid format}.", true);
+		return;
+	}
+	setMessage();
+	webMI.trigger.fire("com.atvise.setActive", true, "save_button");
+	globals.email.from  = e.value;
+},"sender_input");
+ 
+webMI.trigger.connect("clicked", function() {
+	setMessage();
+	webMI.data.write(globalsnode, JSON.stringify(globals), function(e) {
+		if(e.error) {
+			if (e.errorstring)
+				setMessage("T{Error}: " + e.errorstring, true);
+			else
+				setMessage("T{Error}: T{Unknown error}", true);		
+		} else {
+			webMI.display.closeWindow();			
+		}
+	});
+}, "save_button");
+
+webMI.trigger.connect("clicked", function () {
+	webMI.display.closeWindow();	
+},"cancel_button");]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Caudales_Solidaridad
+NodeClass: Variable
+BrowseName: 1:Caudales_Solidaridad
+DisplayName: en|Caudales_Solidaridad
+Description: en|Caudales_Solidaridad
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

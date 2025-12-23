@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Solidaridad.102.PtoMaya_III_M6.CzPtoMaya_ParqLolBeh.trendCfg.monitoreo_red_dhc
+NodeClass: Variable
+BrowseName: 1:monitoreo_red_dhc
+DisplayName: en|monitoreo_red_dhc
+Description: en|monitoreo_red_dhc
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

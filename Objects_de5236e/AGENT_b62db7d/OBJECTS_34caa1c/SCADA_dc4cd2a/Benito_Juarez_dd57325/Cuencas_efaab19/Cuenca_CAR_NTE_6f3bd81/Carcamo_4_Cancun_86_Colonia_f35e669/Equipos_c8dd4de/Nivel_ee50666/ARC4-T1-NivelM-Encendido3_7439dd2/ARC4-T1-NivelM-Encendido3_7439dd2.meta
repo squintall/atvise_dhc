@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_4_Cancun_86_Colonia.Equipos.Nivel.ARC4-T1-NivelM-Encendido3
+NodeClass: Variable
+BrowseName: 1:ARC4-T1-NivelM-Encendido3
+DisplayName: en|ARC4-T1-NivelM-Encendido3
+Description: en|ARC4-T1-NivelM-Encendido3
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

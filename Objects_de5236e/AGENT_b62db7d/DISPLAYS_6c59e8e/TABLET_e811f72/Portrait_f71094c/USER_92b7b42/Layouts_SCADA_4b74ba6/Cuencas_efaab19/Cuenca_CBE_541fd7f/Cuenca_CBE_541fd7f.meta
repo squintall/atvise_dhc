@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.Layouts_SCADA.Cuencas.Cuenca_CBE
+NodeClass: Variable
+BrowseName: 1:Cuenca_CBE
+DisplayName: en|Cuenca_CBE
+Description: en|Cuenca_CBE
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

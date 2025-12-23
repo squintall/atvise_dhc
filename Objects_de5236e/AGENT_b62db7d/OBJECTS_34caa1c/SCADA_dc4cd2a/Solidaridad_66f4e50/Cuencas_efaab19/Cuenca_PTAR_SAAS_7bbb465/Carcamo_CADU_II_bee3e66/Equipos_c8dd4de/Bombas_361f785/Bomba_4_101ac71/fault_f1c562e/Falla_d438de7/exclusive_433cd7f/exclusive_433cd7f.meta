@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_CADU_II.Equipos.Bombas.Bomba_4.fault.Falla.exclusive
+NodeClass: Variable
+BrowseName: 1:exclusive
+DisplayName: en|exclusive
+Description: en|exclusive
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

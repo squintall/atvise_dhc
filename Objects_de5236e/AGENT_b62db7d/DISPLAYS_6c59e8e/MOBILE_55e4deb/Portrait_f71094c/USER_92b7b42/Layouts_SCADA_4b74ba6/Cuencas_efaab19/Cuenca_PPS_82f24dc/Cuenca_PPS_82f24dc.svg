@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="239" version="1.2" width="618.58000000000004" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_0" x1="0" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#000000" stop-opacity="0"/>
+   <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <g atv:insensitive="true" atv:refpx="0" atv:refpy="0" id="id_8" transform="matrix(0.8112,0,0,0.5703,0,0)">
+  <rect atv:refpx="381.25" atv:refpy="209.5" fill="#ffffff" fill-opacity="0" height="419.00" id="id_19" width="762.50" x="0" y="0"/>
+ </g>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <line atv:refpx="90.52" atv:refpy="93" id="id_26" stroke="#969696" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="208.339" x2="208.339" y1="42" y2="144"/>
+ <line atv:refpx="386.211" atv:refpy="97.499" id="id_49" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="50.002" x2="50.002" y1="152.998" y2="42"/>
+ <line atv:refpx="582.5" atv:refpy="41.252" id="id_41" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="443.581" x2="50.582" y1="41.504" y2="41.504"/>
+ <polygon atv:refpx="1063.114" atv:refpy="-393.999" fill="#000000" id="id_42" points="441.103,32 441.103,52 454.294,42 454.294,42" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
+ <line atv:refpx="584.5" atv:refpy="347.189" id="id_55" stroke="#969696" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="213.581" x2="284.581" y1="169" y2="169"/>
+ <svg atv:refpx="539.758" atv:refpy="161.504" height="23" id="id_22" width="100" x="158.339" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini_AR" y="158.004">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.Equipos.Caudalimetro.L1"/>
+ </svg>
+ <polygon atv:refpx="625.596" atv:refpy="169" fill="#969696" id="id_38" points="283.58,159 283.58,179 296.771,169 296.771,169" stroke="#969696" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015"/>
+ <svg atv:refpx="386.421" atv:refpy="222.087" height="63.11" id="id_7" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="0.001" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Principal" y="200.429">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso"/>
+ </svg>
+ <g atv:refpx="358.919" atv:refpy="315.498" id="id_23" transform="matrix(1,0,0,1,-172.5,63.998)">
+  <svg atv:refpx="181.5" atv:refpy="112.5" height="25" id="id_72" width="25" x="172.5" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="132">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.Equipos.Bombas.Bomba_1"/>
+  </svg>
+  <svg atv:refpx="205.5" atv:refpy="112.5" height="25" id="id_73" width="25" x="196.5" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="132">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.Equipos.Bombas.Bomba_2"/>
+  </svg>
+  <svg atv:refpx="229.5" atv:refpy="112.5" height="25" id="id_74" width="25" x="220.5" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="132">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.Equipos.Bombas.Bomba_3"/>
+  </svg>
+  <svg atv:refpx="256" atv:refpy="112.5" height="25" id="id_75" width="25" x="244.5" xlink:href="ObjectTypes.PROJECT.Bomba.Indicador_Bomba" y="132">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.Equipos.Bombas.Bomba_4"/>
+  </svg>
+ </g>
+ <svg atv:refpx="544.758" atv:refpy="43.504" height="23" id="id_15" width="100" x="75.339" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini_AR" y="30.004">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.Equipos.Caudalimetro.L2"/>
+ </svg>
+ <g atv:refpx="876.502" atv:refpy="89.314" id="id_5" transform="matrix(0.9935,0,0,0.9806,301.9378,-13.4567)">
+  <rect atv:refpx="-272.673" atv:refpy="57.195" fill="#00008c" height="27.364" id="id_57" rx="0" ry="0" stroke="#000072" stroke-width="1" width="153" x="164.207" y="74.707"/>
+  <g atv:refpx="240.706" atv:refpy="105.305" id="id_0" transform="matrix(0.9998,0,0,0.9998,-423.8612,5.5994)">
+   <text atv:refpx="664.676" atv:refpy="83.48" fill="#ffffff" font-family="Arial" font-size="40" id="id_115" transform="matrix(0.5504,0,0,0.5127,264.4687,33.9335)" x="593.731" y="110.136">Pretratamiento:</text>
+   <svg atv:refpx="671.707" atv:refpy="119.228" height="23" id="id_1" transform="matrix(1.53,0,0,1.53,0,0)" width="100" x="384.449" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini_AR" y="61.851">
+    <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PAR.PTAR_Paraiso.Caudalimetros.L_Pretratamiento"/>
+   </svg>
+  </g>
+ </g>
+ <g atv:refpx="877" atv:refpy="29.449" id="id_4" transform="matrix(1,0,0,1,454.1697,-75.7888)">
+  <rect atv:refpx="-425.969" atv:refpy="72.392" fill="#000088" fill-opacity="0" height="57.765" id="id_111" rx="0" ry="0" stroke="#000072" stroke-width="1" width="153" x="10.911" y="76.422"/>
+  <text atv:refpx="-299.074" atv:refpy="64.699" fill="#000018" font-family="Arial" font-size="40" font-weight="bold" id="id_113" transform="matrix(0.5504,0,0,0.5127,25.4424,36.9318)" x="61.089" y="117.289">PTAR</text>
+  <text atv:refpx="87.391" atv:refpy="116.945" fill="#000018" font-family="Arial" font-size="40" id="id_114" transform="matrix(0.5504,0,0,0.5127,21.4829,50.2395)" x="52.782" y="143.598">Paraíso</text>
+ </g>
+ <g atv:refpx="876.505" atv:refpy="149.314" id="id_2" transform="matrix(0.9935,0,0,0.9648,-119.3062,-4.7879)">
+  <rect atv:refpx="301.28" atv:refpy="118.621" fill="#00008c" height="27.364" id="id_118" rx="0" ry="0" stroke="#000072" stroke-width="1" width="153" x="588.207" y="129.133"/>
+  <text atv:refpx="641.917" atv:refpy="144.466" fill="#ffffff" font-family="Arial" font-size="40" id="id_119" transform="matrix(0.5504,0,0,0.5127,264.2331,63.6521)" x="593.207" y="171.122">Demasías:</text>
+  <svg atv:refpx="671.707" atv:refpy="180.228" height="23" id="id_6" transform="matrix(1.53,0,0,1.53,0,0)" width="100" x="384.449" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini_AR" y="101.721">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PAR.PTAR_Paraiso.Caudalimetros.L_Demasias"/>
+  </svg>
+ </g>
+ <g atv:refpx="876.504" atv:refpy="209.005" id="id_3" transform="matrix(0.9935,0,0,0.9495,-119.3062,-1.0565)">
+  <rect atv:refpx="294.28" atv:refpy="172.621" fill="#00008c" height="27.364" id="id_120" rx="0" ry="0" stroke="#000072" stroke-width="1" width="153" x="588.207" y="190.133"/>
+  <text atv:refpx="655.126" atv:refpy="205.466" fill="#ffffff" font-family="Arial" font-size="40" id="id_121" transform="matrix(0.5504,0,0,0.5127,264.2331,93.3774)" x="593.207" y="232.122">Agua tratada:</text>
+  <svg atv:refpx="664.707" atv:refpy="235.228" height="23" id="id_16" transform="matrix(1.53,0,0,1.53,0,0)" width="100" x="384.449" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini_AR" y="142.243">
+   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PAR.PTAR_Paraiso.Caudalimetros.L_AguaTratada"/>
+  </svg>
+ </g>
+ <svg atv:refpx="683.001" atv:refpy="172" height="63.11" id="id_21" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="395.772" xlink:href="ObjectTypes.PROJECT.ElementoLineaAR.Principal" y="204.418">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Final_Norponiente"/>
+ </svg>
+ <svg atv:refpx="683.001" atv:refpy="206.442" height="23" id="id_24" width="100" x="297.582" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini_AR" y="194.942">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Final_Norponiente.Equipos.Caudalimetro.L1"/>
+ </svg>
+ <polygon atv:refpx="543.758" atv:refpy="150.504" fill="#969696" id="id_27" points="218.338,143.906 198.338,143.906 208.338,157.097 208.338,157.097" stroke="#969696" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015"/>
+</svg>

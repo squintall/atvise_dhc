@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Standard.hmi.button_switch_language_combo
+NodeClass: Variable
+BrowseName: 1:button_switch_language_combo
+DisplayName: en|button_switch_language_combo
+Description: en|button_switch_language_combo
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

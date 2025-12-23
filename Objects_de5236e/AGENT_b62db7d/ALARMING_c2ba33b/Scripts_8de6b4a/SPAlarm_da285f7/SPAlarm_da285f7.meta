@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.ALARMING.Scripts.SPAlarm
+NodeClass: Variable
+BrowseName: 1:SPAlarm
+DisplayName: en|SPAlarm
+Description: en|SPAlarm
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode.AlarmModification

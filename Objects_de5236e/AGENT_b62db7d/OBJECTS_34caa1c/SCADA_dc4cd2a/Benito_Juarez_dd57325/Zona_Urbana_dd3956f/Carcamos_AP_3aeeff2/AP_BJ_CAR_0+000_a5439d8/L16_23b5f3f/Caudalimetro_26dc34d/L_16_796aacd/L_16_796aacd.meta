@@ -1,0 +1,19 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_0+000.L16.Caudalimetro.L_16
+NodeClass: Object
+BrowseName: 1:L_16
+DisplayName: en|L_16
+Description: en|L_16
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Caudalimetro
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.Alarmas
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.graph
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.graph_flow
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.graph_pressure
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.historizacion_00_05
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_AR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_mini
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_mini_AR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_reduced
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Caudalimetro.line_reduced_AR

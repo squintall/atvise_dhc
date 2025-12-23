@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.PTAR.AR_BJ_PLA_SUR.Carcamo Final Sur.Bomba_3.conf
+NodeClass: Variable
+BrowseName: 1:conf
+DisplayName: en|conf
+Description: en|conf
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.0U3UFXDC./Values/0U3UFXDC/VBAT
+NodeClass: Variable
+BrowseName: 1:/Values/0U3UFXDC/VBAT
+DisplayName: en|VBAT
+Description: en|/Values/0U3UFXDC/VBAT
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.2368

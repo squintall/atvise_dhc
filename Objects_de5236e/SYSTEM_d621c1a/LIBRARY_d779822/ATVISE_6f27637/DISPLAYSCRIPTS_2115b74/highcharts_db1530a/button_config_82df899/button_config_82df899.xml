@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts button config object display
+ * ----------------------------------------
+ * This script supports the display calling the configuration of the chart
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var chartname = webMI.query["chartname"];
+var chart,
+	configurator,
+	configNode,
+	configName,
+	configActive,
+	configToLoad,
+	configSaveName,
+	configSaveMethode,
+	chartUpdate;
+var historyLoading = { start: null, ready: null };
+var export_right = webMI.query["export_right"];
+var sortConfigurations = webMI.query["sortConfigurations"] == "true" ? true : false;
+var autoloadConfigurationsDefault = webMI.query["autoloadConfigurations"] == "true" ? true : false;
+var autoloadConfigurationsCurrent = autoloadConfigurationsDefault;
+var lockButtonEvents = false;
+var reloadConfig;
+var skipLoadConfig = false;
+
+/* deactivate all buttons before config is ready */
+setButtonsActivationState(false);
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+	var changeButton = true;
+	webMI.gfx.setVisible("cmd_load", !changeButton);
+	webMI.gfx.setVisible("cmd_reload", changeButton);
+
+	checkChart();
+});
+
+webMI.addOnunload(function () {
+	if (chart && chart.control) chart.control.unregisterOnUpdatedCallback(chartUpdate);
+
+	if (chart && chart.chart) {
+		chart.chart.onHistoryLoadingUnregister(historyLoading.start);
+		chart.chart.onHistoryReadyUnregister(historyLoading.end);
+	}
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * check if chart is ready
+ */
+function checkChart() {
+	chart = webMI.trendFactory.getTrendByName(chartname);
+
+	if (!chart) {
+		setTimeout(function () {
+			checkChart();
+		}, 250);
+		return;
+	}
+
+	configurator = new webMI.rootWindow.ConfigHandler();
+	configNode = chart.chart.options.atviseOptions.configNode;
+	configName = chart.chart.options.atviseOptions.configName;
+	configActive = configName;
+	configToLoad = configName;
+
+	configSaveName =
+		chart.chart.options.atviseOptions.saveMethod == "filesystem"
+			? chart.chart.options.atviseOptions.configFile
+			: chart.chart.options.atviseOptions.configNode;
+	configSaveMethode = chart.chart.options.atviseOptions.saveMethod;
+
+	configurator.getConfigList(configSaveName, configSaveMethode, configName, updateCombobox, sortConfigurations);
+
+	chartUpdate = chart.control.registerOnUpdatedCallback(function () {
+		configName = chart.chart.options.atviseOptions.configName;
+		configActive = configName;
+		configurator.getConfigList(configSaveName, configSaveMethode, configName, updateCombobox, sortConfigurations);
+	});
+
+	historyLoading.start = chart.chart.onHistoryLoadingRegister(function disable() {
+		setButtonsActivationState(false);
+	});
+
+	historyLoading.end = chart.chart.onHistoryReadyRegister(function enable() {
+		setButtonsActivationState(true);
+	});
+}
+
+/**
+ * update combobox items with config items
+ * @param configs
+ */
+function updateCombobox(configs) {
+	if (chart.control.getMode() != "live" && chart.control.getLoadingState()) {
+		setTimeout(function () {
+			updateCombobox(configs);
+		}, 500);
+		return;
+	}
+
+	var configItems = [];
+	var configExists = false;
+
+	for (var i in configs) {
+		var config = configs[i];
+		configItems.push({ text: config, value: config });
+		if (config == configName) configExists = true;
+	}
+
+	webMI.trigger.fire("setItems", configItems, "cbb_configs");
+
+	if (configExists) {
+		webMI.trigger.fire("setSelectedItem", configName, "cbb_configs");
+		setButtonsActivationState(true);
+	} else if (configItems.length == 0) {
+		setButtonsActivationState(false);
+	}
+}
+
+function loadSelectedConfig(configurator, configToLoad) {
+	if (!chart || !configurator || configToLoad == "" || chart.control.getLoadingState()) return;
+
+	configActive = configToLoad;
+	lockButtonEvents = true;
+
+	if (chart.chart._setZoomed) chart.chart.zoomOut();
+
+	/** deactivate for loading **/
+	setButtonsActivationState(false);
+
+	/* remove series data */
+	for (var key in chart.chart.series) chart.chart.series[key].setData([]);
+
+	/** load new config **/
+	configName = configToLoad;
+	configNode = chart.chart.options.atviseOptions.configNode;
+	configSaveMethode = chart.chart.options.atviseOptions.saveMethod;
+
+	configurator.readConfig(configNode, configSaveMethode, configName, function (chartConfig) {
+		var options = {
+			reloadConfig: reloadConfig,
+			export_right: export_right
+		};
+
+		/** reset series ids to prevent duplicate ids **/
+		for (var key in chartConfig.series) delete chartConfig.series[key].id;
+
+		/* fix for missing labels settings */
+		if (chartConfig?.xAxis) {
+			for (const xAxisConfig of chartConfig.xAxis) {
+				if (xAxisConfig?.labels) {
+					xAxisConfig.labels.distance ??= 15;
+
+					xAxisConfig.labels.style ??= {
+						color: "#333333",
+						cursor: "default",
+						fontSize: "0.8em"
+					};
+				}
+			}
+		}
+
+		var changed = configurator.configurationChange(chart, configName, chartConfig, options);
+
+		if (changed) {
+			setTimeout(function test() {
+				webMI.trigger.fire("com.atvise.highCharts.configChanged", true);
+				webMI.trigger.fire("com.atvise.highCharts.selectedConfigChanged");
+				lockButtonEvents = false;
+				setButtonsActivationState(true);
+			}, 500);
+		} else {
+			setTimeout(function test() {
+				lockButtonEvents = false;
+				setButtonsActivationState(true);
+			}, 100);
+		}
+	});
+}
+
+/**
+ * set activation state of buttons
+ * @param value
+ */
+function setButtonsActivationState(value) {
+	webMI.trigger.fire("com.atvise.setActive", value, "cbb_configs");
+	webMI.trigger.fire("com.atvise.setActive", value, "cmd_load");
+	webMI.trigger.fire("com.atvise.setActive", value, "cmd_reload");
+}
+
+/**
+ * EVENT SECTION
+ */
+
+/**
+ * load selected config
+ */
+webMI.addEvent("cmd_load", "click", function () {
+	if (chart.control.getLoadingState() || lockButtonEvents) return;
+
+	loadSelectedConfig(configurator, configToLoad, "true");
+
+	var changeButton = true;
+	webMI.gfx.setVisible("cmd_load", !changeButton);
+	webMI.gfx.setVisible("cmd_reload", changeButton);
+});
+
+/**
+ * reload selected config
+ */
+webMI.addEvent("cmd_reload", "click", function () {
+	if (chart.control.getLoadingState() || lockButtonEvents) return;
+
+	reloadConfig = true;
+
+	loadSelectedConfig(configurator, configToLoad, "true");
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+/**
+ * config selection change trigger
+ */
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (skipLoadConfig) {
+			skipLoadConfig = false;
+			return;
+		}
+
+		configToLoad = e.value;
+
+		if (configActive == configToLoad || autoloadConfigurationsCurrent) {
+			webMI.gfx.setVisible("cmd_load", false);
+			webMI.gfx.setVisible("cmd_reload", true);
+		} else if (!autoloadConfigurationsCurrent) {
+			webMI.gfx.setVisible("cmd_load", true);
+			webMI.gfx.setVisible("cmd_reload", false);
+		}
+
+		if (configActive == configToLoad) return;
+
+		if (autoloadConfigurationsCurrent && !chart.control.getLoadingState())
+			loadSelectedConfig(configurator, configToLoad, "true");
+
+		autoloadConfigurationsCurrent = autoloadConfigurationsDefault;
+	},
+	"cbb_configs"
+);
+
+/**
+ * general activation trigger
+ */
+webMI.trigger.connect("com.atvise.setActive", function (e) {
+	var setActive = e.value;
+
+	if (!chart || !chart.control.getLoadingState()) setActive = false;
+
+	setButtonsActivationState(setActive);
+});
+
+/**
+ * change config trigger
+ */
+webMI.trigger.connect("com.atvise.highCharts.selectNewConfig", function (e) {
+	autoloadConfigurationsCurrent = true;
+	webMI.trigger.fire("setSelectedItem", e.value, "cbb_configs");
+});
+]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/api/v2010/account/sip/domain/authTypes/authTypeCalls.d.ts
+NodeClass: Variable
+BrowseName: 1:authTypeCalls.d.ts
+DisplayName: en|authTypeCalls.d.ts
+Description: en|authTypeCalls.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

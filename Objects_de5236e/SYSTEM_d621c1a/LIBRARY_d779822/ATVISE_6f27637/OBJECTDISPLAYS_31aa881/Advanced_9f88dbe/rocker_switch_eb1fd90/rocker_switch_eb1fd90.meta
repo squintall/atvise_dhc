@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.rocker_switch
+NodeClass: Variable
+BrowseName: 1:rocker_switch
+DisplayName: en|rocker_switch
+Description: en|rocker_switch
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

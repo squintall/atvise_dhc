@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="t" type="interval" trigger="true" relative="false" value="" offset="00:00:00" interval="00:05:00"/>
+  <code><![CDATA[var odbcClient = new ODBCClient();
+odbcClient.source = "DSN=PostgreSQL;UID=vnode;PWD=vnode;";
+
+if (odbcClient.open()) {
+    var nombre = "Mediciones_caudalimetros";
+
+    if (!nombre || nombre.trim() === "") {
+        console.log("Error: El nombre de la tabla es inválido.");
+        odbcClient.close();
+        return;
+    }
+
+    var idCaudalimetroNode = Ua.findNode(base + ".id_caudalimetro");
+    if (!idCaudalimetroNode || !idCaudalimetroNode.result || !idCaudalimetroNode.result.value) {
+        console.log("Error: Nodo id_caudalimetro no encontrado o sin valor válido. " + base);
+        odbcClient.close();
+        return;
+    }
+    var id_caudalimetro = idCaudalimetroNode.result.value;
+
+    try {
+        var query = `
+            CREATE TABLE IF NOT EXISTS SCADA."${nombre}" (
+                fecha_insercion TIMESTAMP DEFAULT DATE_TRUNC('minute', NOW()),
+                fecha_adquisicion TIMESTAMP,
+                historic_flow FLOAT,
+                historic_pressure FLOAT,
+                historic_daily_production FLOAT,
+                historic_hourly_production FLOAT,
+                id_caudalimetro INT
+            );
+        `;
+        odbcClient.query(query);
+    } catch (createError) {
+        console.log("Error al crear o verificar la tabla:", createError);
+        odbcClient.close();
+        return;
+    }
+
+    try {
+        var flow = Ua.findNode(base + ".historic_flow");
+        var historic_flow = flow.result.value;
+
+        var pressure = Ua.findNode(base + ".historic_pressure");
+        var historic_pressure = pressure.result.value;
+
+        var dailyProduction = Ua.findNode(base + ".historic_daily_production");
+        var historic_daily_production = dailyProduction.result.value;
+
+        var hourlyProduction = Ua.findNode(base + ".historic_hourly_production");
+        var historic_hourly_production = hourlyProduction.result.value;
+
+        var count = pressure.result.serverTime.value;
+        var adquisitionTime = pressure.result.sourceTime.value;
+
+        // Ajuste a UTC-5 y truncado a minuto
+        function truncateToUTCMinus5(adquisitionTime) {
+            let truncated = new Date(adquisitionTime);
+            truncated.setSeconds(0);
+            truncated.setMilliseconds(0);
+            truncated.setMinutes(truncated.getMinutes() - (5 * 60));
+            return truncated;
+        }
+
+        var truncatedAdquisitionTime = truncateToUTCMinus5(adquisitionTime);
+        var currentTimestamp = new Date(count);
+
+        var currentHours = (currentTimestamp.getUTCHours() - 5 + 24) % 24;
+        var currentMinutes = currentTimestamp.getUTCMinutes();
+
+        var insertQuery = `
+            INSERT INTO scada."${nombre}" (historic_flow, historic_pressure, id_caudalimetro, fecha_insercion, fecha_adquisicion)
+            VALUES (${historic_flow}, ${historic_pressure}, ${id_caudalimetro}, NOW(), '${truncatedAdquisitionTime.toISOString()}');
+        `;
+
+        if (currentMinutes == 0) {
+            insertQuery = `
+                INSERT INTO scada."${nombre}" (historic_flow, historic_pressure, historic_hourly_production, id_caudalimetro, fecha_insercion, fecha_adquisicion)
+                VALUES (${historic_flow}, ${historic_pressure}, ${historic_hourly_production}, ${id_caudalimetro}, NOW(), '${truncatedAdquisitionTime.toISOString()}');
+            `;
+        }
+
+        if (currentHours == 0 && currentMinutes == 0) {
+            insertQuery = `
+                INSERT INTO scada."${nombre}" (historic_flow, historic_pressure, historic_daily_production, historic_hourly_production, id_caudalimetro, fecha_insercion, fecha_adquisicion)
+                VALUES (${historic_flow}, ${historic_pressure}, ${historic_daily_production}, ${historic_hourly_production}, ${id_caudalimetro}, NOW(), '${truncatedAdquisitionTime.toISOString()}');
+            `;
+        }
+
+        odbcClient.query(insertQuery);
+    } catch (error) {
+        // Silencioso a propósito
+    } finally {
+        odbcClient.close();
+    }
+} else {
+    console.log("No se pudo conectar a la base de datos.");
+}
+]]></code>
+</script>

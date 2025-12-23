@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.PTAR_PTOA
+NodeClass: Object
+BrowseName: 1:PTAR_PTOA
+DisplayName: en|PTAR_PTOA
+Description: en|PTAR_PTOA
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.PTAR

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.Eficiencia_Energetica
+NodeClass: Variable
+BrowseName: 1:Eficiencia_Energetica
+DisplayName: en|Eficiencia_Energetica
+Description: en|Eficiencia_Energetica
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

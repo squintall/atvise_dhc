@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="43" version="1.2" width="154" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Customizable navigation button.</desc>
+ <title>Button Custom (Small)</title>
+ <metadata>
+  <atv:parameter behavior="optional" desc="label line 1" group="Button 1" name="text1" valuetype="trstring"/>
+  <atv:parameter behavior="optional" desc="label line 2" group="Button 1" name="text1_2" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="symbol" group="Button 1" name="symbol1" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="symbol color" group="Button 1" name="symbolColor1" substitute="$SYMBOLCOLOR1$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor2" desc="symbol color active" group="Button 1" name="symbolColorActive1" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="132" desc="symbol scaling (%)" group="Button 1" name="symbolScaling1" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="target display" group="Button 1" name="target1" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="context menu" group="Button 1" name="contextmenu1" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="trigger" group="Button 1" name="trigger1" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Button 1" name="fillColor1" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor2" desc="fill color active" group="Button 1" name="fillColorActive1" valuetype="global"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="18" desc="font size line 1" group="Button 1" name="fontSize1" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="18" desc="font size line 2" group="Button 1" name="fontSize1_2" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="normal;bold" defaultvalue="normal" desc="font weight line 1" group="Button 1" name="fontWeight1" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="normal;bold" defaultvalue="normal" desc="font weight line 2" group="Button 1" name="fontWeight1_2" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" group="Button 1" name="fontColor1" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor2" desc="font color active" group="Button 1" name="fontColorActive1" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="focus stroke color" group="Button 1" name="focusStrokeColor1" valuetype="color"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" desc="necessary right" group="Button 1" name="right1" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Button 1" name="activeNode1" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Button 1" name="activeValue1" valuetype="string"/>
+  <atv:parameter behavior="optional" desc="label line 1" group="Button 2" name="text2" valuetype="trstring"/>
+  <atv:parameter behavior="optional" desc="label line 2" group="Button 2" name="text2_2" valuetype="trstring"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="symbol" group="Button 2" name="symbol2" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="symbol color" group="Button 2" name="symbolColor2" substitute="$SYMBOLCOLOR2$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor2" desc="symbol color active" group="Button 2" name="symbolColorActive2" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="132" desc="symbol scaling (%)" group="Button 2" name="symbolScaling2" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="target display" group="Button 2" name="target2" valuetype="display"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="context menu" group="Button 2" name="contextmenu2" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="trigger" group="Button 2" name="trigger2" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="fill color" group="Button 2" name="fillColor2" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor2" desc="fill color active" group="Button 2" name="fillColorActive2" valuetype="global"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="18" desc="font size line 1" group="Button 2" name="fontSize2" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="18" desc="font size line 2" group="Button 2" name="fontSize2_2" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="normal;bold" defaultvalue="normal" desc="font weight line 1" group="Button 2" name="fontWeight2" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="normal;bold" defaultvalue="normal" desc="font weight line 2" group="Button 2" name="fontWeight2_2" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="font color" group="Button 2" name="fontColor2" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor2" desc="font color active" group="Button 2" name="fontColorActive2" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="focus stroke color" group="Button 2" name="focusStrokeColor2" valuetype="color"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" desc="necessary right" group="Button 2" name="right2" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Button 2" name="activeNode2" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Button 2" name="activeValue2" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="30" desc="item height" group="Context menu" name="context_menu_item_height" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="30" desc="y-position" group="Context menu" name="context_menu_position_y" valuetype="number"/>
+  <atv:parameter behavior="optional" config="Arial;Courier;Tahoma;Verdana" defaultvalue="Arial" desc="font family" group="Context menu" name="context_menu_font_family" substitute="$CFONTFAMILY$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;13;14;15;16;18;20;22;24;26;28;36;48;72" defaultvalue="15" desc="font size" group="Context menu" name="context_menu_font_size" substitute="$CFONTSIZE$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor2" desc="font color" group="Context menu" name="context_menu_font_color" substitute="$CFONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="symbol color hover" group="Context menu" name="context_menu_font_color_hover" substitute="$CFONTCOLORHOVER$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor2" desc="background color" group="Context menu" name="context_menu_fill_color" substitute="$CFILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" desc="hover color" group="Context menu" name="context_menu_hover_color" substitute="$CHOVERCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" config="left;center;right" defaultvalue="center" desc="text alignment" group="Context menu" name="contextMenuTextAlignment" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="5" desc="maximum displayed items (0 = all)" group="Context menu" name="itemsCount" valuetype="number"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <svg atv:bindtl="0,0" atv:bindtr="1,1" atv:refpx="70.363" atv:refpy="24.843" height="30" id="custom_button_1" transform="matrix(1.925,0,0,1.4333,0,0)" width="80" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="0">
+  <atv:argument name="symbol" prefix="symbol1"/>
+  <atv:argument name="label" prefix="text1"/>
+  <atv:argument name="label2" prefix="text1_2"/>
+  <atv:argument name="visibilitySymbol" value="inherit"/>
+  <atv:argument name="borderColor" value="SYSTEM.GLOBALS.atvBorderColor2"/>
+  <atv:argument name="symbolScaling" prefix="symbolScaling1"/>
+  <atv:argument name="fontColor" prefix="fontColor1"/>
+  <atv:argument name="right" prefix="right1"/>
+  <atv:argument name="activeNode" prefix="activeNode1"/>
+  <atv:argument name="activeValue" prefix="activeValue1"/>
+  <atv:argument name="fontSize" prefix="fontSize1"/>
+  <atv:argument name="fontSize2" prefix="fontSize1_2"/>
+  <atv:argument name="fontWeight" prefix="fontWeight1"/>
+  <atv:argument name="fontWeight2" prefix="fontWeight1_2"/>
+  <atv:argument name="focusStrokeColor" prefix="focusStrokeColor1"/>
+  <atv:overwrite height="40.999" id="id_6" transform="matrix(0.5195,0,0,0.6977,0,0)" width="152"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5195,0,0,0.6977,0,0)" x="77" y="32.999"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.5195,0,0,0.6977,0,0)" x="77" y="18"/>
+  <atv:overwrite id="button_label" transform="matrix(0.5195,0,0,0.6977,0,0)" x="77" y="26"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5195,0,0,0.6977,0,0)" x="67" y="11.5"/>
+  <atv:overwrite height="38.999" id="button_stroke" transform="matrix(0.5195,0,0,0.6977,0,0)" width="150"/>
+  <atv:overwrite height="40.999" id="button_bg" transform="matrix(0.5195,0,0,0.6977,0,0)" width="152"/>
+  <atv:overwrite height="42.999" id="outer_frame" transform="matrix(0.5195,0,0,0.6977,0,0)" width="154"/>
+ </svg>
+ <polyline atv:refpx="9.188" atv:refpy="9.343" fill="#686868" id="context_menu_button" points="2.003,1.9 2.003,15.517 16.367,1.9 2.003,1.9" stroke="#666666" stroke-width="1" visibility="hidden"/>
+ <svg atv:bindtl="0,0" atv:bindtr="1,1" atv:refpx="35.208" atv:refpy="24.843" height="30" id="custom_button_2" transform="matrix(0.925,0,0,1.4333,0,0)" width="80" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="0">
+  <atv:argument name="symbol" prefix="symbol1"/>
+  <atv:argument name="label" prefix="text1"/>
+  <atv:argument name="label2" prefix="text1_2"/>
+  <atv:argument name="visibilitySymbol" value="inherit"/>
+  <atv:argument name="borderColor" value="SYSTEM.GLOBALS.atvBorderColor2"/>
+  <atv:argument name="symbolScaling" prefix="symbolScaling1"/>
+  <atv:argument name="fontColor" prefix="fontColor1"/>
+  <atv:argument name="right" prefix="right1"/>
+  <atv:argument name="activeNode" prefix="activeNode1"/>
+  <atv:argument name="activeValue" prefix="activeValue1"/>
+  <atv:argument name="fontSize" prefix="fontSize1"/>
+  <atv:argument name="fontSize2" prefix="fontSize1_2"/>
+  <atv:argument name="fontWeight" prefix="fontWeight1"/>
+  <atv:argument name="fontWeight2" prefix="fontWeight1_2"/>
+  <atv:argument name="focusStrokeColor" prefix="focusStrokeColor1"/>
+  <atv:overwrite height="40.999" id="id_6" transform="matrix(1.0811,0,0,0.6977,0,0)" width="72"/>
+  <atv:overwrite id="button_label_2" transform="matrix(1.0811,0,0,0.6977,0,0)" x="37" y="32.999"/>
+  <atv:overwrite id="button_label_1" transform="matrix(1.0811,0,0,0.6977,0,0)" x="37" y="18"/>
+  <atv:overwrite id="button_label" transform="matrix(1.0811,0,0,0.6977,0,0)" x="37" y="26"/>
+  <atv:overwrite id="button_symbol" transform="matrix(1.0811,0,0,0.6977,0,0)" x="27" y="11.5"/>
+  <atv:overwrite height="38.999" id="button_stroke" transform="matrix(1.0811,0,0,0.6977,0,0)" width="70"/>
+  <atv:overwrite height="40.999" id="button_bg" transform="matrix(1.0811,0,0,0.6977,0,0)" width="72"/>
+  <atv:overwrite height="42.999" id="outer_frame" transform="matrix(1.0811,0,0,0.6977,0,0)" width="74"/>
+ </svg>
+ <svg atv:bindtl="0,0" atv:bindtr="1,1" atv:refpx="118.427" atv:refpy="24.843" height="30" id="custom_button_3" transform="matrix(0.925,0,0,1.4333,0,0)" width="80" x="86.486" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="0">
+  <atv:argument name="symbol" prefix="symbol2"/>
+  <atv:argument name="label" prefix="text2"/>
+  <atv:argument name="label2" prefix="text2_2"/>
+  <atv:argument name="visibilitySymbol" value="inherit"/>
+  <atv:argument name="borderColor" value="SYSTEM.GLOBALS.atvBorderColor2"/>
+  <atv:argument name="symbolScaling" prefix="symbolScaling2"/>
+  <atv:argument name="fontColor" prefix="fontColor2"/>
+  <atv:argument name="right" prefix="right2"/>
+  <atv:argument name="activeNode" prefix="activeNode2"/>
+  <atv:argument name="activeValue" prefix="activeValue2"/>
+  <atv:argument name="fontSize" prefix="fontSize2"/>
+  <atv:argument name="fontSize2" prefix="fontSize2_2"/>
+  <atv:argument name="fontWeight" prefix="fontWeight2"/>
+  <atv:argument name="fontWeight2" prefix="fontWeight2_2"/>
+  <atv:argument name="focusStrokeColor" prefix="focusStrokeColor2"/>
+  <atv:overwrite height="40.999" id="id_6" transform="matrix(1.0811,0,0,0.6977,0,0)" width="72"/>
+  <atv:overwrite id="button_label_2" transform="matrix(1.0811,0,0,0.6977,0,0)" x="37" y="32.999"/>
+  <atv:overwrite id="button_label_1" transform="matrix(1.0811,0,0,0.6977,0,0)" x="37" y="18"/>
+  <atv:overwrite id="button_label" transform="matrix(1.0811,0,0,0.6977,0,0)" x="37" y="26"/>
+  <atv:overwrite id="button_symbol" transform="matrix(1.0811,0,0,0.6977,0,0)" x="27" y="11.5"/>
+  <atv:overwrite height="38.999" id="button_stroke" transform="matrix(1.0811,0,0,0.6977,0,0)" width="70"/>
+  <atv:overwrite height="40.999" id="button_bg" transform="matrix(1.0811,0,0,0.6977,0,0)" width="72"/>
+  <atv:overwrite height="42.999" id="outer_frame" transform="matrix(1.0811,0,0,0.6977,0,0)" width="74"/>
+ </svg>
+ <polyline atv:refpx="8.687" atv:refpy="8.766" fill="$SYMBOLCOLOR1$" id="context_menu_sign_1" points="3.671,3.533 3.671,14.933 15.697,3.533 3.671,3.533" stroke="$SYMBOLCOLOR1$" stroke-linejoin="round" stroke-width="1" visibility="hidden"/>
+ <polyline atv:refpx="88.192" atv:refpy="8.766" fill="$SYMBOLCOLOR2$" id="context_menu_sign_2" points="83.675,3.533 83.675,14.933 95.701,3.533 83.675,3.533" stroke="$SYMBOLCOLOR2$" stroke-linejoin="round" stroke-width="1" visibility="hidden"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.layoutelements.button_custom" atv:name="button_custom" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

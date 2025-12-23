@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="890" version="1.2" width="1675" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" desc="Node address" name="node" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="Alarm address" name="alarm" valuetype="address"/>
+  <atv:parameter behavior="mandatory" defaultvalue="1" desc="Time span from now" name="span" valuetype="number"/>
+  <atv:parameter behavior="mandatory" config="s;m;h;d" defaultvalue="m" desc="Time unit" name="unit" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" group="Appearance" name="globalFillColor" substitute="$FILLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="trend1" desc="" name="trendName" substitute="" valuetype="string"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <rect atv:refpx="265" atv:refpy="60.001" fill="$FILLCOLOR$" height="120" id="id_1" stroke="#0000ff" stroke-width="0" width="530" x="0" y="0"/>
+ <rect atv:refpx="837.5" atv:refpy="60.001" fill="$FILLCOLOR$" height="120" id="id_2" stroke="#0000ff" stroke-width="0" width="530" x="572.5" y="0"/>
+ <rect atv:refpx="1410" atv:refpy="60.001" fill="$FILLCOLOR$" height="120" id="id_3" stroke="#0000ff" stroke-width="0" width="530" x="1145" y="0"/>
+ <foreignObject height="769" id="id_0" width="1675" x="1.066" y="121">
+  <div style="width:100%;height:100%" xmlns="http://www.w3.org/1999/xhtml">
+   <div id="highcharts_container" style="width:100%; height:100%;"/>
+  </div>
+ </foreignObject>
+ <svg atv:refpx="352.806" atv:refpy="32.498" height="30" id="pickerStart" transform="matrix(1.5523,0,0,1.5,0,0)" width="160" x="147.282" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.picker_date" y="6.667">
+  <atv:argument name="name" value="pickerStart"/>
+  <atv:argument name="fontSize" value="18"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6442,0,0,0.6667,0,0)" x="223.868" y="12.5"/>
+  <atv:overwrite id="id_1" transform="matrix(0.5798,0,0,0.6,0,0)" x="249.854" y="15"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6442,0,0,0.6667,0,0)" x="223.868" y="12.5"/>
+  <atv:overwrite id="datepicker_label" transform="matrix(0.6442,0,0,0.6667,0,0)" x="213.868" y="27.75"/>
+  <atv:overwrite height="41" id="focus_frame" transform="matrix(0.6442,0,0,0.6667,0,0)" width="244.368"/>
+  <atv:overwrite height="37" id="blinking_frame" transform="matrix(0.6442,0,0,0.6667,0,0)" width="216.368"/>
+  <atv:overwrite height="37" id="input_bg" transform="matrix(0.6442,0,0,0.6667,0,0)" width="216.368"/>
+  <atv:overwrite height="43" id="id_0" transform="matrix(0.6442,0,0,0.6667,0,0)" width="246.368"/>
+  <atv:overwrite height="45" id="id_2" transform="matrix(0.6442,0,0,0.6667,0,0)" width="248.368"/>
+ </svg>
+ <text atv:refpx="165.232" atv:refpy="33.892" fill="#000000" font-family="Arial" font-size="22" id="id_4" text-anchor="end" x="213.477" y="40.392">T{Start time}</text>
+ <svg atv:refpx="352.789" atv:refpy="92.583" height="30" id="pickerEnd" transform="matrix(1.5524,0,0,1.5,0,0)" width="160" x="147.262" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.picker_date" y="44.059">
+  <atv:argument name="name" value="pickerEnd"/>
+  <atv:argument name="fontSize" value="18"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.6442,0,0,0.6667,0,0)" x="223.884" y="12.5"/>
+  <atv:overwrite id="id_1" transform="matrix(0.5797,0,0,0.6,0,0)" x="249.871" y="15"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.6442,0,0,0.6667,0,0)" x="223.884" y="12.5"/>
+  <atv:overwrite id="datepicker_label" transform="matrix(0.6442,0,0,0.6667,0,0)" x="213.884" y="27.75"/>
+  <atv:overwrite height="41" id="focus_frame" transform="matrix(0.6442,0,0,0.6667,0,0)" width="244.384"/>
+  <atv:overwrite height="37" id="blinking_frame" transform="matrix(0.6442,0,0,0.6667,0,0)" width="216.384"/>
+  <atv:overwrite height="37" id="input_bg" transform="matrix(0.6442,0,0,0.6667,0,0)" width="216.384"/>
+  <atv:overwrite height="43" id="id_0" transform="matrix(0.6442,0,0,0.6667,0,0)" width="246.384"/>
+  <atv:overwrite height="45" id="id_2" transform="matrix(0.6442,0,0,0.6667,0,0)" width="248.384"/>
+ </svg>
+ <text atv:refpx="167.788" atv:refpy="89.687" fill="#000000" font-family="Arial" font-size="22" id="id_5" text-anchor="end" x="214.028" y="96.187">T{End time} </text>
+ <svg atv:refpx="925.258" atv:refpy="32.001" height="30" id="node" transform="matrix(1.8656,0,0,1.5,0,0)" width="160" x="418.113" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.picker_address" y="6.333">
+  <atv:argument name="fontSize" value="18"/>
+  <atv:argument name="showAlarms" value="No"/>
+  <atv:argument name="showArchives" value="No"/>
+  <atv:argument name="showDisplays" value="No"/>
+  <atv:argument name="showVariableTypes" value="No"/>
+  <atv:argument name="showObjects" value="No"/>
+  <atv:argument name="onDemand" value="No"/>
+  <atv:overwrite height="45" id="addresspicker_clickarea" transform="matrix(0.536,0,0,0.6667,0,0)" x="270.496"/>
+  <atv:overwrite height="41" id="focus_frame" transform="matrix(0.536,0,0,0.6667,0,0)" width="294.496"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.536,0,0,0.6667,0,0)" x="273.496" y="12.5"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.536,0,0,0.6667,0,0)" x="273.246" y="12.5"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.536,0,0,0.6667,0,0)" x="273.496" y="12.5"/>
+  <atv:overwrite id="input_label" transform="matrix(0.536,0,0,0.6667,0,0)" x="264.496" y="26.75"/>
+  <atv:overwrite height="37" id="blinking_frame" transform="matrix(0.536,0,0,0.6667,0,0)" width="266.496"/>
+  <atv:overwrite height="37" id="addresspicker_bg" transform="matrix(0.536,0,0,0.6667,0,0)" width="266.496"/>
+  <atv:overwrite height="43" id="id_0" transform="matrix(0.536,0,0,0.6667,0,0)" width="296.496"/>
+  <atv:overwrite height="45" id="addresspicker_stroke" transform="matrix(0.536,0,0,0.6667,0,0)" width="298.496"/>
+ </svg>
+ <text atv:refpx="702.768" atv:refpy="33" fill="#000000" font-family="Arial" font-size="22" id="id_7" text-anchor="end" x="770.241" y="39.5">T{Node address}</text>
+ <svg atv:refpx="1410" atv:refpy="60" height="30" id="id_btn_create" transform="matrix(1.875,0,0,1.5,0,0)" width="80" x="712" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="25">
+  <atv:argument name="label" value="T{Generate}"/>
+  <atv:argument name="fontSize" value="20"/>
+  <atv:argument name="fontSize2" value="20"/>
+  <atv:overwrite height="43" id="id_6" transform="matrix(0.5333,0,0,0.6667,0,0)" width="148"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5333,0,0,0.6667,0,0)" x="75" y="34"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.5333,0,0,0.6667,0,0)" x="75" y="19"/>
+  <atv:overwrite id="button_label" transform="matrix(0.5333,0,0,0.6667,0,0)" x="75" y="27"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.32,0,0,0.4,0,0)" x="114.833" y="38.792"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.32,0,0,0.4,0,0)" x="114.833" y="17.459"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5333,0,0,0.6667,0,0)" x="65" y="12.5"/>
+  <atv:overwrite height="41" id="button_stroke" transform="matrix(0.5333,0,0,0.6667,0,0)" width="146"/>
+  <atv:overwrite height="43" id="button_bg" transform="matrix(0.5333,0,0,0.6667,0,0)" width="148"/>
+  <atv:overwrite height="45" id="outer_frame" transform="matrix(0.5333,0,0,0.6667,0,0)" width="150"/>
+ </svg>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.highcharts.highcharts_alarm_bit" atv:name="alarmHighcharts" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <svg atv:refpx="912.875" atv:refpy="86.467" height="30" id="alarm_node" transform="matrix(1.8656,0,0,1.5,0,0)" width="160" x="418.444" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.picker_address" y="43.977">
+  <atv:argument name="fontSize" value="18"/>
+  <atv:argument name="showAlarms" value="No"/>
+  <atv:argument name="showArchives" value="No"/>
+  <atv:argument name="showDisplays" value="No"/>
+  <atv:argument name="showVariableTypes" value="No"/>
+  <atv:argument name="showObjects" value="No"/>
+  <atv:argument name="onDemand" value="No"/>
+  <atv:overwrite height="45" id="addresspicker_clickarea" transform="matrix(0.536,0,0,0.6667,0,0)" x="270.496"/>
+  <atv:overwrite height="41" id="focus_frame" transform="matrix(0.536,0,0,0.6667,0,0)" width="294.496"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.536,0,0,0.6667,0,0)" x="273.496" y="12.5"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.536,0,0,0.6667,0,0)" x="273.246" y="12.5"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.536,0,0,0.6667,0,0)" x="273.496" y="12.5"/>
+  <atv:overwrite id="input_label" transform="matrix(0.536,0,0,0.6667,0,0)" x="264.496" y="26.75"/>
+  <atv:overwrite height="37" id="blinking_frame" transform="matrix(0.536,0,0,0.6667,0,0)" width="266.496"/>
+  <atv:overwrite height="37" id="addresspicker_bg" transform="matrix(0.536,0,0,0.6667,0,0)" width="266.496"/>
+  <atv:overwrite height="43" id="id_0" transform="matrix(0.536,0,0,0.6667,0,0)" width="296.496"/>
+  <atv:overwrite height="45" id="addresspicker_stroke" transform="matrix(0.536,0,0,0.6667,0,0)" width="298.496"/>
+ </svg>
+ <text atv:refpx="700.05" atv:refpy="89.466" fill="#000000" font-family="Arial" font-size="22" id="id_9" text-anchor="end" x="770.039" y="95.966">T{Alarm address}</text>
+ <text atv:refpx="628.489" atv:refpy="55.16" fill="#000000" font-family="Arial" font-size="22" id="id_10" text-anchor="end" x="643.489" y="62.66"/>
+</svg>

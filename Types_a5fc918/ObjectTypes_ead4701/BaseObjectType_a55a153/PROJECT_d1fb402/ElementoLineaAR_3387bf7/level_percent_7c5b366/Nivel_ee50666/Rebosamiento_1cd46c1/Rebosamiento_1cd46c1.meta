@@ -1,0 +1,9 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.level_percent.Nivel.Rebosamiento
+NodeClass: Object
+BrowseName: 1:Rebosamiento
+DisplayName: en|Rebosamiento
+Description: en|Rebosamiento
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConditionControl.Limit
+Reference: forward HasComponent ns=1;s=AGENT.ALARMING.Categories.Error

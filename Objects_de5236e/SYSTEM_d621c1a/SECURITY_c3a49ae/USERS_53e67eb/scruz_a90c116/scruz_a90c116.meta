@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.scruz
+NodeClass: Object
+BrowseName: 1:scruz
+DisplayName: en|scruz
+Description: en|scruz
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

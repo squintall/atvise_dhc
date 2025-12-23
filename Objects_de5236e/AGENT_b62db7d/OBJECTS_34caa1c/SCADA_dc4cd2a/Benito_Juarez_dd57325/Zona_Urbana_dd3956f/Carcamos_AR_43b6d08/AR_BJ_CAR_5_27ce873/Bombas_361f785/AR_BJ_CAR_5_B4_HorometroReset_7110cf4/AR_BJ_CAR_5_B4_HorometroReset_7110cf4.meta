@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AR.AR_BJ_CAR_5.Bombas.AR_BJ_CAR_5_B4_HorometroReset
+NodeClass: Variable
+BrowseName: 1:AR_BJ_CAR_5_B4_HorometroReset
+DisplayName: en|AR_BJ_CAR_5_B4_HorometroReset
+Description: en|AR_BJ_CAR_5_B4_HorometroReset
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

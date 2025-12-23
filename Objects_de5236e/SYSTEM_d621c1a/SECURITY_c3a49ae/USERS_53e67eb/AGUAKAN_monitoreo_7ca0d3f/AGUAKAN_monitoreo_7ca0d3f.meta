@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\monitoreo
+NodeClass: Object
+BrowseName: 1:AGUAKAN\monitoreo
+DisplayName: en|AGUAKAN\monitoreo
+Description: en|AGUAKAN\monitoreo
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

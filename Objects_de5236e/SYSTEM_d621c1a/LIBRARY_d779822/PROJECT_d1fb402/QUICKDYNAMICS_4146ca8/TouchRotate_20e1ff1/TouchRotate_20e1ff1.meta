@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.QUICKDYNAMICS.TouchRotate
+NodeClass: Variable
+BrowseName: 1:TouchRotate
+DisplayName: en|TouchRotate
+Description: en|TouchRotate
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

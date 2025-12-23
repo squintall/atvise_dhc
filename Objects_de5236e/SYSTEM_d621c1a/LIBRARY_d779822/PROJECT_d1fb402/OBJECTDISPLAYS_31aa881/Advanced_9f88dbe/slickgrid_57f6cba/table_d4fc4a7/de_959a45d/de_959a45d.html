@@ -1,0 +1,355 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+    <meta content="text/html; charset=windows-1252" http-equiv="content-type">
+    <title>OD_help</title>
+    <style> #parameter {
+        font-weight: bold;
+    } </style>
+</head>
+<body>
+<h1>Beschreibung</h1>
+<p>Dieses Display eignet sich f&uuml;r die Darstellung von Daten in tabellarischer Form. Dazu ist neben der Einstellung der
+    Tabellenparameter ebenso die Konfiguration im &uuml;bergeordneten Display erforderlich. Das &uuml;bergeordnete Displayse wird
+    im folgenden auch als Parentdisplay bezeichnet.</p>
+
+<h2>Anforderungen</h2>
+<p>Die Tabellenbibliothek erfordert jQuery > 1.7 und wird aktuell mit jQuery > 3.3.x ausgeliefert.</p>
+<p>Um Kompatibilit&auml;tsprobleme zu vermeiden, wird die mitgelieferte jQuery Version nur verwendet, wenn keine bereits
+    vorhandene Version erkannt wird. Sollte daher in einem bestehenden Projekt jQuery bereits verwendet werden, greift
+    die Tabellenbibliothek auf diese zur&uuml;ck. Gehen sie daher sicher, dass in diesem Falle eine jQuery Version > 1.7.x
+    verwendet wird!</p>
+
+<h1>Parameter</h1>
+<p>Die Tabelle hat die folgenden allgemeinen Parameter:</p>
+<ul>
+    <li><span class="parameter">base</span>: Aktuelle nicht in verwendung </li>
+    <li><span class="parameter">Tabellen-ID</span>: Eindeutiger Tabellenname</li>
+    <li><span class="parameter">Tabellenkopf H&ouml;he</span>: H&ouml;he des Tabellenkopfes in Pixel (Standard 30, *) </li>
+    <li><span class="parameter">Tabellenkopf Schriftgr&ouml;&szlig;e</span>: Schriftgr&ouml;&szlig;e im Tabellenkopf (Standard: 14)</li>
+	<li><span class="parameter">Tabellenkopfzelle horizontal ausrichten</span>: Horizontale Ausrichtung des Zelleninhaltes im Tabellenkopf (Standard: inherit)</li>
+	<li><span class="parameter">Tabellenkopfzelle vertical ausrichten</span>: Vertikale Ausrichtung des Zelleninhaltes im Tabellenkopf (Standard: center)</li>
+	<li><span class="parameter">Tabellenzeile H&ouml;he</span>: H&ouml;he der Tabellenzeilen in Pixel (Standard 20, **)</li>
+    <li><span class="parameter">Tabellenzeile Schriftgr&ouml;&szlig;e</span>: Schriftgr&ouml;&szlig;e in einer Tabellenzeile (Standard: 12)</li>
+    <li><span class="parameter">Detailbereich Schriftgr&ouml;&szlig;e</span>: Schriftgr&ouml;&szlig;e f&uuml;r Tabellendetails (Standard: 12)</li>
+    <li><span class="parameter">Tabellenfu&szlig; Schriftgr&ouml;&szlig;e</span>: Schriftgr&ouml;&szlig;e im Tabellenfu&szlig; (Standard: 12)</li>
+</ul>
+<p><i>(*) Es wird eine H&ouml;he die in etwa dem doppelten der Schriftgr&ouml;&szlig;e entspricht empfohlen.</i><br>
+    <i>(**) Bei aktiviertem Zeilenumbruch wird die 1,5 Fache Schriftgr&ouml;&szlig;e mal darzustellende Zeile als H&ouml;he empfohlen.</i></p>
+
+<p>Darstellung:</p>
+<ul>
+    <li><span class="parameter">Schriftfamilie</span>: Schriftfamilie (Standard: Arial)</li>
+    <li><span class="parameter">Globale Rahmenfarbe</span>: Quelle f&uuml;r Rahmenfarbe (Standard: SYSTEM.GLOBALS.atvBorderColor)</li>
+    <li><span class="parameter">Globale F&uuml;llfarbe</span>: Quelle f&uuml;r F&uuml;llfarbe (Standard: SYSTEM.GLOBALS.atvFillColor)</li>
+    <li><span class="parameter">Globale Schriftfarbe</span>:  Quelle f&uuml;r Schriftfarbe (Standard: SYSTEM.GLOBALS.atvFontColor)</li>
+    <li><span class="parameter">Globale Symbolfarbe</span>:  Quelle f&uuml;r Symbolfarbe (Standard: SYSTEM.GLOBALS.atvSymbolColor)</li>
+	<li><span class="parameter">Globale inaktive Farben</span>: Quelle f&uuml;r inaktive Farbe (Default: SYSTEM.GLOBALS.atvInactiveColor)</li>
+	<li><span class="parameter">Globale Tabellenfarben</span>:   Quelle f&uuml;r Tabellenfarben (Standard: SYSTEM.GLOBALS.atvObjectDisplays.BaseTable.ColorConfig)</li>
+    <li><span class="parameter">Benutzerdefiniertes Theme</span>: Optionales CSS Pfad f&uuml;r benutzerdefiniertes Theme (Standard: atviseTheme)</li>
+</ul>
+
+<p>Optionen:</p>
+<ul>
+    <li><span class="parameter">Spalten neu ordnen erm&ouml;glichen</span>: Verschieben von Spalten zulassen (Standard: true)</li>
+    <li><span class="parameter">Paging</span>: Anzeige der Seitennavigation (Standard: true)</li>
+    <li><span class="parameter">Filterleiste</span>: Tabellenfilter anzeigen (Standard: true)</li>
+    <li><span class="parameter">Filter regul&auml;re Ausdr&uuml;cke</span>: Filterfunktion benutzt Regular Expressions (Standard: false, **)</li>
+    <li><span class="parameter">Filter mit Platzhalter</span>: Aktivierung des Platzhalters &quot;*&quot; in der Suchfunktion</li>
+    <li><span class="parameter">Filter Gro&szlig;-/Kleinschreibung</span>: Gro&szlig;- und Kleinschreibung ber&uuml;cksichtigen (Standard: false)</li>
+    <li><span class="parameter">Filter Mindeseingabe</span>: Mindestanzahl der Zeichen bevor der Filter aktiv wird (Standard: 1)</li>
+    <li><span class="parameter">Filter Verz&ouml;gerung</span>: Verz&ouml;gerung der automatischen Filterung in Millisekunden (Standard: 1000, Abschalten der Automatik mit 0)</li>
+    <li><span class="parameter">Laufzeitmodus anzeigen</span>: Anzeige des Laufzeitmodus in der Statuszeile (Standard: true)</li>
+    <li><span class="parameter">Mehrfachauswahl</span>: Aktivierung der Mehrfachauswahl (Standard: true)</li>
+    <li><span class="parameter">Mehrfachauswahl, Klick auf Zelle</span>: Mehrfachauswahl, Markieren beim Klicken auf Zelle (Standard: false)</li>
+    <li><span class="parameter">Zeilenumbruch in Zellen</span>: Zeilenumbruch in Zellen zulassen (Standard: false, ***)</li>
+	<li><span class="parameter">direkte Eingabe erlauben</span>:  Auswahl zwischen direkter Eingabe und Eingabe &uuml;ber SVG Tastatur.</li>
+</ul>
+<p><i>(**) Warnung: Die Filterung mittles Hilfe von Regular Expressions kann bei gro&szlig;en Datenmengen zu einem starken Performanceabfall f&uuml;hren!</i>
+    <i>(***) Bei aktiviertem Zeilenumbruch wird die 1,5 Fache Schriftgr&ouml;&szlig;e mal darzustellende Zeile als H&ouml;he empfohlen.</i><br>
+</p>
+
+<p>Men&uuml; Optionen:</p>
+<ul>
+    <li><span class="parameter">Men&uuml; anzeigen</span>: Anzeige des Men&uuml;buttons (Standard: true)</li>
+    <li><span class="parameter">Men&uuml;breite</span>:  Breite des Men&uuml;s bei Aufklappen in Pixel (Standard: 150)</li>
+    <li><span class="parameter">Men&uuml;h&ouml;he</span>: H&ouml;he des Men&uuml;s bei Aufklappen in Pixel (Standard: 300)</li>
+    <li><span class="parameter">Spaltenauswahl im Men&uuml;</span>: Anzeige der Spaltenauswahl im Men&uuml; (Standard: true)</li>
+	<li><span class="parameter">Filterauswahl im Men&uuml;</span>: Anzeige der Filterauswahl im Men&uuml; (Standard: true)</li>
+	<li><span class="parameter">Exportauswahl im Men&uuml;</span>: Anzeige der Exportauswahl im Men&uuml; (Standard: true)</li>
+</ul>
+
+<h2>Hinweis</h2>
+<p><b>Ab Version 3.4 werden SVG-Symbole in der Fu&szlig;zeile nicht mehr unterst&uuml;tzt. Bitte verwenden Sie nur mehr Symbole aus der Bibliothek von Font Awesome Free.</b></p>
+
+<p>Fusszeile Optionen:</p>
+<ul>
+	<li><span class="parameter">Symbol erste Seite</span>: Symbol zum bl&auml;ttern auf die erste Seite (Standard: &lt;i class="fas fa-fast-backward"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">Symbol vorige Seite</span>: Symbol zum bl&auml;ttern auf die vorgehende Seite (Standard: &lt;i class="fas fa-step-backward"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">Symbol Pause</span>: Symbol f&uuml;r Pause (Standard: &lt;i class="fas fa-pause"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">Symbol Stop</span>: Symbol f&uuml;r Stop (Standard: &lt;i class="fas fa-stop"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">Symbol n&auml;chste Seite</span>: Symbol zum bl&auml;ttern auf die n&auml;chste Seite (Standard: &lt;i class="fas fa-step-forward"&gt;&lt;/i&gt;) </li>
+	<li><span class="parameter">Symbol letzte Seite</span>: Symbol zum bl&auml;ttern auf die letzte Seite (Standard: &lt;i class="fas fa-fast-forward"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">Symbol Seiten laden</span>: Symbol zum laden der n&auml;chsten Seiten im manuellen Modus (Standard: &lt;i class="fas fa-download"&gt;&lt;/i&gt;)</li>
+	<li><span class="parameter">Symbol Suchen</span>: Symbol f&uuml;r Suche (Standard: &lt;i class="fas fa-search"&gt;&lt;/i&gt;)</li>
+
+	<li><span class="parameter">Symbol &Uuml;berlauf</span>: Symbol beim Erreichen des &Uuml;berlaufs (Standard: &lt;i class="fas fa-ban"&gt;&lt;/i&gt; )</li>
+	<li><span class="parameter">Symbol Trigger Modus</span>: Symbol f&uuml;r Trigger Modus (Standard: &lt;i class="fas fa-angle-double-down"&gt;&lt;/i&gt; )</li>
+	<li><span class="parameter">Symbol Continuation Modus</span>: Symbol f&uuml;r fortlaufenden Modus (Standard: &lt;i class="fas fa-cog fa-spin"&gt;&lt;/i&gt; )</li>
+	<li><span class="parameter">Symbol Live Modus</span>: Symbol f&uuml;r live Modus (Standard: &lt;i class="fas fa-sync fa-spin"&gt;&lt;/i&gt; )</li>
+	<li><span class="parameter">Symbol Manueller Modus</span>: Symbol f&uuml;r manuellen Modus (Standard: &lt;i class="fas fa-check"&gt;&lt;/i&gt; )</li>
+	<li><span class="parameter">Symbol Abfrage Abgeschlossen</span>: Symbol beim Erreichen des &Uuml;berlaufs (Standard: &lt;i class="fas fa-download"&gt;&lt;/i&gt; )</li>
+</ul>
+Anmerkung: SLAO = SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS
+
+<h1>Schnellreferenz</h1>
+
+<h2>Tabellenkonfiguration f&uuml;r einfache Datenabfragen (z.B. webMI.data.read)</h2>
+<p>Ziehen sie das Tabellendisplay in das Parentdisplay und &ouml;ffnen sie den Skripteditor f&uuml;r das Parentdisplay.</p>
+<pre>
+    /* Laden der Tabellenresourcen */
+    webMI.table.loadResources(function () {
+
+        /* Erstellen der Konfiguration */
+        var config = [];
+
+        /* Konfiguration der darzustellenden Spalten */
+        config["columns"] =
+            [
+                {   id: "id", name: "ID", field: "id", sortable: true, filter: true },
+                {   id: "address", name: "Address", field: "address", sortable: true, filter: true },
+                {   id: "value", name: "Wert", field: "value", sortable: true, filter: true }
+            ];
+
+        /* Konfiguration des Laufzeitverhalten */
+        config["mode"] = "once";
+
+        /* Beispieldaten */
+        var data = {};
+        data.result = [
+            { id:0, address: "node 1", value: 123 },
+            { id:1, address: "node 2", value: 456 },
+            { id:2, address: "node 3", value: 789 },
+            ...
+        ];
+
+        /* Konfiguration der Datenabfrage */
+        config["dataRequestFunction"] =
+            function customDataRequest(continuation) {
+                var self = this;
+                var ids = self.addData(data);
+            };
+
+        /* Registierung der Konfiguration */
+        webMI.table.register("myTableName", "config",  config);
+        webMI.table.setReady("myTableName", "config");
+    });
+</pre>
+<p>Speichern sie den Code des Parentdisplay und parametrieren sie die Tabelle wie gewohnt. Tragen sie bei Tabellenname "myTableName" ein.</p>
+
+<h2>Tabellenkonfiguration f&uuml;r einfache Datenabfragen (z.B. webMI.data.read)</h2>
+<p>Ziehen sie das Tabellendisplay in das Parentdisplay und &ouml;ffnen sie den Skripteditor f&uuml;r das Parentdisplay.</p>
+<pre>
+    /* Laden der Tabellenresourcen */
+    webMI.table.loadResources(function () {
+
+        /* Erstellen der Konfiguration */
+        var config = [];
+
+        /* Konfiguration der darzustellenden Spalten */
+        config["columns"] =
+            [
+                {   id: "id", name: "ID", field: "id", sortable: true, filter: true },
+                {   id: "address", name: "Address", field: "address", sortable: true, filter: true },
+                {   id: "value", name: "Wert", field: "value", sortable: true, filter: true }
+            ];
+
+        /* Konfiguration des Laufzeitverhalten */
+        config["mode"] = "once";
+
+        /* Konfiguration der Datenabfrage */
+        config["dataRequestFunction"] =
+            function customDataRequest(continuation) {
+                var self = this;
+                webMI.data.read(
+                    "YOUR_NODE_ADDRESS",
+                    function (requestResult) {
+                        var data = {};
+                        data.result = requestResult;
+                        var ids = self.addData(data);
+                    });
+            };
+
+        /* Registierung der Konfiguration */
+        webMI.table.register("myTableName", "config",  config);
+        webMI.table.setReady("myTableName", "config");
+    });
+</pre>
+<p>Speichern sie den Code des Parentdisplay und parametrieren sie die Tabelle wie gewohnt. Tragen sie bei Tabellenname "myTableName" ein.</p>
+
+<h2>Tabellenkonfigruation f&uuml;r Live Daten</h2>
+<p>Ziehen sie das Tabellendisplay in das Parentdisplay und &ouml;ffnen sie den Skripteditor f&uuml;r das Parentdisplay. F&uuml;gen
+    sie die Konfiguration f&uuml;r einfache Datenabfragen ein. Danach &auml;ndern sie den Modus und modifizieren sie
+    ihre Datenabfrage wie folgt.
+</p>
+<pre>
+        /* Konfiguration des  Laufzeitverhalten */
+        config["mode"] = "live";
+
+        /* Konfiguration der Datenabfrage */
+        config["dataRequestFunction"] =
+            function customDataRequest(continuation) {
+                var self = this;
+                self.subscribeID = webMI.data.subscribe(
+                    "YOUR_NODE_ADDRESS",
+                    function (requestResult) {
+                        var data = {};
+                        data.result = requestResult;
+                        var ids = self.addData(data);
+                    }
+                );
+                webMI.addOnunload(
+                    function () {
+                        webMI.data.unsubscribe(self.subscribeID);
+                    }
+                );
+            };
+</pre>
+
+<h2>Tabellenkonfigruation f&uuml;r "Continuation Points" (continue / trigger)</h2>
+<p>Ziehen sie das Tabellendisplay in das Parentdisplay und &ouml;ffnen sie den Skripteditor f&uuml;r das Parentdisplay. F&uuml;gen
+    sie die Konfiguration f&uuml;r einfache Datenabfragen ein. Danach &auml;ndern sie den Modus und modifizieren sie
+    ihre Datenabfrage wie folgt.
+</p>
+<pre>
+        /* Konfiguration des  Laufzeitverhalten */
+        config["mode"] = "continue"; // <<< f&uuml;r den Triggermodus ersetzen sie "continue" durch "triggered"
+
+        /* Konfiguration der Datenabfrage */
+		config["dataRequestFunction"] =
+			function customDataRequest(continuation) {
+				var self = this;
+				if (typeof continuation != "undefined" && continuation.CP != null) {
+					filter = continuation.CP.value;
+					webMI.data.queryNext(
+						filter,
+						addDataToController
+					);
+				} else {
+					filter = {
+						address: ["g:*YOUR_NODE_ADDRESS*"],
+						select: ["v:priority", "v:value", "v:username", "v:address", "v:timestamp", "v:type", "v:status", "v:ReplacementNames", "v:ReplacementValues"],
+						type: ["v:1"],
+						numrows:["v:1000"]
+					};
+					webMI.data.queryFilter(
+						filter,
+						addDataToController
+					);
+				}
+				function addDataToController(requestResult) {
+                    var data = requestResult;
+
+                    /* Hinzuf&uuml;gen der "Continuation" Informationen */
+					if (typeof data.More != "undefined" && data.More != false && data.continuationpoint > 0) {
+						data.CP = {};
+						data.CP.value = requestResult.continuationpoint;
+					} else {
+						data.More = false;
+					}
+
+					var ids = self.addData(data);
+				}
+			};
+
+        /* Konfiguration der Freigabe */
+        config["dataReleaseFunction"] =
+            function dataReleaseFunction(continuation) {
+	            if (typeof continuation != "undefined" && continuation.CP != null) {
+		            webMI.data.queryRelease(continuation.CP.value);
+	        }
+        }
+
+</pre>
+
+<h2>Zugriff auf Tabelleninhalte</h2>
+<p>Der einfachste Weg auf Tabelleninhalte zuzugreifen, ist die Verwendung der onClickCallback Konfiguration.
+	&Uuml;ber dieses Callback k&ouml;nnen das Event und die Infos &uuml;ber das selektierte Item in einer benutzerdefinierten
+	Funktion verarbeitet werden (z.B. Aufruf eigener Dialoge) </p>
+<pre>
+    /* Laden der Tabellenresourcen */
+    webMI.table.loadResources(function () {
+
+        /* Erstellen der Konfiguration */
+        var config = [];
+
+        ...
+
+        config["onClickCallback"] = function(e, info){
+          var item = info.item;
+          var row = info.rowIndex;
+          var column = info.column;
+
+          var id = item.id;
+          item.value = "changed value";
+
+          /* update/delete/window */
+          if(column.id == "timestamp"){
+            tableController.updateData(id, item);
+          } else if(column.id == "value"){
+            tableController.removeData(id);
+          } else {
+            openMyWindowFunktionToEdit(item);
+          }
+        }
+
+        ...
+
+    });
+</pre>
+
+<h2>Suche nach Werten in der Tabelle</h2>
+<p>Mit Hilfe der search(attribute, value, exactSearch) Funktion kann in der Tabelle nach Werten gesucht werden.
+	Im Trefferfalle werden die gefunden Items in einem Array zurückgegeben.</p>
+<pre>
+  webMI.table.waitReady("myTableName", "controller", function () {
+
+    tableController = webMI.table.request("myTableName", "controller");
+    var itemArray = tableController.search("timestamp", 1553785110500, true);
+
+    var id = itemArray[0].id;
+    itemArray[0].value = "changed value";
+
+    /* update */
+    tableController.updateData(id, itemArray[0]);
+
+    /* delete */
+    tableController.removeData(id);
+
+  });
+</pre>
+
+<h2>Timestamp Konvertierung</h2>
+<p>Mit atvise 3.3.2 wird der Timestamp von "datetime" Spalten nicht l&auml;nger als String geliefert. Daher ist es notwendig den gelieferten Timestamp mit Hilfe eines Formatters innerhalb der Tabelle in einen String umzuwandeln.</p>
+<p>Beispiel:</p>
+<pre>
+	function _makeConversions(format, value) {
+	if (format[0] == "datetime") {
+		if (value) {
+			if (typeof value == "string" && value.indexOf("-") > -1)		//ignore already formatted values
+				return value;
+
+			var date = new Date(parseInt(value, 10));
+			value = webMI.sprintf("%d-%02d-%02d %02d:%02d:%02d.%03d", date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+		} else {
+			value = "";
+		}
+	}
+	return '<div class="slick-cell-item">'+value+'</div>';
+	}
+</pre>
+<h1>Tabellenkonfigurationen</h1>
+<p>Weiter Konfigurationshilfe erhalten sie in der atvise Dokumentation und bei atvise Live!</p>
+<br>
+</body>
+</html>

@@ -1,0 +1,2354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/*
+ * Card display script for Caudalimetros (sin IIFEs, sin window).
+ * Reutiliza utils y config de CaudalGlobals definidos en main.
+ */
+
+if (typeof CaudalCard === "undefined") {
+	var CaudalCard = {};
+}
+// ------ Bloque: init ------
+function init() {
+	try {
+		CaudalGlobals.STATE.CARD_INSTANCE = {
+			subs: [],
+		};
+	} catch (_) {}
+
+	// Ejecutar solo en el display de tarjeta (IDs SVG presentes)
+	try {
+		if (!document.getElementById("cd_title")) return; // no estamos en la Card
+	} catch (_) {
+		return;
+	}
+	var query = CaudalGlobals.CONFIG.QUERY;
+	var base = query.base || query["base"] || "";
+	if (!base) return;
+	var esAP = base.indexOf("Circuito") >= 0;
+	var esAR = base.indexOf("Cuenca") >= 0;
+	var N = CaudalGlobals.UTILS.buildNodes(base);
+
+	// Header & métricas
+	CaudalGlobals.UTILS.subText("cd_title", base + ".name");
+	CaudalGlobals.UTILS.subText("cd_sub", base + ".diameter", function (v) {
+		return "Ø " + (v || "") + '"';
+	});
+	CaudalGlobals.UTILS.setText("badge_t", esAP ? "AP" : "AR");
+	if (esAR) {
+		CaudalGlobals.UTILS.setVis("grp_p", false);
+		CaudalGlobals.UTILS.setVis("thr_col_p", false);
+		CaudalGlobals.UTILS.setVis("sched_box", false);
+	}
+	CaudalGlobals.UTILS.subText("q_val", base + ".current_flow", function (v) {
+		return webMI.sprintf("%.1f", v || 0);
+	});
+	// Producción diaria: calcular desde serie acumulada horaria (último - baseline 00:00)
+	// Producción diaria (prioriza nodo directo y cae a histórico)
+	function updateVd() {
+		try {
+			var node = base + ".current_daily_volume";
+			CaudalGlobals.UTILS.read(node, function (v) {
+				if (v != null && v !== "") {
+					CaudalGlobals.UTILS.setText(
+						"vd_val",
+						CaudalGlobals.UTILS.fmt(+v || 0, 0),
+					);
+					return;
+				}
+				// Fallback a cálculo con serie acumulada
+				var now = new Date();
+				var sod = new Date(now);
+				sod.setHours(0, 0, 0, 0);
+				var from = +sod;
+				var to = Date.now();
+				var path = base + ".historic_hourly_production";
+				function q(filter, cb) {
+					try {
+						webMI.data.queryFilter(filter, function (res) {
+							cb(res && res.result ? res.result : []);
+						});
+					} catch (_) {
+						cb([]);
+					}
+				}
+				q(
+					{
+						node: path,
+						timeStart: from,
+						timeEnd: to,
+						aggregation: "first",
+						numrows: 1,
+						returnBounds: true,
+					},
+					function (firstRows) {
+						q(
+							{
+								node: path,
+								timeStart: from,
+								timeEnd: to,
+								aggregation: "last",
+								numrows: 1,
+								returnBounds: true,
+							},
+							function (lastRows) {
+								try {
+									var first = (firstRows[0] && firstRows[0].value) || 0;
+									var last = (lastRows[0] && lastRows[0].value) || 0;
+									var dv = Math.max(0, last - first);
+									CaudalGlobals.UTILS.setText(
+										"vd_val",
+										CaudalGlobals.UTILS.fmt(dv, 0),
+									);
+								} catch (_) {
+									CaudalGlobals.UTILS.setText(
+										"vd_val",
+										CaudalGlobals.UTILS.fmt(0, 0),
+									);
+								}
+							},
+						);
+					},
+				);
+			});
+		} catch (_) {
+			CaudalGlobals.UTILS.setText("vd_val", CaudalGlobals.UTILS.fmt(0, 0));
+		}
+	}
+	updateVd();
+	try {
+		CaudalGlobals.UTILS.addInterval(updateVd, 300000);
+	} catch (_) {}
+	CaudalGlobals.UTILS.subText(
+		"vt_val",
+		base + ".current_total_volume",
+		function (v) {
+			return CaudalGlobals.UTILS.fmt(v || 0, 0);
+		},
+	);
+	if (esAP) {
+		CaudalGlobals.UTILS.subText(
+			"p_val",
+			base + ".current_pressure",
+			function (v) {
+				return webMI.sprintf("%.2f", v || 0);
+			},
+		);
+	}
+
+	// Umbrales (click para editar)
+	function bindThreshold(labelId, node, decimals) {
+		if (!document.getElementById(labelId)) return;
+		CaudalGlobals.UTILS.subText(labelId, node, function (v) {
+			return CaudalGlobals.UTILS.fmt(v || 0, 2);
+		});
+		try {
+			webMI.addEvent(labelId, "click", function () {
+				CaudalGlobals.UTILS.editNumber(
+					node,
+					decimals,
+					"Nuevo valor para " + labelId,
+				);
+			});
+		} catch (_) {}
+	}
+	bindThreshold("q_wl", N.q_wl, 2);
+	bindThreshold("q_al", N.q_al, 2);
+	bindThreshold("q_wh", N.q_wh, 2);
+	bindThreshold("q_ah", N.q_ah, 2);
+	if (esAP) {
+		bindThreshold("p_wl", N.p_wl, 2);
+		bindThreshold("p_al", N.p_al, 2);
+		bindThreshold("p_wh", N.p_wh, 2);
+		bindThreshold("p_ah", N.p_ah, 2);
+	}
+
+	// Áreas de influencia (chips)
+	function areasInfluenciaInit() {
+		var AI_NODE = N.areas;
+		function splitAreas(s) {
+			if (!s) return [];
+			return String(s)
+				.split(/[,;|\n]/)
+				.map(function (t) {
+					return t.trim();
+				})
+				.filter(Boolean);
+		}
+		function joinAreas(arr) {
+			return (arr || []).join(", ");
+		}
+		var state = [];
+		var $in = null;
+		var $list = null;
+		var $hint = null;
+		var $add = null;
+		var $save = null;
+		function getRoot() {
+			try {
+				var fo = document.getElementById("ai_fo");
+				if (!fo) return null;
+				var root = fo.getElementsByTagNameNS(
+					"http://www.w3.org/1999/xhtml",
+					"div",
+				)[0];
+				return root || null;
+			} catch (e) {
+				return null;
+			}
+		}
+		function $(id) {
+			var root = getRoot();
+			if (!root) return null;
+			return root.querySelector("#" + id);
+		}
+		function esc(s) {
+			return String(s).replace(/[&<>\"]/g, function (m) {
+				return {
+					"&": "&amp;",
+					"<": "&lt;",
+					">": "&gt;",
+					'"': "&quot;",
+				}[m];
+			});
+		}
+		function render() {
+			if (!$list) return;
+			var html = state
+				.map(function (txt, i) {
+					return (
+						'<span style="display:inline-block; margin:2px 6px 2px 0; padding:2px 8px;' +
+						'background:#eef2f7; border:1px solid #cfd4dc; border-radius:999px; color:#111; line-height:1.6;">' +
+						esc(txt) +
+						" " +
+						'<button type="button" data-i="' +
+						i +
+						'" style="margin-left:4px; border:none; background:#e11d48; color:#fff; border-radius:10px; padding:0 6px; cursor:pointer;">×</button>' +
+						"</span>"
+					);
+				})
+				.join("");
+			$list.innerHTML = html;
+			if ($hint) $hint.style.display = state.length ? "none" : "";
+		}
+		function load() {
+			try {
+				webMI.data.read(AI_NODE, function (r) {
+					var v = r && (typeof r.value !== "undefined" ? r.value : r);
+					state = splitAreas(v);
+					render();
+				});
+			} catch (_) {}
+		}
+		function addOne() {
+			var v = (($in && $in.value) || "").trim();
+			if (!v) return;
+			var parts = splitAreas(v);
+			if (parts.length) state = state.concat(parts);
+			$in.value = "";
+			render();
+		}
+		function saveAll() {
+			var s = joinAreas(state);
+			if ($save) $save.disabled = true;
+			CaudalGlobals.UTILS.write(AI_NODE, s, function () {
+				if ($save) $save.disabled = false;
+				load();
+				try {
+					webMI.callExtension(
+						"SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.MessageBox",
+						{
+							title: "T{Guardado}",
+							text: "T{Áreas de influencia actualizadas.}",
+						},
+					);
+				} catch (_) {}
+			});
+		}
+		function bind() {
+			$in = $("ai_input");
+			$list = $("ai_list");
+			$hint = $("ai_hint");
+			$add = $("ai_add_btn");
+			$save = $("ai_save_btn");
+			if (!($in && $list && $add && $save)) return false;
+			$in.addEventListener(
+				"keydown",
+				function (e) {
+					if (e.key === "Backspace") e.stopPropagation();
+				},
+				true,
+			);
+			$add.addEventListener("click", addOne);
+			$save.addEventListener("click", saveAll);
+			$in.addEventListener("keydown", function (e) {
+				if (e.key === "Enter") {
+					e.preventDefault();
+					addOne();
+				}
+			});
+			$list.addEventListener("click", function (e) {
+				var t = e.target;
+				if (
+					t &&
+					t.tagName &&
+					t.tagName.toLowerCase() === "button" &&
+					t.hasAttribute("data-i")
+				) {
+					var idx = parseInt(t.getAttribute("data-i"), 10);
+					if (!isNaN(idx)) {
+						state.splice(idx, 1);
+						render();
+					}
+				}
+			});
+			return true;
+		}
+		try {
+			webMI.data.subscribe(AI_NODE, function (e) {
+				var v = e && (typeof e.value !== "undefined" ? e.value : e);
+				state = splitAreas(v);
+				render();
+			});
+		} catch (_) {}
+		var tries = 0;
+		function tryInit() {
+			if (bind()) {
+				load();
+			} else if (tries++ < 50) {
+				setTimeout(tryInit, 120);
+			}
+		}
+		tryInit();
+	}
+	areasInfluenciaInit();
+
+
+
+	// Edición inline del diámetro (click en "Ø xx")
+	try {
+		webMI.addEvent("cd_sub", "click", function () {
+			var node = base + ".diameter";
+			try {
+				webMI.data.read(node, function (r) {
+					var cur = r && r.value != null ? r.value : "";
+					var nv = prompt("Diámetro (pulgadas):", String(cur));
+					if (nv === null) return;
+					var num = parseFloat(nv);
+					if (isNaN(num) || num <= 0) {
+						alert("Valor inválido");
+						return;
+					}
+					webMI.data.write(node, num);
+				});
+			} catch (_) {}
+		});
+	} catch (_) {}
+}
+
+
+
+// API pública mínima
+CaudalCard.init = init;
+
+/* ============ Detalle (sparkline/tabla) para tarjeta integrada ============ */
+if (typeof CaudalDetail === "undefined") {
+	var CaudalDetail = {};
+}
+// ------ Bloque: x ------
+function x(doc, tag) {
+	try {
+		return (doc || document).createElementNS(CaudalGlobals.UTILS.XHTML_NS, tag);
+	} catch (_) {
+		return (doc || document).createElement(tag);
+	}
+}
+// ------ Bloque: normalizeSeries ------
+function normalizeSeries(raw) {
+	var arr = [];
+	if (!raw) return arr;
+	var v = typeof raw.value !== "undefined" ? raw.value : raw;
+	if (Array.isArray(v)) {
+		for (var i = 0; i < v.length; i++) {
+			var it = v[i];
+			if (it && typeof it === "object" && ("v" in it || "value" in it))
+				arr.push({
+					t: it.t || it.ts || it.time || i,
+					v: +(it.v != null ? it.v : it.value),
+				});
+			else if (Array.isArray(it))
+				arr.push({
+					t: it[0] != null ? it[0] : i,
+					v: +it[1],
+				});
+			else
+				arr.push({
+					t: i,
+					v: +it,
+				});
+		}
+	}
+	return arr;
+}
+// Agrupa serie horaria en un solo valor por día: toma la ÚLTIMA muestra disponible del día
+// ------ Bloque: groupDaily ------
+function groupDaily(series) {
+	if (!Array.isArray(series) || series.length === 0) return [];
+	var s = series.slice().sort(function (a, b) {
+		return +a.t - +b.t;
+	});
+	var map = Object.create(null);
+	for (var i = 0; i < s.length; i++) {
+		var ts = +s[i].t;
+		var v = +s[i].v;
+		if (!isFinite(ts) || !isFinite(v)) continue;
+		var d = new Date(ts);
+		d.setHours(0, 0, 0, 0);
+		var dayStart = +d;
+		var prev = map[dayStart];
+		// Guardar SIEMPRE el valor del ÚLTIMO sample del día, pero el timestamp devuelto será el 00:00 local del día
+		if (!prev || ts > prev._ts) {
+			map[dayStart] = {
+				t: dayStart,
+				v: v,
+				_ts: ts,
+			};
+		}
+	}
+	return Object.keys(map)
+		.map(function (k) {
+			var o = map[k];
+			return {
+				t: o.t,
+				v: o.v,
+			};
+		})
+		.sort(function (a, b) {
+			return a.t - b.t;
+		});
+}
+// Agrupa serie horaria en un solo valor por hora: toma la ÚLTIMA muestra de cada hora
+// ------ Bloque: groupHourly ------
+function groupHourly(series) {
+	if (!Array.isArray(series) || series.length === 0) return [];
+	var s = series.slice().sort(function (a, b) {
+		return +a.t - +b.t;
+	});
+	var map = Object.create(null);
+	for (var i = 0; i < s.length; i++) {
+		var ts = +s[i].t;
+		var v = +s[i].v;
+		if (!isFinite(ts) || !isFinite(v)) continue;
+		var d = new Date(ts);
+		d.setMinutes(0, 0, 0);
+		var hourStart = +d;
+		var prev = map[hourStart];
+		if (!prev || ts > prev.t) {
+			map[hourStart] = {
+				t: ts,
+				v: v,
+			};
+		}
+	}
+	return Object.keys(map)
+		.map(function (k) {
+			return map[k];
+		})
+		.sort(function (a, b) {
+			return a.t - b.t;
+		});
+}
+// Calcula deltas DIARIOS con base en serie diaria acumulada (un valor por día)
+// ------ Bloque: computeDailyDeltasFromHourly ------
+function computeDailyDeltasFromHourly(series) {
+	if (!Array.isArray(series) || series.length === 0) return [];
+	var daily = groupDaily(series);
+	var out = [];
+	for (var j = 1; j < daily.length; j++) {
+		var vPrev = +daily[j - 1].v;
+		var vCur = +daily[j].v;
+		var dv = vCur - vPrev;
+		if (!isFinite(dv)) dv = 0;
+		if (dv < 0) dv = 0;
+		out.push({
+			t: daily[j].t,
+			v: dv,
+		});
+	}
+	return out;
+}
+// ------ Bloque: fmtTs ------
+function fmtTs(ts) {
+	try {
+		var d = new Date(ts);
+		// Formato hasta minutos, sin segundos
+		return d.toLocaleString(undefined, {
+			year: "numeric",
+			month: "2-digit",
+			day: "2-digit",
+			hour: "2-digit",
+			minute: "2-digit",
+		});
+	} catch (_) {
+		return String(ts);
+	}
+}
+// ------ Bloque: readHist ------
+function readHist(address, kind, cb) {
+	// flow/pressure: sus nodos respectivos; producción (daily/hourly): SIEMPRE desde hourly
+	var suffix =
+		kind === "flow"
+			? ".historic_flow"
+			: kind === "pressure"
+				? ".historic_pressure"
+				: ".historic_hourly_production";
+	var primary = address + suffix;
+	var fallback = address + ".Caudalimetro" + suffix;
+	function fixTs(ts) {
+		var n = Number(ts);
+		return n && n < 1e12 ? n * 1000 : n;
+	}
+	function viaQueryFilter(path, cb2) {
+		var now = Date.now();
+		var hours =
+			kind === "flow" || kind === "pressure"
+				? 12
+				: kind === "hourly"
+					? 24
+					: 24 * 31;
+		var from = now - hours * 60 * 60 * 1000;
+		var maxPoints =
+			kind === "flow" || kind === "pressure"
+				? 288
+				: kind === "hourly"
+					? 48
+					: 24 * 31 + 16;
+		var f = {
+			type: ["v:1"],
+			address: ["g:" + path],
+			select: ["v:timestamp", "v:value"],
+			numrows: ["v:" + maxPoints],
+			timestamp: ["n:>=" + from, "n:<" + now],
+			order: ["v:desc"],
+		};
+		try {
+			webMI.data.queryFilter(f, function (res) {
+				if (!res || !res.result) {
+					return cb2([]);
+				}
+				var rows = res.result;
+				var series = [];
+				for (var i = 0; i < rows.length; i++) {
+					var r = rows[i];
+					var ts =
+						r &&
+						(r.timestamp != null
+							? r.timestamp
+							: Array.isArray(r)
+								? r[0]
+								: null);
+					var val =
+						r && (r.value != null ? r.value : Array.isArray(r) ? r[1] : null);
+					if (ts != null && val != null) {
+						series.push({
+							t: fixTs(ts),
+							v: +val,
+						});
+					}
+				}
+				if (series.length >= 2 && series[0].t > series[series.length - 1].t)
+					series.reverse();
+				cb2(series);
+			});
+		} catch (e) {
+			cb2([]);
+		}
+	}
+	viaQueryFilter(primary, function (s1) {
+		if (s1 && s1.length) return cb(s1);
+		viaQueryFilter(fallback, function (s2) {
+			if (s2 && s2.length) return cb(s2);
+			try {
+				webMI.data.read(primary, function (r) {
+					var s = normalizeSeries(r);
+					if (s && s.length) return cb(s);
+					try {
+						webMI.data.read(fallback, function (r2) {
+							cb(normalizeSeries(r2));
+						});
+					} catch (__) {
+						cb([]);
+					}
+				});
+			} catch (_) {
+				cb([]);
+			}
+		});
+	});
+}
+// Lectura con rango explícito (ms). Devuelve serie ascendente [{t,v}]
+// ------ Bloque: readHistRange ------
+function readHistRange(address, kind, fromMs, toMs, cb) {
+	var suffix =
+		kind === "flow"
+			? ".historic_flow"
+			: kind === "pressure"
+				? ".historic_pressure"
+				: ".historic_hourly_production";
+	var primary = address + suffix;
+	var fallback = address + ".Caudalimetro" + suffix;
+	var fbase = function (path) {
+		return {
+			type: ["v:1"],
+			address: ["g:" + path],
+			select: ["v:timestamp", "v:value"],
+			numrows: [
+				"v:" + (kind === "flow" || kind === "pressure" ? 10000 : 20000),
+			],
+			timestamp: ["n:>=" + fromMs, "n:<" + toMs],
+			order: ["v:asc"],
+		};
+	};
+	function run(path) {
+		try {
+			webMI.data.queryFilter(fbase(path), function (res) {
+				var rows = res && res.result ? res.result : [];
+				var series = [];
+				for (var i = 0; i < rows.length; i++) {
+					var r = rows[i];
+					var ts =
+						r.timestamp != null ? r.timestamp : Array.isArray(r) ? r[0] : null;
+					var val = r.value != null ? r.value : Array.isArray(r) ? r[1] : null;
+					if (ts != null && val != null) {
+						var n = Number(ts);
+						series.push({
+							t: n && n < 1e12 ? n * 1000 : n,
+							v: +val,
+						});
+					}
+				}
+				cb(series);
+			});
+		} catch (_) {
+			cb([]);
+		}
+	}
+	run(primary);
+}
+// ------ Bloque: buildSpark ------
+function buildSpark(doc, container, series, color, unit) {
+	// Estado expandido: fullscreen O contenedor grande
+	series = (Array.isArray(series) ? series : []).slice().sort(function (a, b) {
+		return +a.t - +b.t;
+	});
+
+	var isFullscreen =
+		doc.fullscreenElement ||
+		doc.webkitFullscreenElement ||
+		doc.mozFullScreenElement;
+	var isExpanded = !!(
+		isFullscreen ||
+		(container &&
+			(container.clientHeight || 0) >= 220 &&
+			(container.clientWidth || 0) >= 400)
+	);
+
+	// Dimensiones: no exceder el alto real del contenedor
+	var w =
+		container.clientWidth ||
+		(container.getBoundingClientRect
+			? Math.round(container.getBoundingClientRect().width)
+			: 640);
+	var boxH =
+		container && container.getBoundingClientRect
+			? Math.round(container.getBoundingClientRect().height)
+			: container.clientHeight || 0;
+	var h = isExpanded
+		? Math.max(160, boxH)
+		: Math.max(120, Math.min(boxH || 0, 200));
+	var pad = isExpanded ? 16 : 8;
+	var fontSizeY = isExpanded ? 16 : 10;
+	var fontSizeTooltip = isExpanded ? 18 : 13;
+	var fontWeightTooltip = isExpanded ? "700" : "600";
+	var dotRadius = isExpanded ? 7 : 3.8;
+	var lineWidth = isExpanded ? 3.5 : 2;
+	var strokeWidthDot = isExpanded ? 2.5 : 1.5;
+	var leftPad = pad;
+	var rightPad = isExpanded
+		? Math.max(pad, Math.round(w * 0.08))
+		: Math.max(pad, Math.round(w * 0.12));
+	var xspan = Math.max(1, w - leftPad - rightPad);
+	var SVG_NS = "http://www.w3.org/2000/svg";
+	var svg = doc.createElementNS(SVG_NS, "svg");
+	svg.setAttribute("width", w);
+	svg.setAttribute("height", h);
+	svg.style.display = "block";
+	svg.style.cursor = "crosshair";
+	container.appendChild(svg);
+
+	// Debug helper: siempre loguea a consola
+	function dlog() {
+		try {
+			console.log.apply(console, arguments);
+		} catch (_) {}
+	}
+	var path = doc.createElementNS(SVG_NS, "path");
+	path.setAttribute("fill", "none");
+	path.setAttribute("stroke", color || "#2563eb");
+	path.setAttribute("stroke-width", lineWidth.toString());
+	svg.appendChild(path);
+	var area = doc.createElementNS(SVG_NS, "path");
+	var areaFill =
+		CAUDAL_COLORS && CAUDAL_COLORS.fills && CAUDAL_COLORS.fills[color]
+			? CAUDAL_COLORS.fills[color]
+			: "rgba(37,99,235,0.15)";
+	area.setAttribute("fill", areaFill);
+	svg.appendChild(area);
+	if (!series.length) {
+		path.setAttribute("d", "");
+		area.setAttribute("d", "");
+		return;
+	}
+	var ys = series.map(function (p) {
+		return p.v;
+	});
+	var xmax = Math.max(1, series.length - 1);
+	var ymin = Math.min.apply(null, ys);
+	var ymax = Math.max.apply(null, ys);
+	if (!isFinite(ymin)) ymin = 0;
+	if (!isFinite(ymax)) ymax = 1;
+	if (ymin === ymax) {
+		ymin = 0;
+	}
+
+	// Headroom 10% al máximo; base en 0 si todos positivos
+	var range = Math.max(1e-6, ymax - ymin);
+	var yMaxS = ymax + Math.max(range * 0.1, ymax * 0.1);
+	var yMinS = Math.min(0, ymin);
+	function sx(i) {
+		return leftPad + xspan * (i / xmax);
+	}
+	function sy(v) {
+		return h - pad - (h - 2 * pad) * ((v - yMinS) / (yMaxS - yMinS));
+	}
+	var d = "M" + sx(0) + "," + sy(ys[0]);
+	for (var i = 1; i < ys.length; i++) {
+		d += " L" + sx(i) + "," + sy(ys[i]);
+	}
+	path.setAttribute("d", d);
+	var da = "M" + sx(0) + "," + sy(ys[0]);
+	for (var j = 1; j < ys.length; j++) {
+		da += " L" + sx(j) + "," + sy(ys[j]);
+	}
+	da +=
+		" L" + sx(xmax) + "," + (h - pad) + " L" + sx(0) + "," + (h - pad) + " Z";
+	area.setAttribute("d", da);
+
+	// ========== ETIQUETAS DE ESCALA Y (MÁXIMO Y MÍNIMO) ==========
+	var yTop = doc.createElementNS(SVG_NS, "text");
+	yTop.setAttribute("fill", "#475569");
+	yTop.setAttribute("font-size", fontSizeY.toString());
+	yTop.setAttribute("font-weight", isFullscreen ? "600" : "400");
+	yTop.setAttribute("text-anchor", "end");
+	yTop.setAttribute("x", w - pad - 6);
+	yTop.setAttribute("y", pad + fontSizeY + 2);
+	yTop.textContent =
+		(CaudalGlobals && CaudalGlobals.UTILS
+			? CaudalGlobals.UTILS.fmt(yMaxS, 2)
+			: String(yMaxS)) + (unit ? " " + unit : "");
+	svg.appendChild(yTop);
+	var yBot = doc.createElementNS(SVG_NS, "text");
+	yBot.setAttribute("fill", "#94a3b8");
+	yBot.setAttribute("font-size", fontSizeY.toString());
+	yBot.setAttribute("font-weight", isFullscreen ? "600" : "400");
+	yBot.setAttribute("text-anchor", "end");
+	yBot.setAttribute("x", w - pad - 6);
+	yBot.setAttribute("y", h - pad + 4);
+	yBot.textContent =
+		(CaudalGlobals && CaudalGlobals.UTILS
+			? CaudalGlobals.UTILS.fmt(yMinS, 2)
+			: String(yMinS)) + (unit ? " " + unit : "");
+	svg.appendChild(yBot);
+
+	// ========== HOVER MARKERS ==========
+	var vline = doc.createElementNS(SVG_NS, "line");
+	vline.setAttribute("y1", pad);
+	vline.setAttribute("y2", h - pad);
+	vline.setAttribute("stroke", "#64748b");
+	vline.setAttribute("stroke-width", isFullscreen ? "2" : "1");
+	vline.setAttribute("opacity", "0");
+	svg.appendChild(vline);
+	var dot = doc.createElementNS(SVG_NS, "circle");
+	dot.setAttribute("r", dotRadius.toString());
+	dot.setAttribute("stroke", color || "#2563eb");
+	dot.setAttribute("fill", "#fff");
+	dot.setAttribute("opacity", "0");
+	dot.setAttribute("stroke-width", strokeWidthDot.toString());
+	svg.appendChild(dot);
+
+	// ========== BACKGROUND DEL TOOLTIP (FONDO OSCURO) ==========
+	var labelBg = doc.createElementNS(SVG_NS, "rect");
+	labelBg.setAttribute("rx", "6");
+	labelBg.setAttribute("ry", "6");
+	labelBg.setAttribute("fill", "#1e293b");
+	labelBg.setAttribute("opacity", "0.95");
+	labelBg.setAttribute("visibility", "hidden");
+	labelBg.setAttribute("filter", "drop-shadow(0 4px 6px rgba(0,0,0,0.2))");
+	svg.appendChild(labelBg);
+
+	// ========== TEXTO DEL TOOLTIP (TEXTO AMARILLO) ==========
+	var labelTx = doc.createElementNS(SVG_NS, "text");
+	labelTx.setAttribute("fill", "#fbbf24");
+	labelTx.setAttribute("font-size", fontSizeTooltip.toString());
+	labelTx.setAttribute("font-weight", fontWeightTooltip);
+	labelTx.setAttribute(
+		"font-family",
+		'Arial, "Helvetica Neue", Helvetica, sans-serif',
+	);
+	labelTx.setAttribute("visibility", "hidden");
+	svg.appendChild(labelTx);
+
+	// Evitar que el tooltip intercepte eventos del puntero
+	try {
+		labelBg.style.pointerEvents = "none";
+		labelTx.style.pointerEvents = "none";
+	} catch (_) {}
+
+	// ========== FUNCIÓN PARA MOSTRAR TOOLTIP EN MOUSE ==========
+	function showAtMouse(mx) {
+		// Clamp mouse X a área drawable
+		var mxc = Math.min(Math.max(mx, leftPad), w - rightPad);
+
+		// Mapear posición a índice
+		var span = Math.max(1e-6, xspan);
+		var frac = (mxc - leftPad) / span;
+		if (!isFinite(frac)) frac = 0;
+		if (frac < 0) frac = 0;
+		if (frac > 1) frac = 1;
+		var ix = Math.round(frac * xmax);
+		if (ix < 0) ix = 0;
+		if (ix > series.length - 1) ix = series.length - 1;
+		var px = sx(ix);
+		var py = sy(series[ix].v); // Dibujar línea vertical y punto
+		vline.setAttribute("x1", px);
+		vline.setAttribute("x2", px);
+		vline.setAttribute("opacity", "1");
+		dot.setAttribute("cx", px);
+		dot.setAttribute("cy", py);
+		dot.setAttribute("opacity", "1");
+
+		// ========== TEXTO DEL TOOLTIP ==========
+		var txt =
+			(typeof fmtTs === "function"
+				? fmtTs(series[ix].t)
+				: String(series[ix].t)) +
+			"  " +
+			(CaudalGlobals && CaudalGlobals.UTILS
+				? CaudalGlobals.UTILS.fmt(series[ix].v, 2)
+				: String(series[ix].v)) +
+			(unit ? " " + unit : "");
+		labelTx.textContent = txt;
+
+		// Obtener dimensiones del texto
+		var bb = labelTx.getBBox();
+
+		// Padding dinámico según fullscreen
+		var paddingX = isFullscreen ? 18 : 12;
+		var paddingY = isFullscreen ? 12 : 8;
+
+		// Calcular posición del tooltip
+		// Centro horizontal al mouse, pero con límites para no salir del gráfico
+		var tooltipWidth = bb.width + paddingX * 2;
+		var tooltipHeight = bb.height + paddingY * 2;
+		var lx = Math.min(
+			Math.max(mxc - tooltipWidth / 2, leftPad),
+			w - rightPad - tooltipWidth,
+		);
+
+		// Posición Y fija en la parte superior
+		var ly = pad + paddingY + fontSizeTooltip + 4;
+
+		// Aplicar posiciones al background
+		labelBg.setAttribute("x", lx - paddingX);
+		labelBg.setAttribute("y", ly - (bb.height + paddingY + 4));
+		labelBg.setAttribute("width", tooltipWidth);
+		labelBg.setAttribute("height", tooltipHeight);
+
+		// Aplicar posiciones al texto
+		labelTx.setAttribute("x", lx);
+		labelTx.setAttribute("y", ly - paddingY);
+
+		// Mostrar elementos
+		labelBg.setAttribute("visibility", "visible");
+		labelTx.setAttribute("visibility", "visible");
+	}
+	function hide() {
+		vline.setAttribute("opacity", "0");
+		dot.setAttribute("opacity", "0");
+		labelBg.setAttribute("visibility", "hidden");
+		labelTx.setAttribute("visibility", "hidden");
+	}
+
+	// ========== EVENT LISTENERS ==========
+	// Convierte coordenada de pantalla a coordenada local del SVG
+	function getLocalMouseX(ev) {
+		try {
+			if (svg.createSVGPoint && svg.getScreenCTM) {
+				var pt = svg.createSVGPoint();
+				pt.x = ev.clientX;
+				pt.y = ev.clientY;
+				var inv = svg.getScreenCTM();
+				if (inv && inv.inverse) {
+					inv = inv.inverse();
+				}
+				var loc = inv
+					? pt.matrixTransform(inv)
+					: {
+							x:
+								ev.offsetX != null
+									? ev.offsetX
+									: ev.layerX != null
+										? ev.layerX
+										: 0,
+						};
+				return +loc.x;
+			}
+		} catch (_) {}
+		// Fallback a boundingClientRect
+		try {
+			var rect = svg.getBoundingClientRect();
+			return ev.clientX - rect.left;
+		} catch (__) {}
+		return 0;
+	}
+	svg.addEventListener("mousemove", function (ev) {
+		var mx = getLocalMouseX(ev);
+		showAtMouse(mx);
+	});
+	svg.addEventListener("mouseleave", hide);
+}
+// ------ Bloque: buildTable ------
+function buildTable(doc, container, rows, headers) {
+	var table = x(doc, "table");
+	table.style.width = "100%";
+	table.style.borderCollapse = "collapse";
+	table.style.fontSize = "12px";
+	var thead = x(doc, "thead");
+	var trh = x(doc, "tr");
+	(headers || ["Fecha", "Valor"]).forEach(function (hh) {
+		var th = x(doc, "th");
+		th.textContent = hh;
+		th.style.textAlign = "left";
+		th.style.padding = "6px 8px";
+		th.style.borderBottom = "1px solid #e5e7eb";
+		trh.appendChild(th);
+	});
+	thead.appendChild(trh);
+	table.appendChild(thead);
+	var tbody = x(doc, "tbody");
+	(rows || []).forEach(function (r) {
+		var tr = x(doc, "tr");
+		r.forEach(function (c) {
+			var td = x(doc, "td");
+			td.textContent = c;
+			td.style.padding = "6px 8px";
+			td.style.borderBottom = "1px solid #f1f5f9";
+			tr.appendChild(td);
+		});
+		tbody.appendChild(tr);
+	});
+	table.appendChild(tbody);
+	container.appendChild(table);
+}
+// ------ Bloque: clear ------
+function clear(el) {
+	try {
+		el.innerHTML = "";
+	} catch (_) {}
+}
+// Paleta global para todas las vistas (card y fullscreen)
+var CAUDAL_COLORS = {
+	flow: "#2563eb",
+	// Azul  (Flujo)
+	pressure: "#16a34a",
+	// Verde (Presión)
+	production: "#0ea5e9",
+	// Cyan  (Producción)
+	fills: {
+		"#2563eb": "rgba(37,99,235,0.15)",
+		// fill azul
+		"#16a34a": "rgba(22,163,74,0.15)",
+		// fill verde
+		"#0ea5e9": "rgba(14,165,233,0.15)", // fill cyan
+	},
+};
+
+// Utilidad: descarga CSV
+// ------ Bloque: downloadCSV ------
+function downloadCSV(doc, filename, headers, rows) {
+	try {
+		var esc = function (s) {
+			s = String(s == null ? "" : s);
+			if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+			return s;
+		};
+		var csv = "";
+		if (headers && headers.length) csv += headers.map(esc).join(",") + "\n";
+		for (var i = 0; i < rows.length; i++) {
+			csv += rows[i].map(esc).join(",") + "\n";
+		}
+		var blob = new Blob([csv], {
+			type: "text/csv;charset=utf-8;",
+		});
+		var a = (doc || document).createElement("a");
+		var url = URL.createObjectURL(blob);
+		a.href = url;
+		a.download = filename;
+		(doc.body || document.body).appendChild(a);
+		a.click();
+		a.remove();
+		setTimeout(function () {
+			try {
+				URL.revokeObjectURL(url);
+			} catch (_) {}
+		}, 1000);
+	} catch (_) {
+		/* noop */
+	}
+}
+// ============================================================================
+// NUEVA FUNCIÓN: Mostrar 3 gráficas en fullscreen (Caudal, Presión, Histograma)
+// ============================================================================
+
+CaudalDetail.showFullscreenDashboard = function (detailWrap, address) {
+	// ===== DEBUG HELPERS =====
+	function ts(ms) {
+		try {
+			return new Date(ms).toLocaleString("es-MX", {
+				timeZone: "America/Cancun",
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit",
+				hour: "2-digit",
+				minute: "2-digit",
+				second: "2-digit",
+				hour12: false,
+			});
+		} catch (_) {
+			return String(ms);
+		}
+	}
+
+	function fmtLocal(ms) {
+		try {
+			return new Date(ms).toLocaleString("es-MX", {
+				timeZone: "America/Cancun",
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit",
+				hour: "2-digit",
+				minute: "2-digit",
+				second: "2-digit",
+				hour12: false,
+			});
+		} catch (_) {
+			return String(ms);
+		}
+	}
+	function spanText(series) {
+		if (!series || !series.length) return "∅";
+		return (
+			fmtLocal(series[0].t) +
+			"  ..  " +
+			fmtLocal(series[series.length - 1].t) +
+			"  (n=" +
+			series.length +
+			")"
+		);
+	}
+	var doc = (detailWrap && detailWrap.ownerDocument) || document;
+	function x(tag) {
+		try {
+			return doc.createElementNS("http://www.w3.org/1999/xhtml", tag);
+		} catch (_) {
+			return doc.createElement(tag);
+		}
+	}
+	function setS(el, styles) {
+		for (var k in styles)
+			if (Object.prototype.hasOwnProperty.call(styles, k))
+				el.style[k] = styles[k];
+	}
+
+	// --- Overlay a pantalla completa (pedimos FS sobre este elemento)
+	var host =
+		doc.body ||
+		doc.documentElement ||
+		(detailWrap && detailWrap.parentNode) ||
+		detailWrap;
+	var overlay = x("div");
+	overlay.className = "fs-overlay";
+	var style = doc.createElement("style");
+	style.textContent = `
+	  .fs-overlay, .fs-overlay * {
+		font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+	  }
+	  /* Asegura que SVG <text> también use Arial (sobre-escribe cualquier atributo) */
+	  .fs-overlay svg text {
+		font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+	  }
+	`;
+	(doc.head || doc.documentElement).appendChild(style);
+	setS(overlay, {
+		position: "fixed",
+		left: "0",
+		top: "0",
+		width: "100vw",
+		height: "100vh",
+		background: "#fff",
+		zIndex: "100000",
+		overflow: "hidden",
+	});
+
+	// --- Título superior (sin botón cerrar) — [Caudalímetro] — [Instalación]
+	var topTitle = x("div");
+	setS(topTitle, {
+		position: "absolute",
+		left: "50%",
+		top: "12px",
+		transform: "translateX(-50%)",
+		fontSize: "22px",
+		fontWeight: "800",
+		color: "#0f172a",
+		letterSpacing: "0.2px",
+		pointerEvents: "none",
+		whiteSpace: "nowrap",
+		textOverflow: "ellipsis",
+		overflow: "hidden",
+		maxWidth: "80vw",
+	});
+	overlay.appendChild(topTitle);
+
+	// Helpers compactos
+	function setTitle(caudal, inst) {
+		var a = (caudal || "").trim(),
+			b = (inst || "").trim();
+		topTitle.textContent =
+			a && b ? a + " — " + b : a || b || "Detalle de caudalímetro";
+	}
+	function lastSeg(p) {
+		try {
+			var parts = String(p || "").split(/[/.]/);
+			return parts[parts.length - 1] || "";
+		} catch (_) {
+			return "";
+		}
+	}
+	function readNode(path, cb) {
+		if (!path) return cb("");
+		try {
+			CaudalGlobals.UTILS.read(path, function (v) {
+				cb(v != null && v !== "" ? String(v) : "");
+			});
+		} catch (_) {
+			cb("");
+		}
+	}
+	function readFirst(paths, cb) {
+		var i = 0;
+		(function step() {
+			if (i >= paths.length) return cb("");
+			readNode(paths[i], function (val) {
+				if (val) return cb(val);
+				i++;
+				step();
+			});
+		})();
+	}
+
+	// 1) Instalación desde el DOM (#cd_title) o fallback a base.name
+	var instFromDOM = (function () {
+		try {
+			var el = doc.getElementById("cd_title");
+			return el && el.textContent ? el.textContent.trim() : "";
+		} catch (_) {
+			return "";
+		}
+	})();
+	var basePath = (function () {
+		try {
+			var q =
+				(CaudalGlobals && CaudalGlobals.CONFIG && CaudalGlobals.CONFIG.QUERY) ||
+				{};
+			return q.base || q["base"] || "";
+		} catch (_) {
+			return "";
+		}
+	})();
+	function getInstName(cb) {
+		if (instFromDOM) return cb(instFromDOM);
+		if (basePath) return readNode(basePath + ".name", cb);
+		cb("");
+	}
+
+	// 2) Caudalímetro desde el address (con fallbacks) o último segmento del path
+	var meterCandidates = [address + ".name", address + ".Caudalimetro.name"];
+	function getMeterName(cb) {
+		readFirst(meterCandidates, function (name) {
+			cb(name || lastSeg(address));
+		});
+	}
+
+	// Arma el título final
+	getInstName(function (inst) {
+		getMeterName(function (meter) {
+			setTitle(meter, inst);
+		});
+	});
+
+	// --- Layout principal: fila con 2/3 (gráficas) + 1/3 (tabla)
+	var wrap = x("div");
+	setS(wrap, {
+		position: "absolute",
+		left: "16px",
+		right: "16px",
+		top: "60px",
+		bottom: "16px",
+		display: "flex",
+		gap: "16px",
+	});
+	overlay.appendChild(wrap);
+	var main = x("div"); // 2/3: gráficas apiladas
+	setS(main, {
+		flex: "0 0 66.666%",
+		display: "flex",
+		flexDirection: "column",
+		gap: "16px",
+	});
+	var side = x("div"); // 1/3: tabla de producción
+	setS(side, {
+		flex: "0 0 33.333%",
+		display: "flex",
+		flexDirection: "column",
+		minWidth: "280px",
+	});
+	wrap.appendChild(main);
+	wrap.appendChild(side);
+
+	// --- Helper para caja de gráfica con título
+	function mkChartBox(titleText) {
+		var box = x("div");
+		setS(box, {
+			background: "#fff",
+			border: "1px solid #e2e8f0",
+			borderRadius: "8px",
+			padding: "8px",
+			minHeight: "140px",
+			height: "100%",
+			display: "flex",
+			flexDirection: "column",
+		});
+		var ttl = x("div");
+		ttl.textContent = titleText;
+		setS(ttl, {
+			fontSize: "14px",
+			fontWeight: "700",
+			color: "#0f172a",
+			margin: "2px 4px 6px 4px",
+		});
+		box.appendChild(ttl);
+		var chartHost = x("div");
+		setS(chartHost, {
+			position: "relative",
+			width: "100%",
+			height: "100%",
+		});
+		box.appendChild(chartHost);
+		return {
+			box: box,
+			chart: chartHost,
+			titleEl: ttl,
+		};
+	}
+
+	// --- 3 gráficas (2/3 de la pantalla)
+	var flow = mkChartBox("Flujo (l/s)");
+	var press = mkChartBox("Presión (kg/cm²)");
+	var prod = mkChartBox("Producción horaria (m³/h)");
+
+	// Alturas relativas similares a las que ya usabas
+	setS(flow.box, {
+		flex: "0 0 31%",
+		background: "#fff",
+		border: "1px solid #e2e8f0",
+		borderRadius: "8px",
+		padding: "8px",
+		display: "flex",
+		flexDirection: "column",
+	});
+	setS(press.box, {
+		flex: "0 0 28%",
+		background: "#fff",
+		border: "1px solid #e2e8f0",
+		borderRadius: "8px",
+		padding: "8px",
+		display: "flex",
+		flexDirection: "column",
+	});
+	setS(prod.box, {
+		flex: "0 0 32%",
+		background: "#fff",
+		border: "1px solid #e2e8f0",
+		borderRadius: "8px",
+		padding: "8px",
+		display: "flex",
+		flexDirection: "column",
+	});
+	main.appendChild(flow.box);
+	main.appendChild(press.box);
+	main.appendChild(prod.box);
+
+	// --- Panel derecho (1/3): Tabla de Producción con controles
+	var sideHdr = x("div");
+	setS(sideHdr, {
+		display: "flex",
+		alignItems: "center",
+		gap: "8px",
+		marginBottom: "8px",
+	});
+	var sideTitle = x("div");
+	sideTitle.textContent = "Producción — tabla";
+	setS(sideTitle, {
+		fontWeight: "700",
+		color: "#0f172a",
+	});
+	sideHdr.appendChild(sideTitle);
+	var spacer = x("div");
+	setS(spacer, {
+		flex: "1",
+	});
+	sideHdr.appendChild(spacer);
+	var btnDaily = x("button");
+	btnDaily.textContent = "Diaria";
+	var btnHourly = x("button");
+	btnHourly.textContent = "Horaria";
+	var btnCSV = x("button");
+	btnCSV.textContent = "CSV";
+	[btnDaily, btnHourly, btnCSV].forEach(function (b) {
+		setS(b, {
+			padding: "4px 8px",
+			border: "1px solid #cbd5e1",
+			borderRadius: "6px",
+			background: "#fff",
+			cursor: "pointer",
+		});
+		sideHdr.appendChild(b);
+	});
+	side.appendChild(sideHdr);
+
+	// ---- Rango de fechas (solo producción) ----
+	var rangeWrap = x("div");
+	setS(rangeWrap, {
+		display: "flex",
+		alignItems: "center",
+		gap: "12px",
+		margin: "0 0 12px 0",
+		padding: "12px 16px",
+		border: "2px solid #3498db",
+		borderRadius: "10px",
+		background: "linear-gradient(135deg, #ecf7ff 0%, #f0f8ff 100%)",
+		boxShadow: "0 4px 12px rgba(52, 152, 219, 0.15)",
+		flexWrap: "wrap",
+	});
+	var lbDe = x("span");
+	lbDe.textContent = "De:";
+	setS(lbDe, {
+		fontWeight: "600",
+		fontSize: "13px",
+		color: "#2c3e50",
+		whiteSpace: "nowrap",
+	});
+	rangeWrap.appendChild(lbDe);
+	var inFrom = x("input");
+	inFrom.type = "date";
+	setS(inFrom, {
+		padding: "8px 12px",
+		border: "2px solid #cbd5e1",
+		borderRadius: "6px",
+		fontSize: "13px",
+		fontFamily: "system-ui, -apple-system, sans-serif",
+		transition: "all 0.3s ease",
+		cursor: "pointer",
+		minWidth: "150px",
+	});
+	// Efectos interactivos con setS
+	inFrom.addEventListener("focus", function () {
+		setS(this, {
+			borderColor: "#3498db",
+			outline: "none",
+			boxShadow: "0 0 0 3px rgba(52, 152, 219, 0.2)",
+		});
+	});
+
+	inFrom.addEventListener("blur", function () {
+		setS(this, {
+			borderColor: "#cbd5e1",
+			boxShadow: "none",
+		});
+	});
+	rangeWrap.appendChild(inFrom);
+	var lbA = x("span");
+	lbA.textContent = "a:";
+	rangeWrap.appendChild(lbA);
+	var inTo = x("input");
+	inTo.type = "date";
+	setS(inTo, {
+		padding: "8px 12px",
+		border: "2px solid #cbd5e1",
+		borderRadius: "6px",
+		fontSize: "13px",
+		fontFamily: "system-ui, -apple-system, sans-serif",
+		transition: "all 0.3s ease",
+		cursor: "pointer",
+		minWidth: "150px",
+	});
+	// Efectos interactivos con setS
+	inTo.addEventListener("focus", function () {
+		setS(this, {
+			borderColor: "#3498db",
+			outline: "none",
+			boxShadow: "0 0 0 3px rgba(52, 152, 219, 0.2)",
+		});
+	});
+
+	inTo.addEventListener("blur", function () {
+		setS(this, {
+			borderColor: "#cbd5e1",
+			boxShadow: "none",
+		});
+	});
+	rangeWrap.appendChild(inTo);
+	var btnApply = x("button");
+	btnApply.textContent = "✓ Aplicar";
+	setS(btnApply, {
+		padding: "8px 16px",
+		border: "none",
+		borderRadius: "6px",
+		background: "linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)",
+		color: "#fff",
+		fontWeight: "600",
+		fontSize: "13px",
+		cursor: "pointer",
+		transition: "all 0.3s ease",
+		whiteSpace: "nowrap",
+	});
+
+	btnApply.addEventListener("mouseenter", function () {
+		setS(this, {
+			transform: "translateY(-2px)",
+			boxShadow: "0 6px 12px rgba(46, 204, 113, 0.3)",
+		});
+	});
+
+	btnApply.addEventListener("mouseleave", function () {
+		setS(this, {
+			transform: "translateY(0)",
+			boxShadow: "none",
+		});
+	});
+	rangeWrap.appendChild(btnApply);
+	var btnClear = x("button");
+	btnClear.textContent = "Limpiar";
+	setS(btnClear, {
+		padding: "8px 16px",
+		border: "none",
+		borderRadius: "6px",
+		background: "linear-gradient(135deg, #0044ff 0%, #729fc1 100%)",
+		color: "#fff",
+		fontWeight: "600",
+		fontSize: "13px",
+		cursor: "pointer",
+		transition: "all 0.3s ease",
+		whiteSpace: "nowrap",
+	});
+
+	btnClear.addEventListener("mouseenter", function () {
+		setS(this, {
+			transform: "translateY(-2px)",
+			boxShadow: "0 6px 12px rgba(46, 204, 113, 0.3)",
+		});
+	});
+
+	btnClear.addEventListener("mouseleave", function () {
+		setS(this, {
+			transform: "translateY(0)",
+			boxShadow: "none",
+		});
+	});
+	rangeWrap.appendChild(btnClear);
+	side.appendChild(rangeWrap);
+	var sideBody = x("div"); // contendrá la tabla
+
+	setS(sideBody, {
+		position: "relative",
+		flex: "1 1 auto",
+		border: "1px solid #e5e7eb",
+		borderRadius: "8px",
+		padding: "8px",
+		overflowY: "auto",
+		minHeight: "160px",
+		background: "#fff",
+	});
+	side.appendChild(sideBody);
+	(host || doc.documentElement).appendChild(overlay);
+
+	// --- Render de gráficas (reutilizan tus helpers existentes)
+	function renderFlow() {
+		try {
+			flow.chart.innerHTML = "";
+
+			// MISMO criterio que producción (depende de tableMode + datepicker)
+			var now = Date.now();
+			var fromQ, toQ;
+			if (tableMode === "daily") {
+				fromQ = rangeFromMs != null ? rangeFromMs : now - 31 * 24 * 3600 * 1000;
+				toQ = rangeToMs != null ? rangeToMs : now;
+			} else {
+				fromQ = rangeFromMs != null ? rangeFromMs : now - 24 * 3600 * 1000;
+				toQ = rangeToMs != null ? rangeToMs : now;
+			}
+
+			console.log(
+				"[renderFlow] mode=%s  from=%s  to=%s  (ms %d..%d)",
+				tableMode,
+				fmtLocal(fromQ),
+				fmtLocal(toQ),
+				fromQ,
+				toQ,
+			);
+
+			readHistRange(address, "flow", fromQ, toQ, function (s) {
+				s = Array.isArray(s) ? s : [];
+				if (s.length >= 2 && s[0].t > s[s.length - 1].t) {
+					s.reverse();
+					console.warn("[renderFlow] serie venía descendente -> reversed");
+				}
+
+				// CLAMP final exacto al datepicker (igual que producción)
+				var sIn =
+					rangeFromMs != null && rangeToMs != null
+						? s.filter(function (p) {
+								return p.t >= rangeFromMs && p.t <= rangeToMs;
+							})
+						: s;
+
+				console.log(
+					"[renderFlow] raw=",
+					spanText(s),
+					" | filtered=",
+					spanText(sIn),
+				);
+				buildSpark(doc, flow.chart, sIn, CAUDAL_COLORS.flow, "l/s");
+			});
+		} catch (_) {}
+	}
+
+	function renderPressure() {
+		try {
+			press.chart.innerHTML = "";
+
+			// MISMO criterio que producción (depende de tableMode + datepicker)
+			var now = Date.now();
+			var fromQ, toQ;
+			if (tableMode === "daily") {
+				fromQ = rangeFromMs != null ? rangeFromMs : now - 31 * 24 * 3600 * 1000;
+				toQ = rangeToMs != null ? rangeToMs : now;
+			} else {
+				fromQ = rangeFromMs != null ? rangeFromMs : now - 24 * 3600 * 1000;
+				toQ = rangeToMs != null ? rangeToMs : now;
+			}
+
+			console.log(
+				"[renderPressure] mode=%s  from=%s  to=%s  (ms %d..%d)",
+				tableMode,
+				fmtLocal(fromQ),
+				fmtLocal(toQ),
+				fromQ,
+				toQ,
+			);
+
+			readHistRange(address, "pressure", fromQ, toQ, function (s) {
+				s = Array.isArray(s) ? s : [];
+				if (!s.length) {
+					press.box.style.display = "none";
+					return;
+				}
+
+				if (s.length >= 2 && s[0].t > s[s.length - 1].t) {
+					s.reverse();
+					console.warn("[renderPressure] serie venía descendente -> reversed");
+				}
+
+				// CLAMP exacto al rango del datepicker
+				var sIn =
+					rangeFromMs != null && rangeToMs != null
+						? s.filter(function (p) {
+								return p.t >= rangeFromMs && p.t <= rangeToMs;
+							})
+						: s;
+
+				if (!sIn.length) {
+					press.box.style.display = "none";
+					return;
+				}
+
+				console.log(
+					"[renderPressure] raw=",
+					spanText(s),
+					" | filtered=",
+					spanText(sIn),
+				);
+				press.box.style.display = "";
+				buildSpark(doc, press.chart, sIn, CAUDAL_COLORS.pressure, "kg/cm²");
+			});
+		} catch (_) {}
+	}
+
+	function renderProductionGraph(mode) {
+		// 'daily' | 'hourly'
+		try {
+			prod.chart.innerHTML = "";
+			tableMode = mode || tableMode;
+			if (tableMode === "daily") {
+				// Leer serie horaria acumulada en el rango (con margen para primer delta)
+				var fromQ =
+					rangeFromMs != null
+						? rangeFromMs - 36 * 3600 * 1000
+						: Date.now() - 31 * 24 * 3600 * 1000;
+				var toQ = rangeToMs != null ? rangeToMs : Date.now();
+				readHistRange(address, "daily", fromQ, toQ, function (s) {
+					var dd = computeDailyDeltasFromHourly(s);
+					// Filtrar al rango visible si lo hay
+					if (rangeFromMs != null && rangeToMs != null) {
+						dd = dd.filter(function (p) {
+							return p.t >= rangeFromMs && p.t <= rangeToMs;
+						});
+					}
+					prod.titleEl.textContent = "Producción diaria (m³/d)";
+					buildSpark(doc, prod.chart, dd, CAUDAL_COLORS.production, "m³/d");
+				});
+			} else {
+				// 'hourly'
+				var fromQ =
+					rangeFromMs != null
+						? rangeFromMs - 2 * 3600 * 1000
+						: Date.now() - 24 * 3600 * 1000;
+				var toQ = rangeToMs != null ? rangeToMs : Date.now();
+				readHistRange(address, "daily", fromQ, toQ, function (s) {
+					var hourly = groupHourly(s);
+					var deltas = [];
+					for (var i = 1; i < hourly.length; i++) {
+						var dv = +hourly[i].v - +hourly[i - 1].v;
+						if (!isFinite(dv) || dv < 0) dv = 0;
+						deltas.push({
+							t: hourly[i].t,
+							v: dv,
+						});
+					}
+					if (rangeFromMs != null && rangeToMs != null) {
+						deltas = deltas.filter(function (p) {
+							return p.t >= rangeFromMs && p.t <= rangeToMs;
+						});
+					}
+					prod.titleEl.textContent = "Producción horaria (m³/h)";
+					buildSpark(doc, prod.chart, deltas, CAUDAL_COLORS.production, "m³/h");
+				});
+			}
+		} catch (_) {}
+	}
+
+	// --- Tabla derecha (misma semántica que tu vista de Producción->Tabla)
+	var tableMode = "hourly"; // por defecto Diaria como en tu card
+	var rangeFromMs = null; // límites opcionales del rango
+	var rangeToMs = null;
+	function parseInputDate(dstr) {
+		if (!dstr) return null; // 'YYYY-MM-DD'
+		var p = dstr.split("-"); // mes 0-based
+		var d = new Date(+p[0], +p[1] - 1, +p[2]);
+		return isFinite(+d) ? d : null;
+	}
+	function applyRangeFromInputs() {
+		var d1 = parseInputDate(inFrom.value);
+		var d2 = parseInputDate(inTo.value);
+		if (d1 && d2 && +d1 <= +d2) {
+			d1.setHours(0, 0, 0, 0);
+			d2.setHours(23, 59, 59, 999);
+			rangeFromMs = +d1;
+			rangeToMs = +d2;
+		} else {
+			rangeFromMs = rangeToMs = null; // sin filtro
+		}
+
+		renderProductionGraph(tableMode);
+		renderTable();
+		// también actualizar flujo y presión
+		try {
+			renderFlow();
+		} catch (_) {}
+		try {
+			renderPressure();
+		} catch (_) {}
+	}
+	btnApply.addEventListener("click", applyRangeFromInputs);
+	btnClear.addEventListener("click", function () {
+		inFrom.value = "";
+		inTo.value = "";
+		rangeFromMs = rangeToMs = null;
+		renderProductionGraph(tableMode);
+		renderTable();
+		try {
+			renderFlow();
+		} catch (_) {}
+		try {
+			renderPressure();
+		} catch (_) {}
+	});
+	function ymd(d) {
+		var y = d.getFullYear(),
+			m = String(d.getMonth() + 1).padStart(2, "0"),
+			da = String(d.getDate()).padStart(2, "0");
+		return y + "-" + m + "-" + da;
+	}
+	// fija las fechas por defecto Y aplica el rango
+	function setDefaultRangeFor(mode) {
+		var now = new Date(); // fin del rango
+		var start = new Date(now); // inicio del rango
+
+		if (mode === "hourly") {
+			start.setDate(start.getDate() - 1); // 1 día
+		} else {
+			start.setMonth(start.getMonth() - 1); // 1 mes
+		}
+		// normaliza a bordes de día
+		start.setHours(0, 0, 0, 0);
+		now.setHours(23, 59, 59, 999);
+
+		// escribe en inputs
+		inFrom.value = ymd(start);
+		inTo.value = ymd(now);
+
+		// y actualiza variables + render
+		applyRangeFromInputs();
+	}
+	function setActive(btn, on) {
+		btn.style.background = on ? "#e5efff" : "#fff";
+	}
+	setActive(btnDaily, false);
+	setActive(btnHourly, true);
+	
+	function renderTable() {
+	  sideBody.innerHTML = "";
+	
+	  // Ventana visible real (lo que marcaste en el datepicker)
+	  var viewFrom = (rangeFromMs != null) ? rangeFromMs
+					: (tableMode === "hourly" ? Date.now() - 24*3600*1000
+											  : Date.now() - 31*24*3600*1000);
+	  var viewTo   = (rangeToMs   != null) ? rangeToMs : Date.now();
+	
+	  // Trae una muestra previa FUERA del rango para que el primer delta no sea 0
+	  var fromQ = viewFrom - (tableMode === "hourly" ? 2*3600*1000 : 36*3600*1000);
+	  var toQ   = viewTo;
+	
+	  // Siempre leemos la serie acumulada horaria (base)
+	  readHistRange(address, "daily", fromQ, toQ, function (s) {
+		if (tableMode === "hourly") {
+		  var gh = groupHourly(s); // ascendente
+		  var rows = [];
+		  for (var i = 1; i < gh.length; i++) {
+			var dv = (+gh[i].v) - (+gh[i - 1].v);
+			if (!isFinite(dv) || dv < 0) dv = 0;
+	
+			// Solo filas dentro del rango VISIBLE, pero usando la muestra previa (i-1)
+			if (gh[i].t >= viewFrom && gh[i].t <= viewTo) {
+			  rows.push([
+				fmtTs(gh[i].t),
+				CaudalGlobals.UTILS.fmt(gh[i].v, 0),
+				CaudalGlobals.UTILS.fmt(dv, 2) // 2 decimales en delta
+			  ]);
+			}
+		  }
+		  buildTable(doc, sideBody, rows, ["Fecha y hora", "Totalizador (m³)", "Delta (m³/h)"]);
+		} else {
+		  // Diaria: deltas entre últimos valores de cada día
+		  var gd = groupDaily(s); // [{t(dayStart), v(lastOfDay)}]
+		  var rowsD = [];
+		  for (var j = 1; j < gd.length; j++) {
+			var dv = (+gd[j].v) - (+gd[j - 1].v);
+			if (!isFinite(dv) || dv < 0) dv = 0;
+	
+			if (gd[j].t >= viewFrom && gd[j].t <= viewTo) {
+			  rowsD.push([
+				fmtTs(gd[j].t),
+				CaudalGlobals.UTILS.fmt(gd[j].v, 0),
+				CaudalGlobals.UTILS.fmt(dv, 2) // 2 decimales en delta
+			  ]);
+			}
+		  }
+		  buildTable(doc, sideBody, rowsD, ["Fecha", "Totalizador (m³)", "Delta (m³/d)"]);
+		}
+	  });
+	}
+
+	btnDaily.addEventListener("click", function () {
+		tableMode = "daily";
+		setActive(btnDaily, true);
+		setActive(btnHourly, false);
+		setDefaultRangeFor("daily"); // pone 1 mes y llama applyRangeFromInputs()
+	});
+	btnHourly.addEventListener("click", function () {
+		tableMode = "hourly";
+		setActive(btnDaily, false);
+		setActive(btnHourly, true);
+		setDefaultRangeFor("hourly"); // pone 24 h y llama applyRangeFromInputs()
+	});
+	btnCSV.addEventListener("click", function () {
+		try {
+			// Exporta rango visible según filtros (daily/hourly)
+			var fromQ =
+				rangeFromMs != null
+					? rangeFromMs
+					: tableMode === "hourly"
+						? Date.now() - 24 * 3600 * 1000
+						: Date.now() - 31 * 24 * 3600 * 1000;
+			var toQ = rangeToMs != null ? rangeToMs : Date.now();
+			readHistRange(address, "daily", fromQ, toQ, function (s) {
+				var rows = [];
+				var name =
+					tableMode === "hourly"
+						? "produccion_horaria.csv"
+						: "produccion_diaria.csv";
+				if (tableMode === "hourly") {
+					var gh = groupHourly(s);
+					rows = gh.map(function (p) {
+						return [new Date(p.t).toISOString(), p.v];
+					});
+					downloadCSV(doc, name, ["timestamp", "valor_m3"], rows);
+				} else {
+					var gd = groupDaily(s);
+					rows = gd.map(function (p) {
+						return [new Date(p.t).toISOString(), p.v];
+					});
+					downloadCSV(doc, name, ["timestamp", "valor_m3"], rows);
+				}
+			});
+		} catch (_) {}
+	});
+
+	function renderAll() {
+		renderFlow();
+		renderPressure();
+		renderProductionGraph(tableMode);
+		renderTable();
+	}
+	setDefaultRangeFor(tableMode);
+	// Nota: setDefaultRangeFor ya dispara render vía applyRangeFromInputs
+
+	// --- Fullscreen API: pedir FS sobre el overlay y cerrar al salir
+	function enterFS(el) {
+		try {
+			if (el.requestFullscreen) el.requestFullscreen();
+			else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+			else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+			else if (el.msRequestFullscreen) el.msRequestFullscreen();
+		} catch (_) {}
+	}
+	function exitFS(d) {
+		try {
+			if (d.exitFullscreen) d.exitFullscreen();
+			else if (d.webkitExitFullscreen) d.webkitExitFullscreen();
+			else if (d.mozCancelFullScreen) d.mozCancelFullScreen();
+			else if (d.msExitFullscreen) d.msExitFullscreen();
+		} catch (_) {}
+	}
+	function cleanup() {
+		try {
+			doc.removeEventListener("fullscreenchange", onFsChange);
+		} catch (_) {}
+		try {
+			window.removeEventListener("resize", onResize);
+		} catch (_) {}
+		if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+	}
+	function onFsChange() {
+		var fsEl =
+			doc.fullscreenElement ||
+			doc.webkitFullscreenElement ||
+			doc.mozFullScreenElement;
+		if (!fsEl) cleanup();
+	}
+	try {
+		doc.addEventListener("fullscreenchange", onFsChange);
+	} catch (_) {}
+
+	// Redibujo en cambios de viewport (asegura que los gráficos ocupen todo)
+	function onResize() {
+		try {
+			renderAll();
+		} catch (_) {}
+	}
+	try {
+		window.addEventListener("resize", onResize);
+	} catch (_) {}
+
+	// Entrar a fullscreen
+	enterFS(overlay);
+};
+CaudalDetail.showFlow = function (detailWrap, address) {
+	clear(detailWrap);
+	var doc = detailWrap.ownerDocument || document;
+	var head = x(doc, "div");
+	head.style.display = "flex";
+	head.style.alignItems = "center";
+	head.style.gap = "8px";
+	head.style.marginBottom = "6px";
+	var title = x(doc, "div");
+	title.textContent = "Tendencia de caudal";
+	title.style.fontWeight = "600";
+	head.appendChild(title);
+	var sp = x(doc, "div");
+	sp.style.flex = "1";
+	head.appendChild(sp);
+	
+	var btnFs = x(doc, "button");
+	btnFs.textContent = "Pantalla completa";
+	btnFs.style.padding = "4px 8px";
+	btnFs.style.border = "1px solid #cbd5e1";
+	btnFs.style.borderRadius = "6px";
+	btnFs.style.background = "#fff";
+	head.appendChild(btnFs);
+	detailWrap.appendChild(head);
+	var panel = x(doc, "div");
+	panel.style.display = "none";
+	panel.style.margin = "4px 0 8px";
+	panel.style.padding = "6px";
+	panel.style.border = "1px solid #e2e8f0";
+	panel.style.borderRadius = "6px";
+	panel.style.background = "#f8fafc";
+	var lb1 = x(doc, "label");
+	lb1.textContent = "Desde:";
+	lb1.style.marginRight = "6px";
+	var inFrom = x(doc, "input");
+	inFrom.type = "datetime-local";
+	inFrom.style.marginRight = "10px";
+	var lb2 = x(doc, "label");
+	lb2.textContent = "Hasta:";
+	lb2.style.margin = "0 6px 0 4px";
+	var inTo = x(doc, "input");
+	inTo.type = "datetime-local";
+	inTo.style.marginRight = "10px";
+	var go = x(doc, "button");
+	go.textContent = "CSV";
+	go.style.padding = "4px 8px";
+	go.style.border = "1px solid #cbd5e1";
+	go.style.borderRadius = "6px";
+	go.style.background = "#e5efff";
+	panel.appendChild(lb1);
+	panel.appendChild(inFrom);
+	panel.appendChild(lb2);
+	panel.appendChild(inTo);
+	panel.appendChild(go);
+	detailWrap.appendChild(panel);
+
+	// defaults: últimas 12h
+	try {
+		var now = new Date();
+		var d0 = new Date(now.getTime() - 12 * 3600 * 1000);
+		inTo.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+			.toISOString()
+			.slice(0, 16);
+		inFrom.value = new Date(d0.getTime() - d0.getTimezoneOffset() * 60000)
+			.toISOString()
+			.slice(0, 16);
+	} catch (_) {}
+
+	var box = x(doc, "div");
+	detailWrap.appendChild(box);
+	function render() {
+		readHist(address, "flow", function (s) {
+			box.innerHTML = "";
+			buildSpark(doc, box, s, CAUDAL_COLORS.flow, "l/s");
+		});
+	}
+	// Fullscreen: usa Fullscreen API y re-renderiza
+	btnFs.addEventListener("click", function () {
+		try {
+			CaudalDetail.showFullscreenDashboard(detailWrap, address);
+		} catch (_) {}
+	});
+	try {
+		doc.addEventListener("fullscreenchange", function () {
+			try {
+				render();
+			} catch (_) {}
+		});
+	} catch (_) {}
+	render();
+};
+CaudalDetail.showPressure = function (detailWrap, address) {
+	clear(detailWrap);
+	var doc = detailWrap.ownerDocument || document;
+	var head = x(doc, "div");
+	head.style.display = "flex";
+	head.style.alignItems = "center";
+	head.style.gap = "8px";
+	head.style.marginBottom = "6px";
+	var title = x(doc, "div");
+	title.textContent = "Tendencia de presión";
+	title.style.fontWeight = "600";
+	head.appendChild(title);
+	var sp = x(doc, "div");
+	sp.style.flex = "1";
+	head.appendChild(sp);
+
+	var btnFs = x(doc, "button");
+	btnFs.textContent = "Pantalla completa";
+	btnFs.style.padding = "4px 8px";
+	btnFs.style.border = "1px solid #cbd5e1";
+	btnFs.style.borderRadius = "6px";
+	btnFs.style.background = "#fff";
+	head.appendChild(btnFs);
+	detailWrap.appendChild(head);
+	var panel = x(doc, "div");
+	panel.style.display = "none";
+	panel.style.margin = "4px 0 8px";
+	panel.style.padding = "6px";
+	panel.style.border = "1px solid #e2e8f0";
+	panel.style.borderRadius = "6px";
+	panel.style.background = "#f8fafc";
+	var lb1 = x(doc, "label");
+	lb1.textContent = "Desde:";
+	lb1.style.marginRight = "6px";
+	var inFrom = x(doc, "input");
+	inFrom.type = "datetime-local";
+	inFrom.style.marginRight = "10px";
+	var lb2 = x(doc, "label");
+	lb2.textContent = "Hasta:";
+	lb2.style.margin = "0 6px 0 4px";
+	var inTo = x(doc, "input");
+	inTo.type = "datetime-local";
+	inTo.style.marginRight = "10px";
+	var go = x(doc, "button");
+	go.textContent = "CSV";
+	go.style.padding = "4px 8px";
+	go.style.border = "1px solid #cbd5e1";
+	go.style.borderRadius = "6px";
+	go.style.background = "#e5efff";
+	panel.appendChild(lb1);
+	panel.appendChild(inFrom);
+	panel.appendChild(lb2);
+	panel.appendChild(inTo);
+	panel.appendChild(go);
+	detailWrap.appendChild(panel);
+
+	try {
+		var now = new Date();
+		var d0 = new Date(now.getTime() - 12 * 3600 * 1000);
+		inTo.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+			.toISOString()
+			.slice(0, 16);
+		inFrom.value = new Date(d0.getTime() - d0.getTimezoneOffset() * 60000)
+			.toISOString()
+			.slice(0, 16);
+	} catch (_) {}
+
+	var box = x(doc, "div");
+	detailWrap.appendChild(box);
+	function render() {
+		readHist(address, "pressure", function (s) {
+			box.innerHTML = "";
+			buildSpark(doc, box, s, CAUDAL_COLORS.pressure, "kg/cm²");
+		});
+	}
+	btnFs.addEventListener("click", function () {
+		try {
+			CaudalDetail.showFullscreenDashboard(detailWrap, address);
+		} catch (_) {}
+	});
+	try {
+		doc.addEventListener("fullscreenchange", function () {
+			try {
+				render();
+			} catch (_) {}
+		});
+	} catch (_) {}
+	render();
+};
+CaudalDetail.showProduction = function (detailWrap, address) {
+	clear(detailWrap);
+	var doc = detailWrap.ownerDocument || document;
+	var head = x(doc, "div");
+	head.style.display = "flex";
+	head.style.alignItems = "center";
+	head.style.gap = "8px";
+	head.style.marginBottom = "6px";
+	var t = x(doc, "div");
+	t.textContent = "Producción diaria";
+	t.style.fontWeight = "600";
+	head.appendChild(t);
+	var sp = x(doc, "div");
+	sp.style.flex = "1";
+	head.appendChild(sp);
+	var btnDaily = x(doc, "button");
+	btnDaily.textContent = "Diaria";
+	btnDaily.style.padding = "4px 8px";
+	btnDaily.style.border = "1px solid #cbd5e1";
+	btnDaily.style.borderRadius = "6px";
+	btnDaily.style.background = "#e5efff";
+	head.appendChild(btnDaily);
+	var btnHourly = x(doc, "button");
+	btnHourly.textContent = "Horaria";
+	btnHourly.style.padding = "4px 8px";
+	btnHourly.style.border = "1px solid #cbd5e1";
+	btnHourly.style.borderRadius = "6px";
+	btnHourly.style.background = "#fff";
+	head.appendChild(btnHourly);
+	var btnTab = x(doc, "button");
+	btnTab.textContent = "Tabla";
+	btnTab.style.padding = "4px 8px";
+	btnTab.style.border = "1px solid #cbd5e1";
+	btnTab.style.borderRadius = "6px";
+	btnTab.style.background = "#fff";
+	head.appendChild(btnTab);
+	var btnHist = x(doc, "button");
+	btnHist.textContent = "Histograma";
+	btnHist.style.padding = "4px 8px";
+	btnHist.style.border = "1px solid #cbd5e1";
+	btnHist.style.borderRadius = "6px";
+	btnHist.style.background = "#fff";
+	head.appendChild(btnHist);
+	
+	var btnFs = x(doc, "button");
+	btnFs.textContent = "Pantalla completa";
+	btnFs.style.padding = "4px 8px";
+	btnFs.style.border = "1px solid #cbd5e1";
+	btnFs.style.borderRadius = "6px";
+	btnFs.style.background = "#fff";
+	head.appendChild(btnFs);
+	detailWrap.appendChild(head);
+	// Panel de rango/descarga
+	var panel = x(doc, "div");
+	panel.style.display = "none";
+	panel.style.margin = "4px 0 8px";
+	panel.style.padding = "6px";
+	panel.style.border = "1px solid #e2e8f0";
+	panel.style.borderRadius = "6px";
+	panel.style.background = "#f8fafc";
+	var lb1 = x(doc, "label");
+	lb1.textContent = "Desde:";
+	lb1.style.marginRight = "6px";
+	var inFrom = x(doc, "input");
+	inFrom.type = "datetime-local";
+	inFrom.style.marginRight = "10px";
+	var lb2 = x(doc, "label");
+	lb2.textContent = "Hasta:";
+	lb2.style.margin = "0 6px 0 4px";
+	var inTo = x(doc, "input");
+	inTo.type = "datetime-local";
+	inTo.style.marginRight = "10px";
+	var go = x(doc, "button");
+	go.textContent = "CSV";
+	go.style.padding = "4px 8px";
+	go.style.border = "1px solid #cbd5e1";
+	go.style.borderRadius = "6px";
+	go.style.background = "#e5efff";
+	panel.appendChild(lb1);
+	panel.appendChild(inFrom);
+	panel.appendChild(lb2);
+	panel.appendChild(inTo);
+	panel.appendChild(go);
+	detailWrap.appendChild(panel);
+
+	try {
+		var now = new Date();
+		var d0 = new Date(now.getTime() - 31 * 24 * 3600 * 1000);
+		inTo.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+			.toISOString()
+			.slice(0, 16);
+		inFrom.value = new Date(d0.getTime() - d0.getTimezoneOffset() * 60000)
+			.toISOString()
+			.slice(0, 16);
+	} catch (_) {}
+	var body = x(doc, "div");
+	detailWrap.appendChild(body);
+	var seriesKind = "daily";
+	var viewMode = "table";
+	function setActive(btn, on) {
+		btn.style.background = on ? "#e5efff" : "#fff";
+	}
+	function load() {
+		body.innerHTML = "";
+		t.textContent =
+			seriesKind === "daily" ? "Producción diaria" : "Producción horaria";
+		readHist(address, seriesKind, function (s) {
+			if (seriesKind === "hourly") {
+				var gh = groupHourly(s);
+				if (viewMode === "hist") {
+					// deltas por hora (serie acumulada)
+					var deltas = [];
+					for (var i = 1; i < gh.length; i++) {
+						var dv = +gh[i].v - +gh[i - 1].v;
+						if (!isFinite(dv)) dv = 0;
+						if (dv < 0) dv = 0;
+						deltas.push({
+							t: gh[i].t,
+							v: dv,
+						});
+					}
+					buildSpark(doc, body, deltas, CAUDAL_COLORS.production, "m³");
+				} else {
+					var rowsH = gh.map(function (p) {
+						return [fmtTs(p.t), CaudalGlobals.UTILS.fmt(p.v, 0)];
+					});
+					buildTable(doc, body, rowsH, ["Fecha y hora", "Producción (m³)"]);
+				}
+			} else {
+				// daily (desde hourly últimos 31 días)
+				var gd = groupDaily(s);
+				if (viewMode === "hist") {
+					var dd = computeDailyDeltasFromHourly(s);
+					buildSpark(doc, body, dd, CAUDAL_COLORS.production, "m³");
+				} else {
+					var rowsD = gd.map(function (p) {
+						return [fmtTs(p.t), CaudalGlobals.UTILS.fmt(p.v, 0)];
+					});
+					buildTable(doc, body, rowsD, ["Fecha", "Producción (m³)"]);
+				}
+			}
+		});
+	}
+	// Fullscreen for production view
+	btnFs.addEventListener("click", function () {
+		try {
+			CaudalDetail.showFullscreenDashboard(detailWrap, address);
+		} catch (_) {}
+	});
+	try {
+		doc.addEventListener("fullscreenchange", function () {
+			try {
+				load();
+			} catch (_) {}
+		});
+	} catch (_) {}
+	// Exportador según vista y rango
+	function exportCSV() {
+		try {
+			var fms = Date.parse(inFrom.value);
+			var tms = Date.parse(inTo.value);
+			if (!(isFinite(fms) && isFinite(tms) && fms < tms)) return;
+			// Siempre desde hourly production, como el resto del módulo
+			readHistRange(address, "daily", fms, tms, function (s) {
+				var rows = [];
+				var name = "produccion.csv";
+				var hdr = ["timestamp", "valor_m3"];
+				if (seriesKind === "hourly") {
+					var gh = groupHourly(s);
+					if (viewMode === "hist") {
+						var deltas = [];
+						for (var i = 1; i < gh.length; i++) {
+							var dv = +gh[i].v - +gh[i - 1].v;
+							if (!isFinite(dv)) dv = 0;
+							if (dv < 0) dv = 0;
+							deltas.push({
+								t: gh[i].t,
+								v: dv,
+							});
+						}
+						rows = deltas.map(function (p) {
+							return [new Date(p.t).toISOString(), p.v];
+						});
+						name = "produccion_horaria_deltas.csv";
+					} else {
+						rows = gh.map(function (p) {
+							return [new Date(p.t).toISOString(), p.v];
+						});
+						name = "produccion_horaria.csv";
+					}
+				} else {
+					// daily
+					var gd = groupDaily(s);
+					if (viewMode === "hist") {
+						var dd = computeDailyDeltasFromHourly(s);
+						rows = dd.map(function (p) {
+							return [new Date(p.t).toISOString(), p.v];
+						});
+						name = "produccion_diaria_deltas.csv";
+					} else {
+						rows = gd.map(function (p) {
+							return [new Date(p.t).toISOString(), p.v];
+						});
+						name = "produccion_diaria.csv";
+					}
+				}
+				downloadCSV(doc, name, hdr, rows);
+			});
+		} catch (_) {}
+	}
+
+	btnDaily.addEventListener("click", function () {
+		seriesKind = "daily";
+		setActive(btnDaily, true);
+		setActive(btnHourly, false);
+		load();
+	});
+	btnHourly.addEventListener("click", function () {
+		seriesKind = "hourly";
+		setActive(btnDaily, false);
+		setActive(btnHourly, true);
+		load();
+	});
+	btnTab.addEventListener("click", function () {
+		viewMode = "table";
+		setActive(btnTab, true);
+		setActive(btnHist, false);
+		load();
+	});
+	btnHist.addEventListener("click", function () {
+		viewMode = "hist";
+		setActive(btnTab, false);
+		setActive(btnHist, true);
+		load();
+	});
+	setActive(btnDaily, true);
+	setActive(btnHourly, false);
+	setActive(btnTab, true);
+	setActive(btnHist, false);
+	load();
+};
+
+// Arranque de la Card sin IIFE
+try {
+	if (typeof webMI !== "undefined" && webMI.addOnload) {
+		webMI.addOnload(init);
+	} else {
+		init();
+	}
+} catch (_) {
+	try {
+		init();
+	} catch (__) {}
+}
+/*
+ * Archivo: temp.js
+ * Propósito: Vista de tarjeta de caudalímetros (AP/AR). Muestra cabecera, métricas,
+ *            umbrales y áreas de influencia apoyándose en utilidades de CaudalGlobals.
+ * Estilo: Indentación consistente y una variable por línea.
+ * Dependencias: CaudalGlobals (CONFIG, UTILS, STATE), webMI y DOM.
+ * Nota: No usa IIFE ni expone window; `init()` es el punto de entrada.
+ * Última actualización: 2025-11-06
+ */
+]]></code>
+</script>

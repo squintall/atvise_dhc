@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.019.181804894.PresionMinima
+NodeClass: Variable
+BrowseName: 1:PresionMinima
+DisplayName: en|PresionMinima
+Description: en|PresionMinima
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Sofrel

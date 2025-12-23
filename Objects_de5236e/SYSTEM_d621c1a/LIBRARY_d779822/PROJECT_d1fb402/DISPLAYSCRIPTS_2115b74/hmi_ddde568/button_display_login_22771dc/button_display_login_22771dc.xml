@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for button_display_login object display
+ * --------------------------------------------
+ * This control displays either the currently logged in user or an individual text and it also has a button to open the login dialog.
+ * The "logged in" / "not logged in" states are displayed by different symbols too.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var login_dialog = webMI.query["login_dialog"];
+var user_dialog = webMI.query["user_dialog"];
+var loginText = webMI.query["loginText"];
+var fill = webMI.query["fill"]
+var fillColorInactive = webMI.query["fillColorInactive"];
+var strokePressed = webMI.query["strokePressed"] ;
+var loggedIn = false;
+var loginmethod = null;
+var activatedEvents = false;
+
+/**
+ * RUNTIME SECTION
+ */
+
+webMI.addOnload(function() {
+	webMI.data.call("info",{},function(e) { //get information from webmi.js
+		loginmethod = e.loginmethod;
+		if(loginmethod == "none") {
+			setButtonFormat(false);
+			return;
+		}
+		webMI.addEvent(webMI.data, "clientvariableschange", function(e) {
+			loggedIn = (e.username != "" && e.username != undefined);
+			webMI.gfx.setText("user_label", (loggedIn && loginText == "") ? e.username : loginText);
+			if("username" in e) {
+				if(loginmethod == "http" || loginmethod == "ntlm") { //ntml is not defined in webmi
+					setButtonFormat(false);
+				}
+				else if(loginmethod == "form") {
+					setButtonFormat(true);
+					if(loggedIn)
+						webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout",{"action":"start"});
+				}
+			}
+			else if(e.username == undefined) //webMI2ADS 2.0.1 specific fix to enable login
+				setButtonFormat(true);
+			}
+		);
+	});
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setButtonFormat(active) {
+	webMI.gfx.setVisible("button_symbol_logout", loggedIn);
+	webMI.gfx.setVisible("button_symbol_login", !loggedIn);
+	webMI.gfx.setFill("input_bg", active ? fill : fillColorInactive);
+	if(!active)
+		webMI.gfx.setFill("button_bg", fillColorInactive);
+	activatedEvents = active;
+}
+
+function setButtonEvents(active) {
+	if(activatedEvents) {
+		webMI.gfx.setFill("button_stroke", (active) ? "url(#linear_2)" : "url(#linear_1)");
+		webMI.gfx.setStroke("button_stroke", (active) ? strokePressed : "none");
+		webMI.gfx.setStrokeWidth("button_stroke", (active) ? "1" : "0");
+	}
+}
+
+function openLoginDialog() {
+	webMI.display.openWindow({display:login_dialog,extern:false,height:300,menubar:false,modal:true,movable:true,resizable:false,scrollbars:false,status:false,title:"T{Login}",toolbar:false,width:430,query:webMI.query});
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent("button_clickarea", "click", function(e) {
+	if (!loggedIn && loginmethod == "form") {
+		openLoginDialog();
+	} else if (!loggedIn && loginmethod == "http") { //webMI2ADS 2.0.1 specific fix to enable login
+		webMI.data.login();
+	} else if (loggedIn && loginmethod == "form") {
+		webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.AutoLogout",{"action":"manualLogout"});
+		webMI.data.logout(function(){});
+	}
+});
+
+webMI.addEvent("user_clickarea", "click", function (e) {
+	if (loggedIn == false && loginmethod == "form") {
+		openLoginDialog();
+	} else if (loggedIn == false && loginmethod == "http") {
+		//webMI2ADS 2.0.1 specific fix to enable login
+		webMI.data.login();
+	} else if (loggedIn == true && loginmethod == "form") {
+		webMI.display.openWindow({
+			display: user_dialog,
+			extern: false,
+			height: 520,
+			menubar: false,
+			modal: false,
+			movable: false,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{User Editor}",
+			toolbar: false,
+			width: 430,
+			query: webMI.query
+		});
+	}
+});
+
+webMI.addEvent("button_clickarea", ["mouseup","mouseout"], function(e) {
+	setButtonEvents(false);
+});
+
+webMI.addEvent("button_clickarea", "mousedown", function(e) {
+	setButtonEvents(true);
+});
+
+webMI.addEvent("button_clickarea", "dragstart", function(e) {
+	if (e.preventDefault)
+		e.preventDefault();
+});]]></code>
+</script>

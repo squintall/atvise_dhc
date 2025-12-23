@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="t" type="interval" trigger="true" relative="false" value="" offset="00:00:00" interval="00:05:00"/>
+  <code><![CDATA[var odbcClient = new ODBCClient();
+odbcClient.source = "DSN=PostgreSQL;UID=vnode;PWD=vnode;";
+
+if (odbcClient.open()) {
+    var nombre = "Mediciones_instalaciones";
+    if (!nombre || nombre.trim() === "") {
+        console.log("Error: El nombre de la tabla es inválido.");
+        odbcClient.close();
+        return;
+    }
+
+    // id_instalacion requerido y > 0
+    var idInstalacionNode = Ua.findNode(base + ".id_instalacion");
+    if (!idInstalacionNode || !idInstalacionNode.result || idInstalacionNode.result.value == null) {
+        console.log("Error: Nodo id_instalacion no encontrado o sin valor válido. " + base);
+        odbcClient.close();
+        return;
+    }
+    var id_instalacion_raw = idInstalacionNode.result.value;
+    var id_instalacion = parseInt(id_instalacion_raw, 10);
+    if (isNaN(id_instalacion) || id_instalacion <= 0) {
+        // Skip limpio si el id no sirve (0, NaN, negativo)
+        odbcClient.close();
+        return;
+    }
+
+    // Nodos del objeto
+    var levelNode        = Ua.findNode(base + ".historic_level");
+    var levelPercentNode = Ua.findNode(base + ".historic_level_percent");
+    var connectNode      = Ua.findNode(base + ".connect");
+
+    // Si falta level_percent, omitimos (regla)
+    if (!levelPercentNode || !levelPercentNode.result) {
+        odbcClient.close();
+        return;
+    }
+
+    // Valores
+    var historic_level         = levelNode && levelNode.result ? levelNode.result.value : null;
+    var historic_level_percent = levelPercentNode.result.value;
+    var connectValue           = !!(connectNode && connectNode.result && connectNode.result.value);
+
+    // count/adquisitionTime desde 'level'
+    var count           = levelNode && levelNode.result ? levelNode.result.serverTime.value  : Date.now();
+    var adquisitionTime = levelNode && levelNode.result ? levelNode.result.sourceTime.value  : Date.now();
+
+    // Ajuste a UTC-5 y truncado a minuto
+    function truncateToUTCMinus5(ts) {
+        var d = new Date(ts);
+        d.setSeconds(0);
+        d.setMilliseconds(0);
+        d.setMinutes(d.getMinutes() - (5 * 60)); // UTC-5
+        return d;
+    }
+    var truncatedAdquisitionTime = truncateToUTCMinus5(adquisitionTime);
+
+    // Derivados de count (mismo patrón que caudalímetros)
+    var currentTimestamp = new Date(count);
+    var currentHours     = (currentTimestamp.getUTCHours() - 5 + 24) % 24;
+    var currentMinutes   = currentTimestamp.getUTCMinutes();
+
+    try {
+        // Create table (sin tocar esquema)
+        var createSql = `
+            CREATE TABLE IF NOT EXISTS SCADA."${nombre}" (
+                fecha_insercion        TIMESTAMP DEFAULT DATE_TRUNC('minute', NOW()),
+                fecha_adquisicion      TIMESTAMP,
+                historic_level         FLOAT,
+                historic_level_percent FLOAT,
+                connect                BOOLEAN,
+                id_instalacion         INT
+            );
+        `;
+        odbcClient.query(createSql);
+    } catch (e) {
+        console.log("Error al crear/verificar la tabla:", e);
+        odbcClient.close();
+        return;
+    }
+
+    try {
+        // Inserción con el mismo "modo" (ramas por minuto/hora)
+        var insertSql = `
+            INSERT INTO SCADA."${nombre}"
+                (historic_level, historic_level_percent, connect, id_instalacion, fecha_insercion, fecha_adquisicion)
+            VALUES
+                (${historic_level == null ? 'NULL' : historic_level},
+                 ${historic_level_percent == null ? 'NULL' : historic_level_percent},
+                 ${connectValue ? 'TRUE' : 'FALSE'},
+                 ${id_instalacion},
+                 DATE_TRUNC('minute', NOW()),
+                 '${truncatedAdquisitionTime.toISOString()}');
+        `;
+
+        // Top-of-hour (se conserva la estructura de ramas del caudalímetros)
+        if (currentMinutes == 0) {
+            insertSql = `
+                INSERT INTO SCADA."${nombre}"
+                    (historic_level, historic_level_percent, connect, id_instalacion, fecha_insercion, fecha_adquisicion)
+                VALUES
+                    (${historic_level == null ? 'NULL' : historic_level},
+                     ${historic_level_percent == null ? 'NULL' : historic_level_percent},
+                     ${connectValue ? 'TRUE' : 'FALSE'},
+                     ${id_instalacion},
+                     DATE_TRUNC('minute', NOW()),
+                     '${truncatedAdquisitionTime.toISOString()}');
+            `;
+        }
+
+        // Medianoche (mismo patrón; aquí no cambian columnas)
+        if (currentHours == 0 && currentMinutes == 0) {
+            insertSql = `
+                INSERT INTO SCADA."${nombre}"
+                    (historic_level, historic_level_percent, connect, id_instalacion, fecha_insercion, fecha_adquisicion)
+                VALUES
+                    (${historic_level == null ? 'NULL' : historic_level},
+                     ${historic_level_percent == null ? 'NULL' : historic_level_percent},
+                     ${connectValue ? 'TRUE' : 'FALSE'},
+                     ${id_instalacion},
+                     DATE_TRUNC('minute', NOW()),
+                     '${truncatedAdquisitionTime.toISOString()}');
+            `;
+        }
+
+        odbcClient.query(insertSql);
+    } catch (e2) {
+        // silencioso
+    } finally {
+        odbcClient.close();
+    }
+} else {
+    console.log("No se pudo conectar a la base de datos.");
+}
+]]></code>
+</script>

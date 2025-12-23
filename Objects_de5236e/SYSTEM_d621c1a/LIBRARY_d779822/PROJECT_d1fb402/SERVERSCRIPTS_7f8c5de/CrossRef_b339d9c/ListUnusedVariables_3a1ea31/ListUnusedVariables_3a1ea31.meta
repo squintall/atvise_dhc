@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.CrossRef.ListUnusedVariables
+NodeClass: Variable
+BrowseName: 1:ListUnusedVariables
+DisplayName: en|ListUnusedVariables
+Description: en|ListUnusedVariables
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.PTAR_SaastunHa
+NodeClass: Object
+BrowseName: 1:PTAR_SaastunHa
+DisplayName: en|PTAR_SaastunHa
+Description: en|PTAR_SaastunHa
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.PTAR

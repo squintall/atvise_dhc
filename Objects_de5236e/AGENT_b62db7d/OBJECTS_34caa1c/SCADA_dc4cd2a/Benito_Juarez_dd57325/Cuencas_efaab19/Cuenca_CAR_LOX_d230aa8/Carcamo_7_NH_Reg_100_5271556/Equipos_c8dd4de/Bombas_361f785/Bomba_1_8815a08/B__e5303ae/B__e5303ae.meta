@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_LOX.Carcamo_7_NH_Reg_100.Equipos.Bombas.Bomba_1.B*
+NodeClass: Variable
+BrowseName: 1:B*
+DisplayName: en|B*
+Description: en|B*
+DataType: Byte
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

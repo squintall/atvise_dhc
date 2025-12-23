@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Puerto_Aventuras.Equipos.Bombas.Bomba_2.MA
+NodeClass: Variable
+BrowseName: 1:MA
+DisplayName: en|MA
+Description: en|MA
+DataType: Byte
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

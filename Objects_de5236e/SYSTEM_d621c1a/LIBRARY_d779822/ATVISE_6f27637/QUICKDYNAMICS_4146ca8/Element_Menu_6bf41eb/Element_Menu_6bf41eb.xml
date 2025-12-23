@@ -1,0 +1,1321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADbElEQVRYhe2Wb2gbdRjHzxdLXbvVbfSWlLW7tZ6tVev+GSejaVJyaeY2EN3qWEFJWwT/MLFik1Vk5yjHCJ1/2AudWjBsUvCVhBG2puksy01GKANH56ytiDBTZNTVUYwdbT6+kJXNpO7usimCB8+bg9/3+/k9z3P3PAL/8iNYOTR15WfeOdRN6zMeHqhyIAgCy0qW0tT4BPtDQVKp1N0BuDb1Ey8/ryBXLqfnhRrOfexk+pQHdIWrpzyc+2QrPS8+irzOTpPbxejo6J0D0E/2USst52jXw8ydUUDPH1ndx9wZP0e7nYhlK4lEIoUDJE+8i1xRzDefbV3UOAck6eNSfyNrK1bT19dnHSB96STVa4r5tt+4+c3ZGPu8idXiKkZGRiwAzF7lKY9E5K1HFkS/PLIJta3KUKArZM/6Odbjxrl5o3mA7/QPqL9/GdmkdwFAbatCEARDcePMvN5MfZ3E4OCgcYDs/CyhdifvvVpzS1rNZuBGKd4PumlvD+QCFBUV5aVfV34vjetX8HVki+na5zakwoV+P3W1ci5AV1cXqqrmxIeH38C25B4yQ023iFkpAbrCb0NeimxLcgHymauqykeHX88RKQQAXfnzneEemPkBuaKEyair4BKgK6RPKJSVrTIBMPsLz+2QifVuLLwJkz5iR5rxuBuMAwB8eqiFjp1rCi5BVvfT0eIkHA6bA7h+5TyV9qVc/sJlOQPZpMLlqI+VK0qZnJw0BwBZIuG9PO22W/8E9W20PLme7u79eR1uP4yuX2OPX+Zgh2ze/Ow2Dr70OJs3bSCTyVgEAOZ+n2Knu5p9u9eSGfLe3jjpI3Pax77WDTxU9yDpdHpRbcP7wPzcLOE391Ivl3L8QD2/DnqZT96caoXsVzvInFY4/vZj1FSXs3vXLqanp/9W1/RK9uP3F3mlbTvlZcU0bxF57dlKDrRV09lay/ZGmftKS2j2eRkYGDCkZ2knBAgGg3R2diIIAqqq0tvby/DwMDMzM6Z0LAM0NDQQi8Xy/l7vOkA8HkeSJMbHx3E4HP8sQDwex263k0gk0DSNQCB3xpsCWGwa/jVCoRAulwtJkkgkEqRSKURRZGxsrDCAUChkCEDTNGKxGBMTE2iahiiKRKPRgswBBJvNZni4CIKAw+EgEAgUfPMFgDui8j/AfxngD/18GCbKyZ9dAAAAAElFTkSuQmCC</icon>
+    <visible>1</visible>
+    <title>Element Menu</title>
+    <description>Adds a menu to a visual component.</description>
+  </metadata>
+  <parameter behavior="hidden" name="id" valuetype="string"/>
+  <parameter behavior="hidden" name="elementId" valuetype="string"/>
+  <parameter behavior="optional" config="top-left;top-right;bottom-left;bottom-right" desc="menu positioning" name="elementPosition" valuetype="enum"/>
+  <parameter behavior="optional" config="yes;no" desc="menu mouseover active" name="fadeInAtHover" valuetype="enum"/>
+  <parameter behavior="optional" desc="menu mouseover delay (ms)" name="fadeInAtHoverTime" valuetype="number"/>
+  <parameter behavior="optional" desc="menu mouseout delay (ms)" name="fadeInAtHoverHide" valuetype="number"/>
+  <parameter behavior="optional" desc="menu group" name="elementGroup" valuetype="string"/>
+  <parameter behavior="optional" desc="menu items set" name="elementDefaultMenu" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 1 text" name="menue_1_text" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 1 trigger" name="menue_1_trigger" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 1 value" name="menue_1_value" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 2 text" name="menue_2_text" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 2 trigger" name="menue_2_trigger" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 2 value" name="menue_2_value" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 3 text" name="menue_3_text" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 3 trigger" name="menue_3_trigger" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 3 value" name="menue_3_value" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 4 text" name="menue_4_text" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 4 trigger" name="menue_4_trigger" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 4 value" name="menue_4_value" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 5 text" name="menue_5_text" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 5 trigger" name="menue_5_value" valuetype="string"/>
+  <parameter behavior="optional" desc="menu item 5 value" name="menue_5_trigger" valuetype="string"/>
+  <parameter behavior="optional" desc="menu symbol" name="elementSymbol" valuetype="string"/>
+  <parameter behavior="optional" desc="menu symbol scaling (0..100)" name="elementSymbolScale" valuetype="number"/>
+  <parameter behavior="optional" desc="menu symbol color" name="elementColor" valuetype="color"/>
+  <parameter behavior="optional" desc="menu symbol background" name="elementBackground" valuetype="color"/>
+  <parameter behavior="optional" desc="menu symbol size x" name="elementSizeX" valuetype="number"/>
+  <parameter behavior="optional" desc="menu symbol size y" name="elementSizeY" valuetype="number"/>
+  <parameter behavior="optional" desc="menu symbol offset x" name="elementOffsetX" valuetype="number"/>
+  <parameter behavior="optional" desc="menu symbol offset y" name="elementOffsetY" valuetype="number"/>
+  <parameter behavior="optional" desc="menu symbol border color" name="elementBorderColor" valuetype="color"/>
+  <parameter behavior="optional" desc="menu symbol border radius" name="elementBorderRadius" valuetype="number"/>
+  <parameter behavior="optional" desc="menu symbol border width" name="elementBorderSize" valuetype="number"/>
+  <parameter behavior="optional" desc="context menu offset x" name="contextOffsetX" valuetype="number"/>
+  <parameter behavior="optional" desc="context menu offset y" name="contextOffsetY" valuetype="number"/>
+  <parameter behavior="optional" desc="context menu click frame" name="clickareaEnlargement" valuetype="number"/>
+  <parameter behavior="optional" desc="element event target" name="elementEventTarget" valuetype="string"/>
+  <parameter behavior="hidden" name="customElementPosition" valuetype="string"/>
+  <parameter behavior="hidden" name="customFadeInAtHover" valuetype="string"/>
+  <parameter behavior="hidden" name="customElementOffsetX" valuetype="string"/>
+  <parameter behavior="hidden" name="customElementOffsetY" valuetype="string"/>
+  <parameter behavior="hidden" name="customClickareaEnlargement" valuetype="string"/>
+  <parameter behavior="hidden" name="customElementLayoutOffsets" valuetype="string"/>
+  <code><![CDATA[/**
+ * This quick dynamic adds a menu to a visual component
+ *
+ */
+var elementMenuConfig = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Element Menu Manager");
+var debugging = false;
+class ElementMenuQD {
+	constructor(document) {
+		var self = this;
+		var debug = false;
+
+		/**
+		 * DECLARATIONS
+		 */
+		var id = base.elementId ? base.elementId : webMI.gfx.elementPrefix + base.id;
+		var elementGroup = base.elementGroup ? base.elementGroup : false;
+		var elementEventTarget = base.elementEventTarget ? base.elementEventTarget : false;
+
+		var prefixId = base.id
+			? webMI.gfx.elementPrefix + base.id
+			: webMI.gfx.elementPrefix
+			? webMI.gfx.elementPrefix.slice(0, -1)
+			: null;
+		var menuId = elementMenuConfig.getUniqueSymbolID(prefixId);
+
+		var baseConfiguration = {
+			id: base.id,
+			elementSymbol: base.elementSymbol,
+			elementSymbolScale: base.elementSymbolScale,
+			elementPosition: base.elementPosition,
+			elementSizeX: base.elementSizeX,
+			elementSizeY: base.elementSizeY,
+			elementOffsetX: base.elementOffsetX,
+			elementOffsetY: base.elementOffsetY,
+			elementBorderSize: base.elementBorderSize,
+			elementBorderRadius: base.elementBorderRadius,
+			elementBorderColor: base.elementBorderColor,
+			elementColor: base.elementColor,
+			elementBackground: base.elementBackground,
+			contextOffsetX: base.contextOffsetX,
+			contextOffsetY: base.contextOffsetY,
+			fadeInAtHover: base.fadeInAtHover,
+			fadeInAtHoverTime: base.fadeInAtHoverTime,
+			fadeInAtHoverHide: base.fadeInAtHoverHide
+		};
+
+		/** set custom configs **/
+		var globalConfiguration = elementMenuConfig.getConfiguration();
+		var customPositionIndex = base.customElementPosition
+			? base.customElementPosition
+			: baseConfiguration.elementPosition
+			? baseConfiguration.elementPosition
+			: globalConfiguration.elementPosition;
+
+		if (base.customElementPosition) {
+			baseConfiguration.elementPosition = base.customElementPosition;
+		}
+
+		if (base.customFadeInAtHover) {
+			baseConfiguration.fadeInAtHover = base.customFadeInAtHover;
+		}
+
+		if (base.customElementOffsetX) {
+			baseConfiguration.elementOffsetX = base.customElementOffsetX;
+		} else if (base.customElementLayoutOffsets && base.customElementLayoutOffsets[customPositionIndex]) {
+			baseConfiguration.elementOffsetX = base.customElementLayoutOffsets[customPositionIndex].x;
+		}
+
+		if (base.customElementOffsetY) {
+			baseConfiguration.elementOffsetY = base.customElementOffsetY;
+		} else if (base.customElementLayoutOffsets && base.customElementLayoutOffsets[customPositionIndex]) {
+			baseConfiguration.elementOffsetY = base.customElementLayoutOffsets[customPositionIndex].y;
+		}
+
+		if (base.customClickareaEnlargement) {
+			baseConfiguration.clickareaEnlargement = base.customClickareaEnlargement;
+		}
+
+		/** set config **/
+		var configuration = _getConfiguration();
+		var configurationSymbol = {
+			background: configuration.elementBackground,
+			borderColor: configuration.elementBorderColor,
+			color: configuration.elementColor,
+			fadeInAtHover: configuration.fadeInAtHover,
+			fontSize:
+				configuration.elementSizeX < configuration.elementSizeY
+					? configuration.elementSizeX
+					: configuration.elementSizeY,
+			fontScale: configuration.elementSymbolScale,
+			icon: configuration.elementSymbol,
+			parent: true
+		};
+
+		var contextMenu = {};
+		var contextMenuStructure = [];
+		var contextMenuReady = false;
+		var contextMenuDestroy = false;
+
+		var defaultContextMenuStyle = {
+			itemHeight: 25,
+			maxRows: 5,
+			fontFill: "#575757",
+			hoverFontFill: "#333333",
+			fill: "#f1f1f1",
+			stroke: "#e5e5e5",
+			strokeWidth: 0,
+			hoverFill: "#e5e5e5",
+			closeTime: 0
+		};
+
+		var hoverID = null;
+		var hoverTiming = {
+			iTime: 0,
+			oTime: 0,
+			miTime: configuration.fadeInAtHoverTime, // time for delay mouseover
+			moTime: configuration.fadeInAtHoverHide // time for delay to hide
+		};
+
+		var menuTimeoutList = [];
+
+		/**
+		 * RUNTIME
+		 */
+		_showMenuSymbol(document);
+		_setMenu([]);
+		_initMenu();
+
+		/**
+		 * FUNCTIONS
+		 */
+		/**
+		 * Adding a menu structur to the existing menu
+		 * @param menuConfig
+		 */
+		this.addMenu = function (menuConfig) {
+			/* repeat if symbol not ready  */
+			if (!contextMenuReady) {
+				var timer = setTimeout(function () {
+					if (contextMenuDestroy) return;
+
+					self.addMenu(menuConfig);
+				}, 125);
+				menuTimeoutList.push(timer);
+				return;
+			}
+
+			_addMenu(menuConfig);
+		};
+
+		/**
+		 * clean up lost timeouts and other stuff
+		 */
+		this.destroy = function () {
+			contextMenuDestroy = true;
+			for (var t in menuTimeoutList) {
+				clearTimeout(menuTimeoutList[t]);
+				menuTimeoutList[t] = null;
+			}
+		};
+
+		/**
+		 * Get predefines start order of menue types
+		 * @param type
+		 * @returns {*}
+		 */
+		this.getStartOrder = function (type) {
+			return elementMenuConfig.getStartOrder(type);
+		};
+
+		/**
+		 * Get unique symbol id for foreign object container
+		 * @param id
+		 * @returns {*}
+		 */
+		self.getUniqueSymbolID = function (id) {
+			return elementMenuConfig.getUniqueSymbolID(id);
+		};
+
+		/**
+		 * init context menu
+		 * @param cfg
+		 */
+		this.initContextMenu = function (cfg) {
+			if (!cfg) return;
+
+			if (cfg.fadeInAtHover) {
+				configuration.fadeInAtHover = cfg.fadeInAtHover;
+				configurationSymbol.fadeInAtHover = cfg.fadeInAtHover;
+			}
+
+			if (cfg["elementDefaultMenu"]) {
+				var defaultMenuStructure = elementMenuConfig.getDefaultMenuItems(cfg["elementDefaultMenu"]);
+				_addMenu(defaultMenuStructure);
+				self.setVisibility(true);
+			}
+
+			var elementMenuConfiguration = [];
+
+			var order = elementMenuConfig.getStartOrder("default");
+			var orderSteps = order["steps"];
+			var orderStart = order["start"] - orderSteps;
+
+			for (var i = 1; i < 6; i++) {
+				if (cfg["menue_" + i + "_text"]) {
+					orderStart = orderStart + orderSteps;
+					elementMenuConfiguration.push({
+						mid: "menue_" + i,
+						text: cfg["menue_" + i + "_text"],
+						value: cfg["menue_" + i + "_value"],
+						trigger: cfg["menue_" + i + "_trigger"],
+						order: orderStart
+					});
+				}
+			}
+
+			if (elementMenuConfiguration.length > -1) {
+				_addMenu(elementMenuConfiguration);
+				self.setVisibility(true);
+			}
+		};
+
+		/**
+		 * Removing a menu structur from an existing menu
+		 * @param menuConfig
+		 */
+		this.removeMenu = function (menuConfig) {
+			/* repeat if symbol not ready  */
+			if (!contextMenuReady) {
+				var timer = setTimeout(function () {
+					if (contextMenuDestroy) return;
+
+					self.removeMenu(menuConfig);
+				}, 125);
+				menuTimeoutList.push(timer);
+				return;
+			}
+
+			_removeMenu(menuConfig);
+		};
+
+		/**
+		 * set a new menu structur
+		 * this will also remove/replace all existing items
+		 * @param menuConfig
+		 */
+		this.setMenu = function (menuConfig) {
+			/* repeat if symbol not ready  */
+			if (!contextMenuReady) {
+				var timer = setTimeout(function () {
+					if (contextMenuDestroy) return;
+
+					self.setMenu(menuConfig);
+				}, 125);
+				menuTimeoutList.push(timer);
+				return;
+			}
+
+			_setMenu(menuConfig);
+		};
+
+		/**
+		 * set symbol for menu
+		 * @param symbol
+		 */
+		this.setSymbol = function (symbol) {
+			/* repeat if symbol not ready  */
+			if (!contextMenuReady) {
+				var timer = setTimeout(function () {
+					if (contextMenuDestroy) return;
+
+					self.setSymbol(symbol);
+				}, 125);
+				menuTimeoutList.push(timer);
+				return;
+			}
+
+			_setSymbol(symbol);
+		};
+
+		/**
+		 * change visibility of the menu (symbol)
+		 * @param visible
+		 */
+		this.setVisibility = function (visible) {
+			/* repeat if symbol not ready  */
+			if (!contextMenuReady) {
+				var timer = setTimeout(function () {
+					if (contextMenuDestroy) return;
+
+					self.setVisibility(visible);
+				}, 125);
+				menuTimeoutList.push(timer);
+				return;
+			}
+
+			_setVisibility(visible);
+		};
+
+		/**
+		 * change visibility by parent settings
+		 * e.g. parent gets hidden, so menu gets hidden
+		 */
+		this.updateByParentVisibility = function () {
+			/* repeat if not ready  */
+			if (!contextMenuReady) {
+				var timer = setTimeout(function () {
+					if (contextMenuDestroy) return;
+
+					self.updateByParentVisibility();
+				}, 250);
+				menuTimeoutList.push(timer);
+				return;
+			}
+
+			var element;
+
+			/* get element */
+			if (base.elementId) {
+				element = document.getElementById(base.elementId).parentNode;
+			} else {
+				element = document.getElementById(id);
+				if (!element) element = document.getElementById(base.id);
+			}
+
+			try {
+				configurationSymbol.parent = window.getComputedStyle(element).visibility == "visible";
+			} catch (ex) {
+				console.error("Error get getComputedStyle @:" + id + " (" + base.elementId + ")");
+			}
+
+			if (configurationSymbol.fadeInAtHover == "yes") _setVisibility(false);
+			else _setVisibility(configurationSymbol.parent);
+		};
+
+		/**
+		 * add hover function to element
+		 * @private
+		 */
+		function _addHover(document) {
+			/* start hover */
+			function hoverStart() {
+				hoverTiming.iTime = Date.now();
+				if (!hoverTiming.oTime) hoverTiming.oTime = hoverTiming.iTime;
+
+				if (!hoverID) {
+					hoverID = setTimeout(function showIconAfterMouseOver() {
+						if (contextMenuDestroy) return;
+
+						if (hoverTiming.iTime === hoverTiming.oTime) {
+							_setVisibility(true, true);
+						}
+
+						if (configurationSymbol.fadeInAtHover.toLowerCase() === "yes") {
+							var timer = setTimeout(function hideIconAfterMouseOver() {
+								hoverID = null;
+
+								if (contextMenuDestroy) return;
+
+								if (configurationSymbol.fadeInAtHover.toLowerCase() === "yes") _setVisibility(false);
+							}, hoverTiming.moTime);
+							menuTimeoutList.push(timer);
+						}
+					}, hoverTiming.miTime);
+					menuTimeoutList.push(hoverID);
+				}
+			}
+
+			/* end hover */
+			function hoverReset() {
+				hoverTiming.oTime = 0;
+			}
+			var element;
+
+			try {
+				/* get svg element */
+				if (base.elementId) {
+					element = document.getElementById(base.elementId).parentNode.parentNode;
+				} else {
+					element = document.getElementById(id);
+					if (!element) element = document.getElementById(base.id);
+					if (element.tagName === "svg") {
+						element = element.parentNode;
+					}
+				}
+
+				/* add events to element */
+				webMI.addEvent(element, ["mouseover", "touchstart"], hoverStart);
+				webMI.addEvent(element, ["mouseout", "touchend"], hoverReset);
+
+				/* get further element like clickareasFO */
+				if (elementEventTarget) {
+					if (!Array.isArray(elementEventTarget)) elementEventTarget = [elementEventTarget];
+
+					for (var eet in elementEventTarget) {
+						let furtherElement = webMI.rootWindow.document.getElementById(elementEventTarget[eet]);
+						webMI.addEvent(furtherElement, ["mouseover", "touchstart"], hoverStart);
+						webMI.addEvent(furtherElement, ["mouseout", "touchend"], hoverReset);
+					}
+				}
+			} catch (ex) {
+				console.error("Error initializing the hover function @:" + id + " (" + base.elementId + ")");
+			}
+		}
+
+		/**
+		 * adding menu items to existing menu
+		 * existing items will be replaced!
+		 * @param menuConfig
+		 * @private
+		 */
+		function _addMenu(menuConfig) {
+			if (menuConfig) {
+				var context = _concatRaw(contextMenuStructure, menuConfig);
+				contextMenuStructure = _sortRaw(context);
+				_buildContexMenu();
+			}
+		}
+
+		/**
+		 * build the context menu out of the stored structure
+		 * @private
+		 */
+		function _buildContexMenu() {
+			contextMenu = {};
+			contextMenuStructure.forEach(function (obj) {
+				obj.id = base.id ? webMI.gfx.elementPrefix + base.id : webMI.gfx.elementPrefix.slice(0, -1);
+				obj.fkt = null;
+
+				if (obj.trigger) {
+					obj.fkt = function () {
+						webMI.trigger.fire(obj.trigger, {
+							id: obj.id,
+							value: obj.value
+						});
+					};
+				} else if (typeof obj.value === "function") {
+					obj.fkt = obj.value;
+				} else if (obj.value) {
+					obj.fkt = obj.value;
+				}
+
+				if (obj.sub) {
+					contextMenu[obj.text] = {
+						text: obj.text,
+						textAlign: "left",
+						sub: obj.sub
+					};
+				} else {
+					contextMenu[obj.mid] = {
+						text: obj.text,
+						textAlign: "left",
+						value: obj.fkt
+					};
+				}
+			});
+		}
+
+		/**
+		 * concat two menu structures
+		 * @param context ... reserved for old structure
+		 * @param structur .. reserved for new elements
+		 * @returns {*}
+		 * @private
+		 */
+		function _concatRaw(context, structur) {
+			var objStructur = structur.slice(0);
+			var objContext = context.slice(0);
+
+			for (var s in objStructur) {
+				var sItem = objStructur[s];
+
+				var order = 0;
+				for (var c in objContext) {
+					var cItem = objContext[c];
+
+					if (sItem.mid === cItem.mid) {
+						order = c;
+						break;
+					}
+					order++;
+				}
+
+				objContext[order] = objStructur[s];
+			}
+
+			return objContext;
+		}
+
+		/**
+		 * returns configuration
+		 * @returns {{...}}
+		 */
+		function _getConfiguration() {
+			/* fix for differnce between zoom and transform */
+			var transformFix = 1;
+			if (scaleType === "transform") {
+				transformFix = 1.15;
+			}
+
+			return {
+				id: base.elementId ? base.elementId : base.id,
+				elementSymbol: baseConfiguration.elementSymbol
+					? baseConfiguration.elementSymbol
+					: globalConfiguration.elementSymbol,
+				elementSymbolScale: baseConfiguration.elementSymbolScale
+					? parseInt(baseConfiguration.elementSymbolScale) / 100
+					: globalConfiguration.elementSymbolScale,
+				elementPosition: baseConfiguration.elementPosition
+					? baseConfiguration.elementPosition
+					: globalConfiguration.elementPosition,
+				elementSizeX:
+					(baseConfiguration.elementSizeX
+						? parseInt(baseConfiguration.elementSizeX)
+						: globalConfiguration.elementSizeX) * transformFix,
+				elementSizeY:
+					(baseConfiguration.elementSizeY
+						? parseInt(baseConfiguration.elementSizeY)
+						: globalConfiguration.elementSizeY) * transformFix,
+				elementOffsetX:
+					(baseConfiguration.elementOffsetX
+						? parseInt(baseConfiguration.elementOffsetX)
+						: globalConfiguration.elementOffsetX) * transformFix,
+				elementOffsetY:
+					(baseConfiguration.elementOffsetY
+						? parseInt(baseConfiguration.elementOffsetY)
+						: globalConfiguration.elementOffsetY) * transformFix,
+				elementBorderSize: baseConfiguration.elementBorderSize
+					? parseInt(baseConfiguration.elementBorderSize)
+					: globalConfiguration.elementBorderSize,
+				elementBorderRadius: baseConfiguration.elementBorderRadius
+					? parseInt(baseConfiguration.elementBorderRadius)
+					: globalConfiguration.elementBorderRadius,
+				elementBorderColor: baseConfiguration.elementBorderColor
+					? baseConfiguration.elementBorderColor
+					: globalConfiguration.elementBorderColor,
+				elementColor: baseConfiguration.elementColor
+					? baseConfiguration.elementColor
+					: globalConfiguration.elementColor,
+				elementBackground: baseConfiguration.elementBackground
+					? baseConfiguration.elementBackground
+					: globalConfiguration.elementBackground,
+				// context menu
+				contextOffsetX:
+					(baseConfiguration.contextOffsetX
+						? parseInt(baseConfiguration.contextOffsetX)
+						: globalConfiguration.contextOffsetX) * transformFix,
+				contextOffsetY:
+					(baseConfiguration.contextOffsetY
+						? parseInt(baseConfiguration.contextOffsetY)
+						: globalConfiguration.contextOffsetY) * transformFix,
+				// handler
+				fadeInAtHover: baseConfiguration.fadeInAtHover
+					? baseConfiguration.fadeInAtHover
+					: globalConfiguration.fadeInAtHover,
+				fadeInAtHoverTime: baseConfiguration.fadeInAtHoverTime
+					? parseInt(baseConfiguration.fadeInAtHoverTime)
+					: globalConfiguration.fadeInAtHoverTime,
+				fadeInAtHoverHide: baseConfiguration.fadeInAtHoverHide
+					? baseConfiguration.fadeInAtHoverHide
+					: globalConfiguration.fadeInAtHoverHide,
+				clickareaEnlargement: baseConfiguration.clickareaEnlargement
+					? baseConfiguration.clickareaEnlargement
+					: globalConfiguration.clickareaEnlargement
+			};
+		}
+
+		/**
+		 * init menu, set visible, add hover events
+		 * @private
+		 */
+		function _initMenu() {
+			var clickContainer = webMI.rootWindow.document.getElementById(menuId + "_event_target");
+			if (!clickContainer) {
+				// console.warn("Wait for: " + menuId + "_event_target");
+				var timer = setTimeout(function () {
+					if (contextMenuDestroy) return;
+					_initMenu();
+				}, 25);
+				menuTimeoutList.push(timer);
+			} else {
+				// console.warn("Menu "+menuId + "_event_target"+" ready");
+				if (Object.keys(contextMenu).length > 0) {
+					_setVisibility(true);
+				} else {
+					_setVisibility(false);
+				}
+
+				if (configurationSymbol.fadeInAtHover.toLowerCase() === "yes") {
+					_addHover(document);
+				}
+
+				contextMenuReady = true;
+			}
+		}
+
+		/**
+		 * remove menu items from existing menu
+		 * existing items will be replaced!
+		 * @param menuConfig
+		 * @private
+		 */
+		function _removeMenu(menuConfig) {
+			if (menuConfig) {
+				var context = _removeRaw(contextMenuStructure, menuConfig);
+				contextMenuStructure = _sortRaw(context);
+				_buildContexMenu();
+			}
+		}
+
+		/**
+		 * remove menu structures from structure
+		 * @param context ... reserved for old structure
+		 * @param structur .. reserved for new elements
+		 * @returns {*}
+		 * @private
+		 */
+		function _removeRaw(context, structur) {
+			var objStructur = structur.slice(0);
+			var objContext = context.slice(0);
+
+			for (var s in objStructur) {
+				var sItem = objStructur[s];
+
+				for (var c in objContext) {
+					var cItem = objContext[c];
+
+					if (sItem.mid === cItem.mid) {
+						delete objContext[c];
+					}
+				}
+			}
+
+			return objContext;
+		}
+
+		/**
+		 * set menu items
+		 * this will override the existing structure
+		 * @param menuConfig
+		 * @private
+		 */
+		function _setMenu(menuConfig) {
+			if (menuConfig) {
+				contextMenuStructure = [];
+
+				var context;
+				var defaultMenuStructure = elementMenuConfig.getDefaultMenuItems(base.elementDefaultMenu);
+
+				context = _concatRaw(contextMenuStructure, menuConfig);
+				contextMenuStructure = _sortRaw(context);
+
+				context = _concatRaw(contextMenuStructure, defaultMenuStructure);
+				contextMenuStructure = _sortRaw(context);
+
+				_buildContexMenu();
+
+				if (contextMenuReady) {
+					_setVisibility(true);
+				}
+			}
+		}
+
+		/**
+		 * setting visibility of icon
+		 * @param visible
+		 * @param hover
+		 * @param ctn ... internal retry counter to prevent deadlooks
+		 * @private
+		 */
+		function _setVisibility(visible, hover) {
+			/* set symbol visibility */
+			var click = webMI.rootWindow.document.getElementById(menuId + "_event_target");
+			var icon = webMI.rootWindow.document.getElementById(menuId + "_icon_container");
+			var svgMenu = document.getElementById(menuId);
+
+			if (configurationSymbol.fadeInAtHover.toLowerCase() === "yes") {
+				visible = false;
+			}
+
+			if (!configurationSymbol.parent) {
+				visible = false;
+				hover = false;
+			}
+
+			try {
+				if ((visible || hover) && Object.keys(contextMenu).length > 0) {
+					svgMenu.setAttribute("visibility", "visible");
+					click.parentNode.style.display = "block";
+					icon.parentNode.style.display = "block";
+				} else {
+					svgMenu.setAttribute("visibility", "hidden");
+					click.parentNode.style.display = "none";
+					icon.parentNode.style.display = "none";
+				}
+			} catch (ex) {
+				// console.error("Error initializing the visibility @:" + menuId);
+			}
+		}
+
+		/**
+		 * set symbol for menu
+		 * @param symbol
+		 * @private
+		 */
+		function _setSymbol(symbol) {
+			var icon = webMI.rootWindow.document.getElementById(menuId + "_icon_container");
+			var iconSymbol = webMI.rootWindow.document.getElementById(menuId + "_icon_symbol");
+
+			if (!iconSymbol) return; /* content already unloaded */
+
+			/* custom symbol */
+			configurationSymbol.icon = symbol.icon ? symbol.icon : configuration.elementSymbol;
+			configurationSymbol.color = symbol.color ? symbol.color : configuration.elementColor;
+			configurationSymbol.fontScale = symbol.fontScale ? symbol.fontScale / 100 : configuration.elementSymbolScale;
+			configurationSymbol.background = symbol.background ? symbol.background : configuration.elementBackground;
+			configurationSymbol.borderColor = symbol.borderColor ? symbol.borderColor : configuration.elementBorderColor;
+			configurationSymbol.fadeInAtHover = symbol.visible ? "no" : configuration.fadeInAtHover;
+
+			/* update symbol */
+			iconSymbol.innerHTML = "";
+
+			var dim =
+				parseFloat(iconSymbol.parentNode.style.width - iconSymbol.parentNode.style.borderWidth) /
+				configuration.elementSizeX;
+
+			var divDim = {
+				width: Math.floor((configuration.elementSizeX - configuration.elementBorderSize * 2) * dim),
+				height: Math.floor((configuration.elementSizeY - configuration.elementBorderSize * 2) * dim),
+				borderRadius: Math.floor(configuration.elementBorderRadius * dim),
+				borderWidth: Math.floor(configuration.elementBorderSize * dim),
+				fontSize: Math.floor(configurationSymbol.fontSize * configurationSymbol.fontScale * dim)
+			};
+
+			var isImage = false;
+			var extensions = ["jpg", "jpeg", "gif", "png", "svg", "webp", "ico"];
+			for (var i in extensions) {
+				if (configurationSymbol.icon.indexOf("." + extensions[i]) > -1) isImage = true;
+			}
+
+			icon.style.background = configurationSymbol.background;
+			icon.style.borderRadius = divDim.borderRadius + "px";
+			icon.style.borderWidth = divDim.borderWidth + "px";
+			icon.style.borderStyle = "solid";
+			icon.style.borderColor = configurationSymbol.borderColor;
+
+			if (isImage) {
+				var iconContainerImage = document.createElementNS("http://www.w3.org/1999/xhtml", "img");
+				iconContainerImage.src = configurationSymbol.icon;
+				iconContainerImage.style.width = configuration.elementSizeX * configurationSymbol.fontScale + "px";
+				iconContainerImage.style.height = configuration.elementSizeY * configurationSymbol.fontScale + "px";
+				iconContainerImage.style.pointerEvents = "none";
+				iconSymbol.appendChild(iconContainerImage);
+			} else {
+				iconSymbol.style.color = configurationSymbol.color;
+				iconSymbol.style.fontSize = divDim.fontSize + "px";
+				iconSymbol.innerHTML = configurationSymbol.icon;
+			}
+
+			icon.style.pointerEvents = "none";
+			icon.parentNode.style.pointerEvents = "none";
+
+			iconSymbol.style.pointerEvents = "none";
+			iconSymbol.style.display = "flex";
+			iconSymbol.style.justifyContent = "center";
+			iconSymbol.style.alignItems = "center";
+
+			if (configurationSymbol.fadeInAtHover.toLowerCase() === "no") {
+				_setVisibility(true, symbol.visible ? true : false);
+			} else {
+				_setVisibility(false);
+			}
+		}
+
+		/**
+		 * prepare notification icon
+		 * and event lister for the context menu
+		 */
+		function _showMenuSymbol(document) {
+			if (webMI.gfx.getVisible(configuration.id) === false) return;
+
+			var svgMenu = document.getElementById(menuId);
+
+			/* add menu group to svg if not exists */
+			if (!svgMenu) {
+				/* get element bound */
+				var element;
+				var elementAbsolute = true;
+
+				if (base.elementId) {
+					element = document.getElementById(base.elementId).parentNode.parentNode;
+					elementAbsolute = false;
+				} else {
+					element = document.getElementById(id);
+
+					if (!element) {
+						element = document.getElementById(configuration.id);
+						if (!element) return;
+					}
+
+					try {
+						if (element.tagName === "svg") {
+							element = element.parentNode;
+						}
+					} catch (ex) {
+						console.error("invalide configuration");
+					}
+				}
+
+				var svgRoot = element;
+				var gMatrix = element.getAttribute("transform") ? element.transform.baseVal.consolidate().matrix : false;
+
+				while (svgRoot.tagName !== "svg") svgRoot = svgRoot.parentNode;
+
+				var elementBound = element.getBBox();
+				var elementBoundCM = element.getBBox();
+				var elementIsRight = configuration.elementPosition.indexOf("right") > -1;
+				var elementIsBottm = configuration.elementPosition.indexOf("bottom") > -1;
+
+				/* fix bounding for context menu */
+				elementBoundCM.x = elementAbsolute ? elementBoundCM.x : 0;
+				elementBoundCM.y = elementAbsolute ? elementBoundCM.y : 0;
+
+				var elementScale = {
+					offsetX: configuration.elementOffsetX,
+					offsetY: configuration.elementOffsetY,
+					sizeX: configuration.elementSizeX,
+					sizeY: configuration.elementSizeY
+				};
+
+				var elementContext = {
+					offsetX:
+						elementScale.sizeX * (elementIsRight ? 0 : -1) -
+						elementScale.offsetX * (elementIsRight ? 1 : -1) +
+						elementScale.sizeX / 2 +
+						configuration.contextOffsetX,
+					offsetY:
+						elementScale.sizeY * (elementIsBottm ? 0 : -1) -
+						elementScale.offsetY * (elementIsBottm ? 1 : -1) +
+						elementScale.sizeY / 2 +
+						configuration.contextOffsetY
+				};
+
+				/* Pass on transformations of the reference element or remove them */
+				if (gMatrix) {
+					elementBound.x = elementBound.x * gMatrix.a;
+					elementBound.y = elementBound.y * gMatrix.d;
+					elementBound.width = elementBound.width * gMatrix.a;
+					elementBound.height = elementBound.height * gMatrix.d;
+					elementScale.sizeX = elementScale.sizeX * gMatrix.a;
+					elementScale.sizeY = elementScale.sizeY * gMatrix.d;
+					elementContext.offsetX = elementContext.offsetX / gMatrix.a;
+					elementContext.offsetY = elementContext.offsetY / gMatrix.d;
+				}
+
+				var menuPosition = {};
+
+				/*
+			if (id.indexOf("id_5") > -1 || id.indexOf("id_19") > -1) {
+				console.warn(id, elementBoundCM);
+				console.warn(id, elementScale);
+				console.warn(id, elementContext);
+			}
+			*/
+				switch (configuration.elementPosition) {
+					case "top-right":
+						menuPosition = {
+							x: elementBound.x + elementBound.width - elementScale.offsetX,
+							y: elementBound.y - configuration.elementSizeY + elementScale.offsetY,
+							cmx: elementBoundCM.x + elementBoundCM.width + elementContext.offsetX,
+							cmy: elementBoundCM.y + elementContext.offsetY
+						};
+						break;
+					case "bottom-left":
+						menuPosition = {
+							x: elementBound.x - configuration.elementSizeX + elementScale.offsetX,
+							y: elementBound.y + elementBound.height - elementScale.offsetY,
+							cmx: elementBoundCM.x + elementContext.offsetX,
+							cmy: elementBoundCM.y + elementBoundCM.height + elementContext.offsetY
+						};
+						break;
+					case "bottom-right":
+						menuPosition = {
+							x: elementBound.x + elementBound.width - elementScale.offsetX,
+							y: elementBound.y + elementBound.height - elementScale.offsetY,
+							cmx: elementBoundCM.x + elementBoundCM.width + elementContext.offsetX,
+							cmy: elementBoundCM.y + elementBoundCM.height + elementContext.offsetY
+						};
+						break;
+					default:
+						menuPosition = {
+							x: elementBound.x - configuration.elementSizeX + elementScale.offsetX,
+							y: elementBound.y - configuration.elementSizeY + elementScale.offsetY,
+							cmx: elementBoundCM.x + elementContext.offsetX,
+							cmy: elementBoundCM.y + elementContext.offsetY
+						};
+						break;
+				}
+
+				/* add svg group */
+				svgMenu = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+				svgMenu.setAttribute("id", menuId);
+
+				svgMenu.setAttribute("visibility", "hidden");
+
+				/* add svg rect as context menu reference */
+				var rectSpace = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+				rectSpace.setAttribute("x", menuPosition.x);
+				rectSpace.setAttribute("y", menuPosition.y);
+				rectSpace.setAttribute("width", configuration.elementSizeX);
+				rectSpace.setAttribute("height", configuration.elementSizeY);
+
+				if (debug) {
+					rectSpace.setAttribute("fill", "#ff0000");
+				} else {
+					rectSpace.setAttribute("rx", configuration.elementBorderRadius);
+					rectSpace.setAttribute("ry", configuration.elementBorderRadius);
+					rectSpace.setAttribute("opacity", 0);
+				}
+
+				svgMenu.appendChild(rectSpace);
+
+				/* create container for icon and click area */
+				var iconContainer = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+				var clickContainer = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+
+				/* add fo */
+				/* caution: the rendering of the display has a time offset! */
+				var timer = setTimeout(function () {
+					if (contextMenuDestroy) return;
+
+					webMI.gfx.addForeignObject(
+						{
+							x: -configuration.clickareaEnlargement,
+							y: -configuration.clickareaEnlargement,
+							width: configuration.elementSizeX + configuration.clickareaEnlargement * 2,
+							height: configuration.elementSizeY + configuration.clickareaEnlargement * 2,
+							id: menuId + "_event",
+							atvType: "elementMenu",
+							childNodes: [clickContainer]
+						},
+						rectSpace
+					);
+
+					webMI.gfx.addForeignObject(
+						{
+							x: 0, // menuPosition.x,
+							y: 0, // menuPosition.y,
+							width: configuration.elementSizeX,
+							height: configuration.elementSizeY,
+							id: menuId + "_icon",
+							atvType: "elementMenu",
+							childNodes: [iconContainer]
+						},
+						rectSpace
+					);
+
+					var dim = parseFloat(iconContainer.parentNode.style.width) / configuration.elementSizeX;
+
+					var clickDim = {
+						width: Math.floor(
+							(configuration.elementSizeX -
+								configuration.elementBorderSize * 2 +
+								configuration.clickareaEnlargement * 2) *
+								dim
+						),
+						height: Math.floor(
+							(configuration.elementSizeY -
+								configuration.elementBorderSize * 2 +
+								configuration.clickareaEnlargement * 2) *
+								dim
+						)
+					};
+
+					clickContainer.id = menuId + "_event_target";
+					clickContainer.style.width = clickDim.width + "px";
+					clickContainer.style.height = clickDim.height + "px";
+
+					/* debugging */
+					if (debugging) {
+						clickContainer.style.border = "5px dotted #ff0000";
+						clickContainer.style.zIndex = "-10000";
+					}
+
+					var divDim = {
+						width: Math.floor((configuration.elementSizeX - configuration.elementBorderSize * 2) * dim),
+						height: Math.floor((configuration.elementSizeY - configuration.elementBorderSize * 2) * dim),
+						borderRadius: Math.floor(configuration.elementBorderRadius * dim),
+						borderWidth: Math.floor(configuration.elementBorderSize * dim),
+						fontSize: Math.floor(configurationSymbol.fontSize * configurationSymbol.fontScale * dim)
+					};
+
+					iconContainer.id = menuId + "_icon_container";
+					iconContainer.style.width = divDim.width + "px";
+					iconContainer.style.height = divDim.height + "px";
+					iconContainer.style.display = "flex";
+					iconContainer.style.justifyContent = "center";
+					iconContainer.style.alignItems = "center";
+					iconContainer.style.background = configurationSymbol.background;
+					iconContainer.style.borderRadius = divDim.borderRadius + "px";
+					iconContainer.style.borderWidth = divDim.borderWidth + "px";
+					iconContainer.style.borderStyle = "solid";
+					iconContainer.style.borderColor = configurationSymbol.borderColor;
+
+					var isImage = false;
+					var extensions = ["jpg", "jpeg", "gif", "png", "svg", "webp", "ico"];
+					for (var i in extensions) {
+						if (configurationSymbol.icon.indexOf("." + extensions[i]) > -1) isImage = true;
+					}
+
+					/* create icon */
+					var iconContainerSymbol = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
+					iconContainerSymbol.id = menuId + "_icon_symbol";
+					iconContainerSymbol.style.display = "flex";
+					iconContainerSymbol.style.justifyContent = "center";
+					iconContainerSymbol.style.alignItems = "center";
+
+					if (isImage) {
+						var iconContainerImage = document.createElementNS("http://www.w3.org/1999/xhtml", "img");
+						iconContainerImage.src = configurationSymbol.icon;
+						iconContainerImage.style.width = configuration.elementSizeX * configurationSymbol.fontScale + "px";
+						iconContainerImage.style.height = configuration.elementSizeY * configurationSymbol.fontScale + "px";
+						iconContainerImage.style.pointerEvents = "none";
+						iconContainerSymbol.appendChild(iconContainerImage);
+					} else {
+						iconContainerSymbol.style.color = configurationSymbol.color;
+						iconContainerSymbol.style.fontSize = divDim.fontSize + "px";
+						iconContainerSymbol.innerHTML = configurationSymbol.icon;
+					}
+
+					iconContainer.appendChild(iconContainerSymbol);
+
+					iconContainer.style.pointerEvents = "none";
+					iconContainer.parentNode.style.pointerEvents = "none";
+					iconContainerSymbol.style.pointerEvents = "none";
+				}, 250);
+				menuTimeoutList.push(timer);
+
+				/* add event listener for context menu */
+				webMI.addEvent(clickContainer, ["click", "touchstart"], function () {
+					webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Element Menu", {
+						clickAreaId: "",
+						closeOnMouseout: "true",
+						fontsize: "12",
+						id: menuId + "_menu",
+						itemsCount: "10",
+						menuObj: contextMenu,
+						minWidth: "180",
+						onEvent: "immediately",
+						style: defaultContextMenuStyle,
+						x: menuPosition.cmx,
+						y: menuPosition.cmy
+					});
+				});
+
+				/* append all to the svg root */
+				svgRoot.appendChild(svgMenu);
+
+				/* remove menu from dom */
+				webMI.addOnunload(function () {
+					svgRoot.removeChild(svgMenu);
+				});
+			}
+		}
+
+		/**
+		 * sorting a menu structure by order, and id
+		 * @param structur
+		 * @returns {*}
+		 * @private
+		 */
+		function _sortRaw(structur) {
+			var obj = structur.slice(0);
+			obj.sort(function (a, b) {
+				if (a.order === b.order) {
+					return a.mid < b.mid ? -1 : 1;
+				}
+				return a.order - b.order;
+			});
+			return obj;
+		}
+
+		/**
+		 * TRIGGER SECTION
+		 */
+		/**
+		 * listen for additional menu structure changes
+		 */
+		webMI.trigger.connect("com.atvise.elementMenu.addMenu", function (e) {
+			var menuConfig = null;
+
+			if (e.value && e.value[id]) {
+				menuConfig = e.value[id];
+				self.addMenu(menuConfig);
+			}
+		});
+
+		/**
+		 * listen for additional menu structure changes (groups)
+		 */
+		webMI.trigger.connect("com.atvise.elementMenu.addMenuForGroup", function (e) {
+			var menuConfig = null;
+
+			if (e.value && e.value[elementGroup]) {
+				menuConfig = e.value[elementGroup];
+				self.addMenu(menuConfig);
+			}
+		});
+
+		/**
+		 * listen for additional menu structure changes
+		 */
+		webMI.trigger.connect("com.atvise.elementMenu.removeMenu", function (e) {
+			var menuConfig = null;
+
+			if (e.value && e.value[id]) {
+				menuConfig = e.value[id];
+				self.removeMenu(menuConfig);
+			}
+		});
+
+		/**
+		 * listen for additional menu structure changes
+		 */
+		webMI.trigger.connect("com.atvise.elementMenu.removeMenuFromGroup", function (e) {
+			var menuConfig = null;
+
+			if (e.value && e.value[elementGroup]) {
+				menuConfig = e.value[elementGroup];
+				self.removeMenu(menuConfig);
+			}
+		});
+
+		/**
+		 * listen for new menu structure
+		 */
+		webMI.trigger.connect("com.atvise.elementMenu.setMenu", function (e) {
+			var menuConfig = null;
+
+			if (e.value && e.value[id]) {
+				menuConfig = e.value[id];
+				self.setMenu(menuConfig);
+			}
+		});
+
+		/**
+		 * listen for new menu structure (groups)
+		 */
+		webMI.trigger.connect("com.atvise.elementMenu.setMenuForGroup", function (e) {
+			var menuConfig = null;
+
+			if (e.value && e.value[elementGroup]) {
+				menuConfig = e.value[elementGroup];
+				self.setMenu(menuConfig);
+			}
+		});
+
+		/**
+		 * listen for update symbol
+		 */
+		webMI.trigger.connect("com.atvise.elementMenu.setSymbol", function (e) {
+			if (e.value && e.value.id === menuId) {
+				self.setSymbol(e.value);
+			}
+		});
+
+		/**
+		 * listen for update symbol  (groups)
+		 */
+		webMI.trigger.connect("com.atvise.elementMenu.setSymbolForGroup", function (e) {
+			if (e.value && e.value[elementGroup]) {
+				var symbol = e.value[elementGroup];
+				self.setSymbol(symbol);
+			}
+		});
+
+		/**
+		 * global activation and deactivation of all menus
+		 */
+		webMI.trigger.connect("com.atvise.elementMenu.globalActive", function (e) {
+			self.setVisibility(e.value);
+		});
+
+		/**
+		 * simple at unload
+		 */
+		webMI.addOnunload(function () {
+			self.destroy();
+		});
+	}
+}
+
+function handleVisibilityChange(e) {
+	/* explizit ignore container with */
+	var ignoreContainer = ["_blinking_frame", "_stroke"];
+
+	for (var ic in ignoreContainer) {
+		if (e.element.id.indexOf(ignoreContainer[ic]) > -1) {
+			return;
+		}
+	}
+
+	/* proceed with allowed container */
+	if (_self.visibilityBuffer == null) {
+		_self.visibilityBuffer = setTimeout(function () {
+			_self.visibilityBuffer = null;
+
+			for (var index in _self.ElementMenuIndex) {
+				_self.ElementMenuIndex[index].updateByParentVisibility();
+			}
+		}, 100);
+	}
+}
+
+/* ******************************************* */
+/* Memory to avoid duplicate menu declarations */
+/* ******************************************* */
+var _self = this;
+var prefixId = base.id
+	? webMI.gfx.elementPrefix + base.id
+	: webMI.gfx.elementPrefix
+	? webMI.gfx.elementPrefix.slice(0, -1)
+	: null;
+var iid = elementMenuConfig.getUniqueSymbolID(prefixId);
+
+if (prefixId == null) return;
+
+if (!_self.ElementMenuIndex) {
+	_self.ElementMenuIndex = {};
+	_self.visibilityBuffer = null;
+}
+
+if (!webMI.rootWindow.elementMenuEventsAttached) {
+	webMI.rootWindow.elementMenuEventsAttached = true;
+
+	/**
+	 * listen to visibility changes
+	 * e.g. parent change to hidden,
+	 */
+	webMI.addEvent(webMI.rootWindow.webMI.gfx, "visibilitychange", handleVisibilityChange);
+}
+
+/**
+ * clean up at unload
+ * remove FO, reset storage
+ */
+webMI.addOnunload(function () {
+	if (_self.ElementMenuIndex[iid]) {
+		_self.ElementMenuIndex[iid].setVisibility(false);
+		_self.ElementMenuIndex[iid] = null;
+		delete _self.ElementMenuIndex[iid];
+	}
+	_self.ElementMenuIndex = {};
+});
+
+/**
+ * this codepart will either return an existing menu or a new one
+ */
+if (_self.ElementMenuIndex[iid]) {
+	_self.ElementMenuIndex[iid].initContextMenu(base);
+	return _self.ElementMenuIndex[iid];
+} else {
+	_self.ElementMenuIndex[iid] = new ElementMenuQD(self.document);
+	_self.ElementMenuIndex[iid].initContextMenu(base);
+	_self.ElementMenuIndex[iid].updateByParentVisibility();
+	return _self.ElementMenuIndex[iid];
+}
+]]></code>
+</script>

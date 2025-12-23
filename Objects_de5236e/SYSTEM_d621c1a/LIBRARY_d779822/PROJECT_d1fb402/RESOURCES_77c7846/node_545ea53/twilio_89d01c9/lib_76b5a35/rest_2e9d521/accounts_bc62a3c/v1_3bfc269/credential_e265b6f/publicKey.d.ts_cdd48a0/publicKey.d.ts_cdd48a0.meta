@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/accounts/v1/credential/publicKey.d.ts
+NodeClass: Variable
+BrowseName: 1:publicKey.d.ts
+DisplayName: en|publicKey.d.ts
+Description: en|publicKey.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

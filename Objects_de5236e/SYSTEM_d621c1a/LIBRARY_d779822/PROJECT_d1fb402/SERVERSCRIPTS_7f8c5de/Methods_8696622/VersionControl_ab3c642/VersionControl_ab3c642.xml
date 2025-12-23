@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <parameter name="direction" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="address" type="stringarray" trigger="false" relative="false" value=""/>
+  <parameter name="baseDirectory" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="recursive" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="includeDependencies" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="forceDelete" type="boolean" trigger="false" relative="false" value="false"/>
+  <parameter name="overwrite" type="boolean" trigger="false" relative="false" value="true"/>
+  <parameter name="overwriteInObjects" type="boolean" trigger="false" relative="false" value="false"/><code><![CDATA[/** atvise server wrapper for UA methods "AGENT.OPCUA.METHODS.versionControl*"
+This script is a standard atvise resource and must not be modified.
+
+Example
+
+var result = call("Methods.VersionControl", {
+	direction: "export",
+	address: ["AGENT.OBJECTS.instance1", "AGENT.OBJECTS.instance2"],
+	baseDirectory: ...,
+	recursive: ...,
+	includeDependencies: ...,
+	forceDelete: ...,
+	overwrite": ...,
+	overwriteInObjects: ...
+});
+
+if (result.error)
+	console.log(result.errorstring);
+else
+	console.log(result.result);
+
+Input:
+param direction {string}  One of the strings "export" or "import"
+param address {stringarray} Array of nodes to export/import
+param baseDirectory {string}, {optional} Base directory of the address space
+param recursive {boolean}, {optional} Include child nodes (recursive)
+param includeDependencies {boolean}, {optional} Include dependencies (e.g. type definitions)
+param forceDelete {boolean}, {optional} Delete surplus nodes
+param overwrite {boolean}, {optional} Overwrite meta data and values
+param overwriteInObjects {boolean}, {optional} Overwrite values in AGENT.OBJECTS
+
+Output:
+return {Object} A result object is returned with the following properties:
+- Object.error {number},{optional} Returns the error code of the call in case of an error. If no error occurred, it is undefined.
+- Object.errorstring {string},{optional} Returns the error string of the call in case of an error. If no error occurred, it is undefined.
+- Object.result {object},{optional} Returns the result of the call if no error occurred. It has the following properties:
+	- result.errors {[Object]},{optional} Returns the list of errors appeared during export/import.
+		- Object.error {number} Returns the error code.
+		- Object.errorstring {string} Returns the error string.
+*/
+
+direction = direction.charAt(0).toUpperCase() + direction.slice(1).toLowerCase();
+
+if (direction != "Import" && direction != "Export")
+	return { error: Ua.Status.BADINVALIDARGUMENT, errorstring: "Invalid direction '" + direction + "'" };
+
+var versionControl = Ua.findNode("AGENT.OPCUA.METHODS.versionControl" + direction).result;
+var response = versionControl.call({
+	object: "AGENT.OPCUA.METHODS",
+	input: [
+		{ type: Ua.DataType.NODEID, value: address },
+		{ type: Ua.DataType.STRING, value: baseDirectory },
+		{ type: Ua.DataType.BOOLEAN, value: recursive },
+		{ type: Ua.DataType.BOOLEAN, value: includeDependencies },
+		{ type: Ua.DataType.BOOLEAN, value: forceDelete },
+		{ type: Ua.DataType.BOOLEAN, value: overwrite },
+		{ type: Ua.DataType.BOOLEAN, value: overwriteInObjects }
+	]
+});
+
+var result = {};
+
+if (response.error) {
+	result.error = response.error;
+	result.errorstring = Ua.Status(result.error).toString();
+
+	if (response.argumentError) {
+		var parameterNames = [
+			"address",
+			"baseDirectory",
+			"recursive",
+			"includeDependencies",
+			"forceDelete",
+			"overwrite",
+			"overwriteInObjects"
+		];
+
+		for (var i = 0; i < response.argumentError.length; ++i)
+			if (response.argumentError[i])
+				result.errorstring += ", " + parameterNames[i] + ":" + Ua.Status(response.argumentError[i]).toString();
+	}
+} else {
+	result.result = {};
+
+	if (response.result.length == 2) {
+		result.result["errors"] = [];
+
+		for (var i = 0; i < response.result[0].length; ++i)
+			result.result["errors"].push({ error: response.result[0][i], errorstring: response.result[1][i] });
+	}
+}
+
+return result;
+]]></code>
+</script>

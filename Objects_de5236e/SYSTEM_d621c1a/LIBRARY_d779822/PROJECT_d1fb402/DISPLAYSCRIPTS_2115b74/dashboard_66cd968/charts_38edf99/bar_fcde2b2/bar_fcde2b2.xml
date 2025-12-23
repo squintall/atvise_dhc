@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the chart bar resource tile object display
+ * ----------------------------------------
+ * This script serves as an interface that connects the with highcharts for bar charts
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var BORDER_ID = "border";
+var CHART_ID = document.getElementById(BORDER_ID).id.replace("_border", "");
+var FO_ID = "fo_container";
+var HIGHCHARTS_CONTAINER_ID = "dashboard_highcharts_container";
+var MAIN_LABEL_ID = "main_label";
+var SUB_LABEL_ID = "sub_label";
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+var active = false;
+
+/**
+ * Limitation
+ */
+var MAX_SERIES_COUNT = 25;
+
+
+/**
+ * Trigger setup
+ */
+var OPEN_DISPLAY_TRIGGER = "com.atvise.dashboard.openDisplay";
+var SET_ACTIVE_TRIGGER = "com.atvise.dashboard.setActive";
+var SET_INACTIVE_TRIGGER = "com.atvise.dashboard.setInactive";
+var SET_STATUS_TRIGGER = "com.atvise.dashboard.setStatus";
+var SET_BLINKING_FRAME_STROKE_TRIGGER = "com.atvise.dashboard.setBlinkingFrameStroke";
+var SHOW_HIDE_BLINKING_FRAME_TRIGGER = "com.atvise.dashboard.showHideBlinkingFrame";
+
+
+/**
+ * BASE SETUP
+ */
+var BLINKING_FRAME_COLOR_INACTIVE = "#000000";
+
+var chartDiv = document.getElementById(HIGHCHARTS_CONTAINER_ID);
+
+var addresses = [];
+var seriesNames = [];
+var seriesColors = [];
+var options = {};
+var chart = null;
+
+var addressIdx = 1;
+var seriesName = "";
+var seriesAddress = "";
+var seriesColor = "";
+
+// Query parameters
+var unit = webMI.query["unit"] || "";
+var min = webMI.query["min"] || null;
+var max = webMI.query["max"] || null;
+var postDecimalFactor = Math.pow(10, webMI.query["postDecimals"]);
+var seriesCount = webMI.query["seriesCount"];
+var seriesOrientation = webMI.query["seriesOrientation"];
+var rightParam = webMI.query["right"] || "";
+var activeNode = webMI.query["activeNode"] || "";
+var activeValue = webMI.query["activeValue"] || "";
+var alarmIndication = webMI.query["alarmIndication"];
+var statusIndication = webMI.query["statusIndication"];
+var colorInactive = webMI.query["colorInactive"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var alarmAddress = webMI.query["alarm"];
+var textColor = webMI.query["textColor"];
+var seriesOrder = webMI.query["seriesOrder"];
+var displayAcNotification = webMI.query["displayAcNotification"];
+
+var active = false;
+var hasRight = false;
+var nodeIsActive = false;
+
+var statusLabels = {};
+statusLabels.Good = "";
+statusLabels.Bad = "BAD";
+statusLabels.Uncertain = "UNCERTAIN";
+statusLabels.Unknown = "UNKNOWN";
+
+var sortFunction;
+var trendConfig;
+
+
+/** data **/
+var runTimeNodeConfig = {};
+for (var s = 1; s < 11; s++) {
+	var seriesAddress = "series" + s + "Address";
+	if (webMI.query[seriesAddress]) {
+		runTimeNodeConfig[seriesAddress] =
+			{
+				value: null,
+				address: webMI.query[seriesAddress],
+				paramValue: "",
+				read: true,
+				write: false,
+				aggregate: false
+			}
+	} else {
+		break;
+	}
+}
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+if (true) {
+	var notifierConfig = {
+		rights: [
+			{nodeId: webMI.query["alarm"], rights: "alarmRead", disable: false, notify: true},
+			{nodeId: webMI.query["activeNode"], rights: "read", disable: true, notify: true}
+		],
+	};
+
+	for (var s = 1; s < 11; s++) {
+		var seriesAddress = "series" + s + "Address";
+		if (webMI.query[seriesAddress]) {
+			notifierConfig.rights.push(
+				{
+					nodeId: webMI.query[seriesAddress],
+					rights: "read", disable: false, notify: false
+				}
+			);
+		} else {
+			break;
+		}
+	}
+
+	var rightsHandlingProperties = {
+		activationNodeSet: {activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"]},
+		notifierConfiguration: notifierConfig,
+		userRight: webMI.query["right"],
+		editable: true
+	};
+
+	if (typeof rightsHandling === "function")
+		rightsHandling(rightsHandlingProperties);
+
+	if (typeof updateRunTimeNodeConfig === "function") {
+		updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+	} else {
+		initialize(runTimeNodeConfig)
+	}
+
+}
+
+function initialize(nodeCfg) {
+	webMI.addOnload(function () {
+
+		webMI.gfx.setVisible(MAIN_LABEL_ID, false);
+		webMI.gfx.setVisible(SUB_LABEL_ID, false);
+		webMI.gfx.setVisible(BORDER_ID, false);
+
+		if (seriesOrder === "Descending") {
+			sortFunction = sortDesc;
+		} else if (seriesOrder === "Ascending") {
+			sortFunction = sortAsc;
+		}
+
+		options.trendName = chartDiv.id.split("_dashboard_highcharts_container")[0];
+		options.trendGroup = "";
+		options.trendConfig = {};
+
+		trendConfig = options.trendConfig;
+
+		trendConfig.chart = {};
+		trendConfig.title = {};
+		trendConfig.xAxis = {};
+		trendConfig.yAxis = {};
+		trendConfig.yAxis.labels = {};
+		trendConfig.tooltip = {};
+		trendConfig.plotOptions = {};
+		trendConfig.plotOptions.series = {};
+		trendConfig.plotOptions.series.dataLabels = {};
+		trendConfig.plotOptions.series.states = {};
+		trendConfig.plotOptions.series.states.hover = {};
+		trendConfig.plotOptions.bar = {};
+		trendConfig.plotOptions.bar.dataLabels = {};
+		trendConfig.plotOptions.column = {};
+		trendConfig.plotOptions.column.dataLabels = {};
+		trendConfig.legend = {};
+		trendConfig.series = [];
+		trendConfig.credits = {};
+		trendConfig.exporting = {};
+
+		trendConfig.chart.type = seriesOrientation === "Vertical" ? "column" : "bar";
+		trendConfig.chart.zoomType = "";
+		trendConfig.chart.panning = false;
+
+		trendConfig.title.text = "";
+
+		trendConfig.xAxis.type = "category";
+		trendConfig.xAxis.title = "";
+		trendConfig.xAxis.lineWidth = 0;
+		trendConfig.xAxis.gridLineWidth = 0;
+		trendConfig.xAxis.minorGridLineWidth = 0;
+		trendConfig.xAxis.majorGridLineWidth = 0;
+		trendConfig.xAxis.lineColor = "transparent";
+		trendConfig.xAxis.tickLength = 0;
+		trendConfig.xAxis.minorTickLength = 0;
+		trendConfig.xAxis.majorTickLength = 0;
+
+		trendConfig.yAxis.min = min ? parseFloat(min) : null;
+		trendConfig.yAxis.max = max ? parseFloat(max) : null;
+		trendConfig.yAxis.title = "";
+		trendConfig.yAxis.labels.enabled = false;
+		trendConfig.yAxis.lineWidth = 0;
+		trendConfig.yAxis.gridLineWidth = 0;
+		trendConfig.yAxis.minorGridLineWidth = 0;
+		trendConfig.yAxis.majorGridLineWidth = 0;
+		trendConfig.yAxis.lineColor = "transparent";
+		trendConfig.yAxis.tickLength = 0;
+		trendConfig.yAxis.minorTickLength = 0;
+		trendConfig.yAxis.majorTickLength = 0;
+
+		trendConfig.plotOptions.bar.dataLabels.enabled = true;
+		trendConfig.plotOptions.bar.dataLabels.formatter = formatLabels;
+		trendConfig.plotOptions.bar.dataLabels.color = textColor;
+		trendConfig.plotOptions.bar.animation = false;
+
+		/*
+		trendConfig.plotOptions.series.dataLabels.enabled = true;
+		trendConfig.plotOptions.series.dataLabels.inside = false;
+		trendConfig.plotOptions.series.dataLabels.align = "left";
+		*/
+
+		trendConfig.plotOptions.column.dataLabels.enabled = true;
+		trendConfig.plotOptions.column.dataLabels.formatter = formatLabels;
+		trendConfig.plotOptions.column.dataLabels.color = textColor;
+		trendConfig.plotOptions.column.animation = false;
+
+		trendConfig.series.push({data: []});
+
+		trendConfig.tooltip.enabled = false;
+		trendConfig.legend.enabled = false;
+		trendConfig.credits.enabled = false;
+		trendConfig.exporting.enabled = false;
+		trendConfig.plotOptions.series.states.hover.enabled = false;
+
+		options.trendConfig.atviseOptions = {
+			configNode: "",
+			configName: "",
+			mode: "",
+			source: "opcUA",
+			enableCursor1: false,
+			enableCursor2: false,
+			disableDownSampling: true
+		};
+
+		for (addressIdx; addressIdx <= MAX_SERIES_COUNT; addressIdx++) {
+			seriesAddress = webMI.query["series" + addressIdx + "Address"];
+			seriesName = webMI.query["series" + addressIdx + "Name"];
+			seriesColor = webMI.query["series" + addressIdx + "Color"];
+
+			var seriesKey = "series" + addressIdx + "Address";
+			var seriesAdd = typeof nodeCfg[seriesKey] != "undefined" && nodeCfg[seriesKey].read == true;
+
+			if (seriesAdd && seriesAddress && seriesName) {
+				addresses.push(seriesAddress);
+				seriesNames.push(seriesName);
+				seriesColors.push(seriesColor);
+			}
+		}
+
+		if (addresses.length > 0) {
+			webMI.trendFactory.createTrend(chartDiv, options, function (trendInstance) {
+				chart = trendInstance.chart;
+
+				// Open display trigger
+				webMI.trigger.connect(OPEN_DISPLAY_TRIGGER, function (triggerObj) {
+					if (active) {
+						webMI.display.openDisplay(triggerObj.value);
+					}
+				}, "");
+
+				webMI.data.subscribeBlock(addresses, [], function (nodes) {
+					var nodeIdx = 0;
+					var seriesObj = {};
+					var seriesData = [];
+					var worstState = 0;
+
+					// Map series data
+					for (nodeIdx; nodeIdx < nodes.length; nodeIdx++) {
+						seriesObj = {};
+						seriesObj.y = nodes[nodeIdx].value;
+						seriesObj.name = seriesNames[nodeIdx];
+						seriesObj.color = seriesColors[nodeIdx];
+						seriesObj.status = nodes[nodeIdx].status;
+
+						if (typeof seriesObj.y !== "number") {
+							seriesObj.y = 0;
+						}
+
+						// use worst value state for status handling
+						if (typeof seriesObj.status === "undefined") {
+							worstState = undefined;
+						} else if (_isGood(worstState) && (_isUncertain(seriesObj.status) || _isBad(seriesObj.status)) ||
+							(_isUncertain(worstState) && _isBad(seriesObj.status))) {
+							worstState = seriesObj.status;
+						}
+
+						seriesData.push(seriesObj);
+					}
+
+					updateStatus(worstState);
+
+					// Sort series data
+					if (sortFunction) {
+						seriesData.sort(sortFunction);
+					}
+
+					// Cut entries
+					if (seriesCount > 0 && seriesData.length > seriesCount) {
+						seriesData = seriesData.slice(0, seriesCount);
+					}
+
+					chart.series[0].update({
+						data: seriesData
+					}, true);
+
+				});
+			});
+		} else {
+			setInactiveLayout();
+		}
+	});
+}
+
+
+/**
+ * FUNCTIONS
+ */
+
+function round(value) {
+	return Math.round(value * postDecimalFactor) / postDecimalFactor;
+}
+
+function sortAsc(prev, next) {
+	return prev.y - next.y;
+}
+
+function sortDesc(prev, next) {
+	return next.y - prev.y;
+}
+
+function formatLabels() {
+	var label = round(this.y) + " " + unit;
+	var statusLabel = getStatusLabel(this.point.status);
+
+	if (statusLabel !== statusLabels.Good) {
+		label += " (" + statusLabel + ")";
+	}
+
+	return label;
+};
+
+function getStatusLabel(status) {
+	var label = "";
+
+	if (_isGood(status)) {
+		label = statusLabels.Good;
+	} else if (_isBad(status)) {
+		label = statusLabels.Bad;
+	} else if (_isUncertain(status)) {
+		label = statusLabels.Uncertain;
+	} else {
+		label = statusLabels.Unknown;
+	}
+
+	return label;
+}
+
+function updateStatus(status) {
+	if (status)
+		webMI.trigger.fire(SET_STATUS_TRIGGER, {"chart": CHART_ID, "status": status});
+}
+
+function setActiveLayout() {
+	chartDiv.style.visibility = "visible";
+
+	webMI.trigger.fire(SET_ACTIVE_TRIGGER, "", FO_ID);
+	webMI.trigger.fire(SET_ACTIVE_TRIGGER, {"chart": CHART_ID});
+}
+
+function setInactiveLayout() {
+	chartDiv.style.visibility = "hidden";
+
+	webMI.trigger.fire(SET_INACTIVE_TRIGGER, "", FO_ID);
+	webMI.trigger.fire(SET_INACTIVE_TRIGGER, {"chart": CHART_ID});
+}
+
+]]></code>
+</script>

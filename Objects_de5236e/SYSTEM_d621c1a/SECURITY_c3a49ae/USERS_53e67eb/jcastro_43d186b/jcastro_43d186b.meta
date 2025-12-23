@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.jcastro
+NodeClass: Object
+BrowseName: 1:jcastro
+DisplayName: en|jcastro
+Description: en|jcastro
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

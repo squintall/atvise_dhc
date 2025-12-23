@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA.Cuencas.Graficas.Grafica_NPE
+NodeClass: Variable
+BrowseName: 1:Grafica_NPE
+DisplayName: en|Grafica_NPE
+Description: en|Grafica_NPE
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

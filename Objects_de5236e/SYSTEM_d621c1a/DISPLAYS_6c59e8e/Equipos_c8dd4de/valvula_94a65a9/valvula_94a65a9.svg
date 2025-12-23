@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="90.359999999999999" version="1.2" width="200" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".name", function(e) {
+var id = "id_2";
+var value = e.value;
+webMI.gfx.setText(id, value);
+
+});
+
+]]><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".MA", function(e) {
+var id = "id_7";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setVisible(id, false);
+if (value == false)
+	webMI.gfx.setVisible(id, true);
+
+});]]><![CDATA[
+webMI.data.subscribe(webMI.query["base"] + ".MA", function(e) {
+var id = "id_8";
+var value = e.value;
+if (value == true)
+	webMI.gfx.setVisible(id, false);
+if (value == false)
+	webMI.gfx.setVisible(id, true);
+
+});]]></script>
+ <text atv:refpx="78" atv:refpy="20" fill="#000000" font-family="Arial" font-size="22" id="id_2" text-anchor="middle" x="100" y="24.5">valv_name</text>
+ <svg atv:refpx="97.153" atv:refpy="53.701" height="30" id="id_0" transform="matrix(2.2203,0,0,1,0,0)" width="80" x="3.756" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button_switch" y="38.701">
+  <atv:argument name="base" prefix="base" value=".Abierta"/>
+  <atv:argument name="labelOn" value="T{Abierta, presione para cerrar}"/>
+  <atv:argument name="labelOff" value="T{Cerrada, presione para abrir}"/>
+  <atv:argument name="outputNode" prefix="base" value=".On_Off"/>
+  <atv:argument name="fillOn" value="SYSTEM.GLOBALS.Colors.Verde"/>
+  <atv:argument name="fillOff" value="#9c948a"/>
+  <atv:overwrite id="id_6" transform="matrix(0.4504,0,0,1,0,0)" width="175.627"/>
+  <atv:overwrite id="button_label" transform="matrix(0.4504,0,0,1,0,0)" x="88.814"/>
+  <atv:overwrite id="button_symbol_off" transform="matrix(0.4504,0,0,1,0,0)" x="78.814"/>
+  <atv:overwrite id="button_symbol_on" transform="matrix(0.4504,0,0,1,0,0)" x="78.814"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.4504,0,0,1,0,0)" width="173.627"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.4504,0,0,1,0,0)" width="173.627"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.4504,0,0,1,0,0)" width="175.627"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.4504,0,0,1,0,0)" width="177.627"/>
+ </svg>
+</svg>

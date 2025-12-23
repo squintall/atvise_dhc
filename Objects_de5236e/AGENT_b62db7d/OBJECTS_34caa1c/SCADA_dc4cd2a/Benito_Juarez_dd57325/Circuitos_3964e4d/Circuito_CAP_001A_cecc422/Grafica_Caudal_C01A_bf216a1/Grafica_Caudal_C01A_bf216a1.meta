@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Grafica_Caudal_C01A
+NodeClass: Variable
+BrowseName: 1:Grafica_Caudal_C01A
+DisplayName: en|Grafica_Caudal_C01A
+Description: en|Grafica_Caudal_C01A
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

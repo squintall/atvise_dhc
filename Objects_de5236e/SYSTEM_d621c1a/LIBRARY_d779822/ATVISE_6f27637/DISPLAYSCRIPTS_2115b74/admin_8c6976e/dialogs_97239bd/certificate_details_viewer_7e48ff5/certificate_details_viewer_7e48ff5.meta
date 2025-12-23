@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.admin.dialogs.certificate_details_viewer
+NodeClass: Variable
+BrowseName: 1:certificate_details_viewer
+DisplayName: en|certificate_details_viewer
+Description: en|certificate_details_viewer
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

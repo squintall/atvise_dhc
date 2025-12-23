@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the alarmlog, alarmlog_1row and alarmlog_touch object displays
+ * -----------------------------------------------------------------------
+ * The alarmlog is a control that displays the last 3 alarm events that occured in the system.
+ * All states of the alarm (on unacknowledged &raquo; on acknowleged &raquo; off acknowledged OR on unacknowledged &raquo; off unacknowledged) are displayed with different symbols.
+ * Additionally the address (source node) and alarmtext (from alarm configuration) are displayed.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var minAlarmPriority = webMI.query["minAlarmPriority"];
+var maxAlarmPriority = webMI.query["maxAlarmPriority"];
+var alarmCount = webMI.query["alarmCount"];
+var strLenEventText = webMI.query["strLenEventText"];
+var strLenAddress = webMI.query["strLenAddress"];
+var alarmlistItems = [];
+var lng = "T{}";
+// buffer for rendering
+var buffer = [];
+var render = setInterval(renderLog, 250);
+
+/**
+ * RUNTIME SECTION
+ */
+
+webMI.addOnload(function() {
+	webMI.rootWindow.webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Alarmmanagement", {"id": ""});
+	for (var i=0; i<alarmCount; i++) {
+		setEmpty(i);
+	}
+});
+
+webMI.addOnunload(function() {
+	clearInterval(render);
+	render = null;
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+Date.prototype.to24String = function(_withMS) {
+	function _preNull(_nr) {
+		return _nr < 10 ? "0" + _nr : _nr;
+	}
+	if (this.getTime() < (new Date()).getTime() - 24*60*60*1000)
+		return this.getFullYear() + "-" + _preNull(this.getMonth()+1) + "-" + _preNull(this.getDate());
+	_ret = _preNull(this.getHours()) + ":" + _preNull(this.getMinutes()) + ":" + _preNull(this.getSeconds());
+	if (_withMS)
+		_ret += "." + this.getMilliseconds();
+	return _ret;
+};
+
+function cutString(str, maxLen, delimiter) {
+	str = "" + str;
+	maxLen = maxLen || 15;
+	delimiter = "" + delimiter;
+
+	if (str.length > maxLen) {
+		var strLenPart = (maxLen - delimiter.length) / 2;
+		var strLenPartBegin = Math.floor(strLenPart);
+		var strLenPartEnd = Math.ceil(strLenPart);
+
+		str = (str.substr(0, strLenPartBegin)) + delimiter + (str.substr(str.length - strLenPartEnd));
+	}
+
+	return str;
+}
+
+function setEmpty(row) {
+	webMI.gfx.setText("row"+(row+1) + "_date", "");
+	webMI.gfx.setText("row"+(row+1) + "_msg", "");
+	webMI.gfx.setText("row"+(row+1) + "_adr", "");
+	webMI.gfx.setVisible("row"+(row+1)+"_alarm1_border", false);
+	var states = [1,2,3];
+	for (var i=0; i<states.length; i++)
+		webMI.gfx.setVisible("row"+(row+1)+"_alarm"+(i+1), false);
+}
+
+function formatString(obj, attribute){
+	var text = typeof obj[attribute] === "string" ? obj[attribute] : obj[attribute]["T{}"];
+	try {
+		return webMI.sprintf(text, obj, "T{}");
+	} catch (err) {
+		console.error(attribute+": " + text + "\n error: " + err);
+		return "";
+	}
+}
+
+function renderLog(){
+	var itm;
+	for(var i=0; i<alarmCount; i++)
+		if(itm = buffer.pop()) {
+			showItem(itm);
+		}
+	buffer = [];
+}
+
+function setItem(itm) {
+	itm.state = itm.state ? itm.state : "-1";
+	itm.timestamp = itm.timestamp ? itm.timestamp : "";
+	itm.address = itm.address ? itm.address : "";
+	itm.eventtext = itm.eventtext ? itm.eventtext : "";
+	buffer.push(itm);
+}
+
+function showItem(itm) {
+	itm.state = itm.state ? itm.state : "-1";
+	itm.timestamp = itm.timestamp ? itm.timestamp : "";
+	itm.address = itm.address ? itm.address : "";
+	itm.eventtext = itm.eventtext ? itm.eventtext : "";
+
+	if (itm.retain == false) return;
+
+	for (var i = 0; i < alarmlistItems.length; i++) {
+		if (alarmlistItems[i].address == itm.address && alarmlistItems[i].timestamp == itm.timestamp && alarmlistItems[i].state == itm.state) //unique alarm identifier
+			return;
+	}
+
+	if (itm.address != "") {
+		alarmlistItems.push(itm);
+		alarmlistItems.sort(function(a,b) { return a.timestamp - b.timestamp; });
+		alarmlistItems = alarmlistItems.slice((-1) * alarmCount);
+		alarmlistItems.sort(function(a,b) { return b.timestamp - a.timestamp; });
+	}
+
+	for (var i=0; i<alarmCount; i++) {
+		if (alarmlistItems[i] != undefined) {
+			setAlarm("row"+(i+1), alarmlistItems[i]);
+		} else {
+			setEmpty(i);
+		}
+	}
+
+	function setAlarm(row, item) {
+		if (item != undefined) {
+			var date = (new Date(item.timestamp)).to24String();
+			var eventtext = (item.eventtext ? formatString(item, "eventtext") : "");
+			webMI.gfx.setText(row + "_date", date);
+			webMI.gfx.setText(row + "_msg", eventtext ? cutString(eventtext, strLenEventText, "..") : "");
+			var dataItemAdress = item.address;
+			var replacedAdress = dataItemAdress.replace(/AGENT.OBJECTS./g,"");
+			webMI.gfx.setText(row + "_adr", cutString(replacedAdress, strLenAddress, ".."));
+			var state = item.state < 3 ? item.state : 3;
+			toggleSymbol(row, state);
+		} else {
+			toggleSymbol(row, -1);
+		}
+	}
+
+	function toggleSymbol(row, state) {
+		var states = [1,2,3];
+		for (var i=0; i<states.length; i++) {
+			var visible = (state == states[i] ? "inherit" : false);
+			webMI.gfx.setVisible(row + "_alarm"+(i+1), visible);
+			var active = (state == 1);
+			if (active) {
+				webMI.gfx.setVisible(row + "_alarm"+(i+1)+"_border", "inherit");
+			} else {
+				webMI.gfx.setVisible(row + "_alarm"+(i+1)+"_border", false);
+			}
+		}
+	}
+}
+
+/**
+ * TRIGGER SECTION
+ */
+
+webMI.addOnload(function() {
+	webMI.trigger.fire("com.atvise.alarms_items", function(alarms){
+		for (var alarm in alarms){
+			var isAlarmNoLimits = (minAlarmPriority == 0 && minAlarmPriority == maxAlarmPriority);
+			var isAlarmInLimits = (minAlarmPriority < alarms[alarm].item.priority && alarms[alarm].item.priority < maxAlarmPriority);
+			if(isAlarmNoLimits || isAlarmInLimits){
+				setItem(alarms[alarm].item);
+			}
+		}
+	});
+	webMI.trigger.connect("com.atvise.alarms_notify_item", function(notify) {
+		var e = JSON.parse(JSON.stringify(notify));
+		if (e.value == false) {
+			alarmlistItems = [];
+			for (var i=0; i<alarmCount; i++)
+				setEmpty(i);
+		} else {
+			var isAlarmNoLimits = (minAlarmPriority == 0 && minAlarmPriority == maxAlarmPriority);
+			var isAlarmInLimits = (minAlarmPriority < e.value.priority && e.value.priority < maxAlarmPriority);
+			if(isAlarmNoLimits || isAlarmInLimits){
+				setItem(e.value);
+			}
+		}
+	});
+});]]></code>
+</script>

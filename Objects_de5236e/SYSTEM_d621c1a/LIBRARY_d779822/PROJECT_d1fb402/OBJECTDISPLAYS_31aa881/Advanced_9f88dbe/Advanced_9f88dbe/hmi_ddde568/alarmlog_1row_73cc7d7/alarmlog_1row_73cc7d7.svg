@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="37.91" version="1.2" width="650" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Displays the last alarm that occurred in one row.</desc>
+ <title>Alarmlog One Row</title>
+ <metadata>
+  <atv:parameter behavior="optional" config="Arial;Courier;Courier New;Verdana" defaultvalue="Arial" desc="family" group="Font" name="fontFamily" substitute="$FONTFAMILY$" valuetype="enum"/>
+  <atv:parameter behavior="optional" config="6;7;8;9;10;11;12;14;16;18;20;22;24;26;28;36;48;72" defaultvalue="13" desc="size" group="Font" name="fontSize" substitute="$FONTSIZE$" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" desc="color" group="Font" name="fontColor" substitute="$FONTCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvSymbolColor" desc="symbol color" group="Appearance" name="symbolColor" substitute="$SYMBOLCOLOR$" valuetype="global"/>
+  <atv:parameter behavior="optional" defaultvalue="0" desc="min alarm priority" group="Alarm" name="minAlarmPriority" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="0" desc="max alarm priority" group="Alarm" name="maxAlarmPriority" valuetype="number"/>
+  <atv:parameter behavior="hidden" defaultvalue="1" desc="alarm count" name="alarmCount" valuetype="number"/>
+  <atv:parameter behavior="hidden" defaultvalue="24" desc="str Len Event Text" name="strLenEventText" valuetype="number"/>
+  <atv:parameter behavior="hidden" defaultvalue="32" desc="str Len Address" name="strLenAddress" valuetype="number"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <text atv:refpx="40.747" atv:refpy="18.916" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="$FONTSIZE$" font-weight="bold" id="row1_date" x="9.75" y="23.916">row1_date</text>
+ <text atv:refpx="127.248" atv:refpy="18.916" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="$FONTSIZE$" font-weight="bold" id="row1_adr" x="99.75" y="23.916">row1_adr</text>
+ <text atv:refpx="417.248" atv:refpy="18.916" fill="$FONTCOLOR$" font-family="$FONTFAMILY$" font-size="$FONTSIZE$" font-weight="bold" id="row1_msg" x="389.25" y="23.916">row1_msg</text>
+ <svg atv:refpx="624.776" atv:refpy="19.692" height="50" id="row1_alarm1" transform="matrix(0.391,0,0,0.391,0,0)" visibility="hidden" width="50" x="1572.772" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarm1" y="25.352">
+  <atv:argument name="symbolColor" prefix="symbolColor" value=""/>
+ </svg>
+ <svg atv:refpx="624.775" atv:refpy="19.691" height="50" id="row1_alarm2" transform="matrix(0.391,0,0,0.391,0,0)" visibility="hidden" width="50" x="1572.89" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarm2" y="25.361">
+  <atv:argument name="symbolColor" prefix="symbolColor" value=""/>
+ </svg>
+ <svg atv:refpx="624.775" atv:refpy="19.691" height="50" id="row1_alarm3" transform="matrix(0.391,0,0,0.391,0,0)" visibility="hidden" width="50" x="1572.89" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.alarm3" y="25.361">
+  <atv:argument name="symbolColor" prefix="symbolColor" value=""/>
+ </svg>
+ <rect atv:refpx="624.88" atv:refpy="19.516" fill="none" height="17.972" id="row1_alarm1_border" stroke="$SYMBOLCOLOR$" stroke-width="1" width="20.811" x="614.475" y="10.53"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.hmi.alarmlog" atv:name="alarmlog" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

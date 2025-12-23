@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.bcen
+NodeClass: Object
+BrowseName: 1:bcen
+DisplayName: en|bcen
+Description: en|bcen
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

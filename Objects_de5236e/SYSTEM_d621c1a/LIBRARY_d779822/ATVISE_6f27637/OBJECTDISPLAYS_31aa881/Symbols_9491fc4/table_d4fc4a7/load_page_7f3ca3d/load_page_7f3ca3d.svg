@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="20" version="1.2" width="20" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="#000000" desc="symbol color" name="symbolColor" substitute="$SYMBOLCOLOR$" valuetype="color"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="1" width="1"/>
+ </metadata>
+ <polygon atv:refpx="5" atv:refpy="14" fill="$SYMBOLCOLOR$" id="id_5" points="9,19 1,14 9,9 9,14" stroke="#0000ff" stroke-width="0"/>
+ <rect atv:refpx="13.5" atv:refpy="14" fill="$SYMBOLCOLOR$" height="2" id="id_0" stroke="$SYMBOLCOLOR$" stroke-width="0" width="9" x="9" y="13"/>
+ <rect atv:refpx="17" atv:refpy="8" fill="$SYMBOLCOLOR$" height="10" id="id_1" stroke="$SYMBOLCOLOR$" stroke-width="0" width="2" x="16" y="3"/>
+ <rect atv:refpx="9.5" atv:refpy="2" fill="$SYMBOLCOLOR$" height="2" id="id_2" stroke="$SYMBOLCOLOR$" stroke-width="0" width="17" x="1" y="1"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

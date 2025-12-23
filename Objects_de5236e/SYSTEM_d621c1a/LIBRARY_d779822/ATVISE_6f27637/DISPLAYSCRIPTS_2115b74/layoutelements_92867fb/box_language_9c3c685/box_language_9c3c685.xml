@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element box language object display
+ * ----------------------------------------
+ * This script supports the display showing the language and the language selection.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var contextMenuStyle = {
+	maxRows: 10,
+	fontFamily: "Arial",
+	fontSize: 12,
+	fontFill: "#575757",
+	width: 140,
+	fill: "#ffffff",
+	stroke: "#d7d7d7",
+	strokeWidth: 1,
+	hoverFill: "#e5e5e5",
+	hoverFontFill: "#575757",
+	closeTime: 0,
+	zIndex: 100,
+	showType: "right"
+};
+var menuObj = {};
+menuObj["languagemenu"] = "languagemenu";
+
+/**
+ * UI SETUP SECTION
+ */
+if (webMI.query["contextMenuStyle"]) {
+	var queryContextMenuStyle = JSON.parse(webMI.query["contextMenuStyle"]);
+	Object.assign(contextMenuStyle, queryContextMenuStyle);
+}
+
+if (webMI.query["context_menu_font_family"]) {
+	contextMenuStyle["fontFamily"] = webMI.query["context_menu_font_family"];
+}
+
+if (webMI.query["context_menu_font_color"]) {
+	contextMenuStyle["fontFill"] = webMI.query["context_menu_font_color"];
+}
+
+if (webMI.query["context_menu_font_color_hover"]) {
+	contextMenuStyle["hoverFontFill"] = webMI.query["context_menu_font_color_hover"];
+}
+
+if (webMI.query["context_menu_font_size"]) {
+	contextMenuStyle["fontSize"] = parseInt(webMI.query["context_menu_font_size"], 10);
+}
+
+if (webMI.query["context_menu_fill_color"]) {
+	contextMenuStyle["itemFill"] = webMI.query["context_menu_fill_color"];
+}
+
+if (webMI.query["context_menu_hover_color"]) {
+	contextMenuStyle["hoverFill"] = webMI.query["context_menu_hover_color"];
+}
+
+webMI.trigger.fire("com.atvise.languages", function (languages) {
+	const iconMargin = 80 * webMI.gfx.getAbsoluteScaleFactor(true); // Space taken by icon in px
+	const bgWidth = webMI.gfx.getBoundingClientRect("bg").width;
+	let textWidth;
+
+	webMI.gfx.setText("language", "T{Language}: " + languages["T{}"]);
+
+	textWidth = webMI.gfx.getBoundingClientRect("language").width;
+
+	if (textWidth > bgWidth - iconMargin) {
+		// Omit the language label in order to fit the actual language inside the display
+		webMI.gfx.setText("language", languages["T{}"]);
+	}
+});
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+var x = contextMenuStyle.x ? contextMenuStyle.x : 0;
+var y = contextMenuStyle.y ? contextMenuStyle.y : 85;
+
+webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", {
+	id: "clickarea",
+	menuObj: menuObj,
+	outputNode: null,
+	x: x,
+	y: y,
+	minWidth: contextMenuStyle.width,
+	onEvent: "click",
+	style: contextMenuStyle
+});
+]]></code>
+</script>

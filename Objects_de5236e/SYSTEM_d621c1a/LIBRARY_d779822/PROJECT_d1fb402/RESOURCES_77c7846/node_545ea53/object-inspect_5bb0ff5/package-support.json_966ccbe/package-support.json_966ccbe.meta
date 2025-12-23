@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/object-inspect/package-support.json
+NodeClass: Variable
+BrowseName: 1:package-support.json
+DisplayName: en|package-support.json
+Description: en|package-support.json
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

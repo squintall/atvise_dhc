@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Final_Sur.Equipos.Demasías caribe 2000.AR_BJ_CAR_SUR_CAUD_DEMASIAS_AcumuladoPasado
+NodeClass: Variable
+BrowseName: 1:AR_BJ_CAR_SUR_CAUD_DEMASIAS_AcumuladoPasado
+DisplayName: en|AR_BJ_CAR_SUR_CAUD_DEMASIAS_AcumuladoPasado
+Description: en|AR_BJ_CAR_SUR_CAUD_DEMASIAS_AcumuladoPasado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

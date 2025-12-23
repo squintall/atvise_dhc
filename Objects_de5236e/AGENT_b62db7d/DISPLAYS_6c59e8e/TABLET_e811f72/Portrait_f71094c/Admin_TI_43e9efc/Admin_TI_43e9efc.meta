@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.Admin_TI
+NodeClass: Variable
+BrowseName: 1:Admin_TI
+DisplayName: en|Admin_TI
+Description: en|Admin_TI
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

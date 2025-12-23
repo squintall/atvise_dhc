@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.LAYOUTS.Standard_1280x800
+NodeClass: Variable
+BrowseName: 1:Standard_1280x800
+DisplayName: en|Standard_1280x800
+Description: en|Standard_1280x800
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.PTAR.AR_SOL_PLA_GONZALO_GUERRERO.Caudalimetros.Clorada
+NodeClass: Object
+BrowseName: 1:Clorada
+DisplayName: en|Clorada
+Description: en|Clorada
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

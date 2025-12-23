@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/flecha-hacia-abajo.png
+NodeClass: Variable
+BrowseName: 1:flecha-hacia-abajo.png
+DisplayName: en|flecha-hacia-abajo.png
+Description: en|flecha-hacia-abajo.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

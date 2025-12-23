@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element button alarm log object display
+ * ----------------------------------------
+ * This script supports the display showing the alarmlog.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var alarmlist = null;
+var anchorX = parseInt(webMI.query["anchorX"]);
+var anchorY = parseInt(webMI.query["anchorY"]);
+var colorActive = webMI.query["alarm_color"];
+var colorInactive = webMI.gfx.getFill("button_alarmlog_1_outer_frame");
+var height = parseInt(webMI.query["height"]);
+var isAlarm = false;
+var width = parseInt(webMI.query["width"]);
+var x = parseInt(webMI.query["x"]);
+var y = parseInt(webMI.query["y"]);
+
+
+/**
+ * UI SETUP SECTION
+ */
+webMI.gfx.setWidth("button_alarmlog_1_button_bg", webMI.gfx.getWidth("button_alarmlog_1_button_bg") - 2);
+webMI.gfx.setHeight("button_alarmlog_1_button_bg", webMI.gfx.getHeight("button_alarmlog_1_button_bg") - 2);
+webMI.gfx.setX("button_alarmlog_1_button_bg", "2");
+webMI.gfx.setY("button_alarmlog_1_button_bg", "2");
+webMI.gfx.setWidth("button_alarmlog_2_button_bg", webMI.gfx.getWidth("button_alarmlog_2_button_bg") - 2);
+webMI.gfx.setHeight("button_alarmlog_2_button_bg", webMI.gfx.getHeight("button_alarmlog_2_button_bg") - 2);
+webMI.gfx.setX("button_alarmlog_2_button_bg", "2");
+webMI.gfx.setY("button_alarmlog_2_button_bg", "2");
+
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+if (webMI.query["buttonSize"] == "large") {
+	webMI.gfx.setVisible("button_alarmlog_1", false);
+} else {
+	webMI.gfx.setVisible("button_alarmlog_2", false);
+}
+
+webMI.addOnload(function (e) {
+	webMI.rootWindow.webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Alarmmanagement", {"id": ""});
+	webMI.trigger.fire("com.atvise.alarms_exist", setActive);
+	webMI.trigger.connect("com.atvise.alarms_notify", function (e) {
+		setActive(e.value);
+	});
+});
+
+/**
+ * FUNCTION SECTION
+ */
+function setActive(activate) {
+	if (alarmlist == null) {
+		webMI.gfx.setFill("button_alarmlog_1_outer_frame", activate ? {
+			0: colorActive,
+			2: colorInactive,
+			4: colorActive,
+			6: colorInactive,
+			8: colorActive,
+			10: colorInactive
+		} : colorInactive);
+		webMI.gfx.setFill("button_alarmlog_2_outer_frame", activate ? {
+			0: colorActive,
+			2: colorInactive,
+			4: colorActive,
+			6: colorInactive,
+			8: colorActive,
+			10: colorInactive
+		} : colorInactive);
+	} else {
+		webMI.gfx.setFill("button_alarmlog_1_outer_frame", activate ? colorActive : colorInactive);
+		webMI.gfx.setFill("button_alarmlog_2_outer_frame", activate ? colorActive : colorInactive);
+	}
+	isAlarm = activate;
+}
+
+function handleAlarmlog() {
+	if (alarmlist == null) {
+		webMI.gfx.setFill("button_alarmlog_1_outer_frame", isAlarm ? colorActive : colorInactive);
+		webMI.gfx.setFill("button_alarmlog_2_outer_frame", isAlarm ? colorActive : colorInactive);
+
+		webMI.gfx.setFill("context_menu_sign", webMI.query["symbolColorActive"]);
+
+		webMI.gfx.setFill("button_alarmlog_1_button_bg", webMI.query["fillColorActive"]);
+		webMI.gfx.setFill("button_alarmlog_1_button_label", webMI.query["fontColorActive"]);
+		webMI.gfx.setFill("button_alarmlog_1_button_label_1", webMI.query["fontColorActive"]);
+		webMI.gfx.setFill("button_alarmlog_1_button_label_2", webMI.query["fontColorActive"]);
+
+		webMI.gfx.setFill("button_alarmlog_2_button_bg", webMI.query["fillColorActive"]);
+		webMI.gfx.setFill("button_alarmlog_2_button_label", webMI.query["fontColorActive"]);
+		webMI.gfx.setFill("button_alarmlog_2_button_label_1", webMI.query["fontColorActive"]);
+		webMI.gfx.setFill("button_alarmlog_2_button_label_2", webMI.query["fontColorActive"]);
+
+		alarmlist = webMI.display.openWindow({
+			display: webMI.query["alarmDisplay"],
+			extern: false,
+			width: width,
+			height: height,
+			x: x,
+			y: y,
+			anchorX: anchorX,
+			anchorY: anchorY,
+			menubar: false,
+			modal: false,
+			movable: true,
+			resizable: true,
+			scrollbars: false,
+			status: false,
+			title: "T{Alarmlog}",
+			titlebar: false,
+			toolbar: false,
+			query: []
+		});
+		alarmlist.cuba = function () {
+			alarmlist = null;
+		}
+	} else {
+		webMI.gfx.setFill("context_menu_sign", webMI.query["symbolColor"]);
+
+		webMI.gfx.setFill("button_alarmlog_1_button_bg", webMI.query["fillColor"]);
+		webMI.gfx.setFill("button_alarmlog_1_button_label", webMI.query["fontColor"]);
+		webMI.gfx.setFill("button_alarmlog_1_button_label_1", webMI.query["fontColor"]);
+		webMI.gfx.setFill("button_alarmlog_1_button_label_2", webMI.query["fontColor"]);
+
+		webMI.gfx.setFill("button_alarmlog_2_button_bg", webMI.query["fillColor"]);
+		webMI.gfx.setFill("button_alarmlog_2_button_label", webMI.query["fontColor"]);
+		webMI.gfx.setFill("button_alarmlog_2_button_label_1", webMI.query["fontColor"]);
+		webMI.gfx.setFill("button_alarmlog_2_button_label_2", webMI.query["fontColor"]);
+
+		alarmlist.close();
+		alarmlist = null;
+	}
+}
+
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect("clicked", function (e) {
+	handleAlarmlog();
+}, "button_alarmlog_1");
+
+webMI.trigger.connect("clicked", function (e) {
+	handleAlarmlog();
+}, "button_alarmlog_2");
+]]></code>
+</script>

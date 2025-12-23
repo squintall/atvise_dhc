@@ -1,0 +1,866 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="startup" type="startup" trigger="true" relative="false" value=""/>
+  <parameter name="currentStepNode" type="node" trigger="true" relative="false" value="ns=1;s=AGENT.OBJECTS.ATVISE.ArchiveManagement.currentStep"/>
+  <parameter name="statusPrimaryNode" type="node" trigger="true" relative="false" value="ns=1;s=AGENT.REDUNDANCY.PRIMARY.INFORMATION.GENERAL.ArchiveManagement.status"/>
+  <parameter name="statusSecondaryNode" type="node" trigger="true" relative="false" value="ns=1;s=AGENT.REDUNDANCY.SECONDARY.INFORMATION.GENERAL.ArchiveManagement.status"/>
+  <parameter name="statusDetailsNode" type="node.value" trigger="false" relative="false" value="ns=1;s=AGENT.OBJECTS.ATVISE.ArchiveManagement.statusDetails"/>
+  <parameter name="transferDetailsNode" type="node.value" trigger="false" relative="false" value="ns=1;s=AGENT.OBJECTS.ATVISE.ArchiveManagement.transferDetails"/>
+  <code><![CDATA[var prefix = (currentStepNode != null && currentStepNode.trigger ? "currentStepNode" + currentStepNode.servertime.getTime() + "/" + currentStepNode.sourcetime.getTime() : (statusPrimaryNode != null && statusPrimaryNode.trigger ? "statusPrimaryNode" + statusPrimaryNode.servertime.getTime() + "/" + statusPrimaryNode.sourcetime.getTime() : (statusSecondaryNode != null && statusSecondaryNode.trigger ? "statusSecondaryNode" + statusSecondaryNode.servertime.getTime() + "/" + statusSecondaryNode.sourcetime.getTime() : "unknown")));
+
+var statusLocal = "SYSTEM.INFORMATION.GENERAL.ArchiveManagement.status";
+var statusLocalNode = Ua.findNode(statusLocal);
+var statusLocalNodeExist = Ua.Status(statusLocalNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+var parent = statusLocal.substring(0, statusLocal.lastIndexOf('.'));
+var parentNode = Ua.findNode(parent);
+var parentExist = Ua.Status(parentNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+if (!parentExist) {
+	Ua.createNode(parent, {
+		"nodeClass": Ua.NodeClass["OBJECT"],
+		"parent": parent.substring(0, parent.lastIndexOf('.')),
+		"typeDefinition": "i=61"
+	});
+}
+
+if (!statusLocalNodeExist) {
+	Ua.createNode(statusLocal, {
+		"nodeClass": Ua.NodeClass["VARIABLE"],
+		"parent": parent,
+		"typeDefinition": "i=62",
+		"dataType": Ua.DataType["STRING"],
+		"value": ""
+	});
+}
+
+// if server is starting reset values
+if (startup != null) {
+	// needs to be reset so there is a clean start
+	var statusLocalNode = Ua.findNode("SYSTEM.INFORMATION.GENERAL.ArchiveManagement.status");
+	var statusLocalNodeExist = Ua.Status(statusLocalNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (statusLocalNodeExist) {
+		statusLocalNode.result.assign({
+			value: JSON.stringify({
+				step: "reset",
+				errors: []
+			})
+		});
+	}
+
+	return;
+}
+
+var statusDetails;
+var transferDetails;
+
+// initial data checking/parsing
+if (statusDetailsNode != null) {
+	try {
+		statusDetails = JSON.parse(statusDetailsNode);
+		if (!("locked" in statusDetails) ||
+			!("active" in statusDetails) ||
+			!("errors" in statusDetails) ||
+			!Array.isArray(statusDetails.errors) ||
+			!("currentOperationIndex" in statusDetails) ||
+			!("logger" in statusDetails) ||
+			!("error" in statusDetails.logger) ||
+			!("info" in statusDetails.logger) ||
+			!("group" in statusDetails.logger.error) ||
+			!("subgroup" in statusDetails.logger.error) ||
+			!("label" in statusDetails.logger.error) ||
+			!("group" in statusDetails.logger.info) ||
+			!("subgroup" in statusDetails.logger.info) ||
+			!("label" in statusDetails.logger.info) ||
+			!("user" in statusDetails.logger)) {
+			statusDetails = null;
+			debugLog("statusDetails not in expected format");
+		}
+	} catch (error) {
+		statusDetails = null;
+	}
+
+	if (statusDetails == null) {
+		debugLog("statusDetails raw: ", statusDetailsNode);
+	}
+}
+
+if (transferDetailsNode != null) {
+	try {
+		transferDetails = JSON.parse(transferDetailsNode);
+		if (!Array.isArray(transferDetails)) {
+			transferDetails = null;
+			debugLog("transferDetails not an array");
+		} else {
+			for (var operation in transferDetails) {
+				if (!("name" in transferDetails[operation]) ||
+					!("sourceType" in transferDetails[operation]) ||
+					!("destinationType" in transferDetails[operation]) ||
+					!("action" in transferDetails[operation]) ||
+					!("locked" in transferDetails[operation])) {
+					transferDetails = null;
+					debugLog("on of the operation is not in expected format");
+					break;
+				}
+			}
+		}
+	} catch (error) {
+		transferDetails = null;
+	}
+
+	if (transferDetails == null) {
+		debugLog("transferDetails raw: ", transferDetailsNode);
+	}
+}
+
+if (!statusDetails || !transferDetails) {
+	debugLog("data ambiguous");
+	return;
+}
+
+
+var reduNode = Ua.findNode("AGENT.REDUNDANCY");
+var reduExist = Ua.Status(reduNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+// redu values
+var redu = {
+	on: reduExist,
+};
+
+var reduStatusNode = Ua.findNode("AGENT.REDUNDANCY.status");
+var reduStatusExist = Ua.Status(reduStatusNode) != Ua.Status.BADNODEIDUNKNOWN;
+redu.status = redu.on ? reduStatusNode.result.value : "Active";
+
+var reduRoleNode = Ua.findNode("AGENT.REDUNDANCY.role");
+var reduRoleExist = Ua.Status(reduRoleNode) != Ua.Status.BADNODEIDUNKNOWN;
+redu.role = redu.on ? reduRoleNode.result.value : "";
+Object.freeze(redu);
+
+// if step is finished nothing to do (except unlocking)
+if (currentStepNode.value == "finished") {
+	debugLog("currentStep is finished; exiting");
+	globals.set("com.atvise.archiveManagement.lock", false);
+	var transfers = [];
+	var transTmp;
+	transferDetails.forEach(function (td) {
+		transTmp = td.action + " from " + td.sourceType + (td.destinationType != null ? " to " + td.destinationType : "");
+		if (!transfers.includes(transTmp)) {
+			transfers.push(transTmp);
+		}
+	});
+	var msg = ("Finished. " + transfers.join(" ")).trim();
+	writeLogger(msg, "info");
+
+	debugLog("checking if user should be informed ", statusDetails);
+	// check if we need to send mail
+	if (typeof statusDetails === "object" && statusDetails !== null &&
+		"autoSchedulerConfigAddr" in statusDetails && "errors" in statusDetails &&
+		Array.isArray(statusDetails.errors) && statusDetails.errors.length > 0) {
+
+		var autoSchedulerConfigNode = Ua.findNode(statusDetails.autoSchedulerConfigAddr);
+		var autoSchedulerConfigExist = Ua.Status(autoSchedulerConfigNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+		var globalConfig = null;
+
+		try {
+			if (autoSchedulerConfigNode.result.value.trim() != "") {
+				globalConfig = Object.seal(JSON.parse(autoSchedulerConfigNode.result.value));
+			}
+		} catch (e) {
+		}
+
+		debugLog("globalConfig ", globalConfig);
+
+		debugLog("checking if reporting to server logfile ", typeof globalConfig === "object" && globalConfig != null && "active" in globalConfig &&
+			globalConfig.active && "report" in globalConfig && globalConfig.report && "logfiles" in globalConfig.report && globalConfig.report.logfiles);
+			
+		if (typeof globalConfig === "object" && globalConfig != null && "active" in globalConfig && globalConfig.active &&
+			"report" in globalConfig && globalConfig.report && "logfiles" in globalConfig.report && globalConfig.report.logfiles) {
+			// reporting auto-scheduler errors to server logfile
+			console.error("Auto-scheduler transfers finished: ", transfers.join(" "));
+			console.error("Auto-scheduler errors: ", statusDetails.errors.join("\n"));
+		}
+
+		debugLog("checking if mail can be send ", typeof globalConfig === "object" && globalConfig !== null &&
+			"active" in globalConfig && "report" in globalConfig && "email" in globalConfig.report &&
+			"mailFrom" in globalConfig.report && "mailTo" in globalConfig.report && "smtp" in globalConfig.report &&
+			globalConfig.active && globalConfig.report.email && globalConfig.report.smtp.trim() != "" &&
+			globalConfig.report.mailFrom.trim() != "" && globalConfig.report.mailTo.trim() != "");
+			
+		// check if config for mail settings are present
+		if (typeof globalConfig === "object" && globalConfig !== null &&
+			"active" in globalConfig && "report" in globalConfig && "email" in globalConfig.report && "mailFrom" in globalConfig.report &&
+			"mailTo" in globalConfig.report && "smtp" in globalConfig.report && globalConfig.active && globalConfig.report.email &&
+			globalConfig.report.smtp.trim() != "" && globalConfig.report.mailFrom.trim() != "" && globalConfig.report.mailTo.trim() != "") {
+			msg += "\n\nErrors:\n" + statusDetails.errors.join("\n");
+			debugLog("smtpserver ", globalConfig.report.smtp);
+			debugLog("from ", globalConfig.report.mailFrom);
+			debugLog("to ", globalConfig.report.mailTo);
+			debugLog("msg to send ", msg);
+			debugLog("redu.on ", redu.on);
+			debugLog("redu.role ", redu.role);
+			debugLog("statusDetails.active ", statusDetails.active);
+			debugLog("send mail? ", !redu.on || (redu.on && redu.role == statusDetails.active));
+			if (!redu.on ||
+				(redu.on && redu.role == statusDetails.active)) {
+				debugLog("sending mail");
+				call("Mail.SendMail", {
+					smtpserver: globalConfig.report.smtp,
+					from: globalConfig.report.mailFrom,
+					to: globalConfig.report.mailTo,
+					subject: "atvise auto-scheduler event",
+					body: msg
+				});
+			}
+			statusDetails.active = null;
+			updateStatusDetails();
+		}
+	}
+
+	return;
+}
+
+if (redu.on) {
+	// is system in a state where we should not proceed?
+	debugLog("get system_splitmode");
+	
+	var splitModeNode = Ua.findNode("AGENT.REDUNDANCY.system_splitmode");
+	var splitModeExist = Ua.Status(splitModeNode) != Ua.Status.BADNODEIDUNKNOWN;	
+	
+	debugLog("get replication_status");
+
+	var replicationStatusNode = Ua.findNode("AGENT.REDUNDANCY.replication_status");
+	var replicationStatusExist = Ua.Status(replicationStatusNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	debugLog("check if in split mode (", splitModeNode.result.value, ") or replication is in progress (", replicationStatusNode.result.value, ")");
+
+	// if in split mode or replication is in progress cancel all operations
+	if ((splitModeExist && splitModeNode.result.value == true) || (replicationStatusExist && replicationStatusNode.result.value != "Ready")) {
+		debugLog("System is either in split mode or replication is in progress; exit immediately");
+		statusDetails.locked = false;
+		updateStatusDetails();
+		updateCurrentStep("finished");
+		return;
+	}
+
+	if (statusPrimaryNode.trigger && statusPrimaryNode.sourcetime.getTime() == 0) {
+		debugLog("statusPrimary triggered, but sourcetime 0; exiting");
+		return;
+	}
+}
+
+function debugLog(...msg) {
+	if (typeof debug != "undefined" && debug) {
+		console.log("ArchiveManagement " + prefix + ": ", ...msg);
+	}
+}
+
+// parse statuses
+debugLog("try parsing statuses");
+var statusPri = null;
+var statusSec = null;
+var statusLoc = null;
+
+if (redu.on) {
+	statusPri = parseStatus("AGENT.REDUNDANCY.PRIMARY.INFORMATION.GENERAL.ArchiveManagement.status");
+	statusSec = parseStatus("AGENT.REDUNDANCY.SECONDARY.INFORMATION.GENERAL.ArchiveManagement.status");
+	statusLoc = parseStatus("SYSTEM.INFORMATION.GENERAL.ArchiveManagement.status");
+} else {
+	statusLoc = parseStatus("SYSTEM.INFORMATION.GENERAL.ArchiveManagement.status");
+}
+
+function parseStatus(nodeAddr) {
+	var status = null;
+	
+	var nodeNode = Ua.findNode(nodeAddr);
+	var nodeExist = Ua.Status(nodeNode) != Ua.Status.BADNODEIDUNKNOWN;	
+	var nodeGood = Ua.Status(nodeNode).value == Ua.Status.GOOD;	
+
+	try {
+		if (nodeExist && nodeGood) {
+			status = JSON.parse(nodeNode.result.value);
+			debugLog("status of " + nodeAddr + ": ", status);
+		}
+	} catch (error) {
+		debugLog("can't parse status for " + nodeAddr);
+	}
+
+	return status;
+}
+
+function updateStatusDetails() {
+	var sdNode = Ua.findNode("AGENT.OBJECTS.ATVISE.ArchiveManagement.statusDetails");
+	var sdExist = Ua.Status(sdNode) != Ua.Status.BADNODEIDUNKNOWN;	
+
+	debugLog("updating statusDetails");
+
+	sdNode.result.assign({
+		value: JSON.stringify(statusDetails)
+	});
+}
+
+function updateCurrentStep(value) {
+	var csNode = Ua.findNode("AGENT.OBJECTS.ATVISE.ArchiveManagement.currentStep");
+	var csExist = Ua.Status(csNode) != Ua.Status.BADNODEIDUNKNOWN;	
+
+	// Only active server writes to node and triggers next call of script!
+
+	debugLog("currentStepNode updated with ", value);
+
+	csNode.result.assign({
+		value: value
+	});
+}
+
+function triggeringNextStep(errorDuringStep) {
+	// lock changing of currentStepNode
+	if (globals.get("com.atvise.archiveManagement.lock")) {
+		debugLog("next step is about to change, don't change it twice so exiting");
+		return;
+	}
+	debugLog("lock changing of currentStepNode");
+	globals.set("com.atvise.archiveManagement.lock", true);
+
+	// determine next step
+	var currentStepNode_value = "";
+	switch (currentStepNode.value) {
+		case "start":
+			currentStepNode_value = errorDuringStep ? "end" : "delete";
+			break;
+		case "delete":
+			currentStepNode_value = "end";
+			break;
+		case "end":
+			currentStepNode_value = "start";
+			statusDetails.currentOperationIndex++;
+			updateStatusDetails();
+			break;
+	}
+
+	// triggering next step
+	updateCurrentStep(currentStepNode_value);
+}
+
+function writeLogger(msg, type) {
+	debugLog("writeLogger: start");
+	debugLog("writeLogger: statusDetails: ", statusDetails);
+	debugLog("writeLogger: statusDetails.logger: ", statusDetails.logger);
+	var writeObj = {...statusDetails.logger};
+	delete writeObj.error;
+	delete writeObj.info;
+	if (type in statusDetails.logger) {
+		writeObj.group = statusDetails.logger[type].group;
+		writeObj.subgroup = statusDetails.logger[type].subgroup;
+		writeObj.label = statusDetails.logger[type].label;
+	} else {
+		writeObj.group = "atvise";
+		writeObj.subgroup = "error";
+		writeObj.label = "Archive Management";
+	}
+	writeObj.message = msg;
+	debugLog("writeLogger: writing message ", writeObj);
+	call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Logger.WriteLog", writeObj);
+	debugLog("writeLogger: finished");
+}
+
+// debug infos
+debugLog("currentStepNode.trigger: ", currentStepNode.trigger);
+if (redu.on) {
+	debugLog("statusPrimaryNode.trigger: ", statusPrimaryNode.trigger);
+	debugLog("statusSecondaryNode.trigger: ", statusSecondaryNode.trigger);
+}
+debugLog("currentStepNode.value: ", currentStepNode.value);
+debugLog("statusDetails: ", statusDetails);
+
+if (redu.on) {
+	// identify Active server
+	if (statusDetails.active == null) {
+		if (redu.status == "Active") {
+			debugLog("setting active server to " + redu.role);
+			// server redu role is saved to recognize the active server on start of all operations
+			statusDetails.active = redu.role;
+			updateStatusDetails();
+		} else {
+			var pretendActive = redu.role == "Primary" ? "Secondary" : "Primary";
+			debugLog("pretending setting active server to " + pretendActive);
+			statusDetails.active = pretendActive;
+		}
+	} else if (statusDetails.active != null) {
+		debugLog("active server on start of operations " + statusDetails.active);
+	}
+
+	// if anything but currentStep has triggered...
+	if (!currentStepNode.trigger) {
+		var errorDuringStep = false;
+		// check the hell out of it, if currentStep needs to be changed
+		// check if Passive is executing script and end in a controlled manner
+		if (redu.status == "Passive") {
+			debugLog("I'm Passive, I don't decide anything; exiting");
+			return;
+		}
+
+		// wait till all are on the same step
+		if ((statusPri && currentStepNode.value != statusPri.step) || (statusSec && currentStepNode.value != statusSec.step)) {
+			debugLog("servers not on step " + currentStepNode.value + " (pri/sec " + statusPri.step + "/" + statusSec.step + "); waiting");
+			return;
+		}
+
+		// ignore trigger from myself if the other isn't finished
+		// Do we need the check if currentStepNode.value != statusSec.step?  Isn't this already checked with "wait till all are on the same step"?
+		if (redu.role == "Primary" && statusPrimaryNode.trigger && currentStepNode.value != statusSec.step) {
+			debugLog("triggering myself and secondary not finished");
+			return;
+		}
+
+		if (redu.role == "Secondary" && statusSecondaryNode.trigger && currentStepNode.value != statusPri.step) {
+			debugLog("triggering myself and primary not finished");
+			return;
+		}
+
+		// check if error occurred in step on Primary
+		// Do we need the check if currentStepNode.value == statusPri.step?  Isn't this already checked with "wait till all are on the same step"?
+		if (currentStepNode.value == statusPri.step && Array.isArray(statusPri.errors) && statusPri.errors.length > 0) {
+			debugLog("error during step " + currentStepNode.value + " occurred on Primary");
+			errorDuringStep = true;
+			statusDetails.errors = statusDetails.errors.concat(statusPri.errors);
+			updateStatusDetails();
+			statusPri.errors.forEach(function (msg) {
+				writeLogger(msg, "error");
+			});
+		}
+
+		// check if error occurred in step on Secondary
+		// Do we need the check if currentStepNode.value == statusSec.step?  Isn't this already checked with "wait till all are on the same step"?
+		if (currentStepNode.value == statusSec.step && Array.isArray(statusSec.errors) && statusSec.errors.length > 0) {
+			debugLog("error during step " + currentStepNode.value + " occurred on Secondary");
+			errorDuringStep = true;
+			statusDetails.errors = statusDetails.errors.concat(statusSec.errors);
+			updateStatusDetails();
+			statusSec.errors.forEach(function (msg) {
+				writeLogger(msg, "error");
+			});
+		}
+
+		debugLog("assuming everything is set (pri/sec " + statusPri.step + "/" + statusSec.step + "); triggering next step");
+
+		triggeringNextStep(errorDuringStep);
+		return;
+	}
+}
+
+// check of currentOperationIndex
+if (typeof statusDetails.currentOperationIndex != "number") {
+	debugLog("currentOperationIndex is not a number; exiting");
+	return;
+}
+
+debugLog("currentOperationIndex: " + statusDetails.currentOperationIndex + " / count operations: " + transferDetails.length);
+if (statusDetails.currentOperationIndex >= transferDetails.length) {
+	debugLog("all operations processed");
+
+	// initially active server starting sync
+	if (redu.on && redu.role == statusDetails.active) {
+		debugLog("initiate replication");
+		call("Redundancy.Replicate", {type: 3});
+	}
+
+	statusDetails.locked = false;
+	updateStatusDetails();
+
+	// triggering step finished
+	updateCurrentStep("finished");
+	return;
+}
+
+debugLog("statusDetails: ", statusDetails);
+
+// unlock changing of currentStepNode (aka allow changing/triggering of currentStep)
+globals.set("com.atvise.archiveManagement.lock", false);
+
+
+debugLog("assuming everything is set; do work");
+
+var operation = transferDetails[statusDetails.currentOperationIndex];
+debugLog("operation: ", operation);
+
+// initiate paths and FileOperations
+var fileOp = call("Utilities.FileOperations");
+
+var paths = {};
+fileOp.getDirectories().concat({type: "systemdb", path: server.database.directory}).forEach(function (dir) {
+	if (!("error" in dir)) {
+		paths[dir.type] = dir.path;
+	}
+});
+Object.freeze(paths);
+
+var errors = [];
+const lockExtension = ".lck";
+
+function pushError(msg) {
+	msg = (redu.role + " ").trimStart() + msg;
+	if (!errors.includes(msg)) {
+		debugLog("pushError: ", msg);
+		errors.push(msg);
+	}
+}
+
+function lockFile(file) {
+	debugLog("lockFile: start file '" + file + "'");
+	var resultLock = call("Methods.ArchiveLocking.Lock", {archivename: file, timeout: 10});
+	debugLog("lockFile: result lock " + JSON.stringify(resultLock));
+	if ("error" in resultLock) {
+		var lastindex = Math.max(file.lastIndexOf('/'), file.lastIndexOf('\\'));
+		var filename = lastindex > -1 ? file.substring(lastindex + 1) : file;
+		if ("errorstring" in resultLock && resultLock["errorstring"] == "BadUserAccessDenied")
+			pushError(filename + " could not be processed. Access denied.");
+		else if ("errorstring" in resultLock && resultLock["errorstring"] == "BadInvalidState")
+			pushError(filename + " is currently in use by the server or archive group is not configured.");
+		else
+			pushError(filename + " could not be locked.");
+	}
+
+	debugLog("lockFile: finished");
+	return !("error" in resultLock);
+}
+
+function checkAndGetFilePath(dir) {
+	debugLog("checkAndGetFilePath: start");
+
+	if (!(dir in paths)) {
+		var msg = "Path for " + dir + " is not available.";
+		pushError(msg);
+		debugLog("checkAndGetFilePath: " + msg);
+		throw new Error(msg + " Skipping entry.");
+	}
+
+	debugLog("checkAndGetFilePath: filename: " + operation.name);
+	var path = paths[dir] + operation.name;
+	debugLog("checkAndGetFilePath: path: " + path);
+
+	debugLog("checkAndGetFilePath: check isFile");
+	if (!fileOp.isFile(path)) {
+		var msg = operation.name + " is not a file.";
+		pushError(msg);
+		debugLog("checkAndGetFilePath: throwing Error; is not a file");
+		throw new Error(msg + " Skipping entry.");
+	}
+
+	debugLog("checkAndGetFilePath: finished");
+	return path;
+}
+
+function createLockFile() {
+	// placed by hand?
+	if (operation.sourceType == "backup" || operation.sourceType == "restore") {
+		var file = checkAndGetFilePath(operation.destinationType) + lockExtension;
+		// than create lock file
+		if (!fileOp.createFile(file)) {
+			pushError("Lock for file " + operation.name + " in " + operation.destinationType + " couldn't be created.");
+		}
+	}
+}
+
+function stepStart() {
+	debugLog("start: start");
+	var result = false;
+	try {
+		if (operation.action == "delete") {
+			// deleting file is requested; skipping step
+			debugLog("start: skipping step because delete is requested");
+			return;
+		}
+
+		// work needs to be done?
+		// only copy file if role is the same as the initial active server role and destination is backup, otherwise we are done with this step
+		if (redu.on && operation.destinationType == "backup" && statusDetails.active != redu.role) {
+			debugLog("start: current server is not the same as active server on start of operations");
+			return;
+		}
+
+		var file = checkAndGetFilePath(operation.sourceType);
+		debugLog("start: path of file: " + file);
+
+		// check if destination exists
+		if (!(operation.destinationType in paths)) {
+			pushError("Path for " + operation.destinationType + " is not available.");
+			return;
+		}
+
+		operation.locked = false;
+
+		// lock file only if we need to
+		if ((operation.sourceType == "historydir" || operation.sourceType == "swapin") && operation.sourceType != operation.destinationType) {
+			debugLog("start: lockFile and mark file as un/locked");
+			// mark source file as locked
+			operation.locked = lockFile(file);
+		} else if (operation.sourceType == "systemdb" || operation.sourceType == "backup" || operation.sourceType == "restore") {
+			operation.locked = true;
+		} else {
+			pushError("Operation for " + operation.name + " invalid");
+			return;
+		}
+
+		// transfer source file
+		if (operation.locked) {
+			var msg = operation.name + " could not be copied.";
+			if (operation.sourceType == "systemdb") {
+				if (result = operation.action == "copy" && operation.destinationType == "backup") {
+					function lZ(number) {
+						return number < 10 ? "0" + number : number;
+					}
+
+					var timestamp = new Date();
+					var match = /^(.*)(\.db)$/.exec(operation.name);
+					if (match == null || match.length != 3) {
+						debugLog("start: systemdb name doesn't match expected pattern");
+					} else {
+						debugLog("start: server.database.backup");
+						server.database.backup({
+							filename:
+							paths[operation.destinationType] +
+							match[1] + "_backup_" +
+							timestamp.getFullYear() +
+							lZ(timestamp.getMonth() + 1) +
+							lZ(timestamp.getDate()) +
+							"_" +
+							lZ(timestamp.getHours()) +
+							lZ(timestamp.getMinutes()) +
+							lZ(timestamp.getSeconds()) +
+							match[2]
+						});
+
+						var date = Date.now();
+
+						var backupStatusNode = Ua.findNode("ModuleStatistics.DATABASE.BackupStatus");
+						var backupStatusExist = Ua.Status(backupStatusNode) != Ua.Status.BADNODEIDUNKNOWN;	
+						
+						// check every second if backup of system database is done
+						while (backupStatusNode.result.value.startsWith("Backup running")) {
+							debugLog("start: backupStatus: ", backupStatusNode.result.value);
+							while (Date.now() - date < 500) ;
+							date = Date.now();
+							debugLog("start: check ModuleStatistics.DATABASE.BackupStatus node");
+						}
+						debugLog("start: end backupStatus: ", backupStatusNode.result.value);
+						result = backupStatusNode.result.value.startsWith("Backup success");
+						msg = backupStatusNode.result.value;
+					}
+				}
+			} else if (operation.action == "move" && ((operation.sourceType == "historydir" || operation.sourceType == "swapin") && (operation.destinationType == "backup" || operation.destinationType == "swapin"))) {
+				if (statusDetails.logger.user == "autoscheduler" && fileOp.isFile(file + lockExtension)) {
+					debugLog("start: autoscheduler isn't allowed to operate on manually copied/moved files");
+					return;
+				}
+				debugLog("start: moveFile");
+				// move source file to destination
+				result = fileOp.moveFile(file, paths[operation.destinationType]);
+				debugLog("start: moveFile result: " + result);
+				if (fileOp.isFile(paths[operation.destinationType] + operation.name)) {
+					if (operation.destinationType == "swapin") {
+						createLockFile();
+					}
+					if (!result) {
+						pushError("File " + operation.name + " already exists in " + operation.destinationType + ".");
+					}
+				}
+				msg = operation.name + " could not be moved.";
+			} else if ((operation.destinationType == "swapin" && ((operation.sourceType == "backup" && operation.action == "copy") || operation.sourceType == "restore")) ||
+				(operation.destinationType == "backup" && (operation.sourceType == "historydir" || operation.sourceType == "swapin"))) {
+				if (statusDetails.logger.user == "autoscheduler" && fileOp.isFile(file + lockExtension)) {
+					debugLog("start: autoscheduler isn't allowed to operate on manually copied/moved files");
+					return;
+				}
+				debugLog("start: copyFile");
+				// copy source file to destination
+				result = fileOp.copyFile(file, paths[operation.destinationType]);
+				debugLog("start: copyFile result: " + result);
+				if (fileOp.isFile(paths[operation.destinationType] + operation.name)) {
+					if (operation.destinationType == "swapin") {
+						createLockFile();
+					}
+					if (!result) {
+						pushError("File " + operation.name + " already exists in " + operation.destinationType + ".");
+					}
+				}
+			} else {
+				pushError("Operation for " + operation.name + " invalid");
+				return;
+			}
+
+			// was copy successful?
+			if (result == false) {
+				// no, pushing error
+				pushError(msg);
+			} else {
+				//yes, check for next step
+				debugLog("start: success");
+			}
+		} else {
+			debugLog("start: file can't be locked");
+			// can't lock source file; skip this file 
+			pushError("Locking of " + operation.name + " wasn't successful.");
+		}
+	} finally {
+		debugLog("start: finished");
+	}
+}
+
+function stepDelete() {
+	debugLog("delete: start");
+	var result = false;
+	try {
+		if (!(operation.sourceType in paths)) {
+			pushError("Path for " + operation.sourceType + " is not available.");
+			return;
+		}
+		var file = paths[operation.sourceType] + operation.name;
+		debugLog("delete: path of file: " + file);
+
+		debugLog("delete: check isFile ");
+		if (!fileOp.isFile(file)) {
+			debugLog("delete: file not present; assuming moved");
+			operation.locked = false;
+			return;
+		}
+
+		debugLog("delete: lockFile");
+		// try locking source file
+		if (operation.sourceType == "backup" || operation.sourceType == "systemdb") {
+			debugLog("delete: sourceType doesn't allow to delete");
+			operation.locked = false;
+			if (operation.sourceType == "backup" && (operation.action == "move" || operation.action == "delete")) {
+				pushError(operation.name + " can't be deleted from " + operation.sourceType);
+			}
+		} else if (!operation.locked) {
+			debugLog("delete: lockFile and mark file as un/locked");
+			// mark source file as locked
+			operation.locked = operation.sourceType == "restore" || lockFile(file);
+			debugLog("delete: result lockFile: ", operation.locked);
+		}
+
+		debugLog("delete: action ", operation.action);
+		// check whether the file indeed should be deleted
+		if ((operation.action == "move" || operation.action == "delete") && operation.locked) {
+			if (statusDetails.logger.user == "autoscheduler" && fileOp.isFile(file + lockExtension)) {
+				debugLog("delete: autoscheduler isn't allowed to operate on manually copied/moved files");
+				return;
+			}
+			debugLog("delete: delete file ", file);
+			// try delete file
+			result = fileOp.deleteFile(file);
+			debugLog("delete: delete file result: ", result);
+			if (fileOp.isFile(file + lockExtension)) {
+				result = fileOp.deleteFile(file + lockExtension);
+				debugLog("delete: delete lock file result: ", result);
+			}
+			// was delete successful?
+			if (result == false) {
+				// no, pushing error
+				pushError(operation.name + " could not be deleted from " + operation.sourceType + ".");
+			}
+		} else {
+			debugLog("delete: not necessary; skipping");
+		}
+	} finally {
+		debugLog("delete: finished");
+	}
+}
+
+function stepEnd() {
+	debugLog("end: start");
+	try {
+		debugLog("end: check if locked (", operation.locked, ") and unlock");
+		if (operation.locked) {
+			try {
+				var file = checkAndGetFilePath(operation.sourceType);
+				debugLog("end: file is there, unlocking");
+				operation.locked = call("Methods.ArchiveLocking.Unlock", {archivename: file});
+				operation.locked = "error" in operation.locked;
+				if (operation.locked) {
+					pushError(operation.name + " could not be unlocked.");
+				}
+			} catch (error) {
+				debugLog("end: file not present, assuming file was moved/deleted");
+				// if not, assuming it was moved/deleted
+				operation.locked = false;
+			} finally {
+				debugLog("end: unlock done; operation.locked ", operation.locked);
+			}
+		}
+	} finally {
+		debugLog("end: finished");
+	}
+}
+
+var steps = {
+	start: stepStart,
+	delete: stepDelete,
+	end: stepEnd
+};
+
+// do work
+debugLog("do actual work for step ", currentStepNode.value);
+
+try {
+	debugLog("check if step (" + currentStepNode.value + ") is implemented");
+	// check if step is valid
+	if (currentStepNode.value in steps) {
+		debugLog("executing step ", currentStepNode.value);
+		steps[currentStepNode.value]();
+	} else {
+		debugLog("step is not valid; skipping");
+		pushError("Invalid step " + currentStepNode.value);
+	}
+} catch (error) {
+	// error while executing step
+	debugLog("error");
+	if (error instanceof Error) {
+		debugLog("error object: " + error.message);
+		console.error(error.message);
+		pushError(error.message);
+		if (typeof console.trace == "function") {
+			console.trace();
+		} else if ("stack" in error) {
+			console.error(error.stack);
+		}
+	} else if (typeof error == "string") {
+		debugLog("error: ", error);
+		console.error(error);
+		pushError(error);
+	} else {
+		debugLog("error: Undisclosed error: ", error.toString());
+		console.error("Undisclosed error: ", error);
+		pushError(error.toString());
+	}
+} finally {
+	debugLog("set status with step ", currentStepNode.value, " and errors (if any)");
+
+	var finalNode = Ua.findNode("SYSTEM.INFORMATION.GENERAL.ArchiveManagement.status");
+	var finalExist = Ua.Status(finalNode) != Ua.Status.BADNODEIDUNKNOWN;
+	
+	finalNode.result.assign({
+		value: JSON.stringify({
+			step: currentStepNode.value,
+			errors: errors
+		})
+	});
+	
+	if (!redu.on) {
+		if (errors.length > 0) {
+			statusDetails.errors = statusDetails.errors.concat(errors);
+			updateStatusDetails();
+			statusDetails.errors.forEach(function (msg) {
+				writeLogger(msg, "error");
+			});
+		}
+		debugLog("triggering next step");
+		triggeringNextStep(errors.length > 0);
+	}
+	debugLog("finished");
+}]]></code>
+</script>

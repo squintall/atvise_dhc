@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Turistica.Carcamos_AR.AR_BJ_CAR_11_POKTAPOK_ZONA_TURISTICA.L1.Hora_Horario_1
+NodeClass: Variable
+BrowseName: 1:Hora_Horario_1
+DisplayName: en|Hora_Horario_1
+Description: en|Hora_Horario_1
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

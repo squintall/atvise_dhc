@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AR.AR_BJ_CAR_ARA.Caudalimetro.AR_BJ_CAR_ARA_CAUD_L1_Caudal
+NodeClass: Variable
+BrowseName: 1:AR_BJ_CAR_ARA_CAUD_L1_Caudal
+DisplayName: en|AR_BJ_CAR_ARA_CAUD_L1_Caudal
+Description: en|AR_BJ_CAR_ARA_CAUD_L1_Caudal
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

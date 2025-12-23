@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the highcharts opt dialog object display
+ * ----------------------------------------
+ * This script supports the display creating and updating the configuration dialog
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var accessControlManager = webMI.getAccessControlSupport()
+	? webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager")
+	: false;
+var activeDisplay = "series";
+var autosaveLoadLock = true;
+const scheduleAutosave = debounce(() => autosave());
+
+var btn_preview_bg = webMI.query["btn_preview_bg"];
+var btn_button_bg = webMI.query["btn_button_bg"];
+var chart, chartUpdate, lastChart, configNode, configFile, configName;
+var configHandler;
+var fillColor = webMI.query["fillColor"];
+var hasSaveRight = false;
+var historyLoading = { start: null, ready: null };
+var quickSaveActive = false;
+var subdisplay = {};
+var popupIFrames = parent ? parent.window.document.querySelectorAll("#popup_iframe") : null;
+var popupElement = null;
+for (var i = 0; i < popupIFrames.length; i++) {
+	if (popupIFrames[i].src.indexOf("opt_dialog") > -1) popupElement = popupIFrames[i];
+}
+
+var isPureWebMIApp = webMI.rootWindow.webMIConfig["frame.displaytype"] === "svg";
+if (isPureWebMIApp) accessControlManager = false;
+
+let hasWriteRight = accessControlManager ? false : true;
+subdisplay.display_option_start = webMI.query["display_option_start"];
+subdisplay.display_option_general = webMI.query["display_option_general"];
+subdisplay.display_option_xaxis = webMI.query["display_option_xaxis"];
+subdisplay.display_option_yaxis = webMI.query["display_option_yaxis"];
+subdisplay.display_option_series = webMI.query["display_option_series"];
+subdisplay.display_option_save_load = webMI.query["display_option_save_load"];
+
+setButtonsActivationState(true, "save");
+setButtonsActivationState(true, "import");
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+	initOverlay();
+	initOptions();
+});
+
+if (popupElement != null && webMI.query.showPreviewBtn == "true") {
+	webMI.addEvent("btn_preview", ["mousedown", "touchstart"], function () {
+		preview(true, false);
+	});
+	webMI.addEvent("btn_preview", ["mouseup", "mouseout", "touchend", "touchcancel"], function () {
+		preview(false, false);
+	});
+	/* Press and hold F2 for preview */
+	webMI.keys.addDownListener(function () {
+		preview(true, true);
+	}, 113);
+	webMI.keys.addUpListener(function () {
+		preview(false, false);
+	}, 113);
+} else {
+	webMI.gfx.setVisible("btn_preview", false);
+	webMI.gfx.setVisible("line_preview", false);
+}
+
+webMI.addOnunload(function () {
+	if (chart) {
+		/* check if chart is available */
+		if (chart.chart) {
+			chart.chart.onHistoryLoadingUnregister(historyLoading.start);
+			chart.chart.onHistoryReadyUnregister(historyLoading.end);
+			chart.chart._lockForConfiguration = false;
+		}
+
+		/* check if contol is available */
+		if (chart.control) {
+			try {
+				chart.control.updated(null);
+			} catch (ex) {
+				/* control update already invalidated by display change */
+			}
+		}
+	}
+
+	if (lastChart) if (lastChart && lastChart.control) lastChart.control.unregisterOnUpdatedCallback(chartUpdate);
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * lock display while history is loading
+ */
+function initOverlay() {
+	if (!chart) {
+		setTimeout(function () {
+			initOverlay();
+		}, 250);
+		return;
+	}
+
+	chart.chart._lockForConfiguration = true;
+
+	historyLoading.start = chart.chart.onHistoryLoadingRegister(function disable() {
+		setButtonsActivationState(false);
+	});
+
+	historyLoading.end = chart.chart.onHistoryReadyRegister(function enable() {
+		setTimeout(function () {
+			setButtonsActivationState(true);
+		}, 1500);
+	});
+}
+
+function initOptions() {
+	function findCharts() {
+		var highcharts = webMI.trendFactory.getAllTrends();
+
+		if (highcharts.length > 0) {
+			webMI.trigger.fire("setItems", {}, "chartselector");
+			for (var i = 0; i < highcharts.length; i++) {
+				webMI.trigger.fire(
+					"addItem",
+					{
+						text: highcharts[i].name,
+						value: highcharts[i].name
+					},
+					"chartselector"
+				);
+				if (i == 0) {
+					buttonsState(true);
+					webMI.trigger.fire("setSelectedItem", highcharts[i].name, "chartselector");
+					changeChart(highcharts[i].name);
+				}
+			}
+		} else {
+			buttonsState(false);
+			webMI.trigger.fire("addItem", "T{Choose chart to configure}", "chartselector");
+		}
+	}
+	/* find chart if not submitted */
+	var chartname = webMI.query.chartname;
+	if (chartname && chartname != "") {
+		webMI.trigger.fire("setSelectedItem", chartname, "chartselector");
+		webMI.trigger.fire("com.atvise.setActive", false, "chartselector");
+		changeChart(chartname);
+	} else {
+		findCharts();
+	}
+
+	setTimeout(function () {
+		autosaveLoadLock = false;
+	}, 2000);
+
+	/* submit current state of quickSave */
+	webMI.trigger.connect("com.atvise.highcharts.getQuickSave", function (e) {
+		if (e.value == "getState") {
+			webMI.trigger.fire("com.atvise.highcharts.sendQuickSave", quickSaveActive);
+		}
+	});
+
+	/* advanced preview */
+	if (btn_preview_bg) webMI.gfx.setFill("btn_preview", btn_preview_bg);
+
+	webMI.data.loadScript("highcharts/helpers/confighandler.js", function () {
+		let chart = webMI.trendFactory.getTrendByName(webMI.query.chartname);
+		configHandler = new webMI.rootWindow.ConfigHandler(chart);
+
+		/*
+        Activate the quicksave button if changes have been made in the highcharts
+        main display or in the legend. (e.g. color, visibility, ...)
+        */
+		configHandler.checkForChanges((configsAreIdentical) => {
+			webMI.trigger.fire("com.atvise.setActive", true && hasWriteRight, "btn_quicksave");
+			if (!configsAreIdentical) {
+				quickSaveActive = true;
+
+				if (configNode) {
+					webMI.gfx.setText("btn_quicksave_button_label", "T{Quicksave}*");
+				}
+			}
+		});
+
+		/* Button triggers */
+		webMI.trigger.connect(
+			"clicked",
+			function () {
+				setActiveDisplay("general");
+			},
+			"btn_general"
+		);
+		webMI.trigger.connect(
+			"clicked",
+			function () {
+				setActiveDisplay("series");
+			},
+			"btn_series"
+		);
+		webMI.trigger.connect(
+			"clicked",
+			function () {
+				setActiveDisplay("xaxis");
+			},
+			"btn_xaxis"
+		);
+		webMI.trigger.connect(
+			"clicked",
+			function () {
+				setActiveDisplay("yaxis");
+			},
+			"btn_yaxis"
+		);
+		webMI.trigger.connect(
+			"clicked",
+			function () {
+				setActiveDisplay("save_load");
+			},
+			"btn_save_load"
+		);
+
+		webMI.trigger.connect(
+			"clicked",
+			function () {
+				if (!chart || !chart.chart.options.atviseOptions) return;
+
+				configNode = chart.chart.options.atviseOptions.configNode;
+				configFile = chart.chart.options.atviseOptions.configFile;
+				configName = chart.chart.options.atviseOptions.configName;
+
+				var configNodeText = configNode.split(".");
+				var isFile = chart.chart.options.atviseOptions.saveMethod == "filesystem";
+
+				if (!configNode || (isFile && !configFile)) return;
+
+				if (chart.chart.options.atviseOptions.saveMethod == "filesystem") {
+					webMI.gfx.setText("label_configname", configFile + ": " + configName);
+				} else {
+					webMI.gfx.setText("label_configname", configNodeText[configNodeText.length - 1] + ": " + configName);
+				}
+
+				if (typeof configNode == "undefined" || typeof configName == "undefined") return;
+
+				if (!hasSaveRight) return;
+
+				webMI.trigger.fire("com.atvise.highcharts.showOptionsOverlay", { value: true, type: "save" });
+				configHandler.writeConfig(chart, isFile ? configFile : configNode, configName, function () {
+					chart.control.updated(function () {
+						quickSaveActive = false;
+						webMI.gfx.setText("btn_quicksave_button_label", "T{Quicksave}");
+						setTimeout(function () {
+							webMI.trigger.fire("com.atvise.highcharts.showOptionsOverlay", { value: false, type: "save" });
+						}, 125);
+					});
+				});
+			},
+			"btn_quicksave"
+		);
+
+		if (!configNode) {
+			webMI.trigger.fire("com.atvise.setActive", false, "btn_quicksave");
+		}
+
+		/* Enable/disable quicksave button */
+		webMI.trigger.connect("com.atvise.highcharts.updateQuickSave", function (e) {
+			if (e.value.chart == webMI.query.chartname)
+				webMI.trigger.fire("com.atvise.setActive", e.value.active, "btn_quicksave");
+		});
+
+		/* Disable buttons if no chart is selected */
+		webMI.trigger.connect(
+			"valuechanged",
+			function (e) {
+				var active = true;
+				if (e.value == "none") active = false;
+				else changeChart(e.value);
+
+				buttonsState(active);
+			},
+			"chartselector"
+		);
+
+		/* configurator loaded */
+		setButtonsActivationState(true);
+	});
+
+	webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+		var right = webMI.query.save_right;
+
+		if (right == "") {
+			hasSaveRight = true;
+		} else {
+			/* remove "prefix" SYSTEM.SECURITY.RIGHTS. */
+			if (right.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1) right = right.substring(23, right.length);
+
+			if ("username" in e && e.username != "") hasSaveRight = webMI.hasRight(right);
+
+			if (hasWriteRight === false) {
+				hasSaveRight = false;
+			}
+		}
+	});
+}
+
+/**
+ * set activation state of buttons
+ * @param value
+ */
+function setButtonsActivationState(value, type) {
+	if (type) {
+		webMI.gfx.setVisible("options_overlay_" + type, !value);
+	} else {
+		webMI.gfx.setVisible("options_overlay", !value);
+	}
+}
+
+/**
+ * Change selected chart
+ * Reset updated callback
+ * Autosave on update
+ * @param chartname
+ */
+function changeChart(chartname) {
+	if (lastChart) if (lastChart && lastChart.control) lastChart.control.unregisterOnUpdatedCallback(chartUpdate);
+
+	webMI.query.chartname = chartname;
+	chart = webMI.trendFactory.getTrendByName(chartname);
+
+	if (!chart) return;
+
+	configNode = chart.chart.options.atviseOptions.configNode;
+	configFile = chart.chart.options.atviseOptions.configFile;
+	configName = chart.chart.options.atviseOptions.configName;
+	var configNodeText = configNode.split(".");
+
+	if (accessControlManager) {
+		accessControlManager.getRights([chart.chart.options.atviseOptions.configNode], ["write"], (response) => {
+			hasWriteRight = response.result[0].value;
+		});
+	}
+
+	if (chart.chart.options.atviseOptions.saveMethod == "filesystem") {
+		webMI.gfx.setText("label_configname", configFile + ": " + configName);
+	} else {
+		webMI.gfx.setText("label_configname", configNodeText[configNodeText.length - 1] + ": " + configName);
+	}
+
+	chartUpdate = chart.control.registerOnUpdatedCallback(function () {
+		if (!chart || !chart.chart) return;
+
+		configNode = chart.chart.options.atviseOptions.configNode;
+		configFile = chart.chart.options.atviseOptions.configFile;
+		configName = chart.chart.options.atviseOptions.configName;
+		var configNodeText = configNode.split(".");
+
+		if (chart.chart.options.atviseOptions.saveMethod == "filesystem") {
+			webMI.gfx.setText("label_configname", configFile + ": " + configName);
+		} else {
+			webMI.gfx.setText("label_configname", configNodeText[configNodeText.length - 1] + ": " + configName);
+		}
+
+		scheduleAutosave();
+
+		quickSaveActive = true;
+
+		configHandler.checkForChanges((configsAreIdentical) => {
+			webMI.trigger.fire("com.atvise.setActive", true && hasWriteRight, "btn_quicksave");
+			if (!configsAreIdentical) {
+				quickSaveActive = true;
+
+				if (configNode) {
+					webMI.gfx.setText("btn_quicksave_button_label", "T{Quicksave}*");
+				}
+			}
+		});
+	});
+
+	setActiveDisplay(activeDisplay);
+}
+
+function autosave() {
+	if (typeof configNode == "undefined" || typeof configHandler == "undefined") return;
+	if (!hasSaveRight || autosaveLoadLock) return;
+
+	configNode = chart.chart.options.atviseOptions.configNode;
+	configFile = chart.chart.options.atviseOptions.configFile;
+	configName = chart.chart.options.atviseOptions.configName;
+
+	var isFile = chart.chart.options.atviseOptions.saveMethod == "filesystem";
+
+	configHandler.autosave(chart, isFile ? configFile : configNode, function () {});
+}
+
+function buttonsState(active) {
+	webMI.trigger.fire("com.atvise.setActive", active, "btn_general");
+	webMI.trigger.fire("com.atvise.setActive", active, "btn_series");
+	webMI.trigger.fire("com.atvise.setActive", active, "btn_xaxis");
+	webMI.trigger.fire("com.atvise.setActive", active, "btn_yaxis");
+	webMI.trigger.fire("com.atvise.setActive", active, "btn_save_load");
+	webMI.gfx.setFill("btn_" + activeDisplay + "_button_bg", btn_button_bg);
+
+	if (!active) webMI.display.openDisplay(subdisplay.display_option_start, webMI.query, "config_frame");
+}
+
+/**
+ * Switch configuration tab
+ * @param display
+ */
+function setActiveDisplay(display) {
+	setTimeout(function () {
+		activeDisplay = display;
+
+		webMI.gfx.setFill("btn_general_button_bg", fillColor);
+		webMI.gfx.setFill("btn_series_button_bg", fillColor);
+		webMI.gfx.setFill("btn_xaxis_button_bg", fillColor);
+		webMI.gfx.setFill("btn_yaxis_button_bg", fillColor);
+		if (webMI.gfx.getFill("btn_save_load_button_bg") == btn_button_bg)
+			webMI.gfx.setFill("btn_save_load_button_bg", fillColor);
+
+		webMI.gfx.setFill("btn_" + display + "_button_bg", btn_button_bg);
+
+		switch (display) {
+			case "general":
+				webMI.display.openDisplay(subdisplay.display_option_general, webMI.query, "config_frame");
+				break;
+			case "xaxis":
+				webMI.display.openDisplay(subdisplay.display_option_xaxis, webMI.query, "config_frame");
+				break;
+			case "yaxis":
+				webMI.display.openDisplay(subdisplay.display_option_yaxis, webMI.query, "config_frame");
+				break;
+			case "series":
+				webMI.display.openDisplay(subdisplay.display_option_series, webMI.query, "config_frame");
+				break;
+			case "start":
+				webMI.display.openDisplay(subdisplay.display_option_start, webMI.query, "config_frame");
+				break;
+			case "save_load":
+				webMI.display.openDisplay(subdisplay.display_option_save_load, webMI.query, "config_frame");
+				break;
+		}
+	}, 125);
+}
+
+/**
+ * Preview functions
+ * @param body
+ * @param header
+ */
+function preview(body, header) {
+	if (webMI.keys.isDown(113)) return;
+
+	var visibility = body ? "hidden" : "inherit";
+	webMI.gfx.setVisible("btn_general", !body);
+	webMI.gfx.setVisible("btn_series", !body);
+	webMI.gfx.setVisible("btn_xaxis", !body);
+	webMI.gfx.setVisible("btn_yaxis", !body);
+	webMI.gfx.setVisible("btn_save_load", !body);
+	webMI.gfx.setVisible("btn_quicksave", !body);
+	webMI.gfx.setVisible("chartselector", !body);
+	webMI.gfx.setVisible("filters_bg", !body);
+	webMI.gfx.setVisible("label_config", !body);
+	webMI.gfx.setVisible("label_configname", !body);
+
+	var popupIFrames = parent.window.document.querySelectorAll("#popup_iframe");
+	for (var i = 0; i < popupIFrames.length; i++) {
+		if (popupIFrames[i].src.indexOf("opt_dialog") > -1) {
+			parent.window.document.querySelectorAll("#popup_bgdiv")[i].style.visibility = visibility;
+			parent.window.document.querySelectorAll("#popup_bgiframe")[i].style.visibility = visibility;
+
+			const visibility_header = header ? "hidden" : "inherit";
+			parent.window.document.querySelectorAll("#popupcontent")[i].style.visibility = visibility_header;
+			parent.window.document.querySelectorAll("#popup_main")[i].style.visibility = visibility_header;
+		}
+	}
+
+	parent.window.document.getElementById("config_frame_myframe").style.visibility = visibility;
+	if (parent.window.document.getElementById("type_configuration_myframe") != null)
+		parent.window.document.getElementById("type_configuration_myframe").style.visibility = visibility;
+	if (parent.window.document.getElementById("address_treeview") != null)
+		parent.window.document.getElementById("address_treeview").style.visibility = visibility;
+	if (parent.window.document.getElementById("highchartsLoadSaveFileInput") != null)
+		parent.window.document.getElementById("highchartsLoadSaveFileInput").style.visibility = visibility;
+}
+
+// Helper
+function debounce(func, timeout = 2000) {
+	let timer;
+	return (...args) => {
+		clearTimeout(timer);
+		timer = setTimeout(() => {
+			func.apply(this, args);
+		}, timeout);
+	};
+}
+
+webMI.trigger.connect("com.atvise.highcharts.showOptionsOverlay", function (e) {
+	var option = e.value;
+	setButtonsActivationState(!option.value, option.type);
+});
+
+webMI.trigger.connect("com.atvise.highCharts.selectedConfigChanged", function () {
+	setActiveDisplay("series");
+});
+
+webMI.trigger.connect("com.atvise.highCharts.closeTrendConfigurator", function () {
+	webMI.display.closeWindow();
+});
+
+this.window.focus();
+]]></code>
+</script>

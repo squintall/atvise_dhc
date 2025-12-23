@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="dataRootAddress" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="mode" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="check" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="writeToLogger" type="boolean" trigger="false" relative="false" value=""/>
+  <code><![CDATA[function UserGroupManager(){
+	var dataRoot = dataRootAddress;
+	var tablemode = mode;
+	var Check = check;
+	var nodeId;
+	var ReturnList = [];
+	var CkeckList = [];
+	var UserCheck = 0;
+	var logger = {
+		persistMessages: writeToLogger,
+		user: "", //userNameForLogger
+		types: {
+			error: {
+				group: "atvise", //webMI.query.logger_group_error,
+				subgroup: "Error", //webMI.query.logger_subgroup_error,
+				label: "User Management" //webMI.query.logger_label_error
+			},
+			warn: {
+				group: "atvise", //webMI.query.logger_group_error,
+				subgroup: "Warning", //webMI.query.logger_subgroup_error,
+				label: "User Management" //webMI.query.logger_label_error
+			},
+			info: {
+				group: "atvise", //webMI.query.logger_group_info,
+				subgroup: "Info", //webMI.query.logger_subgroup_info,
+				label: "User Management" //webMI.query.logger_label_info
+			}
+		}
+	};
+	
+	this.log = function(type, msg) {
+		if (!logger.persistMessages) {
+			return;
+		}		
+		var writeObj = {
+			user: logger.user,
+			message: msg
+		};
+		
+		if (type in logger.types) {
+			writeObj.group = logger.types[type].group;
+			writeObj.subgroup = logger.types[type].subgroup;
+			writeObj.label = logger.types[type].label;
+		} else {
+			writeObj.group = "atvise";
+			writeObj.subgroup = "Error";
+			writeObj.label = "Recipe Management";
+		}
+		call("Logger.WriteLog", writeObj);
+	};
+	
+	
+	
+	
+		
+	this.GroupList = function(){
+		nodeId = dataRoot+".GROUPS";
+		var node = Ua.findNode(nodeId);
+		var result = node.result.browse({
+			direction: Ua.Node.BROWSEDIRECTION_FORWARD,
+			  reference: Ua.Reference.HIERARCHICALREFERENCES,
+			  subType: true,
+			  nodeClass: Ua.NodeClass.UNSPECIFIED,
+			  maxResult:0,
+			  recursive: false
+		});		
+		for (var i = 0; i < result.result.length; i++) {
+			var value = result.result[i]["node"]["value"];
+			var GroupName = result.result[i]["node"]["browseName"]["name"];
+			var GroupAddress = result.result[i]["node"]["nodeaddr"];
+			var DescriptionNode = Ua.findNode(GroupAddress+".description");
+			var Description = DescriptionNode.result ? DescriptionNode.result.value : null;
+			var PrivateNode = Ua.findNode(GroupAddress+".private");
+			var Private = PrivateNode.result ? PrivateNode.result.value : null;
+			
+			if(GroupName != "Anonymous" && GroupName != "AuthenticatedUser" && GroupName.toLowerCase() != "private"){
+				CkeckList = [];				
+				if(Check){
+					var ChecknodeId = GroupAddress;
+					var Checknode = Ua.findNode(ChecknodeId);
+					var User = Checknode.result.browse({
+						direction: Ua.Node.BROWSEDIRECTION_FORWARD,
+						reference: Ua.Reference.HIERARCHICALREFERENCES,
+						subType: true,
+						nodeClass: Ua.NodeClass.UNSPECIFIED,
+						maxResult:0,
+						recursive: false
+					});
+					for (var j = 0; j < User.result.length; j++) {
+						var CheckUserName = User.result[j]["node"]["browseName"]["name"];
+						if(User.result[j]["node"]["typeDefinition"]["xml"] == "ns=1;s=ObjectTypes.ATVISE.User" && CheckUserName == Check){
+							CkeckList.push(CheckUserName);
+						}
+					}
+				}
+				if(Check && CkeckList.includes(Check)){
+					UserCheck = 1;				
+				}else{
+					UserCheck = 0;	
+				}					
+				ReturnList.push({name: GroupName, description: Description != undefined ? Description : "", private: Private, usercheck:UserCheck});
+			}
+		}
+		return ReturnList;
+	}
+
+	
+	this.UserList = function(){
+		nodeId = dataRoot+".USERS";
+		var node = Ua.findNode(nodeId);
+		var result = node.result.browse({
+			direction: Ua.Node.BROWSEDIRECTION_FORWARD,
+			  reference: Ua.Reference.HIERARCHICALREFERENCES,
+			  subType: true,
+			  nodeClass: Ua.NodeClass.UNSPECIFIED,
+			  maxResult:0,
+			  recursive: false
+		});
+		if(Check){
+			nodeId = dataRoot+".GROUPS."+Check;
+			var node = Ua.findNode(nodeId);
+			var Group = node.result.browse({
+				direction: Ua.Node.BROWSEDIRECTION_FORWARD,
+				reference: Ua.Reference.HIERARCHICALREFERENCES,
+				subType: true,
+				nodeClass: Ua.NodeClass.UNSPECIFIED,
+				maxResult:0,
+				recursive: false
+			});
+			for (var i = 0; i < Group.result.length; i++) {
+				var CheckUserName = Group.result[i]["node"]["browseName"]["name"];
+				if(Group.result[i]["node"]["typeDefinition"]["xml"] == "ns=1;s=ObjectTypes.ATVISE.User"){
+					CkeckList.push(CheckUserName);
+				}
+			}			
+		}
+	
+		for (var i = 0; i < result.result.length; i++) {
+			var value = result.result[i]["node"]["value"];
+			var UserName = result.result[i]["node"]["browseName"]["name"];
+			var UserAddress = result.result[i]["node"]["nodeaddr"];
+			var DescriptionNode = Ua.findNode(UserAddress+".description");
+			var Description = DescriptionNode.result.value;
+			var languageNode = Ua.findNode(UserAddress+".language");
+			var Language = languageNode.result.value;
+			var NameNode = Ua.findNode(UserAddress+".name");
+			var Name = NameNode.result.value;
+			var SuperUserNode = Ua.findNode(UserAddress+".superuser");
+			var SuperUser = SuperUserNode.result.value;
+			if(Check && CkeckList.includes(UserName)){
+				UserCheck = 1;				
+			}else{
+				UserCheck = 0;	
+			}
+			if(UserName != "root"){
+				ReturnList.push({username: UserName, name: Name, description: Description, language: Language, superuser:SuperUser, usercheck:UserCheck});
+			}
+		}
+		return ReturnList;
+	}
+}
+
+
+return new UserGroupManager();]]></code>
+</script>

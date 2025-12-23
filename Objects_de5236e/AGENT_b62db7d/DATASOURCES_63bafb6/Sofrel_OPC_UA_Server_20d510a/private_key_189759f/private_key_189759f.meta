@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server.private_key
+NodeClass: Variable
+BrowseName: 1:private_key
+DisplayName: en|private_key
+Description: en|private_key
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

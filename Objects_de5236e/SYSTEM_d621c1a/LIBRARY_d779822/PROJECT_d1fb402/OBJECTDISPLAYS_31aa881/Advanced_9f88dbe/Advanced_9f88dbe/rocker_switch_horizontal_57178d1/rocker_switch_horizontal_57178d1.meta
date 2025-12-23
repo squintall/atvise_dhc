@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.Advanced.rocker_switch_horizontal
+NodeClass: Variable
+BrowseName: 1:rocker_switch_horizontal
+DisplayName: en|rocker_switch_horizontal
+Description: en|rocker_switch_horizontal
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

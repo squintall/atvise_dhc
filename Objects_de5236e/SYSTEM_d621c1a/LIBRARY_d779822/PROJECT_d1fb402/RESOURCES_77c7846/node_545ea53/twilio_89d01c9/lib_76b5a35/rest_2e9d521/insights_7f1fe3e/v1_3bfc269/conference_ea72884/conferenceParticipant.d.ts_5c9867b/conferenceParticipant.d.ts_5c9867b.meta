@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/insights/v1/conference/conferenceParticipant.d.ts
+NodeClass: Variable
+BrowseName: 1:conferenceParticipant.d.ts
+DisplayName: en|conferenceParticipant.d.ts
+Description: en|conferenceParticipant.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

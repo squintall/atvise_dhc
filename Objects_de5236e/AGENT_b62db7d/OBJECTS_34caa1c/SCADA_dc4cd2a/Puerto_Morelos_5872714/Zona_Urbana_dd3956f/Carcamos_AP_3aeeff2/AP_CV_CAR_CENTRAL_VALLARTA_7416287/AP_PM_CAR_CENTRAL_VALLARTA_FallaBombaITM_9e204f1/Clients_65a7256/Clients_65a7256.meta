@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Zona_Urbana.Carcamos_AP.AP_CV_CAR_CENTRAL_VALLARTA.AP_PM_CAR_CENTRAL_VALLARTA_FallaBombaITM.Clients
+NodeClass: Variable
+BrowseName: 1:Clients
+DisplayName: en|Monitoring clients number
+Description: en|Clients
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Clients.RelMirrorInputOutput

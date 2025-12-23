@@ -1,0 +1,2744 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager;
+
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+if (webMI.query.displayAcNotification === "true") {
+	var notifierConfig = {
+		id: document.getElementById("storageOverviewHeaderBackground").id,
+		rights: [
+			{nodeId: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AddNode", rights: "execute"},
+			{nodeId: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes", rights: "execute"},
+			{nodeId: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.CheckNodeExists", rights: "execute"},
+			{nodeId: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations", rights: "execute"},
+			{nodeId: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.LoggerWriteLog", rights: "execute"},
+			{nodeId: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.SetNodeValue", rights: "execute"}
+		]
+	};
+}
+
+webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Disk Space Monitoring", {
+	config_node: "SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig",
+	interval: 1,
+	active: true,
+	threshold_backup_critical: webMI.query.threshold_backup_critical,
+	threshold_backup_warning: webMI.query.threshold_backup_warning,
+	threshold_historydir_critical: webMI.query.threshold_historydir_critical,
+	threshold_historydir_warning: webMI.query.threshold_historydir_warning,
+	threshold_restore_critical: webMI.query.threshold_restore_critical,
+	threshold_restore_warning: webMI.query.threshold_restore_warning,
+	threshold_swapin_critical: webMI.query.threshold_swapin_critical,
+	threshold_swapin_warning: webMI.query.threshold_swapin_warning
+});
+
+var archivemanagementParentNodeAddr = "AGENT.OBJECTS.ATVISE.ArchiveManagement";
+var group_archives = false;
+var group_archives_sorted = {};
+var loadingDone = false;
+var archiveFiles = [];
+var overlaySettings = Object.seal({
+	manualSystemdb: false,
+	subscribeId: null,
+	divs: {
+		main: null,
+		progress: null,
+		file: null
+	}
+});
+var userNameForLogger = "";
+
+// get username
+webMI.data.addEventListener("clientvariableschange", function (e) {
+	userNameForLogger = e.username || "";
+	if (tableControllerArchive == null || tableControllerArchive.isReady !== true) {
+		return;
+	}
+	UpdateStatusLabel("");
+	setTimeout(function () {
+		UpdateButtonsAndDetails(
+			tableControllerArchive.getData().filter(function (item) {
+				return item.atvise_marker;
+			})
+		);
+	}, 50);
+});
+
+// setting up overlay
+var content_iframe = webMI.rootWindow.document.querySelector("iframe[id^=content_iframe]");
+var extensionsDiv = webMI.rootWindow.document.getElementById("extensions");
+if (extensionsDiv && content_iframe) {
+	var overlay = webMI.rootWindow.document.getElementById("archivemanagement_overlay");
+
+	if (overlay && overlay.parentNode) {
+		overlay.parentNode.removeChild(overlay);
+	}
+
+	var contentMultiplicator = webMI.getClientInfo() ? webMI.getClientInfo().deviceScaling.window.content : 1;
+	var titlebarMultiplicator = webMI.getClientInfo() ? webMI.getClientInfo().deviceScaling.window.titlebar : 1;
+	var titlebarHeight = 20 * titlebarMultiplicator;
+	var contentPadding = 20 * contentMultiplicator;
+	var h = (200 - 20) * contentMultiplicator + titlebarHeight; //Height of titlebar is fixed to 20px
+	var w = 600 * contentMultiplicator;
+	var outerClientWidth = parseFloat(webMI.display.getInitialViewBox()[2]);
+	var outerClientHeight = parseFloat(webMI.display.getInitialViewBox()[3]);
+
+	overlay = webMI.rootWindow.document.createElement("div");
+	overlay.id = "archivemanagement_overlay";
+	overlay.style.position = "absolute";
+	overlay.style.left = content_iframe.parentNode.style.left;
+	overlay.style.top = content_iframe.parentNode.style.top;
+	overlay.style.width = "100%";
+	overlay.style.height = "100%";
+	overlay.style.display = "none";
+	overlay.style.zIndex = "10";
+
+	var overlayBg = webMI.rootWindow.document.createElement("div");
+	overlayBg.id = "archivemanagement_overlayBg";
+	overlayBg.style.position = "absolute";
+	overlayBg.style.left = "0px";
+	overlayBg.style.top = "0px";
+	overlayBg.style.filter = "alpha(opacity=50)";
+	overlayBg.style.opacity = 0.5;
+	overlayBg.style.backgroundColor = "gray";
+	overlayBg.style.width = outerClientWidth + "px"; // outerClientWidth = parseFloat(mainFrameWebMI.display.getInitialViewBox()[2]);
+	overlayBg.style.height = outerClientHeight + "px"; // outerClientHeight = parseFloat(mainFrameWebMI.display.getInitialViewBox()[3]);
+	overlay.appendChild(overlayBg);
+
+	var overlayMain = webMI.rootWindow.document.createElement("div");
+	overlayMain.id = "archivemanagement_overlayMain";
+	overlayMain.style.position = "absolute";
+	overlayMain.style.left = (outerClientWidth - w) / 2 + "px"; // (outerClientWidth - w) / 2
+	overlayMain.style.top = (outerClientHeight - h) / 2 + "px"; // (outerClientHeight - h) / 2
+	overlayMain.style.outline = "1px solid #000";
+	overlayMain.style.width = w + "px"; // w
+	overlayMain.style.height = h + "px"; // h
+	overlay.appendChild(overlayMain);
+
+	var overlayMainBg = webMI.rootWindow.document.createElement("div");
+	overlayMainBg.id = "archivemanagement_overlayMainBg";
+	overlayMainBg.style.position = "absolute";
+	overlayMainBg.style.left = "0px";
+	overlayMainBg.style.top = "0px";
+	overlayMainBg.style.width = "100%";
+	overlayMainBg.style.height = "100%";
+	overlayMainBg.style.backgroundColor = "white";
+
+	var overlayContent = webMI.rootWindow.document.createElement("div");
+	overlayContent.id = "archivemanagement_overlayContent";
+	overlayContent.style.position = "absolute";
+	overlayContent.style.left = "0px";
+	overlayContent.style.top = titlebarHeight + "px"; // 20 * titlebarMultiplicator
+	overlayContent.style.width = w - 2 * contentPadding + "px"; // w
+	overlayContent.style.height = h - titlebarHeight - 2 * contentPadding + "px"; // h - 20 * titlebarMultiplicator
+	overlayContent.style.overflow = "hidden";
+	overlayContent.style.padding = contentPadding + "px";
+	overlayContent.style.fontSize = contentPadding + "px";
+	overlayContent.style.fontFamily = "Arial";
+
+	var overlayContentProgress = webMI.rootWindow.document.createElement("div");
+	overlayContentProgress.id = "archivemanagement_overlayProgress";
+	overlayContentProgress.style.marginBottom = contentPadding + "px";
+	overlayContent.appendChild(overlayContentProgress);
+
+	var overlayContentFile = webMI.rootWindow.document.createElement("div");
+	overlayContentFile.id = "archivemanagement_overlayFile";
+	overlayContent.appendChild(overlayContentFile);
+
+	var overlayHead = webMI.rootWindow.document.createElement("div");
+	overlayHead.id = "archivemanagement_overlayHead";
+	overlayHead.style.position = "absolute";
+	overlayHead.style.left = "0px";
+	overlayHead.style.top = "0px";
+	overlayHead.style.width = "100%";
+	overlayHead.style.height = titlebarHeight + "px"; // 20 * titlebarMultiplicator
+	overlayHead.style.lineHeight = titlebarHeight + "px"; // 20 * titlebarMultiplicator
+	overlayHead.style.backgroundColor = webMI.query.globalFillColor2;
+	overlayHead.style.fontSize = "16px"; // ???
+	overlayHead.style.fontFamily = "Arial"; // ???
+	overlayHead.style.color = webMI.query.globalFontColor2;
+	overlayHead.style.boxSizing = "border-box";
+	overlayHead.style.paddingLeft = "2px";
+	overlayHead.textContent = "Archive Management progress";
+
+	overlayMain.appendChild(overlayMainBg);
+	overlayMain.appendChild(overlayContent);
+	overlayMain.appendChild(overlayHead);
+
+	extensionsDiv.appendChild(overlay);
+
+	overlaySettings.divs = Object.freeze({
+		main: overlay,
+		progress: overlayContentProgress,
+		file: overlayContentFile
+	});
+}
+
+let rightsNotificationOverlay = setupMissingRightsOverlay();
+
+// rights settings for allowing backup of systemdb
+var allowSystemdbAction = false;
+var activeValue = webMI.query["systemdb_activeValue"] == undefined ? "" : webMI.query["systemdb_activeValue"];
+var activeNode = webMI.query["systemdb_activeNode"] == undefined ? "" : webMI.query["systemdb_activeNode"];
+
+var rightsHandlingProperties = {
+	right: webMI.query["systemdb_right"] == undefined ? "" : webMI.query["systemdb_right"],
+	checkBaseNodeWriteRight: false,
+	isActivationNodeSet: activeNode != "" && String(activeValue) != "",
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	setActiveTrigger: true,
+	handleStatus: false
+};
+
+if (typeof rightsHandling === "function") {
+	rightsHandling(rightsHandlingProperties);
+}
+
+function setActiveLayout() {
+	allowSystemdbAction = true;
+}
+
+function setInactiveLayout() {
+	allowSystemdbAction = false;
+}
+
+// including additional css
+var styleElement = webMI.rootWindow.document.createElement("style");
+
+styleElement.setAttribute("type", "text/css");
+styleElement.innerText =
+	".directoryTypesColumn {\
+	display: grid;\
+	grid-template-columns: 24px 24px 24px 24px;\
+	text-align: center;\
+	height: 100%;\
+}\
+\
+.directoryIcon {\
+	display: grid;\
+	height: 100%;\
+}\
+\
+.maxHeight {\
+	height: 100%;\
+}\
+\
+.dirstats {\
+	font-size: 7.5pt;\
+	font-family: Arial;\
+	width: 100%;\
+	height: 100%;\
+	background-color: " +
+	webMI.query.color_background_bar +
+	";\
+	margin: 0;\
+	position: relative;\
+}\
+\
+.bar {\
+	width: 100%;\
+	height: 100%;\
+}\
+\
+.locationIcons {\
+	display: grid;\
+	grid-template-columns: repeat(5, 20px);\
+	grid-gap: 3px;\
+	text-align: center;\
+}\
+\
+.storageOverviewEntry {\
+	font-family: Arial;\
+	font-size: 12px;\
+	display:grid;\
+	grid-template-columns: 20px auto;\
+	grid-gap: 5px;\
+}\
+.currentFile {\
+	color: #aaaaaa;\
+}";
+var head = webMI.rootWindow.document.getElementsByTagName("head")[0];
+head.appendChild(styleElement);
+
+// filter settings
+var filter = Object.seal({
+	dir: Object.seal({
+		historydir: true,
+		swapin: true,
+		backup: true,
+		restore: true
+	}),
+	type: Object.seal({
+		data: true,
+		aggr: true,
+		event: true,
+		systemdb: true
+	}),
+	conflict: true
+});
+
+// directory types settings
+var directoryTypes = Object.seal({
+	historydir: Object.seal({
+		configured: false,
+		configuredProperly: false,
+		errorstring: "",
+		spaceCritical: false,
+		targets: Object.freeze({
+			swapin: "move",
+			backup: webMI.query.backup_mode
+		})
+	}),
+	swapin: Object.seal({
+		configured: false,
+		configuredProperly: false,
+		errorstring: "",
+		spaceCritical: false,
+		button: "button_swapin",
+		targets: Object.freeze({
+			backup: webMI.query.backup_mode
+		})
+	}),
+	backup: Object.seal({
+		configured: false,
+		configuredProperly: false,
+		errorstring: "",
+		spaceCritical: false,
+		button: "button_backup",
+		targets: Object.freeze({
+			swapin: "copy"
+		})
+	}),
+	restore: Object.seal({
+		configured: false,
+		configuredProperly: false,
+		errorstring: "",
+		spaceCritical: false,
+		targets: Object.seal({
+			swapin: ""
+		}),
+		same: false
+	}),
+	systemdb: Object.freeze({
+		targets: Object.freeze({
+			backup: "copy"
+		})
+	})
+});
+
+// icon settings
+var iconConfig = {
+	historydir: {
+		alt: "History",
+		title: "T{History directory}"
+	},
+	swapin: {
+		alt: "Swapin",
+		title: "T{Swapin directory}"
+	},
+	backup: {
+		alt: "Backup",
+		title: "T{Backup directory}"
+	},
+	restore: {
+		alt: "Restore",
+		title: "T{Restore directory}"
+	},
+	data: {
+		alt: "Data",
+		title: "T{Data archive}"
+	},
+	aggr: {
+		alt: "Aggregate",
+		title: "T{Aggregated archive}"
+	},
+	event: {
+		alt: "Event",
+		title: "T{Event archive}"
+	},
+	conflict: {
+		alt: "Conflict",
+		title: "T{Conflict file}"
+	},
+	systemdb: {
+		alt: "System database",
+		title: "T{System database}"
+	},
+	hand: {
+		alt: "Hand",
+		title: "T{Hand}"
+	}
+};
+
+var tableControllerArchive = null;
+
+webMI.table.waitReady("atvise_table_archive_files", "controller", function () {
+	tableControllerArchive = webMI.table.request("atvise_table_archive_files", "controller");
+
+	var selector_header_icon = webMI.rootWindow.document.createElement("i");
+
+	selector_header_icon.className = "fas fa-check-square";
+	selector_header_icon.style.pointerEvents = "none";
+
+	var selector_column_name = webMI.rootWindow.document
+		.querySelector("[id^='slickgrid_'][id$='selector']")
+		.querySelector(".slick-column-name");
+	selector_column_name.appendChild(selector_header_icon);
+	addHandIconToHeader();
+});
+
+function addHandIconToHeader() {
+	var slickgrid_header_column = webMI.rootWindow.document.querySelector("[id^='slickgrid_'][id$='locked']");
+
+	if (slickgrid_header_column != null) {
+		var hand_column_name = slickgrid_header_column.querySelector(".slick-column-name");
+
+		if ("hand" in iconConfig && iconConfig.hand.icon && hand_column_name.innerHTML == "") {
+			var hand_header_span = webMI.rootWindow.document.createElement("span");
+			hand_header_span.title = "T{Manually swapped archive file. Auto-scheduler will ignore these files.}";
+			hand_header_span.style.display = "block";
+			hand_header_span.innerHTML = iconConfig.hand.icon.cloneNode(true).outerHTML;
+			var hand_header_div = webMI.rootWindow.document.createElement("div");
+			hand_header_div.style.width = "100%";
+			hand_header_div.style.textAlign = "center";
+			hand_header_div.appendChild(hand_header_span);
+			hand_column_name.appendChild(hand_header_div);
+		}
+	}
+}
+
+// set Control buttons in-/active based on selected items
+function UpdateButtonsAndDetailsCallback(e, info) {
+	if (
+		tableControllerArchive == null ||
+		tableControllerArchive.isReady !== true ||
+		info.column.id != "selector" ||
+		(info.item.current && info.item.archive.type != "systemdb")
+	) {
+		return;
+	}
+
+	var itemCount = tableControllerArchive.getSelectedItems().length;
+	tableControllerArchive.toggleSelectedItem(info.item);
+
+	UpdateStatusLabel("");
+
+	var selectedItemsIntervalId = setInterval(
+		function (itemCount) {
+			var items = tableControllerArchive.getSelectedItems();
+
+			if (itemCount != items.length) {
+				clearInterval(selectedItemsIntervalId);
+				UpdateButtonsAndDetails(items);
+			}
+		}.bind(null, itemCount),
+		50
+	);
+}
+
+function UpdateButtonsAndDetails(items) {
+	var enable = {};
+
+	// get buttons from settings for directory types
+	var btns = Object.entries(directoryTypes).filter(function (b) {
+		return "button" in b[1];
+	});
+
+	btns.forEach(function (b) {
+		enable[b[0]] = items.length > 0;
+	});
+
+	enable.delete = items.length > 0;
+
+	var conflictExists = items.some(function (item) {
+		return item.conflict.length > 0;
+	});
+
+	if (conflictExists) {
+		UpdateStatusLabel("T{Conflict needs to be resolved by hand}");
+	}
+
+	var promiseFuncs = [];
+
+	// enable/disable "to Swapin/Backup" buttons based on settings and selected files
+	items.forEach(function (item) {
+		btns.forEach(function (b) {
+			if (item.directory.type in directoryTypes) {
+				enable[b[0]] =
+					// always disable if conflict selected
+					!conflictExists &&
+					// if previously disabled, keep disabled
+					enable[b[0]] &&
+					// disable if directory isn't configured correctly
+					directoryTypes[b[0]].configured &&
+					// if type is systemdb and user has no right to handle systemdbs, deactivate destination button
+					(item.directory.type != "systemdb" || (item.directory.type == "systemdb" && allowSystemdbAction)) &&
+					// if directory type isn't configured as target for current file disable button
+					b[0] in directoryTypes[item.directory.type].targets;
+			}
+			if (enable[b[0]] && directoryTypes[b[0]].spaceCritical) {
+				enable[b[0]] = false;
+				UpdateStatusLabel("T{Action buttons disabled; space is critical}");
+			}
+		});
+
+		enable.delete =
+			// always disable if conflict selected
+			!conflictExists &&
+			// if previously disabled, keep disabled
+			enable.delete &&
+			item.directory.type != "backup" &&
+			item.directory.type != "restore" &&
+			item.directory.type != "systemdb";
+
+		if (item.directory.type == "systemdb" && !allowSystemdbAction) {
+			UpdateStatusLabel("T{No right to perform action for systemdb}");
+		}
+	});
+
+	if (enable.swapin && !conflictExists) {
+		const fileOperationsRight = { node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations", right: "execute" };
+		
+		handleAccessControlResponse(fileOperationsRight, function () {
+			webMI.data.call("FileOperations", {
+				fn: "GetArchiveFiles",
+				directoryTypes: "historydir"
+			}, function(historyArchives) {
+				items.forEach(function(item) {
+					if (!enable.swapin) {
+						return;
+					}
+					
+					enable.swapin =
+						enable.swapin &&
+						!historyArchives.some(function(file) {
+							return file.name == item.name && item.directory.type !== "historydir";
+						});
+				});
+				
+				if (!enable.swapin) {
+					UpdateStatusLabel("T{Conflict emerges if transfering to swapin}");
+				}
+				webMI.trigger.fire("com.atvise.setActive", enable.swapin, directoryTypes.swapin.button);
+			});
+		});
+	} else {
+		webMI.trigger.fire("com.atvise.setActive", enable.swapin, directoryTypes.swapin.button);
+	}
+	
+	webMI.trigger.fire("com.atvise.setActive", enable.backup, directoryTypes.backup.button);
+	webMI.trigger.fire("com.atvise.setActive", enable.delete, "button_delete");
+
+	// get combined size of selected files
+	var size = items.reduce(function (acc, value) {
+		return acc + value.size;
+	}, 0);
+
+	// update details (count files/size of files)
+	UpdateDetails(items.length, size);
+}
+
+// de-/select all rows
+function DeSelectAllCallback(e, info) {
+	if (tableControllerArchive == null || tableControllerArchive.isReady !== true) {
+		return;
+	}
+
+	if (info.column.id != "selector") {
+		return;
+	}
+
+	UpdateStatusLabel("");
+
+	var items = tableControllerArchive.getSelectedItems();
+	var data = tableControllerArchive.getData();
+	var dataFiltered = data.filter(function (item) {
+		return item.atvise_row !== undefined && (!item.current || item.archive.type == "systemdb");
+	});
+
+	var diffFiltered = dataFiltered.filter(function (item) {
+		return !items.includes(item);
+	});
+
+	(diffFiltered.length > 0 ? diffFiltered : dataFiltered).forEach(function (item) {
+		if (!item.current || item.archive.type == "systemdb") {
+			tableControllerArchive.toggleSelectedItem(item);
+		}
+	});
+
+	// TODO: selected items which were filtered out, will not be marked yellow after deleting filter (filter = textbox in header)
+
+	UpdateButtonsAndDetails(
+		data.filter(function (item) {
+			return item.atvise_marker;
+		})
+	);
+}
+
+// update details
+function UpdateDetails(count, size) {
+	document.getElementById("lbl_count").innerHTML = count.toString();
+	document.getElementById("lbl_size").innerHTML = beautifyByte(size, 2).toString();
+}
+
+webMI.table.loadResources(function () {
+	var config = [];
+
+	// column config
+	config.columns = [
+		{
+			id: "selector",
+			name: "",
+			field: "atvise_marker",
+			resizable: false,
+			width: 24,
+			sortable: false,
+			type: "boolean",
+			formatter: formatSelector
+		},
+		{
+			id: "archiveType",
+			name: "T{Type}",
+			field: "archive",
+			resizable: true,
+			width: 24,
+			sortable: true,
+			alignment: "center",
+			formatter: formatArchiveType
+		},
+		{
+			id: "archiveName",
+			name: "T{Archive}",
+			field: "archiveName",
+			resizable: true,
+			sortable: true,
+			filter: true,
+			formatter: formatCurrentFile
+		},
+		{
+			id: "name",
+			name: "T{Name}",
+			field: "name",
+			resizable: true,
+			width: 200,
+			sortable: true,
+			filter: true,
+			formatter: formatCurrentFile
+		},
+		{
+			id: "locked",
+			name: "",
+			field: "lck",
+			resizable: true,
+			width: 24,
+			sortable: true,
+			filter: false,
+			alignment: "center",
+			formatter: formatLck
+		},
+		{
+			id: "location",
+			name: "T{Location}",
+			field: "directory",
+			resizable: true,
+			width: 100,
+			sortable: false,
+			filter: false,
+			alignment: "center",
+			formatter: formatLocation
+		},
+		{
+			id: "size",
+			name: "T{Size}",
+			field: "size",
+			resizable: true,
+			width: 50,
+			sortable: true,
+			filter: false,
+			alignment: "right",
+			formatter: formatSize
+		},
+		{
+			id: "creationDate",
+			name: "T{Created}",
+			field: "creationDate",
+			resizable: true,
+			width: 100,
+			sortable: true,
+			filter: true,
+			formatter: formatCurrentFile
+		},
+		{
+			id: "modificationDate",
+			name: "T{Modified}",
+			field: "modificationDate",
+			resizable: true,
+			width: 100,
+			sortable: true,
+			filter: true,
+			formatter: formatCurrentFile
+		},
+		{
+			id: "path",
+			name: "T{Path}",
+			field: "path",
+			resizable: true,
+			sortable: true,
+			filter: true,
+			visible: false,
+			formatter: formatCurrentFile
+		}
+	];
+
+	config.mode = "once";
+
+	config.dataRequestFunction = GetDataAndUpdateTable;
+	config.onClickCallback = UpdateButtonsAndDetailsCallback;
+	config.onHeaderClickCallback = DeSelectAllCallback;
+
+	// custom sorting
+	config.customComparer = function (a, b, args) {
+		switch (args.sortCol.id) {
+			case "archiveType":
+				// sorting of column archiveType
+				if (group_archives) {
+					if (
+						a[args.sortCol.field].type == b[args.sortCol.field].type &&
+						a[args.sortCol.field].name == b[args.sortCol.field].name &&
+						a.name == b.name
+					) {
+						return sortId(a, b, args);
+					} else {
+						// check if same archive type
+						return sortVal(
+							a[args.sortCol.field].type != b[args.sortCol.field].type
+								? // sort by archive type
+								a[args.sortCol.field].type > b[args.sortCol.field].type
+								: // check if same archive name
+								a[args.sortCol.field].name != b[args.sortCol.field].name
+									? // sort by archive name
+									a[args.sortCol.field].name > b[args.sortCol.field].name
+									: // sort by file name
+									a.name > b.name
+						);
+					}
+				} else {
+					return defaultSorting(a, b, args, "type");
+				}
+			case "archiveName":
+				// sorting of column archiveName
+				if (group_archives) {
+					if (a[args.sortCol.field] == b[args.sortCol.field] && a.name == b.name) {
+						return sortId(a, b, args);
+					} else {
+						// check if same archive name
+						return sortVal(
+							a[args.sortCol.field] != b[args.sortCol.field]
+								? // sort by archive name
+								a[args.sortCol.field] > b[args.sortCol.field]
+								: // sort by file name
+								a.name > b.name
+						);
+					}
+				} else {
+					return defaultSorting(a, b, args);
+				}
+			case "size":
+			case "creationDate":
+			case "modificationDate":
+				if (group_archives) {
+					return sortVal(
+						group_archives_sorted[args.sortCol.field].indexOf(a) < group_archives_sorted[args.sortCol.field].indexOf(b)
+					);
+				} else {
+					return defaultSorting(a, b, args);
+				}
+			default:
+				return defaultSorting(a, b, args);
+		}
+	};
+
+	webMI.table.register("atvise_table_archive_files", "config", config);
+	webMI.table.setReady("atvise_table_archive_files", "config");
+
+	loadingDone = true;
+});
+
+function defaultSorting(a, b, args, property) {
+	if (property === undefined) {
+		if (a[args.sortCol.field] == b[args.sortCol.field]) {
+			return sortId(a, b, args);
+		} else {
+			return sortVal(a[args.sortCol.field] > b[args.sortCol.field]);
+		}
+	}
+
+	if (a[args.sortCol.field][property] == b[args.sortCol.field][property]) {
+		return sortId(a, b, args);
+	} else {
+		return sortVal(a[args.sortCol.field][property] > b[args.sortCol.field][property]);
+	}
+}
+
+function sortId(a, b, args) {
+	var aid = parseFloat(a.id.replace("id_", ""));
+	var bid = parseFloat(b.id.replace("id_", ""));
+
+	function isFloat(n) {
+		return Number(n) === n && n % 1 !== 0;
+	}
+
+	return sortVal(aid > bid);
+}
+
+function sortVal(val) {
+	return val ? 1 : -1;
+}
+
+function UpdateStatusLabel(message) {
+	webMI.gfx.setText("lbl_status", message);
+}
+
+// presort data in table for easier sorting afterwards
+function preSort(dataArray, property) {
+	var sortedOriginalData = dataArray.sort(function (a, b) {
+		return a[property] < b[property];
+	});
+
+	var finalArray = [];
+
+	sortedOriginalData.forEach(function (sod) {
+		if (finalArray.indexOf(sod) == -1) {
+			var sameArchive = sortedOriginalData.filter(function (sa) {
+				return sa.archiveName == sod.archiveName;
+			});
+			finalArray = finalArray.concat(sameArchive);
+		}
+	});
+
+	group_archives_sorted[property] = finalArray;
+}
+
+var currentScaleFactor = 1;
+var heightTransformationFactor = webMI.gfx.getScreenCTM(true).d;
+
+// duplicate the SVG icons from legend; for using later on in the table
+function duplicateSVG(iconType) {
+	var span = webMI.rootWindow.document.createElement("span");
+	span.style.display = "grid";
+
+	var icon = document.getElementById("icon_" + iconType).cloneNode(true);
+	icon.removeAttribute("id");
+	icon.querySelectorAll("[id]").forEach(function (node) {
+		node.removeAttribute("id");
+	});
+
+	// calculating transform for icons (from alarmlist)
+	var fontSizeToTransformationFactor = 0.065;
+	var fontMultiplicator =
+		webMI.getClientInfo() && webMI.getClientInfo().deviceScaling.table.fontsize
+			? webMI.getClientInfo().deviceScaling.table.fontsize
+			: 1;
+	var row_font_size = 12 * fontMultiplicator;
+	var transformFactor =
+		(fontSizeToTransformationFactor * row_font_size * heightTransformationFactor) / currentScaleFactor;
+
+	icon.setAttribute("transform", "matrix(" + transformFactor + ",0,0," + transformFactor + ",0,0)");
+	span.appendChild(icon);
+
+	return span;
+}
+
+// formatter for slickgrid table for archive type
+function formatLck(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var retObj = formatCurrentFile(row, cell, value, columnDef, dataContext);
+	retObj.text = "";
+
+	if (value === true) {
+		var icon = "hand" in iconConfig && iconConfig.hand.icon ? iconConfig.hand.icon.cloneNode(true) : "";
+
+		if (icon) {
+			icon.title = iconConfig.hand.title;
+			retObj.text = icon.outerHTML;
+		}
+	}
+
+	return retObj;
+}
+
+function formatSelector(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var container = webMI.rootWindow.document.createElement("div");
+	container.className = "slick-cell-item center";
+	container.style = "width: 90%;text-align: center;";
+
+	if (!dataContext.current || dataContext.archive.type == "systemdb") {
+		container.title = value;
+		var icon = webMI.rootWindow.document.createElement("i");
+		icon.className = value ? "fas fa-check-square" : "far fa-square";
+		container.appendChild(icon);
+	}
+
+	return container.outerHTML;
+}
+
+function formatCurrentFile(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var add =
+		"current" in dataContext &&
+		dataContext.current &&
+		"archive" in dataContext &&
+		"type" in dataContext.archive &&
+		dataContext.archive.type != "systemdb";
+
+	return {addClasses: add ? "currentFile" : "", text: value};
+}
+
+function formatSize(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var retObj = formatCurrentFile(row, cell, value, columnDef, dataContext);
+	retObj.text = beautifyByte(value);
+
+	return retObj;
+}
+
+// formatter for slickgrid table for column location
+function formatLocation(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var retObj = formatCurrentFile(row, cell, value, columnDef, dataContext);
+	var container = webMI.rootWindow.document.createElement("div");
+	container.className = "locationIcons";
+
+	["historydir", "swapin", "backup", "restore"].forEach(function (type) {
+		var tmp = iconConfig[type].icon.cloneNode(true);
+		if (type === value.type) {
+			tmp.title = iconConfig[type].title;
+		} else {
+			tmp.firstChild.style.visibility = "hidden";
+		}
+		container.appendChild(tmp);
+	});
+
+	var tmp = iconConfig.conflict.icon.cloneNode(true);
+
+	if (dataContext.conflict.length > 0) {
+		tmp.title = iconConfig.conflict.title;
+	} else {
+		tmp.firstChild.style.visibility = "hidden";
+	}
+
+	container.appendChild(tmp);
+
+	retObj.text = container.outerHTML;
+
+	return retObj;
+}
+
+// formatter for slickgrid table for archive type
+function formatArchiveType(row, cell, value, columnDef, dataContext) {
+	// an extended formatter returns an object { text, removeClasses, addClasses, toolTip }
+	var retObj = formatCurrentFile(row, cell, value, columnDef, dataContext);
+	var icon = value.type in iconConfig && iconConfig[value.type].icon ? iconConfig[value.type].icon.cloneNode(true) : "";
+
+	if (icon) {
+		icon.title = iconConfig[value.type].title;
+		retObj.text = icon.outerHTML;
+	}
+
+	return retObj;
+}
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		webMI.display.openWindow({
+			display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.archivemanagement.auto_scheduler",
+			height: 800,
+			width: 800,
+			modal: true,
+			resizable: false,
+			movable: true,
+			scrollbars: false,
+			menubar: false,
+			status: false,
+			toolbar: false,
+			title: "T{Auto-scheduler}",
+			query: {
+				globalFillColor: webMI.query.globalFillColor,
+				globalFontColor: webMI.query.globalFontColor,
+				backup_mode: webMI.query.backup_mode,
+				configNode: webMI.query.auto_scheduler_config_node
+			}
+		});
+	},
+	"button_auto_scheduler"
+);
+
+// refresh files/filesystem statistics
+var refreshTimeout = 0;
+webMI.trigger.connect(
+	"clicked",
+	function (button) {
+		var currentTime = (new Date()).getTime();
+		if(refreshTimeout > currentTime - 500) {
+			return;
+		}
+		refreshTimeout = currentTime;
+		GetDataAndUpdateTable();
+	},
+	"refreshButton"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!e.value) {
+			return;
+		}
+
+		group_archives = e.value === "true";
+
+		UpdateTable();
+	},
+	"chk_group_archives"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!e.value) {
+			return;
+		}
+
+		filter.dir.historydir = e.value === "1";
+
+		UpdateTable();
+		enableIcon("icon_historydir", filter.dir.historydir);
+	},
+	"dir_historydir"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!e.value) {
+			return;
+		}
+
+		filter.dir.swapin = e.value === "1";
+
+		UpdateTable();
+		enableIcon("icon_swapin", filter.dir.swapin);
+	},
+	"dir_swapin"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!e.value) {
+			return;
+		}
+
+		filter.dir.backup = e.value === "1";
+
+		UpdateTable();
+		enableIcon("icon_backup", filter.dir.backup);
+	},
+	"dir_backup"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!e.value) {
+			return;
+		}
+
+		filter.dir.restore = e.value === "1";
+
+		UpdateTable();
+		enableIcon("icon_restore", filter.dir.restore);
+	},
+	"dir_restore"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!e.value) {
+			return;
+		}
+
+		filter.type.data = e.value === "1";
+
+		UpdateTable();
+		enableIcon("icon_data", filter.type.data);
+	},
+	"type_data"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!e.value) {
+			return;
+		}
+
+		filter.type.aggr = e.value === "1";
+
+		UpdateTable();
+		enableIcon("icon_aggr", filter.type.aggr);
+	},
+	"type_aggr"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!e.value) {
+			return;
+		}
+
+		filter.type.event = e.value === "1";
+
+		UpdateTable();
+		enableIcon("icon_event", filter.type.event);
+	},
+	"type_event"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!e.value) {
+			return;
+		}
+
+		filter.type.systemdb = e.value === "1";
+
+		UpdateTable();
+		enableIcon("icon_systemdb", filter.type.systemdb);
+	},
+	"type_systemdb"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (!e.value) {
+			return;
+		}
+
+		filter.conflict = e.value === "1";
+
+		UpdateTable();
+		enableIcon("icon_conflict", filter.conflict);
+	},
+	"conflict"
+);
+
+function enableIcon(iconId, enable) {
+	var rect = document.getElementById(iconId).querySelector("rect[id$='id_1']");
+	["fill", "stroke"].forEach(function (attr) {
+		rect.setAttribute(attr, enable ? rect.dataset.color : webMI.query.globalFillColor);
+	});
+}
+
+// get array of currently selected directory types
+function getFilterDirectoryTypes() {
+	var dirTypes = [];
+
+	for (var item in filter.dir) {
+		if (filter.dir[item] === true) {
+			dirTypes.push(item);
+		}
+	}
+
+	return dirTypes;
+}
+
+// get array of currently selected archive types
+function getFilterArchiveTypes() {
+	var archTypes = [];
+
+	for (var item in filter.type) {
+		if (filter.type[item] === true) {
+			archTypes.push(item);
+		}
+	}
+
+	return archTypes;
+}
+
+// update list in slickgrid table
+function GetDataAndUpdateTable() {
+	if (!loadingDone) {
+		return;
+	}
+
+	GetFileSystemStatistics(UpdateTable);
+
+	webMI.trigger.fire("com.atvise.setActive", false, "button_swapin");
+	webMI.trigger.fire("com.atvise.setActive", false, "button_backup");
+	webMI.trigger.fire("com.atvise.setActive", false, "button_delete");
+}
+
+function UpdateTable() {
+	if (!loadingDone) {
+		return;
+	}
+
+	UpdateDetails(0, 0);
+	UpdateStatusLabel("");
+
+	if (tableControllerArchive != null && tableControllerArchive.isReady === true) {
+		tableControllerArchive.clearData();
+
+		var f = {
+			directoryTypes: getFilterDirectoryTypes(),
+			archiveTypes: getFilterArchiveTypes()
+		};
+
+		var files = archiveFiles.filter(function (file, index, self) {
+			if (filter.conflict) {
+				return (
+					file.conflict.length > 0 &&
+					f.directoryTypes.includes(file.directory.type) &&
+					f.archiveTypes.includes(file.archive.type)
+				);
+			}
+
+			if (file.directory.type != "systemdb" && !f.directoryTypes.includes(file.directory.type)) {
+				return false;
+			}
+
+			if (!f.archiveTypes.includes(file.archive.type)) {
+				return false;
+			}
+
+			return true;
+		});
+
+		tableControllerArchive.addData({result: files});
+
+		var items = tableControllerArchive.getData();
+
+		group_archives_sorted = {};
+		preSort(items, "size");
+		preSort(items, "creationDate");
+		preSort(items, "modificationDate");
+	}
+}
+
+webMI.addOnload(function () {
+	heightTransformationFactor = webMI.gfx.getScreenCTM(true).d;
+	currentScaleFactor =
+		webMI.getConfig("frame.scaletype") != "native" ? webMI.frame.getCurrentScaleFactor() : currentScaleFactor;
+	// prepare SVG icons for table
+
+	for (var type in iconConfig) {
+		iconConfig[type].icon = duplicateSVG(type);
+	}
+
+	addHandIconToHeader();
+
+	[
+		"dir_historydir",
+		"dir_swapin",
+		"dir_backup",
+		"dir_restore",
+		"type_data",
+		"type_aggr",
+		"type_event",
+		"type_systemdb",
+		"conflict"
+	].forEach(function (id) {
+		var idMatch = /^([^_]*)_?(.*)$/.exec(id);
+		var queryCheckbox = webMI.query["checkbox_" + (idMatch[2] === "" ? idMatch[1] : idMatch[2])] === "true";
+
+		var icon = document.getElementById("icon_" + (idMatch[2] === "" ? idMatch[1] : idMatch[2]));
+		var rect = icon.querySelector("rect[id$='id_1']");
+		rect.dataset.color = rect.getAttribute("fill");
+
+		if (idMatch[2] === "") {
+			filter[idMatch[1]] = queryCheckbox;
+		} else {
+			filter[idMatch[1]][idMatch[2]] = queryCheckbox;
+		}
+
+		webMI.trigger.fire("setChecked", queryCheckbox, id);
+
+		icon.addEventListener(
+			"click",
+			function (idMatch, event) {
+				var checked = idMatch[2] == "" ? filter[idMatch[1]] : filter[idMatch[1]][idMatch[2]];
+				webMI.trigger.fire("setChecked", !checked, idMatch[0]);
+			}.bind(null, idMatch)
+		);
+	});
+
+	webMI.trigger.fire("setChecked", webMI.query.group_archives === "true", "chk_group_archives");
+
+	["swapin", "backup"].forEach(function (button) {
+		webMI.trigger.fire("com.atvise.setActive", false, "button_" + button);
+		webMI.trigger.connect(
+			"clicked",
+			function (destType, e) {
+				if (tableControllerArchive == null || tableControllerArchive.isReady !== true) {
+					return;
+				}
+
+				var actionText = "";
+
+				if (
+					tableControllerArchive.getSelectedItems().some(function (item) {
+						return item.directory.type == "historydir";
+					})
+				) {
+					if (destType == "backup") {
+						if (webMI.query.backup_mode == "copy") {
+							actionText += "\nT{File(s) from history directory will be copied}.";
+						} else {
+							actionText += "\nT{File(s) from history directory will be moved}.";
+						}
+					} else if (destType == "swapin") {
+						actionText += "\nT{File(s) from history directory will be moved}.";
+					}
+				}
+				if (
+					tableControllerArchive.getSelectedItems().some(function (item) {
+						return item.directory.type == "swapin";
+					})
+				) {
+					if (destType == "backup") {
+						if (webMI.query.backup_mode == "copy") {
+							actionText += "\nT{File(s) from swapin directory will be copied}.";
+						} else {
+							actionText += "\nT{File(s) from swapin directory will be moved}.";
+						}
+					}
+				}
+				if (
+					tableControllerArchive.getSelectedItems().some(function (item) {
+						return item.directory.type == "backup";
+					})
+				) {
+					if (destType == "swapin") {
+						actionText += "\nT{File(s) from backup directory will be copied}.";
+					}
+				}
+
+				actionText = actionText.trim();
+
+				var restoreSource = tableControllerArchive.getSelectedItems().some(function (item) {
+					return item.directory.type == "restore";
+				});
+
+				overlaySettings.manualSystemdb = tableControllerArchive.getSelectedItems().some(function (item) {
+					return item.directory.type == "systemdb";
+				});
+
+				webMI.display.openWindow({
+					display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.archivemanagement.confirmation_dialog",
+					height: 330,
+					width: 780,
+					modal: true,
+					resizable: false,
+					movable: true,
+					scrollbars: false,
+					menubar: false,
+					status: false,
+					toolbar: false,
+					title: "T{Archive}T{management}",
+					query: {
+						trigger: restoreSource ? "RestoreAction" : "ConfirmAction",
+						headline: destType == "swapin" ? "T{To swapin}" : destType == "backup" ? "T{To backup}" : "",
+						action: actionText,
+						restore: restoreSource,
+						data: destType
+					}
+				});
+			}.bind(null, button),
+			"button_" + button
+		);
+	});
+
+	webMI.trigger.fire("com.atvise.setActive", false, "button_delete");
+	webMI.trigger.connect(
+		"clicked",
+		function (e) {
+			if (tableControllerArchive == null || tableControllerArchive.isReady !== true) {
+				return;
+			}
+
+			tableControllerArchive.getSelectedItems(function (items) {
+				webMI.display.openWindow({
+					display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.archivemanagement.confirmation_dialog",
+					height: 330,
+					width: 780,
+					modal: true,
+					resizable: false,
+					movable: true,
+					scrollbars: false,
+					menubar: false,
+					status: false,
+					toolbar: false,
+					title: "T{Archive}T{management}",
+					query: {
+						trigger: "DeleteAction",
+						headline: "T{Delete}",
+						question: "T{Are you sure you want to delete the selected file(s)}?",
+						data: JSON.stringify(items)
+					}
+				});
+			});
+		},
+		"button_delete"
+	);
+
+	// create/check nodes
+	// auto scheduler script
+	UpdateNode(
+		webMI.query.auto_scheduler_config_node.substring(0, webMI.query.auto_scheduler_config_node.lastIndexOf(".")),
+		{
+			nodeClass: "NODECLASS_OBJECT",
+			typeDefinition: "i=61"
+		},
+		function () {
+			UpdateNode(
+				webMI.query.auto_scheduler_config_node,
+				{
+					typeDefinition: "i=62",
+					dataType: "STRING",
+					value: "",
+					nodeClass: "NODECLASS_VARIABLE"
+				},
+				function (addressConfigNode) {
+					UpdateNode(
+						addressConfigNode + ".autoScheduler",
+						{
+							typeDefinition: "VariableTypes.ATVISE.ScriptCode",
+							dataType: "XMLELEMENT",
+							value: "",
+							nodeClass: "NODECLASS_VARIABLE"
+						},
+						function (addressAutoScheduler) {
+							UpdateNode(
+								addressAutoScheduler + ".scriptVersion",
+								{
+									typeDefinition: "i=68",
+									dataType: "STRING",
+									value: "0.0",
+									nodeClass: "NODECLASS_VARIABLE"
+								},
+								function (addressScriptVersion) {
+									var compareRights = [
+										{
+                                            node: [
+                                                "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.SetNodeValue"
+                                            ],
+                                            right: ["execute"]
+                                        },
+                                        {
+                                            node: [
+                                                webMI.query.auto_scheduler_config_node
+                                            ],
+                                            right: ["engineer"]
+                                        }
+									];
+									handleAccessControlResponse(compareRights, function () {
+										webMI.data.call("SetNodeValue", {
+											address: addressAutoScheduler,
+											addressVersion: addressScriptVersion,
+											value: "<?xml version=\"1.0\" encoding=\"UTF-8\"?><script><parameter name=\"mytimer\" type=\"timer\" trigger=\"true\" relative=\"false\" value=\"\" starttime=\"00:00:00\" repeat=\"00:01:00\"/><code><![CDATA[" + autoSchedulerScriptCode + "]]\></code></script>",
+											version: "0.1" /*on script change increase this*/
+										});
+									}, true);
+								}
+							);
+						}
+					);
+				}
+			);
+		}
+	);
+
+	// synced nodes in AGENT.OBJECTS
+	UpdateNode(
+		archivemanagementParentNodeAddr.substring(0, archivemanagementParentNodeAddr.lastIndexOf(".")),
+		{
+			nodeClass: "NODECLASS_OBJECT",
+			typeDefinition: "i=61"
+		},
+		function () {
+			UpdateNode(
+				archivemanagementParentNodeAddr,
+				{
+					nodeClass: "NODECLASS_OBJECT",
+					typeDefinition: "i=61"
+				},
+				function (addressConfigNode) {
+					UpdateNode(
+						addressConfigNode + ".transferDetails",
+						{
+							typeDefinition: "i=62",
+							dataType: "STRING",
+							value: "", // "" === don't change if node already exists
+							nodeClass: "NODECLASS_VARIABLE"
+						},
+						function () {
+							UpdateNode(
+								addressConfigNode + ".statusDetails",
+								{
+									typeDefinition: "i=62",
+									dataType: "STRING",
+									value: "", // "" === don't change if node already exists
+									nodeClass: "NODECLASS_VARIABLE"
+								},
+								function () {
+									UpdateNode(
+										addressConfigNode + ".currentStep",
+										{
+											typeDefinition: "i=62",
+											dataType: "STRING",
+											value: "", // "" === don't change if node already exists
+											nodeClass: "NODECLASS_VARIABLE"
+										},
+										function () {
+											// redu values and status
+											if (webMI.isRedundant()) {
+												webMI.data.subscribeBlock(
+													[
+														"AGENT.REDUNDANCY.status",
+														"AGENT.REDUNDANCY.role",
+														"AGENT.REDUNDANCY.connection_status_network1",
+														"AGENT.REDUNDANCY.connection_status_network2"
+													],
+													function (e) {
+														if (
+															(e[0].value == "Active" || e[0].value == "T{Active}") &&
+															e[2].value != "Connected" &&
+															e[3].value != "Connected"
+														) {
+															var role = e[1].value;
+															webMI.data.read(addressConfigNode + ".statusDetails", function (e) {
+																var statusDetails = null;
+
+																if ("error" in e) {
+																	return;
+																}
+
+																try {
+																	statusDetails = JSON.parse(e.value);
+																} catch (error) {
+																}
+
+																if (statusDetails != null && role != statusDetails["active"]) {
+																	webMI.data.write(addressConfigNode + ".currentStep", "finished");
+																}
+															});
+														}
+													}
+												);
+											}
+
+											if (
+												overlaySettings.divs.main != null &&
+												overlaySettings.divs.progress != null &&
+												overlaySettings.divs.file != null
+											) {
+												overlaySettings.subscribeId = webMI.data.subscribe(
+													addressConfigNode + ".currentStep",
+													function (e) {
+														if ("error" in e) {
+															return;
+														}
+														var currentStep = e.value;
+														webMI.data.read(
+															[addressConfigNode + ".statusDetails", addressConfigNode + ".transferDetails"],
+															function (e) {
+																if ("error" in e[0] || "error" in e[1]) {
+																	return;
+																}
+																var statusDetails = null;
+																var transferDetails = null;
+
+																try {
+																	statusDetails = JSON.parse(e[0].value);
+																	transferDetails = JSON.parse(e[1].value);
+																} catch (error) {
+																}
+																if (currentStep == "finished" || currentStep == "") {
+																	if (overlaySettings.divs.main.style.display != "none") {
+																		GetDataAndUpdateTable();
+																		setTimeout(function () {
+																			overlaySettings.divs.main.style.display = "none";
+																		}, 3000);
+																	}
+																} else {
+																	var operation =
+																		statusDetails &&
+																		transferDetails &&
+																		"currentOperationIndex" in statusDetails &&
+																		transferDetails.length > statusDetails.currentOperationIndex
+																			? transferDetails[statusDetails.currentOperationIndex]
+																			: null;
+																	if (operation) {
+																		overlaySettings.divs.main.style.display =
+																			!overlaySettings.manualSystemdb && operation.sourceType == "systemdb"
+																				? "none"
+																				: "";
+																		if (currentStep == "end") {
+																			overlaySettings.manualSystemdb = !(
+																				overlaySettings.manualSystemdb && operation.sourceType == "systemdb"
+																			);
+																		}
+																	}
+																	if (statusDetails && transferDetails && operation) {
+																		overlaySettings.divs.progress.textContent =
+																			"T{File} " +
+																			(statusDetails.currentOperationIndex + 1) +
+																			" T{from} " +
+																			transferDetails.length;
+																		if (operation.sourceType == "systemdb") {
+																			var intervalID = setInterval(function () {
+																				webMI.data.read("ModuleStatistics.DATABASE.BackupProgress", function (e) {
+																					if (e != null && "value" in e) {
+																						overlaySettings.divs.file.textContent =
+																							"T{File} " + operation.name + " (" + e.value + "%)";
+																						if (e.value == 100) {
+																							clearInterval(intervalID);
+																						}
+																					} else {
+																						if ("error" in e) {
+																							overlaySettings.divs.file.textContent =
+																								"T{File} " + operation.name + " (T{Error}: " + e.error + ")";
+																						} else {
+																							overlaySettings.divs.file.textContent =
+																								"T{File} " + operation.name + " (T{Unknown error occured})";
+																						}
+																					}
+																				});
+																			}, 1000);
+																		} else {
+																			overlaySettings.divs.file.textContent = "T{File} " + operation.name;
+																		}
+																	}
+																}
+															}
+														);
+													}
+												);
+											}
+										}
+									);
+								}
+							);
+						}
+					);
+				}
+			);
+		}
+	);
+});
+
+webMI.addOnunload(function () {
+	if (overlaySettings.divs.main) {
+		overlaySettings.divs.main.parentNode.removeChild(overlaySettings.divs.main);
+	}
+
+	if (overlaySettings.subscribeId != null) {
+		webMI.data.unsubscribe(overlaySettings.subscribeId);
+		overlaySettings.subscribeId = null;
+	}
+});
+
+webMI.addOnresize(function () {
+	if (webMI.getConfig("frame.scaletype") != "native") {
+		return;
+	}
+
+	heightTransformationFactor = webMI.gfx.getScreenCTM(true).d;
+});
+
+function collectTransferDetailsFromTable(destinationType) {
+	var transferDetails = [];
+
+	if (tableControllerArchive != null && tableControllerArchive.isReady === true) {
+		tableControllerArchive.getSelectedItems().forEach(function (item) {
+			if (item.directory.type in directoryTypes && destinationType in directoryTypes[item.directory.type].targets) {
+				transferDetails.push({
+					name: item.name,
+					sourceType: item.directory.type,
+					destinationType: destinationType,
+					action: directoryTypes[item.directory.type].targets[destinationType],
+					locked: false
+				});
+			}
+		});
+	}
+
+	return transferDetails;
+}
+
+webMI.trigger.connect("RestoreAction", function (data) {
+	if (data.value.confirm) {
+		directoryTypes.restore.targets[data.value.data] = data.value.action;
+		startTransfer(collectTransferDetailsFromTable(data.value.data));
+	}
+});
+
+webMI.trigger.connect("DeleteAction", function (data) {
+	if (data.value.confirm) {
+		var files = JSON.parse(data.value.data);
+		startTransfer(
+			files.map(function (file) {
+				return {
+					name: file.name,
+					sourceType: file.directory.type,
+					destinationType: null,
+					action: "delete",
+					locked: false
+				};
+			})
+		);
+	}
+});
+
+webMI.trigger.connect("ConfirmAction", function (data) {
+	if (data.value.confirm) {
+		startTransfer(collectTransferDetailsFromTable(data.value.data));
+	}
+});
+
+// get and show info for the configured directories
+function GetFileSystemStatistics(callback) {
+	// get all archives for statistics in storage overview
+
+	var compareRights = [
+		{
+			node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations",
+			right: "execute"
+		}
+	];
+
+	handleAccessControlResponse(compareRights, function () {
+		webMI.data.call(
+			"FileOperations",
+			{
+				fn: "GetArchiveFiles",
+				archiveTypes: ["data", "aggr", "event", "systemdb"]
+			},
+			function (files) {
+				archiveFiles = files.sort(function (a, b) {
+					return sortVal(a.name > b.name);
+				});
+
+				// get filesystem statistics for all configured directory types
+				var bars = ["historydir", "swapin", "backup", "restore"];
+
+				var compareRights = [
+					{
+						node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations",
+						right: "execute"
+					}
+				];
+
+				handleAccessControlResponse(compareRights, function () {
+					webMI.data.call("FileOperations", {
+						fn: "GetDirectories",
+						directoryTypes: bars
+					}, function (directories) {
+						directories.forEach(function (directory) {
+							directoryTypes[directory.type].configured = !("error" in directory);
+							directoryTypes[directory.type].configuredProperly = "path" in directory;
+							directoryTypes[directory.type].errorstring = directory.errorstring;
+							directoryTypes[directory.type].same =
+								!directoryTypes[directory.type].configured && directory.errorstring == "Same as backup";
+						});
+						webMI.data.call(
+							"FileOperations",
+							{
+								fn: "GetFileSystemStatistics",
+								directoryTypes: bars
+							},
+							function (stats) {
+								bars.forEach(function (barType) {
+									var stat = stats.filter(function (stat) {
+										return stat.dir == barType;
+									});
+
+									if (stat.length > 0) {
+										stat = stat[0];
+									} else {
+										stat = {freeSpace: 0, capacity: 0, dir: barType};
+									}
+
+									var info = document.getElementById("info_" + stat.dir);
+
+									// reset statistics for current directory type
+									document.getElementById("info_" + stat.dir).innerHTML = "";
+
+									// set global defined text color
+									info.style.color = webMI.query.globalFontColor;
+
+									// get icon depending on directory type
+									var icon = iconConfig[stat.dir].icon.cloneNode(true);
+
+									// remove scaling from icon
+									icon.firstChild.removeAttribute("transform");
+									info.appendChild(icon);
+
+									// filter all archives depending on the current directory type
+									var archiveFilesFromDir = archiveFiles.filter(function (file) {
+										file.archiveName = file.archive.name;
+
+										if (typeof file.creationDate != "string" || file.creationDate.indexOf("-") == -1) {
+											var date = new Date(parseInt(file.creationDate, 10));
+											file.creationDate = webMI.sprintf(
+												"%d-%02d-%02d %02d:%02d:%02d",
+												date.getFullYear(),
+												date.getMonth() + 1,
+												date.getDate(),
+												date.getHours(),
+												date.getMinutes(),
+												date.getSeconds()
+											);
+										}
+
+										if (typeof file.modificationDate != "string" || file.modificationDate.indexOf("-") == -1) {
+											var date = new Date(parseInt(file.modificationDate, 10));
+											file.modificationDate = webMI.sprintf(
+												"%d-%02d-%02d %02d:%02d:%02d",
+												date.getFullYear(),
+												date.getMonth() + 1,
+												date.getDate(),
+												date.getHours(),
+												date.getMinutes(),
+												date.getSeconds()
+											);
+										}
+
+										return file.directory.type == stat.dir;
+									});
+
+									// calculate size of all archives in current directory type
+									var atviseUsedKB = archiveFilesFromDir.reduce(function (acc, val) {
+										return acc + val.size;
+									}, 0);
+
+									var spaceUsed = 0;
+									var atviseUsed = 0;
+
+									if (directoryTypes[stat.dir].configured) {
+										spaceUsed = 100 - Math.round((stat.freeSpace / stat.capacity) * 100);
+										atviseUsed = Math.round((atviseUsedKB / stat.capacity) * 100);
+										directoryTypes[barType].spaceCritical =
+											spaceUsed >= webMI.query["threshold_" + barType + "_critical"];
+									}
+
+									// creating bar for current directory type
+									var bar = createBarElement({
+										index: stat.dir,
+										width: {atvise: atviseUsed, all: spaceUsed},
+										memory: stat.freeSpace
+									});
+
+									if (!directoryTypes[stat.dir].configured) {
+										bar.className = "";
+										bar.innerHTML =
+											'<span style="vertical-align:middle;">' +
+											("same" in directoryTypes[barType] && directoryTypes[barType].same
+												? "T{Configured path identical with Backup directory}"
+												: (directoryTypes[barType].errorstring === "Not a directory" ? "T{Invalid path}" : "T{Not configured}") +
+												"</span>");
+									}
+
+									info.appendChild(bar);
+
+									// creating legend for used size from atvise
+									var legendUsed = webMI.rootWindow.document.createElement("div");
+
+									legendUsed.style.backgroundColor = directoryTypes[barType].configured
+										? getBarColor(stat.dir, spaceUsed)
+										: "none";
+									info.appendChild(legendUsed);
+
+									if (directoryTypes[barType].configured) {
+										var legendUsedOverlay = webMI.rootWindow.document.createElement("div");
+										legendUsedOverlay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+										legendUsedOverlay.style.height = "100%";
+										legendUsed.appendChild(legendUsedOverlay);
+									}
+
+									var textUsed = webMI.rootWindow.document.createElement("div");
+
+									info.appendChild(textUsed);
+									textUsed.innerText = directoryTypes[barType].configured
+										? archiveFilesFromDir.length + " T{archive file(s)}, " + beautifyByte(atviseUsedKB)
+										: "";
+
+									// creating legend for free space
+									var legendFree = webMI.rootWindow.document.createElement("div");
+
+									legendFree.style.backgroundColor = directoryTypes[barType].configured
+										? webMI.query.color_background_bar
+										: "none";
+
+									info.appendChild(legendFree);
+									var textFree = webMI.rootWindow.document.createElement("div");
+
+									info.appendChild(textFree);
+									textFree.innerHTML = directoryTypes[barType].configured
+										? stat.capacity >= 0
+											? beautifyByte(stat.freeSpace) + " T{free of} " + beautifyByte(stat.capacity)
+											: "T{Capacity can't be determined}"
+										: "&nbsp;";
+								});
+
+								if (typeof callback == "function") {
+									callback();
+								}
+							}
+						);
+					});
+				});
+			}
+		);
+	});
+}
+
+// getting configured color depending on free space for directory type
+function getBarColor(dirType, spaceUsed) {
+	// retrieve thresholds for warning and critical for directory type
+	var warning = webMI.query["threshold_" + dirType + "_warning"];
+	var critical = webMI.query["threshold_" + dirType + "_critical"];
+
+	// check if info color to use
+	if (spaceUsed < warning) {
+		return webMI.query["color_" + dirType + "_info"];
+		// check if warning color to use
+	} else if (spaceUsed >= warning && spaceUsed < critical) {
+		return webMI.query["color_" + dirType + "_warning"];
+		// check if critical color to use
+	} else if (spaceUsed >= critical) {
+		return webMI.query["color_" + dirType + "_critical"];
+	}
+}
+
+// creating bars
+function createBarElement(options) {
+	var elem = webMI.rootWindow.document.createElement("div");
+	var atviseUsed = webMI.rootWindow.document.createElement("div");
+	var atviseUsedOverlay = webMI.rootWindow.document.createElement("div");
+	var otherUsed = webMI.rootWindow.document.createElement("div");
+
+	elem.className = "dirstats";
+
+	atviseUsed.style.width = options.width.all + "%";
+	atviseUsed.style.height = "100%";
+	atviseUsed.style.backgroundColor = getBarColor(options.index, options.width.all);
+	atviseUsed.style.position = "absolute";
+
+	atviseUsedOverlay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+	atviseUsedOverlay.style.height = "100%";
+
+	otherUsed.style.width = options.width.all - options.width.atvise + "%";
+	otherUsed.style.height = "100%";
+	otherUsed.style.backgroundColor = getBarColor(options.index, options.width.all);
+	otherUsed.style.position = "absolute";
+
+	atviseUsed.appendChild(atviseUsedOverlay);
+
+	elem.appendChild(atviseUsed);
+	elem.appendChild(otherUsed);
+
+	return elem;
+}
+
+// show used size as a nice value with appropriate suffix
+function beautifyByte(memory, fracDigits) {
+	var unitIndicator = 0;
+
+	while (memory >= 1024.0) {
+		memory /= 1024.0;
+		unitIndicator++;
+	}
+
+	memory = Number.parseFloat(memory).toFixed(fracDigits ? fracDigits : 0);
+
+	switch (unitIndicator) {
+		case 0:
+			memory = memory + " K";
+			break;
+		case 1:
+			memory = memory + " M";
+			break;
+		case 2:
+			memory = memory + " G";
+			break;
+		case 3:
+			memory = memory + " T";
+			break;
+		case 4:
+			memory = memory + " P";
+			break;
+		case 5:
+			memory = memory + " E";
+			break;
+		case 6:
+			memory = memory + " Z";
+			break;
+		case 7:
+			memory = memory + " Y";
+			break;
+	}
+
+	return memory;
+}
+
+function startTransfer(transferDetails) {
+	if (
+		tableControllerArchive == null ||
+		tableControllerArchive.isReady !== true ||
+		!Array.isArray(transferDetails) ||
+		transferDetails.length == 0
+	) {
+		return;
+	}
+
+	webMI.data.read(archivemanagementParentNodeAddr + ".statusDetails", function (e) {
+		var statusDetailsParsed = {locked: false};
+
+		if (!("error" in e)) {
+			try {
+				statusDetailsParsed = JSON.parse(e.value);
+			} catch (error) {
+			}
+		}
+
+		if (statusDetailsParsed.locked === true) {
+			webMI.display.openWindow({
+				display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+				height: 160,
+				width: 400,
+				modal: true,
+				resizable: false,
+				movable: true,
+				scrollbars: false,
+				menubar: false,
+				status: false,
+				toolbar: false,
+				title: "T{Archive}T{management}",
+				query: {
+					headline: "T{Locked}",
+					message: "T{There is an operation in progress. Please wait until it is completed.}",
+					button: "T{OK}"
+				}
+			});
+		} else {
+			UpdateNode(
+				archivemanagementParentNodeAddr + ".transferDetails",
+				{
+					typeDefinition: "i=62",
+					dataType: "STRING",
+					value: JSON.stringify(transferDetails),
+					nodeClass: "NODECLASS_VARIABLE"
+				},
+				function () {
+					var logger = {
+						error: {
+							group: webMI.query.logger_group_error,
+							subgroup: webMI.query.logger_subgroup_error,
+							label: webMI.query.logger_label_error
+						},
+						info: {
+							group: webMI.query.logger_group_info,
+							subgroup: webMI.query.logger_subgroup_info,
+							label: webMI.query.logger_label_info
+						},
+						user: userNameForLogger
+					};
+
+					UpdateNode(
+						archivemanagementParentNodeAddr + ".statusDetails",
+						{
+							typeDefinition: "i=62",
+							dataType: "STRING",
+							value: JSON.stringify({
+								locked: true,
+								active: null,
+								currentOperationIndex: 0,
+								errors: [],
+								logger: logger
+							}),
+							nodeClass: "NODECLASS_VARIABLE"
+						},
+						function () {
+							var transfers = [];
+							var transTmp;
+
+							transferDetails.forEach(function (td) {
+								transTmp =
+									td.action +
+									" from " +
+									td.sourceType +
+									(td.destinationType != null ? " to " + td.destinationType : "");
+
+								if (!transfers.includes(transTmp)) {
+									transfers.push(transTmp);
+								}
+							});
+
+							logger.group = logger.info.group;
+							logger.subgroup = logger.info.subgroup;
+							logger.label = logger.info.label;
+							logger.message = ("Started. " + transfers.join(" ")).trim();
+
+							var compareRights = [
+								{
+									node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.LoggerWriteLog",
+									right: "execute"
+								}
+							];
+
+							handleAccessControlResponse(compareRights, function () {
+								webMI.data.call("LoggerWriteLog", logger);
+							});
+
+							UpdateNode(archivemanagementParentNodeAddr + ".currentStep", {
+								typeDefinition: "i=62",
+								dataType: "STRING",
+								value: "start",
+								nodeClass: "NODECLASS_VARIABLE"
+							});
+						}
+					);
+				}
+			);
+		}
+	});
+}
+
+function call(callback, data) {
+	return typeof callback === "function" ? callback(data) : undefined;
+}
+
+function UpdateNode(address, options, callback) {
+	if (
+		webMI.getMethodSupport().indexOf("AddNode") < 0 ||
+		webMI.getMethodSupport().indexOf("CheckNodeExists") < 0 ||
+		webMI.getMethodSupport().indexOf("SetNodeValue") < 0
+	) {
+		console.warn("The necessary webMI methods are not supported, please add the configuration node manually");
+	} else {
+		var compareRights = [
+			{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.CheckNodeExists", right: "execute"}
+		];
+
+		handleAccessControlResponse(compareRights, function () {
+			webMI.data.call("CheckNodeExists", {address: address}, function (e) {
+				if (!e.result) {
+					options.address = address;
+
+					if (!("value" in options)) {
+						options.value = "";
+					}
+
+					var compareRights = [
+						{ node: address.substring(0, address.lastIndexOf(".")), right: "engineer"},
+						{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AddNode", right: "execute"}
+					];
+
+					handleAccessControlResponse(compareRights, function () {
+						webMI.data.call("AddNode", options, function () {
+                            accessControlManager.clearRightsStorage(options.address);
+							call(callback, address);
+						});
+					});
+				} else {
+					if ("value" in options && options.value != "") {
+						var compareRights = [
+							{ node: address, right: "write"},
+							{ node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.SetNodeValue", right: "execute" }
+						];
+
+						handleAccessControlResponse(compareRights, function () {
+							webMI.data.call("SetNodeValue", {address: address, value: options.value}, function() {
+								call(callback, address);
+							});
+						});
+					} else {
+						call(callback, address);
+					}
+				}
+			});
+		});
+	}
+}
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback
+ */
+function handleAccessControlResponse(compareRights, callback, preventDisplayLock) {
+	if (!accessControlManager) {
+		callback();
+		return;
+	}
+
+	var requiredRights = {
+		nodeIds: [
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations",
+			webMI.query.auto_scheduler_config_node
+		],
+		rights: ["execute", "execute", "engineer"]
+	};
+	
+	for (var i = 0; i < compareRights.length; i++) {
+		requiredRights["nodeIds"].push(compareRights[i].node);
+		requiredRights["rights"].push(compareRights[i].right);
+	}
+
+	accessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, (response) => {
+		var right_button_auto_scheduler =
+			response["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.BrowseNodes"].execute &&
+			response["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations"].execute &&
+			response[webMI.query.auto_scheduler_config_node].engineer;
+
+
+		var right_refreshButton = response["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.FileOperations"].execute;
+
+		webMI.trigger.fire("com.atvise.setActive", right_button_auto_scheduler, "button_auto_scheduler");
+		webMI.trigger.fire("com.atvise.setActive", right_refreshButton, "refreshButton");
+
+		if (!Array.isArray(compareRights)) compareRights = [compareRights];
+
+		var allRights = [];
+
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights.push(response[compareRights[c].node][compareRights[c].right]);
+			} else {
+				allRights.push(false);
+			}
+		}
+
+		if (!allRights.includes(false)) {
+			callback();
+		} else {
+            if (!preventDisplayLock) {
+                informUserOfMissingRights();
+            }
+		}
+	});
+
+	function handleAccessDenied(message) {
+		UpdateStatusLabel(message);
+	}
+}
+
+function setupMissingRightsOverlay() {
+    let localElement = webMI.rootWindow.document.getElementById("rights_missing_overlay");
+	if (localElement)
+		localElement.remove();
+
+	const rightsNotificationOverlay = webMI.rootWindow.document.createElement("div");
+	const backgroundRect = document.getElementById("background_rect").getBoundingClientRect();
+	const rightsNotificationParagraph = webMI.rootWindow.document.createElement("p");
+    const zoomScaleType = webMI.getConfig("frame.scaletype") !== "transform"
+	let localScaleFactor = webMI.gfx.getAbsoluteScaleFactor(zoomScaleType);
+
+	const offsetTop = Number(content_iframe.parentElement.style.top.replace("px", ""));
+	const offsetLeft = Number(content_iframe.parentElement.style.left.replace("px", ""));
+
+	rightsNotificationOverlay.id = "rights_missing_overlay";
+	rightsNotificationOverlay.style.position = "absolute";
+	rightsNotificationOverlay.style.background = "#00000073";
+	rightsNotificationOverlay.style.left = backgroundRect.x / localScaleFactor + offsetLeft + "px";
+	rightsNotificationOverlay.style.top = backgroundRect.y / localScaleFactor + offsetTop + "px";
+	rightsNotificationOverlay.style.width = backgroundRect.width / localScaleFactor + "px";
+	rightsNotificationOverlay.style.height = backgroundRect.height / localScaleFactor + "px";
+	rightsNotificationOverlay.style.display = "none";
+	rightsNotificationOverlay.style.zIndex = "999999";
+
+	rightsNotificationParagraph.style.cssText = `
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        padding: 10px;
+        background: black;
+        color: red;
+        font-family: sans-serif;
+        font-size: 1.5em;
+        text-align: center;
+        font-weight: bold;`;
+	rightsNotificationParagraph.textContent = "T{Permission(s) missing for archive management!}";
+
+	rightsNotificationOverlay.appendChild(rightsNotificationParagraph);
+	extensionsDiv.appendChild(rightsNotificationOverlay);
+
+	return rightsNotificationOverlay;
+}
+
+function informUserOfMissingRights() {
+    rightsNotificationOverlay.style.display = "block";
+}
+
+function removeMissingRightsOverlay() {
+    rightsNotificationOverlay.style.display = "none";
+}
+
+webMI.addOnunload(removeMissingRightsOverlay);
+
+var autoSchedulerScriptCode =
+	"var globalConfig;\n" +
+	"var autoSchedulerConfigNode = Ua.findNode(base);\n" +
+	"var startTransfer = false;\n" +
+	'var backup_mode = "' +
+	webMI.query.backup_mode +
+	'";\n' +
+	'var archivemanagementParentNodeAddr = "' +
+	archivemanagementParentNodeAddr +
+	'";\n' +
+	"var allowSendingMail = false;\n" +
+	"var logger = Object.seal({\n" +
+	"	error: Object.seal({\n" +
+	'		group: "' +
+	webMI.query.logger_group_error +
+	'",\n' +
+	'		subgroup: "' +
+	webMI.query.logger_subgroup_error +
+	'",\n' +
+	'		label: "' +
+	webMI.query.logger_label_error +
+	'"\n' +
+	"	}),\n" +
+	"	info: Object.seal({\n" +
+	'		group: "' +
+	webMI.query.logger_group_info +
+	'",\n' +
+	'		subgroup: "' +
+	webMI.query.logger_subgroup_info +
+	'",\n' +
+	'		label: "' +
+	webMI.query.logger_label_info +
+	'"\n' +
+	"	}),\n" +
+	'	user: "autoscheduler"\n' +
+	"});\n" +
+	"\n" +
+	"// settings for directory types\n" +
+	"var directoryTypes = Object.freeze({\n" +
+	"	historydir: Object.freeze({\n" +
+	"		targets: Object.freeze({\n" +
+	'			swapin: "move",\n' +
+	"			backup: backup_mode\n" +
+	"		})\n" +
+	"	}),\n" +
+	"	swapin: Object.freeze({\n" +
+	"		targets: Object.freeze({\n" +
+	"			backup: backup_mode\n" +
+	"		})\n" +
+	"	}),\n" +
+	"	systemdb: Object.freeze({\n" +
+	"		targets: Object.freeze({\n" +
+	'			backup: "copy"\n' +
+	"		})\n" +
+	"	})\n" +
+	"});\n" +
+	"\n" +
+	"var timestamp = new Date();\n" +
+	"var transferDetails = [];\n" +
+	"try {\n" +
+	"	// get config from node\n" +
+	"	try {\n" +
+	'		if (autoSchedulerConfigNode.result.value.trim() != "") {\n' +
+	"			globalConfig = Object.seal(JSON.parse(autoSchedulerConfigNode.result.value));\n" +
+	"		} else {\n" +
+	'			log("log", "Config missing for Auto-scheduler");\n' +
+	"			return;\n" +
+	"		}\n" +
+	"	} catch (e) {\n" +
+	'		throw new Error("Configuration can\'t be parsed. Exiting Auto-scheduler.");\n' +
+	"	}\n" +
+	"\n" +
+	'	log("log", "globalConfig ", globalConfig);\n' +
+	'	log("log", "globalConfig.active ", globalConfig.active);\n' +
+	'	log("log", "globalConfig.report.email ", globalConfig.report.email);\n' +
+	'	log("log", "globalConfig.report.smtp.trim() != \\"\\" ", globalConfig.report.smtp.trim() != "" );\n' +
+	'	log("log", "globalConfig.report.mailFrom.trim() != \\"\\" ", globalConfig.report.mailFrom.trim() != "");\n' +
+	'	log("log", "globalConfig.report.mailTo.trim() != \\"\\" ", globalConfig.report.mailTo.trim() != "");\n' +
+	'	allowSendingMail = globalConfig && globalConfig.active && globalConfig.report.email && globalConfig.report.smtp.trim() != "" && globalConfig.report.mailFrom.trim() != "" && globalConfig.report.mailTo.trim() != "";\n' +
+	'	log("log", "allow sending mail ", allowSendingMail);\n' +
+	"\n" +
+	"	// check if auto-schedule config is plausible\n" +
+	'	if (!("active" in globalConfig) ||\n' +
+	'		!("report" in globalConfig) ||\n' +
+	'		!("schedules" in globalConfig) ||\n' +
+	'		!("logfiles" in globalConfig.report) ||\n' +
+	'		!("email" in globalConfig.report) ||\n' +
+	'		!("mailFrom" in globalConfig.report) ||\n' +
+	'		!("mailTo" in globalConfig.report) ||\n' +
+	'		!("smtp" in globalConfig.report) ||\n' +
+	"		!Array.isArray(globalConfig.schedules)) {\n" +
+	'		throw new Error("Configuration incoherent. Exiting Auto-scheduler.");\n' +
+	"	}\n" +
+	"\n" +
+	"	if (!globalConfig.active) {\n" +
+	'		log("info", "Auto-scheduler disabled");\n' +
+	"		return;\n" +
+	"	}\n" +
+	"\n" +
+	"	// check all schedules beforehand, if one is faulty cancel the whole process\n" +
+	"	for (var schedule in globalConfig.schedules) {\n" +
+	'		if (!("active" in globalConfig.schedules[schedule]) ||\n' +
+	'			!("archive" in globalConfig.schedules[schedule]) ||\n' +
+	'			!("partInt" in globalConfig.schedules[schedule]) ||\n' +
+	'			!("source" in globalConfig.schedules[schedule]) ||\n' +
+	'			!("destination" in globalConfig.schedules[schedule])) {\n' +
+	'			throw new Error("Configuration of a schedule incoherent. Exiting Auto-scheduler.");\n' +
+	"		}\n" +
+	"	}\n" +
+	"\n" +
+	"	startTransfer = true;\n" +
+	'	var fileOperations = call("Utilities.FileOperations");\n' +
+	'	var mailMsg = "";\n' +
+	"\n" +
+	"	// sort by minute of schedule\n" +
+	"	var schedules = globalConfig.schedules.sort(function(a, b) {\n" +
+	"		var aFirstRunMin = new Date(a.firstRun).getMinutes();\n" +
+	"		var bFirstRunMin = new Date(b.firstRun).getMinutes();\n" +
+	"\n" +
+	"		return aFirstRunMin > bFirstRunMin ? 1 : -1;\n" +
+	"	});\n" +
+	"\n" +
+	"	schedules.forEach(function(schedule) {\n" +
+	"		// omit disabled schedules\n" +
+	"		if (!schedule.active) {\n" +
+	'			log("log", "Config for archive " + schedule.archive + " inactive");\n' +
+	"			return;\n" +
+	"		}\n" +
+	"\n" +
+	"		// check partition interval\n" +
+	"		var partInt = /(\\d+)_(.)/.exec(schedule.partInt);\n" +
+	'		if (partInt ==  null || partInt[1] == "" || partInt[2] == "") {\n' +
+	'			log("log", "Interval for " + schedule.archive + " is not configured, skipping schedule.");\n' +
+	"			return;\n" +
+	"		}\n" +
+	"\n" +
+	"		var next = false;\n" +
+	"		try {\n" +
+	"			next = isScheduleOverdue(schedule.lastBackup, schedule.firstRun, Number(partInt[1]), partInt[2]);\n" +
+	"		} catch (partIntError) {\n" +
+	'			mailMsg += "\\n\\nInterval for " + schedule.archive + " configured incorrectly: " + schedule.partInt.toString() + ". Omitting schedule.";\n' +
+	'			log("error", "Interval for " + schedule.archive + " configured incorrectly: " + schedule.partInt.toString() + ". Omitting schedule.");\n' +
+	"			return;\n" +
+	"		}\n" +
+	"\n" +
+	"		if (!next) {\n" +
+	'			log("log", "Backup for " + schedule.archive + " not necessary. Last backup: ", new Date(schedule.lastBackup).toLocaleString());\n' +
+	"			return;\n" +
+	"		}\n" +
+	"\n" +
+	"		var files = [];\n" +
+	'		if (schedule.archive == "systemdb") {\n' +
+	'			files.push({ name: server.database.name, directory: { type: "systemdb" }, conflict: [] });\n' +
+	"		} else {\n" +
+	"			files = fileOperations.getArchiveFiles(schedule.source, schedule.type, schedule.archive);\n" +
+	"\n" +
+	"			// check olderThan interval\n" +
+	"			var olderThan = /(\\d+)_(.)/.exec(schedule.olderThan);\n" +
+	'			if (olderThan ==  null || olderThan[1] == "" || olderThan[2] == "") {\n' +
+	'				log("log", "olderThan for " + schedule.archive + " is not configured, skipping schedule.");\n' +
+	"				return;\n" +
+	"			}\n" +
+	"\n" +
+	"			try {\n" +
+	"				files = filesOlderThan(files, Number(olderThan[1]), olderThan[2]);\n" +
+	"			} catch (olderThanError) {\n" +
+	'				mailMsg += "\\n\\nOlder than for " + schedule.archive + " configured incorrectly: " + schedule.olderThan.toString() + ". Omitting schedule.";\n' +
+	'				log("error", "Older than for " + schedule.archive + " configured incorrectly: " + schedule.olderThan.toString() + ". Omitting schedule.");\n' +
+	"				return;\n" +
+	"			}\n" +
+	'			log("log", "files found: ", files);\n' +
+	"\n" +
+	"			var conflictExists = files.some(function(file) {\n" +
+	"				return file.conflict.length > 0;\n" +
+	"			});\n" +
+	"\n" +
+	"			if (conflictExists) {\n" +
+	'				mailMsg += "\\n\\nConflict for " + schedule.archive + " exists. Omitting schedule.";\n' +
+	'				log("error", "Conflict for " + schedule.archive + " exists. Omitting schedule.");\n' +
+	"				return;\n" +
+	"			}\n" +
+	"		}\n" +
+	"\n" +
+	"		// collecting all tasks\n" +
+	"		files.forEach(function(file) {\n" +
+	"			if (file.directory.type in directoryTypes && schedule.destination in directoryTypes[file.directory.type].targets) {\n" +
+	"				transferDetails.push(Object.freeze({\n" +
+	"					name: file.name,\n" +
+	"					sourceType: file.directory.type,\n" +
+	"					destinationType: schedule.destination,\n" +
+	"					action: directoryTypes[file.directory.type].targets[schedule.destination],\n" +
+	"					locked: false\n" +
+	"				}));\n" +
+	"			}\n" +
+	"		});\n" +
+	"\n" +
+	"		if (files.length > 0) {\n" +
+	'			log("log", "Schedule is overdue: " + schedule.archive + " " + schedule.source + " -> " + schedule.destination, " runtime: ", timestamp.toLocaleString());\n' +
+	"		}\n" +
+	"\n" +
+	"		schedule.lastBackup = timestamp.getTime();\n" +
+	"	});\n" +
+	"\n" +
+	"	mailMsg = mailMsg.trim();\n" +
+	'	if (mailMsg != "") {\n' +
+	"		sendMail(mailMsg);\n" +
+	"	}\n" +
+	"} catch (error) {\n" +
+	'	log("error", error.name + ": ", error.message);\n' +
+	"	startTransfer = false;\n" +
+	"	sendMail(error.message);\n" +
+	"} finally {\n" +
+	'	log("log", "all transferDetails: ", transferDetails);\n' +
+	"\n" +
+	"	if (startTransfer && Array.isArray(transferDetails) && transferDetails.length > 0) {\n" +
+	'		log("log", "updating auto scheduler config");\n' +
+	"		autoSchedulerConfigNode.result.assign({\n" +
+	"			value: JSON.stringify(globalConfig)\n" +
+	"		});\n" +
+	"\n" +
+	'		var currentStepNode = Ua.findNode(archivemanagementParentNodeAddr + ".currentStep");\n' +
+	'		var currentStepExist = Ua.Status(currentStepNode) != Ua.Status.BADNODEIDUNKNOWN;\n' +
+	"\n" +
+	'		var statusDetailsNode = Ua.findNode(archivemanagementParentNodeAddr + ".statusDetails");\n' +
+	'		var statusDetailsExist = Ua.Status(statusDetailsNode) != Ua.Status.BADNODEIDUNKNOWN;\n' +
+	"\n" +
+	'		var transferDetailsNode = Ua.findNode(archivemanagementParentNodeAddr + ".transferDetails");\n' +
+	'		var transferDetailsExist = Ua.Status(transferDetailsNode) != Ua.Status.BADNODEIDUNKNOWN;\n' +
+	"\n" +
+	"		if (currentStepExist && statusDetailsExist && transferDetailsExist) {\n" +
+	"			var statusDetails = parseData(statusDetailsNode.result.value);\n" +
+	"\n" +
+	"			// all of the following only makes sense on the Active server\n" +
+	'			log("log", "checking if a transfer is already in progress");\n' +
+	"			if (statusDetails == null || !statusDetails.locked) {\n" +
+	"				// lock changing of currentStepNode\n" +
+	'				if (globals.get("com.atvise.archiveManagement.lock")) {\n' +
+	'					log("log", "global archiveManagement lock set; exiting");\n' +
+	"					return;\n" +
+	"				}\n" +
+	"\n" +
+	'				log("log", "lock changing of currentStepNode");\n' +
+	'				globals.set("com.atvise.archiveManagement.lock", true);\n' +
+	"\n" +
+	'				log("log", "updating transferDetails");\n' +
+	"				transferDetailsNode.result.assign({\n" +
+	"					value: JSON.stringify(transferDetails)\n" +
+	"				});\n" +
+	"\n" +
+	'				log("log", "updating statusDetails");\n' +
+	"				statusDetailsNode.result.assign({\n" +
+	"					value: JSON.stringify({\n" +
+	"						locked: true,\n" +
+	"						active: null,\n" +
+	"						currentOperationIndex: 0,\n" +
+	"						errors: [],\n" +
+	"						logger: logger,\n" +
+	"						autoSchedulerConfigAddr: autoSchedulerConfigNode.result.nodeId.address\n" +
+	"					})\n" +
+	"				});\n" +
+	"\n" +
+	"				var writeObj = { ...logger };\n" +
+	"				delete writeObj.error;\n" +
+	"				delete writeObj.info;\n" +
+	"				var transfers = [];\n" +
+	"				var transTmp;\n" +
+	"				transferDetails.forEach(function(td) {\n" +
+	'					transTmp = td.action + " from " + td.sourceType + (td.destinationType != null ? " to " + td.destinationType : "");\n' +
+	"					if (!transfers.includes(transTmp)) {\n" +
+	"						transfers.push(transTmp);\n" +
+	"					}\n" +
+	"				});\n" +
+	"				writeObj.group = logger.info.group;\n" +
+	"				writeObj.subgroup = logger.info.subgroup;\n" +
+	"				writeObj.label = logger.info.label;\n" +
+	'				writeObj.message = ("Started. " + transfers.join(" ")).trim();\n' +
+	'				call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Logger.WriteLog", writeObj);\n' +
+	"\n" +
+	'				log("log", "updating currentStep; triggering transfer from auto scheduler");\n' +
+	"				currentStepNode.result.assign({\n" +
+	'					value: "start"\n' +
+	"				});\n" +
+	"			} else {\n" +
+	'				log("log", "transfer in progress; do nothing");\n' +
+	"			}\n" +
+	"		}\n" +
+	"	}\n" +
+	"}\n" +
+	"\n" +
+	"function log(type, ...args) {\n" +
+	"	if (globalConfig && globalConfig.active && globalConfig.report && globalConfig.report.logfiles) {\n" +
+	"		if (type in console) {\n" +
+	'			if ((typeof debug == "undefined" && type != "log") || (typeof debug != "undefined" && debug)) {\n' +
+	"				console[type](...args);\n" +
+	"			}\n" +
+	"		}\n" +
+	"	}\n" +
+	"}\n" +
+	"\n" +
+	"function sendMail(msg, subject) {\n" +
+	'	var reduOnNode = Ua.findNode("AGENT.REDUNDANCY");\n' +
+	'	var reduOnExist = Ua.Status(reduOnNode) != Ua.Status.BADNODEIDUNKNOWN;\n' +
+	"\n" +
+	'	var reduStatusNode = Ua.findNode("AGENT.REDUNDANCY.status");\n' +
+	'	var reduStatusExist = Ua.Status(reduStatusExist) != Ua.Status.BADNODEIDUNKNOWN;\n' +
+	"\n" +
+	'	log("log", "allowSendingMail ", allowSendingMail);\n' +
+	'	log("log", "redu on ", reduOnExist);\n' +
+	'	log("log", "redu status ", reduNode.result.value);\n' +
+	'	log("log", "redu ", (reduOnExist ? reduStatusNode.result.value : "Active") == "Active");\n' +
+	"	if (allowSendingMail &&\n" +
+	'		(reduOnExist ? reduStatusNode.result.value : "Active") == "Active") {\n' +
+	'		log("log", "sending mail");\n' +
+	'		call("Mail.SendMail", {\n' +
+	"			smtpserver: globalConfig.report.smtp,\n" +
+	"			from: globalConfig.report.mailFrom,\n" +
+	"			to: globalConfig.report.mailTo,\n" +
+	'			subject: subject === undefined || typeof subject !== "string" ? "atvise auto-scheduler event" : subject,\n' +
+	"			body: msg\n" +
+	"		});\n" +
+	"	}\n" +
+	"}\n" +
+	"\n" +
+	"function lz(number) {\n" +
+	'	return number < 10 ? "0" + number : number;\n' +
+	"}\n" +
+	"\n" +
+	"function parseData(data) {\n" +
+	"	var nodeValue = null;\n" +
+	"\n" +
+	"	try {\n" +
+	"		nodeValue = JSON.parse(data);\n" +
+	"	} catch (error) {\n" +
+	"	}\n" +
+	"\n" +
+	"	return nodeValue;\n" +
+	"}\n" +
+	"\n" +
+	"function filesOlderThan(files, interval, unit) {\n" +
+	"	var olderThan = new Date();\n" +
+	"	olderThan.setSeconds(0);\n" +
+	"	olderThan.setMilliseconds(0);\n" +
+	"\n" +
+	"	switch(unit) {\n" +
+	'		case "h":\n' +
+	"			olderThan.setHours(olderThan.getHours() - interval);\n" +
+	"			break;\n" +
+	'		case "d":\n' +
+	"			olderThan.setDate(olderThan.getDate() - interval);\n" +
+	"			break;\n" +
+	'		case "w":\n' +
+	"			olderThan.setDate(olderThan.getDate() - interval * 7);\n" +
+	"			break;\n" +
+	'		case "m":\n' +
+	"			olderThan.setMonth(olderThan.getMonth() - interval);\n" +
+	"			break;\n" +
+	'		case "y":\n' +
+	"			olderThan.setFullYear(olderThan.getFullYear() - interval);\n" +
+	"			break;\n" +
+	"		default:\n" +
+	'			throw new Error("Unknown partition unit");\n' +
+	"	}\n" +
+	"\n" +
+	"	var tsre = new RegExp(/(_(19|20\\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])_([01]\\d|2[0-3])([0-5]\\d)([0-5]\\d)?)?\\.db$/);\n" +
+	"\n" +
+	'	log("log", "olderThan: ", olderThan.toString());\n' +
+	"	return files.filter(function(file) {\n" +
+	"		var match = tsre.exec(file.name);\n" +
+	'		log("log", file.name, ": match ", match);\n' +
+	"\n" +
+	"		if (match != null && match[1] != undefined) {\n" +
+	'			log("log", file.name, ": ", new Date(match[2], match[3] - 1, match[4], match[5], match[6]).getTime(), " < ", olderThan.getTime(), " = ", new Date(match[2], match[3] - 1, match[4], match[5], match[6]).getTime() < olderThan.getTime());\n' +
+	"			return new Date(match[2], match[3] - 1, match[4], match[5], match[6]).getTime() < olderThan.getTime();\n" +
+	"		}\n" +
+	"\n" +
+	"		return false;\n" +
+	"	});\n" +
+	"}\n" +
+	"\n" +
+	"function isScheduleOverdue(lastBackup, firstRun, interval, unit) {\n" +
+	"	var now = new Date();\n" +
+	"	now.setSeconds(0);\n" +
+	"	now.setMilliseconds(0);\n" +
+	"	var nextOnSchedule = new Date(firstRun);\n" +
+	"	var getFn = null;\n" +
+	"	var setFn = null;\n" +
+	"\n" +
+	"	switch (unit) {\n" +
+	'		case "h":\n' +
+	"			getFn = nextOnSchedule.getHours;\n" +
+	"			setFn = nextOnSchedule.setHours;\n" +
+	"			break;\n" +
+	'		case "d":\n' +
+	"			getFn = nextOnSchedule.getDate;\n" +
+	"			setFn = nextOnSchedule.setDate;\n" +
+	"			break;\n" +
+	'		case "w":\n' +
+	"			getFn = nextOnSchedule.getDate;\n" +
+	"			setFn = nextOnSchedule.setDate;\n" +
+	"			interval = interval * 7;\n" +
+	"			break;\n" +
+	'		case "m":\n' +
+	"			getFn = nextOnSchedule.getMonth;\n" +
+	"			setFn = nextOnSchedule.setMonth;\n" +
+	"			break;\n" +
+	'		case "y":\n' +
+	"			getFn = nextOnSchedule.getFullYear;\n" +
+	"			setFn = nextOnSchedule.setFullYear;\n" +
+	"			break;\n" +
+	"		default:\n" +
+	'			throw new Error("Unknown partition unit");\n' +
+	"	}\n" +
+	"\n" +
+	"	var lastBackupDiffCount = 0;\n" +
+	"	while (nextOnSchedule.getTime() < now.getTime()) {\n" +
+	"		setFn.call(nextOnSchedule, getFn.call(nextOnSchedule) + interval);\n" +
+	"		if (nextOnSchedule.getTime() > lastBackup) {\n" +
+	"			lastBackupDiffCount++;\n" +
+	"		}\n" +
+	"	}\n" +
+	"\n" +
+	'	log("log", "lastBackupDiffCount: ", lastBackupDiffCount);\n' +
+	'	log("log", "lastBackup:          ", new Date(lastBackup).toString());\n' +
+	'	log("log", "firstRun:            ", firstRun);\n' +
+	'	log("log", "firstRun:            ", new Date(firstRun).toString());\n' +
+	'	log("log", "now:                 ", now.getTime());\n' +
+	'	log("log", "now:                 ", now.toString());\n' +
+	'	log("log", "nextOnSchedule:      ", nextOnSchedule.getTime());\n' +
+	'	log("log", "nextOnSchedule:      ", nextOnSchedule.toString());\n' +
+	'	log("log", "isScheduleOverdue:   ", lastBackupDiffCount > 1 || nextOnSchedule.getTime() == now.getTime());\n' +
+	"\n" +
+	"	return lastBackupDiffCount > 1 || nextOnSchedule.getTime() == now.getTime();\n" +
+	"}";]]></code>
+</script>

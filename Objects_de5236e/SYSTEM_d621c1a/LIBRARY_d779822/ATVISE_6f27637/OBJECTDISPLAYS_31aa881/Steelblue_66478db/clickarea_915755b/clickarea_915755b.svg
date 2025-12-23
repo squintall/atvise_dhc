@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="30" version="1.2" width="80" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <desc>Sets the specified value to an address.</desc>
+ <title>Clickarea</title>
+ <metadata>
+  <atv:parameter behavior="mandatory" desc="base" name="base" valuetype="address"/>
+  <atv:parameter behavior="mandatory" desc="value" name="value" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="#8c8c8c" desc="fill color when inactive" group="Appearance" name="fillColorInactive" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="#ffffff" desc="focus stroke color" group="Appearance" name="focusStrokeColor" substitute="$FOCUSSTROKECOLOR$" valuetype="color"/>
+  <atv:parameter behavior="optional" desc="address to set at mousedown" group="Options" name="onMouseDownNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="value mousedown" group="Options" name="onMouseDownValue" valuetype="string"/>
+  <atv:parameter behavior="optional" desc="address to set at mouseup" group="Options" name="onMouseUpNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="value mouseup" group="Options" name="onMouseUpValue" valuetype="string"/>
+  <atv:parameter behavior="optional" desc="tab index" group="Options" name="tabIndex" valuetype="number"/>
+  <atv:parameter behavior="optional" desc="tooltip" group="Options" name="tooltip" valuetype="trstring"/>
+  <atv:parameter behavior="optional" config="SYSTEM.SECURITY.RIGHTS" desc="necessary right" group="Security" name="right" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation address" group="Security" name="activeNode" valuetype="address"/>
+  <atv:parameter behavior="optional" desc="activation value" group="Security" name="activeValue" valuetype="address"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="show access control notification" group="Security" name="displayAcNotification" valuetype="bool"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="10" width="10"/>
+ </metadata>
+ <rect atv:refpx="40" atv:refpy="16" fill="none" fill-opacity="0" height="30" id="button_stroke_focus" stroke="$FOCUSSTROKECOLOR$" stroke-width="1" visibility="hidden" width="80" x="0" y="0"/>
+ <rect atv:refpx="40" atv:refpy="15" fill="#ffffff" fill-opacity="0" height="30" id="button_clickarea" stroke="#000000" stroke-width="1" width="80" x="0" y="0"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.common.rights_handling" atv:name="rights_handling" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:href="SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.clickarea" atv:name="clickarea" atv:type="text/ecmascript"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

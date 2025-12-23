@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="20" version="1.2" width="20" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="#000000" desc="symbol color" name="symbolColor" substitute="$SYMBOLCOLOR$" valuetype="color"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="1" width="1"/>
+  <atv:snapconfig enabled="false" height="1" width="1"/>
+ </metadata>
+ <g atv:refpx="10" atv:refpy="10" id="group">
+  <rect atv:refpx="10" atv:refpy="10" fill="$SYMBOLCOLOR$" height="20" id="id_0" rx="2.009" ry="2.009" stroke="none" stroke-width="0" width="20" x="0" y="0"/>
+  <line atv:refpx="0" atv:refpy="0" id="id_12" stroke="#ffffff" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" x1="9.946" x2="9.939" y1="2.982" y2="7.611"/>
+  <circle atv:refpx="3.176" atv:refpy="7.972" cx="3.176" cy="7.972" fill="#ffffff" id="id_5" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="4.669" atv:refpy="5.339" cx="4.669" cy="5.339" fill="#ffffff" id="id_6" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="7.179" atv:refpy="3.58" cx="7.179" cy="3.58" fill="#ffffff" id="id_7" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="12.768" atv:refpy="3.634" cx="12.768" cy="3.634" fill="#ffffff" id="id_8" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="15.286" atv:refpy="5.366" cx="15.286" cy="5.366" fill="#ffffff" id="id_9" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="15.429" atv:refpy="5.839" cx="16.733" cy="7.973" fill="#ffffff" id="id_10" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="17.018" atv:refpy="10.563" cx="17.018" cy="10.563" fill="#ffffff" id="id_11" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="16.188" atv:refpy="13.42" cx="16.188" cy="13.42" fill="#ffffff" id="id_13" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="14.268" atv:refpy="15.661" cx="14.268" cy="15.661" fill="#ffffff" id="id_14" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="11.59" atv:refpy="16.884" cx="11.59" cy="16.884" fill="#ffffff" id="id_15" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="8.643" atv:refpy="17.018" cx="8.643" cy="17.018" fill="#ffffff" id="id_16" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="5.858" atv:refpy="15.884" cx="5.858" cy="15.884" fill="#ffffff" id="id_17" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="2.911" atv:refpy="10.911" cx="2.911" cy="10.911" fill="#ffffff" id="id_18" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+  <circle atv:refpx="15.429" atv:refpy="4.179" cx="3.831" cy="13.67" fill="#ffffff" id="id_19" r="1" stroke="none" stroke-dasharray="1,2" stroke-linecap="round" stroke-linejoin="round" stroke-width="0"/>
+ </g>
+ <rect atv:refpx="10" atv:refpy="10" fill="#000000" fill-opacity="0.001" height="20" id="clickarea" stroke="none" stroke-width="2" width="20" x="0" y="0"/>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

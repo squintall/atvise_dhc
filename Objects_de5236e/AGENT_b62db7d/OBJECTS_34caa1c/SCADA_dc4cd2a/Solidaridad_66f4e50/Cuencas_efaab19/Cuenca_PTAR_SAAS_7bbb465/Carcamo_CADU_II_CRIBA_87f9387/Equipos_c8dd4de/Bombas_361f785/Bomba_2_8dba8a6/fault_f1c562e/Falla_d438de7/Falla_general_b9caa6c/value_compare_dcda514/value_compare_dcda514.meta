@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_CADU_II_CRIBA.Equipos.Bombas.Bomba_2.fault.Falla.Falla general.value_compare
+NodeClass: Variable
+BrowseName: 1:value_compare
+DisplayName: en|value_compare
+Description: en|value_compare
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

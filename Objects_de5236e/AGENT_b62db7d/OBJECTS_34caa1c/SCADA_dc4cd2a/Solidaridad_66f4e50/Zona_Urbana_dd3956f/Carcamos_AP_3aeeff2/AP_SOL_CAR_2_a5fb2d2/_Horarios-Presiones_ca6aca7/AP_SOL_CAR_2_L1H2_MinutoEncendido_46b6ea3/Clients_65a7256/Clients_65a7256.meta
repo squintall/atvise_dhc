@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_2. Horarios-Presiones.AP_SOL_CAR_2_L1H2_MinutoEncendido.Clients
+NodeClass: Variable
+BrowseName: 1:Clients
+DisplayName: en|Monitoring clients number
+Description: en|Clients
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Clients.RelMirrorInputOutput

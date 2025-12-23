@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Carcamo_Aeropuerto_IM.Equipos.Caudalimetro.L2.id_caudalimetro
+NodeClass: Variable
+BrowseName: 1:id_caudalimetro
+DisplayName: en|id_caudalimetro
+Description: en|id_caudalimetro
+DataType: Int32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

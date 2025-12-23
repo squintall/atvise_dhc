@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the button_switch_language_combo object display
+ * --------------------------------------------------------
+ * This control switches the different languages that are defined in the system and displays
+ * the currently selected language or an individual text defined by a parameter value.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var languageText = webMI.query["languageText"];
+var strokePressed = webMI.query["strokePressed"];
+var isOldStyle = typeof webMI.query["borderColor"] == "undefined";
+var contextMenuStyle = { maxRows: 10, fontFamily: "Arial", fontSize: 12, fontFill: "#575757", width: 140, fill: "#ffffff", stroke: "#d7d7d7", strokeWidth: 1, hoverFill: "#e5e5e5", closeTime: 0, zIndex: 100, showType: "right"};
+var menuObj = {};
+var contextMenuParameters = {};
+
+/**
+ * RUNTIME SECTION
+ */
+
+menuObj["languagemenu"] = "languagemenu";
+
+contextMenuParameters = {
+	"id": "button_clickarea",
+	menuObj: menuObj,
+	"outputNode": null,
+	"x": 0,
+	"y": 30,
+	minWidth: 160,
+	onEvent: "click"
+};
+
+if (!isOldStyle) contextMenuParameters.style = contextMenuStyle;
+
+webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open Context Menu", contextMenuParameters);
+
+/**
+ * FUNCTION SECTION
+ */
+
+function setButton(active) {
+	webMI.gfx.setFill("button_stroke",(active) ? "url(#linear_2)" : "url(#linear_1)");
+	if (isOldStyle) {
+		webMI.gfx.setStroke("button_stroke",(active) ? strokePressed : "none");
+		webMI.gfx.setStrokeWidth("button_stroke",(active) ? "1" : "0");
+	}
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent("button_clickarea", "mousedown", function(e) {
+	setButton(true);
+});
+
+webMI.addEvent("button_clickarea", ["mouseup","mouseout"], function(e) {
+	setButton(false);
+});
+
+webMI.addEvent("button_clickarea", "dragstart", function(e) {
+	if (e.preventDefault)
+		e.preventDefault();
+});
+
+/**
+ * TRIGGER SECTION
+ */
+
+if (languageText == "" || languageText == undefined) {
+	webMI.trigger.fire("com.atvise.languages", function(languages) {
+		webMI.gfx.setText("language_label", languages["T{}"]);
+	});
+}
+]]></code>
+</script>

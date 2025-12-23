@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="connectivity" type="interval" trigger="true" relative="false" value="" offset="00:00:00" interval="00:01:00"/>
+  <code><![CDATA[// Obtenemos los nodos base
+var connectivity = Ua.findNode(base + ".connectivity");
+var connect = Ua.findNode(base + ".connect");
+var ip = Ua.findNode(base + ".ip");
+var com = Ua.findNode(base + ".com");
+
+// Si el método de conexión es GPRS, usamos el valor del nodo gprsConnect
+if (ip && ip.result && ip.result.value == "GPRS") {
+    var gprs = Ua.findNode(base + ".gprsConnect");
+    var ok = (gprs && gprs.result && gprs.result.status == 0); // status OK
+
+    if (!ok) {
+        // Status malo o nodo incompleto → conectividad forzada a false
+        connect.result.value = false;
+    } else {
+        // Status OK → ahora sí depende del valor (1 = true)
+        connect.result.value = (gprs.result.value == 1);
+    }
+
+    // Mantengo tu comportamiento original: reflejar en connectivity
+    if (connectivity && connectivity.result) {
+        connectivity.result.value = connect.result.value;
+    }
+} else {
+    // --- TU LÓGICA ACTUAL PARA NO-GPRS (déjala igual) ---
+    if (connectivity.result != undefined) {
+        if (connectivity.result.status != 0) {
+            connect.result.value = false;
+        } else {
+            if (connectivity.result.value == 0) {
+                connect.result.value = false;
+            } else {
+                connect.result.value = true;
+            }
+        }
+    }
+}
+
+
+// Finalmente, se iguala el resultado en com al de connect.
+com.result.value = connect.result.value;]]></code>
+</script>

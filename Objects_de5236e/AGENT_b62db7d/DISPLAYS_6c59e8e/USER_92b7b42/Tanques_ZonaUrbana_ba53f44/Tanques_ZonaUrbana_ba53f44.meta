@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Tanques_ZonaUrbana
+NodeClass: Variable
+BrowseName: 1:Tanques_ZonaUrbana
+DisplayName: en|Tanques_ZonaUrbana
+Description: en|Tanques_ZonaUrbana
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

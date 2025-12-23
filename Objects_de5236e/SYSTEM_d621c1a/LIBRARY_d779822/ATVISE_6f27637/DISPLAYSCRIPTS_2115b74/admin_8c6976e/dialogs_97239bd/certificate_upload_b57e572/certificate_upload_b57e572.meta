@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.admin.dialogs.certificate_upload
+NodeClass: Variable
+BrowseName: 1:certificate_upload
+DisplayName: en|certificate_upload
+Description: en|certificate_upload
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

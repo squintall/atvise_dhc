@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the message board object display
+ * ----------------------------------------
+ * This script supports the display handling definable dialog sfor messages, informations or warnings,
+ * which can be called up via the openWindow function, for example.
+ * Freely selectable texts can be used in the header and for the buttons.
+ * Messages can be transmitted to the display via triggers.
+ */
+
+
+/**
+ * PORTAL SETUP
+ */
+webMI.gfx.setText(document.getElementById("button1_button_label"), webMI.query["btn1"]);
+webMI.gfx.setText(document.getElementById("button2_button_label"), webMI.query["btn2"]);
+webMI.gfx.setFill(document.getElementById("headline"), webMI.query["fontColor"]);
+webMI.gfx.setFill(document.getElementById("button1_button_label"), webMI.query["buttonFontColor"]);
+webMI.gfx.setFill(document.getElementById("button2_button_label"), webMI.query["buttonFontColor"]);
+
+
+/**
+ * RUNTIME SECTION
+ */
+webMI.libraryLoader.jQuery(function () {
+
+	var boardID = document.getElementById("table_message_board").getAttribute("id");
+	var boardContent = document.getElementById("table_message_content").getAttribute("id");
+
+	var styling = {
+		"font-family": webMI.query["fontFamily"],
+		"font-size": webMI.query["fontSize"],
+		"color": webMI.query["fontColor"],
+	}
+
+	webMI.rootWindow.jQuery("#" + boardID).css(styling);
+	webMI.rootWindow.jQuery("#" + boardContent).css(styling);
+	webMI.rootWindow.jQuery("#" + boardContent).html("")
+
+	webMI.trigger.connect("com.atvise.message_board_update", function (e) {
+		var content = "";
+		for (var key in e.value) {
+			content += e.value[key] + "<br>";
+		}
+		webMI.rootWindow.jQuery("#" + boardContent).html(content);
+	});
+
+	webMI.trigger.connect("com.atvise.message_board_reset", function (e) {
+		var content = "";
+		webMI.rootWindow.jQuery("#" + boardContent).html(content)
+	});
+
+	webMI.trigger.connect("clicked", function (e) {
+		if (typeof webMI.query.action_btn1 == "undefined" || webMI.query.action_btn1 == "")
+			webMI.display.closeWindow();
+		else
+			webMI.trigger.fire(webMI.query.action_btn1, this);
+	}, "button1");
+
+	webMI.trigger.connect("clicked", function (e) {
+		if (typeof webMI.query.action_btn2 == "undefined" || webMI.query.action_btn2 == "")
+			webMI.display.closeWindow();
+		else
+			webMI.trigger.fire(webMI.query.action_btn2, this);
+	}, "button2");
+
+	webMI.addOnunload(
+		function () {
+			if (typeof webMI.query.action_unload == "undefined" || webMI.query.action_unload == "") {
+			} else {
+				webMI.trigger.fire(webMI.query.action_unload, this);
+			}
+		}
+	);
+
+	webMI.trigger.fire("com.atvise.message_board_loaded", this);
+
+});
+
+]]></code>
+</script>

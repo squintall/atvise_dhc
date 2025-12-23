@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.PTAR_Sur.Equipos.Pac´s.CCM_C.Potencia_Activa_Historico
+NodeClass: Variable
+BrowseName: 1:Potencia_Activa_Historico
+DisplayName: en|Potencia_Activa_Historico
+Description: en|Potencia_Activa_Historico
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AR

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/slickgrid/library/lib/jquery-2.2.4.js
+NodeClass: Variable
+BrowseName: 1:jquery-2.2.4.js
+DisplayName: en|jquery-2.2.4.js
+Description: en|jquery-2.2.4.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

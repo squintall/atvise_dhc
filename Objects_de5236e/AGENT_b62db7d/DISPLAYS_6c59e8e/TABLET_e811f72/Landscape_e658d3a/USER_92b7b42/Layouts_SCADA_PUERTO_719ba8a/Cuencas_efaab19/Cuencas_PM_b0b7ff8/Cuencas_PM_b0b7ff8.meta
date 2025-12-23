@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Landscape.USER.Layouts_SCADA_PUERTO.Cuencas.Cuencas_PM
+NodeClass: Variable
+BrowseName: 1:Cuencas_PM
+DisplayName: en|Cuencas_PM
+Description: en|Cuencas_PM
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

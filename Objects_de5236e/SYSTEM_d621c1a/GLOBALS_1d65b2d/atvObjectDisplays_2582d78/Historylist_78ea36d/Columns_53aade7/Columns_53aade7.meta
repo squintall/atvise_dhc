@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvObjectDisplays.Historylist.Columns
+NodeClass: Variable
+BrowseName: 1:Columns
+DisplayName: en|Columns
+Description: en|Columns
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

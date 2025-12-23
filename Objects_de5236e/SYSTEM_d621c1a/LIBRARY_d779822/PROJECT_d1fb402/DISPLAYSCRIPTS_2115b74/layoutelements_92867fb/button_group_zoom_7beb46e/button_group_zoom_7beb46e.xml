@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element button group zoom object display
+ * ----------------------------------------
+ * This script supports the display evaluating the zoom selection.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var frameName = webMI.query["targetFrame"];
+var touchDevice = webMI.getClientInfo() ? webMI.getClientInfo().isMultiTouchDevice : false;
+var strokeNormal = "none";
+var strokePressed = webMI.query["strokePressed"];
+
+/**
+ * RUNTIME SECTION
+ */
+if (!touchDevice) {
+	registerEventsForClickarea3();
+} else {
+	webMI.gfx.setFill("button_3_bg", webMI.query["fillColorInactive"]);
+}
+
+/**
+ * FUNCTION SECTION
+ */
+function registerEventsForClickarea3() {
+
+	webMI.addEvent("clickarea_3", ["mousedown", "touchstart"], function (e) {
+		var id = "clickarea_3";
+		var value = true;
+		return function (value) {
+			webMI.gfx.setFill("button_3_bg", webMI.query["fillColorMouseDown"]);
+			webMI.gfx.setFill("symbol_3_id_1", webMI.query["symbolColorMouseDown"]);
+			webMI.gfx.setFill("symbol_3_id_2", webMI.query["symbolColorMouseDown"]);
+			webMI.gfx.setFill("symbol_3_id_3", webMI.query["symbolColorMouseDown"]);
+			webMI.gfx.setFill("symbol_3_id_4", webMI.query["symbolColorMouseDown"]);
+			webMI.gfx.setStroke("symbol_3_id_6", webMI.query["symbolColorMouseDown"]);
+			webMI.gfx.setFill("symbol_3_id_7", webMI.query["symbolColorMouseDown"]);
+		}(value);
+	});
+
+	webMI.addEvent("clickarea_3", "click", function (e) {
+		var id = "clickarea_3";
+		var value = true;
+		return function (value) {
+			webMI.trigger.fire("com.atvise.zoomRect_" + frameName, true);
+		}(value);
+	});
+
+	webMI.trigger.connect("com.atvise.zoomRect_" + frameName + "_Up", function (e) {
+		webMI.gfx.setFill("button_3_bg", webMI.query["fillColor"]);
+		webMI.gfx.setFill("symbol_3_id_1", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_3_id_2", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_3_id_3", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_3_id_4", webMI.query["symbolColor"]);
+		webMI.gfx.setStroke("symbol_3_id_6", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_3_id_7", webMI.query["symbolColor"]);
+	});
+
+}
+
+
+/**
+ * EVENT SECTION
+ */
+webMI.addEvent("clickarea_1", ["mousedown", "touchstart"], function (e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function (value) {
+		webMI.gfx.setFill("button_1_bg", webMI.query["fillColorMouseDown"]);
+		webMI.gfx.setFill("symbol_1_id_1", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setStroke("symbol_1_id_6", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setFill("symbol_1_id_7", webMI.query["symbolColorMouseDown"]);
+	}(value);
+});
+
+webMI.addEvent("clickarea_1", ["mouseup", "touchend"], function (e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function (value) {
+		webMI.gfx.setFill("button_1_bg", webMI.query["fillColor"]);
+		webMI.gfx.setFill("symbol_1_id_1", webMI.query["symbolColor"]);
+		webMI.gfx.setStroke("symbol_1_id_6", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_1_id_7", webMI.query["symbolColor"]);
+	}(value);
+});
+
+webMI.addEvent("clickarea_1", "mouseout", function (e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function (value) {
+		webMI.gfx.setFill("button_1_bg", webMI.query["fillColor"]);
+		webMI.gfx.setFill("symbol_1_id_1", webMI.query["symbolColor"]);
+		webMI.gfx.setStroke("symbol_1_id_6", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_1_id_7", webMI.query["symbolColor"]);
+	}(value);
+});
+
+webMI.addEvent("clickarea_1", "click", function (e) {
+	var id = "clickarea_1";
+	var value = true;
+	return function (value) {
+		webMI.trigger.fire("com.atvise.zoomIn_" + frameName, true);
+	}(value);
+});
+
+webMI.addEvent("clickarea_2", ["mousedown", "touchstart"], function (e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function (value) {
+		webMI.gfx.setFill("button_2_bg", webMI.query["fillColorMouseDown"]);
+		webMI.gfx.setFill("symbol_2_id_1", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setStroke("symbol_2_id_6", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setFill("symbol_2_id_7", webMI.query["symbolColorMouseDown"]);
+	}(value);
+});
+
+webMI.addEvent("clickarea_2", ["mouseup", "touchend"], function (e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function (value) {
+		webMI.gfx.setFill("button_2_bg", webMI.query["fillColor"]);
+		webMI.gfx.setFill("symbol_2_id_1", webMI.query["symbolColor"]);
+		webMI.gfx.setStroke("symbol_2_id_6", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_2_id_7", webMI.query["symbolColor"]);
+	}(value);
+});
+
+webMI.addEvent("clickarea_2", "mouseout", function (e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function (value) {
+		webMI.gfx.setFill("button_2_bg", webMI.query["fillColor"]);
+		webMI.gfx.setFill("symbol_2_id_1", webMI.query["symbolColor"]);
+		webMI.gfx.setStroke("symbol_2_id_6", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_2_id_7", webMI.query["symbolColor"]);
+	}(value);
+});
+
+webMI.addEvent("clickarea_2", "click", function (e) {
+	var id = "clickarea_2";
+	var value = true;
+	return function (value) {
+		webMI.trigger.fire("com.atvise.zoomOut_" + frameName, true);
+	}(value);
+});
+
+webMI.addEvent("clickarea_4", ["mousedown", "touchstart"], function (e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function (value) {
+		webMI.gfx.setFill("button_4_bg", webMI.query["fillColorMouseDown"]);
+		webMI.gfx.setFill("symbol_4_id_1", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setFill("symbol_4_id_2", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setFill("symbol_4_id_3", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setStroke("symbol_4_id_6", webMI.query["symbolColorMouseDown"]);
+		webMI.gfx.setFill("symbol_4_id_7", webMI.query["symbolColorMouseDown"]);
+	}(value);
+});
+
+webMI.addEvent("clickarea_4", ["mouseup", "touchend"], function (e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function (value) {
+		webMI.gfx.setFill("button_4_bg", webMI.query["fillColor"]);
+		webMI.gfx.setFill("symbol_4_id_1", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_4_id_2", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_4_id_3", webMI.query["symbolColor"]);
+		webMI.gfx.setStroke("symbol_4_id_6", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_4_id_7", webMI.query["symbolColor"]);
+	}(value);
+});
+
+webMI.addEvent("clickarea_4", "mouseout", function (e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function (value) {
+		webMI.gfx.setFill("button_4_bg", webMI.query["fillColor"]);
+		webMI.gfx.setFill("symbol_4_id_1", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_4_id_2", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_4_id_3", webMI.query["symbolColor"]);
+		webMI.gfx.setStroke("symbol_4_id_6", webMI.query["symbolColor"]);
+		webMI.gfx.setFill("symbol_4_id_7", webMI.query["symbolColor"]);
+	}(value);
+});
+
+webMI.addEvent("clickarea_4", "click", function (e) {
+	var id = "clickarea_4";
+	var value = true;
+	return function (value) {
+		webMI.trigger.fire("com.atvise.zoom11_" + frameName, true);
+	}(value);
+});
+
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect("setFrame", function (e) {
+	myFrame = e.value;
+});]]></code>
+</script>

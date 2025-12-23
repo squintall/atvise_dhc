@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.Combo_Periodicidad
+NodeClass: Variable
+BrowseName: 1:Combo_Periodicidad
+DisplayName: en|Combo_Periodicidad
+Description: en|Combo_Periodicidad
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

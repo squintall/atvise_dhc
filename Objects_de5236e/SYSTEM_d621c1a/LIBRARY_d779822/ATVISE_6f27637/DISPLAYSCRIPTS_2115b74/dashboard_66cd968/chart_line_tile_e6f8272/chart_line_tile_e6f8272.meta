@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.dashboard.chart_line_tile
+NodeClass: Variable
+BrowseName: 1:chart_line_tile
+DisplayName: en|chart_line_tile
+Description: en|chart_line_tile
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.00_Menu_Monitoreo_TI
+NodeClass: Variable
+BrowseName: 1:00_Menu_Monitoreo_TI
+DisplayName: en|00_Menu_Monitoreo_TI
+Description: en|00_Menu_Monitoreo_TI
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

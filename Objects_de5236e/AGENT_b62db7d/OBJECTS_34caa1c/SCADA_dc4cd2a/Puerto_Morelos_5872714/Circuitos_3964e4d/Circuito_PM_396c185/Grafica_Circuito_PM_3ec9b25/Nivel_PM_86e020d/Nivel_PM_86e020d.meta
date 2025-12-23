@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Grafica_Circuito_PM.Nivel_PM
+NodeClass: Variable
+BrowseName: 1:Nivel_PM
+DisplayName: en|Nivel_PM
+Description: en|Nivel_PM
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

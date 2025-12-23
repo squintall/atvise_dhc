@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.Info_basica
+NodeClass: Variable
+BrowseName: 1:Info_basica
+DisplayName: en|Info_basica
+Description: en|Info_basica
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.HISTORY.AGGREGATETEMPLATES.Produccion_M3.Produccion_Mensual
+NodeClass: Object
+BrowseName: 1:Produccion_Mensual
+DisplayName: en|Produccion_Mensual
+Description: en|Produccion_Mensual
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AggregateFunction
+Reference: forward HasComponent i=2359

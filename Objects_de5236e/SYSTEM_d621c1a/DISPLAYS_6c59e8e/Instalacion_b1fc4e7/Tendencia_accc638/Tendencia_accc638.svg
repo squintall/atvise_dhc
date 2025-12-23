@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="555" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <g atv:insensitive="true" atv:refpx="0" atv:refpy="0" id="id_6">
+  <rect atv:refpx="960" atv:refpy="277.5" fill="#ffffff" height="555.00" id="id_8" width="1920.00" x="0" y="0"/>
+ </g>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+webMI.addEvent("id_2", "click", function(e) {
+var id = "id_2";
+var value = true;
+webMI.display.openDisplay("SYSTEM.DISPLAYS.Instalacion.Instalacion.Utils.Tendencia_Full_content", webMI.query, "content");
+});]]></script>
+ <svg atv:refpx="960.007" atv:refpy="255.447" height="400" id="id_1" transform="matrix(4.8,0,0,1.1272,0,0)" width="400" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.highcharts" y="26.613">
+  <atv:argument name="trendName" value="operacion"/>
+  <atv:argument name="series1series_address" prefix="base" value=".level_percent"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="hour(s)"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="24"/>
+  <atv:argument name="xAxisxAxis_tickInterval" value="7200000"/>
+  <atv:argument name="yAxis1yAxis_id" value="level"/>
+  <atv:argument name="yAxis1yAxis_title_text" value="Nivel"/>
+  <atv:argument name="yAxis1yAxis_min" value="0"/>
+  <atv:argument name="series1series_tooltip_valueSuffix" value="%"/>
+  <atv:argument name="series1series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series1series_color" value="#00cfca"/>
+  <atv:argument name="series1series_name" value="T{Nivel de tanque}"/>
+  <atv:argument name="series1series_lineWidth" value="4"/>
+  <atv:argument name="gatviseOptions_configNode" prefix="base" value=".confGrafico"/>
+  <atv:argument name="yAxis1yAxis_crosshair_width" value="3"/>
+  <atv:argument name="yAxis1yAxis_crosshair_color" value="#00cfca"/>
+  <atv:argument name="xAxisxAxis_crosshair_width" value="1"/>
+  <atv:argument name="xAxisxAxis_crosshair_color" value="#000000"/>
+  <atv:argument name="xAxisxAxis_crosshair" value="true"/>
+  <atv:argument name="xAxisxAxis_labels_align" value="center"/>
+  <atv:argument name="series2series_address" prefix="base" value=".connect"/>
+  <atv:argument name="yAxis2yAxis_id" value="com"/>
+  <atv:argument name="yAxis2yAxis_title_text" value="Conectividad"/>
+  <atv:argument name="yAxis2yAxis_min" value="-1"/>
+  <atv:argument name="series1series_yAxis" value="level"/>
+  <atv:argument name="series2series_name" value="T{Conectividad}"/>
+  <atv:argument name="series2series_lineWidth" value="4"/>
+  <atv:argument name="series2series_yAxis" value="com"/>
+  <atv:argument name="yAxis3yAxis_id" value="cau"/>
+  <atv:argument name="yAxis3yAxis_title_text" value="Caudal"/>
+  <atv:argument name="yAxis3yAxis_min" value="0"/>
+  <atv:argument name="yAxis4yAxis_min" value="0"/>
+  <atv:argument name="yAxis4yAxis_title_text" value="Presión"/>
+  <atv:argument name="yAxis4yAxis_id" value="pres"/>
+  <atv:argument name="series2series_color" value="#1a9612"/>
+  <atv:argument name="yAxis1yAxis_max" value="100"/>
+  <atv:argument name="series3series_lineWidth" value="4"/>
+  <atv:argument name="series3series_color" value="#0a489a"/>
+  <atv:argument name="series3series_address" prefix="base" value=".Equipos.Caudalimetro.L1.current_flow"/>
+  <atv:argument name="series3series_name" value="T{Caudal L1}"/>
+  <atv:argument name="yAxis1yAxis_title_style_color" value="#00cfca"/>
+  <atv:argument name="yAxis1yAxis_labels_style_color" value="#00cfca"/>
+  <atv:argument name="yAxis1yAxis_lineColor" value="#00cfca"/>
+  <atv:argument name="yAxis1yAxis_crosshair_dashStyle" value="ShortDash"/>
+  <atv:argument name="yAxis1yAxis_lineWidth" value="3"/>
+  <atv:argument name="yAxis2yAxis_max" value="7"/>
+  <atv:argument name="yAxis2yAxis_lineColor" value="#1a9612"/>
+  <atv:argument name="yAxis2yAxis_labels_style_color" value="#1a9612"/>
+  <atv:argument name="yAxis2yAxis_crosshair_color" value="#1a9612"/>
+  <atv:argument name="yAxis2yAxis_crosshair_dashStyle" value="Dash"/>
+  <atv:argument name="yAxis2yAxis_title_style_color" value="#1a9612"/>
+  <atv:argument name="series3series_yAxis" value="cau"/>
+  <atv:argument name="series3series_interpolation" value="spline"/>
+  <atv:argument name="yAxis2yAxis_lineWidth" value="3"/>
+  <atv:argument name="yAxis4yAxis_lineWidth" value="3"/>
+  <atv:argument name="yAxis3yAxis_lineWidth" value="3"/>
+  <atv:argument name="yAxis3yAxis_lineColor" value="#0a489a"/>
+  <atv:argument name="yAxis3yAxis_title_style_color" value="#0a489a"/>
+  <atv:argument name="yAxis3yAxis_labels_style_color" value="#0a489a"/>
+  <atv:argument name="yAxis4yAxis_title_style_color" value="#6b079d"/>
+  <atv:argument name="yAxis4yAxis_lineColor" value="#6b079d"/>
+  <atv:argument name="yAxis4yAxis_labels_style_color" value="#6b079d"/>
+  <atv:argument name="yAxis4yAxis_crosshair_color" value="#6b079d"/>
+  <atv:argument name="yAxis3yAxis_crosshair_color" value="#0a489a"/>
+  <atv:argument name="series4series_color" value="#6b079d"/>
+  <atv:argument name="series4series_address" prefix="base" value=".Equipos.Caudalimetro.L1.current_pressure"/>
+  <atv:argument name="series4series_name" value="T{Presión L1}"/>
+  <atv:argument name="series4series_lineWidth" value="4"/>
+  <atv:argument name="series4series_tooltip_valueSuffix" value="kg/cm2"/>
+  <atv:argument name="series4series_yAxis" value="pres"/>
+  <atv:argument name="series4series_tooltip_valueDecimals" value="1"/>
+  <atv:argument name="gatviseOptions_enableCursor1" value="true"/>
+  <atv:argument name="gatviseOptions_enableCursor2" value="true"/>
+  <atv:argument name="series5series_color" value="#6b079d"/>
+  <atv:argument name="series5series_lineWidth" value="4"/>
+  <atv:argument name="series5series_marker_enabled" value="false"/>
+  <atv:argument name="series4series_marker_enabled" value="false"/>
+  <atv:argument name="series3series_marker_enabled" value="false"/>
+  <atv:argument name="series2series_marker_enabled" value="false"/>
+  <atv:argument name="series1series_marker_enabled" value="false"/>
+  <atv:argument name="xAxisxAxis_crosshair_dashStyle" value="Dash"/>
+  <atv:argument name="series1series_nonStop" value="false"/>
+  <atv:argument name="series2series_nonStop" value="false"/>
+  <atv:argument name="series3series_nonStop" value="false"/>
+  <atv:argument name="series4series_nonStop" value="false"/>
+  <atv:argument name="series5series_nonStop" value="false"/>
+  <atv:argument name="additionalModules" value="highcharts/atviseModules/downsample.js"/>
+  <atv:argument name="performance_points_threshold" value="250000"/>
+  <atv:argument name="gatviseOptions_configName" value="monitoreo"/>
+  <atv:argument name="series2series_interpolation" value="step"/>
+  <atv:argument name="series3series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series3series_tooltip_valueSuffix" value="l/s"/>
+  <atv:argument name="series2series_dashStyle" value="ShortDash"/>
+  <atv:argument name="yAxis2yAxis_tickInterval" value=".5"/>
+  <atv:overwrite id="highchart_label" transform="matrix(0.2083,0,0,0.8871,0,0)" x="789.5" y="236.447"/>
+  <atv:overwrite height="448.894" id="border" transform="matrix(0.2083,0,0,0.8871,0,0)" width="1918"/>
+  <atv:overwrite height="450.894" id="id_3" transform="matrix(0.2083,0,0,0.8871,0,0)" width="1920"/>
+ </svg>
+ <svg atv:refpx="40" atv:refpy="9" height="30" id="id_7" width="80" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_back" y="0">
+  <atv:argument name="chartname" value="operacion"/>
+ </svg>
+ <svg atv:refpx="120" atv:refpy="9" height="30" id="id_9" width="80" x="80" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_forward" y="0">
+  <atv:argument name="chartname" value="operacion"/>
+ </svg>
+ <svg atv:refpx="410" atv:refpy="9" height="30" id="id_10" width="460" x="180" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.buttons_start_end_time" y="0">
+  <atv:argument name="chartname" value="operacion"/>
+ </svg>
+ <svg atv:refpx="780" atv:refpy="9" height="30" id="id_4" width="260" x="650" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_config" y="0">
+  <atv:argument name="chartname" value="operacion"/>
+ </svg>
+ <svg atv:refpx="990.5" atv:refpy="15" height="30" id="id_0" width="141" x="920" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.toolbar" y="0">
+  <atv:argument name="chartname" value="operacion"/>
+  <atv:argument name="startAddress" value="AGENT.OBJECTS.SCADA"/>
+ </svg>
+ <svg atv:refpx="1821.469" atv:refpy="15" height="30" id="id_2" transform="matrix(2.4633,0,0,1,0,0)" width="80" x="699.434" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="0">
+  <atv:argument name="label" value="T{Pantalla completa}"/>
+  <atv:argument name="fontSize" value="18"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:argument name="fontWeight2" value="bold"/>
+  <atv:overwrite id="id_6" transform="matrix(0.406,0,0,1,0,0)" width="195.066"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.406,0,0,1,0,0)" x="98.533"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.406,0,0,1,0,0)" x="99.033"/>
+  <atv:overwrite id="button_label" transform="matrix(0.406,0,0,1,0,0)" x="99.033"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.2436,0,0,0.6,0,0)" x="154.055"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.2436,0,0,0.6,0,0)" x="154.055"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.406,0,0,1,0,0)" x="88.533"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.406,0,0,1,0,0)" width="193.066"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.406,0,0,1,0,0)" width="195.066"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.406,0,0,1,0,0)" width="197.066"/>
+ </svg>
+ <svg atv:refpx="960.065" atv:refpy="517.199" height="160" id="id_5" transform="matrix(1.499,0,0,0.4688,0,0)" width="1280" x="0.473" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.legend" y="1023.357">
+  <atv:argument name="_trendName" value="operacion"/>
+  <atv:overwrite id="preview" transform="matrix(0.6671,0,0,2.1333,0,0)" x="898.855" y="45"/>
+ </svg>
+</svg>

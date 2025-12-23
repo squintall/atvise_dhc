@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Alarmas.alarmlist_log_IM_Lineas
+NodeClass: Variable
+BrowseName: 1:alarmlist_log_IM_Lineas
+DisplayName: en|alarmlist_log_IM_Lineas
+Description: en|alarmlist_log_IM_Lineas
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

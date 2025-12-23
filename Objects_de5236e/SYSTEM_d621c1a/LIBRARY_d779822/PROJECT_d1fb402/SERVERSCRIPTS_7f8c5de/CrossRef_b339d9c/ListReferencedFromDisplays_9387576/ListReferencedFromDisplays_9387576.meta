@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.SERVERSCRIPTS.CrossRef.ListReferencedFromDisplays
+NodeClass: Variable
+BrowseName: 1:ListReferencedFromDisplays
+DisplayName: en|ListReferencedFromDisplays
+Description: en|ListReferencedFromDisplays
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

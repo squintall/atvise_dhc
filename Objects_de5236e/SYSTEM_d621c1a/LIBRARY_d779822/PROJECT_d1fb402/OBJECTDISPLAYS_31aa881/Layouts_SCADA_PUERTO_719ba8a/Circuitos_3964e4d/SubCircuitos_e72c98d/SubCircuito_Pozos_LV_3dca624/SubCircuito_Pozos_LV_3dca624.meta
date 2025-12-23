@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PUERTO.Circuitos.SubCircuitos.SubCircuito_Pozos_LV
+NodeClass: Variable
+BrowseName: 1:SubCircuito_Pozos_LV
+DisplayName: en|SubCircuito_Pozos_LV
+Description: en|SubCircuito_Pozos_LV
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

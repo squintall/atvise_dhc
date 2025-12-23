@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Solidaridad.102.PtoMaya_III_M6.CzPtoMaya_ParqLolBeh
+NodeClass: Object
+BrowseName: 1:102.PtoMaya_III_M6.CzPtoMaya_ParqLolBeh
+DisplayName: en|102.PtoMaya_III_M6.CzPtoMaya_ParqLolBeh
+Description: en|102.PtoMaya_III_M6.CzPtoMaya_ParqLolBeh
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.presion_min_max

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_GuadalupanaGrafica_EficienciaEnegetica
+NodeClass: Variable
+BrowseName: 1:Carcamo_GuadalupanaGrafica_EficienciaEnegetica
+DisplayName: en|Carcamo_GuadalupanaGrafica_EficienciaEnegetica
+Description: en|Carcamo_GuadalupanaGrafica_EficienciaEnegetica
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

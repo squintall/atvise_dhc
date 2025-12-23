@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Steelblue.hmi.alarmlist
+NodeClass: Variable
+BrowseName: 1:alarmlist
+DisplayName: en|alarmlist
+Description: en|alarmlist
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

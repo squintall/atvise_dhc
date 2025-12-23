@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Carcamo AP.Nivel
+NodeClass: Variable
+BrowseName: 1:Nivel
+DisplayName: en|Nivel
+Description: en|Nivel
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

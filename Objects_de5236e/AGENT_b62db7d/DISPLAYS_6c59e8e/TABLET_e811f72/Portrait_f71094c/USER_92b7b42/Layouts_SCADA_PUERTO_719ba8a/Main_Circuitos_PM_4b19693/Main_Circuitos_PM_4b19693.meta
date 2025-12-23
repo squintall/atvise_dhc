@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.USER.Layouts_SCADA_PUERTO.Main_Circuitos_PM
+NodeClass: Variable
+BrowseName: 1:Main_Circuitos_PM
+DisplayName: en|Main_Circuitos_PM
+Description: en|Main_Circuitos_PM
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

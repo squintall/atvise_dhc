@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.ALARMING.Groups.Scrubber.Scrubber_activo.Sensor_activo
+NodeClass: Object
+BrowseName: 1:Sensor_activo
+DisplayName: en|Sensor_activo
+Description: en|Sensor_activo
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConditionControl.Sum
+Reference: forward HasComponent ns=1;s=AGENT.ALARMING.Categories.Warning

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.INFORMATION.DIAGNOSTICS.DirectoryMonitoringConfig.backup.exceeded_warning
+NodeClass: Variable
+BrowseName: 1:exceeded_warning
+DisplayName: en|exceeded_warning
+Description: en|exceeded_warning
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType

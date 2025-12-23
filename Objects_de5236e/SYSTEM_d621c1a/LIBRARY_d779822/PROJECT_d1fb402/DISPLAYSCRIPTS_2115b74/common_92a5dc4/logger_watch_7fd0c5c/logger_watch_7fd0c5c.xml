@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layout element button alarm log object display
+ * ----------------------------------------
+ * This script supports the display showing the logger.
+ */
+
+var accessControlManager;
+if (webMI.getAccessControlSupport()) {
+	accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+
+
+/**
+ * providing a simple uglify function with no encyrption
+ * use uglify.do to uglify a string
+ * use uglify.undo to prettify a string
+ */
+var uglify = new function () {
+	for (var n = {}, r = 0; r < 16; r++) n[t(r)] = String.fromCharCode(r + 65) + (r + 81 < 91 ? String.fromCharCode(r + 81) : r - 9);
+
+	function t(n) {
+		for (var r = (n >>> 0).toString(2); r.length < 4;) r = "0" + r;
+		return r
+	}
+
+	this.do = function (r) {
+		var t = r.split("").map(function (n) {
+			var r = n.charCodeAt(0).toString(2);
+			return 6 == r.length && (r = "0" + r), 7 == r.length && (r = "0" + r), r
+		}).join("");
+		return t = (t = t.match(/.{1,4}/g)).map(function (r) {
+			return n[r].charAt(Math.floor(Math.random() * n[r].length))
+		}).join("")
+	}, this.undo = function (r) {
+		var t = r.match(/.{1,1}/g);
+		return t = (t = (t = t.map(function (r) {
+			for (var t in n) if (n[t].indexOf(r) > -1) return t
+		}).join("")).match(/.{1,8}/g).join(" ")).split(" ").map(function (n) {
+			return String.fromCharCode(parseInt(n, 2))
+		}).join("")
+	}
+};
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+/* define some timeslots */
+var define = {
+	"hour": 1 * 60 * 60 * 1000,
+	"day": 24 * 60 * 60 * 1000,
+	"week": 7 * 60 * 60 * 1000,
+};
+
+/* error settings */
+var errorActive = false;
+var errorIndication = webMI.query["errorIndication"];
+var errorInterval = webMI.query["errorInterval"];
+var errorGroup = webMI.query["errorGroup"];
+var errorSubgroup = webMI.query["errorSubgroup"];
+var errorLabel = webMI.query["errorLabel"];
+var errorOffset = (typeof(webMI.query["errorOffset"]) === "undefined" || webMI.query["errorOffset"] == "") ? define.hour : webMI.query["errorOffset"] * 1000;
+var errorSmall = webMI.query["errorSmall"] == "true";
+var errorStrictly = webMI.query["errorStrictly"] == "true" ? true : false;
+
+var nodeStatus = "";
+var lockStatus = false;
+
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+if (webMI.query["buttonSize"] == "large") {
+	webMI.gfx.setVisible("button_logger_1", false);
+} else {
+	webMI.gfx.setVisible("button_logger_2", false);
+}
+
+var watchLogFilterID;
+var watchLogUpdateID;
+var watchNodeID;
+
+
+/**
+ * Check access and run watch script
+ * @type {*[]}
+ */
+var compareRights = [
+	{node: "AGENT.OBJECTS.ATVISE.Logger", right: "read"},
+	{node: "SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.LoggerBrowseLog", right: "execute"}
+];
+handleAccessControlResponse(compareRights, function () {
+	watchNodeID = watchNodeStatus();
+
+	/* unsubscribe at unload */
+	webMI.addOnunload(function () {
+		webMI.data.unsubscribe(watchNodeID);
+		webMI.data.unsubscribeFilter(watchLogFilterID);
+		webMI.data.unsubscribe(watchLogUpdateID);
+	});
+});
+
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * Watch for structural changes in node setup
+ * ! Wait for the log entry to be written after a new log node has been created !
+ * @returns {*}
+ */
+function watchNodeStatus() {
+	var watchID = webMI.data.subscribe(
+		"AGENT.OBJECTS.ATVISE.Status",
+		function (obj) {
+			if (!lockStatus && nodeStatus != obj.value) {
+				lockStatus = true;
+				setTimeout(function () {
+					lockStatus = false;
+					watchLog(true);
+				}, 1000);
+			}
+			nodeStatus = obj.value;
+		}
+	);
+
+	watchLog(false);
+
+	return watchID;
+}
+
+/**
+ * Watch current log entries and log updates
+ * @param recall true | false
+ */
+function watchLog(recall) {
+	recall = recall == true ? true : false;
+
+	if (recall) {
+		webMI.data.unsubscribeFilter(watchLogFilterID);
+		webMI.data.unsubscribe(watchLogUpdateID);
+	}
+
+	webMI.data.call("LoggerBrowseLog", {
+		group: errorGroup,
+		subgroup: errorSubgroup
+	}, function (result) {
+		var nodes = [];
+
+		for (var key in result) {
+			nodes.push("v:" + key);
+		}
+
+		if (nodes.length < 1) {
+			if (errorGroup != "" && errorGroup != "atvise")
+				console.warn("Logger: Log nodes for " + errorGroup + "" + (errorSubgroup ? "." + errorSubgroup + " " : " ") + "have not yet been initialized.");
+			return;
+		}
+
+		var date_to = (new Date()).getTime();
+		var date_from = date_to - errorOffset;
+
+		var subscribeFilter = {};
+		subscribeFilter.address = nodes;
+		subscribeFilter.init = ["v:false"];
+
+		var queryFilter = {};
+		queryFilter.address = nodes;
+		queryFilter.init = ["v:false"];
+		queryFilter.timestamp = ["n:>=" + date_from + "<" + date_to];
+
+		/**
+		 * reading current log nodes
+		 */
+		function readCurrentLog() {
+			webMI.data.queryFilter(
+				queryFilter,
+				function (h) {
+
+					var lastLog = {};
+					for (var key in h.result) {
+						var logObject;
+						try {
+							var obj = h.result[key];
+							logObject = JSON.parse(obj.value);
+							var events = logObject.event;
+
+							if (logObject.reference) {
+								if (lastLog[logObject.reference]) {
+									if (lastLog[logObject.reference].length < events.length)
+										lastLog[logObject.reference] = events;
+								} else {
+									lastLog[logObject.reference] = events;
+								}
+							}
+						} catch (ex) {
+							if (typeof(obj.value) != "undefined" && obj.value != "")
+								console.error("Logger: Could not parse log object (" + obj.value + ")!");
+						}
+					}
+
+					var isActiveLog = false;
+					for (var key in lastLog) {
+						var events = lastLog[key]
+						var event = events[events.length - 1];
+						if (event.status == "new") {
+							isActiveLog = true;
+							continue;
+						}
+					}
+					loggerFrameActive(isActiveLog);
+				}
+			);
+		}
+
+		/**
+		 * Observes changes of log nodes
+		 * Due to the limitation of historization, historical updates are not processed in this function
+		 * @returns {*}
+		 */
+		function watchLogEntries() {
+			/* subscribe updates */
+			var watchID = webMI.data.subscribeFilter(
+				subscribeFilter,
+				function (obj) {
+					try {
+						var logObject = JSON.parse(obj.value);
+
+						var validLabel = errorLabel == logObject.label || errorLabel == "";
+
+						if (validLabel && logObject.event.length == 1) {
+							loggerFrameActive(true);
+						}
+					} catch (exception) {
+						if (typeof(obj.value) != "undefined" && obj.value != "")
+							console.error("Logger: Could not parse log object (" + obj.value + ")!");
+					}
+				});
+			return watchID;
+		}
+
+		/**
+		 * Observes changes in historization of log nodes
+		 * Due to the limitation of historization, live updates are not processed in this function
+		 * @returns {*}
+		 */
+		function watchLogUpdates() {
+			var watchID = webMI.data.subscribe(
+				"AGENT.OBJECTS.ATVISE.Logger",
+				function (obj) {
+					if (obj.value && obj.value != "") {
+						var resultObj = {}
+						resultObj.value = uglify.undo(obj.value);
+
+						try {
+							var logObject = JSON.parse(resultObj.value);
+
+							var validGroup = errorGroup == logObject.group || errorGroup == "";
+							var validSubgroup = errorSubgroup == logObject.subgroup || errorSubgroup == "";
+							var validLabel = errorLabel == logObject.label || errorLabel == "";
+
+							if (validGroup && validSubgroup && validLabel) {
+								readCurrentLog();
+							}
+						} catch (exception) {
+							if (typeof(obj.value) != "undefined" && obj.value != "")
+								console.error("Logger: Could not parse log object (" + obj.value + ")!");
+						}
+					}
+				}
+			);
+			return watchID;
+		}
+
+		readCurrentLog();
+		watchLogFilterID = watchLogEntries();
+		watchLogUpdateID = watchLogUpdates();
+
+	});
+
+};
+
+
+/**
+ * handle access control responses (e.g. lock functions or ignore error)
+ * @param compareRights
+ * @param callback
+ */
+function handleAccessControlResponse(compareRights, callback) {
+	if (!accessControlManager) {
+		callback();
+		return;
+	}
+
+	var requiredRights = {
+		nodeIds: [
+			"AGENT.OBJECTS.ATVISE.Logger",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.LoggerBrowseLog"],
+		rights: [
+			"read",
+			"execute"
+		]
+	};
+
+	accessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, (response) => {
+		if (!Array.isArray(compareRights))
+			compareRights = [compareRights];
+
+		var allRights = [];
+
+		for (var c in compareRights) {
+			if (typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined") {
+				allRights.push(response[compareRights[c].node][compareRights[c].right]);
+			} else {
+				allRights.push(false);
+			}
+		}
+
+		if (!allRights.includes(false)) {
+			setActiveLayout();
+			callback();
+		} else {
+			setInactiveLayout();
+		}
+	});
+}
+
+]]></code>
+</script>

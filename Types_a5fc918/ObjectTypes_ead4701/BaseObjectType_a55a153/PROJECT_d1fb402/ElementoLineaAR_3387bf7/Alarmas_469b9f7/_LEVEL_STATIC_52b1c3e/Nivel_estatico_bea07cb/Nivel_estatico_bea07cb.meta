@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Alarmas._LEVEL_STATIC.Nivel_estatico
+NodeClass: Object
+BrowseName: 1:Nivel_estatico
+DisplayName: en|Nivel_estatico
+Description: en|Nivel_estatico
+EventNotifier: 0
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

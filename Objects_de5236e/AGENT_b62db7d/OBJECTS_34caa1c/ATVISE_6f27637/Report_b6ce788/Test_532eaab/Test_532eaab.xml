@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><script>
+<parameter name="reportTime" type="string" trigger="false" relative="false" value=""/>
+<code><![CDATA[
+/* Report Configuration *
+ *
+ * Call parameters:
+ * reportTime {number}	 : Data query time for the report generation (empty returns only configuration parameters).
+ *
+ * Configuration variables:
+ * active {bool}        : Enables or disables the configuration schedule.
+ * advanced {bool}      : Set 'true' if configuration contains special code and therefore should not be changed within the visualization.
+ * name {string}        : Configuration name.
+ * cycleTime {string}   : Cyclic execution based on cron style time declaration. Separate numbers with ','. 
+ * cycleOffset {number} : Report generation offset to ensure data availability: Number in minutes.
+ * locale {string}      : Optional localization string for the report format, e.g. 'de-DE', 'en-US'.
+ * template {string}    : Path with filename for the xlsx template file.
+ * xlsxReport {string}  : Path with filename for the xlsx result file.
+ * pdfReport {string}   : Path with filename for the pdf  result file.
+ * htmlReport {string}  : Path with filename for the html result file (currently unsupported).
+ * startWorksheet {nr.} : Worksheet for the start of the convertion.
+ * endWorksheet {nr.}   : Worksheet for the end   of the convertion.
+ * overwrite {bool}     : Option to overwrite existing report files.
+ * metaScript {string}  : Script to be called  when data type is 'meta'.
+ *
+ * Remark:
+ * Use absolute paths or start with './' for a relative path starting with the project directory (= server.database.directory).
+ * Report filenames can contain date placeholders: {YYYY} or {YY}, {MM}, {DD}, {hh}, {mm}, {ss}.
+ *
+ */
+
+
+var configuration = {
+	active			: true,
+	advanced		: false,
+	name			: "Test",
+	cycleTime		: {
+						"minutes": [], //0-59
+						"hours": [], //0-23
+						"daysOfMonth": [], //1-31
+						"months": [], //1-12
+						"daysOfWeek": [] //0-7 = Sunday is 0 or 7
+					  },
+	cycleOffset		: 0,
+	locale			: "es-ES",
+	template		: "/home/ubuntu/Report/EnergyReportTemplate.xlsx",
+	xlsxReport		: "/home/ubuntu/Report/Test_report_{YYYY}-{MM}-{DD}_{hh}-{mm}.xlsx",
+	pdfReport		: "/home/ubuntu/Report/Test_report_{YYYY}-{MM}-{DD}_{hh}-{mm}.pdf",
+	htmlReport		: "",
+	startWorksheet  : 0,
+	endWorksheet	: 0,
+	metaScript		: "SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.report.run_dialog",
+	overwrite		: true,
+	reportTime		: reportTime
+}
+
+
+//Do not change script from here
+if (reportTime != "")
+	return call("Report.GenerateReport", { configuration: configuration });
+else
+	return JSON.stringify(configuration);
+]]></code></script>

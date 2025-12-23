@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.require_login_webmi
+NodeClass: Variable
+BrowseName: 1:require_login_webmi
+DisplayName: en|require_login_webmi
+Description: en|require_login_webmi
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

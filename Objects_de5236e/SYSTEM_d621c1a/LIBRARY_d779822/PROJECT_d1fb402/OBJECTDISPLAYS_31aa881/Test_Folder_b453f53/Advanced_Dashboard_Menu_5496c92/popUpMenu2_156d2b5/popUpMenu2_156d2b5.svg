@@ -1,0 +1,419 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="280" version="1.2" width="445" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_0" x1="0.5" x2="0.5" y1="0" y2="1">
+   <stop offset="0" stop-color="#502dc2"/>
+   <stop offset="1" stop-color="#5166dc"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_1" x1="0.421875" x2="1.3125" y1="-0.15625" y2="1.54688">
+   <stop offset="0" stop-color="#5834cd"/>
+   <stop offset="1" stop-color="#302e3c" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_4" x1="0.421875" x2="1.3125" y1="-0.15625" y2="1.54688">
+   <stop offset="0" stop-color="#5834cd"/>
+   <stop offset="1" stop-color="#302e3c" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_5" x1="0.421875" x2="1.3125" y1="-0.15625" y2="1.54688">
+   <stop offset="0" stop-color="#5834cd"/>
+   <stop offset="1" stop-color="#302e3c" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_3" x1="0.5" x2="0.5" y1="0" y2="1">
+   <stop offset="0" stop-color="#502dc2"/>
+   <stop offset="1" stop-color="#5166dc"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_2" x1="0.421875" x2="1.3125" y1="-0.15625" y2="1.54688">
+   <stop offset="0" stop-color="#5834cd"/>
+   <stop offset="1" stop-color="#302e3c" stop-opacity="0"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <atv:parameter behavior="optional" defaultvalue="D1" desc="DashboardID" group="General Configuration" name="DashboardID" valuetype="string"/>
+  <atv:parameter behavior="optional" config="CustomRange;CurrentHour;LastHour;Last_8Hours;FirstShift;SecondShift;ThirdShift;Today;Last_7Days;Yesterday;CurrentWeek;LastWeek;Last_2Weeks;CurrentMonth;LastMonth;Last_6Months;CurrentYear" defaultvalue="CustomRange" desc="Initial Range Method" group="General Configuration" name="InitialRangeMethod" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="2" desc="Initial Range" group="General Configuration" name="InitialRange" valuetype="number"/>
+  <atv:parameter behavior="optional" config="s;min;h;day;month" defaultvalue="min" desc="Initial Range Unit" group="General Configuration" name="InitialRangeUnit" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="true" desc="Real Time Enabled" group="General Configuration" name="RealTimeEnabled" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="1000" desc="RealTime Update Time (ms)" group="General Configuration" name="RealTimeUpdateTime" valuetype="number"/>
+  <atv:parameter behavior="optional" config="true;false" defaultvalue="true" desc="Cache Enabled" group="Cache Configuration" name="CacheEnabled" valuetype="enum"/>
+  <atv:parameter behavior="optional" defaultvalue="0" desc="Cache Max Size" group="Cache Configuration" name="CacheMaxSize" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="0" desc="Cache Interval Size" group="Cache Configuration" name="CacheIntervalSize" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="false" desc="Custom Filter Active" group="Custom Filter" name="CustomFilterActive" valuetype="bool"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="Node Reference" group="Custom Filter" name="NodeReference" valuetype="string"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="Color Active" group="Appearance" name="ColorActive" substitute="$ColorActive$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="" desc="Color Inactive" group="Appearance" name="ColorInactive" substitute="$ColorInactive$" valuetype="color"/>
+  <atv:parameter behavior="optional" defaultvalue="12" desc="Font Size Menu" group="Appearance" name="FontSizeMenu" substitute="$FontSizeMenu$" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="10" desc="Font Size Date Pickers" group="Appearance" name="FontSizeDatePickers" valuetype="number"/>
+  <atv:parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.Color_Global_1" desc="Loading Background Color" group="Appearance" name="LBackgroundColor" valuetype="global"/>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="5" width="5"/>
+ </metadata>
+ <rect atv:refpx="222.5" atv:refpy="140" fill="$ColorInactive$" height="280" id="id_2" stroke="#f0f0f0" stroke-width="0" width="445" x="0" y="0"/>
+ <rect atv:refpx="113" atv:refpy="120.777" fill="url(#linear_1)" height="230" id="id_21" rx="0" ry="0" stroke="#676381" stroke-width="1" width="215" x="5.5" y="5.5"/>
+ <rect atv:refpx="333" atv:refpy="120.777" fill="url(#linear_1)" height="230" id="id_14" rx="0" ry="0" stroke="#676381" stroke-width="1" width="215" x="225.5" y="5.5"/>
+ <text atv:refpx="23.25" atv:refpy="-109.5" fill="#f0f0f0" font-family="Arial" font-size="14" id="id_5" x="19.5" y="55">T{From}</text>
+ <text atv:refpx="0.242" atv:refpy="-29.5" fill="#f0f0f0" font-family="Arial" font-size="14" id="id_16" x="19.5" y="135">T{To}</text>
+ <text atv:refpx="254.88" atv:refpy="-136.5" fill="#f0f0f0" font-family="Arial" font-size="14" id="id_18" x="239.5" y="28">T{Time range options}</text>
+ <text atv:refpx="33.791" atv:refpy="-136.5" fill="#f0f0f0" font-family="Arial" font-size="14" id="id_19" x="19.5" y="28">T{Select time range}</text>
+ <line atv:refpx="110.5" atv:refpy="36" id="id_22" stroke="#767193" stroke-width="1" x1="15.5" x2="205.5" y1="35.5" y2="35.5"/>
+ <line atv:refpx="330.5" atv:refpy="36" id="id_23" stroke="#767193" stroke-width="1" x1="235.5" x2="425.5" y1="35.5" y2="35.5"/>
+ <g atv:refpx="226.188" atv:refpy="276" id="Text_Confirm" transform="matrix(1,0,0,1,-5,-11.5)">
+  <rect atv:refpx="231.375" atv:refpy="270.5" fill="url(#linear_0)" height="30" id="id_3" rx="13.356" ry="13.356" stroke="#424242" stroke-width="2" width="160" x="151.375" y="255.5"/>
+  <text atv:refpx="229.441" atv:refpy="270" fill="#f0f0f0" font-family="Arial" font-size="16" id="id_9" x="171.875" y="276">T{Apply time range}</text>
+  <rect atv:refpx="230" atv:refpy="270" fill="#000000" fill-opacity="0" height="30" id="id_7" rx="13.356" ry="13.356" stroke="#424242" stroke-width="0" width="160" x="150" y="255"/>
+ </g>
+ <g atv:refpx="427" atv:refpy="19" id="close">
+  <rect atv:refpx="430" atv:refpy="19" fill="#171524" height="20" id="id_8" stroke="#767192" stroke-width="1" width="20" x="417" y="9"/>
+  <g atv:refpx="427" atv:refpy="19" id="id_13" transform="matrix(1,0,0,1,-0.5,0.5)">
+   <line atv:refpx="427.5" atv:refpy="18.5" id="id_10" stroke="#f0f0f0" stroke-width="2" x1="420" x2="435" y1="11" y2="26"/>
+   <line atv:refpx="422.5" atv:refpy="-17.5" id="id_11" stroke="#f0f0f0" stroke-width="2" x1="420" x2="435" y1="26" y2="11"/>
+  </g>
+ </g>
+ <svg atv:refpx="332.5" atv:refpy="80" height="30" id="Initial_Range_Method" transform="matrix(1.1563,0,0,1,0,0)" width="160" x="207.568" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.combobox" y="65">
+  <atv:argument name="fontSize" value="14"/>
+  <atv:argument name="fontColor" value="SYSTEM.GLOBALS.white"/>
+  <atv:argument name="valueFieldFill" prefix="ColorInactive" value=""/>
+  <atv:argument name="symbolColor" prefix="fontColorPopUp" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="fillColor" prefix="ColorInactive" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="borderColor" prefix="ColorInactive" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="focusStrokeColor" prefix="ColorInactive" value=""/>
+  <atv:argument name="context_menu_font_size" value="14"/>
+  <atv:argument name="itemsCount" value="6"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.8649,0,0,1,0,0)" width="181"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.8649,0,0,1,0,0)" x="160"/>
+  <atv:overwrite id="id_7" transform="matrix(0.8649,0,0,1,0,0)" x="160"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.8649,0,0,1,0,0)" x="160"/>
+  <atv:overwrite id="combobox_label" transform="matrix(0.8649,0,0,1,0,0)" x="150.5"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.8649,0,0,1,0,0)" width="153"/>
+  <atv:overwrite id="combobox_bg" transform="matrix(0.8649,0,0,1,0,0)" width="153"/>
+  <atv:overwrite id="id_1" transform="matrix(0.8649,0,0,1,0,0)" width="183"/>
+  <atv:overwrite id="id_0" transform="matrix(0.8649,0,0,1,0,0)" width="185"/>
+ </svg>
+ <svg atv:refpx="100" atv:refpy="80.5" height="31" id="id_12" width="160" x="20" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.popUpComponents.Picker%20DateTime" y="65">
+  <atv:argument name="name" prefix="DashboardID" value="Initial_Date"/>
+  <atv:argument name="fillColor" prefix="ColorInactive" value=""/>
+  <atv:argument name="backgroundColor" value="#ff0000"/>
+  <atv:argument name="fontSize" value="15"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6002,0,0,1,10.0771,0)" x="68.205"/>
+ </svg>
+ <svg atv:refpx="100" atv:refpy="162.5" height="31" id="id_15" width="160" x="20" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.popUpComponents.Picker%20DateTime" y="147">
+  <atv:argument name="name" prefix="DashboardID" value="Final_Date"/>
+  <atv:argument name="fillColor" prefix="ColorInactive" value=""/>
+  <atv:argument name="backgroundColor" value="#ff0000"/>
+  <atv:argument name="fontSize" value="15"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6002,0,0,1,10.0771,0)" x="68.205"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[// Variables globales
+let InitialTime = null;
+let FinalTime = null;
+let InitialRangeMethod =  0;
+let InitialRange = 0;
+let InitialRangeUnit = webMI.query["InitialRangeUnit"] || "h";
+let DashboardID = webMI.query["DashboardID"] || "default";
+let isUpdatingDatePicker = false;  // Variable de control para evitar bucles
+
+// Elementos UI
+const uIElements = {
+    Combobox: "Initial_Range_Method",
+    Text_Confirm: "Text_Confirm",
+    InitialDatePicker: "com.atvise.datepicker_" + DashboardID + "Initial_Date",
+    FinalDatePicker: "com.atvise.datepicker_" + DashboardID + "Final_Date",
+    Close: "close"
+};
+
+// Métodos disponibles en el combo
+// Cada objeto tiene: code, label, value
+const initialRangeMethods = [
+  //{ text: 'T{Custom Range}', value: 0 },
+  { text: 'T{Current Hour}', value: 1 },
+  { text: 'T{Last Hour}', value: 2 },
+  { text: 'T{Last 8 Hours}', value: 3 },
+  { text: 'T{First Shift}', value: 4 },
+  { text: 'T{Second Shift}', value: 5 },
+  { text: 'T{Third Shift}', value: 6 },
+  { text: 'T{Today}', value: 7 },
+  { text: 'T{Last 7 Days}', value: 8 },
+  { text: 'T{Yesterday}', value: 9 },
+  { text: 'T{Current Week}', value: 10 },
+  { text: 'T{Last Week}', value: 11 },
+  { text: 'T{Last 2 Weeks}', value: 12 },
+  { text: 'T{Current Month}', value: 13 },
+  { text: 'T{Last Month}', value: 14 },
+  { text: 'T{Last 6 Months}', value: 15 },
+  { text: 'T{Current Year}', value: 16 }
+];
+
+
+// Función para poblar y seleccionar el valor por defecto del combobox
+function setupCombobox() {
+    webMI.trigger.fire("setItems", initialRangeMethods, uIElements.Combobox);
+    
+    const selectedValue = initialRangeMethods.find(item => item.text === InitialRangeMethod)?.value || 0;
+    webMI.trigger.fire("setSelectedItem", selectedValue, uIElements.Combobox);
+
+    console.log("Combobox configurado con valores:");
+    console.log(initialRangeMethods);
+    console.log("Valor seleccionado por defecto:", selectedValue);
+}
+
+// Función para calcular los tiempos según la opción seleccionada
+function calculateTime() {
+	// Punto de referencia: "ahora"
+    let now = new Date();
+    
+    // Clonamos la fecha "ahora" para final e inicial
+    let finalTime = new Date(now);
+    let initialTime = new Date(now);
+    
+    // Para ciertos cálculos semanales
+    let dayOfWeek = now.getDay();
+
+    switch (InitialRangeMethod) {
+        case 0:
+            // 1) Asignamos FinalTime con la variable local
+			FinalTime = finalTime;
+            // Calcula el rango personalizado
+            initialTime = calculateTimeCustomRange();
+            break;
+
+        case 1:
+            // Inicia en el minuto 0 de la hora actual
+            initialTime.setMinutes(0, 0, 0);
+            break;
+
+        case 2:
+            // Final en el minuto 0 de la hora actual
+            finalTime.setMinutes(0, 0, 0);
+            // Inicial en la hora previa exacta
+            initialTime.setHours(finalTime.getHours() - 1);
+            initialTime.setMinutes(0, 0, 0);
+            break;
+
+        case 3:
+            finalTime.setMinutes(0, 0, 0);
+            initialTime.setHours(finalTime.getHours() - 8);
+            initialTime.setMinutes(0, 0, 0);
+            break;
+
+        case 4: // Asumiendo turnos de 8 horas: 00:00 - 08:00
+            finalTime.setHours(8, 0, 0, 0);
+            initialTime.setHours(0, 0, 0, 0);
+            break;
+
+        case 5: // 08:00 - 16:00
+            finalTime.setHours(16, 0, 0, 0);
+            initialTime.setHours(8, 0, 0, 0);
+            break;
+
+        case 6: // 16:00 - 00:00 (24:00 del mismo día)
+            finalTime.setHours(24, 0, 0, 0);
+            initialTime.setHours(16, 0, 0, 0);
+            break;
+
+        case 7:
+            // Inicio del día actual
+            initialTime.setHours(0, 0, 0, 0);
+            break;
+
+        case 8:
+            initialTime.setDate(initialTime.getDate() - 7);
+            break;
+
+        case 9:
+            // Final en el inicio del día actual
+            finalTime.setHours(0, 0, 0, 0);
+            // Inicio en el día anterior (00:00)
+            initialTime.setDate(finalTime.getDate() - 1);
+            initialTime.setHours(0, 0, 0, 0);
+            break;
+
+        case 10:
+            // Ajustamos al inicio de la semana (domingo = día 0)
+            initialTime.setDate(initialTime.getDate() - dayOfWeek);
+            initialTime.setHours(0, 0, 0, 0);
+            break;
+
+        case 11:
+            // Ajustar finalTime al último segundo del sábado anterior
+            finalTime.setDate(finalTime.getDate() - dayOfWeek); 
+            finalTime.setHours(23, 59, 59, 999);
+            
+            // Inicio en el domingo de la semana previa
+            initialTime.setDate(finalTime.getDate() - finalTime.getDay() - 7);
+            initialTime.setHours(0, 0, 0, 0);
+            break;
+
+        case 12:
+            // Colocamos finalTime al fin de la semana previa (sábado)
+            finalTime.setDate(finalTime.getDate() - dayOfWeek - 7);
+            finalTime.setHours(23, 59, 59, 999);
+
+            // El inicio será dos semanas antes desde ese punto
+            initialTime = new Date(finalTime); 
+            initialTime.setDate(initialTime.getDate() - 14);
+            initialTime.setHours(0, 0, 0, 0);
+            break;
+
+        case 13:
+            // Inicio al día 1 del mes actual
+            initialTime.setDate(1);
+            initialTime.setHours(0, 0, 0, 0);
+            // Fin al último día del mes actual (23:59:59.999)
+            finalTime.setMonth(finalTime.getMonth() + 1, 0);
+            finalTime.setHours(23, 59, 59, 999);
+            break;
+
+        case 14:
+            // Inicio al primer día del mes anterior
+            initialTime.setMonth(finalTime.getMonth() - 1, 1);
+            initialTime.setHours(0, 0, 0, 0);
+            // Fin al último día del mes anterior
+            finalTime.setMonth(finalTime.getMonth(), 0);
+            finalTime.setHours(23, 59, 59, 999);
+            break;
+
+        case 15:
+            // Seis meses atrás, al día 1 de ese mes
+            initialTime.setMonth(finalTime.getMonth() - 6, 1);
+            initialTime.setHours(0, 0, 0, 0);
+            // Ajustamos finalTime al último día del mes anterior
+            finalTime.setDate(0);
+            finalTime.setHours(23, 59, 59, 999);
+            break;
+
+        case 16:
+            // Inicio del año actual
+            initialTime.setFullYear(finalTime.getFullYear(), 0, 1);
+            initialTime.setHours(0, 0, 0, 0);
+            // Fin al último día del año actual (31/12)
+            finalTime.setFullYear(finalTime.getFullYear(), 11, 31);
+            finalTime.setHours(23, 59, 59, 999);
+            break;
+
+        default:
+           console.error('Método no soportado:', InitialRangeMethod);
+            break;
+    }
+
+    // Asignamos a las variables globales (o de la clase)    
+    FinalTime = finalTime;
+    InitialTime = initialTime;
+
+    // Para depurar o verificar
+    console.log("Tiempo calculado:");
+    console.log("InitialTime:", InitialTime);
+    console.log("FinalTime:", FinalTime);
+}
+
+
+// Función para calcular tiempo en caso de "CustomRange"
+function calculateTimeCustomRange() {
+    let initialTime = new Date(FinalTime);
+
+    switch (InitialRangeUnit) {
+        case 's': initialTime.setSeconds(FinalTime.getSeconds() - InitialRange); break;
+        case 'min': initialTime.setMinutes(FinalTime.getMinutes() - InitialRange); break;
+        case 'h': initialTime.setHours(FinalTime.getHours() - InitialRange); break;
+        case 'day': initialTime.setDate(FinalTime.getDate() - InitialRange); break;
+        case 'month': initialTime.setMonth(FinalTime.getMonth() - InitialRange); break;
+        default: console.error('Unidad no soportada:', InitialRangeUnit);
+    }
+
+    return initialTime;
+}
+
+// Función para actualizar los DatePickers evitando bucles
+function updateDatePicker() {
+    if (isUpdatingDatePicker) return;  // Evitar ejecución recursiva
+
+    isUpdatingDatePicker = true;  // Bloqueamos actualizaciones recursivas
+
+    webMI.trigger.fire(uIElements.InitialDatePicker, InitialTime.getTime());
+    webMI.trigger.fire(uIElements.FinalDatePicker, FinalTime.getTime());
+
+    //console.log("DatePicker actualizado:");
+    //console.log("Initial_Date:", InitialTime.getTime());
+    //console.log("Final_Date:", FinalTime.getTime());
+
+    setTimeout(() => { isUpdatingDatePicker = false; }, 100);  // Desbloqueamos tras 100ms
+}
+
+// Función para enviar los datos usando trigger
+function sendTrigger() {
+    const data = {
+        initialTime: InitialTime.getTime(),
+        finalTime: FinalTime.getTime()
+    };
+
+    console.log("Enviando trigger con datos:");
+    console.log(data);
+
+    webMI.trigger.fire("datePicker", data);
+}
+
+// Función para manejar cambios en el combobox
+function handleComboboxChange(e) {
+    //InitialRangeMethod = initialRangeMethods.find(item => item.value === e.value)?.text || 'CustomRange';
+    //console.log("Método seleccionado:", InitialRangeMethod);
+	InitialRangeMethod = e.value;
+    calculateTime();
+    updateDatePicker();
+}
+
+// Función para manejar cambios en los DatePickers con `trigger.connect`
+function handleDatePickerChange(e, type) {
+    if (isUpdatingDatePicker) return;  // Evitar ejecución en cascada
+
+    let newTime = new Date(e.value);
+
+    if (type === "Initial") {
+        InitialTime = newTime;
+        //console.log("Cambio en InitialTime:", InitialTime);
+    } else if (type === "Final") {
+        FinalTime = newTime;
+        //console.log("Cambio en FinalTime:", FinalTime);
+    }
+}
+
+// Función para inicializar eventos
+function addListeners() {
+    webMI.trigger.connect("valuechanged", function (e) {
+        handleComboboxChange(e);
+    }, uIElements.Combobox);
+
+    webMI.addEvent(uIElements.Text_Confirm, "click", function () {
+        sendTrigger();
+        setTimeout(function(){
+			webMI.display.closeWindow();        
+        }, 500)
+    });
+
+    webMI.trigger.connect(uIElements.InitialDatePicker, function (e) {
+        //console.log("Evento detectado en InitialDatePicker:", e);
+        handleDatePickerChange(e, "Initial");
+    });
+
+    webMI.trigger.connect(uIElements.FinalDatePicker, function (e) {
+        //console.log("Evento detectado en FinalDatePicker:", e);
+        handleDatePickerChange(e, "Final");
+    });
+    
+	webMI.addEvent(uIElements.Close, "click", function () {
+		webMI.display.closeWindow();        
+    });
+    
+	document.getElementById(uIElements.Close).style.cursor = "pointer";
+	document.getElementById(uIElements.Text_Confirm).style.cursor = "pointer";
+
+    //console.log("Listeners agregados correctamente.");
+}
+
+// Inicialización
+webMI.addOnload(function () {
+    setupCombobox();
+    calculateTime();
+    updateDatePicker();
+    addListeners();
+
+    //console.log("Inicialización completa.");
+});
+]]></script>
+</svg>

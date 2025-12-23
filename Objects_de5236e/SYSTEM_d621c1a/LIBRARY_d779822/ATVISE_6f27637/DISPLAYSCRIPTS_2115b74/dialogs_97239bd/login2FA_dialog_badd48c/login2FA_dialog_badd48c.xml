@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the login dialog object display
+ * ----------------------------------------
+ * This Script supports the the display for handling user logins
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+var code = "";
+var email = "";
+var email_local = "";
+var email_domain = "";
+var keyboard = webMI.query["keyboard"];
+var keyboard_right = false;
+var number_keyboard = webMI.query["number_keyboard"];
+var number_keyboard_right = false;
+var setTextDelay;
+var trigger_code = "com.atvise.login2FA.code";
+var trigger_selectCode = "com.atvise.login2FA.selectInput";
+var trigger_email = "com.atvise.login2FA.email";
+var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+var loginHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Login Handler");
+var textBlocks = loginHandler.getTextBlocks();
+var emailpolicy = loginHandler.getMailPolicy();
+var twoFactorResponse;
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+webMI.addOnload(function () {
+	webMI.trigger.fire("setValue", "", "code_input");
+	webMI.gfx.setVisible("mail_local_input", false);
+	webMI.gfx.setVisible("mail_domain_input", false);
+	webMI.gfx.setVisible("mail_set_button", false);
+	webMI.gfx.setVisible("mail_keyboard", false);
+	webMI.gfx.setText("mail_label", "");
+
+	if (webMI.getAccessControlSupport() && accessControlManager) {
+		accessControlManager.getRights([keyboard, number_keyboard], ["read", "read"], function (e) {
+			keyboard_right = e.result[0];
+			number_keyboard_right = e.result[1];
+		});
+	}
+
+	webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+		if (typeof e["twofactor-state"] != "undefined") {
+			twoFactorResponse = loginHandler.handleTwoFactorResponse(e);
+			setTimeout(function () {
+				webMI.gfx.setVisible("qr_image", false);
+				webMI.gfx.setVisible("mail_header", false);
+				webMI.gfx.setVisible("email_configuration", false);
+				webMI.gfx.setVisible("qr_info", false);
+
+				webMI.trigger.fire("com.atvise.setActive", false, "action_button");
+				if (twoFactorResponse.error.emailMissing || twoFactorResponse.error.emailInvalid) {
+					webMI.gfx.setText("action_button_button_label", textBlocks.TwoFactorSendMail);
+					webMI.trigger.fire("com.atvise.setActive", false, "action_button");
+					setText(
+						"T{Error}: " +
+							textBlocks.TwoFactorMissingMail +
+							(twoFactorResponse.email ? ": " + twoFactorResponse.email : "."),
+						true
+					);
+
+					if (!emailpolicy || emailpolicy["allowCustomEmail"] || twoFactorResponse.ignoreemailpolicy) {
+						webMI.gfx.setVisible("mail_header", true);
+						webMI.gfx.setVisible("mail_configuration", true);
+						webMI.gfx.setText("mail_header", textBlocks.TwoFactorEnterMail + ":");
+
+						if (
+							emailpolicy &&
+							emailpolicy["whitelist"] &&
+							emailpolicy["whitelist"].length > 0 &&
+							!twoFactorResponse.ignoreemailpolicy
+						) {
+							webMI.gfx.setVisible("mail_local_input", true);
+							webMI.gfx.setVisible("mail_domain_input", true);
+							webMI.gfx.setVisible("mail_set_button", true);
+							webMI.gfx.setVisible("mail_keyboard", true);
+							for (var i in emailpolicy["whitelist"])
+								webMI.trigger.fire(
+									"addItem",
+									{ text: "@" + emailpolicy["whitelist"][i], value: "@" + emailpolicy["whitelist"][i] },
+									"mail_domain_input"
+								);
+
+							webMI.trigger.fire("setSelectedItem", "@" + emailpolicy["whitelist"][0], "mail_domain_input");
+						} else {
+							webMI.gfx.setVisible("mail_input", true);
+							webMI.gfx.setVisible("mail_set_button", true);
+							webMI.gfx.setVisible("mail_keyboard", true);
+						}
+					}
+				} else if (twoFactorResponse.error.appNotConfigured) {
+					getQR();
+				}
+
+				if (twoFactorResponse.email && twoFactorResponse.type && twoFactorResponse.type.email) {
+					if (!twoFactorResponse.type.app) sendMail();
+					webMI.trigger.fire("com.atvise.setActive", true, "action_button");
+					webMI.gfx.setVisible("mail_header", true);
+					webMI.gfx.setVisible("mail_configuration", true);
+					webMI.gfx.setText("mail_header", textBlocks.TwoFactorUserMail + ":");
+					webMI.gfx.setText("mail_label", twoFactorResponse.email);
+				}
+			}, 0);
+
+			return;
+		}
+
+		if (code.length != 6) return;
+
+		const responseType = loginHandler.getResponseType(e);
+		if (["delayed", "locktime", "locked", "tries"].indexOf(responseType) > -1) {
+			setText(loginHandler.getResponseText(e), true);
+		} else if (e["username"] != "") {
+			setText("T{User log in successful!}", false);
+			setTimeout(function () {
+				webMI.display.closeWindow();
+			}, 500);
+		} else {
+			setText("T{Error}: " + textBlocks.TwoFactorCodeInvalid + ".", true);
+		}
+	});
+});
+
+webMI.addOnunload(function () {
+	if (twoFactorResponse) {
+		webMI.data.logout(function () {});
+	}
+});
+
+function sendCode() {
+	if (code == "") {
+		// do nothing
+	} else if (code.length == 6) {
+		if (!twoFactorResponse.error.appNotConfigured && twoFactorResponse.type.email)
+			webMI.trigger.fire("com.atvise.setActive", true, "action_button");
+
+		webMI.gfx.setVisible("qr_image", false);
+		webMI.gfx.setVisible("qr_info", false);
+		setText("", false);
+		var oldResponse = twoFactorResponse;
+		twoFactorResponse = null;
+		webMI.data.twofactorLogin(code, function (e) {
+			if (e[""].error || e.error || e[""].username == "") {
+				setText("T{Error}: " + textBlocks.TwoFactorCodeInvalid, true);
+				twoFactorResponse = oldResponse;
+			}
+		});
+		webMI.trigger.fire("setValue", "", "code_input");
+	} else {
+		setText("T{Error}: " + textBlocks.TwoFactorCodeInvalid, true);
+	}
+}
+
+function sendMail() {
+	webMI.data.twofactorSendMail(function (e) {
+		if (e[""].error || e.error) {
+			setText("T{Error}: " + textBlocks.TwoFactorSentMailFailed, true);
+		} else {
+			setText(textBlocks.TwoFactorSentMail + ".", false);
+		}
+	});
+}
+
+function getQR() {
+	setText("", false);
+	webMI.gfx.setVisible("qr_image", false);
+	webMI.gfx.setVisible("qr_info", false);
+	webMI.data.twofactorGetOTPAuth("0", function (e) {
+		if (e[""] && e[""].result && e[""].result[0] && e[""].result[0].data) {
+			var ele = document.getElementById("qr_image");
+			var image = "data:image/svg+xml;base64," + e[""].result[0].data;
+			ele.setAttribute("href", image);
+			ele.setAttribute("width", 1);
+			ele.setAttribute("height", 1);
+			webMI.gfx.setVisible("qr_image", true);
+			webMI.gfx.setVisible("qr_info", true);
+		}
+	});
+}
+
+function validateMail() {
+	loginHandler.validateUserMail(email, function (e) {
+		var result = e.value;
+		for (var i in result) {
+			if (result[i].fulfilled != true) {
+				setText(result[i].text, true);
+				break;
+			}
+		}
+	});
+}
+
+function setText(msg1, error) {
+	clearTimeout(setTextDelay);
+	setTextDelay = setTimeout(function () {
+		webMI.gfx.setText("status_message", msg1);
+		webMI.gfx.setFill("status_message", error ? "#800000" : "#008000");
+	}, 100);
+}
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		email = e.value;
+		validateMail();
+	},
+	"mail_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		email_local = e.value;
+		email = email_local + email_domain;
+		validateMail();
+	},
+	"mail_local_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		email_domain = e.value;
+		email = email_local + email_domain;
+		validateMail();
+	},
+	"mail_domain_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		code = e.value;
+		sendCode();
+	},
+	"code_input"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		sendCode();
+	},
+	"code_send"
+);
+
+webMI.trigger.connect(trigger_email, function (e) {
+	email = e.value;
+	webMI.trigger.fire("setValue", e.value, "mail_input");
+	webMI.trigger.fire("setValue", e.value, "mail_local_input");
+});
+
+webMI.trigger.connect(trigger_code, function (e) {
+	code = e.value;
+	webMI.trigger.fire("setValue", e.value, "code_input");
+});
+
+webMI.trigger.connect(trigger_selectCode, function () {
+	webMI.trigger.fire("com.atvise.selectInput", "", "code_input");
+});
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.display.closeWindow();
+	},
+	"cancel_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		if (twoFactorResponse && twoFactorResponse.error && twoFactorResponse.error.appNotConfigured) {
+			getQR();
+		} else {
+			sendMail();
+		}
+	},
+	"action_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		if (webMI.data.changeemail) {
+			webMI.data.changeemail(email, function (e) {
+				if (e[""].error || e.error) {
+					setText("T{Error}: " + textBlocks.policy_mail_failed, true);
+				} else {
+					sendMail();
+					webMI.trigger.fire("com.atvise.setActive", true, "action_button");
+				}
+			});
+		}
+	},
+	"mail_set_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		if (!keyboard_right) return;
+
+		webMI.query.trigger = trigger_email;
+		webMI.query.password = "No";
+		webMI.query.value = "";
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: 300,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Keyboard}",
+			toolbar: false,
+			width: 700,
+			query: webMI.query
+		});
+	},
+	"mail_keyboard"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		if (!number_keyboard_right) return;
+
+		webMI.query.trigger = trigger_code;
+		webMI.query.password = "Yes";
+		webMI.query.maskPassword = "No";
+		webMI.query.value = code;
+		webMI.display.openWindow({
+			display: number_keyboard,
+			extern: false,
+			height: 332,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Keyboard}",
+			toolbar: false,
+			width: 378,
+			query: webMI.query
+		});
+	},
+	"code_keyboard"
+);
+]]></code>
+</script>

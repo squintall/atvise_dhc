@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="h" type="http" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var from = JSON.parse(h.request.getvalues["timeStampFrom"].replace(/'/g, '"')).value;
+var to = JSON.parse(h.request.getvalues["timeStampTo"].replace(/'/g, '"')).value;
+var autosave = (h.request.getvalues["SavePDF"]== 1 || h.request.getvalues["SavePDF"]== "true" ? true : false);
+var basenode = h.request.getvalues["node"];
+var result=call("SlimReporting", {timeStampFrom: from, timeStampTo:to, SavePDF:autosave, BaseNode:basenode});
+h.response.setHeader("Content-Type", "application/pdf");
+h.response.write(result, h.request.getvalues["format"]);]]></code>
+</script>

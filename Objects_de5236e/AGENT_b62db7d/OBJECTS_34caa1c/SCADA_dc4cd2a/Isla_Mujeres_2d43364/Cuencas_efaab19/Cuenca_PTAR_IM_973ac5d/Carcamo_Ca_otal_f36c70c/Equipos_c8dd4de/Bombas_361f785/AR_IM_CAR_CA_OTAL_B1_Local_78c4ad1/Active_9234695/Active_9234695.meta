@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Cañotal.Equipos.Bombas.AR_IM_CAR_CAÑOTAL_B1_Local.Active
+NodeClass: Variable
+BrowseName: 1:Active
+DisplayName: en|Active
+Description: en|Active
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Active.RelMirrorInputOutput

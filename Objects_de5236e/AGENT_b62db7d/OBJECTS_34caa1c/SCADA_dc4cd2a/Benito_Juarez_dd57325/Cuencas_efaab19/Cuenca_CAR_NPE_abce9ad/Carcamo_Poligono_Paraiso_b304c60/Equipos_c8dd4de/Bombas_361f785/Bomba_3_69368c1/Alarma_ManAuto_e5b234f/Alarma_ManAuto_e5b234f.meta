@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NPE.Carcamo_Poligono_Paraiso.Equipos.Bombas.Bomba_3.Alarma_ManAuto
+NodeClass: Variable
+BrowseName: 1:Alarma_ManAuto
+DisplayName: en|Alarma_ManAuto
+Description: en|Carcamo_Poligono_Paraiso | Equipo Bomba_3
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Alarma_ManAuto.Manual_Automatico
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Equipos

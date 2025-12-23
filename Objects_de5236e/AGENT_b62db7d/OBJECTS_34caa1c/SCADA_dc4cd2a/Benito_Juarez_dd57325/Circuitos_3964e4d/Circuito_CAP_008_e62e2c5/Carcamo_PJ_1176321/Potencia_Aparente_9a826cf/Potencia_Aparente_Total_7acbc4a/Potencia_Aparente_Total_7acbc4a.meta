@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Potencia_Aparente.Potencia Aparente Total
+NodeClass: Variable
+BrowseName: 1:Potencia Aparente Total
+DisplayName: en|Potencia Aparente Total
+Description: en|Potencia Aparente Total
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

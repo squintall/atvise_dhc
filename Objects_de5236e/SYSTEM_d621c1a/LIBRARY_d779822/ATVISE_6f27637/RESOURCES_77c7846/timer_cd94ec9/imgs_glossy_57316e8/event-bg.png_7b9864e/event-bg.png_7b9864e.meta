@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/timer/imgs_glossy/event-bg.png
+NodeClass: Variable
+BrowseName: 1:event-bg.png
+DisplayName: en|event-bg.png
+Description: en|event-bg.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

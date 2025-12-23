@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Captacion.Carcamos.AP_SOL_CAR_INTERMEDIO.L20.Caudalimetro.AP_SOL_CAR_INTERMEDIO_CAUD_L20_Caudal
+NodeClass: Variable
+BrowseName: 1:AP_SOL_CAR_INTERMEDIO_CAUD_L20_Caudal
+DisplayName: en|AP_SOL_CAR_INTERMEDIO_CAUD_L20_Caudal
+Description: en|AP_SOL_CAR_INTERMEDIO_CAUD_L20_Caudal
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

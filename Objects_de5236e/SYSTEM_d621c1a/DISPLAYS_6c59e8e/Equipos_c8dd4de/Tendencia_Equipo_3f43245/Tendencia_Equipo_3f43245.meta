@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Equipos.Tendencia_Equipo
+NodeClass: Variable
+BrowseName: 1:Tendencia_Equipo
+DisplayName: en|Tendencia_Equipo
+Description: en|Tendencia_Equipo
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

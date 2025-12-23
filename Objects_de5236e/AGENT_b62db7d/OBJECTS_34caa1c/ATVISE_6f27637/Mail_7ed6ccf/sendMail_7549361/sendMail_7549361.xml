@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><script>
+<parameter name="alarmState" type="number" trigger="false" relative="false" value=""/>
+<code><![CDATA[
+var date = new Date();
+const timezoneOffset = Math.abs(date.getTimezoneOffset()/60);
+var today = date.getDay();
+var actTime = ((date.getHours()) * 60 * 60 *1000) + (date.getMinutes() * 60 * 1000) + (date.getSeconds()*1000) + date.getMilliseconds();
+var aktUsers = [];
+var nodeobj = Ua.findNode("AGENT.OBJECTS.ATVISE.Mail");
+var ret = nodeobj.result.browse({
+	direction: Ua.Node.BROWSEDIRECTION_FORWARD,
+	reference: Ua.Reference.HIERARCHICALREFERENCES,
+	subType: true,
+	nodeClass: Ua.NodeClass.UNSPECIFIED,
+	maxResult: 0
+});
+
+
+for (var i = 0; i < ret.result.length; ++i){
+	if(ret.result[i].node.dataType.value == "i=12" && ret.result[i].node.browseName.name != "sendMailLog"){
+		var config = JSON.parse(ret.result[i].node.value);
+		var alarmstates = config.alarm.state;
+		var workDays = config.cycleTime.daysOfWeek;
+		var priorityOperator,priorityValue,nodeAddress,groupAddress;
+		if(config.prio.active == "true"){priorityOperator=config.prio.operator;priorityValue=config.prio.value}else{priorityOperator="";priorityValue=""};
+		(config.group.active == "true")?groupAddress=config.group.address:groupAddress="";
+		(config.nodes.active == "true")?nodeAddress=config.nodes.address:nodeAddress="";
+
+		if(config.active == "true" && workDays.includes(today) && alarmstates.includes(alarmState) && actTime >= config.start && actTime < config.end){
+			aktUsers.push({name:config.name, mail:config.mail, prioOperator:priorityOperator, prioValue:priorityValue, nodeAddress:nodeAddress, groupAddress:groupAddress});
+		}
+	}
+}
+if(aktUsers.length > 0){
+	return aktUsers;
+}else{
+	aktUsers = {error:"Alarm MailManagement: At this time there is no active user responsible for this alarm state"};
+	return aktUsers;
+}
+
+
+]]></code></script>

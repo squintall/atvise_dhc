@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_2000P.Equipos.Bombas.Variador_4.Alarma_ManAuto
+NodeClass: Variable
+BrowseName: 1:Alarma_ManAuto
+DisplayName: en|Alarma_ManAuto
+Description: en|Alarma_ManAuto
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Alarma_ManAuto.Manual_Automatico

@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.HISTORY.EVENTTYPES
+NodeClass: Object
+BrowseName: 1:EVENTTYPES
+DisplayName: en|EVENTTYPES
+Description: en|EVENTTYPES
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

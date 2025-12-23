@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>11</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="alarm" type="alarm" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/*var alarmtext = alarm.description.es;
+var eventtext = alarm.eventtext.es;
+var timestamp = alarm.valuetimestamp;
+const date = new Date(timestamp);
+const fdate = date.toLocaleString();
+var message = alarmtext + "\n" + eventtext + "\n" + fdate;
+var encMessage = encodeURIComponent(message);
+//Send Telegram Messages
+var http = new HTTPClient();
+
+var address = alarm.base;
+console.log(!(alarmtext.includes("Carcamos")))
+
+if (!(alarmtext.includes("Carcamos"))){	
+	
+	if (address.includes("Benito_Juarez")){
+	http.get("https://api.telegram.org/bot7299662874:AAHxoaRhuIIb7Z5_ejw9a4fNW-AU_of6rnk/sendMessage?chat_id=@DHCOperacionCUN&parse_mode=Markdown&text=" +encMessage);
+	}
+
+	if (address.includes("Solidaridad")){
+	http.get("https://api.telegram.org/bot7299662874:AAHxoaRhuIIb7Z5_ejw9a4fNW-AU_of6rnk/sendMessage?chat_id=@DHCOperacionSOL&parse_mode=Markdown&text=" +encMessage);
+	}
+
+	if (address.includes("Isla_Mujeres")){
+	http.get("https://api.telegram.org/bot7299662874:AAHxoaRhuIIb7Z5_ejw9a4fNW-AU_of6rnk/sendMessage?chat_id=@DHCOperacionIM&parse_mode=Markdown&text=" +encMessage);
+	}
+	
+	if (address.includes("Puerto_Morelos")){
+	http.get("https://api.telegram.org/bot7299662874:AAHxoaRhuIIb7Z5_ejw9a4fNW-AU_of6rnk/sendMessage?chat_id=@DHCOperacionPM&parse_mode=Markdown&text=" +encMessage);
+	}	
+	console.log("alarma enviada");
+	console.log(_.isEmpty([]));
+	
+	http.get("https://api.telegram.org/bot7299662874:AAHxoaRhuIIb7Z5_ejw9a4fNW-AU_of6rnk/sendMessage?chat_id=@DHCConectividad&parse_mode=Markdown&text=" +encMessage);
+}*/]]></code>
+</script>

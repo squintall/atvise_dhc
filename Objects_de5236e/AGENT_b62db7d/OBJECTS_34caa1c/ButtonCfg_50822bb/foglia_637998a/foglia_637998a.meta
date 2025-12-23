@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ButtonCfg.AGUAKAN\hector.foglia
+NodeClass: Variable
+BrowseName: 1:foglia
+DisplayName: en|foglia
+Description: en|foglia
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

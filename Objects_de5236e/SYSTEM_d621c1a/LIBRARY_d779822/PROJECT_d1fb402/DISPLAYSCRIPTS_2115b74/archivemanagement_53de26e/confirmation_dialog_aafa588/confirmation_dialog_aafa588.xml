@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var restore = webMI.query.restore == "true";
+var action;
+
+webMI.trigger.connect("valuechanged", function(e) {
+	action = e.value;
+}, "rdb_action_move");
+
+webMI.trigger.connect("valuechanged", function(e) {
+	action = e.value;
+}, "rdb_action_copy");
+
+webMI.trigger.connect("clicked", function(e) {
+	webMI.trigger.fire(webMI.query.trigger, { confirm: true, data: webMI.query.data, action: action });
+	webMI.trigger.fire("clicked", {}, "btn_cancel");
+}, "btn_ok");
+
+webMI.trigger.connect("clicked", function(e) {
+	webMI.display.closeWindow();
+}, "btn_cancel");
+
+webMI.addOnload(function() {
+	webMI.trigger.fire("radioClicked_action", { name: "T{copy}", value: "copy" }, "rdb_action_copy");
+	webMI.gfx.setVisible("question_restore", restore);
+	webMI.gfx.setVisible("rdb_action_move", restore);
+	webMI.gfx.setVisible("rdb_action_copy", restore);
+	webMI.gfx.setVisible("question", !restore);
+	if (!restore) {
+		webMI.gfx.setMoveY("question", -100);
+		webMI.gfx.setMoveY("action", -25);
+	}
+	
+	if ("headline" in webMI.query && typeof webMI.query.headline == "string" && webMI.query.headline.trim().length > 0) {
+		webMI.gfx.setText("headline", "T{Confirm action} \"" + webMI.query.headline.trim() + "\":");
+	}
+});]]></code>
+</script>

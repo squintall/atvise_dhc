@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="configuration" type="string" trigger="false" relative="false" value=""/>
+  <parameter name="action" type="string" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* Report Configuration Handler *
+ *
+ * Read, write, delete and check report configurations
+ *
+ */
+
+var baseDir = "AGENT.OBJECTS.ATVISE.Report";
+var statusAddr = baseDir + ".schedulerLog";
+var globalsAddr = baseDir + ".schedulerGlobals";
+
+/**
+ * create a configuration script
+ * @param name
+ * @param cfg
+ */
+function _createConfiguration(cfg) {
+	if (!cfg.cycleTime.minutes)
+		cfg.cycleTime.minutes = "";
+	if (!cfg.cycleTime.hours)
+		cfg.cycleTime.hours = "";
+	if (!cfg.cycleTime.daysOfWeek)
+		cfg.cycleTime.daysOfWeek = "";
+	if (!cfg.cycleTime.daysOfMonth)
+		cfg.cycleTime.daysOfMonth = "";
+	if (!cfg.cycleTime.months)
+		cfg.cycleTime.months = "";
+
+	return '<?xml version="1.0" encoding="UTF-8"?><script>\n' +
+	'<parameter name="reportTime" type="string" trigger="false" relative="false" value=""/>\n' +
+	'<code><![CDATA[\n' + 
+	'/* Report Configuration *\n' +
+	' *\n' +
+	' * Call parameters:\n' +
+	' * reportTime {number}	 : Data query time for the report generation (empty returns only configuration parameters).\n' +
+	' *\n' +
+	' * Configuration variables:\n' +
+	' * active {bool}        : Enables or disables the configuration schedule.\n' +
+	" * advanced {bool}      : Set 'true' if configuration contains special code and therefore should not be changed within the visualization.\n" +
+	' * name {string}        : Configuration name.\n' +
+	' * cycleTime {object}   : Cyclic execution based on cron style time declaration.\n' +
+	" *   minutes {array}    : Minutesinput. Separated numbers with ','. \n" +
+	" *   hours {array}      : Hours input. Separated numbers with ','. \n" +
+	" *   daysOfMonth {array}: Days of Month input. Separated numbers with ','. \n" +
+	" *   months {array}     : Months input. Separated numbers with ','. \n" +
+	" *   daysOfWeek {array} : Days of week input. Separated numbers with ','. \n" +
+	' * cycleOffset {number} : Report generation offset to ensure data availability: Number in minutes.\n' +
+	" * locale {string}      : Optional localization string for the report format, e.g. 'de-DE', 'en-US'.\n" +
+	' * template {string}    : Path with filename for the xlsx template file.\n' +
+	' * xlsxReport {string}  : Path with filename for the xlsx result file.\n' +
+	' * pdfReport {string}   : Path with filename for the pdf  result file.\n' +
+	' * htmlReport {string}  : Path with filename for the html result file (currently unsupported).\n' +
+	' * startWorksheet {nr.} : Worksheet for the start of the convertion.\n' +
+	' * endWorksheet {nr.}   : Worksheet for the end   of the convertion.\n' +
+	' * overwrite {bool}     : Option to overwrite existing report files.\n' +
+	" * metaScript {string}  : Script to be called  when data type is 'meta'.\n" +
+	" * scriptParameter {str}: Custom parameter passed to the meta script.\n" +
+	' * email {object}       : E-mail settings object.\n' +
+	' *   active {bool}      : E-mail notification activation flag.\n' +
+	' *   attachment {array} : List of e-mail attachments (xlsx, pdf).\n' +
+	' *   to {array}         : List of receiver e-mail addresses.\n' +
+	' *   cc {array}         : List of carbon copy receiver e-mail addresses.\n' +
+	' *   bcc {array}        : List of blind carbon copy receiver e-mail addresses.\n' +
+	' *   subject {string}   : Subject of the e-mail.\n' +
+	' *   body {string}      : Body of the e-mail.\n' +
+	' *\n' +
+	' * Remark:\n' +
+	" * Use absolute paths or start with './' for a relative path starting with the project directory (= server.database.directory).\n" +
+	' * Report filenames can contain date placeholders: {YYYY} or {YY}, {MM}, {DD}, {hh}, {mm}, {ss}.\n' +
+	' *\n' +
+	' */\n\n\n' +
+	'var configuration = {\n' +
+	'	active			: ' + (typeof cfg.active != "undefined" ? cfg.active : true) + ',\n' +
+	'	advanced		: ' + (typeof cfg.advanced != "undefined" ? cfg.advanced : false) + ',\n' +
+	'	name			: "' + cfg.name + '",\n' +	
+	'	cycleTime		: {\n' +
+	'						"minutes": [' + cfg.cycleTime.minutes.toString() + '], //0-59\n' +
+	'						"hours": [' + cfg.cycleTime.hours.toString() + '], //0-23\n' +
+	'						"daysOfMonth": [' + cfg.cycleTime.daysOfMonth.toString() + '], //1-31\n' +
+	'						"months": [' + cfg.cycleTime.months.toString() + '], //1-12\n' +
+	'						"daysOfWeek": [' + cfg.cycleTime.daysOfWeek.toString() + '] //0-7 = Sunday is 0 or 7\n' +
+	'					  },\n' +
+	'	cycleOffset		: ' + cfg.cycleOffset + ',\n' +
+	'	locale			: "' + (typeof cfg.locale != "undefined" ? cfg.locale : "") + '",\n' +
+	'	template		: "' + cfg.template + '",\n' +	
+	'	xlsxReport		: "' + cfg.xlsxReport + '",\n' +
+	'	pdfReport		: "' + (cfg.pdfReport ? cfg.pdfReport : "") + '",\n' +
+	'	htmlReport		: "' + (cfg.htmlReport ? cfg.htmlReport : "") + '",\n' +
+	'	startWorksheet  : ' + (cfg.startWorksheet ? cfg.startWorksheet : 0) + ',\n' +
+	'	endWorksheet	: ' + (cfg.endWorksheet ? cfg.endWorksheet : 0) + ',\n' +
+	'	metaScript		: "' + (cfg.metaScript ? cfg.metaScript : "") + '",\n' +
+	'	scriptParameter : "' + (cfg.scriptParameter ? cfg.scriptParameter : "") + '",\n' +
+	'	email			: {\n' +
+	'						"active": ' + (typeof cfg.email.active != "undefined" ? cfg.email.active : false) + ',\n' +
+	'						"attachment": [' + _arrayToString(cfg.email.attachment) + '],\n' +
+	'						"to": [' + _arrayToString(cfg.email.to) + '],\n' +
+	'						"cc": [' + _arrayToString(cfg.email.cc) + '],\n' +
+	'						"bcc": [' + _arrayToString(cfg.email.bcc) + '],\n' +
+	'						"subject": "' + (cfg.email.subject ? cfg.email.subject : "") + '",\n' +
+	'						"body": "' + (cfg.email.body ? cfg.email.body : "") + '"\n' +	
+	'					  },\n' +	
+	'	overwrite		: ' + (typeof cfg.overwrite != "undefined" ? cfg.overwrite : true) + ',\n' +
+	'	reportTime		: reportTime\n' +
+	'}\n\n\n' +
+	'//Do not change script from here\n' +
+	'if (reportTime != "")\n' +
+	'	return call("Report.GenerateReport", { configuration: configuration });\n' +
+	'else\n' +
+	'	return JSON.stringify(configuration);\n' +
+	']]\></code></script>'
+}
+
+/**
+ * creates a string form an array of strings
+ * @param arr
+ */
+function _arrayToString(arr) {
+	if(!Array.isArray(arr))
+		return "";
+
+	var str = "";
+	for (var i in arr) {
+		str = str + '"' + arr[i] + '"';
+		if(i < arr.length -1)
+			str = str + ", ";
+	}
+	return str;
+}
+
+/**
+ * create a folder node
+ * @param address
+ * @param nodeClass
+ * @param typeDefinition
+ * @param dataType
+ * @param value
+ */
+function _createFolder(address, nodeClass, typeDefinition, _dataType, _value) {
+	Ua.createNode(address, {
+		"nodeClass": Ua.NodeClass[nodeClass],
+		"parent": address.substring(0, address.lastIndexOf('.')),
+		"typeDefinition": typeDefinition,
+	});
+}
+
+/**
+ * create a node
+ * @param address
+ * @param nodeClass
+ * @param typeDefinition
+ * @param dataType
+ * @param value
+ */
+function _createNode(address, nodeClass, typeDefinition, dataType, value) {
+	Ua.createNode(address, {
+		"nodeClass": Ua.NodeClass[nodeClass],
+		"parent": address.substring(0, address.lastIndexOf('.')),
+		"typeDefinition": typeDefinition,
+		"dataType": Ua.DataType[dataType],
+		"value": value
+	});
+}
+
+/**
+ * read status node
+ */
+function _readStatus() {
+	var statusNode = Ua.findNode(statusAddr);
+	var statusNodeExist = Ua.Status(statusNode) != Ua.Status.BADNODEIDUNKNOWN;
+	
+	var upperDir = statusAddr.substring(0, statusAddr.lastIndexOf("."));
+	var upperDirNode = Ua.findNode(upperDir);
+	var upperDirExist = Ua.Status(upperDirNode) != Ua.Status.BADNODEIDUNKNOWN;
+	
+	var ret = '{"active": false, "count": 0, "log": {}}';
+	if(statusNodeExist && statusNode.result.value != "") {
+		ret = statusNode.result.value;
+		
+		try {
+			ret = JSON.parse(ret);
+		} catch (ex) {
+			ret = undefined;
+		}
+	} else if (upperDirExist && upperDirNode.result.permissions.session.engineer) {
+			_createNode(statusAddr, "VARIABLE", "i=62", "STRING", ret, "");
+	}
+
+	return ret;
+}
+
+/**
+ * create globals node
+ */
+function _createGlobals() {
+	var globalsNode = Ua.findNode(globalsAddr);
+	var globalsNodeExist = Ua.Status(globalsNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	var upperDir = globalsAddr.substring(0, globalsAddr.lastIndexOf("."));
+	var upperDirNode = Ua.findNode(upperDir);
+	var upperDirExist = Ua.Status(upperDirNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if (!globalsNodeExist && upperDirExist && upperDirNode.result.permissions.session.engineer) {
+			_createNode(globalsAddr, "VARIABLE", "i=62", "STRING", "{}", "");
+	}
+}
+
+/**
+ * check configuration for errors
+ * @param name
+ * @param cfg
+ */
+function _checkConfig(cfg) {
+	function validateCycletime(elements, min, max) {
+		//check elements for type number and range
+		if (!Array.isArray(elements))
+			return false;
+		
+		for (var i in elements) {
+			if (i == 0 && elements[i] == "" && elements.length == 1)
+				return true;
+				
+			if (!(/^[+-]?\d+(\.\d+)?$/.test(elements[i])))
+				return false;
+		
+			var number = parseInt(elements[i]);
+			if (typeof number != "number" || isNaN(number) || number < min || number > max)
+				return false;
+		}
+		return true;
+	}
+	
+	function validateString(string) {
+		//check for invalid characters
+		if (string == undefined || string == "")
+			return true;
+		
+		var chars = ["<",">","(",")"];
+		for (var i in chars) {
+			if (string.indexOf(chars[i]) > -1)
+				return false;
+		}
+		return true;
+	}
+	
+	function validateFilepath(filepath) {
+		if (filepath == undefined || filepath == "")
+			return true;
+
+		//check for absolute or relative path components
+		if (filepath.indexOf("./") == -1 && filepath.search(".\\\\") == -1 && filepath.indexOf(":") == -1 && filepath.search("/") == -1)
+			return false;
+		
+		var helper = JSON.stringify(filepath).replaceAll("\\\\","");
+		if (helper.indexOf("\\") > -1)
+			return false;
+
+		return validateString(filepath)
+	}
+
+	if (typeof cfg.cycleTime != "undefined") {
+		if (typeof cfg.cycleTime == "object") {
+			if (cfg.cycleTime.minutes && !validateCycletime(cfg.cycleTime.minutes,0,59))
+				return {error: -1, errorstring: "Report: 'minute(s)' has invalid format."};
+			if (cfg.cycleTime.hours && !validateCycletime(cfg.cycleTime.hours,0,23))
+				return {error: -1, errorstring: "Report: 'hour(s)' has invalid format."};
+			if (cfg.cycleTime.daysOfMonth && !validateCycletime(cfg.cycleTime.daysOfMonth,1,31))
+				return {error: -1, errorstring: "Report: 'day(s)' has invalid format."};
+			if (cfg.cycleTime.months && !validateCycletime(cfg.cycleTime.months,1,12))
+				return {error: -1, errorstring: "Report: 'month(s)' has invalid format."};
+			if (cfg.cycleTime.daysOfWeek && !validateCycletime(cfg.cycleTime.daysOfWeek,0,7))
+				return {error: -1, errorstring: "Report: 'weekday(s)' has invalid format."};
+		} else {
+			return {error: -1, errorstring: "Report: 'cycleTime' is not an object."};
+		}
+	}
+	
+	if (typeof cfg.cycleOffset != "undefined") {
+		var offset = parseInt(cfg.cycleOffset);
+		if (isNaN(offset) || offset < 0)
+			return {error: -1, errorstring: "Report: 'cycleOffset' has invalid format."};
+	}
+		
+	if (!validateString(cfg.locale))
+		return {error: -1, errorstring: "Report: 'locale' has invalid string format."};
+
+	if (cfg.template == undefined || cfg.template.search(".xlsx") == -1 || !validateFilepath(cfg.template))
+		return {error: -1, errorstring: "Report: 'template' is not defined or invalid file declaration."};
+	if (cfg.xlsxReport == undefined || cfg.xlsxReport.search(".xlsx") == -1 || !validateFilepath(cfg.xlsxReport))
+		return {error: -1, errorstring: "Report: 'xlsxReport' is not a valid xlsx file declaration."};
+	if ((cfg.pdfReport && cfg.pdfReport != "" && cfg.pdfReport.search(".pdf") == -1) || !validateFilepath(cfg.pdfReport))
+		return {error: -1, errorstring: "Report: 'pdfReport' is not a valid pdf file declaration."};
+	if ((cfg.htmlReport && cfg.htmlReport != "" && cfg.htmlReport.search(".html") == -1) || !validateFilepath(cfg.htmlReport))
+		return {error: -1, errorstring: "Report: 'htmlReport' is not a valid html file declaration."};
+
+	if (typeof cfg.startWorksheet != "undefined") {
+		var ws_start = parseInt(cfg.startWorksheet);
+		if (isNaN(ws_start) || ws_start < -1)
+			return {error: -1, errorstring: "Report: 'startWorksheet' has invalid format."};
+	}
+
+	if (typeof cfg.endWorksheet != "undefined") {
+		var ws_end = parseInt(cfg.endWorksheet);
+		if (isNaN(ws_end) || ws_end < -1)
+			return {error: -1, errorstring: "Report: 'endWorksheet' has invalid format."};
+	}
+
+	if (cfg.metaScript && validateString(cfg.metaScript)) {
+		var metascript = Ua.findNode(cfg.metaScript);
+		var metascript_exist = Ua.Status(metascript) != Ua.Status.BADNODEIDUNKNOWN
+		
+		if (!metascript_exist)
+			return {error: -1, errorstring: "Report: 'metaScript' is defined but could not be found."};
+	}
+	
+	if (typeof cfg.scriptParameter != "undefined") {
+		if (cfg.scriptParameter.indexOf("[") === 0 || cfg.scriptParameter.indexOf("{") === 0) {
+			try {
+				var parsedParameter = JSON.parse(cfg.scriptParameter);
+			} catch (ex) {
+				return {error: -1, errorstring: "Report: 'scriptParameter' is not a valid JSON:" + ex};
+			}
+		}
+		cfg.scriptParameter = cfg.scriptParameter.replaceAll("\"","\\\"");
+	}
+
+	if (typeof cfg.email != "undefined") {
+		if (typeof cfg.email == "object") {
+			if (cfg.email.active !== true && cfg.email.active !== false)
+				return {error: -1, errorstring: "Report: 'e-mail active' has invalid format."};
+			if (cfg.email.attachment && !Array.isArray(cfg.email.attachment))
+				return {error: -1, errorstring: "Report: 'e-mail attachment' has invalid format."};
+			if (cfg.email.to && !Array.isArray(cfg.email.to))
+				return {error: -1, errorstring: "Report: 'e-mail to' has invalid format."};
+			if (cfg.email.cc && !Array.isArray(cfg.email.cc))
+				return {error: -1, errorstring: "Report: 'e-mail cc' has invalid format."};
+			if (cfg.email.bcc && !Array.isArray(cfg.email.bcc))
+				return {error: -1, errorstring: "Report: 'e-mail bcc' has invalid format."};
+			if (typeof cfg.email.subject != "string")
+				return {error: -1, errorstring: "Report: 'e-mail subject' has invalid format."};
+			if (typeof cfg.email.body != "string")
+				return {error: -1, errorstring: "Report: 'e-mail body' has invalid format."};
+		} else {
+			return {error: -1, errorstring: "Report: 'cycleTime' is not an object."};
+		}
+	}
+	
+	
+	if (cfg.name == undefined || cfg.name == "" || !validateString(cfg.name) || cfg.name[cfg.name.length-1] == ".")
+		return {error: -1, errorstring: "Report: 'name' is not a valid string."};
+		
+	return true;
+}
+
+/**
+ * read configuration from node
+ * @param name
+ */
+function _readConfig(name) {
+	var node = name;
+	if (name.indexOf("AGENT.OBJECTS") == -1) {
+		node = baseDir + "." + name;
+	}
+
+	var readNode = Ua.findNode(node);
+	var readNodeExist = Ua.Status(readNode) != Ua.Status.BADNODEIDUNKNOWN;
+	
+	if (!readNodeExist || !readNode.result.permissions.session.execute) {
+		return false;
+	} else {
+		var ret = {error: -1, errorstring: "Report: Configuration could not be parsed."};
+		try {
+			ret = JSON.parse(call(node));
+		} catch(ex) {}
+
+		return ret;
+	}
+}
+
+/**
+ * read all configurations from nodes
+ */
+function _readAllConfigs() {
+	var ret = [];
+	var folder = Ua.findNode(baseDir);
+	
+	var folderExist = Ua.Status(folder) != Ua.Status.BADNODEIDUNKNOWN;
+	
+	if (!folderExist)
+		return false;
+
+	var result = folder.result.browse({
+		direction: Ua.Node.BROWSEDIRECTION_FORWARD,
+		reference: Ua.Reference.HIERARCHICALREFERENCES,
+		subType: true,
+		nodeClass: Ua.NodeClass.NODECLASS_UNSPECIFIED,
+		typeDefinition : "VariableTypes.ATVISE.ScriptCode",
+		recursive: true,
+		maxResult: 0
+	}).result;
+
+	for (var i in result) {
+		if (result[i].node.nodeId.address.indexOf("schedulerTimer") == -1)
+			ret.push(_readConfig(result[i].node.nodeId.address));
+	}
+	
+	return ret;
+}
+
+/**
+ * write configuration to node
+ * @param name
+ * @param cfg
+ */
+function _writeConfig(cfg) {
+	var scriptvalue = _createConfiguration(cfg);
+	var node = baseDir + "." + cfg.name;
+	var path = node.substring(0, node.lastIndexOf("."));
+
+	checkDir(path);	
+	var writeNode = Ua.findNode(node);
+	var writeNodeExist = Ua.Status(writeNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	var pathNode = Ua.findNode(path);
+	if(!pathNode.result.permissions.session.engineer)
+		return false;
+
+	if (!writeNodeExist) {
+		_createNode(node, "VARIABLE", "VariableTypes.ATVISE.ScriptCode", "XMLELEMENT", scriptvalue);
+	} else {
+		writeNode.result.value = scriptvalue;
+	}
+	
+	return true;
+}
+
+/**
+ * delete configuration node
+ * @param name
+ */
+function _deleteConfig(name) {
+	if (typeof name == "undefined")
+		return {error: -1, errorstring: "Report: Configuration name is not specified."};
+
+	var node = name;
+	if (name.indexOf("AGENT.OBJECTS") == -1) {
+		node = baseDir + "." + name;
+	} else {
+		name = node.replace(baseDir + ".","");
+	}
+
+	var statusNode = Ua.findNode(statusAddr);
+	var statusNodeExist = Ua.Status(statusNode) != Ua.Status.BADNODEIDUNKNOWN;
+	
+	if (statusNodeExist) {
+		var status = statusNode.result.value;
+		try {
+			status = JSON.parse(status);
+			if(status.log && status.log[name]) {
+				delete status.log[name];
+				statusNode.result.value = JSON.stringify(status);
+			}
+		} catch (ex) {
+			console.log("Report: Status node could not be parsed.")
+
+		}
+	} 
+
+	var readNode = Ua.findNode(node).result;
+	var readNodeExist = Ua.Status(readNode) != Ua.Status.BADNODEIDUNKNOWN;
+	
+	if (!readNodeExist) {
+		return false;
+	} else {
+		return readNode.remove().result;
+	}
+}
+
+
+/**
+ * check if directories exist and create if missing
+ * @param dir
+ */
+function checkDir(path) {
+	var directories = path.split(".");
+	var dir = "";
+	for (var i in directories) {
+		if (dir == "")
+			dir = directories[i];
+		else
+			dir = dir + "." + directories[i];
+
+		var dirNode = Ua.findNode(dir);
+		var dirNodeExist = Ua.Status(dirNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+		var upperDir = dir.substring(0, dir.lastIndexOf("."));
+		
+		if(upperDir) {
+			var upperDirNode = Ua.findNode(upperDir);
+			if(!upperDirNode.result.permissions.session.engineer)
+				return false;
+			
+			if (!dirNodeExist) {
+				_createFolder(dir, "OBJECT", "i=61", "FOLDERTYPE");
+			}
+		}
+	}
+}
+
+/**
+ * Configuration handle functions
+ */
+
+if (configuration && typeof configuration == "string") {
+	try {
+		configuration = JSON.parse(configuration);
+
+		// If the config name has been parsed to a number, we cast it back to string
+		if (typeof configuration === "number") {
+			configuration = String(configuration);
+		}
+	} catch (ex) {}
+}
+
+checkDir(baseDir);
+_readStatus();
+_createGlobals();
+
+// Call function based on given parameters
+if (action == "read" && typeof configuration == "string" && configuration != "") {
+	return _readConfig(configuration);
+} else if (action == "read" && typeof configuration == "string" && configuration == "") {
+	return _readAllConfigs();
+} else if (action == "write" && typeof configuration == "object") {
+	if (configuration.force)
+		return _writeConfig(configuration);
+
+	var validityCheck = _checkConfig(configuration);
+	if (validityCheck == true)
+		return _writeConfig(configuration);
+	else
+		return validityCheck;
+} else if (action == "check" && typeof configuration == "object") {
+	return _checkConfig(configuration);
+} else if (action == "delete" && typeof configuration == "string") {
+	return _deleteConfig(configuration);
+} else {
+	return {error: -1, errorstring: "Report: No valid action for configuration handler specified."};
+}]]></code>
+</script>

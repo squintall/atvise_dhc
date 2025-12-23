@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.hmi.button_zoom_out
+NodeClass: Variable
+BrowseName: 1:button_zoom_out
+DisplayName: en|button_zoom_out
+Description: en|button_zoom_out
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

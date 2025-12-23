@@ -1,0 +1,864 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+    <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the timer object display
+ * ----------------------------------------
+ * This script only supports the display of the timer display
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var activeNode = webMI.query["activeNode"] == undefined ? "" : webMI.query["activeNode"];
+var activeValue = webMI.query["activeValue"] == undefined ? "" : webMI.query["activeValue"];
+var configNode = webMI.query["configNode"];
+var parameter = webMI.query;
+var data = [];
+var filterTo1 = "";
+var filterFrom1 = "";
+var filterTo2 = "";
+var filterFrom2 = "";
+var filterSource = "";
+var filterStatus = "";
+var readonly = false;
+var right = webMI.query["right"] == undefined ? "" : webMI.query["right"];
+var tableController;
+var tableID = webMI.query["timerId"] + "_timer_table";
+var timerId = webMI.query["timerId"];
+var timeStep = webMI.query["timeStep"];
+var timerWin;
+var startAddress = webMI.query["startAddress"];
+
+
+/**
+ * ACCESS CONTROL SETTINGS
+ */
+var accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+var accessDenied = true;
+
+
+/**
+ * RUNTIME SECTION
+ */
+
+
+/**
+ * Load resources for table and setup configuration
+ */
+webMI.table.loadResources(function () {
+	/* create configuration */
+	var config = [];
+
+	/* define some columns */
+	config["columns"] = [
+		{
+			id: "key",
+			name: "T{#}",
+			field: "key",
+			sortable: true,
+			filter: false,
+			width: 50,
+			sortByDefault: true,
+			sortByDefaultAsc: true,
+			visible: true
+		},
+		{
+			id: "recurring",
+			name: "T{Recurring}",
+			field: "recurring",
+			sortable: true,
+			filter: false,
+			width: getParameter("columnWidth0", "number"),
+			visible: getParameter("column0", "boolean")
+		},
+		{
+			id: "first_occurrence",
+			name: "T{First occ.}",
+			field: "startDate",
+			sortable: true,
+			filter: false,
+			formatter: dateFormatter,
+			width: getParameter("columnWidth1", "number"),
+			visible: getParameter("column1", "boolean")
+		},
+		{
+			id: "last_occurrence",
+			name: "T{Last occ.}",
+			field: "endDate",
+			sortable: true,
+			filter: false,
+			formatter: dateFormatter,
+			width: getParameter("columnWidth2", "number"),
+			visible: getParameter("column2", "boolean")
+		},
+		{
+			id: "start_time",
+			name: "T{Start time}",
+			field: "startTime",
+			sortable: true,
+			filter: false,
+			width: getParameter("columnWidth3", "number"),
+			visible: getParameter("column3", "boolean")
+		},
+		{
+			id: "duration",
+			name: "T{Duration (min)}",
+			field: "duration",
+			sortable: true,
+			filter: false,
+			width: getParameter("columnWidth4", "number"),
+			visible: getParameter("column4", "boolean")
+		},
+		{
+			id: "description",
+			name: "T{Description}",
+			field: "text",
+			sortable: true,
+			filter: false,
+			formatter: escapeHTMLFormatter,
+			width: getParameter("columnWidth5", "number"),
+			visible: getParameter("column5", "boolean")
+		},
+		{
+			id: "node",
+			name: "T{Node}",
+			field: "node",
+			sortable: true,
+			filter: false,
+			formatter: escapeHTMLFormatter,
+			width: getParameter("columnWidth6", "number"),
+			visible: getParameter("column6", "boolean")
+		},
+		{
+			id: "value_on",
+			name: "T{Value on}",
+			field: "valueOn",
+			sortable: true,
+			filter: false,
+			formatter: escapeHTMLFormatter,
+			width: getParameter("columnWidth7", "number"),
+			visible: getParameter("column7", "boolean")
+		},
+		{
+			id: "value_off",
+			name: "T{Value off}",
+			field: "valueOff",
+			sortable: true,
+			filter: false,
+			formatter: escapeHTMLFormatter,
+			width: getParameter("columnWidth9", "number"),
+			visible: getParameter("column8", "boolean")
+		},
+		{
+			id: "status",
+			name: "T{Status}",
+			field: "status",
+			sortable: true,
+			filter: false,
+			width: getParameter("columnWidth9", "number"),
+			visible: getParameter("column9", "boolean")
+		},
+		{
+			id: "action",
+			name: "T{Action}",
+			field: "action",
+			sortable: false,
+			filter: false,
+			formatter: actionFormatter,
+			width: getParameter("columnWidth10", "number"),
+			visible: getParameter("column10", "boolean")
+		}
+	];
+
+	/* table will run in no data mode > so use once */
+	config["mode"] = "once";
+
+	/* no initial data required > so blank customer request */
+	config["dataRequestFunction"] = function () {
+	};
+
+	config["onClickCallback"] = function (e, clickinfo) {
+		clickHandler(clickinfo);
+	};
+
+	/* Register configuration */
+	webMI.table.register(tableID, "config", config);
+	webMI.table.setReady(tableID, "config");
+});
+
+if (right.search(/SYSTEM\.SECURITY\.RIGHTS\./) != -1) {
+	right = right.substring(23, right.length); //remove "prefix" SYSTEM.SECURITY.RIGHTS.
+}
+
+if (right != "") {
+	webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+		readonly = true;
+		if ("username" in e && e.username != "") {
+			readonly = !webMI.hasRight(right);
+		}
+	});
+}
+
+if (activeNode != "" && String(activeValue) != "") {
+	webMI.data.subscribe(activeNode, function (e) {
+		var nodeActiveValue = e.value;
+		if (typeof nodeActiveValue == "boolean") {
+			readonly = !(String(nodeActiveValue) == activeValue);
+		} else if (typeof nodeActiveValue == "number") {
+			try {
+				var temp = parseFloat(activeValue);
+				readonly = !(nodeActiveValue == temp);
+			} catch (e) {
+				readonly = true;
+			}
+		} else {
+			readonly = !(nodeActiveValue == activeValue);
+		}
+	});
+}
+
+webMI.addOnload(function () {
+	webMI.gfx.setText("timerid", timerId);
+	reset();
+});
+
+webMI.table.waitReady(tableID, "controller", function () {
+	const configNodeParent = configNode.substr(0, configNode.lastIndexOf("."));
+
+	var requiredRights = {
+		nodeIds: [
+			configNodeParent,
+			configNode,
+			configNode,
+			configNode,
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AddNode",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.SetNodeValue",
+			"SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.CheckNodeExists"
+		],
+		rights: ["engineer", "read", "write", "engineer", "execute", "execute", "execute"]
+	};
+
+	function setAccessAllowed() {
+		webMI.trigger.fire("com.atvise.setActive", true, "addnew");
+
+		tableController = webMI.table.request(tableID, "controller");
+
+		function prepareData(item, key) {
+			var startDate = new Date(item.startDate);
+			item.key = key;
+			item.recurring = getType(item.repeatPeriod, item.weekdays);
+			item.duration = getTime(startDate, item.duration / 60);
+			item.startTime = webMI.sprintf("%02d:%02d", startDate.getHours(), startDate.getMinutes() + 0.0001);
+			item.node = item.nodeOn.replace(/AGENT.OBJECTS./g, "");
+			item.status = getActive(item.active);
+			return item;
+		}
+
+		function getLocalConfig(globalConfig) {
+			var local = { configs: [] };
+			for (var i = 0; i < globalConfig.length; i++) {
+				if (globalConfig[i].id != undefined && globalConfig[i].id == timerId) return globalConfig[i].config;
+			}
+			return local;
+		}
+
+		function createTable(e) {
+			data = [];
+			tableController.clearData();
+			var localConfig = getLocalConfig(JSON.parse(e.value));
+			if (localConfig.configs) {
+				var rc = 0;
+				for (var i = 0; i < localConfig.configs.length; i++) {
+					data.push(prepareData(localConfig.configs[i], ++rc));
+				}
+			}
+			tableController.addData({ result: data.filter(filterFunction) });
+		}
+
+		webMI.data.call(
+			"AddNode",
+			{
+				address: configNode,
+				typeDefinition: "i=62",
+				dataType: "STRING",
+				value: "[]",
+				nodeClass: "VARIABLE"
+			},
+			function (result) {
+				if ("error" in result) {
+					return;
+				}
+				webMI.data.subscribe(configNode, function (e) {
+					createTable(e);
+				});
+				webMI.data.call(
+					"AddNode",
+					{
+						address: configNode + ".timerScript",
+						typeDefinition: "VariableTypes.ATVISE.ScriptCode",
+						dataType: "XMLELEMENT",
+						value: "",
+						nodeClass: "VARIABLE"
+					},
+					function (result) {
+						if ("error" in result) {
+							return;
+						}
+						webMI.data.call(
+							"AddNode",
+							{
+								address: configNode + ".timerScript.scriptVersion",
+								typeDefinition: "i=62",
+								dataType: "STRING",
+								value: "1.0",
+								nodeClass: "VARIABLE"
+							},
+							function (result) {
+								if ("error" in result) {
+									return;
+								}
+							}
+						);
+						webMI.data.call(
+							"SetNodeValue",
+							{
+								address: configNode + ".timerScript",
+								addressVersion: configNode + ".timerScript.scriptVersion",
+								value:
+									'<?xml version="1.0" encoding="UTF-8"?><script><parameter name="mytimer" type="timer" trigger="true" relative="false" value="" starttime="00:00:00" repeat="00:00:20"/><code><![CDATA[' +
+									scriptCode +
+									"]]\><\/code><\/script>",
+								version: "1.1" /*on script change increase this*/
+							},
+							function (result) {
+								if ("error" in result) {
+									return;
+								}
+							}
+						);
+					}
+				);
+			}
+		);
+	}
+
+	function setAccessDenied() {
+		accessDenied = true;
+		webMI.trigger.fire("com.atvise.setActive", false, "addnew");
+		webMI.trigger.fire("com.atvise.setActive", false, "date_from1");
+		webMI.trigger.fire("com.atvise.setActive", false, "date_from2");
+		webMI.trigger.fire("com.atvise.setActive", false, "date_to1");
+		webMI.trigger.fire("com.atvise.setActive", false, "date_to2");
+		webMI.trigger.fire("com.atvise.setActive", false, "variable");
+		webMI.trigger.fire("com.atvise.setActive", false, "status");
+		webMI.trigger.fire("com.atvise.setActive", false, "apply");
+		webMI.trigger.fire("com.atvise.setActive", false, "reset");
+	}
+
+	if (accessControlManager) {
+		accessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function (response) {
+			let parentEngineeringRight = response[configNodeParent].engineer;
+			let readConfigNodeRight = response[configNode].read;
+			let writeConfigNodeRight = response[configNode].write;
+			let engineerConfigNodeRight = response[configNode].engineer;
+			let callAddNodeRight = response["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.AddNode"].execute;
+			let callSetNodeValueRight = response["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.SetNodeValue"].execute;
+			let callCheckNodeExists = response["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.CheckNodeExists"].execute;
+
+			let allRights = [
+				readConfigNodeRight,
+				writeConfigNodeRight,
+				engineerConfigNodeRight,
+				callAddNodeRight,
+				callSetNodeValueRight,
+				callCheckNodeExists
+			];
+			let allRightsGranted = !allRights.includes(false);
+
+			if (!allRightsGranted && !parentEngineeringRight) {
+				setAccessDenied();
+			} else {
+				setAccessAllowed();
+			}
+		});
+	} else {
+		setAccessAllowed();
+	}
+});
+
+/**
+ * FUNCTION SECTION
+ */
+function clickHandler(clickinfo) {
+	if (clickinfo.column.id == "action") {
+		openDialog(clickinfo.item.row);
+	}
+}
+
+function dateFormatter(row, cell, value, columnDef, dataContext) {
+	//ignore already formatted values
+	if (typeof value == "string" && value.indexOf("-") > -1)
+		return value;
+	var date = new Date(parseInt(value, 10));
+	return webMI.sprintf("%d-%02d-%02d", date.getFullYear(), date.getMonth() + 1, date.getDate());
+}
+
+function escapeHTMLFormatter(row, cell, value, columnDef, dataContext) {
+	return webMI.escapeHTML(value);
+}
+
+function actionFormatter(row, cell, value, columnDef, dataContext) {
+	return "<span style = 'color:blue; cursor: pointer;'>T{Edit}</a>";
+}
+
+function getParameter(key, type) {
+	var value = parameter[key];
+	if (type == "number")
+		return parseInt(value, 10);
+	if (type == "boolean")
+		return value == "true";
+	return value;
+}
+
+function reset() {
+	webMI.trigger.fire("com.atvise.datepicker_from", null, "date_from1");
+	webMI.trigger.fire("com.atvise.datepicker_from2", null, "date_from2");
+	webMI.trigger.fire("com.atvise.datepicker_to", null, "date_to1");
+	webMI.trigger.fire("com.atvise.datepicker_to2", null, "date_to2");
+	webMI.trigger.fire("setSelectedItem", "T{[All]}", "status");
+	webMI.trigger.fire("setValue", "", "variable");
+}
+
+function filter() {
+	if (tableController) {
+		tableController.clearData();
+		tableController.addData({result: data.filter(filterFunction)});
+	}
+}
+
+function filterFunction(item) {
+	if (filterFrom1 != null && filterFrom1 != "") {
+		var filterValue = new Date(filterFrom1).setHours(0, 0, 0, 0);
+		if (item.startDate < filterValue)
+			return false;
+	}
+	if (filterTo1 != null && filterTo1 != "") {
+		var filterValue = new Date(filterTo1).setHours(23, 59, 59, 999);
+		if (item.startDate > filterValue)
+			return false;
+	}
+	if (filterFrom2 != null && filterFrom2 != "") {
+		var filterValue = new Date(filterFrom2).setHours(0, 0, 0, 0);
+		if (item.endDate < filterValue)
+			return false;
+	}
+	if (filterTo2 != null && filterTo2 != "") {
+		var filterValue = new Date(filterTo2).setHours(23, 59, 59, 999);
+		if (item.endDate > filterValue)
+			return false;
+	}
+	if (filterSource != "" && !item.node.includes(filterSource.replace(/AGENT.OBJECTS./g, "")))
+		return false;
+	if (filterStatus != "" && item.active != filterStatus)
+		return false;
+	return true;
+}
+
+function getTime(a, b) {
+	var endDate = new Date(a.getTime() + b * 6e4);
+	var time = ("0" + endDate.getHours()).substr(-2) + ":" + ("0" + endDate.getMinutes()).substr(-2);
+	if (a.getDate() != endDate.getDate()) {
+		var da = parseInt((a.getHours() * 60 + a.getMinutes() + parseInt(b) - 1439) / 1440);
+		return b + "min (+" + (da + 1) + " " + time + ")";
+	} else {
+		return b + "min (" + time + ")";
+	}
+}
+
+function getType(repeatPeriod, weekdays) {
+	var type = "none";
+	switch (repeatPeriod) {
+		case "0":
+			type = "T{Once}";
+			break;
+		case "1":
+			type = "T{Daily}";
+			break;
+		case "2":
+			type = "T{Weekly} (" + getWeekdays(weekdays) + ")";
+			break;
+		case "3":
+			type = "T{Monthly}";
+			break;
+		case "4":
+			type = "T{Yearly}";
+			break;
+		default:
+			break;
+	}
+	return type;
+}
+
+function getWeekdays(weekdays) {
+	var days = "";
+	var texts = [];
+	for (var i in weekdays) {
+		if (weekdays[i] == true) {
+			var idx = parseFloat(i) - 1;
+			texts.push(getWeekdayName(idx).substr(0, 2));
+		}
+	}
+	for (var i = 0; i < texts.length; i++) {
+		days += texts[i];
+		if (i != texts.length - 1) {
+			days += ",";
+		}
+	}
+	return days;
+}
+
+function getWeekdayName(day) {
+	var name = "T{Monday}";
+	switch (day) {
+		case 0:
+			name = "T{Monday}";
+			break;
+		case 1:
+			name = "T{Tuesday}";
+			break;
+		case 2:
+			name = "T{Wednesday}";
+			break;
+		case 3:
+			name = "T{Thursday}";
+			break;
+		case 4:
+			name = "T{Friday}";
+			break;
+		case 5:
+			name = "T{Saturday}";
+			break;
+		case 6:
+			name = "T{Sunday}";
+			break;
+		default:
+			break;
+	}
+	return name;
+}
+
+function getActive(status) {
+	if (status == "true")
+		return "T{Active}";
+	else if (status == "false")
+		return "T{Inactive}";
+	else
+		return "";
+}
+
+function openDialog(id) {
+	var myQueryObject = {};
+	var title = "T{Timer Scheduler}";
+	if (readonly)
+		title += " T{readonly}";
+	for (var q in parameter) {
+		myQueryObject[q] = parameter[q];
+	}
+	myQueryObject["configNode"] = configNode;
+	myQueryObject["timerId"] = timerId;
+	myQueryObject["startAddress"] = startAddress;
+	myQueryObject["timeStep"] = timeStep;
+	myQueryObject["eventId"] = id;
+	myQueryObject["readonly"] = readonly;
+	timerWin = webMI.display.openWindow({
+		url: "../../timer/timer.html",
+		extern: false,
+		height: 610,
+		menubar: false,
+		modal: true,
+		movable: true,
+		resizable: false,
+		scrollbars: false,
+		status: false,
+		title: title,
+		toolbar: false,
+		width: 800,
+		query: myQueryObject,
+		close_on_esc: false
+	});
+}
+
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect("com.atvise.close_timer", function (e) {
+	webMI.display.closeWindow(timerWin);
+});
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		var id = "addnew";
+		var value = e.value;
+		return (function (value) {
+			var myQueryObject = {};
+			var title = "T{Timer Scheduler}";
+			if (readonly)
+				title += " T{readonly}";
+			for (var q in parameter) {
+				myQueryObject[q] = parameter[q];
+			}
+			myQueryObject["configNode"] = configNode;
+			myQueryObject["timerId"] = timerId;
+			myQueryObject["startAddress"] = startAddress;
+			myQueryObject["timeStep"] = timeStep;
+			myQueryObject["readonly"] = readonly;
+			timerWin = webMI.display.openWindow({
+				url: "../../timer/timer.html",
+				extern: false,
+				height: 610,
+				menubar: false,
+				modal: true,
+				movable: true,
+				resizable: false,
+				scrollbars: false,
+				status: false,
+				title: title,
+				toolbar: false,
+				width: 800,
+				query: myQueryObject,
+				close_on_esc: false
+			});
+		})(value);
+	},
+	"addnew"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterFrom1 = e.value;
+	},
+	"date_from1"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterTo1 = e.value;
+	},
+	"date_to1"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterFrom2 = e.value;
+	},
+	"date_from2"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterTo2 = e.value;
+	},
+	"date_to2"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterSource = e.value;
+	},
+	"variable"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		filterStatus = e.value;
+	},
+	"status"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		var id = "apply";
+		var value = e.value;
+		return (function (value) {
+			filter();
+		})(value);
+	},
+	"apply"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function (e) {
+		var id = "reset";
+		var value = e.value;
+		return (function (value) {
+			reset();
+			filter();
+		})(value);
+	},
+	"reset"
+);
+
+
+/**
+ * ADDITIONAL SCRIPT CODE SECTION
+ */
+var scriptCode =
+	"function getLocalConfig(a) {\n" +
+	"    var b = {configs: []};\n" +
+	"    for (var i = 0; i < a.length; i++) {\n" +
+	"        if (a[i].config && a[i].config.configs) {\n" +
+	"            for (var j = 0; j < a[i].config.configs.length; j++) {\n" +
+	"                b.configs[b.configs.length] = a[i].config.configs[j];\n" +
+	"            }\n" +
+	"        }\n" +
+	"    }\n" +
+	"    return b;\n" +
+	"}\n" +
+	"function setInactive(a,b) {\n" +
+	"    for (var i = 0; i < a.length; i++) {\n" +
+	"        if (a[i].config && a[i].config.configs) {\n" +
+	"            for (var j = 0; j < a[i].config.configs.length; j++) {\n" +
+	"                if (a[i].config.configs[j].row == b) {\n" +
+	"                    a[i].config.configs[j].active = \"false\";\n" +
+	"					change = true;\n" +
+	"                }\n" +
+	"            }\n" +
+	"        }\n" +
+	"    }\n" +
+	"}\n" +
+	"function getBoolean(a) {\n" +
+	"    if (a == \"1\" || a == \"true\"){\n" +
+	"        return true;\n" +
+	"    } else if (a == \"0\" || a == \"false\"){\n" +
+	"        return false;\n" +
+	"    }\n" +
+	"	return null;\n" +
+	"}\n" +
+	"\n" +
+	"var configNAddress = base;\n" +
+	"var configN = Ua.findNode(configNAddress);\n" +
+	"var configNExist = Ua.Status(configN) != Ua.Status.BADNODEIDUNKNOWN;\n" +
+	"\n" +
+	"var change = false;\n" +
+	"if (configN.result.value != \"\") {\n" +
+	"    var globalConfig = JSON.parse(configN.result.value);\n" +
+	"    var timerConfig = getLocalConfig(globalConfig);\n" +
+	"    if (timerConfig != undefined && timerConfig.configs != undefined) {\n" +
+	"        for (var i = 0; i < timerConfig.configs.length; i++) {\n" +
+	"            var config = timerConfig.configs[i];\n" +
+	"            if (config != undefined && config != null && config.active == \"true\") {\n" +
+	"                var startDate = new Date(config.startDate);\n" +
+	"                var endDate = new Date(config.endDate);\n" +
+	"                var durationMS = config.duration*1000;\n" +
+	"                var repeat = config.repeat;\n" +
+	"                var repeatPeriod = config.repeatPeriod;\n" +
+	"                var valueOn = config.valueOn;\n" +
+	"                var valueOff = config.valueOff;\n" +
+	"                var weekdays = config.weekdays;\n" +
+	"                if (config.nodeOn != undefined) {\n" +
+	"                    var tempNodeOn = config.nodeOn;\n" +
+	"                    if (tempNodeOn.indexOf(\"AGENT.OBJECTS\") == -1) {\n" +
+	"                        tempNodeOn = \"AGENT.OBJECTS.\" + tempNodeOn\n" +
+	"                    }\n" +
+	"					 \n" +
+	"					 var nodeOnAddress = tempNodeOn;\n" +
+	"					 var nodeOn = Ua.findNode(nodeOnAddress);\n" +
+	"					 var nodeOnExist = Ua.Status(nodeOn) != Ua.Status.BADNODEIDUNKNOWN;\n" +
+	"					 \n" +
+	"                    if (nodeOnExist) {\n" +
+	"                        var activate = false;\n" +
+	"                        var curTime = mytimer.getTime();\n" +
+	"                        var curDayOfWeek = mytimer.getDay();\n" +
+	"                        var curDay = mytimer.getDate();\n" +
+	"                        var curMonth = mytimer.getMonth() + 1;\n" +
+	"                        var curYear = mytimer.getYear() + 1900;\n" +
+	"                        var curHour = mytimer.getHours();\n" +
+	"                        var curMinutes = mytimer.getMinutes();\n" +
+	"                        if (curDayOfWeek == 0) {\n" +
+	"                            curDayOfWeek = 7\n" +
+	"                        }\n" +
+	"                        var startTime = startDate.getTime();\n" +
+	"                        var startDay = startDate.getDate();\n" +
+	"                        var startMonth = startDate.getMonth() + 1;\n" +
+	"                        var startYear = startDate.getYear() + 1900;\n" +
+	"                        var startHour = startDate.getHours();\n" +
+	"                        var startMinutes = startDate.getMinutes();\n" +
+	"                        var endDay = endDate.getDate();\n" +
+	"                        var endMonth = endDate.getMonth() + 1;\n" +
+	"                        var endYear = endDate.getYear() + 1900;\n" +
+	"                        var endHour = new Date(startTime + durationMS).getHours();\n" +
+	"                        var endMinutes = new Date(startTime + durationMS).getMinutes();\n" +
+	"                        var endTime = new Date(endYear,endMonth-1, endDay,endHour,endMinutes)\n" +
+	"                        var once = repeatPeriod == 0;\n" +
+	"                        var daily = repeatPeriod == 1;\n" +
+	"                        var weekly = repeatPeriod == 2;\n" +
+	"                        var monthly = repeatPeriod == 3;\n" +
+	"                        var yearly = repeatPeriod == 4;\n" +
+	"                        var inTime = false;\n" +
+	"                        var stayActive = true;\n" +
+	"                        if (once) {\n" +
+	"                            inTime = ((curDay == startDay && curMonth == startMonth && curYear == startYear) || (curDay == endDay && curMonth == endMonth && curYear == endYear))\n" +
+	"                        } else if (daily || weekly) {\n" +
+	"                            inTime = startTime <= curTime && endTime >= curTime;\n" +
+	"                        } else if (monthly) {\n" +
+	"                            inTime = curTime <= endTime && (curDay == startDay || curDay == endDay);\n" +
+	"                        } else if (yearly) {\n" +
+	"                            inTime = curTime <= endTime && ((curDay == startDay && curMonth == startMonth) || (curDay == endDay && curMonth == endMonth)) ;\n" +
+	"                        }\n" +
+	"                        if (inTime) {\n" +
+	"                            if (once) {\n" +
+	"                                if (curDay == startDay && curMonth == startMonth && curYear == startYear && curHour == startHour && curMinutes == startMinutes) {\n" +
+	"                                    stayActive = true;\n" +
+	"                                    if (typeof nodeOn.result.value == \"boolean\" && getBoolean(valueOn) != null){ nodeOn.result.value = getBoolean(valueOn);}\n" +
+	"                                    else { nodeOn.result.value = valueOn;}\n" +
+	"                                }\n" +
+	"                                if (curDay == endDay && curMonth == endMonth && curYear == endYear && curHour == endHour && curMinutes == endMinutes) {\n" +
+	"                                    stayActive = false;\n" +
+	"                                    if (typeof nodeOn.result.value == \"boolean\" && getBoolean(valueOff) != null){ nodeOn.result.value = getBoolean(valueOff);}\n" +
+	"                                    else { nodeOn.result.value = valueOff;}\n" +
+	"                                }\n" +
+	"                            } else if (daily || weekly && weekdays[curDayOfWeek] || monthly && (curDay == startDay || curDay == endDay) || yearly && (curDay == startDay && curMonth == startMonth || curDay == endDay && curMonth == endMonth)) {\n" +
+	"                                if (curHour == startHour && curMinutes == startMinutes) {\n" +
+	"                                    stayActive = true;\n" +
+	"                                    if (typeof nodeOn.result.value == \"boolean\" && getBoolean(valueOn) != null){ nodeOn.result.value = getBoolean(valueOn);}\n" +
+	"                                    else { nodeOn.result.value = valueOn;}\n" +
+	"                                }\n" +
+	"                                if (curHour == endHour && curMinutes == endMinutes) {\n" +
+	"                                    if (typeof nodeOn.result.value == \"boolean\" && getBoolean(valueOff) != null){ nodeOn.result.value = getBoolean(valueOff);}\n" +
+	"                                    else { nodeOn.result.value = valueOff;}\n" +
+	"                                    if (curTime > endTime) {\n" +
+	"                                        stayActive = false\n" +
+	"                                    }\n" +
+	"                                }\n" +
+	"                            }\n" +
+	"                            if (!stayActive) setInactive(globalConfig,config.row);\n" +
+	"                        }\n" +
+	"						if (!inTime && curTime > endTime){\n" +
+	"                            setInactive(globalConfig,config.row);\n" +
+	"						}\n" +
+	"                    }\n" +
+	"                }\n" +
+	"            }\n" +
+	"        }\n" +
+	"    }\n" +
+	"	if (change){\n" +
+	"		configN.result.value = JSON.stringify(globalConfig)\n" +
+	"		change = false;\n" +
+	"	}\n" +
+	"}";
+]]></code>
+</script>

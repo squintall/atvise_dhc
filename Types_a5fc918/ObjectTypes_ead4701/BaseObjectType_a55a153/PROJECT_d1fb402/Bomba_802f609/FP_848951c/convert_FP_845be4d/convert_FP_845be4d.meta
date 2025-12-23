@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Bomba.FP.convert_FP
+NodeClass: Variable
+BrowseName: 1:convert_FP
+DisplayName: en|convert_FP
+Description: en|convert_FP
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Luciernagas_1.Equipos.Caudalimetro.L1.trendCfg.squintal
+NodeClass: Variable
+BrowseName: 1:squintal
+DisplayName: en|squintal
+Description: en|squintal
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

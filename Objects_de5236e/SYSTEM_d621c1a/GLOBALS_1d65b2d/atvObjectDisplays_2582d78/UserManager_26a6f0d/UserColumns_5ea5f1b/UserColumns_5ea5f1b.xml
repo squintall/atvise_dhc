@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Value xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+	<uax:ListOfString>
+		<uax:String>&quot;1&quot;:{&quot;columnName&quot;:&quot;T{Username}&quot;,&quot;field&quot;:&quot;username&quot;,&quot;filter&quot;:&quot;true&quot;,&quot;orderMain&quot;:&quot;1&quot;,&quot;sortable&quot;:&quot;true&quot;,&quot;visibleMain&quot;:&quot;true&quot;,&quot;widthMain&quot;:&quot;125&quot;}</uax:String>
+		<uax:String>&quot;2&quot;:{&quot;columnName&quot;:&quot;T{Name}&quot;,&quot;field&quot;:&quot;name&quot;,&quot;filter&quot;:&quot;true&quot;,&quot;orderMain&quot;:&quot;2&quot;,&quot;sortable&quot;:&quot;true&quot;,&quot;visibleMain&quot;:&quot;true&quot;,&quot;widthMain&quot;:&quot;178&quot;}</uax:String>
+		<uax:String>&quot;3&quot;:{&quot;columnName&quot;:&quot;T{Description}&quot;,&quot;field&quot;:&quot;description&quot;,&quot;filter&quot;:&quot;true&quot;,&quot;orderMain&quot;:&quot;3&quot;,&quot;sortable&quot;:&quot;true&quot;,&quot;visibleMain&quot;:&quot;true&quot;,&quot;widthMain&quot;:&quot;250&quot;}</uax:String>
+		<uax:String>&quot;4&quot;:{&quot;columnName&quot;:&quot;T{Language}&quot;,&quot;field&quot;:&quot;language&quot;,&quot;filter&quot;:&quot;true&quot;,&quot;orderMain&quot;:&quot;4&quot;,&quot;sortable&quot;:&quot;true&quot;,&quot;visibleMain&quot;:&quot;true&quot;,&quot;widthMain&quot;:&quot;85&quot;}</uax:String>
+		<uax:String>&quot;5&quot;:{&quot;columnName&quot;:&quot;T{SuperUser}&quot;,&quot;field&quot;:&quot;superuser&quot;,&quot;filter&quot;:&quot;true&quot;,&quot;orderMain&quot;:&quot;5&quot;,&quot;sortable&quot;:&quot;true&quot;,&quot;visibleMain&quot;:&quot;true&quot;,&quot;widthMain&quot;:&quot;98&quot;}</uax:String>
+	</uax:ListOfString>
+</Value>

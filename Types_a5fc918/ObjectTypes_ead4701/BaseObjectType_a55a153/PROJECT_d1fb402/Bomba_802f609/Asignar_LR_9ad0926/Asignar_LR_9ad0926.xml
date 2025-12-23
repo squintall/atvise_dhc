@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="node" type="node.value" trigger="true" relative="true" offset="00:00:00" interval="00:00:10">
+    <RelativePath>
+      <Elements>
+        <RelativePathElement>
+          <TargetName>
+            <NamespaceIndex>1</NamespaceIndex>
+            <Name>loc_rem</Name>
+          </TargetName>
+        </RelativePathElement>
+      </Elements>
+    </RelativePath>
+  </parameter>
+  <code><![CDATA[var loc_rem = Ua.findNode(base + ".loc_rem");
+var Alarma_Local = Ua.findNode(base + ".Alarma_Local");
+
+
+Alarma_Local.result.value = loc_rem.result.value;]]></code>
+</script>

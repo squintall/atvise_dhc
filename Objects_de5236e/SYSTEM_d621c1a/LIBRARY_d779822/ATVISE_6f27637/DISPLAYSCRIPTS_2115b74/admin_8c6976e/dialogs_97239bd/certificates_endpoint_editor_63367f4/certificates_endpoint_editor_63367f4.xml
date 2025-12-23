@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Endpoint Certificate Editor Display Script
+ * ------------------------------------------
+ * This script supports the creation and editing of endpoint certificates.
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+const formData = {
+	applicationUri: webMI.query.applicationUri,
+	certificateStore: webMI.query.certificateStore,
+	certIniPath: webMI.query.certIniPath,
+	commonName: webMI.query.commonName,
+	country: webMI.query.country,
+	dnsName: webMI.query.dnsName,
+	ipAddress: webMI.query.ipAddress,
+	locality: webMI.query.locality,
+	organization: webMI.query.organization,
+	organizationalUnit: webMI.query.organizationalUnit,
+	state: webMI.query.state,
+	validity: webMI.query.validity,
+	keyLength: webMI.query.keyLength
+};
+
+const keyboard = webMI.query.keyboard;
+
+webMI.addOnload(function () {
+	// Function to set form value and connect value change trigger
+	function setupField(fieldName, inputField) {
+		// Set form value
+		webMI.trigger.fire("setValue", formData[fieldName], inputField);
+
+		// Connect value change trigger
+		webMI.trigger.connect(
+			"valuechanged",
+			(trigger) => {
+				formData[fieldName] = trigger.value;
+			},
+			inputField
+		);
+	}
+
+	// Setup form fields
+	setupField("commonName", "in_out_common_name");
+	setupField("applicationUri", "in_out_application_uri");
+	setupField("dnsName", "in_out_dns_name");
+	setupField("ipAddress", "in_out_ip_address");
+	setupField("organization", "in_out_organization");
+	setupField("organizationalUnit", "in_out_organizational_unit");
+	setupField("locality", "in_out_locality");
+	setupField("state", "in_out_state");
+	setupField("country", "in_out_country");
+	setupField("validity", "in_out_validity")
+	setupField("keyLength", "in_out_key_length")
+
+	// Clear any existing error message
+	webMI.gfx.setText("error_message", "");
+	webMI.gfx.setVisible("error_message", null);
+});
+
+limitTextElementWidth("label_store_path");
+limitTextElementWidth("label_cert_ini_path");
+
+/**
+ * Limits the width of an SVG text element by truncating its content and adding an omission string.
+ * If the text width exceeds the specified maximum width, the function removes characters from the start
+ * of the text content until the width is within the limit.
+ * A title element is added to the text element for accessibility, providing the full text as a tooltip.
+ *
+ * @param {string} elementId - The ID of the SVG text element to limit.
+ * @param {number} [maxWidth=220] - The maximum allowable width for the text element, in pixels.
+ * @param {string} [omissionString="…"] - The string to prepend to the truncated text to indicate that it has been shortened.
+ */
+function limitTextElementWidth(elementId, maxWidth = 300, omissionString = "…") {
+	const textElement = document.getElementById(elementId);
+	let textContent = textElement.textContent;
+
+	if (textElement.getBBox().width > maxWidth) {
+		const titleElement = webMI.rootWindow.document.createElementNS("http://www.w3.org/2000/svg", "title");
+		titleElement.textContent = textContent;
+
+		while (textElement.getBBox().width > maxWidth) {
+			textContent = textContent.slice(1, textContent.length);
+			textElement.textContent = omissionString + textContent;
+		}
+
+		textElement.appendChild(titleElement);
+	}
+}
+
+// Function to validate required form fields
+function validateFormFields() {
+	const requiredFields = ["commonName"];
+	const missingFields = requiredFields.filter((field) => !formData[field] || formData[field].trim() === "");
+
+	if (missingFields.length > 0) {
+		return missingFields; // Return the array of missing fields
+	}
+	return true; // All required fields are filled
+}
+
+// Function to show error message
+function showErrorMessage() {
+	const errorMessage = `T{Please provide the common name!}`;
+	webMI.gfx.setText("error_message", errorMessage);
+	webMI.gfx.setVisible("error_message", true);
+}
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		const validationResult = validateFormFields();
+
+		if (validationResult === true) {
+			webMI.gfx.setText("error_message", "");
+			webMI.trigger.fire("com.atvise.createCertificate", formData);
+			this.close();
+		} else {
+			showErrorMessage(validationResult); // Show the nicer error message
+		}
+	},
+	"save_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.display.closeWindow();
+	},
+	"cancel_button"
+);
+]]></code>
+</script>

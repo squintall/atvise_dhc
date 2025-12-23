@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_017_T1.nivelEnCircuito
+NodeClass: Variable
+BrowseName: 1:nivelEnCircuito
+DisplayName: en|nivelEnCircuito
+Description: en|nivelEnCircuito
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

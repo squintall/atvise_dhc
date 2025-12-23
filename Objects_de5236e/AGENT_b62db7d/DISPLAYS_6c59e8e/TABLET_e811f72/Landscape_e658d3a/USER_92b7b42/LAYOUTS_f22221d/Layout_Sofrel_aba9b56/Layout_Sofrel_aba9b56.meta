@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Landscape.USER.LAYOUTS.Layout_Sofrel
+NodeClass: Variable
+BrowseName: 1:Layout_Sofrel
+DisplayName: en|Layout_Sofrel
+Description: en|Layout_Sofrel
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

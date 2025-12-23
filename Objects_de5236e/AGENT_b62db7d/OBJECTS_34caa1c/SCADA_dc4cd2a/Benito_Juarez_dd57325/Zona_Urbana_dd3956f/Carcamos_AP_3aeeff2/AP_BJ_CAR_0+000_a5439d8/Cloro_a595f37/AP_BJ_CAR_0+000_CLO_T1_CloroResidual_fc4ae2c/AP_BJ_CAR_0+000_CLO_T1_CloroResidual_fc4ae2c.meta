@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_0+000.Cloro.AP_BJ_CAR_0+000_CLO_T1_CloroResidual
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_0+000_CLO_T1_CloroResidual
+DisplayName: en|AP_BJ_CAR_0+000_CLO_T1_CloroResidual
+Description: en|AP_BJ_CAR_0+000_CLO_T1_CloroResidual
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

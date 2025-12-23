@@ -1,0 +1,12 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Pozo_002_PM.daily_cummulative
+NodeClass: Variable
+BrowseName: 1:daily_cummulative
+DisplayName: en|daily_cummulative
+Description: en|daily_cummulative
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.daily_cummulative.high_limits
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoPozo.daily_cummulative.low_limits
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

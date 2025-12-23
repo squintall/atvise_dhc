@@ -1,0 +1,11 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.HValueAcumulado
+NodeClass: Variable
+BrowseName: 1:HValueAcumulado
+DisplayName: en|HValueAcumulado
+Description: en|HValueAcumulado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Sofrel

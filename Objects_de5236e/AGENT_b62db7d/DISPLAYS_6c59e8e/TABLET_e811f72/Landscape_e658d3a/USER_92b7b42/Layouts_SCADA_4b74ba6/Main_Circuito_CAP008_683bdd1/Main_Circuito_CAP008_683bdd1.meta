@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Landscape.USER.Layouts_SCADA.Main_Circuito_CAP008
+NodeClass: Variable
+BrowseName: 1:Main_Circuito_CAP008
+DisplayName: en|Main_Circuito_CAP008
+Description: en|Main_Circuito_CAP008
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

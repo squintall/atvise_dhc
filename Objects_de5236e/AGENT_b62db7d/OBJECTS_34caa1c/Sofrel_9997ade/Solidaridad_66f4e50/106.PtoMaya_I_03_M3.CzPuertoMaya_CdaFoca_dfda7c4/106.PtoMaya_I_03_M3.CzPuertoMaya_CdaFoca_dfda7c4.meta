@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Solidaridad.106.PtoMaya_I_03_M3.CzPuertoMaya_CdaFoca
+NodeClass: Object
+BrowseName: 1:106.PtoMaya_I_03_M3.CzPuertoMaya_CdaFoca
+DisplayName: en|106.PtoMaya_I_03_M3.CzPuertoMaya_CdaFoca
+Description: en|106.PtoMaya_I_03_M3.CzPuertoMaya_CdaFoca
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLS42.presion_min_max

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Indicador_C1
+NodeClass: Variable
+BrowseName: 1:Indicador_C1
+DisplayName: en|Indicador_C1
+Description: en|Indicador_C1
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

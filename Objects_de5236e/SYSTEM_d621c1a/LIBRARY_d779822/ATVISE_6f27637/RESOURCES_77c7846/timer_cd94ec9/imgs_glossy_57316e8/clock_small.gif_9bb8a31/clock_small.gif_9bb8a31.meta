@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/timer/imgs_glossy/clock_small.gif
+NodeClass: Variable
+BrowseName: 1:clock_small.gif
+DisplayName: en|clock_small.gif
+Description: en|clock_small.gif
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Gif

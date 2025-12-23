@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="t" type="interval" trigger="true" relative="false" value="" offset="00:00:00" interval="00:00:10"/>
+  <code><![CDATA[var volumen = Ua.findNode(base + ".current_total_volume");
+var acum_diario = Ua.findNode(base + ".historic_daily_production");
+var acum_total = Ua.findNode(base + ".historic_hourly_production");
+var pressure = Ua.findNode(base + ".current_pressure");
+var host_name = Ua.findNode(base + ".host_name");
+var name = Ua.findNode(base + ".name");
+
+//volumen.result.description = "Acumulado total de " + name.result.value + " del Tanque " + host_name.result.value;
+
+
+var host_dir = name.result.nodeId.address;
+var cadena = host_dir.split(".");
+var ind = "Carcamo_"
+
+var descripcion = "Acumulado total de " + cadena[cadena.length-5] + " en " + cadena[cadena.length-2];
+var descripcion_ad = "Acumulado diario de " + cadena[cadena.length-5] + " en " + cadena[cadena.length-2];
+
+if (descripcion.includes(ind) && !cadena[cadena.length-6].includes("Cuenca")){
+	descripcion = descripcion.replace(ind,"Tanque ");
+}
+
+volumen.result.description = descripcion;
+acum_diario.result.description = descripcion_ad;
+acum_total.result.description = descripcion;]]></code>
+</script>

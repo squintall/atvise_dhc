@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_NTE.Carcamo_6_NH_Reg_91.nivelEnCuenca
+NodeClass: Variable
+BrowseName: 1:nivelEnCuenca
+DisplayName: en|nivelEnCuenca
+Description: en|nivelEnCuenca
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Scrubber.Sensor1.sts
+NodeClass: Object
+BrowseName: 1:sts
+DisplayName: en|sts
+Description: en|sts
+EventNotifier: 0
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

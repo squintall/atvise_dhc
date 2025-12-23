@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Carcamo AP.Potencia
+NodeClass: Variable
+BrowseName: 1:Potencia
+DisplayName: en|Potencia
+Description: en|Potencia
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.HISTORY.AGGREGATETEMPLATES.Muestreo.Muestreo_Diario
+NodeClass: Object
+BrowseName: 1:Muestreo_Diario
+DisplayName: en|Muestreo_Diario
+Description: en|Muestreo_Diario
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AggregateFunction
+Reference: forward HasComponent ns=1;s=Sampled

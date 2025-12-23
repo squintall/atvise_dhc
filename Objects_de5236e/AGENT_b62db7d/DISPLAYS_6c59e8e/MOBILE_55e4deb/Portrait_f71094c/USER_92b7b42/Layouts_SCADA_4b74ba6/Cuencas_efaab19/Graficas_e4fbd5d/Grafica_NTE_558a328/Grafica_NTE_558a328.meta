@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA.Cuencas.Graficas.Grafica_NTE
+NodeClass: Variable
+BrowseName: 1:Grafica_NTE
+DisplayName: en|Grafica_NTE
+Description: en|Grafica_NTE
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

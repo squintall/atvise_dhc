@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Landscape.USER.Layouts_DHC.Custom_gauge
+NodeClass: Variable
+BrowseName: 1:Custom_gauge
+DisplayName: en|Custom_gauge
+Description: en|Custom_gauge
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg xmlns:atv="http://webmi.atvise.com/2007/svgext" version="1.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="788.23" height="640">
+ <defs/>
+ <metadata>
+  <atv:parameter behavior="mandatory" name="dataMode" desc="put data by row or column" valuetype="address" defaultvalue="AGENT.OBJECTS.ArrayModeInt"/>
+  <atv:parameter behavior="mandatory" group="Series 1" name="series0Node" desc="node" valuetype="address" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 1" name="series0Title" desc="title" valuetype="trstring"/>
+  <atv:parameter behavior="mandatory" group="Series 2" name="series1Node" desc="node" valuetype="address" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 2" name="series1Title" desc="title" valuetype="color" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 3" name="series2Node" desc="node" valuetype="display" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 3" name="series2Title" desc="title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" group="Series 4" name="series3Node" desc="node" valuetype="address" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 4" name="series3Title" desc="title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" group="Series 5" name="series4Node" desc="node" valuetype="address" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 5" name="series4Title" desc="title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" group="Series 6" name="series5Node" desc="node" valuetype="address" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 6" name="series5Title" desc="title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" group="Series 7" name="series6Node" desc="node" valuetype="address" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 7" name="series6Title" desc="title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" group="Series 8" name="series7Node" desc="node" valuetype="address" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 8" name="series7Title" desc="title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" group="Series 9" name="series8Node" desc="node" valuetype="address" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 9" name="series8Title" desc="title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" group="Series 10" name="series9Node" desc="node" valuetype="address" defaultvalue=""/>
+  <atv:parameter behavior="optional" group="Series 10" name="series9Title" desc="title" valuetype="trstring"/>
+  <atv:parameter behavior="optional" group="Series - Multidimension DataArray" name="dataArrayType" valuetype="address" defaultvalue="AGENT.OBJECTS.dataArrayType"/>
+  <atv:gridconfig gridstyle="lines" width="20" height="20" enabled="false"/>
+  <atv:snapconfig width="10" height="10" enabled="false"/>
+ </metadata>
+ <svg xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced.slickgrid.table" y="2.613" atv:refpx="397.26" transform="matrix(1.2218,0,0,1,0,0)" id="id_0" width="640" height="640" atv:refpy="322.613" x="5.149">
+  <atv:argument name="tableID" value="myAtviseDataTable"/>
+  <atv:argument name="globalColorConfig" value="SYSTEM.GLOBALS.atvObjectDisplays.Tables.ColorConfig1"/>
+ </svg>
+ <script type="text/ecmascript"><![CDATA[var dataMode;
+
+// inital loading of available Nodes
+var vars = [
+	webMI.query.series0Node,
+	webMI.query.series1Node,
+	webMI.query.series2Node,
+	webMI.query.series3Node,
+	webMI.query.series4Node,
+	webMI.query.series5Node,
+	webMI.query.series6Node,
+	webMI.query.series7Node,
+	webMI.query.series8Node,
+	webMI.query.series9Node
+];
+var arrType = webMI.query.dataArrayType;
+// #####
+
+webMI.table.loadResources(function() {
+var config = [];
+
+// ### BEGIN CONFIGURATION SECTION ###
+// configuration of table rows and their options
+var columns = [];
+columns['id'] = {id: "id", name: "T{Index}", field: "id", sortable: true, filter: true, visible: true, resizable: false};
+columns['data1'] = {id: "data1", name: "T{"+webMI.query.series0Title+"}", field: "data1", sortable: true, filter: true, width:300, visible: true, resizable: false};
+columns['data2'] = {id: "data2", name: "T{"+webMI.query.series1Title+"}", field: "data2", sortable: true, filter: true, visible: true, resizable: true, sortByDefault:true, sortByDefaultAsc: true};
+columns['data3'] = {id: "data3", name: "T{"+webMI.query.series2Title+"}", field: "data3", sortable: true, filter: true, visible: true, resizable: true};
+columns['data4'] = {id: "data4", name: "T{"+webMI.query.series3Title+"}", field: "data4", sortable: true, filter: true, visible: true, resizable: true};
+columns['data5'] = {id: "data5", name: "T{"+webMI.query.series4Title+"}", field: "data5", sortable: true, filter: true, visible: true, resizable: true};
+columns['data6'] = {id: "data6", name: "T{"+webMI.query.series5Title+"}", field: "data6", sortable: true, filter: true, visible: true, resizable: true};
+columns['data7'] = {id: "data7", name: "T{"+webMI.query.series6Title+"}", field: "data7", sortable: true, filter: true, visible: true, resizable: true};
+columns['data8'] = {id: "data8", name: "T{"+webMI.query.series7Title+"}", field: "data8", sortable: true, filter: true, visible: true, resizable: true};
+columns['data9'] = {id: "data9", name: "T{"+webMI.query.series8Title+"}", field: "data9", sortable: true, filter: true, visible: true, resizable: true};
+columns['data10'] = {id: "data10", name: "T{"+webMI.query.series9Title+"}", field: "data10", sortable: true, filter: true, visible: true, resizable: true};
+
+// config["columns"] is used for building the defined columns in the table
+config["columns"] = [
+	columns['id'],
+	columns['data1']
+];
+// #####
+
+var maxseries = vars.length; // Number of available Series Nodes
+// creating columns depending on available Series configs, which include valid Node adresses
+// pushes the data to config variable of the table (config["columns"])
+for(var i=1;i<maxseries;i++) {
+	if(vars[i]!="") { config["columns"].push(columns['data'+(i+1)]); }
+}
+// #####
+
+config["mode"] = "live"; // live mode for making array data updates possible
+config["bufferInterval"] = 50;
+
+// Configuration of the data query for the table
+config["dataRequestFunction"] = function customDataRequest(continuation) {
+	var that = this;
+	var data = {
+		result: []
+	};
+	var row = {};
+	var colmn = {};
+	var arr = [];
+	var dataArrType = 1;
+	
+	// getting subcription for checking if DataMode has changed
+	// DataMode switches the state to get the data handled for Rows OR Columns
+	that.subscribeDataMode = webMI.data.subscribe(
+		webMI.query.dataMode,
+		function(e) {
+			that.clearData();
+			handleDataUpdate();
+		}
+	);
+	
+	// getting subscription Status of available predefined Nodes
+	// data source Array of every available Parameter 'Series 0-10', Node Adress
+	// 1 Data Soruce Array per Row or Column
+	that.subscribeNodes = webMI.data.subscribe(vars,function(requestResult) {					
+		if(requestResult.value) {
+			handleDataUpdate();
+		}
+	});
+	// #####
+	
+	// unloads the subsrcibed nodes to update them immediately 
+	// by value changes from the source
+	webMI.addOnunload(
+		function() {
+			webMI.data.unsubscribe(that.subscribeDataMode);
+			webMI.data.unsubscribe(that.subscribeNodes);
+		}
+	);
+	// #####
+	
+	
+	// update handler function for updating the table and set the data of the table to latest state, 
+	// depending which Array / Data Mode is used (Column or Row)
+	function handleDataUpdate() {
+		webMI.data.read(
+			webMI.query.dataMode,
+				function(e) {
+					
+					if(e.value==0) {
+						setRow(row,data,that);
+					}
+					else if(e.value==1) {
+						setColmn(colmn,data,that);
+					}
+					else {
+						setRow(row,data,that);
+					}	
+					
+				}
+			);
+	}	
+	// #####
+	
+};
+
+// adding Data from Array with Row Values, Array = Row
+function setRow(row,data,that) {
+	// Data example: {'value1-1', 'value1-2', 'value1-3', 'value1-4'}
+
+	webMI.data.read(
+		vars,
+		function(e) {
+			that.clearData();
+		
+			for (var i = 0; i <= e.length; i++) {			
+				var n=0;
+				while(n < vars.length) {
+					n++;
+					if(vars[n-1]!="") { row["data"+n] = e[i].value[n-1]; }
+				}
+				
+				data.result = row;
+				that.addData(data);
+			}
+
+		}
+	);
+};
+
+
+// adding Data from Array with Column Values, Array = Column
+function setColmn(colmn,data,that) {
+	// Data example: {'value1-1', 'value1-2', 'value1-3', 'value1-4'}
+
+	webMI.data.read(
+		vars,
+		function(e) {
+			that.clearData();		
+
+			for (var i = 0; i <= e.length; i++) {
+				var n=0;
+				while(n < vars.length) {
+					n++;
+					if(vars[n-1]!="") { colmn["data"+n] = e[n-1].value[i]; }
+				}
+				
+				if(e[0].value[i]!=undefined) {
+					data.result = colmn;
+					that.addData(data);
+				}
+			}
+
+		}
+	);
+};
+// ########################
+
+
+// ### END CONFIGURATION SECTION ###
+webMI.table.register("myAtviseDataTable", "config", config);
+webMI.table.setReady("myAtviseDataTable", "config");
+});]]></script>
+</svg>

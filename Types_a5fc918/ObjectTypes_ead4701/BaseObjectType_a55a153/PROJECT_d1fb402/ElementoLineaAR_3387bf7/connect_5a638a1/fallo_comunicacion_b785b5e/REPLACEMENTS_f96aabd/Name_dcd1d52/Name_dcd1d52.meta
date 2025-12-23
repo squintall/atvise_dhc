@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.connect.fallo_comunicacion.REPLACEMENTS.Name
+NodeClass: Variable
+BrowseName: 1:Name
+DisplayName: en|Name
+Description: en|Name
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Alarm.Replacement

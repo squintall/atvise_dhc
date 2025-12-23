@@ -1,0 +1,44 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.GROUPS.Monitoreo_Red
+NodeClass: Object
+BrowseName: 1:Monitoreo_Red
+DisplayName: en|Monitoreo_Red
+Description: en|Monitoreo_Red
+EventNotifier: 0
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.RIGHTS.USER.Monitoreo_Red
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\agonzalez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\aguzman
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\amonsalvo
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\aperez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\balonzo
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\caruiz
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\cbroggi
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\ccanto
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\dangeles
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\dflores
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\eavila
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\erangel
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\ereyes
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\fgarcia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\fvelazquez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\gmdelaguardia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\gsacramento
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\gtorres
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jcalva
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jcastro
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jjimenez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jlozano
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\jvillalobos
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\lzarco
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\lzavala
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\marias
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\mmontis
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\nchi
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\pcruz
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\prangel
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\rvalencia
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\squintal
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\thernandez
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.ccanto
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.root
+Reference: forward Organizes ns=1;s=SYSTEM.SECURITY.USERS.squintal
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.Group

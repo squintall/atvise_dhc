@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <code><![CDATA[/* Report Scheduler *
+ *
+ * Executes scheduled report generations based on basetime, cycletime, cycleoffset and lastcycle
+ *
+ */
+
+var DEBUG = false;
+var baseDir = "AGENT.OBJECTS.ATVISE.Report";
+var now = new Date();
+now.setMilliseconds(0);
+now.setSeconds(0);
+
+/**
+ * create a folder node
+ * @param address
+ * @param nodeClass
+ * @param typeDefinition
+ * @param dataType
+ * @param value
+ */
+function _createFolder(address, nodeClass, typeDefinition, _dataType, _value) {
+	Ua.createNode(address, {
+		"nodeClass": Ua.NodeClass[nodeClass],
+		"parent": address.substring(0, address.lastIndexOf('.')),
+		"typeDefinition": typeDefinition,
+	});
+}
+
+/**
+ * create a node
+ * @param address
+ * @param nodeClass
+ * @param typeDefinition
+ * @param dataType
+ * @param value
+ */
+function _createNode(address, nodeClass, typeDefinition, dataType, value) {
+	Ua.createNode(address, {
+		"nodeClass": Ua.NodeClass[nodeClass],
+		"parent": address.substring(0, address.lastIndexOf('.')),
+		"typeDefinition": typeDefinition,
+		"dataType": Ua.DataType[dataType],
+		"value": value
+	});
+}
+
+/**
+ * read status node
+ */
+function _readStatus() {
+	var statusNode = Ua.findNode(baseDir + ".schedulerLog");
+	var statusNodeExist = Ua.Status(statusNode) != Ua.Status.BADNODEIDUNKNOWN;
+	
+	var ret = '{"active": false, "log": {}}';
+	if(statusNodeExist && statusNode.result.value != "")
+		ret = statusNode.result.value;
+	
+	try {
+		ret = JSON.parse(ret);
+	} catch (ex) {
+		console.log("Report Scheduler: Status node could not be parsed.")
+		ret = undefined;
+	}
+	
+	return ret;
+}
+
+/**
+ * write status node
+ * @param active {booo}
+ * @param status {string}
+ * @param log {object} 
+ */
+function _writeStatus(active, count, status, log) {
+	var value = {active: active, count: count, log: log};
+	var status = baseDir + ".schedulerLog";
+ 	var statusNode = Ua.findNode(status);
+	var statusNodeExist = Ua.Status(statusNode) != Ua.Status.BADNODEIDUNKNOWN;
+
+	if(!statusNodeExist) {
+		var pathNode = Ua.findNode(baseDir);	
+		var pathNodeExist = Ua.Status(pathNode) != Ua.Status.BADNODEIDUNKNOWN;
+		
+		if(!pathNodeExist) {
+			_createFolder(pathNode, "OBJECT", "i=61", "FOLDERTYPE");
+		}
+	
+		_createNode(status, "VARIABLE", "i=62", "STRING", JSON.stringify(value), "");
+	} else {
+		statusNode.result.value = JSON.stringify(value);
+	}
+	
+	return value;
+}
+
+
+/**
+ * Scheduler
+ */
+ 
+var reportStatus = _readStatus();
+
+if (!reportStatus)
+	return;
+
+//read configurations
+var allConfigs = call("Report.ConfigurationHandler", { action: "read" });
+var executionList = [];
+
+//check schedule
+for (var i in allConfigs) {
+	var cfg = allConfigs[i];
+	
+	if (DEBUG)
+		console.log("cfg: " + JSON.stringify(cfg));
+	
+	//skip configuration when not active
+	if (!cfg.active || typeof cfg.cycleTime != "object")
+		continue;
+
+	//define and check basetime, reportTime and lastCycle
+	if (!cfg.cycleOffset)
+		cfg.cycleOffset = 0;
+	var cycleOffset = cfg.cycleOffset * 60000;
+
+	var cycleTime = cfg.cycleTime;
+	if (!cycleTime.minutes || !Array.isArray(cycleTime.minutes))
+		cycleTime.minutes = [];
+	if (!cycleTime.hours || !Array.isArray(cycleTime.hours))
+		cycleTime.hours = [];
+	if (!cycleTime.daysOfWeek || !Array.isArray(cycleTime.daysOfWeek))
+		cycleTime.daysOfWeek = [];
+	if (!cycleTime.daysOfMonth || !Array.isArray(cycleTime.daysOfMonth))
+		cycleTime.daysOfMonth = [];
+	if (!cycleTime.months || !Array.isArray(cycleTime.months))
+		cycleTime.months = [];
+		
+	if (cycleTime.minutes.length == 0 && cycleTime.hours.length == 0 && cycleTime.daysOfWeek.length == 0 && cycleTime.daysOfMonth.length == 0 && cycleTime.months.length == 0) {
+		//'cycleTime' is not defined or has invalid format
+		continue;
+	}
+	
+	if (cycleTime.months.length > 0 && cycleTime.daysOfMonth.length == 0)
+		cycleTime.daysOfMonth = [1];
+	if (cycleTime.daysOfMonth.length > 0 && cycleTime.hours.length == 0)
+		cycleTime.hours = [0];
+	if (cycleTime.daysOfWeek.length > 0 && cycleTime.hours.length == 0)
+		cycleTime.hours = [0];
+	if (cycleTime.hours.length > 0 && cycleTime.minutes.length == 0)
+		cycleTime.minutes = [0];
+
+	var reportTime = new Date(now.getTime() - cycleOffset);
+	if (reportTime == 'Invalid Date') {
+		console.log("Report Scheduler: "+ cfg.name + ": Invalid format for 'cycleOffset'");
+		reportTime = new Date(now.getTime());
+	}
+
+	var lastCycle = new Date(0);
+	if (reportStatus.log[cfg.name] && reportStatus.log[cfg.name].lastCycle)
+		lastCycle = new Date(reportStatus.log[cfg.name].lastCycle);
+	var nextCycle = new Date(lastCycle.getTime() - cycleOffset);
+		
+	function cycleFulfilled(cycleTime, date) {
+		var minutesFulfilled = true;
+		var hoursFulfilled = true;
+		var weekdaysFulfilled = true;
+		var daysFulfilled = true;
+		var monthsFulfilled = true;
+		
+		if (cycleTime.minutes && cycleTime.minutes.length > 0) {
+			minutesFulfilled = false;
+			if (cycleTime.minutes.indexOf(date.getMinutes()) > -1) {
+				minutesFulfilled = true
+			}
+		}
+		
+		if (cycleTime.hours && cycleTime.hours.length > 0) { 
+			hoursFulfilled = false;
+			if (cycleTime.hours.indexOf(date.getHours()) > -1) {
+				hoursFulfilled = true
+			}
+		}	
+	
+		if (cycleTime.daysOfWeek && cycleTime.daysOfWeek.length > 0) {
+			weekdaysFulfilled = false;
+
+			//sunday can be 0 or 7
+			if (cycleTime.daysOfWeek.indexOf(0) > -1)
+				cycleTime.daysOfWeek.push(7);
+			
+			if (cycleTime.daysOfWeek.indexOf(7) > -1)
+				cycleTime.daysOfWeek.push(0);
+	
+			if (cycleTime.daysOfWeek.indexOf(date.getDay()) > -1) {
+				weekdaysFulfilled = true
+			}
+		}
+		
+		if (cycleTime.daysOfMonth && cycleTime.daysOfMonth.length > 0) {
+			daysFulfilled = false;
+			if (cycleTime.daysOfMonth.indexOf(date.getDate()) > -1) {
+				daysFulfilled = true
+			}
+		}
+		
+		if (cycleTime.months && cycleTime.months.length > 0) {
+				monthsFulfilled = false;
+			if (cycleTime.months.indexOf(date.getMonth() + 1) > -1) {
+				monthsFulfilled = true
+			}
+		}
+		
+		if (minutesFulfilled && hoursFulfilled && weekdaysFulfilled && daysFulfilled && monthsFulfilled) {
+			return true
+		}
+	
+		return false;
+	}
+	
+	if (lastCycle.getTime() == 0) {
+		//run first time
+		if (cycleFulfilled(cycleTime, reportTime))
+			executionList.push(cfg);
+	} else {
+		var hit = false;
+		var i = 0;
+
+		while (!hit) {
+			nextCycle = new Date(nextCycle.getTime() + 60000);
+			hit = cycleFulfilled(cycleTime, nextCycle);
+			
+			//prevent endless loop
+			if (i++ > 100 * 365 * 24 * 60)
+				hit = true;
+		}
+
+		if (nextCycle <= reportTime)
+			executionList.push(cfg);
+	}
+	
+	if (DEBUG) {
+		console.log("reportTime: " + reportTime.toString());
+		console.log("cycleTime: " + JSON.stringify(cycleTime));
+		console.log("lastCycle: " + lastCycle.toString());
+		console.log("nextCycle: " + nextCycle.toString());
+		console.log("execute: " + (nextCycle <= reportTime));
+	}
+}
+
+//run configurations
+for (var i in executionList) {
+	var name = executionList[i].name;
+	var reportTime = new Date(now.getTime() - (executionList[i].cycleOffset * 60000));
+
+	/* Write temporary reportStatus in order to update lastCycle, or else Report will be generated multiple times,
+	   if takes longer than one minute to generate. */
+	reportStatus.log[name] = { lastCycle: now, reportTime: reportTime, result: { sucess: null } };
+	_writeStatus(true, allConfigs.length, "Scheduler waiting", reportStatus.log);
+	var result = call(baseDir + "." + name, {reportTime: reportTime});
+	reportStatus.log[name] = {lastCycle: now, reportTime: reportTime, result: result};
+}
+
+_writeStatus(true, allConfigs.length, "Scheduler finished", reportStatus.log)]]></code>
+</script>

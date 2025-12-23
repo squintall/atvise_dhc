@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_alarmlog_small
+NodeClass: Variable
+BrowseName: 1:button_alarmlog_small
+DisplayName: en|button_alarmlog_small
+Description: en|button_alarmlog_small
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

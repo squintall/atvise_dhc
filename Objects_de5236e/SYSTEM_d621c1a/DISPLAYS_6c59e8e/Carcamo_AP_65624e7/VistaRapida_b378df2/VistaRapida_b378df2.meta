@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Carcamo AP.VistaRapida
+NodeClass: Variable
+BrowseName: 1:VistaRapida
+DisplayName: en|VistaRapida
+Description: en|VistaRapida
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

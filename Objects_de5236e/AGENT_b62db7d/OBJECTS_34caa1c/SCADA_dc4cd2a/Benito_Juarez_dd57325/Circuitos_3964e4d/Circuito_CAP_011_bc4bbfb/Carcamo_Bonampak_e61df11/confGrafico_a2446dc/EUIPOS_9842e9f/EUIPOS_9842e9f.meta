@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Bonampak.confGrafico.EUIPOS
+NodeClass: Variable
+BrowseName: 1:EUIPOS
+DisplayName: en|EUIPOS
+Description: en|EUIPOS
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

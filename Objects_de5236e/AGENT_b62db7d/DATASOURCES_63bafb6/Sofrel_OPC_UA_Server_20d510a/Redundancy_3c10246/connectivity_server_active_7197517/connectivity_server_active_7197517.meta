@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server.Redundancy.connectivity_server_active
+NodeClass: Variable
+BrowseName: 1:connectivity_server_active
+DisplayName: en|connectivity_server_active
+Description: en|connectivity_server_active
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

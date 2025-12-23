@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Grafica_Circuito_Isla_Mujeres.Presion Aeropuesto IM L1
+NodeClass: Variable
+BrowseName: 1:Presion Aeropuesto IM L1
+DisplayName: en|Presion Aeropuesto IM L1
+Description: en|Presion Aeropuesto IM L1
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

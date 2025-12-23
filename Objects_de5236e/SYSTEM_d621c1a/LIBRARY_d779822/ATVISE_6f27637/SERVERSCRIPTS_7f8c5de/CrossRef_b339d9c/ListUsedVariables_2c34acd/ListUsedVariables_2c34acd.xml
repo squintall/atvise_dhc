@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <parameter name="ua" type="uainput" trigger="false" relative="false" value=""/>
+  <code><![CDATA[/* Parse all displays of a server and collect referenced variables. Returns the referenced ones.
+Input (members of ua):
+	-node:uanodeid{mandatory} Specifies the nodeid of the server to search.
+Output (return value)	:
+	tablecolumnheaders:[string] Array of column titles
+	tablecolumntypes:[uanodeid] Array of typeDefinitions of column types
+	tabledata:[[string]] Array of string array that represents the rows of the result
+If no used variables found empty arrays are returned.
+*/
+function toNodes2(result, x) {
+	for (var i = 0; i < result.length; ++i) x.push(result[i].node);
+}
+
+var server = Ua.findNode(ua.node);
+var serverExist = Ua.Status(server) != Ua.Status.BADNODEIDUNKNOWN;
+
+if (!serverExist) throw new Error("Server:" + ua.node + " does not exist.");
+
+var displays = [];
+toNodes2(
+	Ua.findNode(server.result.nodeId.address + ".DISPLAYS").result.browse({
+		typeDefinition: "VariableTypes.ATVISE.Display",
+		recursive: true
+	}).result,
+	displays
+);
+
+toNodes2(
+	Ua.findNode("SYSTEM.DISPLAYS").result.browse({
+		typeDefinition: "VariableTypes.ATVISE.Display",
+		recursive: true
+	}).result,
+	displays
+);
+
+var strings1 = [];
+var strings2 = [];
+var strings3 = [];
+var strings4 = [];
+
+var result = call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.CrossRef.Lib.DisplayVariables", {
+	ua: {
+		node: displays,
+		server: server,
+		recursive: true
+	}
+});
+
+if (result && result.from) {
+	for (var i = 0; i < result.from.length; ++i) {
+		strings1.push(result.to[i]);
+		if (result.exists[i]) strings4.push("yes");
+		else strings4.push("no");
+
+		var fromStr = "";
+		for (var j = 0; j < result.from[i].length; ++j) {
+			if (j > 0) fromStr += "->";
+			fromStr += result.from[i][j].nodeId.address;
+		}
+		strings2.push(fromStr);
+		strings3.push(result.parent[i].nodeId.address);
+	}
+}
+
+return {
+	tablecolumnheaders: ["Node", "Used in display", "Exists"],
+	tablecolumntypes: [
+		Ua.findNode(Ua.VariableType.BASEVARIABLETYPE),
+		Ua.findNode("VariableTypes.ATVISE.Display"),
+		Ua.findNode(Ua.VariableType.BASEVARIABLETYPE)
+	],
+	tablecolumntranslate: [false, false, true],
+	tabledata: [strings1, strings3, strings4]
+};
+]]></code>
+</script>

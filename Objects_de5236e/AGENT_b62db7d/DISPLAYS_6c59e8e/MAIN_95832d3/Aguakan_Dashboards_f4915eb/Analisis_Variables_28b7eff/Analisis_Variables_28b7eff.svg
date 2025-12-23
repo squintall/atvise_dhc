@@ -1,0 +1,260 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="1000" version="1.2" width="1680" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="backgroundGradient" x1="0.98181818181818181" x2="0.036363636363636362" y1="1.0181818181818181" y2="0.090909090909090912">
+   <stop offset="0" stop-color="#a3a3a3"/>
+   <stop offset="0.9854368932038835" stop-color="#000000"/>
+  </linearGradient>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_0" x1="0.054545454545454543" x2="0.98181818181818181" y1="0.018181818181818181" y2="0.96363636363636362">
+   <stop offset="0" stop-color="#6a6a6a"/>
+   <stop offset="0.9854368932038835" stop-color="#000000"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="10" width="10"/>
+ </metadata>
+ <g atv:insensitive="true" atv:refpx="0" atv:refpy="0" id="id_17">
+  <rect atv:refpx="840" atv:refpy="500" fill="#8e8e8e" height="1000.00" id="id_20" width="1680.00" x="0" y="0"/>
+ </g>
+ <svg atv:refpx="205" atv:refpy="41" height="42" id="id_0" width="370" x="20" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Menu" y="20">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ColorActive" value="#1b91da"/>
+  <atv:argument name="ColorInactive" value="#092f47"/>
+  <atv:argument name="ColorSelectionElements" value="#126294"/>
+  <atv:argument name="CacheEnabled" value="false"/>
+  <atv:argument name="InitialRangeUnit" value="h"/>
+  <atv:argument name="InitialRange" value="5"/>
+ </svg>
+ <svg atv:refpx="343.8" atv:refpy="232.4" height="304.8" id="id_1" width="607.6" x="40" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="80">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Line"/>
+  <atv:argument name="CategoryType" value="AllData-DateTime"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_64.historic_flow"/>
+  <atv:argument name="Title" value="Caudal de Entrada"/>
+  <atv:argument name="DataReductionEnabled" value="true"/>
+  <atv:argument name="DataMaxLimit" value="219.8"/>
+  <atv:argument name="DataMinLimit" value="170.9"/>
+  <atv:argument name="TypeLimitLineMax" value="LongDashDotDot"/>
+  <atv:argument name="TypeLimitLineMin" value="LongDashDotDot"/>
+  <atv:argument name="Series1Label" value="Caudal L64"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TABACHINES.historic_flow"/>
+  <atv:argument name="Series2Label" value="Caudal Tabachines"/>
+  <atv:argument name="YName" value="(L/s)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="DataReductionMaxSize" value="500"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="DataLimitEnabled" value="true"/>
+  <atv:argument name="Series3Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TURISTICO.historic_flow"/>
+  <atv:argument name="Series3Label" value="Caudal Turístico"/>
+ </svg>
+ <svg atv:refpx="816.23" atv:refpy="232.4" height="304.8" id="id_2" transform="matrix(0.5141,0,0,1,0,0)" width="607.6" x="1283.813" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="80">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Column"/>
+  <atv:argument name="CategoryType" value="Single-Simple"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_64.historic_flow"/>
+  <atv:argument name="Title" value="Caudal Entrada Max"/>
+  <atv:argument name="DataProcessingEnabled" value="true"/>
+  <atv:argument name="DataProcessingType" value="SinglePoint-Max"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TABACHINES.historic_flow"/>
+  <atv:argument name="Series1Label" value="Caudal L64"/>
+  <atv:argument name="Series2Label" value="Caudal Tabachines"/>
+  <atv:argument name="YName" value="(L/s)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColordataLabels" value="SYSTEM.GLOBALS.atvFontColor2"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="Series3Label" value="Caudal Turístico"/>
+  <atv:argument name="Series3Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TURISTICO.historic_flow"/>
+ </svg>
+ <svg atv:refpx="1136.192" atv:refpy="232.4" height="304.8" id="id_3" transform="matrix(0.5141,0,0,1,0,0)" width="607.6" x="1906.268" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="80">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Column"/>
+  <atv:argument name="CategoryType" value="Single-Simple"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_64.historic_flow"/>
+  <atv:argument name="Title" value="Caudal Entrada Min"/>
+  <atv:argument name="DataProcessingEnabled" value="true"/>
+  <atv:argument name="DataProcessingType" value="SinglePoint-Min"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TABACHINES.historic_flow"/>
+  <atv:argument name="Series1Label" value="Caudal L64"/>
+  <atv:argument name="Series2Label" value="Caudal Tabachines"/>
+  <atv:argument name="YName" value="(L/s)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColordataLabels" value="SYSTEM.GLOBALS.atvFontColor2"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="Series3Label" value="Caudal Turístico"/>
+  <atv:argument name="Series3Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TURISTICO.historic_flow"/>
+ </svg>
+ <svg atv:refpx="1456.192" atv:refpy="232.4" height="304.8" id="id_4" transform="matrix(0.5141,0,0,1,0,0)" width="607.6" x="2528.722" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="80">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Column"/>
+  <atv:argument name="CategoryType" value="Single-Simple"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_64.historic_flow"/>
+  <atv:argument name="Title" value="Caudal Entrada Promedio"/>
+  <atv:argument name="DataProcessingEnabled" value="true"/>
+  <atv:argument name="DataProcessingType" value="FullRange-Average"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TABACHINES.historic_flow"/>
+  <atv:argument name="Series1Label" value="Caudal L64"/>
+  <atv:argument name="Series2Label" value="Caudal Tabachines"/>
+  <atv:argument name="YName" value="(L/s)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColordataLabels" value="SYSTEM.GLOBALS.atvFontColor2"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="Series3Label" value="Caudal Turístico"/>
+  <atv:argument name="Series3Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TURISTICO.historic_flow"/>
+ </svg>
+ <svg atv:refpx="343.8" atv:refpy="532.4" height="304.8" id="id_5" width="607.6" x="40" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="380">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Line"/>
+  <atv:argument name="CategoryType" value="AllData-DateTime"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_2KP.historic_flow"/>
+  <atv:argument name="Title" value="Caudal de Salida"/>
+  <atv:argument name="DataReductionEnabled" value="true"/>
+  <atv:argument name="DataMaxLimit" value="8019.99"/>
+  <atv:argument name="DataMinLimit" value="8000.01"/>
+  <atv:argument name="TypeLimitLineMax" value="LongDashDotDot"/>
+  <atv:argument name="TypeLimitLineMin" value="LongDashDotDot"/>
+  <atv:argument name="Series1Label" value="Caudal 2000 Portillo"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_UXMAL.historic_flow"/>
+  <atv:argument name="Series2Label" value="Caudal Uxmal"/>
+  <atv:argument name="YName" value="(L/s)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="DataReductionMaxSize" value="500"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+ </svg>
+ <svg atv:refpx="816.23" atv:refpy="532.4" height="304.8" id="id_6" transform="matrix(0.5141,0,0,1,0,0)" width="607.6" x="1283.812" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="380">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Column"/>
+  <atv:argument name="CategoryType" value="Single-Simple"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_2KP.historic_flow"/>
+  <atv:argument name="Title" value="Caudal Salida Max"/>
+  <atv:argument name="DataProcessingEnabled" value="true"/>
+  <atv:argument name="DataProcessingType" value="SinglePoint-Max"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_UXMAL.historic_flow"/>
+  <atv:argument name="Series1Label" value="Caudal 2000 Portillo"/>
+  <atv:argument name="Series2Label" value="Caudal Uxmal"/>
+  <atv:argument name="YName" value="(L/s)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColordataLabels" value="SYSTEM.GLOBALS.atvFontColor2"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+ </svg>
+ <svg atv:refpx="1136.192" atv:refpy="532.4" height="304.8" id="id_7" transform="matrix(0.5141,0,0,1,0,0)" width="607.6" x="1906.267" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="380">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Column"/>
+  <atv:argument name="CategoryType" value="Single-Simple"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_2KP.historic_flow"/>
+  <atv:argument name="Title" value="Caudal Salida Min"/>
+  <atv:argument name="DataProcessingEnabled" value="true"/>
+  <atv:argument name="DataProcessingType" value="SinglePoint-Min"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_UXMAL.historic_flow"/>
+  <atv:argument name="Series1Label" value="Caudal 2000 Portillo"/>
+  <atv:argument name="Series2Label" value="Caudal Uxmal"/>
+  <atv:argument name="YName" value="(L/s)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColordataLabels" value="SYSTEM.GLOBALS.atvFontColor2"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+ </svg>
+ <svg atv:refpx="1456.192" atv:refpy="532.4" height="304.8" id="id_8" transform="matrix(0.5141,0,0,1,0,0)" width="607.6" x="2528.721" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="380">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Column"/>
+  <atv:argument name="CategoryType" value="Single-Simple"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_2KP.historic_flow"/>
+  <atv:argument name="Title" value="Caudal Salida Promedio"/>
+  <atv:argument name="DataProcessingEnabled" value="true"/>
+  <atv:argument name="DataProcessingType" value="FullRange-Average"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_UXMAL.historic_flow"/>
+  <atv:argument name="Series1Label" value="Caudal 2000 Portillo"/>
+  <atv:argument name="Series2Label" value="Caudal Uxmal"/>
+  <atv:argument name="YName" value="(L/s)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColordataLabels" value="SYSTEM.GLOBALS.atvFontColor2"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+ </svg>
+ <svg atv:refpx="343.8" atv:refpy="832.4" height="304.8" id="id_9" width="607.6" x="40" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="680">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Line"/>
+  <atv:argument name="CategoryType" value="AllData-DateTime"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_64.historic_pressure"/>
+  <atv:argument name="Title" value="Presion de Salida"/>
+  <atv:argument name="DataReductionEnabled" value="true"/>
+  <atv:argument name="DataMaxLimit" value="8019.99"/>
+  <atv:argument name="DataMinLimit" value="8000.01"/>
+  <atv:argument name="TypeLimitLineMax" value="LongDashDotDot"/>
+  <atv:argument name="TypeLimitLineMin" value="LongDashDotDot"/>
+  <atv:argument name="Series1Label" value="Presion Salida L 64"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TABACHINES.historic_flow"/>
+  <atv:argument name="Series2Label" value="Presion Salida Tabachines"/>
+  <atv:argument name="YName" value="(kg/cm2)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="Series3Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TURISTICO.historic_pressure"/>
+  <atv:argument name="Series3Label" value="Presion Salida Turístico"/>
+  <atv:argument name="DataReductionMaxSize" value="500"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+ </svg>
+ <svg atv:refpx="816.23" atv:refpy="832.4" height="304.8" id="id_10" transform="matrix(0.5141,0,0,1,0,0)" width="607.6" x="1283.812" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="680">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Column"/>
+  <atv:argument name="CategoryType" value="Single-Simple"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_64.historic_pressure"/>
+  <atv:argument name="Title" value="Presion Salida Max"/>
+  <atv:argument name="DataProcessingEnabled" value="true"/>
+  <atv:argument name="DataProcessingType" value="SinglePoint-Max"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TABACHINES.historic_flow"/>
+  <atv:argument name="Series1Label" value="Presion Salida L 64"/>
+  <atv:argument name="Series2Label" value="Presion Salida Tabachines"/>
+  <atv:argument name="YName" value="(kg/cm2)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="Series3Node" value="AGENT.OBJECTS.Simulation.Aguakan.Presion_3S"/>
+  <atv:argument name="Series3Label" value="Presion Salida 3"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColordataLabels" value="SYSTEM.GLOBALS.atvFontColor2"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+ </svg>
+ <svg atv:refpx="1136.192" atv:refpy="832.4" height="304.8" id="id_11" transform="matrix(0.5141,0,0,1,0,0)" width="607.6" x="1906.267" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="680">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Column"/>
+  <atv:argument name="CategoryType" value="Single-Simple"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_64.historic_pressure"/>
+  <atv:argument name="Title" value="Presion Salida Min"/>
+  <atv:argument name="DataProcessingEnabled" value="true"/>
+  <atv:argument name="DataProcessingType" value="SinglePoint-Min"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TABACHINES.historic_flow"/>
+  <atv:argument name="Series1Label" value="Presion Salida L 64"/>
+  <atv:argument name="Series2Label" value="Presion Salida Tabachines"/>
+  <atv:argument name="YName" value="(kg/cm2)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="Series3Node" value="AGENT.OBJECTS.Simulation.Aguakan.Presion_3S"/>
+  <atv:argument name="Series3Label" value="Presion Salida 3"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColordataLabels" value="SYSTEM.GLOBALS.atvFontColor2"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+ </svg>
+ <svg atv:refpx="1456.192" atv:refpy="832.4" height="304.8" id="id_12" transform="matrix(0.5141,0,0,1,0,0)" width="607.6" x="2528.721" xlink:href="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Advanced_Dashboard.Advanced_Dashboard_Chart_Element" y="680">
+  <atv:argument name="DashboardID" value="Caudales"/>
+  <atv:argument name="ChartType" value="Column"/>
+  <atv:argument name="CategoryType" value="Single-Simple"/>
+  <atv:argument name="Series1Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_64.historic_pressure"/>
+  <atv:argument name="Title" value="Presion Salida Promedio"/>
+  <atv:argument name="DataProcessingEnabled" value="true"/>
+  <atv:argument name="DataProcessingType" value="FullRange-Average"/>
+  <atv:argument name="Series2Node" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_PJ.Equipos.Caudalimetro.L_TABACHINES.historic_flow"/>
+  <atv:argument name="Series1Label" value="Presion Salida L 64"/>
+  <atv:argument name="Series2Label" value="Presion Salida Tabachines"/>
+  <atv:argument name="YName" value="(kg/cm2)"/>
+  <atv:argument name="XName" value="Tiempo"/>
+  <atv:argument name="Series3Node" value="AGENT.OBJECTS.Simulation.Aguakan.Presion_3S"/>
+  <atv:argument name="Series3Label" value="Presion Salida 3"/>
+  <atv:argument name="ColorSeriesPalette" value="SYSTEM.GLOBALS.Color_Global_1"/>
+  <atv:argument name="ColordataLabels" value="SYSTEM.GLOBALS.atvFontColor2"/>
+  <atv:argument name="ColorTitle" value="SYSTEM.GLOBALS.Color_Global_1"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+</svg>

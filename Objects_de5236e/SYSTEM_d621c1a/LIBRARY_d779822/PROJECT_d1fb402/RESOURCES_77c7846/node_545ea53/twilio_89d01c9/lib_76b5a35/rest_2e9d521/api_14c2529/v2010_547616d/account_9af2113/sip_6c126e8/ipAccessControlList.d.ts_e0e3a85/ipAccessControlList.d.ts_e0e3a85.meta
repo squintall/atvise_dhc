@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/api/v2010/account/sip/ipAccessControlList.d.ts
+NodeClass: Variable
+BrowseName: 1:ipAccessControlList.d.ts
+DisplayName: en|ipAccessControlList.d.ts
+Description: en|ipAccessControlList.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

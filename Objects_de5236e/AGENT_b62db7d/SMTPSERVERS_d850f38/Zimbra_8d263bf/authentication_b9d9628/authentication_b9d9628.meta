@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.SMTPSERVERS.Zimbra.authentication
+NodeClass: Variable
+BrowseName: 1:authentication
+DisplayName: en|authentication
+Description: en|authentication
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Paseos_del_Mar_2.Equipos.Bombas.Variador_6.ON
+NodeClass: Variable
+BrowseName: 1:ON
+DisplayName: en|ON
+Description: en|ON
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

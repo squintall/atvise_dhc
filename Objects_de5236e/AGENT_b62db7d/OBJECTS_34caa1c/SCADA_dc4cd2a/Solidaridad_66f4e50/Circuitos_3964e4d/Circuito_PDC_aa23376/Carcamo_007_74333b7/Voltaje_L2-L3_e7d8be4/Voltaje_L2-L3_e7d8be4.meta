@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_007.Voltaje_L2-L3
+NodeClass: Variable
+BrowseName: 1:Voltaje_L2-L3
+DisplayName: en|Voltaje_L2-L3
+Description: en|Voltaje_L2-L3
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Voltaje_L2-L3.high_limits
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Voltaje_L2-L3.low_limits

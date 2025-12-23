@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.jpat.language
+NodeClass: Variable
+BrowseName: 1:language
+DisplayName: en|language
+Description: en|language
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

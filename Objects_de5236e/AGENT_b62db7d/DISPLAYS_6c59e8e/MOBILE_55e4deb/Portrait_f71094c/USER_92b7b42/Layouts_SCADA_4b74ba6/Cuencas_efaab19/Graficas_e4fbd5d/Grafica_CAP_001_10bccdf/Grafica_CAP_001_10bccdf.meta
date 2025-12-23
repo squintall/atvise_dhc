@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.MOBILE.Portrait.USER.Layouts_SCADA.Cuencas.Graficas.Grafica_CAP_001
+NodeClass: Variable
+BrowseName: 1:Grafica_CAP_001
+DisplayName: en|Grafica_CAP_001
+Description: en|Grafica_CAP_001
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

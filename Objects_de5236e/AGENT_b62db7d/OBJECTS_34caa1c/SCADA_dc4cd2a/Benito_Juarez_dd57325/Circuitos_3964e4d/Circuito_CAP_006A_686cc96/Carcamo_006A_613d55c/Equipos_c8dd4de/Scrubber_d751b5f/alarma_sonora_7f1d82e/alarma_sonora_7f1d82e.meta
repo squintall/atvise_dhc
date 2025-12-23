@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_006A.Equipos.Scrubber.alarma_sonora
+NodeClass: Variable
+BrowseName: 1:alarma_sonora
+DisplayName: en|alarma_sonora
+Description: en|alarma_sonora
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

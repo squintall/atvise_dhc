@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Zona_Urbana.Carcamos_AP.AP_BJ_CAR_LAS_AMERICAS.Bombas.Variador_1.rpm
+NodeClass: Variable
+BrowseName: 1:rpm
+DisplayName: en|rpm
+Description: en|rpm
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.ALARMING.Scripts.AlarmCommunicationScriptON
+NodeClass: Variable
+BrowseName: 1:AlarmCommunicationScriptON
+DisplayName: en|AlarmCommunicationScriptON
+Description: en|AlarmCommunicationScriptON
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode.AlarmModification

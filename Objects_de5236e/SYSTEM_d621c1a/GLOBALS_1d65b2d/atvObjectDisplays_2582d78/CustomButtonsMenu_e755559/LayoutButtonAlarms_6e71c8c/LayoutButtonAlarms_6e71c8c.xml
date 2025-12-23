@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Value xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+	<uax:ListOfString>
+		<uax:String>&quot;0&quot;:{&quot;iconAlignment&quot;:&quot;&quot;,&quot;iconClass&quot;:&quot;&quot;,&quot;order&quot;:&quot;0&quot;,&quot;target&quot;:&quot;SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist&quot;,&quot;trigger&quot;:&quot;&quot;,&quot;text&quot;:&quot;T{Alarms}&quot;}</uax:String>
+		<uax:String>&quot;1&quot;:{&quot;iconAlignment&quot;:&quot;&quot;,&quot;iconClass&quot;:&quot;&quot;,&quot;order&quot;:&quot;1&quot;,&quot;target&quot;:&quot;SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist?view=all&quot;,&quot;trigger&quot;:&quot;&quot;,&quot;text&quot;:&quot;T{All}&quot;}</uax:String>
+		<uax:String>&quot;2&quot;:{&quot;iconAlignment&quot;:&quot;&quot;,&quot;iconClass&quot;:&quot;&quot;,&quot;order&quot;:&quot;2&quot;,&quot;target&quot;:&quot;SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist?view=shelved&quot;,&quot;trigger&quot;:&quot;&quot;,&quot;text&quot;:&quot;T{Shelved}&quot;}</uax:String>
+		<uax:String>&quot;3&quot;:{&quot;iconAlignment&quot;:&quot;&quot;,&quot;iconClass&quot;:&quot;&quot;,&quot;order&quot;:&quot;3&quot;,&quot;target&quot;:&quot;SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist?view=suppressed&quot;,&quot;trigger&quot;:&quot;&quot;,&quot;text&quot;:&quot;T{Suppressed}&quot;}</uax:String>
+		<uax:String>&quot;4&quot;:{&quot;iconAlignment&quot;:&quot;&quot;,&quot;iconClass&quot;:&quot;&quot;,&quot;order&quot;:&quot;4&quot;,&quot;target&quot;:&quot;SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.alarmlist?view=disabled&quot;,&quot;trigger&quot;:&quot;&quot;,&quot;text&quot;:&quot;T{Disabled}&quot;}</uax:String>
+	</uax:ListOfString>
+</Value>

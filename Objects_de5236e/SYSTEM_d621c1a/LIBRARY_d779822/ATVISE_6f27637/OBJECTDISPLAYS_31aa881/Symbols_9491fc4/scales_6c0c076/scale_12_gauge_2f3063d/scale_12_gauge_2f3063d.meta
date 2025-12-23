@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Symbols.scales.scale_12_gauge
+NodeClass: Variable
+BrowseName: 1:scale_12_gauge
+DisplayName: en|scale_12_gauge
+Description: en|scale_12_gauge
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

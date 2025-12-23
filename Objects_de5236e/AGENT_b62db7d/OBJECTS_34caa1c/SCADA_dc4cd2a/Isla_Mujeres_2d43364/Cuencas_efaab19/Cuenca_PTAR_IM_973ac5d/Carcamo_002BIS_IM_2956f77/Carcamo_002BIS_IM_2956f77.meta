@@ -1,0 +1,17 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_002BIS_IM
+NodeClass: Object
+BrowseName: 1:Carcamo_002BIS_IM
+DisplayName: en|Carcamo_002BIS_IM
+Description: en|Carcamo_002BIS_IM
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.EE
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Insertar_PGSQL
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Monitoreo IT
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Nivel_Estatico
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Principal
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.Tanque
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.cliackarea
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.conectividad
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.historizacion_00_05

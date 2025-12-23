@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_006A.Carcamo_Paseos_del_Mar_2.com
+NodeClass: Variable
+BrowseName: 1:com
+DisplayName: en|com
+Description: en|Conectividad de Paseos del Mar
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.ElementoLinea.com.Comunicacion

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_014.Equipos.Caudalimetro.Cruda_Entrada.historic_hourly_production
+NodeClass: Variable
+BrowseName: 1:historic_hourly_production
+DisplayName: en|historic_hourly_production
+Description: en|Acumulado total de Tanque 014 en Cruda_Entrada
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Caudalimetros

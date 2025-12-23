@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.DiskSpaceMonitoringConfig
+NodeClass: Variable
+BrowseName: 1:DiskSpaceMonitoringConfig
+DisplayName: en|DiskSpaceMonitoringConfig
+Description: en|DiskSpaceMonitoringConfig
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

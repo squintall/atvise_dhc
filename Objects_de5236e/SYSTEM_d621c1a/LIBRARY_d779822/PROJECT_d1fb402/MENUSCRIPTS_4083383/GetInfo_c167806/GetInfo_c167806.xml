@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="h" type="http" trigger="false" relative="false" value=""/>
+  <code><![CDATA[console.log("-------------------Excecuting Database Connection--------------");
+
+var connectionString;
+//var connectionString='Driver={MySQL ODBC 9.1 Unicode Driver};Server=localhost;Database=testing_database;User=root;Password=1289;';
+var tableName="datos_sensor";
+
+var writingParameters = {
+
+    Tiempo: 0,
+    Temperatura: 0,
+    Presion: 0,
+    Caudal: 0,
+    Volumen: 0,
+};
+
+var readingParameters={
+		readingColumns: ["Tiempo","Temperatura","Presion","Caudal","Volumen"],
+};
+
+var databaseRequest= {
+
+	//ConnectionParameters
+	connectionParameters:{
+		customConnectionString:connectionString,
+		databaseType: "MySQL",
+	    driver:"MySQL ODBC 9.1 Unicode Driver",
+		server:"localhost",
+		database: "testing_database",
+		user: "root",
+		password:"1289",
+		tableName:tableName
+	},
+	
+	//ConnectionParameters
+	writingParameters: writingParameters,
+	
+	readingParameters:readingParameters,
+	timeParameters:{finalTime:1730675457041,
+								initialTime:1730675457041-(1000*60*60),
+								timeColumn: "Tiempo",
+								timeFormat: "YYYY-MM-DD hh:mm:ss"
+								}
+}
+
+//YYYY-MM-DD hh:mm:ss.fff;YYYY-MM-DD hh:mm:ss;YYYY-MM-DD;hh:mm:ss;YYYY-MM-DD hh:mm:ss.ffffff;YYYY-MM-DD hh:mm:ss.fffffffff;YYYY-MM-DD hh:mm:ss[.ffffff];YYYY-MM-DD hh:mm:ss[.ff];YYYY-MM-DD hh:mm:ss.ffffff
+
+class DatabaseManager {
+
+    constructor(databaseRequest) {
+        this.odbcClient = null;
+		this.connectionStatus = null;
+		
+        this.databaseConnParameters;
+        this.connectionParameters;
+        this.connectionString;
+       
+        this.tableName;
+        this.writingParameters;
+        this.readingParameters;
+        this.timeParameters;
+        this.readingColumns;
+    
+         
+        this.sqlQuery = '';
+        this.queryAnswer = null;
+        this.searchParte = "";
+        this.columns = "";
+        this.queryFilter;
+        this.foundErrors;
+        
+        //Custom
+        this.existConflict=false;
+        this.textConfilct="";
+    }
+
+	initialize (databaseRequest){
+	
+		//Initialize Parameters
+		this.databaseConnParameters=databaseRequest;
+        this.connectionParameters=this.databaseConnParameters.connectionParameters;
+        this.connectionString =this.databaseConnParameters.connectionParameters.customConnectionString==undefined ? this.createOdbcConnectionString():this.databaseConnParameters.connectionParameters.customConnectionString;
+        this.tableName = this.databaseConnParameters.connectionParameters.tableName;
+        this.writingParameters = this.databaseConnParameters.writingParameters;
+        this.readingParameters= this.databaseConnParameters.readingParameters;
+        this.timeParameters=this.databaseConnParameters.timeParameters;
+        this.readingColumns=this.readingParameters.readingColumns;
+        
+        
+	 }
+	 
+	 
+    basicWrite() {
+        // Create Query
+       this.createQuery("INSERT");
+        console.log("-------------------Insert Query--------------");
+        console.log(this.sqlQuery);
+
+        // Open Connection
+        this.openConnection();
+        console.log("-------------------Connection Status--------------");
+        console.log(this.connectionStatus);
+		
+        // Write to Database
+        this.writeToDatabase();
+        //console.log("-------------------Query Answer--------------");
+        console.log(this.queryAnswer);
+        
+        // Create Select Query
+        this.createQuery("SELECT");
+		console.log("-------------------Select Query--------------");
+        console.log(this.sqlQuery);
+        
+        //Read from Database
+         this.readFromDatabase();
+        console.log("-------------------Query Answer--------------");
+        console.log(this.queryAnswer);
+        
+        // Close Connection
+       this.closeConnection();
+    }
+    
+    async basicRead() {      
+		
+		console.log(new Date());
+		console.log("Initial Time");
+		console.log(new Date(this.timeParameters.initialTime).toLocaleString());
+		console.log("Final Time");
+		console.log(new Date(this.timeParameters.finalTime).toLocaleString());
+		
+				
+        // Open Connection
+        this.openConnection();
+        console.log("-------------------Connection Status--------------");
+        console.log(this.connectionStatus);
+        
+		 //Create time Filter
+        this.createTimeFilter();
+        console.log("-------------------Query Filter--------------");
+        console.log(this.queryFilter);
+        
+       // Create Query
+       this.createQuery("SHOW COLUMNS");
+        console.log("-------------------Show Query--------------");
+        console.log(this.sqlQuery);
+        
+		//Check Existing Columns
+		await this.checkExistingColumns();        
+		console.log("-------------------Cheking Columns--------------");
+        console.log(this.foundErrors);       
+        
+        // Create Query
+       this.createQuery("SELECT");
+        console.log("-------------------Select Query--------------");
+        console.log(this.sqlQuery);
+        
+        //Read from Database
+         this.readFromDatabase();
+        console.log("-------------------Query Answer--------------");
+        console.log(this.queryAnswer);
+        
+        // Close Connection
+       this.closeConnection();
+
+		console.log("Final Result")
+		console.log({queryAnswer: this.queryAnswer, readingColumns: this.readingColumns});       
+       
+       return ({queryAnswer: this.queryAnswer, readingColumns: this.readingColumns})
+    }
+    
+    advancedWrite() {
+    
+		// Create Select Query
+        this.createQuery("SELECT");
+		console.log("-------------------Select Query--------------");
+        console.log(this.sqlQuery);
+        
+          // Open Connection
+        this.openConnection();
+        console.log("-------------------Connection Status--------------");
+        console.log(this.connectionStatus);
+        
+        //Read from Database
+         this.readFromDatabase();
+        console.log("-------------------Query Answer--------------");
+        console.log(this.queryAnswer);
+        
+        //Check Confliict
+        this.checkConflict();
+        
+        if(!this.existConflict){
+			// Create Query
+			this.createQuery("INSERT");
+			console.log("-------------------Insert Query--------------");
+			console.log(this.sqlQuery);
+			
+			// Write to Database
+			this.writeToDatabase();
+			//console.log("-------------------Query Answer--------------");
+			console.log(this.queryAnswer);      
+			
+			return "The record was written succesfully";  
+        }
+        
+        else {
+			console.log(this.textConfilct);
+			return this.textConfilct;
+        }
+       // Close Connection
+       this.closeConnection();
+    
+    }
+
+    openConnection() {
+        // Create ODBC Object
+        this.odbcClient = new ODBCClient();
+        this.odbcClient.source = this.connectionString;
+
+        // Open Connection
+        this.connectionStatus = this.odbcClient.open();
+    }
+    
+    closeConnection(){
+		this.odbcClient.close();
+     }
+
+	/****************CREATE QUERY FUNCTION**************/
+	
+     createQuery(type) {
+		this.columns = this.readingColumns.join(', ');
+	
+		switch (this.connectionParameters.databaseType.toUpperCase()) {
+			case "MSSQL":
+				if (type === "INSERT") {
+					const values = Object.values(this.writingParameters)
+						.map(value => value.includes("FROM_UNIXTIME") ? `${value}` : `'${value}'`)
+						.join(', ');
+					this.sqlQuery = `INSERT INTO ${this.tableName} (${this.columns}) VALUES (${values});`;
+				} else if (type === "SELECT") {
+					this.sqlQuery = this.queryFilter
+						? `SELECT ${this.columns} FROM ${this.tableName} WHERE ${this.queryFilter};`
+						: `SELECT ${this.columns} FROM ${this.tableName};`;
+				} else if (type === "SHOW COLUMNS") {
+					this.sqlQuery = `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '${this.tableName}';`;
+				}
+				break;
+	
+			case "MYSQL":
+				if (type === "INSERT") {
+					const values = Object.values(this.writingParameters)
+						.map(value => value.includes("FROM_UNIXTIME") ? `${value}` : `'${value}'`)
+						.join(', ');
+					this.sqlQuery = `INSERT INTO ${this.tableName} (${this.columns}) VALUES (${values});`;
+				} 
+				else if (type === "SELECT") {
+					this.sqlQuery = this.queryFilter
+						? `SELECT ${this.columns} FROM ${this.tableName} WHERE ${this.queryFilter};`
+						: `SELECT ${this.columns} FROM ${this.tableName};`;
+				} 
+				else if (type === "SHOW COLUMNS") {
+					this.sqlQuery = `SHOW COLUMNS FROM ${this.tableName};`;
+				}
+				break;
+	
+			case "ORACLE":
+				if (type === "INSERT") {
+					const values = Object.values(this.writingParameters)
+						.map(value => value.includes("FROM_UNIXTIME") ? `${value}` : `'${value}'`)
+						.join(', ');
+					this.sqlQuery = `INSERT INTO ${this.tableName} (${this.columns}) VALUES (${values})`;
+				} else if (type === "SELECT") {
+					this.sqlQuery = this.queryFilter
+						? `SELECT ${this.columns} FROM ${this.tableName} WHERE ${this.queryFilter}`
+						: `SELECT ${this.columns} FROM ${this.tableName}`;
+				} else if (type === "SHOW COLUMNS") {
+					this.sqlQuery = `SELECT column_name FROM all_tab_columns WHERE table_name = UPPER('${this.tableName}')`;
+				}
+				break;
+	
+			case "POSTGRESQL":
+				if (type === "INSERT") {
+					const values = Object.values(this.writingParameters)
+						.map(value => value.includes("FROM_UNIXTIME") ? `${value}` : `'${value}'`)
+						.join(', ');
+					this.sqlQuery = `INSERT INTO ${this.tableName} (${this.columns}) VALUES (${values})`;
+				} else if (type === "SELECT") {
+					this.sqlQuery = this.queryFilter
+						? `SELECT ${this.columns} FROM ${this.tableName} WHERE ${this.queryFilter}`
+						: `SELECT ${this.columns} FROM ${this.tableName}`;
+				} else if (type === "SHOW COLUMNS") {
+					this.sqlQuery = `SELECT column_name FROM information_schema.columns WHERE table_name = '${this.tableName}';`;
+				}
+				break;
+	
+			case "SQLITE":
+				if (type === "INSERT") {
+					const values = Object.values(this.writingParameters)
+						.map(value => value.includes("FROM_UNIXTIME") ? `${value}` : `'${value}'`)
+						.join(', ');
+					this.sqlQuery = `INSERT INTO ${this.tableName} (${this.columns}) VALUES (${values})`;
+				} else if (type === "SELECT") {
+					this.sqlQuery = this.queryFilter
+						? `SELECT ${this.columns} FROM ${this.tableName} WHERE ${this.queryFilter}`
+						: `SELECT ${this.columns} FROM ${this.tableName}`;
+				} else if (type === "SHOW COLUMNS") {
+					this.sqlQuery = `PRAGMA table_info(${this.tableName});`;
+				}
+				break;
+	
+			case "DB2":
+				if (type === "INSERT") {
+					const values = Object.values(this.writingParameters)
+						.map(value => value.includes("FROM_UNIXTIME") ? `${value}` : `'${value}'`)
+						.join(', ');
+					this.sqlQuery = `INSERT INTO ${this.tableName} (${this.columns}) VALUES (${values})`;
+				} else if (type === "SELECT") {
+					this.sqlQuery = this.queryFilter
+						? `SELECT ${this.columns} FROM ${this.tableName} WHERE ${this.queryFilter}`
+						: `SELECT ${this.columns} FROM ${this.tableName}`;
+				} else if (type === "SHOW COLUMNS") {
+					this.sqlQuery = `SELECT COLNAME FROM SYSCAT.COLUMNS WHERE TABNAME = UPPER('${this.tableName}')`;
+				}
+				break;
+	
+			default:
+				throw new Error(`Unsupported database type: ${this.connectionParameters.databaseType}`);
+		}
+	}
+    
+    createFilter(filterType) {
+		// Initialize the filter query part
+		let filter = '';
+		const { initialTime, finalTime, timeColumn } = this.timeParameters;
+		console.log("Excecuting create Filter..................")
+		// Format the initial and final times
+		const formattedInitialTime = this.formatTimestamp(new Date(initialTime));
+		const formattedFinalTime = this.formatTimestamp(new Date(finalTime));
+	    console.log("After formatted filter..................")
+	    
+		if (filterType === "timeQuery") {
+			switch (this.connectionParameters.databaseType.toUpperCase()) {
+				case "MSSQL":
+					filter = `${timeColumn} BETWEEN CONVERT(DATETIME, '${formattedInitialTime}', 120) AND CONVERT(DATETIME, '${formattedFinalTime}', 120)`;
+					break;
+	
+				case "MYSQL":
+					filter = `${timeColumn} BETWEEN STR_TO_DATE('${formattedInitialTime}', '%Y-%m-%d %H:%i:%s') AND STR_TO_DATE('${formattedFinalTime}', '%Y-%m-%d %H:%i:%s')`;
+					break;
+	
+				case "ORACLE":
+					filter = `${timeColumn} BETWEEN TO_DATE('${formattedInitialTime}', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('${formattedFinalTime}', 'YYYY-MM-DD HH24:MI:SS')`;
+					break;
+	
+				case "POSTGRESQL":
+					filter = `${timeColumn} BETWEEN TO_TIMESTAMP('${formattedInitialTime}', 'YYYY-MM-DD HH24:MI:SS') AND TO_TIMESTAMP('${formattedFinalTime}', 'YYYY-MM-DD HH24:MI:SS')`;
+					break;
+	
+				case "SQLITE":
+					filter = `${timeColumn} BETWEEN datetime('${formattedInitialTime}') AND datetime('${formattedFinalTime}')`;
+					break;
+	
+				case "DB2":
+					filter = `${timeColumn} BETWEEN TIMESTAMP('${formattedInitialTime}') AND TIMESTAMP('${formattedFinalTime}')`;
+					break;
+	
+				default:
+					throw new Error(`Unsupported database type: ${this.connectionParameters.databaseType}`);
+			}
+	
+			// Store filter for use in query
+			return filter;			
+		} else {
+			throw new Error(`Unsupported filter type: ${filterType}`);
+		}
+	}
+	
+	createTimeFilter() {
+		
+		// Add time column
+		this.timeColumnAdd() 
+		
+		const { initialTime, finalTime, timeColumn } = this.timeParameters;
+	
+		// Check if time parameters are valid (not undefined or empty strings)
+		if (initialTime && finalTime && timeColumn) {
+			// Call createFilter with "timeQuery" to generate the WHERE clause
+			this.queryFilter = this.createFilter("timeQuery");
+		} else {
+			// If parameters are invalid, set queryFilter to null or an empty string
+			this.queryFilter = null;
+			console.log("Error: Time parameters are not properly set.");
+		}
+	}
+    
+    readFromDatabase() {
+        console.log("Reading from database");
+
+        // Connection Successful
+        if (this.connectionStatus) {
+            try {
+                this.queryAnswer = this.odbcClient.query(this.sqlQuery);
+                return this.queryAnswer;
+            } catch (exp) {
+                console.log(exp);
+                if (exp.message.indexOf('No Data') > -1)
+                    return 0; // no data found
+
+                return undefined;
+            }
+        } else {
+            // Connection Failed
+            console.log("Error opening ODBC");
+            return undefined;
+        }
+    }
+
+    writeToDatabase() {
+		
+        // Connection Successful
+        if (this.connectionStatus) {
+            try {
+                this.queryAnswer = this.odbcClient.query(this.sqlQuery);
+                return this.queryAnswer;
+            } catch (exp) {
+                console.log(exp);
+               if (exp.message.indexOf('No Data') > -1)
+                    return 0; // ok
+
+                return undefined;
+            } 
+        } else {
+            // Connection Failedection
+            console.log("Error opening ODBC");
+            return undefined;
+        }
+
+    }
+    
+    /****************CONFLICT PREVENTION**************/
+    
+    checkConflict(){
+    }
+
+	checkExistingColumns() {
+        this.foundErrors = []; // Initialize or reset foundErrors
+        
+        // Query the database to get columns in `this.tableName`
+        const columnResult = this.readFromDatabase(); // Assuming this returns an array of column names
+		
+        // Create a set of existing columns for fast lookup
+        const existingColumns = columnResult.map(col => col[0]); // 'Field' should match the column name key in your result
+		
+        // Check each column in readingColumns
+        this.readingColumns = this.readingColumns.filter(column => {
+            if (!existingColumns.includes(column)) {
+                this.foundErrors.push(`Column '${column}' does not exist in database`);
+                return false; // Exclude column if it doesn't exist in database
+            }
+            return true; // Keep column if it exists
+        });
+    }    
+    
+    //Create ODBC String
+    createOdbcConnectionString() {
+		
+		
+		// Ensure the required `dbType` and `driver` are provided
+		if (!this.connectionParameters.databaseType || !this.connectionParameters.driver) {
+			throw new Error("Database type ('dbType') and driver are required parameters.");
+		}
+		
+		// Initialize base string with driver info
+		let connectionString = `Driver={${this.connectionParameters.driver}};`;
+	    
+	    //msSQL;mySQL;Oracle;PostgreSQL;sqLite;DB2
+		// Database-specific configurations
+		switch (this.connectionParameters.databaseType.toUpperCase()) {
+			case "MSSQL":
+				if (!this.connectionParameters.server || !this.connectionParameters.database || !this.connectionParameters.user || !this.connectionParameters.password) {
+					throw new Error("MSSQL requires server, database, uid, and pwd.");
+				}
+				connectionString += `Server=${this.connectionParameters.server};Database=${this.connectionParameters.database};UID=${this.connectionParameters.user};PWD=${this.connectionParameters.password};`;
+				break;
+			
+			case "MYSQL":
+				if (!this.connectionParameters.server || !this.connectionParameters.database || !this.connectionParameters.user || !this.connectionParameters.password) {
+					throw new Error("MySQL requires server, database, uid, and pwd.");
+				}
+				connectionString += `Server=${this.connectionParameters.server};Database=${this.connectionParameters.database};User=${this.connectionParameters.user};Password=${this.connectionParameters.password};`;
+				break;
+			
+			case "ORACLE":
+				if (!this.connectionParameters.server || !this.connectionParameters.user || !this.connectionParameters.password) {
+					throw new Error("Oracle requires server, uid, and pwd.");
+				}
+				connectionString += `DBQ=${this.connectionParameters.server};UID=${this.connectionParameters.user};PWD=${this.connectionParameters.password};`;
+				break;
+			
+			case "POSTGRESQL":
+				if (!this.connectionParameters.server || !this.connectionParameters.database || !this.connectionParameters.user || !this.connectionParameters.password) {
+					throw new Error("PostgreSQL requires server, database, uid, and pwd.");
+				}
+				connectionString += `Server=${this.connectionParameters.server};Database=${this.connectionParameters.database};UID=${this.connectionParameters.user};PWD=${this.connectionParameters.password};`;
+				break;
+			
+			case "SQLITE":
+				if (!this.connectionParameters.database) {
+					throw new Error("SQLite requires a database file path as 'database'.");
+				}
+				connectionString += `Database=${this.connectionParameters.database};`;
+				break;
+			
+			case "DB2":
+				if (!this.connectionParameters.database || !this.connectionParameters.user || !this.connectionParameters.password) {
+					throw new Error("DB2 requires database, uid, and pwd.");
+				}
+				connectionString += `Database=${this.connectionParameters.database};UID=${this.connectionParameters.user};PWD=${this.connectionParameters.password};`;
+				if (this.connectionParameters.server) {
+					connectionString += `Hostname=${this.connectionParameters.server};`; // Optional for DB2
+				}
+				break;
+	
+			default:
+				throw new Error(`Unsupported database type: ${this.connectionParameters.databaseType}`);
+		}
+	
+		return connectionString;
+	}
+	
+	// Function to convert Unix timestamp to specified format
+    formatTimestamp(date) {
+		// Ensure the date is a Date object
+		if (!(date instanceof Date)) {
+			console.log("Excecuting here")
+			throw new Error("The parameter must be a Date object.");
+		}
+		
+		
+	
+		// Extract components
+		const YYYY = date.getFullYear();
+		const MM = String(date.getMonth() + 1).padStart(2, '0');
+		const DD = String(date.getDate()).padStart(2, '0');
+		const hh = String(date.getHours()).padStart(2, '0');
+		const mm = String(date.getMinutes()).padStart(2, '0');
+		const ss = String(date.getSeconds()).padStart(2, '0');
+		const fff = String(date.getMilliseconds()).padStart(3, '0');
+		const ffffff = fff + "000".slice(0, 3); // Extend to six digits if needed
+		const fffffffff = fff + "000000".slice(0, 6); // Extend to nine digits if needed
+	
+		// Format based on this.timeFormat
+		switch (this.timeParameters.timeFormat) {
+			case 'YYYY-MM-DD hh:mm:ss.fff':
+				return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss}.${fff}`;
+			case 'YYYY-MM-DD hh:mm:ss':
+				return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss}`;
+			case 'YYYY-MM-DD':
+				return `${YYYY}-${MM}-${DD}`;
+			case 'hh:mm:ss':
+				return `${hh}:${mm}:${ss}`;
+			case 'YYYY-MM-DD hh:mm:ss.ffffff':
+				return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss}.${ffffff}`;
+			case 'YYYY-MM-DD hh:mm:ss.fffffffff':
+				return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss}.${fffffffff}`;
+			case 'YYYY-MM-DD hh:mm:ss[.ffffff]':
+				return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss}.${ffffff}`;
+			case 'YYYY-MM-DD hh:mm:ss[.ff]':
+				return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss}.${fff.slice(0, 2)}`;
+			case 'YYYY-MM-DD hh:mm:ss.ffffff':
+				return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss}.${ffffff}`;
+			default:
+				throw new Error(`Unsupported format: ${this.timeParameters.timeFormat}`);
+		}
+	}
+
+	timeColumnAdd() {
+		const timeColumn = this.databaseConnParameters.timeParameters.timeColumn;
+		const index = this.readingColumns.indexOf(timeColumn);
+	
+		if (index !== -1) {
+			// Remove the time column from its current position
+			this.readingColumns.splice(index, 1);
+		}
+		
+		// Add the time column to the beginning of the array
+		this.readingColumns.unshift(timeColumn);
+	}
+	
+}
+
+  // Create Object with required parameters
+const databaseWriter1 = new DatabaseManager();
+
+// Initialize Writer
+databaseWriter1.initialize(databaseRequest)
+var conection=databaseWriter1.basicRead();
+
+return conection;]]></code>
+</script>

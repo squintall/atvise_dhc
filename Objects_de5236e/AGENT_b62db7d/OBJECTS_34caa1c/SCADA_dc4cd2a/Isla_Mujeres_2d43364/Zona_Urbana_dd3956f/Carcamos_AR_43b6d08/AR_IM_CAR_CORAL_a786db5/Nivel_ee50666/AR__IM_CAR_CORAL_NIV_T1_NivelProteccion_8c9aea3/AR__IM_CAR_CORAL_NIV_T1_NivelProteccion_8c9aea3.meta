@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Zona_Urbana.Carcamos_AR.AR_IM_CAR_CORAL.Nivel.AR__IM_CAR_CORAL_NIV_T1_NivelProteccion
+NodeClass: Variable
+BrowseName: 1:AR__IM_CAR_CORAL_NIV_T1_NivelProteccion
+DisplayName: en|AR__IM_CAR_CORAL_NIV_T1_NivelProteccion
+Description: en|AR__IM_CAR_CORAL_NIV_T1_NivelProteccion
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

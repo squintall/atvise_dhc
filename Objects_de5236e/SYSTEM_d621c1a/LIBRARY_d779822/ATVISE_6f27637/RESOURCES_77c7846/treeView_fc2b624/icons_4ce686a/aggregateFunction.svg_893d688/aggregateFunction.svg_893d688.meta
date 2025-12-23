@@ -1,0 +1,11 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.RESOURCES/treeView/icons/aggregateFunction.svg
+NodeClass: Variable
+BrowseName: 1:aggregateFunction.svg
+DisplayName: en|aggregateFunction.svg
+Description: en|aggregateFunction.svg
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Svg
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Compress
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Svg.Translate

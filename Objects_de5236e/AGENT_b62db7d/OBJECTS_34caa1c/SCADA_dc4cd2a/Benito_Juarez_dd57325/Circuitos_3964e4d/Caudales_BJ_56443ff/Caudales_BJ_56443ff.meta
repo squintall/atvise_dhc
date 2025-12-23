@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Caudales_BJ
+NodeClass: Variable
+BrowseName: 1:Caudales_BJ
+DisplayName: en|Caudales_BJ
+Description: en|Caudales_BJ
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

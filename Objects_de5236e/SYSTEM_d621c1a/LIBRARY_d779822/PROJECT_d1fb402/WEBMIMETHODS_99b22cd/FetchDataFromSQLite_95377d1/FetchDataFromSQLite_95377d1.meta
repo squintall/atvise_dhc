@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.FetchDataFromSQLite
+NodeClass: Variable
+BrowseName: 1:FetchDataFromSQLite
+DisplayName: en|FetchDataFromSQLite
+Description: en|FetchDataFromSQLite
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AP.AP_SOL_CAR_12.Caudalimetro.L1.historic_daily_production
+NodeClass: Variable
+BrowseName: 1:historic_daily_production
+DisplayName: en|historic_daily_production
+Description: en|historic_daily_production
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

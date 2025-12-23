@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var circuito_s =
+	[
+		[{lat:20.510511080148984, lng:-87.23237643858741},
+		"Cárcamo 13, Agua Potable",
+		"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_013",
+		1, "carcamoAP"],
+		[{lat:20.513718430463125, lng:-87.22912772988185},
+		"Cárcamo 14, Agua Potable",
+		"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Carcamo_014",
+		2, "carcamoAP"],
+		[{lat:20.51365437978025, lng:-87.22885857272563},
+		"Desaladora Puerto Aventuras, Agua Potable",
+		"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PA.Desaladora_Puerto_Maya",
+		3, "carcamoAP"],
+		[{lat:20.510846008445828, lng:-87.22775727337664},
+		"Cárcamo Puerto Aventuras, Agua Residual",
+		"AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Puerto_Aventuras",
+		20, "carcamoAR"],
+		[{lat:20.525189182407978, lng:-87.24020497181863},
+		"Cárcamo Puerto Maya 3, Agua Residual",
+		"AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Cárcamo_Puerto_Maya_3",
+		21, "carcamoAR"],
+		[{lat:20.51661480746625, lng:-87.23456542660108},
+		"PTAR Puerto Aventuras",
+		"AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Puerto_Aventuras",
+		3, "ptar"]
+	];]]></code>
+</script>

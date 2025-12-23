@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/microvisor/v1/device/deviceConfig.d.ts
+NodeClass: Variable
+BrowseName: 1:deviceConfig.d.ts
+DisplayName: en|deviceConfig.d.ts
+Description: en|deviceConfig.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

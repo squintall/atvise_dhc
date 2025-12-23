@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/taskrouter/v1/workspace/taskQueue/taskQueuesStatistics.js
+NodeClass: Variable
+BrowseName: 1:taskQueuesStatistics.js
+DisplayName: en|taskQueuesStatistics.js
+Description: en|taskQueuesStatistics.js
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Javascript
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Javascript.Compress

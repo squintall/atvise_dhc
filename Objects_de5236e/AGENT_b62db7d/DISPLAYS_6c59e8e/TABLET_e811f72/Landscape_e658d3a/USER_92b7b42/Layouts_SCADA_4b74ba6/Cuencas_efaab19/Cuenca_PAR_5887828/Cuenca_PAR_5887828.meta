@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Landscape.USER.Layouts_SCADA.Cuencas.Cuenca_PAR
+NodeClass: Variable
+BrowseName: 1:Cuenca_PAR
+DisplayName: en|Cuenca_PAR
+Description: en|Cuenca_PAR
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

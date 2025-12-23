@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[// VARIABLE DECLARATION
+var PREFIX = "AGENT.OBJECTS";
+var savedWatcherNodes = webMI.query["savedWatcherNodes"];
+var tablesubscriptionIDs = [];
+var OpcUaStandard = {};
+var formatters = [];
+var controller;
+var mirrorInfo;
+
+webMI.data.read("AGENT.OBJECTS.OpcUaStandard",function(e) {
+	if(!e.error){
+		OpcUaStandard = JSON.parse(e.value);
+	}
+});
+
+// HELPER FUNCTIONS
+function isFloat(x) {
+	return !!(x % 1);
+};
+
+function setRow(address, info, data, that){
+	tablesubscriptionID = webMI.data.subscribe(address, function(e) {
+		var item = that.search("address", address, true);
+		var formattedData = formatData(address, e, info);
+
+		if(item.length === 0 || item === false){
+			// item doesn´t exists - add data
+			data.result = formattedData;
+			that.addData(data);
+		} else {
+			// item exists - update data
+			item[0].value = formattedData.value;
+			item[0].sourcetime = formattedData.sourcetime;
+			item[0].timestamp = formattedData.timestamp;
+			item[0].status = formattedData.status;
+			that.updateData(item[0].id, item[0]);
+		}
+	});
+	tablesubscriptionIDs.push(tablesubscriptionID);
+};
+
+function formatData(address, e, info){
+	//status caluclation
+	var myHex = e.status.toString(16).toUpperCase();
+	myHex = ((myHex==0) ? "00000000" : myHex);
+	var Hex = "0x"+myHex;
+	var OpcUaResult = OpcUaStandard.find( ({ code }) => code === Hex );					
+
+	var item = {}
+	item.address = address;
+	item.nodeText = address.replace("AGENT.OBJECTS.","");
+	item.value = isFloat(e.value) == true ? (e.value.toFixed(webMI.query.maxDecimalCount)) : e.value;
+	item.sourcetime = new Date(e.timestamp).toJSON();
+	item.timestamp = new Date(e.servertimestamp).toJSON();
+	item.status = OpcUaResult.st;
+	item.info = info;
+	item.connectionInfo = mirrorInfo && address in mirrorInfo ? mirrorInfo[address] : "";
+	
+	return item;
+}
+
+// FORMATTERS
+formatters["statusFormatter"] = function (row, cell, value, columnDef, dataContext) {
+	var status = value.split(",");		
+	var element = "<span>" + status[0] + "</span>";
+	if(status[0] == "Good") {
+		element = "<span title='"+status[1]+"' style='color:green'>" + status[0] + "</span>";
+	}
+	else {
+		element = "<span title='"+status[1]+"' style='color:red'>" + status[0] + "</span>";
+	}
+	return element;
+};
+
+formatters["rowFormatter"] = function(row, cell, value, columnDef, dataContext) {
+	var element = "<span style=\"font-weight:bold;\">" + value + "<span>"
+	
+	return element;
+};
+
+// TRIGGER
+webMI.trigger.connect("WatchStart", function(e){
+	initTable();
+});
+
+webMI.trigger.connect("setWatchTableInfo", function(e){
+	var infoAddress = e.value.address;
+	var rowId = e.value.id;
+	var infoValue = e.value.value;
+	var rowItem = controller.getData(rowId);
+	rowItem[0].info = infoValue;
+	controller.updateData(rowItem[0].id, rowItem[0]);
+	webMI.data.read(savedWatcherNodes,function(e) {	
+		var obj = [];
+		if(e.value!=''){
+			obj = JSON.parse(e.value);
+		}				
+		for(var i=0; i<obj.length; i++){
+			if(obj[i].address == infoAddress){
+				obj[i].info = infoValue;
+			}	
+		}
+		webMI.data.write(savedWatcherNodes,JSON.stringify(obj));
+	});
+});
+
+function initTable(){
+	webMI.table.loadResources(function() {
+		var config = [];
+		config["columns"] = [
+			{
+				id: "node",
+				name: "Address",
+				field: "address",
+				sortable: true,
+				filter: true,
+				visible: false, 
+				resizable: false
+			},
+			{
+				id: "nodeText",
+				name: "Node",
+				field: "nodeText",
+				sortable: true,
+				filter: true,
+				visible: true, 
+				resizable: false,
+				width: 250
+			},
+			{
+				id: "value",
+				name: "Value",
+				field: "value",
+				sortable: true,
+				filter: true,
+				visible: true, 
+				resizable: true,
+				width: 50,
+				formatter: formatters["rowFormatter"]
+			},
+			{
+				id: "datetime",
+				name: "Timestamp",
+				field: "timestamp",
+				sortable: true,
+				filter: true,
+				visible: webMI.query.showInfo == "true" ? true : false,
+				resizable: true,
+				width: 170
+			},
+			{
+				id: "sourcetime",
+				name: "Sourcetime",
+				field: "sourcetime",
+				sortable: true,
+				filter: true,
+				visible: false, 
+				resizable: true,
+				width: 70
+			},
+			{
+				id: "status",
+				name: "Status",
+				field: "status",
+				sortable: true,
+				filter: true,
+				visible: true, 
+				resizable: true,
+				formatter: formatters["statusFormatter"]
+			},{
+				id: "info",
+				name: "Info",
+				field: "info",
+				sortable: true,
+				filter: true,
+				visible: webMI.query.showInfo == "true" ? true : false, 
+				resizable: true,
+				width: 120
+			},
+			{
+				id: "connectionInfo",
+				name: "ConnectionInfo",
+				field: "connectionInfo",
+				sortable: true,
+				filter: true,
+				visible: false, 
+				resizable: true,
+				width: 120  
+			}
+		];
+		
+		
+		config["mode"] = "once"; // or live/triggered
+        config["bufferInterval"] = 0;
+
+        config["onClickCallback"] = function(e, info){
+			var item = info.item;
+			var row = info.rowIndex;
+			var column = info.column;
+			var id = item.id;
+			var selectedIds = controller.grid.getSelectedRows();
+		   
+			if(column.id == "checked"){
+				if(item.checked=="false")
+					item.checked = "true"
+				else
+					item.checked = "false"      
+			}
+			if (info.column.id == "atvise_marker") {				
+				if(selectedIds.length > 0){
+					webMI.trigger.fire("setremove", true);
+				}
+				else{
+					webMI.trigger.fire("setremove", false);
+				}
+			}
+	   
+			var selectedData = [];
+			
+			if(column.id == "info"){
+				webMI.query.info = item.info;
+				webMI.query.address = item.address;
+				webMI.query.id = item.id;
+				webMI.display.openWindow({display: "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.watch_table.dialog_comment", height: 210, width: 600, remember: false, modal: true, resizable: false, movable: true, scrollbars: true, menubar: false, status: false, toolbar: false, query:webMI.query});			
+			}
+		
+			for(var i = 0; i < selectedIds.length; i++) {
+				var sd = controller.grid.getDataItem(selectedIds[i]);
+				selectedData[i] = sd.address;
+			};	
+			webMI.trigger.fire("onSelectedTableItems", selectedData);
+			
+        }
+        config["onHeaderClickCallback"] = function(e, info){
+			var selectedData = [];
+			var selectedIds = controller.grid.getSelectedRows();
+
+			if (info.column.id != "atvise_marker") {
+				return;
+			} else {
+				if(selectedIds.length > 0){
+					webMI.trigger.fire("setremove", true);
+				}
+				else{
+					webMI.trigger.fire("setremove", false);
+				}
+			}
+			
+			for(var i = 0; i < selectedIds.length; i++) {
+				var sd = controller.grid.getDataItem(selectedIds[i]);
+				selectedData[i] = sd.address;
+			};
+			
+			webMI.trigger.fire("onSelectedTableItems", selectedData);
+        };
+        config["detailRowSettings"] = {
+			"rows": 2,
+			"template": function customDetailTemplate(item) {
+				var that = this;
+				var row = "";
+				var difference = "<span style='color: green'>OK</span>";
+				var sourceTime = new Date(item['sourcetime']);
+				var serverTime = new Date(item['timestamp']);
+				
+				if(serverTime - sourceTime > (5 * 60 * 1000 ) || serverTime + (5 * 60 * 1000 ) < sourceTime){
+					difference = "<span  style='color: red'>Time difference > 5 min </span>";
+				}
+				
+				return '\
+				<div>\
+					<table style="padding:5px">\
+						<tr>\
+							<td style="font-weight: bolder">T{Timestamp}:</td>\
+							<td>' + item['timestamp'] + '</td>\
+							<td rowspan="2" style="padding-left: 40px;font-weight: bold;">T{Difference}:</td>\
+							<td rowspan="2">' + difference + ' </td>\
+						</tr>\
+						<tr>\
+							<td style="font-weight: bolder">T{Sourcetime}:</td>\
+							<td>' + item['sourcetime'] + '</td>\
+							<td>&nbsp;</td>\
+							<td>&nbsp;</td>\
+						</tr>\
+						<tr style="margin-top: 20px">\
+							<td style="padding-top:1em;font-weight: bold;">T{Mirror}:</td>\
+							<td style="padding-top:1em">' + item['connectionInfo'] + '</td>\
+						</tr>\
+					</table>\
+				</div>';
+				
+			}
+		};
+		config["dataRequestFunction"] = function customDataRequest(continuation) {
+			var that = this;
+			data = {
+				result: []
+			};		
+			that.subscribeDataMode = webMI.data.subscribe(
+				savedWatcherNodes,
+				function(e) {
+					var nodes = [];	
+					var infos = [];
+					
+					that.clearData();
+					if(!e.error) {
+						var selectedNodes = [];
+						if(e.value != ""){
+							selectedNodes = JSON.parse(e.value);
+						}
+
+						webMI.data.unsubscribe(tablesubscriptionIDs);
+
+						for(let i = 0; i < selectedNodes.length; i++) {
+							nodes.push(selectedNodes[i].address);
+							infos.push(selectedNodes[i].info);
+							
+							setRow(nodes[i], infos[i], data, that);
+						}
+						
+						webMI.data.call("GetDataSourceConnection", {"address" : nodes}, function(returnValue){
+							mirrorInfo = returnValue;
+						});
+					}				
+				}
+			);
+			
+			// unloads the subsrcibed nodes to update them immediately 
+			// by value changes from the source
+			webMI.addOnunload(
+				function() {
+					webMI.data.unsubscribe(that.subscribeDataMode);
+				}
+			);
+		};
+
+        webMI.table.register("atvise_table_2", "config", config);
+        webMI.table.setReady("atvise_table_2", "config");
+        controller = webMI.table.request("atvise_table_2", "controller");
+	});
+}]]></code>
+</script>

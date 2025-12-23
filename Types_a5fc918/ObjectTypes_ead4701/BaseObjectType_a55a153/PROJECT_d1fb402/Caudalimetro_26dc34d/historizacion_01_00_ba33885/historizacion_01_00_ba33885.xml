@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="t" type="interval" trigger="true" relative="false" value="" offset="00:00:00" interval="01:00:00"/>
+  <code><![CDATA[var current_total_volume = Ua.findNode(base + ".current_total_volume");
+
+
+var historic_hourly_production = Ua.findNode(base + ".historic_hourly_production");
+
+//historic.result.value = current.result.status;
+
+
+ historic_hourly_production.result.value=current_total_volume.result.value;]]></code>
+</script>

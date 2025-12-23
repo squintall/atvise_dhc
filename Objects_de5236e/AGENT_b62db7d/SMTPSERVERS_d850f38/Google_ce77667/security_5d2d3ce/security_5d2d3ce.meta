@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.SMTPSERVERS.Google.security
+NodeClass: Variable
+BrowseName: 1:security
+DisplayName: en|security
+Description: en|security
+DataType: UInt16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

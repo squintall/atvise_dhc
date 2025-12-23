@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.opcuxm01.max_notifications_per_publish
+NodeClass: Variable
+BrowseName: 1:max_notifications_per_publish
+DisplayName: en|max_notifications_per_publish
+Description: en|max_notifications_per_publish
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

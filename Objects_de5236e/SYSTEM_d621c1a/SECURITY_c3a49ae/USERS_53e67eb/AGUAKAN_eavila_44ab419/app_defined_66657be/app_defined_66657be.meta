@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\eavila.app_defined
+NodeClass: Variable
+BrowseName: 1:app_defined
+DisplayName: en|app_defined
+Description: en|app_defined
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

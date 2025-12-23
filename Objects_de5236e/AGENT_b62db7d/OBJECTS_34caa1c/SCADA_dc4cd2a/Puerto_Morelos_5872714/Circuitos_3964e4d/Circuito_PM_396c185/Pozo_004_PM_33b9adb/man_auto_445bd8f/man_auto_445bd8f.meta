@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Pozo_004_PM.man_auto
+NodeClass: Variable
+BrowseName: 1:man_auto
+DisplayName: en|man_auto
+Description: en|man_auto
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

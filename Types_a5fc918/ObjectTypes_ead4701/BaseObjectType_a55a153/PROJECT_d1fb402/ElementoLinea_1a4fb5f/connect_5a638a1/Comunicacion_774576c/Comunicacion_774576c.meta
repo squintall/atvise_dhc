@@ -1,0 +1,8 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.connect.Comunicacion
+NodeClass: Object
+BrowseName: 1:Comunicacion
+DisplayName: en|Comunicacion
+Description: en|Comunicacion
+EventNotifier: 0
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.AlarmConfiguration

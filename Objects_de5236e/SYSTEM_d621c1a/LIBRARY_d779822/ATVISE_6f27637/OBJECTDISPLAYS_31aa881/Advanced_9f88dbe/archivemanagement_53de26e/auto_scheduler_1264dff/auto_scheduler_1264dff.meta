@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.archivemanagement.auto_scheduler
+NodeClass: Variable
+BrowseName: 1:auto_scheduler
+DisplayName: en|auto_scheduler
+Description: en|auto_scheduler
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

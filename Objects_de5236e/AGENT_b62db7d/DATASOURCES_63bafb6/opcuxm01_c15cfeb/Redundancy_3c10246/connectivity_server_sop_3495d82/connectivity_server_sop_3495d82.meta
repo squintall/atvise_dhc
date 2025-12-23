@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.opcuxm01.Redundancy.connectivity_server_sop
+NodeClass: Variable
+BrowseName: 1:connectivity_server_sop
+DisplayName: en|connectivity_server_sop
+Description: en|connectivity_server_sop
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

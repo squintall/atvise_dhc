@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_009.Equipos.Caudalimetro.L1.MH2
+NodeClass: Variable
+BrowseName: 1:MH2
+DisplayName: en|MH2
+Description: en|MH2
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

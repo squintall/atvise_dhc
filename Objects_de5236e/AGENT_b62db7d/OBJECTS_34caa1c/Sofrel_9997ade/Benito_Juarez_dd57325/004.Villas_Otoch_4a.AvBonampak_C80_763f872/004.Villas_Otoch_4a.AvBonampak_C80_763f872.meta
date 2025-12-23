@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.004.Villas_Otoch_4a.AvBonampak_C80
+NodeClass: Object
+BrowseName: 1:004.Villas_Otoch_4a.AvBonampak_C80
+DisplayName: en|004.Villas_Otoch_4a.AvBonampak_C80
+Description: en|004.Villas_Otoch_4a.AvBonampak_C80
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Descripcion
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.Info_basica
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.presion_min_max

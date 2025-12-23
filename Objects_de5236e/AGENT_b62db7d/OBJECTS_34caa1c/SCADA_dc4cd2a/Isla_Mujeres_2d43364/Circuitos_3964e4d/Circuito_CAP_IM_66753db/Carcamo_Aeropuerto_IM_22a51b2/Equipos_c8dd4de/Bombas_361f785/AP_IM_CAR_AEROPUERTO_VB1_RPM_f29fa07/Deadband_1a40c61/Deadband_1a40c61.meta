@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Carcamo_Aeropuerto_IM.Equipos.Bombas.AP_IM_CAR_AEROPUERTO_VB1_RPM.Deadband
+NodeClass: Variable
+BrowseName: 1:Deadband
+DisplayName: en|Deadband
+Description: en|Deadband
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition PropertyType
+Reference: forward HasComponent ns=1;s=VariableTypes.PROJECT.1073.Deadband.RelMirrorInputOutput

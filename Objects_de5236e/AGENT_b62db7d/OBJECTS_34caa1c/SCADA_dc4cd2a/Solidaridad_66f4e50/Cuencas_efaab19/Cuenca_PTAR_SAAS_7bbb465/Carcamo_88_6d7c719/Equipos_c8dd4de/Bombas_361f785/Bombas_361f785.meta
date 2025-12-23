@@ -1,0 +1,8 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Carcamo_88.Equipos.Bombas
+NodeClass: Object
+BrowseName: 1:Bombas
+DisplayName: en|Bombas
+Description: en|Bombas
+EventNotifier: 0
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition FolderType

@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_PTOA.Carcamo_Final_LLegada.Equipos.Bombas.AR_PA_PLA__PUERTO_AVENTURAS_B6_Selector.RelMirrorBase
+NodeClass: Variable
+BrowseName: 1:RelMirrorBase
+DisplayName: en|RelMirrorBase
+Description: en|RelMirrorBase
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Mirror.Relative.Base

@@ -1,0 +1,7 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.dflores
+NodeClass: Object
+BrowseName: 1:dflores
+DisplayName: en|dflores
+Description: en|dflores
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.User

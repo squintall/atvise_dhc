@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the clock_combi object display
+ * ---------------------------------------
+ * This control displays the current client time and date.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var timeOn = webMI.query["visibilityDigitalTime"];
+var dateOn = webMI.query["visibilityDate"];
+var isOldStyle = typeof webMI.query["borderColor"] == "undefined";
+
+/**
+ * RUNTIME SECTION
+ */
+
+// set the time and date depending on the display parameters "timeOn" and "dateOn"
+(function setDateTime() {
+	var today = new Date();
+	var h = today.getHours();
+	var m = today.getMinutes();
+	if (!isOldStyle) var s = today.getSeconds();
+	var std="";
+	var min="";
+	var dat="";
+
+	if (timeOn == "inherit") {
+		std=h.toString();
+		while(std.length < 2) std = "0" + std;
+		min=m.toString();
+		while(min.length < 2) min = "0" + min;
+
+		webMI.gfx.setText("time",std+":"+min);
+	}
+	if (dateOn == "inherit") {
+		dat="."+today.getFullYear().toString();
+		var x=today.getMonth()+1;
+		dat=x.toString()+dat;
+		while(dat.length < 7) dat = "0" + dat;
+		dat=today.getDate().toString()+"."+dat;
+		while(dat.length < 10) dat = "0" + dat;
+
+		webMI.gfx.setText("date",dat);
+	}
+
+	if (m < 10) {
+		webMI.gfx.setText("m1", "0");
+		webMI.gfx.setText("m2", m.toString().substring(0,1));
+	} else {
+		webMI.gfx.setText("m1", m.toString().substring(0,1));
+		webMI.gfx.setText("m2", m.toString().substring(1,2));
+	}
+	if (h < 10) {
+		webMI.gfx.setText("h1", "0");
+		webMI.gfx.setText("h2", h.toString().substring(0,1));
+	} else {
+		webMI.gfx.setText("h1", h.toString().substring(0,1));
+		webMI.gfx.setText("h2", h.toString().substring(1,2));
+	}
+	webMI.gfx.setText("time", std+":"+min);
+	webMI.gfx.setRotation("hour", webMI.translate(h * 30 + m/2, 0, 359, 0, 359));
+	webMI.gfx.setRotation("minute", webMI.translate(m, 0, 60, 0, 360));
+	if (!isOldStyle) webMI.gfx.setRotation("second", webMI.translate(s, 0, 60, 0, 360));
+
+	if (!isOldStyle) setTimeout(setDateTime, 1000);
+	else setTimeout(setDateTime,3000);
+})();]]></code>
+</script>

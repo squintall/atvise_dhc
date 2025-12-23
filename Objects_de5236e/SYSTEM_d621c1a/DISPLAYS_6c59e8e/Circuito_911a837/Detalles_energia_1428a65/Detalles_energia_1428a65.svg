@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="500" version="1.2" width="900" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="2" width="2"/>
+ </metadata>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <svg atv:refpx="150" atv:refpy="100" height="130" id="id_3" transform="matrix(2,0,0,1.5385,0,0)" width="150" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.pie" y="0">
+  <atv:argument name="series1Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Voltaje_L1-L2"/>
+  <atv:argument name="series1Name" value="T{V L1_L2}"/>
+  <atv:argument name="series2Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Voltaje_L2-L3"/>
+  <atv:argument name="outerSize" value="50"/>
+  <atv:argument name="innerSize" value="45"/>
+  <atv:argument name="seriesCount" value="3"/>
+  <atv:argument name="series3Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Voltaje_L3-L1"/>
+  <atv:argument name="unit" value="T{V}"/>
+  <atv:argument name="series2Name" value="T{V L2_L3}"/>
+  <atv:argument name="series3Name" value="T{V L2_L1}"/>
+  <atv:argument name="postDecimals" value="2"/>
+  <atv:argument name="series1Color" value="#000000"/>
+  <atv:argument name="series2Color" value="#c30000"/>
+  <atv:argument name="series3Color" value="#0000b8"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.5,0,0,0.65,0,0)" x="150" y="117.373"/>
+  <atv:overwrite id="main_label" transform="matrix(0.5,0,0,0.65,0,0)" x="150" y="98.627"/>
+  <atv:overwrite height="198" id="fo_container" transform="matrix(0.5,0,0,0.65,0,0)" width="298"/>
+  <atv:overwrite height="199" id="border" transform="matrix(0.5,0,0,0.65,0,0)" width="299"/>
+ </svg>
+ <svg atv:refpx="152.241" atv:refpy="351.178" height="130" id="id_9" transform="matrix(2.0235,0,0,1.68,0,0)" width="150" x="0.238" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.gauge" y="144.032">
+  <atv:argument name="max" value="1"/>
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.FP"/>
+  <atv:argument name="postDecimals" value="2"/>
+  <atv:argument name="barColor" value="#59822d"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.4942,0,0,0.5952,0,0)" x="151.759" y="126.574"/>
+  <atv:overwrite id="main_label" transform="matrix(0.4942,0,0,0.5952,0,0)" x="151.759" y="107.828"/>
+  <atv:overwrite height="216.402" id="fo_container" transform="matrix(0.4942,0,0,0.5952,0,0)" width="301.519"/>
+  <atv:overwrite height="217.402" id="border" transform="matrix(0.4942,0,0,0.5952,0,0)" width="302.519"/>
+ </svg>
+ <svg atv:refpx="449.94" atv:refpy="100" height="130" id="id_10" transform="matrix(2,0,0,1.5385,0,0)" width="150" x="149.969" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.pie" y="0">
+  <atv:argument name="series1Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Corriente_L1"/>
+  <atv:argument name="series1Name" value="T{A L1}"/>
+  <atv:argument name="series2Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Corriente_L2"/>
+  <atv:argument name="outerSize" value="50"/>
+  <atv:argument name="innerSize" value="45"/>
+  <atv:argument name="seriesCount" value="3"/>
+  <atv:argument name="series3Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Corriente_L3"/>
+  <atv:argument name="unit" value="T{A}"/>
+  <atv:argument name="series2Name" value="T{A L2}"/>
+  <atv:argument name="series3Name" value="T{A L3}"/>
+  <atv:argument name="postDecimals" value="2"/>
+  <atv:argument name="series1Color" value="#000000"/>
+  <atv:argument name="series2Color" value="#c30000"/>
+  <atv:argument name="series3Color" value="#0000b8"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.5,0,0,0.65,0,0)" x="150" y="117.373"/>
+  <atv:overwrite id="main_label" transform="matrix(0.5,0,0,0.65,0,0)" x="150" y="98.627"/>
+  <atv:overwrite height="198" id="fo_container" transform="matrix(0.5,0,0,0.65,0,0)" width="298"/>
+  <atv:overwrite height="199" id="border" transform="matrix(0.5,0,0,0.65,0,0)" width="299"/>
+ </svg>
+ <svg atv:refpx="750.144" atv:refpy="100" height="130" id="id_11" transform="matrix(2,0,0,1.5385,0,0)" width="150" x="300.07" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.pie" y="0">
+  <atv:argument name="series1Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Voltaje_L1-L2"/>
+  <atv:argument name="series1Name" value="T{Aparente}"/>
+  <atv:argument name="series2Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Voltaje_L2-L3"/>
+  <atv:argument name="outerSize" value="50"/>
+  <atv:argument name="innerSize" value="45"/>
+  <atv:argument name="seriesCount" value="3"/>
+  <atv:argument name="series3Address" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_007.Voltaje_L3-L1"/>
+  <atv:argument name="series2Name" value="T{Activa}"/>
+  <atv:argument name="series3Name" value="T{Reactiva}"/>
+  <atv:argument name="postDecimals" value="2"/>
+  <atv:argument name="series1Color" value="#000090"/>
+  <atv:argument name="series2Color" value="#009500"/>
+  <atv:argument name="series3Color" value="#be0000"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.5,0,0,0.65,0,0)" x="150" y="117.376"/>
+  <atv:overwrite id="main_label" transform="matrix(0.5,0,0,0.65,0,0)" x="150" y="98.63"/>
+  <atv:overwrite height="198.005" id="fo_container" transform="matrix(0.5,0,0,0.65,0,0)" width="298"/>
+  <atv:overwrite height="199.005" id="border" transform="matrix(0.5,0,0,0.65,0,0)" width="299"/>
+ </svg>
+ <text atv:refpx="137.831" atv:refpy="224.918" fill="#000065" font-family="Arial" font-size="20" font-weight="bold" id="id_18" x="120.331" y="229.418">Voltaje</text>
+ <text atv:refpx="443.353" atv:refpy="228.136" fill="#000065" font-family="Arial" font-size="20" font-weight="bold" id="id_19" x="418.107" y="232.636">Corriente</text>
+ <text atv:refpx="744.697" atv:refpy="228.136" fill="#000065" font-family="Arial" font-size="20" font-weight="bold" id="id_20" x="720.81" y="232.636">Potencia</text>
+ <text atv:refpx="106.76" atv:refpy="481.112" fill="#000065" font-family="Arial" font-size="20" font-weight="bold" id="id_21" x="53.126" y="485.612">Factor de Potencia</text>
+ <text atv:refpx="474" atv:refpy="478.612" fill="#000065" font-family="Arial" font-size="20" font-weight="bold" id="id_28" x="376" y="485.612">Demanda contratada</text>
+ <text atv:refpx="777" atv:refpy="478.612" fill="#000065" font-family="Arial" font-size="20" font-weight="bold" id="id_31" x="686" y="485.612">Energía consumida</text>
+ <svg atv:refpx="453" atv:refpy="395" height="130" id="id_32" transform="matrix(1.9867,0,0,1,0,0)" width="150" x="153.02" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.charts.progress" y="304">
+  <atv:argument name="max" value="327"/>
+  <atv:argument name="postDecimals" value="2"/>
+  <atv:argument name="unit" value="T{W}"/>
+  <atv:argument name="base" prefix="base" value=".Potencia_Activa"/>
+  <atv:overwrite id="sub_label" transform="matrix(0.5034,0,0,1,0,0)" x="149"/>
+  <atv:overwrite id="main_label" transform="matrix(0.5034,0,0,1,0,0)" x="149"/>
+  <atv:overwrite id="fo_container" transform="matrix(0.5034,0,0,1,0,0)" width="296"/>
+  <atv:overwrite id="border" transform="matrix(0.5034,0,0,1,0,0)" width="297"/>
+ </svg>
+ <svg atv:refpx="752" atv:refpy="337.988" height="160" id="id_35" transform="matrix(1.875,0,0,1.2001,0,0)" width="160" x="321.067" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dashboard.base_value_tile" y="201.622">
+  <atv:argument name="base" prefix="base" value=".Energia"/>
+  <atv:argument name="title" value=""/>
+  <atv:argument name="backgroundColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="borderColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="unit" value="T{KWh}"/>
+  <atv:argument name="postDecimals" value="2"/>
+  <atv:argument name="valueFontSize" value="36"/>
+  <atv:argument name="outputMode" value="number"/>
+  <atv:overwrite height="167.023" id="clickarea_display" transform="matrix(0.5333,0,0,0.8332,0,0)" width="300"/>
+  <atv:overwrite height="57.023" id="clickarea_title" transform="matrix(0.5333,0,0,0.8332,0,0)" width="300"/>
+  <atv:overwrite id="value_unit_label" transform="matrix(0.5333,0,0,0.8332,0,0)" x="150" y="106.012"/>
+  <atv:overwrite id="unit_label" transform="matrix(0.5333,0,0,0.8332,0,0)" x="150" y="128.012"/>
+  <atv:overwrite id="value_label" transform="matrix(0.5333,0,0,0.8332,0,0)" x="150" y="84.012"/>
+  <atv:overwrite id="sub_label" transform="matrix(1.2183,0,0,1.8215,-17.4679,-88.6467)"/>
+  <atv:overwrite id="main_label" transform="matrix(1.2513,0,0,1.667,-20.1026,-55.8674)"/>
+  <atv:overwrite height="188.023" id="blinking_frame" transform="matrix(0.5333,0,0,0.8332,0,0)" width="296"/>
+  <atv:overwrite height="162.023" id="content_frame" transform="matrix(0.5333,0,0,0.8332,0,0)" width="290"/>
+  <atv:overwrite id="title" transform="matrix(0.5333,0,0,0.8332,0,0)" x="150"/>
+  <atv:overwrite height="190.023" id="background" transform="matrix(0.5333,0,0,0.8332,0,0)" width="298"/>
+ </svg>
+</svg>

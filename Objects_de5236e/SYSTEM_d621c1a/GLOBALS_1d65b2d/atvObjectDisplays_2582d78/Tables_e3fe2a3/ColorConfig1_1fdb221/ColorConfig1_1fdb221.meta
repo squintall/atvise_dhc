@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.GLOBALS.atvObjectDisplays.Tables.ColorConfig1
+NodeClass: Variable
+BrowseName: 1:ColorConfig1
+DisplayName: en|ColorConfig1
+Description: en|ColorConfig1
+DataType: String
+ValueRank: 1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.GlobalVariable

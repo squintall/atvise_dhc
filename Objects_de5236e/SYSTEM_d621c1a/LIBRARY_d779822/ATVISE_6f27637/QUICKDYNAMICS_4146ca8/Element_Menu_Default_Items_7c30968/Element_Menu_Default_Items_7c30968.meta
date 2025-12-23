@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Element Menu Default Items
+NodeClass: Variable
+BrowseName: 1:Element Menu Default Items
+DisplayName: en|Element Menu Default Items
+Description: en|Element Menu Default Items
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

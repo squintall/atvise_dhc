@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Zona_Urbana.Carcamos_AR.AR_SOL_CAR_FINAL.Bombas.AR_SOL_CAR_FINAL_B3_HorometroDeseado
+NodeClass: Variable
+BrowseName: 1:AR_SOL_CAR_FINAL_B3_HorometroDeseado
+DisplayName: en|AR_SOL_CAR_FINAL_B3_HorometroDeseado
+Description: en|AR_SOL_CAR_FINAL_B3_HorometroDeseado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.PROJECT.1085

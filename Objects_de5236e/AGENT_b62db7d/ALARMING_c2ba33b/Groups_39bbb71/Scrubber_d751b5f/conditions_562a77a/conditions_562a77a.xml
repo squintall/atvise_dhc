@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Value xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+	<uax:ListOfNodeId>
+		<uax:NodeId>
+			<uax:Identifier>ns=1;s=ObjectTypes.PROJECT.Scrubber.Sensor1.sts.Estatus</uax:Identifier>
+		</uax:NodeId>
+		<uax:NodeId>
+			<uax:Identifier>ns=1;s=ObjectTypes.PROJECT.Scrubber.Sensor2.sts.Estatus</uax:Identifier>
+		</uax:NodeId>
+		<uax:NodeId>
+			<uax:Identifier>ns=1;s=ObjectTypes.PROJECT.Scrubber.Sensor3.sts.Estatus</uax:Identifier>
+		</uax:NodeId>
+	</uax:ListOfNodeId>
+</Value>

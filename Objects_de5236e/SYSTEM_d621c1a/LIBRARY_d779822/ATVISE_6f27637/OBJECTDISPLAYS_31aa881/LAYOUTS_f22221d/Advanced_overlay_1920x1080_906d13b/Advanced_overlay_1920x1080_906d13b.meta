@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.LAYOUTS.Advanced_overlay_1920x1080
+NodeClass: Variable
+BrowseName: 1:Advanced_overlay_1920x1080
+DisplayName: en|Advanced_overlay_1920x1080
+Description: en|Advanced_overlay_1920x1080
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

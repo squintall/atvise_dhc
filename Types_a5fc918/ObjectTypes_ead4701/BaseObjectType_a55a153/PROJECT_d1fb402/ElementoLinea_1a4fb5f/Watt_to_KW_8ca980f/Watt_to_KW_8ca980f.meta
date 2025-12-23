@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Watt_to_KW
+NodeClass: Variable
+BrowseName: 1:Watt_to_KW
+DisplayName: en|Watt_to_KW
+Description: en|Watt_to_KW
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

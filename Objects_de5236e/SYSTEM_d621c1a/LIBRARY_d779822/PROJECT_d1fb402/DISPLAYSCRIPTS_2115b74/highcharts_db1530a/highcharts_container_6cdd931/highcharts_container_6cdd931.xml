@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[let xAxis = [];
+let series = [];
+let highcharts;
+let highchartsLoaded;
+const highchartsContainer = document.getElementById('highcharts_container');
+var legend = webMI.query["legend"] == "true" ? true : false;
+var legendFontSize = webMI.query["legendFontSize"];
+var tooltip = webMI.query["tooltip"] == "true" ? true : false;
+var sharedTooltip = webMI.query["sharedTooltip"] == "true" ? true : false;
+var tooltipSuffix = webMI.query["tooltipSuffix"];
+var trendName = webMI.query["trendName"];
+var trendTheme = (webMI.query["trendTheme"])?webMI.query["trendTheme"]:"grid-light";
+var trendType = (webMI.query["trendType"])?webMI.query["trendType"]:"line";
+var inverted = webMI.query["inverted"] == "true" ? true : false;
+var showExportMenu = webMI.query["showExportMenu"] == "true" ? true : false;
+var zoomType = webMI.query["zoomType"].replace(' axis', '');
+var panning = webMI.query["panning"] == "true" ? true : false;
+var panKey = webMI.query["panKey"];
+var xAxis_title_text = webMI.query["xAxis_title_text"];
+var xAxis_node = webMI.query["xAxis_node"];
+var xAxis_labels =  webMI.query["xAxis_labels"] == "true" ? true : false;
+var xAxis_crosshair =  webMI.query["xAxis_crosshair"] == "true" ? true : false;
+var yAxis_title_text = webMI.query["yAxis_title_text"];
+var yAxis_labels =  webMI.query["yAxis_labels"] == "true" ? true : false;
+var yAxis_crosshair =  webMI.query["yAxis_crosshair"] == "true" ? true : false;
+var Series_node = webMI.query["Series_node"];
+var dataLabels = webMI.query["dataLabels"] == "true" ? true : false;
+var dataLabelSuffix = webMI.query["dataLabelSuffix"];
+var enable3d = webMI.query["3d_enable"] == "true" ? true : false;
+var alpha3d = webMI.query["3d_alpha"];
+var depth3d = webMI.query["3d_depth"];
+var viewDistance3d = webMI.query["3d_viewDistance"];
+var annotation = webMI.query["annotation"] == "true" ? true : false;
+var nodeChange = false;
+var typeChange = false;
+var typesArray = ["line","area","areaspline","bar","bubble","column","columnpyramid","columnrange","packedbubble","pie","polygon","scatter","spline", "arearange","areasplinerange","waterfall"];
+const types = [
+	{ text: "area", value: "area" },
+	{ text: "arearange", value: "arearange" },
+	{ text: "areaspline", value: "areaspline" },
+	{ text: "areasplinerange", value: "areasplinerange" },
+	{ text: "bar", value: "bar" },
+	{ text: "bubble", value: "bubble" },
+	{ text: "bullet", value: "bullet" },
+	{ text: "column", value: "column" },
+	{ text: "columnpyramid", value: "columnpyramid" },
+	{ text: "columnrange", value: "columnrange" },
+	{ text: "cylinder", value: "cylinder" },
+	{ text: "dumbbell", value: "dumbbell" },
+	{ text: "funnel", value: "funnel" },
+	{ text: "line", value: "line" },
+	{ text: "packedbubble", value: "packedbubble" },
+	{ text: "pareto", value: "pareto" },
+	{ text: "pie", value: "pie" },
+	{ text: "polygon", value: "polygon" },
+	{ text: "scatter", value: "scatter" },
+	{ text: "spline", value: "spline" },
+	{ text: "streamgraph", value: "streamgraph" },
+	{ text: "sunburst", value: "sunburst" },
+	/*{ text: "timeline", value: "timeline" },*/
+	{ text: "treemap", value: "treemap" },
+	{ text: "waterfall", value: "waterfall" },
+	{ text: "wordcloud", value: "wordcloud"}
+	
+];
+
+webMI.addOnunload(function(){
+	highcharts.destroy();
+	highchartsContainer.remove();
+});
+
+webMI.addOnload(function(e) {
+	webMI.trigger.fire("setItems", types, "type");
+	webMI.trigger.fire("setSelectedItem", trendType, "type");
+	webMI.trigger.fire("setValue", xAxis_node, "x_node");
+	webMI.trigger.fire("setChecked", enable3d, "effect3d");
+	webMI.trigger.fire("setChecked", annotation, "annotation");
+	webMI.trigger.fire("setValue", Series_node, "series_node");
+	webMI.data.loadScript("/highcharts/highcharts.js",function(url, alreadyLoaded){
+		highchartsLoaded = alreadyLoaded;
+		webMI.data.loadScript("/highcharts/highcharts-more.js",function(url, alreadyLoaded){
+			webMI.data.loadScript("/highcharts/highcharts-3d.js",function(url, alreadyLoaded){
+				webMI.data.loadScript("/highcharts/themes/"+trendTheme+".js",function(url, alreadyLoaded){
+					webMI.data.loadScript("/highcharts/modules/exporting.js",function(){
+						webMI.data.loadScript("/highcharts/modules/offline-exporting.js",function(){			
+							webMI.data.loadScript("/highcharts/modules/annotations-advanced.js",function(){
+								initChart();
+								if(!highchartsLoaded){
+									webMI.gfx.setScaledEvents("highcharts_container");
+								}
+							});
+						});
+					});
+				});	
+			});
+		});
+	});
+});
+
+function initChart(){
+	if(xAxis_node && Series_node){
+		webMI.data.subscribeBlock([xAxis_node, Series_node], [], function(e) {
+			if(e[0].value && e[1].value){		
+				xAxis = e[0].value.split(",");
+				series = JSON.parse(e[1].value);
+				if(highcharts  !== undefined && !nodeChange){
+					highcharts.series[0].setName(series[0].name);
+					highcharts.series[0].setData(series[0].data);
+					highcharts.xAxis[0].setCategories(xAxis);
+				}
+				else if(xAxis && series){
+					setChart();
+				}
+				else{
+					alert('T{Please enter the right serial node...}');				
+				}
+			}
+			else{ 
+				if(e[0].error && e[0].error != 0){
+					alert(e[0].errorstring);	
+				}
+				if(e[1].error && e[1].error != 0){
+					alert(e[1].errorstring);	
+				}
+			}
+		});
+	}
+	else if(Series_node){
+		webMI.data.subscribe(Series_node, function(e) {	
+			if(e.value){
+				series = JSON.parse(e.value);
+				if(highcharts  !== undefined && nodeChange === 0){
+					highcharts.series[0].setName(series[0].name);
+					highcharts.series[0].setData(series[0].data);
+				}
+				else if(series){
+					setChart();
+				}
+				else{
+					alert('T{Please enter the right serial node...}');				
+				}
+			}
+			else if(e.error != 0){
+				alert(e.errorstring);	
+			}
+		});
+	} else {
+		alert('T{Please enter the right serial node...}');	
+	}
+}
+
+
+function setChart(){	
+	nodeChange = typeChange = false;
+		let highchartsConfig = {};
+		highchartsConfig.chart = {
+			type: trendType,
+			inverted: inverted,
+			zoomType: zoomType,
+			panning: panning,
+			panKey: panKey
+		},
+
+		highchartsConfig.yAxis = [{
+			title: { text: yAxis_title_text },
+			crosshair: yAxis_crosshair,
+			labels: {
+				enabled: yAxis_labels
+			}
+		}];
+		highchartsConfig.xAxis = [{
+			crosshair: xAxis_crosshair,
+			zoomEnabled: true,
+			title: {
+				text: xAxis_title_text
+			},
+			labels: {
+				enabled: xAxis_labels
+			}
+		}];
+		if(xAxis != ""){
+			highchartsConfig.xAxis[0].categories = xAxis;
+		}
+		if(enable3d === true && !["dumbbell", "wordcloud", "scatter", "packedbubble", "pie"].includes(trendType)){
+			webMI.trigger.fire("com.atvise.setActive", true, "effect3d");	
+		
+			highchartsConfig.chart.options3d = {
+				enabled: enable3d,
+				alpha: alpha3d,
+				depth: depth3d,
+				viewDistance: viewDistance3d
+			};
+		}
+		
+		if(["arearange", "areaspline", "areasplinerange", "columnrange", "dumbbell", "funnel", "packedbubble", "pie", "streamgraph", "sunburst", "timeline", "treemap", "worldcloud"].includes(trendType)){
+			annotation = false;
+			webMI.trigger.fire("com.atvise.setActive", false, "annotation");
+			webMI.trigger.fire("setChecked", false, "annotation");
+		} else {
+			webMI.trigger.fire("com.atvise.setActive", true, "annotation");
+		}		
+		
+		highchartsConfig.tooltip = {
+			shared: sharedTooltip
+		};
+		highchartsConfig.series = [];		
+		series.forEach(element => highchartsConfig.series.push(element));
+		
+		highchartsConfig.annotation = [{
+			visible: annotation,
+			type: 'measure',
+			draggable: "xy",
+			zIndex: 15,	
+			events: {},
+			typeOptions: {
+				point: {
+					x: 4,
+					y: 150e3,
+					controlPoint: { /* control point options */ }
+				},
+				 label: {
+					enabled: true
+				},
+			   
+				background: {
+					width: 300 + 'px',
+					height: 150 + 'px'
+				},
+
+			},
+		}];
+		
+		highchartsConfig.plotOptions = {
+			pie: {
+				allowPointSelect: true,
+				depth: 35,
+				cursor: 'pointer',
+				dataLabels: {
+					enabled: true
+				}
+			},
+			series:{
+			   turboThreshold:0,
+			   dataLabels: {
+					enabled: dataLabels,
+					format: '<b>{point.name}</b> {y}'+dataLabelSuffix
+				}
+			},
+		};
+		
+		highchartsConfig.legend = {
+			enabled: legend,
+			itemStyle: {
+				fontSize: legendFontSize
+			}
+		};
+		
+		highchartsConfig.tooltip = {
+			enabled: tooltip,
+			valueSuffix: tooltipSuffix,
+			formatter: undefined
+		};
+		
+		highchartsConfig.credits = {
+			 enabled: false
+		};
+		
+		highchartsConfig.exporting = {
+			buttons: {
+				contextButton: {
+					menuItems: ["printChart", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG"]
+				}
+			}
+		};
+		
+		if(!showExportMenu){
+			webMI.rootWindow.Highcharts.setOptions({
+				navigation: {
+					buttonOptions: {
+						enabled: false
+					}
+				}
+			});
+		}
+		
+		highcharts = webMI.rootWindow.Highcharts.chart(highchartsContainer, highchartsConfig);
+};
+
+function getType(dir) {
+	webMI.trigger.fire("getSelectedItem", function(e){
+		let actType = e.value;
+		let index = types.findIndex(function(element){
+			return element.value === actType;
+		});
+		
+		if(dir && index >= 0 && index < types.length - 1){
+			webMI.trigger.fire("setSelectedItem", types[index + 1].value, "type");			
+		} else if(!dir && index >= 0 && index < types.length) {
+			webMI.trigger.fire("setSelectedItem", types[index - 1].value, "type");
+		}
+	},"type");
+};
+
+function typeCheck(trendType){
+	if(["sunburst","treemap","wordcloud"].includes(trendType)){
+		webMI.trigger.fire("setValue", "AGENT.OBJECTS.highcharts.TreeSeries", "series_node");
+	}else if(["arearange","areasplinerange","columnrange","dumbbell"].includes(trendType)){
+		webMI.trigger.fire("setValue", "AGENT.OBJECTS.highcharts.RangeSeries", "series_node");
+	}else if(["pareto","bullet","packedbubble"].includes(trendType)){
+		webMI.trigger.fire("setValue", "AGENT.OBJECTS.highcharts.DoubleSeries", "series_node");
+	} else if(["pie","funnel"/*,"timeline"*/].includes(trendType)){
+		webMI.trigger.fire("setValue", "AGENT.OBJECTS.highcharts.PieceSeries", "series_node");
+	} else if("timeline" === trendType){
+		webMI.trigger.fire("setValue", "AGENT.OBJECTS.highcharts.TimeSeries", "series_node");
+	}else{
+		webMI.trigger.fire("setValue", "AGENT.OBJECTS.highcharts.SingleSeries", "series_node");
+	}
+}
+webMI.trigger.connect("valuechanged", function(e) { 
+	if(trendType != e.value){
+		trendType = e.value;
+		typeChange = true;
+		
+		if(["dumbbell", "wordcloud", "scatter", "packedbubble", "pie"].includes(trendType)){
+			enable3d = false;
+			webMI.trigger.fire("com.atvise.setActive", false, "effect3d");
+			webMI.trigger.fire("setChecked", false, "effect3d");
+		} else {
+			webMI.trigger.fire("com.atvise.setActive", true, "effect3d");
+		}
+		
+		if(["arearange", "areaspline", "areasplinerange", "columnrange", "dumbbell", "funnel", "packedbubble", "pie", "streamgraph", "sunburst", "timeline", "treemap", "worldcloud"].includes(trendType)){
+			annotation = false;
+			webMI.trigger.fire("com.atvise.setActive", false, "annotation");
+			webMI.trigger.fire("setChecked", false, "annotation");
+		} else {
+			webMI.trigger.fire("com.atvise.setActive", true, "annotation");
+		}
+		
+		typeCheck(trendType);
+		if(xAxis && series.length > 0){
+			if(typesArray.includes(trendType)){
+				if(nodeChange){
+					initChart();
+				} else {
+					setChart();
+				}
+			} else {
+				webMI.data.loadScript("/highcharts/modules/"+trendType+".js",function(url, alreadyLoaded){
+					if(nodeChange){
+						initChart();
+					}else{
+						setChart();
+					}
+				});	
+			}
+		}
+    }
+},"type");
+
+webMI.trigger.connect("valuechanged", function(e) { 
+	if(xAxis_node != e.value){	
+		webMI.data.unsubscribe(xAxis_node);
+		xAxis_node = e.value;
+		nodeChange = true;
+		initChart();
+	}
+}, "x_node");
+
+webMI.trigger.connect("valuechanged", function(e) { 
+	if(Series_node != e.value){
+		webMI.data.unsubscribe(Series_node);
+		Series_node = e.value;
+		nodeChange = true;
+		if(!typeChange){
+			initChart();
+		}
+	}
+}, "series_node");
+
+webMI.addEvent("nextType", "mouseover", function(e) {
+	var id = "nextType";
+	var value = true;
+	return function(value) {
+		document.getElementById(id).style.cursor = "pointer";
+	} (value);
+});
+webMI.addEvent("nextType", ["click","touchstart"], function(e) {
+	var id = "nextType";
+	var value = true;
+	return function(value) {
+		getType(true);
+	} (value);
+});
+webMI.addEvent("prevType", "mouseover", function(e) {
+	var id = "prevType";
+	var value = true;
+	return function(value) {
+		document.getElementById(id).style.cursor = "pointer";
+	} (value);
+});
+webMI.addEvent("prevType", ["click","touchstart"], function(e) {
+	var id = "prevType";
+	var value = true;
+	return function(value) {
+		getType(false);
+	} (value);
+});
+webMI.trigger.connect("valuechanged", function(e) { 
+	if(enable3d != e.value){
+		enable3d = e.value == 1 ? true : false;
+		setChart();
+	}
+}, "effect3d");
+webMI.trigger.connect("valuechanged", function(e) { 
+	if(annotation != e.value){
+		annotation = e.value == 1 ? true : false;
+		setChart();
+	}
+}, "annotation");
+]]></code>
+</script>

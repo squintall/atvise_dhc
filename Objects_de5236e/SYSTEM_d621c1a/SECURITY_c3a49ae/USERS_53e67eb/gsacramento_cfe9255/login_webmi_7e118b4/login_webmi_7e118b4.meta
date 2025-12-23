@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.gsacramento.login_webmi
+NodeClass: Variable
+BrowseName: 1:login_webmi
+DisplayName: en|login_webmi
+Description: en|login_webmi
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Methods.ArchiveLocking.IsLocked
+NodeClass: Variable
+BrowseName: 1:IsLocked
+DisplayName: en|IsLocked
+Description: en|IsLocked
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

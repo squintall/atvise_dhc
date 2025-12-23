@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="420" version="1.2" width="980" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css"><![CDATA[
+    .title{font-family:Arial;font-size:18px;font-weight:bold;fill:#111}
+    .lbl{font-family:Arial;font-size:14px;fill:#111}
+    .hint{font-family:Arial;font-size:12px;fill:#475569}
+    .box{stroke:#cbd5e1;fill:#fff}
+  ]]></style>
+ </defs>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <!-- Encabezados -->
+ <text atv:refpx="146.5" atv:refpy="23.5" class="title" id="id_0" x="16" y="28">Conectividad de Adquisición (fondo del nombre)</text>
+ <text atv:refpx="602.5" atv:refpy="23.5" class="title" id="id_1" x="520" y="28">Conectividad de Control (LED)</text>
+ <!-- Leyenda Adquisición -->
+ <g atv:refpx="246" atv:refpy="214" id="legend_acq" transform="translate(16,48)">
+  <!-- OK -->
+  <rect atv:refpx="230" atv:refpy="14" class="box" height="28" id="id_2" rx="6" ry="6" width="460" x="0" y="0"/>
+  <rect atv:refpx="22" atv:refpy="14" fill="#1a8b22" height="16" id="id_3" rx="4" ry="4" width="28" x="8" y="6"/>
+  <text atv:refpx="167.5" atv:refpy="15.5" class="lbl" id="id_4" x="48" y="20">OK / Con comunicación (Good + value=true)</text>
+  <!-- Sin comunicación (Good + value=false) -->
+  <rect atv:refpx="230" atv:refpy="58" class="box" height="44" id="id_5" rx="6" ry="6" width="460" x="0" y="36"/>
+  <rect atv:refpx="22" atv:refpy="50" fill="#ff0000" height="16" id="id_6" rx="4" ry="4" width="28" x="8" y="42"/>
+  <text atv:refpx="155" atv:refpy="51.5" class="lbl" id="id_7" x="48" y="56">Sin comunicación (Good + value=false)</text>
+  <text atv:refpx="163" atv:refpy="67.5" class="hint" id="id_8" x="48" y="72">Parpadeo intermitente en display principal</text>
+  <!-- BadNoCommunication -->
+  <rect atv:refpx="230" atv:refpy="102" class="box" height="28" id="id_9" rx="6" ry="6" width="460" x="0" y="88"/>
+  <rect atv:refpx="22" atv:refpy="102" fill="#ff0000" height="16" id="id_10" rx="4" ry="4" width="28" x="8" y="94"/>
+  <text atv:refpx="151" atv:refpy="103.5" class="lbl" id="id_11" x="48" y="108">BadNoCommunication (2150694912)</text>
+  <!-- BadWaitingForInitialData -->
+  <rect atv:refpx="230" atv:refpy="138" class="box" height="28" id="id_12" rx="6" ry="6" width="460" x="0" y="124"/>
+  <rect atv:refpx="22" atv:refpy="138" fill="#7c1536" height="16" id="id_13" rx="4" ry="4" width="28" x="8" y="130"/>
+  <text atv:refpx="160" atv:refpy="139.5" class="lbl" id="id_14" x="48" y="144">Esperando datos iniciales (2150760448)</text>
+  <!-- BadDeviceFailure -->
+  <rect atv:refpx="230" atv:refpy="174" class="box" height="28" id="id_15" rx="6" ry="6" width="460" x="0" y="160"/>
+  <rect atv:refpx="22" atv:refpy="174" fill="#b98f2d" height="16" id="id_16" rx="4" ry="4" width="28" x="8" y="166"/>
+  <text atv:refpx="141" atv:refpy="175.5" class="lbl" id="id_17" x="48" y="180">Falla de dispositivo (2156593152)</text>
+  <!-- UncertainLastUsableValue -->
+  <rect atv:refpx="230" atv:refpy="210" class="box" height="28" id="id_18" rx="6" ry="6" width="460" x="0" y="196"/>
+  <rect atv:refpx="22" atv:refpy="210" fill="#883fb2" height="16" id="id_19" rx="4" ry="4" width="28" x="8" y="202"/>
+  <text atv:refpx="141" atv:refpy="211.5" class="lbl" id="id_20" x="48" y="216">Último valor usable (1083179008)</text>
+  <!-- Bad genérico -->
+  <rect atv:refpx="230" atv:refpy="246" class="box" height="28" id="id_21" rx="6" ry="6" width="460" x="0" y="232"/>
+  <rect atv:refpx="22" atv:refpy="246" fill="#ff8f05" height="16" id="id_22" rx="4" ry="4" width="28" x="8" y="238"/>
+  <text atv:refpx="128.5" atv:refpy="247.5" class="lbl" id="id_23" x="48" y="252">Bad (genérico) (2147483648)</text>
+  <!-- undefined / No disponible -->
+  <rect atv:refpx="230" atv:refpy="282" class="box" height="28" id="id_24" rx="6" ry="6" width="460" x="0" y="268"/>
+  <rect atv:refpx="22" atv:refpy="282" fill="#6b6b6b" height="16" id="id_25" rx="4" ry="4" width="28" x="8" y="274"/>
+  <text atv:refpx="119" atv:refpy="283.5" class="lbl" id="id_26" x="48" y="288">No disponible (undefined)</text>
+  <!-- Transición por alarma -->
+  <rect atv:refpx="230" atv:refpy="318" class="box" height="28" id="id_27" rx="6" ry="6" width="460" x="0" y="304"/>
+  <rect atv:refpx="22" atv:refpy="318" fill="#954120" height="16" id="id_28" rx="4" ry="4" width="28" x="8" y="310"/>
+  <text atv:refpx="140.5" atv:refpy="319.5" class="lbl" id="id_29" x="48" y="324">Transición (estado de alarma = 2)</text>
+ </g>
+ <!-- Leyenda Control (LED) -->
+ <g atv:refpx="641.25" atv:refpy="156.5" id="legend_ctrl" transform="translate(520,48)">
+  <!-- Good azul fijo -->
+  <g atv:refpx="78.75" atv:refpy="11.5" id="id_50" transform="translate(0,0)">
+   <circle atv:refpx="0" atv:refpy="12" cx="0" cy="12" fill="#1c7ed6" id="id_30" r="8" stroke="#1c7ed6" stroke-width="2"/>
+   <text atv:refpx="89" atv:refpy="11.5" class="lbl" id="id_31" x="16" y="16">Good: Azul fijo (con control)</text>
+  </g>
+  <!-- Otros estados: parpadeo -->
+  <g atv:refpx="116.25" atv:refpy="39.5" id="id_51" transform="translate(0,28)">
+   <circle atv:refpx="0" atv:refpy="12" cx="0" cy="12" fill="#ff0000" id="id_32" r="8" stroke="#ff0000" stroke-width="2"/>
+   <text atv:refpx="126.5" atv:refpy="11.5" class="lbl" id="id_33" x="16" y="16">BadNoCommunication: Rojo (parpadea)</text>
+  </g>
+  <g atv:refpx="121.25" atv:refpy="67.5" id="id_52" transform="translate(0,56)">
+   <circle atv:refpx="0" atv:refpy="12" cx="0" cy="12" fill="#7c1536" id="id_34" r="8" stroke="#7c1536" stroke-width="2"/>
+   <text atv:refpx="131.5" atv:refpy="11.5" class="lbl" id="id_35" x="16" y="16">Esperando datos: Rojo oscuro (parpadea)</text>
+  </g>
+  <g atv:refpx="112.25" atv:refpy="95.5" id="id_53" transform="translate(0,84)">
+   <circle atv:refpx="0" atv:refpy="12" cx="0" cy="12" fill="#b98f2d" id="id_36" r="8" stroke="#b98f2d" stroke-width="2"/>
+   <text atv:refpx="122.5" atv:refpy="11.5" class="lbl" id="id_37" x="16" y="16">Falla de dispositivo: Marrón (parpadea)</text>
+  </g>
+  <g atv:refpx="115.25" atv:refpy="123.5" id="id_54" transform="translate(0,112)">
+   <circle atv:refpx="0" atv:refpy="12" cx="0" cy="12" fill="#883fb2" id="id_38" r="8" stroke="#883fb2" stroke-width="2"/>
+   <text atv:refpx="125.5" atv:refpy="11.5" class="lbl" id="id_39" x="16" y="16">Último valor usable: Púrpura (parpadea)</text>
+  </g>
+  <g atv:refpx="98.75" atv:refpy="151.5" id="id_55" transform="translate(0,140)">
+   <circle atv:refpx="0" atv:refpy="12" cx="0" cy="12" fill="#ff8f05" id="id_40" r="8" stroke="#ff8f05" stroke-width="2"/>
+   <text atv:refpx="109" atv:refpy="11.5" class="lbl" id="id_41" x="16" y="16">Bad genérico: Naranja (parpadea)</text>
+  </g>
+  <g atv:refpx="90.25" atv:refpy="179.5" id="id_56" transform="translate(0,168)">
+   <circle atv:refpx="0" atv:refpy="12" cx="0" cy="12" fill="#6b6b6b" id="id_42" r="8" stroke="#6b6b6b" stroke-width="2"/>
+   <text atv:refpx="100.5" atv:refpy="11.5" class="lbl" id="id_43" x="16" y="16">No disponible: Gris (parpadea)</text>
+  </g>
+  <!-- Demo de parpadeo -->
+  <g atv:refpx="114.5" atv:refpy="204.5" id="demo" transform="translate(0,210)">
+   <text atv:refpx="24" atv:refpy="-4.5" class="lbl" id="id_44" x="0" y="0">Ejemplo:</text>
+   <!-- Azul fijo -->
+   <circle atv:refpx="80" atv:refpy="-6" cx="80" cy="-6" fill="#1c7ed6" id="id_45" r="8" stroke="#1c7ed6" stroke-width="2"/>
+   <text atv:refpx="105.5" atv:refpy="-6.5" class="hint" id="id_46" x="96" y="-2">Fijo</text>
+   <!-- Rojo parpadeo (SMIL) -->
+   <circle atv:refpx="160" atv:refpy="-6" cx="160" cy="-6" fill="#ff0000" id="id_47" r="8" stroke="#ff0000" stroke-width="2">
+    <animate attributeName="opacity" dur="1s" repeatCount="indefinite" values="1;0;1"/>
+   </circle>
+   <text atv:refpx="202.5" atv:refpy="-6.5" class="hint" id="id_48" x="176" y="-2">Parpadeo</text>
+  </g>
+ </g>
+ <!-- Notas -->
+ <text atv:refpx="341" atv:refpy="405.5" class="hint" id="id_49" x="16" y="410">Los colores son consistentes entre displays. El LED parpadea siempre que el status OPC UA sea distinto de Good (0).</text>
+</svg>

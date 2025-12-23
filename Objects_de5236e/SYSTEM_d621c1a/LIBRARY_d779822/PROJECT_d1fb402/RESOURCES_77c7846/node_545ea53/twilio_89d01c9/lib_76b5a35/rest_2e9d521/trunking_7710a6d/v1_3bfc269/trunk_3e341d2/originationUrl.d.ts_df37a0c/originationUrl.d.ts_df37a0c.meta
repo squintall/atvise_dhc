@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/trunking/v1/trunk/originationUrl.d.ts
+NodeClass: Variable
+BrowseName: 1:originationUrl.d.ts
+DisplayName: en|originationUrl.d.ts
+Description: en|originationUrl.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

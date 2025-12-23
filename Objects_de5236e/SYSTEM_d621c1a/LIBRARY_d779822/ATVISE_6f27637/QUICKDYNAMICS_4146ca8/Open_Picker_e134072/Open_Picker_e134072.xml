@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png">iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEQAACxEBf2RfkQAABStJREFUWIXtl0uMHcUVhr9Tp7rvc+YOYyeysY1t7AC2USQHFpDABmEJIRbANruss/A2K7IhQmLBIrtIWbJBCClSdolwrCxQHkZgRwRh4bGNZcNgz/O++lFVWXTfnr5z70AQEmw4UqlPVbXO/9ep/1RXww/2PZtMnPO/PvL0kfsbj1kDHjAGjBrUFH5kADXYsq9avmPA+6I5wGeQZB7vIUk8ISDra9n6n/+avnXp0p3hbgJ24jz/7NJrx3/y3M+9GxGCAyiewREIxTN4IBCCm3onBE86vkuaDhAxACRJShxb8jxna9uzcnPjo0uX+OeeBPA+Hw1WcPkMyT3MV14U38e1lXt8+J8hPz3T4uatjMgKjYawvuF4/GybXk/NvCgVAROZ0GwdwuXb1eRkxbtt97gxMceOLiECDz18kmbzU+5bUrIskGaBffuWGY3W5i5jJwMifHb9XZIERKqh6ilS7HcBKDNz1lqOHV1m2L/N4UP78T6n04nwPidJ+nQ60exKpggEsFawdgJggICIKZpRRAzGKMZE5bgtfYtIMY9o6StGG2TpGvnWDT7+76j/lQSCCzQ6bYxG5NmYO3eG2EgwRjACYkBVyqqQsgKkyoypyBi8z/E+IwRPnge2+56XXl78zcsv9m44T7xyM1l5/Y0bfwDyioAL0Gzux8ZL3F29wiOnH+OBE+cJIS+az0rf4UNaqj+H4PA+rSojhBzvxgz7V0nGnyOi/OjgAgcOXP1ls32IdLzKkSO3s9ff4G1gtZYBh417RPESjUaLZPwFm+vvkedb1I4LhDlilul5G/W4ePEvXL4y4twzC/zt732OH43Z2PoMq8JTv1jYngTdyQCg2sSYFiJCo3mARusQmnVLhoFQKz1CoF6KIUw05jGmwZNPnOWhEx9x4pFf0W7/kaMPnuPu5xdYXDpN7kfAB9MayDMQ00C1RRR1SJO7XP7XKzNqL1qhhWL/LVIK05i4EKCxRPF+Dh5+ms31f3P85PPk2RYHDr9Amtwj2bw9K8I8p1RuG6NFoMXFHjbqlmqPCwBtlJlqFK3mi4mLpygyIVM2ENR2GA+vM9hemSWQ5WAkQm0Xo02Cz+gsnMRGizsEtFUCFX1EMVIAIYIwAaMsRwNIjYjFaGtKPrUMBBDF2i7GxOQuobN4Cmt75RZMr6YArQNMg+2QqGVAW/hoGamdyjUCDhFFbRfVFnm2Rdz4Mca0KI7d6eCVv7tfJySKIBURY1pYn1KvqikNBDwixVDwGdb2ilTXVjMLNgskmLlbotom+JTg3HwC3o3wPsW5EVm2VWWjjDAn7SVYNTchYqo9nxBGDEbbeJ/g8/58AhBKtTfIsgRrF1DtEnAIWgs2nYHJt6B4wewC1ioTYmK89knmEQjetzfuvU+WbXJv9TLOgWoXGy0VR+5eAivTXQeazE9Z7QKTjedswdqm+9N7//gyVV31/b63p091fqa221DbJQRXBp6/t3OBfFoBFiL2SHA4NyBzO1/misBvf7fyKvBq2W298+aZj0XsA2p7RbCvBAq1S4qvHdth6vJiJODdiCSdQ2CXiUvLr10B842AJuRmo4IPKfn46wnoOAvi3JDgU7wbEZjsYQm0x3Xt6yz4nPG8MtxtuaNS7s659U0BZbpnYlTbZP9HBkgT373+yWtE8fK0+r+NiTIe3iTLwkKnA4PB3gQGV6+lv79158KjVo1fXlKaLRCjqIJK8WOy0xQ1oLY4LVwA5wLOOdIMnCtaf+jY3vJmbSO/Nhgw/5r8g33X9j/4B2D0YFvZRAAAAABJRU5ErkJggkVORK5CYII=</icon>
+    <visible>1</visible>
+    <title>Open Picker</title>
+    <description>Opens a date picker or color picker display.</description>
+  </metadata>
+  <parameter behavior="optional" desc="picker dialog address" name="address" valuetype="address"/>
+  <parameter behavior="optional" desc="picker dialog width" name="width" valuetype="number"/>
+  <parameter behavior="optional" desc="picker dialog height" name="height" valuetype="number"/>
+  <parameter behavior="hidden" desc="window title" name="title" valuetype="string"/>
+  <parameter behavior="optional" desc="parameters" name="parameters" valuetype="string"/>
+  <parameter behavior="optional" desc="style" name="style" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="true" desc="open centered" name="openCentered" valuetype="bool"/>
+  <parameter behavior="optional" desc="calling element width" name="callingElementWidth" valuetype="number"/>
+  <parameter behavior="optional" desc="calling element height" name="callingElementHeight" valuetype="number"/>
+  <code><![CDATA[// Check if to be opened centered
+if (typeof base != "undefined" && base.openCentered == "true") {
+	// If no styles defined
+	if (typeof base.style != "undefined")
+		webMI.display.openWindow({display:base.picker,extern:false,height:base.height,width:base.width,menubar:false,modal:true,movable:true,resizable:false,scrollbars:false,status:false,title:base.title,toolbar:false,query:base.parameters,style:base.style});
+	else
+		webMI.display.openWindow({display:base.picker,extern:false,height:base.height,width:base.width,menubar:false,modal:true,movable:true,resizable:false,scrollbars:false,status:false,title:base.title,toolbar:false,query:base.parameters});
+} else {
+	var popUpPoint = setPopUpPosition(base.callingElementWidth, base.callingElementHeight, base.width, base.height)
+	// If no styles defined
+	if (typeof base.style != "undefined")
+		webMI.display.openWindow({display:base.picker,extern:false,x:popUpPoint.x,y:popUpPoint.y,height:base.height,width:base.width,menubar:false,modal:true,movable:true,resizable:false,scrollbars:false,status:false,title:base.title,toolbar:false,query:base.parameters,style:base.style});
+	else
+		webMI.display.openWindow({display:base.picker,extern:false,x:popUpPoint.x,y:popUpPoint.y,height:base.height,width:base.width,menubar:false,modal:true,movable:true,resizable:false,scrollbars:false,status:false,title:base.title,toolbar:false,query:base.parameters});
+}
+
+
+// Check if pop up has enough space right and at the bottom if opened below calling element.
+// If not, change position to above element and/or aligned to right
+function setPopUpPosition(callingElementWidth, callingElementHeight, pickerWidth, pickerHeight) {
+
+	var x,y;
+
+	var frame = webMI.rootWindow.document.querySelectorAll("iframe")[1];
+	var frame_Width = parseFloat(frame.parentElement.style.width.slice(0,-2));
+	var frame_Height = parseFloat(frame.parentElement.style.height.slice(0,-2));
+
+	var matrix = webMI.gfx.getScreenCTM(true);
+	var popUpPoint = webMI.gfx.createPoint(0,callingElementHeight).matrixTransform(matrix);
+
+	// If pop up elements is broader than available space on right
+	if (popUpPoint.x + pickerWidth > frame_Width) {
+		x = popUpPoint.x - (pickerWidth - callingElementWidth);
+	} else {
+		x = popUpPoint.x;
+	}
+	// If pop up elements is higher than available space at bottom
+	if (popUpPoint.y + pickerHeight > frame_Height) {
+		y = popUpPoint.y - pickerHeight - callingElementHeight;
+	} else {
+		y = popUpPoint.y;
+	}
+	return webMI.gfx.createPoint(x,y);
+}]]></code>
+</script>

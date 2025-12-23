@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.DISPLAYSCRIPTS.hmi.clock_analog
+NodeClass: Variable
+BrowseName: 1:clock_analog
+DisplayName: en|clock_analog
+Description: en|clock_analog
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

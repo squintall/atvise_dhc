@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Cuencas.Cuenca_PTAR_IM.Carcamo_Garrafon.confGrafico
+NodeClass: Variable
+BrowseName: 1:confGrafico
+DisplayName: en|confGrafico
+Description: en|confGrafico
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

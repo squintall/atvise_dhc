@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.DataLoggerLSP.lat
+NodeClass: Variable
+BrowseName: 1:lat
+DisplayName: en|lat
+Description: en|lat
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

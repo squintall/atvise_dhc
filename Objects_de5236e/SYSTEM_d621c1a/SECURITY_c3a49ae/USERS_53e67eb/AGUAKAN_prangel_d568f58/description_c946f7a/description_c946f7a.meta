@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.AGUAKAN\prangel.description
+NodeClass: Variable
+BrowseName: 1:description
+DisplayName: en|description
+Description: en|description
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

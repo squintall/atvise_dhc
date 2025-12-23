@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Ara.Equipos.Bombas.Variador_2.conf
+NodeClass: Variable
+BrowseName: 1:conf
+DisplayName: en|conf
+Description: en|conf
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

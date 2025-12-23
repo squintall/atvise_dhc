@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="1050" version="1.2" width="644" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <svg atv:refpx="112.02" atv:refpy="-1107.089" height="680" id="id_0" transform="matrix(1.5,0,0,1.3088,0,0)" width="1280" x="-565.3" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.main_display" y="-1185.89">
+  <atv:argument name="startAddress" value="AGENT.OBJECTS.Sofrel"/>
+  <atv:argument name="save_changecompression" value=""/>
+  <atv:argument name="save_right" value="SYSTEM.SECURITY.RIGHTS.VISU.Configure"/>
+  <atv:argument name="autoloadConfigurations" value="true"/>
+  <atv:argument name="showfullAddressNames" value="false"/>
+ </svg>
+ <svg atv:refpx="378.12" atv:refpy="560.993" height="63.11" id="id_6" transform="matrix(2.895,0,0,2.7138,0,0)" width="133" x="64.112" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Principal" y="175.164">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_001"/>
+ </svg>
+</svg>

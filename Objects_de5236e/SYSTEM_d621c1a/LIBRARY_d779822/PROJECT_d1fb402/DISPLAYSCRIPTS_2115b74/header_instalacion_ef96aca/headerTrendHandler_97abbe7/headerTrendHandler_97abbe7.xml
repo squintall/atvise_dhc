@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/* ======================= Tendencias: openWindow ======================= */
+/* Ajusta las rutas de cada display de tendencia según tu proyecto */
+const TRENDS = {
+  corriente: "SYSTEM.DISPLAYS.CorrienteMain", // cámbialo si aplica
+  voltaje:   "SYSTEM.DISPLAYS.VoltajeMain",
+  potencia:  "SYSTEM.DISPLAYS.PotenciaMain",
+  fp:        "SYSTEM.DISPLAYS.FPMain"
+};
+
+/* Tamaño/posición base (ajústalo a tu gusto) */
+const POPUP = { x: 0, y: 0, width: 1280, height: 600 };
+
+/* Abridor genérico: usa 'display' (y también 'url' como fallback) */
+function openTrend(displayPath, title){
+  try {
+    webMI.display.openWindow({
+      display: displayPath,   // <-- clave que tu runtime sí entiende
+      url:     displayPath,   // (fallback por si acaso)
+      // 'title' suele funcionar, si no, quítalo sin drama
+      title: title || "Tendencia",
+      query: webMI.query,
+      x: POPUP.x, y: POPUP.y, width: POPUP.width, height: POPUP.height,
+      remember: true,
+      modal: false, resizable: true, movable: true,
+      scrollbars: false, menubar: false, status: false, toolbar: false,
+      extern: false
+    });
+  } catch (e){
+    try { console.error("[openTrend] error:", e); } catch(_) {}
+  }
+}
+
+/* Wiring de botones (IDs: btn_e_i / btn_e_v / btn_e_p / btn_e_fp) */
+function wireTrendButtons(){
+  const base = (webMI.query && webMI.query.base) || "";
+  const eq   = (base.split(".").pop() || "Equipo").replace(/_/g," ");
+
+  try { webMI.addEvent("btn_e_i",  "click", () => openTrend(TRENDS.corriente, `Tendencia Corriente — ${eq}`)); } catch(_){}
+  try { webMI.addEvent("btn_e_v",  "click", () => openTrend(TRENDS.voltaje,   `Tendencia Voltaje — ${eq}`)); } catch(_){}
+  try { webMI.addEvent("btn_e_p",  "click", () => openTrend(TRENDS.potencia,  `Tendencia Potencia — ${eq}`)); } catch(_){}
+  try { webMI.addEvent("btn_e_fp", "click", () => openTrend(TRENDS.fp,        `Tendencia FP — ${eq}`)); } catch(_){}
+}
+
+/* Init */
+try { webMI.addOnload(wireTrendButtons); } catch(_) { wireTrendButtons(); }
+
+
+// === Wiring para el FO de botones (btn_graph / btn_reload) ===
+try {
+  webMI.addEvent("btn_graph", "click", function () {
+    openWindowWithDynamicTitle(
+      "btn_graph",
+      ((webMI.query && (webMI.query.base || webMI.query["base"])) || "") + ".short_name",
+      "SYSTEM.DISPLAYS.Instalacion.Tendencia",
+      "Tendencia de ",
+      {
+        extern: false,
+        height: 575,
+        width: 1920,
+        x: 0,
+        y: 430,
+        menubar: false,
+        modal: false,
+        movable: true,
+        resizable: true,
+        scrollbars: false,
+        status: false,
+        toolbar: false
+      }
+    );
+  });
+} catch (_) {}
+
+try {
+  webMI.addEvent("btn_reload", "click", function () {
+    webMI.display.openDisplay(
+      "SYSTEM.DISPLAYS.Instalacion.Vista_Principal_V2",
+      webMI.query,
+      "content"
+    );
+  });
+} catch (_) {}
+
+/* === FO: botones (Mostrar gráfico / Recargar) === */
+
+// Mostrar gráfico: abre la tendencia en una ventana
+try {
+  webMI.addEvent("btn_graph", "click", function () {
+    webMI.display.openWindow({
+      // pon aquí tu display de tendencia real si es distinto
+      display: "SYSTEM.DISPLAYS.Instalacion.Tendencia",
+      url:     "SYSTEM.DISPLAYS.Instalacion.Tendencia", // fallback
+      query:   webMI.query,
+      x: 0, y: 430, width: 1920, height: 575,
+      modal: false, movable: true, resizable: true,
+      remember: true, scrollbars: false, menubar: false, status: false, toolbar: false,
+      extern: false
+    });
+  });
+} catch (_) {}
+
+// Recargar: vuelve a la Vista Principal V2 en el target "content"
+try {
+  webMI.addEvent("btn_reload", "click", function () {
+    webMI.display.openDisplay(
+      "SYSTEM.DISPLAYS.Instalacion.Vista_Principal_V2",
+      webMI.query,
+      "content"
+    );
+  });
+} catch (_) {}
+
+// (cosmético) cursor pointer por si el runtime no lo aplica
+try { var g = document.getElementById("btn_graph");  if (g) g.style.cursor = "pointer"; } catch (_){}
+try { var r = document.getElementById("btn_reload"); if (r) r.style.cursor = "pointer"; } catch (_){}
+]]></code>
+</script>

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_2000_Oriente.caudalimetros_Display
+NodeClass: Variable
+BrowseName: 1:caudalimetros_Display
+DisplayName: en|caudalimetros_Display
+Description: en|caudalimetros_Display
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

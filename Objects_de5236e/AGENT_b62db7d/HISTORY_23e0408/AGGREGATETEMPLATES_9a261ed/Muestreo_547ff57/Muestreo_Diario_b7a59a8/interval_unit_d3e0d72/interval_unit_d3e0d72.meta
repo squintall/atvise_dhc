@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.HISTORY.AGGREGATETEMPLATES.Muestreo.Muestreo_Diario.interval_unit
+NodeClass: Variable
+BrowseName: 1:interval_unit
+DisplayName: en|interval_unit
+Description: en|interval_unit
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

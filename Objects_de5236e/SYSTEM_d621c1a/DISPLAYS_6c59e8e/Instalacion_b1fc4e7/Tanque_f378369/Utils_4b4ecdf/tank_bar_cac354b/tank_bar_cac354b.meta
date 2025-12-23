@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Instalacion.Tanque.Utils.tank_bar
+NodeClass: Variable
+BrowseName: 1:tank_bar
+DisplayName: en|tank_bar
+Description: en|tank_bar
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for picker_interval object display
+ * ------------------------------------
+ * Picker interval allows you to enter time intervals based on a period.
+ * The period it self can be evaluated automatically or set individually.
+ * Default interval can be chosen from day, hour, minute, seconds and milliseconds.
+ */
+
+/**
+ * Trigger for performance measurement
+ */
+const displayId = document.getElementById("time_span").id;
+webMI.trigger.fire("com.atvise.performance.drawn", displayId);
+
+/**
+ * IMPORTS
+ */
+var consistencyHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Consistency Handler");
+
+/**
+ * DECLARATION SECTION
+ */
+var defaultSpanMap = {
+	auto: "auto",
+	days: "T{day(s)}",
+	hours: "T{hour(s)}",
+	minutes: "T{minute(s)}",
+	seconds: "T{second(s)}",
+	milliseconds: "T{millisec.(s)}"
+};
+
+var defaultSpanValues = {
+	"T{day(s)}": 86400000,
+	"T{hour(s)}": 3600000,
+	"T{minute(s)}": 60000,
+	"T{second(s)}": 1000,
+	"T{millisec.(s)}": 1
+};
+
+var base = webMI.query["base"] == undefined ? "" : webMI.query["base"];
+var baseTime = webMI.query["time"] == undefined ? undefined : parseFloat(webMI.query["time"]);
+var baseSpan = webMI.query["span"] == undefined ? "auto" : defaultSpanMap[webMI.query["span"]];
+
+var _internal = {
+	time: null,
+	span: null,
+	value: null,
+	periode: null
+};
+
+var menuLayout = {
+	customElementPosition: webMI.query["elementPosition"],
+	customFadeInAtHover: webMI.query["fadeInAtHover"],
+	customElementOffsetX: webMI.query["elementOffsetX"],
+	customElementOffsetY: webMI.query["elementOffsetY"],
+	customClickareaEnlargement: webMI.query["clickareaEnlargement"],
+	customElementLayoutOffsets: {}
+};
+
+var consistencyGroup = webMI.query["consistencyGroup"];
+
+var activationTriggerHandling = activationTriggerHandling ? activationTriggerHandling : undefined;
+var rightsHandling = rightsHandling ? rightsHandling : undefined;
+var updateRunTimeNodeConfig = updateRunTimeNodeConfig ? updateRunTimeNodeConfig : undefined;
+var updateBlinkingFrame = updateBlinkingFrame ? updateBlinkingFrame : undefined;
+var updateStatusIndication = updateStatusIndication ? updateStatusIndication : undefined;
+
+/** status **/
+var alarmIndication = webMI.query["alarmIndication"];
+var statusEnabled = webMI.query["statusEnabled"];
+var statusTrigger = webMI.query["statusTrigger"];
+var statusIndication = webMI.query["statusIndication"];
+
+/** data **/
+var runTimeNodeConfig = {
+	base: { value: null, address: base, paramValue: "", read: true, write: true, aggregate: false }
+};
+
+/**
+ * RUNTIME SECTION
+ */
+if (typeof activationTriggerHandling === "function") activationTriggerHandling("com.atvise.setActive");
+
+var notifierConfig = {
+	id: displayId,
+	rights: [
+		{ nodeId: base, rights: "read", disable: true, notify: false },
+		{ nodeId: base, rights: "write", disable: true, notify: false }
+	],
+	menuLayout: menuLayout
+};
+
+var rightsHandlingProperties = {
+	activationNodeSet: { activeNode: webMI.query["activeNode"], activeValue: webMI.query["activeValue"] },
+	notifierConfiguration: webMI.query.displayAcNotification === "true" ? notifierConfig : {},
+	userRight: webMI.query["right"],
+	editable: webMI.query["editable"] != "No"
+};
+
+if (typeof rightsHandling === "function") rightsHandling(rightsHandlingProperties);
+
+webMI.addOnload(function () {
+	if (typeof updateRunTimeNodeConfig === "function") {
+		updateRunTimeNodeConfig(runTimeNodeConfig, notifierConfig.rights, initialize);
+	} else {
+		initialize(runTimeNodeConfig);
+	}
+});
+
+/**
+ * FUNCTION SECTION
+ */
+
+/**
+ * Initialization of the components (values, activation, errors)
+ * @param runTimeNodeConfig
+ */
+function initialize(runTimeNodeConfig) {
+	if (runTimeNodeConfig.base.address == "" && !isNaN(baseTime)) {
+		evalPeriode(baseTime, baseSpan);
+	}
+
+	if (runTimeNodeConfig.base.read && consistencyGroup != "" && runTimeNodeConfig.base.address != "") {
+		webMI.data.read(runTimeNodeConfig.base.address, function (result) {
+			var time = parseFloat(result.value);
+
+			if (!_internal.periode) {
+				evalPeriode(time, baseSpan);
+			} else {
+				_internal.time = time;
+				_internal.value = time / _internal.periode;
+			}
+
+			if (typeof e.status != "undefined" && typeof updateStatusIndication === "function") {
+				updateBlinkingFrame("time_value_blinking_frame");
+				updateStatusIndication(result.status);
+				webMI.trigger.fire("setValue", _internal.value, "time_value");
+				webMI.trigger.fire("setSelectedItem", _internal.span, "time_span");
+			}
+		});
+
+		consistencyHandler.register(consistencyGroup, runTimeNodeConfig.base.address, handleConsistencyGroup);
+	} else if (runTimeNodeConfig.base.address && runTimeNodeConfig.base.read) {
+		webMI.data.subscribe(runTimeNodeConfig.base.address, function (result) {
+			var time = parseFloat(result.value);
+
+			if (!_internal.periode) {
+				evalPeriode(time, baseSpan);
+			} else {
+				_internal.time = time;
+				_internal.value = time / _internal.periode;
+			}
+
+			if (typeof result.status != "undefined" && typeof updateStatusIndication === "function") {
+				updateBlinkingFrame("time_value_blinking_frame");
+				updateStatusIndication(result.status);
+				webMI.trigger.fire("setValue", _internal.value, "time_value");
+				webMI.trigger.fire("setSelectedItem", _internal.span, "time_span");
+			}
+
+			webMI.trigger.fire("setValue", _internal.value, "time_value");
+			webMI.trigger.fire("setSelectedItem", _internal.span, "time_span");
+		});
+	} else if (runTimeNodeConfig.base.address == "") {
+		webMI.trigger.fire("setValue", _internal.value, "time_value");
+		webMI.trigger.fire("setSelectedItem", _internal.span, "time_span");
+	} else {
+		setInactiveLayout();
+	}
+}
+
+/**
+ * Determination of the conversion factor for the selected time period
+ * @param time
+ * @param span
+ */
+function evalPeriode(time, span) {
+	if (span == "auto") {
+		for (var key in defaultSpanValues) {
+			if (time % defaultSpanValues[key] === 0) {
+				_internal.span = key;
+				_internal.periode = defaultSpanValues[key];
+				break;
+			}
+		}
+
+		if (_internal.span == "T{millisec.(s)}") webMI.trigger.fire("setDecimal", 0, "time_value");
+	} else if (_internal.periode === null) {
+		_internal.span = span;
+		_internal.periode = defaultSpanValues[span];
+
+		if (_internal.span == "T{millisec.(s)}") webMI.trigger.fire("setDecimal", 0, "time_value");
+	}
+
+	if (!isNaN(time)) {
+		_internal.time = time;
+		_internal.value = _internal.time / _internal.periode;
+	}
+}
+
+/**
+ * Switch to active layout
+ */
+function setActiveLayout() {
+	webMI.trigger.fire("com.atvise.performance.interactive", displayId);
+	webMI.trigger.fire("com.atvise.setActive", true, "time_value");
+	webMI.trigger.fire("com.atvise.setActive", true, "time_span");
+}
+
+/**
+ * Switch to inactive layout
+ */
+function setInactiveLayout() {
+	webMI.trigger.fire("com.atvise.performance.interactive", displayId);
+	webMI.trigger.fire("com.atvise.setActive", false, "time_value");
+
+	if (runTimeNodeConfig.base.read == false) {
+		webMI.trigger.fire("setValue", 0, "time_value");
+		webMI.trigger.fire("setSelectedItem", "T{millisec.(s)}", "time_span");
+		webMI.trigger.fire("com.atvise.setActive", false, "time_span");
+	}
+}
+
+/**
+ * Notifying other components of changes
+ */
+function valuechanged() {
+	if (runTimeNodeConfig.base.value != _internal.time) {
+		runTimeNodeConfig.base.value = _internal.time;
+
+		// consistency or node
+		if (consistencyGroup != "") {
+			handleConsistencyGroup(_internal.time);
+		} else if (runTimeNodeConfig.base.address && runTimeNodeConfig.base.write) {
+			webMI.data.write(runTimeNodeConfig.base.address, runTimeNodeConfig.base.value);
+		}
+
+		webMI.trigger.fire("valuechanged", _internal.time, "");
+	}
+}
+
+/**
+ * Consistent group handling
+ * @param consistencyValue
+ */
+function handleConsistencyGroup(consistencyValue) {
+	if (typeof consistencyValue != "undefined" && consistencyGroup != "") {
+		// Does not support alternative node
+		consistencyHandler.set(consistencyGroup, runTimeNodeConfig.base.address, consistencyValue);
+	}
+
+	_internal.time = consistencyValue == undefined ? _internal.time : consistencyValue;
+	_internal.value = _internal.time / _internal.periode;
+
+	webMI.trigger.fire("setValue", _internal.value, "time_value");
+	webMI.trigger.fire("setSelectedItem", _internal.span, "time_span");
+}
+
+/**
+ * TRIGGER SECTION
+ */
+
+/**
+ * Receiving new values
+ */
+webMI.trigger.connect(
+	"setValue",
+	function (e) {
+		var time = parseFloat(e.value);
+
+		if (!_internal.periode) {
+			evalPeriode(time, baseSpan);
+			webMI.trigger.fire("setSelectedItem", _internal.span, "time_span");
+		} else {
+			_internal.time = time;
+			_internal.value = time / _internal.periode;
+		}
+
+		webMI.trigger.fire("setValue", _internal.value, "time_value");
+	},
+	""
+);
+
+/**
+ * respond to changes in time values
+ */
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		var newValue = parseFloat(e.value);
+		if (newValue != _internal.value) {
+			_internal.value = newValue;
+			_internal.time = _internal.value * _internal.periode;
+			valuechanged();
+		}
+	},
+	"time_value"
+);
+
+/**
+ * respond to changes in time span values
+ */
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		var newValue = parseInt(e.value, 10);
+		if (newValue != _internal.periode) {
+			_internal.periode = newValue;
+			for (var key in defaultSpanValues) if (defaultSpanValues[key] == _internal.periode) _internal.span = key;
+
+			_internal.value = _internal.time / _internal.periode;
+
+			if (_internal.span == "T{millisec.(s)}") webMI.trigger.fire("setDecimal", 0, "time_value");
+			else webMI.trigger.fire("setDecimal", -1, "time_value");
+
+			webMI.trigger.fire("setValue", _internal.value, "time_value");
+			valuechanged();
+		}
+	},
+	"time_span"
+);
+
+/**
+ * With the following object, we address linter warnings about unused variables and functions,
+ * since these references will be shared with other linked display scripts.
+ */
+const sharedReferences = {
+	alarmIndication,
+	statusEnabled,
+	statusTrigger,
+	statusIndication,
+	setActiveLayout
+};
+sharedReferences;
+]]></code>
+</script>

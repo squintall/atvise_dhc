@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/verify/v2/service/entity/challenge/notification.d.ts
+NodeClass: Variable
+BrowseName: 1:notification.d.ts
+DisplayName: en|notification.d.ts
+Description: en|notification.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

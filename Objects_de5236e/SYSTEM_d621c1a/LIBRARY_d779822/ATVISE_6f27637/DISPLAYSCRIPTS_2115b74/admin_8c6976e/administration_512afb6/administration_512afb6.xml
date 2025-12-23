@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the layouts advanced fixed 1920x1080, advanced overlay 1920x1080 and advanced overlay 1280x800 object display
+ * ----------------------------------------------------------------------------------------------------------------------
+ * This script supports the display creating navigation and button events
+ */
+
+/**
+ * DECLARATION SECTION
+ */
+const queryParams = webMI.query;
+const tabHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Tab Handler");
+const loginHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Login Handler", {
+	message_display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+	user_display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.user_editor",
+	password_display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.pw_editor"
+});
+const certificateManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Certificate Manager");
+
+/**
+ * UI SETUP SECTION
+ */
+const buttonNavBgWidth = webMI.gfx.getWidth("button_navigation_button_bg") - 2;
+const buttonNavBgHeight = webMI.gfx.getHeight("button_navigation_button_bg") - 2;
+
+webMI.gfx.setWidth("button_navigation_button_bg", buttonNavBgWidth);
+webMI.gfx.setHeight("button_navigation_button_bg", buttonNavBgHeight);
+webMI.gfx.setX("button_navigation_button_bg", "2");
+webMI.gfx.setY("button_navigation_button_bg", "2");
+
+webMI.gfx.setMoveY("nav_certificate_manager", 200);
+
+/**
+ * EVENT SECTION
+ */
+
+// For overlay layouts having button_navigation
+if (webMI.gfx.getX("button_navigation") !== undefined) {
+	webMI.addEvent("button_navigation", "click", () => {
+		const toggle = "menu_container";
+		webMI.trigger.fire("com.atvise.menu_toggle", toggle);
+	});
+}
+
+webMI.addEvent("logo_clickarea", "click", () => {
+	const names = tabHandler.getParentIFrameNames();
+	names.forEach((name) => {
+		webMI.trigger.fire(`com.atvise.getDefaultDisplay_${name}`, (display, url) => {
+			if (url !== undefined) {
+				webMI.display.openUrl(url, queryParams, name);
+			} else if (display !== undefined) {
+				webMI.display.openDisplay(display, queryParams, name);
+			}
+		});
+	});
+});
+
+webMI.addEvent(webMI.data, "clientvariableschange", (e) => {
+	const responseType = loginHandler.getResponseType(e);
+
+	if (responseType === "validity" || responseType === "expired") {
+		loginHandler.showMessageDialog(e);
+	}
+});
+
+webMI.addEvent(webMI.data, "clientvariableschange", async (e) => {
+	if (e && e.username && e.username != "") {
+		try {
+			await certificateManager.list("SERVER", ["OWN"]);
+			webMI.gfx.setMoveY("nav_certificate_manager", 0);
+		} catch (err) {
+			if (err.message.includes("access denied")) {
+				// Move the button out of the ViewBox because hiding it as a whole won't work.
+				webMI.gfx.setMoveY("nav_certificate_manager", 200);
+			}
+		}
+	}
+});
+]]></code>
+</script>

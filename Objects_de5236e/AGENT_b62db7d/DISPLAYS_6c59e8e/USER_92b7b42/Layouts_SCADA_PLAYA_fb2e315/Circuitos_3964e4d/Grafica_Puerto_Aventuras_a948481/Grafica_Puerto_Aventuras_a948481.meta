@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Layouts_SCADA_PLAYA.Circuitos.Grafica_Puerto_Aventuras
+NodeClass: Variable
+BrowseName: 1:Grafica_Puerto_Aventuras
+DisplayName: en|Grafica_Puerto_Aventuras
+Description: en|Grafica_Puerto_Aventuras
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

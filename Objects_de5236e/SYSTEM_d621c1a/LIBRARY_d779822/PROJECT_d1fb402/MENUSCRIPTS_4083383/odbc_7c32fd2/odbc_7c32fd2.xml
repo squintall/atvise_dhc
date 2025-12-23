@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <code><![CDATA[//-----------------------------------------------------------------------------
+//   Certec EDV gmbh
+//
+//   write data with ODBC
+//-----------------------------------------------------------------------------
+
+var odbcClient = new ODBCClient();
+
+
+//------------details via http://www.connectionstrings.com/ .----------------------------------------------
+//odbcClient.source = "Driver={Microsoft ODBC for Oracle}; Server=127.0.0.1; Uid=NameOfUid; Pwd=password;";
+//odbcClient.source = "DSN=ODBC_Name; User Id=NameOfUid; Password=password; Integrated Security=no;";
+//odbcClient.source = "DSN=ODBC_Name; Integrated Security=yes;";
+odbcClient.source = "DSN=ODBC_Name; Uid=NameOfUid; Pwd=password;";
+
+
+if (odbcClient.open()) {	
+//	console.log ("ODBC Opend:", odbcClient.info());			//.info -> information of connected datasource
+
+	try
+	{
+		var query = odbcClient.query("INSERT INTO table_name VALUES (value1,value2,value3);");
+        //var query = odbcClient.query("UPDATE table_name SET column1=value1,column2=value2 WHERE some_column=some_value;");
+        //var query = odbcClient.query("SELECT column_name,column_name FROM table_name;");
+	
+		odbcClient.close();
+		return(query);
+	}
+	catch (exp)
+	{
+		console.log(exp);
+		if (exp.indexOf('No Data') > -1)
+			return 0; // ok
+
+		return undefined;
+	}
+	finally
+	{
+		if (odbcClient && odbcClient.opened == true)
+			odbcClient.close();
+	}
+}
+else
+	return undefined;]]></code>
+</script>

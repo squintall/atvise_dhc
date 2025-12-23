@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Cuencas.Cuenca_PTAR_SAAS.Grafica_Cuenca_SAAS.Cuenca_GG
+NodeClass: Variable
+BrowseName: 1:Cuenca_GG
+DisplayName: en|Cuenca_GG
+Description: en|Cuenca_GG
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

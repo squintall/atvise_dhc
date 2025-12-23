@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.TABLET.Portrait.Admin_GEE
+NodeClass: Variable
+BrowseName: 1:Admin_GEE
+DisplayName: en|Admin_GEE
+Description: en|Admin_GEE
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

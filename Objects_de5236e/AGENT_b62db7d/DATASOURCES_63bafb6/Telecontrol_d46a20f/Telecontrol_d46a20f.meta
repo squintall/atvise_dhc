@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Telecontrol
+NodeClass: Object
+BrowseName: 1:Telecontrol
+DisplayName: en|Telecontrol
+Description: en|Telecontrol
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.ATVISE.Datasource.OpcUa

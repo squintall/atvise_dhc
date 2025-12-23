@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_SUR.PTAR_Sur
+NodeClass: Object
+BrowseName: 1:PTAR_Sur
+DisplayName: en|PTAR_Sur
+Description: en|PTAR_Sur
+EventNotifier: 0
+Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.PTAR

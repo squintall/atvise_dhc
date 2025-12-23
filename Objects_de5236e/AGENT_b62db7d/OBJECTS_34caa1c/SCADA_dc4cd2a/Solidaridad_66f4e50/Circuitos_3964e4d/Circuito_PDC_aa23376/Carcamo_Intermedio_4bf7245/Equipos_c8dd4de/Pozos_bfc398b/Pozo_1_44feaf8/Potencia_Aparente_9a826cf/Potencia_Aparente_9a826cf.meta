@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_Intermedio.Equipos.Pozos.Pozo_1.Potencia_Aparente
+NodeClass: Variable
+BrowseName: 1:Potencia_Aparente
+DisplayName: en|Potencia_Aparente
+Description: en|Potencia_Aparente
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

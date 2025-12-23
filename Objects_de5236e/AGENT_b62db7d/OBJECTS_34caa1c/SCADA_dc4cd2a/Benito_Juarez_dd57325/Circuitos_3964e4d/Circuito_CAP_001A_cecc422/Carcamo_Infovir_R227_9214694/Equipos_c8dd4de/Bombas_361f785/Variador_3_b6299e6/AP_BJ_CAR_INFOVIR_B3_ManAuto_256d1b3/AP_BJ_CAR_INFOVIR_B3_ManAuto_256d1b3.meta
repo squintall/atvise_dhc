@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001A.Carcamo_Infovir_R227.Equipos.Bombas.Variador_3.AP_BJ_CAR_INFOVIR_B3_ManAuto
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_INFOVIR_B3_ManAuto
+DisplayName: en|AP_BJ_CAR_INFOVIR_B3_ManAuto
+Description: en|AP_BJ_CAR_INFOVIR_B3_ManAuto
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

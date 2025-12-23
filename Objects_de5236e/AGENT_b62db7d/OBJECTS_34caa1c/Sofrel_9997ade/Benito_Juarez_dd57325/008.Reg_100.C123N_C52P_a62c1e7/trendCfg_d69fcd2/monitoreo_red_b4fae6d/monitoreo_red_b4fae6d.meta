@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Sofrel.Benito_Juarez.008.Reg_100.C123N_C52P.trendCfg.monitoreo_red
+NodeClass: Variable
+BrowseName: 1:monitoreo_red
+DisplayName: en|monitoreo_red
+Description: en|monitoreo_red
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

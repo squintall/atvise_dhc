@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var circuito_s =
+	[[{lat:21.150604872900104, lng:-86.79457992695514},
+	"Cárcamo 1 ZT/CREA, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_1_ZH_CREA",
+	1, "carcamoAR"],
+	[{lat:21.144704734246243, lng:-86.78958484404174},
+	"Cárcamo 2 ZT/Calinda, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_2_ZH_Calinda",
+	2, "carcamoAR"],
+	[{lat:21.138776045454204, lng:-86.76935070332935},
+	"Cárcamo 3 ZT/Tortugas, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_3_ZH_Tortugas",
+	3, "carcamoAR"],
+	[{lat:21.134970584626412, lng:-86.75579389075567},
+	"Cárcamo 4 ZT/Presidente, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_4_ZH_Presidente",
+	4, "carcamoAR"],
+	[{lat:21.135944852424984, lng:-86.74676379852751},
+	"Cárcamo 5 ZT/Convenciones, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_5_ZH_Convenciones",
+	5, "carcamoAR"],
+	[{lat:21.124993881131715, lng:-86.75422867203513},
+	"Cárcamo 6 ZT/Caribe Cancún, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_6_ZH_Caribe_Cancun",
+	6, "carcamoAR"],
+	[{lat:21.113007642325226, lng:-86.76116119091363},
+	"Cárcamo 7 ZT/Pirámides, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_7_ZH_Piramides",
+	7, "carcamoAR"],
+	[{lat:21.124742568402816, lng:-86.7667975187562},
+	"Cárcamo 9 ZT/Pok Ta Pok, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_9_ZH_PokTaPok",
+	8, "carcamoAR"],
+	[{lat:21.13054801979613, lng:-86.76234582786012},
+	"Cárcamo 10 ZT/Pok Ta Pok, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_10_ZH_PokTaPok",
+	9, "carcamoAR"],
+	[{lat:21.132684161789026, lng:-86.76063402103523},
+	"Cárcamo 11 ZT/Pok Ta Pok, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_11_ZH_PokTaPok",
+	10, "carcamoAR"],
+	[{lat:21.133147135451818, lng:-86.7594821917815},
+	"PTAR Pok Ta Pok, Agua Residual",
+	"AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_PTP.Carcamo_11_ZH_PokTaPok",
+	11, "ptar"]];]]></code>
+</script>

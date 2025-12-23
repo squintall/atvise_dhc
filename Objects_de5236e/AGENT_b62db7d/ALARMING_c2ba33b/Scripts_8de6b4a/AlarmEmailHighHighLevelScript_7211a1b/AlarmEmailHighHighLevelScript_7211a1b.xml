@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>11</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="alarm" type="alarm" trigger="false" relative="false" value=""/>
+  <code><![CDATA[var address = alarm.base;
+var timestamp = alarm.valuetimestamp;
+const date = new Date(timestamp);
+const fdate = date.toLocaleString();
+var value = alarm.value;
+var alarmtext = "Alarma de rebosamiento en " + alarm.description.es;
+
+
+if (address.includes("Benito_Juarez")){
+call("SYSTEM.LIBRARY.ATVISE.SERVERSCRIPTS.Mail.SendMail",{
+	smtpserver: "Zimbra",
+	from: "monitoreo@aguakan.com",
+	to: "rvalencia@aguakan.com; squintal@aguakan.com; gsacramento@aguakan.com; ccanto@aguakan.com; otrejo@aguakan.com",
+	subject:alarmtext,
+	body:"Favor de revisar niveles en: " + alarm.description.es + " " + value.toFixed(2) + "% o contactar a TI/Automatización para su revisión\n A las " + fdate
+});
+}
+
+console.log("alarma enviada " + address);]]></code>
+</script>

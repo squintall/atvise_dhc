@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.fav_input
+NodeClass: Variable
+BrowseName: 1:fav_input
+DisplayName: en|fav_input
+Description: en|fav_input
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

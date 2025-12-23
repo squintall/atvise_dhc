@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Report.schedulerGlobals
+NodeClass: Variable
+BrowseName: 1:schedulerGlobals
+DisplayName: en|schedulerGlobals
+Description: en|schedulerGlobals
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

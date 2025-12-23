@@ -1,0 +1,276 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="1080" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="true" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="true" height="2" width="2"/>
+ </metadata>
+ <rect atv:refpx="79" atv:refpy="1059" fill="#0000ff" fill-opacity="0" height="42" id="id_10" stroke="#000000" stroke-width="2" width="154" x="1" y="1038"/>
+ <svg atv:refpx="959.956" atv:refpy="530.025" height="600" id="content" transform="matrix(2.4,0,0,1.4833,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="57.303">
+  <atv:argument name="frameName" value="content"/>
+  <atv:argument name="isNavigationFrame" value="true"/>
+  <atv:argument name="display" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Circuitos.Circuitos_Main"/>
+ </svg>
+ <svg atv:refpx="1775.146" atv:refpy="49.973" height="52" id="layout_time" width="203" x="1709" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.time" y="0"/>
+ <svg atv:refpx="1758" atv:refpy="59" height="30" id="layout_date" width="203" x="1708" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.date" y="42"/>
+ <text atv:refpx="523.533" atv:refpy="50" fill="#050a4b" font-family="Arial" font-size="18" id="id_2" transform="matrix(2.9999,0,0,3,-760.0012,0)" x="384.512" y="21.5">AP Cancún</text>
+ <svg atv:refpx="1658.002" atv:refpy="1004.978" height="300" id="id_3" transform="matrix(2.5601,0,0,0.1333,0,0)" width="200" x="547.632" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.navigation" y="7387.5">
+  <atv:overwrite id="navigation_description" transform="matrix(1.2903,0,0,0.3429,0,0)"/>
+  <atv:argument name="navPanelAlign" value="bottom"/>
+  <atv:overwrite id="navigation_1_description" transform="matrix(1.25,0,0,0.3371,0,0)"/>
+  <atv:argument name="navContainerID" value="navigation_3"/>
+  <atv:argument name="navItemCount" value="3"/>
+  <atv:argument name="navAnimateFactor" value="2"/>
+  <atv:argument name="navPanelBorderColor" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="navItemBorderColor" value="SYSTEM.GLOBALS.#20dbd8"/>
+  <atv:argument name="navItemBorderRadius" value="10"/>
+  <atv:argument name="navItemWidthSteady" value="150"/>
+  <atv:argument name="navItemIndentationActive" value="80"/>
+  <atv:argument name="navFontSize" value="18"/>
+  <atv:overwrite id="navigation_2_description" transform="matrix(0.2022,0,0,2.727,0,0)"/>
+  <atv:argument name="navCustomEntry" prefix="base" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Circuitos"/>
+  <atv:argument name="navCustomTitle01" value="Circuito C1"/>
+  <atv:argument name="navCustomTitle02" value="Circuito C11"/>
+  <atv:argument name="navCustomDisplay01" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Main_Circuito_CAP001"/>
+  <atv:argument name="navCustomDisplay02" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Main_Circuito_CAP011"/>
+  <atv:argument name="navHomeText" value=""/>
+  <atv:argument name="navCustomTitle03" value="Circuito  C1A"/>
+  <atv:argument name="navCustomDisplay03" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Main_Circuito_CAP001A"/>
+  <atv:argument name="navIconHomeActive" value="false"/>
+  <atv:argument name="navItemBackgroundActive" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navArrowBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navHomeBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navItemBackgroundInactive" value="SYSTEM.GLOBALS.Colors.Azul"/>
+  <atv:argument name="navItemBackgroundHover" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color3"/>
+  <atv:argument name="navFontColorHover" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorInactive" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorActive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navHomeColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navHomeActive" value="false"/>
+  <atv:argument name="navArrowActive" value="false"/>
+  <atv:argument name="navItemBorderWidth" value="2"/>
+  <atv:overwrite id="navigation_3_description" transform="matrix(0.3906,0,0,7.5019,0,0)"/>
+ </svg>
+ <svg atv:refpx="1026.508" atv:refpy="1031.878" height="300" id="id_0" transform="matrix(1.53,0,0,0.2667,0,0)" width="200" x="746.405" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.navigation" y="3719.535">
+  <atv:overwrite id="navigation_description" transform="matrix(1.2903,0,0,0.3429,0,0)"/>
+  <atv:argument name="navPanelAlign" value="left"/>
+  <atv:overwrite id="navigation_1_description" transform="matrix(1.25,0,0,0.3371,0,0)"/>
+  <atv:argument name="navContainerID" value="navigation_3"/>
+  <atv:argument name="navItemCount" value="2"/>
+  <atv:argument name="navAnimateFactor" value="2"/>
+  <atv:argument name="navPanelBorderColor" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="navItemBorderColor" value="SYSTEM.GLOBALS.#20dbd8"/>
+  <atv:argument name="navItemBorderRadius" value="10"/>
+  <atv:argument name="navItemWidthSteady" value="150"/>
+  <atv:argument name="navItemIndentationActive" value="80"/>
+  <atv:argument name="navFontSize" value="18"/>
+  <atv:overwrite id="navigation_2_description" transform="matrix(0.2022,0,0,2.727,0,0)"/>
+  <atv:argument name="navCustomTitle01" value="Eficiencia Energética"/>
+  <atv:argument name="navCustomDisplay01" value="AGENT.DISPLAYS.USER.LAYOUTS.Eficiencia_Energetica_AP"/>
+  <atv:argument name="navHomeText" value=""/>
+  <atv:argument name="navIconHomeActive" value="false"/>
+  <atv:argument name="navItemBackgroundActive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color2"/>
+  <atv:argument name="navArrowBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navHomeBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navItemBackgroundInactive" value="SYSTEM.GLOBALS.Colors.Negro"/>
+  <atv:argument name="navItemBackgroundHover" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color3"/>
+  <atv:argument name="navFontColorHover" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorInactive" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorActive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color5"/>
+  <atv:argument name="navHomeColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navArrowActive" value="false"/>
+  <atv:argument name="navCustomDisplay02" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Circuitos.Circuitos_Main"/>
+  <atv:argument name="navCustomTitle02" value="Red Hidráulica"/>
+  <atv:argument name="navHomeActive" value="false"/>
+  <atv:argument name="navItemPadding" value="15"/>
+  <atv:argument name="navItemBorderWidth" value="0"/>
+  <atv:overwrite id="navigation_3_description" transform="matrix(0.6536,0,0,3.7495,0,0)"/>
+ </svg>
+ <svg atv:refpx="1658.003" atv:refpy="1051.979" height="300" id="id_4" transform="matrix(2.5601,0,0,0.1333,0,0)" width="200" x="547.632" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.navigation" y="7740">
+  <atv:overwrite id="navigation_description" transform="matrix(1.2903,0,0,0.3429,0,0)"/>
+  <atv:argument name="navPanelAlign" value="bottom"/>
+  <atv:overwrite id="navigation_1_description" transform="matrix(1.25,0,0,0.3371,0,0)"/>
+  <atv:argument name="navContainerID" value="navigation_3"/>
+  <atv:argument name="navItemCount" value="3"/>
+  <atv:argument name="navAnimateFactor" value="2"/>
+  <atv:argument name="navPanelBorderColor" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="navItemBorderColor" value="SYSTEM.GLOBALS.#20dbd8"/>
+  <atv:argument name="navItemBorderRadius" value="10"/>
+  <atv:argument name="navItemWidthSteady" value="150"/>
+  <atv:argument name="navItemIndentationActive" value="80"/>
+  <atv:argument name="navFontSize" value="18"/>
+  <atv:overwrite id="navigation_2_description" transform="matrix(0.2022,0,0,2.727,0,0)"/>
+  <atv:argument name="navCustomEntry" prefix="base" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Circuitos"/>
+  <atv:argument name="navCustomTitle01" value="Circuito C8"/>
+  <atv:argument name="navCustomTitle02" value="Circuito C4"/>
+  <atv:argument name="navCustomDisplay01" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Main_Circuito_CAP008"/>
+  <atv:argument name="navCustomDisplay02" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Main_Circuito_CAP004"/>
+  <atv:argument name="navHomeText" value=""/>
+  <atv:argument name="navCustomTitle03" value="Circuito C6A"/>
+  <atv:argument name="navCustomDisplay03" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Main_Circuito_CAP006A"/>
+  <atv:argument name="navIconHomeActive" value="false"/>
+  <atv:argument name="navItemBackgroundActive" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navArrowBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navHomeBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navItemBackgroundInactive" value="SYSTEM.GLOBALS.Colors.Azul"/>
+  <atv:argument name="navItemBackgroundHover" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color3"/>
+  <atv:argument name="navFontColorHover" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorInactive" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorActive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navHomeColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navHomeActive" value="false"/>
+  <atv:argument name="navArrowActive" value="false"/>
+  <atv:argument name="navItemBorderWidth" value="2"/>
+  <atv:overwrite id="navigation_3_description" transform="matrix(0.3906,0,0,7.5019,0,0)"/>
+ </svg>
+ <svg atv:refpx="1005.587" atv:refpy="1053.012" height="30" id="id_15" transform="matrix(2,0,0,1,0,0)" width="80" x="480" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="1038">
+  <atv:argument name="label" value="T{Captacion}"/>
+  <atv:argument name="fillColor" value="SYSTEM.GLOBALS.Colors.Azul"/>
+  <atv:argument name="fontColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="fontSize" value="18"/>
+  <atv:argument name="fillColorInactive" value="SYSTEM.GLOBALS.Colors.Azul"/>
+  <atv:overwrite id="id_6" rx="10" ry="10" transform="matrix(0.5,0,0,1,0,0)" width="158"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5,0,0,1,0,0)" x="80"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6349,0,0,1,-3.2359,0)" x="68.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6349,0,0,1,-3.2359,0)" x="68.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.3,0,0,0.6,0,0)" x="123.167"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.3,0,0,0.6,0,0)" x="123.167"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5,0,0,1,0,0)" x="70"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.5,0,0,1,0,0)" width="156"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.5,0,0,1,0,0)" width="158"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.5,0,0,1,0,0)" width="160"/>
+ </svg>
+ <svg atv:refpx="1022.543" atv:refpy="1009.519" height="30" id="id_5" transform="matrix(2,0,0,1,0,0)" width="80" x="480" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="994">
+  <atv:argument name="label" value="T{Zona Urbana}"/>
+  <atv:argument name="fontSize" value="18"/>
+  <atv:argument name="fillColor" value="SYSTEM.GLOBALS.Colors.Azul"/>
+  <atv:argument name="fillColorInactive" value="SYSTEM.GLOBALS.Colors.Azul"/>
+  <atv:argument name="fontColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:overwrite id="id_6" transform="matrix(0.5,0,0,1,0,0)" width="158"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5,0,0,1,0,0)" x="80"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.6062,0,0,1,-1.2744,0)" x="68.5"/>
+  <atv:overwrite id="button_label" transform="matrix(0.6062,0,0,1,-1.2744,0)" x="68.5"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.3,0,0,0.6,0,0)" x="123.167"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.3,0,0,0.6,0,0)" x="123.167"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5,0,0,1,0,0)" x="70"/>
+  <atv:overwrite id="button_stroke" transform="matrix(0.5,0,0,1,0,0)" width="156"/>
+  <atv:overwrite id="button_bg" transform="matrix(0.5,0,0,1,0,0)" width="158"/>
+  <atv:overwrite id="outer_frame" transform="matrix(0.5,0,0,1,0,0)" width="160"/>
+ </svg>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[
+ 
+
+
+webMI.addEvent("id_5", "click", function(e) {
+var id = "id_5";
+var value = true;
+webMI.display.openWindow({display:"AGENT.DISPLAYS.USER.Tanques_ZonaUrbana",extern:false,height:1020,menubar:false,modal:true,movable:false,resizable:false,scrollbars:false,status:false,title:"T{Tanques Zona Urbana}",toolbar:false,width:200,x:898,y:0});
+});
+
+
+webMI.addEvent("id_15", "click", function(e) {
+var id = "id_15";
+var value = true;
+webMI.display.openWindow({display:"AGENT.DISPLAYS.USER.Tanques_Captacion",extern:false,height:720,menubar:false,modal:true,movable:false,resizable:false,scrollbars:false,status:false,title:"T{Captacion}",toolbar:false,width:100,x:898,y:315});
+});
+
+
+
+webMI.addEvent("id_1", "click", function(e) {
+var id = "id_1";
+var value = true;
+webMI.display.openWindow({display:"AGENT.DISPLAYS.USER.Layouts_DHC.simbologia_AP",extern:false,height:730,menubar:false,modal:true,movable:true,resizable:true,scrollbars:false,status:false,title:"T{Código de colores}",toolbar:false,width:640,query:webMI.query});
+});
+webMI.addEvent("id_7", "click", function(e) {
+var id = "id_7";
+var value = true;
+webMI.display.openWindow({display:"SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Presion_General",extern:false,height:570,menubar:false,modal:true,movable:true,resizable:true,scrollbars:false,status:false,title:"T{Presiones del circuito Intermedio}",toolbar:false,width:1920,query:webMI.query});
+});]]></script>
+ <svg atv:refpx="77" atv:refpy="1015.5" height="43" id="id_8" width="154" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_alarmlog_small" y="994">
+  <atv:argument name="alarmDisplay" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Alarmas.alarmlist_log_AP_CUN_Niveles"/>
+  <atv:argument name="width" value="1792"/>
+  <atv:argument name="height" value="954"/>
+  <atv:argument name="buttonSize" value="large"/>
+  <atv:argument name="x" value="1672"/>
+  <atv:argument name="y" value="984"/>
+ </svg>
+ <svg atv:refpx="233" atv:refpy="1015.5" height="43" id="id_9" width="154" x="156" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.button_alarmlog_small" y="994">
+  <atv:argument name="alarmDisplay" value="SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Alarmas.alarmlist_log_AP_CUN_Equipos"/>
+  <atv:argument name="width" value="1792"/>
+  <atv:argument name="height" value="954"/>
+  <atv:argument name="buttonSize" value="large"/>
+  <atv:argument name="x" value="1672"/>
+  <atv:argument name="y" value="984"/>
+ </svg>
+ <rect atv:refpx="233" atv:refpy="1059" fill="#0000ff" fill-opacity="0" height="42" id="id_11" stroke="#000000" stroke-width="2" width="154" x="155" y="1038"/>
+ <text atv:refpx="70.954" atv:refpy="1059.5" fill="#000003" font-family="Arial" font-size="16" font-weight="bold" id="id_12" x="50.5" y="1064">Niveles</text>
+ <text atv:refpx="222.991" atv:refpy="1059" fill="#000003" font-family="Arial" font-size="16" font-weight="bold" id="id_13" x="200.5" y="1063.5">Equipos</text>
+ <svg atv:refpx="453.5" atv:refpy="1016.501" height="30" id="id_1" transform="matrix(1.8875,0,0,1.4333,0,0)" width="80" x="200.265" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="694.202">
+  <atv:argument name="label" value="T{Semáforo}"/>
+  <atv:argument name="fontSize" value="18"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:overwrite height="40.999" id="id_6" transform="matrix(0.5298,0,0,0.6977,0,0)" width="149"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5298,0,0,0.6977,0,0)" x="75.5" y="33"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.5298,0,0,0.6977,0,0)" x="76" y="18"/>
+  <atv:overwrite id="button_label" transform="matrix(0.5298,0,0,0.6977,0,0)" x="76" y="26"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.3179,0,0,0.4186,0,0)" x="115.666" y="37.125"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.3179,0,0,0.4186,0,0)" x="115.666" y="15.792"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5298,0,0,0.6977,0,0)" x="65.5" y="11.5"/>
+  <atv:overwrite height="38.999" id="button_stroke" transform="matrix(0.5298,0,0,0.6977,0,0)" width="147"/>
+  <atv:overwrite height="40.999" id="button_bg" transform="matrix(0.5298,0,0,0.6977,0,0)" width="149"/>
+  <atv:overwrite height="42.999" id="outer_frame" transform="matrix(0.5298,0,0,0.6977,0,0)" width="151"/>
+ </svg>
+ <svg atv:refpx="638.884" atv:refpy="1016.501" height="30" id="id_7" transform="matrix(1.8625,0,0,1.4333,0,0)" width="80" x="293.154" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.button" y="694.202">
+  <atv:argument name="label" value="T{Presiones}"/>
+  <atv:argument name="fontSize" value="14"/>
+  <atv:argument name="fontWeight" value="bold"/>
+  <atv:argument name="label2" value="T{del circuito}"/>
+  <atv:argument name="fontSize2" value="14"/>
+  <atv:overwrite height="40.999" id="id_6" transform="matrix(0.5369,0,0,0.6977,0,0)" width="147"/>
+  <atv:overwrite id="button_label_2" transform="matrix(0.5369,0,0,0.6977,0,0)" x="74.5" y="32.999"/>
+  <atv:overwrite id="button_label_1" transform="matrix(0.5369,0,0,0.6977,0,0)" x="75" y="18"/>
+  <atv:overwrite id="button_label" transform="matrix(0.5369,0,0,0.6977,0,0)" x="75" y="26"/>
+  <atv:overwrite id="button_symbol_bottom" transform="matrix(0.3221,0,0,0.4186,0,0)" x="114" y="37.125"/>
+  <atv:overwrite id="button_symbol_top" transform="matrix(0.3221,0,0,0.4186,0,0)" x="114" y="15.792"/>
+  <atv:overwrite id="button_symbol" transform="matrix(0.5369,0,0,0.6977,0,0)" x="64.5" y="11.5"/>
+  <atv:overwrite height="38.999" id="button_stroke" transform="matrix(0.5369,0,0,0.6977,0,0)" width="145"/>
+  <atv:overwrite height="40.999" id="button_bg" transform="matrix(0.5369,0,0,0.6977,0,0)" width="147"/>
+  <atv:overwrite height="42.999" id="outer_frame" transform="matrix(0.5369,0,0,0.6977,0,0)" width="149"/>
+ </svg>
+ <svg atv:refpx="799.002" atv:refpy="1158.8" height="300" id="id_14" transform="matrix(0.69,0,0,0.1667,0,0)" width="200" x="1057.971" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.navigation" y="6802.639">
+  <atv:overwrite id="navigation_description" transform="matrix(1.2903,0,0,0.3429,0,0)"/>
+  <atv:argument name="navPanelAlign" value="top"/>
+  <atv:overwrite id="navigation_1_description" transform="matrix(1.25,0,0,0.3371,0,0)"/>
+  <atv:argument name="navContainerID" value="nav_menu_admin"/>
+  <atv:argument name="navAnimateFactor" value="2"/>
+  <atv:argument name="navPanelBorderColor" value="SYSTEM.GLOBALS."/>
+  <atv:argument name="navItemBorderColor" value="SYSTEM.GLOBALS.#20dbd8"/>
+  <atv:argument name="navItemBorderRadius" value="10"/>
+  <atv:argument name="navItemWidthSteady" value="150"/>
+  <atv:argument name="navItemIndentationActive" value="80"/>
+  <atv:overwrite id="navigation_2_description" transform="matrix(0.2022,0,0,2.727,0,0)"/>
+  <atv:argument name="navCustomTitle01" value="Eficiencia Energética"/>
+  <atv:argument name="navHomeText" value=""/>
+  <atv:argument name="navIconHomeActive" value="false"/>
+  <atv:argument name="navItemBackgroundActive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color2"/>
+  <atv:argument name="navArrowBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navHomeBackground" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color1"/>
+  <atv:argument name="navItemBackgroundInactive" value="SYSTEM.GLOBALS.Colors.Azul"/>
+  <atv:argument name="navItemBackgroundHover" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color3"/>
+  <atv:argument name="navFontColorHover" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorInactive" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navFontColorActive" value="SYSTEM.GLOBALS.Colors.blue_vivid_palette.color5"/>
+  <atv:argument name="navHomeColor" value="SYSTEM.GLOBALS.Colors.Blanco"/>
+  <atv:argument name="navHomeActive" value="false"/>
+  <atv:overwrite id="navigation_3_description" transform="matrix(0.3872,0,0,3.488,0,0)"/>
+  <atv:argument name="navArrowActive" value="false"/>
+  <atv:argument name="navItemCount" value="1"/>
+  <atv:argument name="navItemPadding" value="10"/>
+  <atv:argument name="navCustomDisplay01" value="AGENT.DISPLAYS.USER.LAYOUTS.Eficiencia_Energetica_AP"/>
+  <atv:overwrite id="nav_menu_admin_description" transform="matrix(1.4493,0,0,5.9988,0,0)"/>
+ </svg>
+ <g atv:refpx="877.668" atv:refpy="43" id="id_19">
+  <image atv:refpx="794.046" atv:refpy="46" height="131" id="id_17" transform="matrix(0.5344,0,0,0.5344,0,0)" width="352" x="1309.997" xlink:href="../../Icons/Logo DHC.png" y="20.586"/>
+  <image atv:refpx="981.168" atv:refpy="40" height="613" id="id_18" transform="matrix(0.1142,0,0,0.1142,0,0)" width="1299" x="7942.731" xlink:href="../../Icons/Logo Aguakan.png" y="43.786"/>
+ </g>
+</svg>

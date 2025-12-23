@@ -1,0 +1,11 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLineaAR.nLineas
+NodeClass: Variable
+BrowseName: 1:nLineas
+DisplayName: en|nLineas
+Description: en|nLineas
+DataType: Int16
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AP

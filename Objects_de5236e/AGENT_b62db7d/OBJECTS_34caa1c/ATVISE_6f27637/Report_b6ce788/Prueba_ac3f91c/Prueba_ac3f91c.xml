@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><script>
+<parameter name="reportTime" type="string" trigger="false" relative="false" value=""/>
+<code><![CDATA[
+/* Report Configuration *
+ *
+ * Call parameters:
+ * reportTime {number}	 : Data query time for the report generation (empty returns only configuration parameters).
+ *
+ * Configuration variables:
+ * active {bool}        : Enables or disables the configuration schedule.
+ * advanced {bool}      : Set 'true' if configuration contains special code and therefore should not be changed within the visualization.
+ * name {string}        : Configuration name.
+ * cycleTime {string}   : Cyclic execution based on cron style time declaration. Separate numbers with ','. 
+ * cycleOffset {number} : Report generation offset to ensure data availability: Number in minutes.
+ * locale {string}      : Optional localization string for the report format, e.g. 'de-DE', 'en-US'.
+ * template {string}    : Path with filename for the xlsx template file.
+ * xlsxReport {string}  : Path with filename for the xlsx result file.
+ * pdfReport {string}   : Path with filename for the pdf  result file.
+ * htmlReport {string}  : Path with filename for the html result file (currently unsupported).
+ * startWorksheet {nr.} : Worksheet for the start of the convertion.
+ * endWorksheet {nr.}   : Worksheet for the end   of the convertion.
+ * overwrite {bool}     : Option to overwrite existing report files.
+ * metaScript {string}  : Script to be called  when data type is 'meta'.
+ *
+ * Remark:
+ * Use absolute paths or start with './' for a relative path starting with the project directory (= server.database.directory).
+ * Report filenames can contain date placeholders: {YYYY} or {YY}, {MM}, {DD}, {hh}, {mm}, {ss}.
+ *
+ */
+
+
+var configuration = {
+	active			: true,
+	advanced		: false,
+	name			: "Prueba",
+	cycleTime		: {
+						"minutes": [0], //0-59
+						"hours": [0], //0-23
+						"daysOfMonth": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], //1-31
+						"months": [1,2,3,4,5,6,7,8,9,10,11,12], //1-12
+						"daysOfWeek": [0,1,2,3,4,5,6] //0-7 = Sunday is 0 or 7
+					  },
+	cycleOffset		: 0,
+	locale			: "",
+	template		: "C:\\Users\\scada\\Documents\\Templates\\prueba.xlsx",
+	xlsxReport		: "C:\\Users\\scada\\Documents\\Reportes_Generados\\Prueba_report_{YYYY}-{MM}-{DD}_{hh}-{mm}.xlsx",
+	pdfReport		: "C:\\Users\\scada\\Documents\\Reportes_Generados\\Prueba_report_{YYYY}-{MM}-{DD}_{hh}-{mm}.pdf",
+	htmlReport		: "",
+	startWorksheet  : 1,
+	endWorksheet	: 1,
+	metaScript		: "",
+	overwrite		: true,
+	reportTime		: reportTime
+}
+
+
+//Do not change script from here
+if (reportTime != "")
+	return call("Report.GenerateReport", { configuration: configuration });
+else
+	return JSON.stringify(configuration);
+]]></code></script>

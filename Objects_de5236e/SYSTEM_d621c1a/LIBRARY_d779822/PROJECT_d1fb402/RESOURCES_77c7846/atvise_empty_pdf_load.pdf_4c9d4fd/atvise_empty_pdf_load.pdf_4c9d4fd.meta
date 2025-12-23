@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/atvise_empty_pdf_load.pdf
+NodeClass: Variable
+BrowseName: 1:atvise_empty_pdf_load.pdf
+DisplayName: en|atvise_empty_pdf_load.pdf
+Description: en|atvise_empty_pdf_load.pdf
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Pdf
+Reference: forward HasProperty ns=1;s=VariableTypes.ATVISE.Resource.Pdf.Compress

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.MailReadConfiguration
+NodeClass: Variable
+BrowseName: 1:MailReadConfiguration
+DisplayName: en|MailReadConfiguration
+Description: en|MailReadConfiguration
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

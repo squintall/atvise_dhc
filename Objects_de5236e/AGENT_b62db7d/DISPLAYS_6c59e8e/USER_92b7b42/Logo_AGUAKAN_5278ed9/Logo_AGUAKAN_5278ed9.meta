@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Logo_AGUAKAN
+NodeClass: Variable
+BrowseName: 1:Logo_AGUAKAN
+DisplayName: en|Logo_AGUAKAN
+Description: en|Logo_AGUAKAN
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

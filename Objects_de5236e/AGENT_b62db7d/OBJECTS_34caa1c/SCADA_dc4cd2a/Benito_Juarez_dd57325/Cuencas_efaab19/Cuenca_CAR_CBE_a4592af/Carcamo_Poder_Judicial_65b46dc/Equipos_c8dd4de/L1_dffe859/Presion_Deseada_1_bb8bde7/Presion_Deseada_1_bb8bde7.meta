@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Cuencas.Cuenca_CAR_CBE.Carcamo_Poder_Judicial.Equipos.L1.Presion_Deseada_1
+NodeClass: Variable
+BrowseName: 1:Presion_Deseada_1
+DisplayName: en|Presion_Deseada_1
+Description: en|Presion_Deseada_1
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[var PREFIX = "AGENT.OBJECTS";
+var that;
+var savedWatcherNodes = webMI.query["configurationNode"];
+var savedBrowseNodes = sessionStorage.getItem('signaltable_browseTableBase');
+var defaultFolder = webMI.query["defaultFolder"];
+webMI.trigger.fire("com.atvise.setActive", false, "button_add");
+webMI.trigger.fire("com.atvise.setActive", false, "button_remove");
+webMI.trigger.fire("com.atvise.setActive", false, "btn_removeall");
+webMI.gfx.setVisible("id_14", false);
+webMI.gfx.setVisible("picker_address", false);
+webMI.gfx.setVisible("id_8", false);
+
+var configNode = webMI.query.configNode;
+if (webMI.getAccessControlSupport()) {
+	gAccessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+}
+function handleAccessControlResponse(compareRights, successCallback, failCallback) {
+	if (!gAccessControlManager) {
+		successCallback();
+		return;
+	}	
+	var requiredRights = {
+		nodeIds: [],
+		rights: []
+	};
+	
+	compareRights = [].concat(compareRights);
+	compareRights.forEach(function(r) {
+		requiredRights.nodeIds.push(r.node);
+		requiredRights.rights.push(r.right);
+	});
+
+	gAccessControlManager.getRightsDict(requiredRights.nodeIds, requiredRights.rights, function(response) {
+		var allRights = true;
+		for (var c in compareRights) {
+			if (
+				typeof response[compareRights[c].node] != "undefined" &&
+				typeof response[compareRights[c].node][compareRights[c].right] != "undefined"
+			) {
+				allRights = allRights && response[compareRights[c].node][compareRights[c].right];
+			} else {
+				allRights = false;
+				break;
+			}
+		}
+		
+		if (allRights) {
+			successCallback();
+		} else {
+			failCallback();
+		}
+	});
+}
+
+webMI.addOnload(function(e){
+	webMI.data.call("CheckNodeExists", {address: savedWatcherNodes}, function(exists){
+		if(exists.result===false){
+			webMI.data.call("AddNode", {
+				nodeClass: "VARIABLE",
+				address: savedWatcherNodes,
+				typeDefinition: "i=62",
+				dataType: "STRING",
+				value: ""
+			});
+		}
+
+		handleAccessControlResponse([{ node: savedWatcherNodes.substr(0, savedWatcherNodes.lastIndexOf(".")), right: "engineer" }], function() {
+			webMI.gfx.setVisible("no_access", false);
+			webMI.gfx.setVisible("id_14", true);
+			webMI.gfx.setVisible("picker_address", true);
+			webMI.gfx.setVisible("id_8", true);
+			
+			webMI.trigger.fire("com.atvise.setActive", true, "btn_removeall");
+			
+			initTable();
+			
+			webMI.trigger.fire("WatchStart");
+			var nodes = [];
+			webMI.data.subscribe(savedWatcherNodes,function(e) {
+				var selectedNodes = []
+				if(e.value!=""){
+					selectedNodes = JSON.parse(e.value);
+				}
+				nodes = [];	
+				for(var i=0; i<selectedNodes.length; i++) {
+					nodes.push(selectedNodes[i].address);
+				}
+			});
+		}, function() {
+			webMI.gfx.setVisible("no_access", true);
+		});
+	});
+});
+
+var useNodeDataSource = true;
+var tableController;
+
+// update handler function for updating the table and set the data of the table to latest state, 
+// depending which Array / Data Mode is used (Column or Row)
+function handleDataUpdate(v) {
+	webMI.data.call("GetWatchTableNodes", {"nodepath": v}, function(x) {		      		
+		setData_ArrStruct(that,x);
+	});
+}
+
+function uploadDealcsv () {
+/*------ Method for read uploded csv file ------*/
+  uploadDealcsv.prototype.getCsv = function(e) {
+	  let input = document.getElementById('dealCsv');
+	  input.onclick = function () {
+		  this.value = null;
+	  };
+	  input.addEventListener('change', function() {
+		if (this.files && this.files[0]) {
+
+			var myFile = this.files[0];
+			var reader = new FileReader();
+			
+			reader.addEventListener('load', function (e) {
+				let csvdata = e.target.result; 
+				parseCsv.getParsecsvdata(csvdata); // calling function for parse csv data 
+			});
+			reader.readAsBinaryString(myFile);
+		}
+	  });
+	}
+	/*------- Method for parse csv data and display --------------*/
+	uploadDealcsv.prototype.getParsecsvdata = function(data) {
+		let parsedata = [];	
+		let newLinebrk = data.split("\n");
+		for(let i = 0; i < newLinebrk.length; i++) {	
+			var address = newLinebrk[i].split(",")[0];
+			address = address.replace(PREFIX+".","");
+			address = address.replace("\r", "");
+			parsedata.push(address);
+		}		
+		webMI.trigger.fire("setValue", "T{CSV Import}", "picker_address");
+		setData_ArrStruct(tableController,parsedata);
+	}
+};
+
+var parseCsv = new uploadDealcsv();
+parseCsv.getCsv();
+
+function setData_ArrStruct(that,val) {
+	that.clearData();
+   
+	var data = {};
+	var elem = {};		
+	
+	for(var i = 0; i < val.length; i++) {
+		if(val[i]!=undefined) {
+			elem["id"] = i;
+			elem["datapoints"] = val[i];
+		}
+		
+		if(val[0]!=undefined) {
+			data.result = elem;
+			that.addData(data);
+		}
+	}
+};
+
+// BROWSE TABLE
+function initTable(){
+	webMI.table.loadResources(function() {
+		var config = [];
+	
+		// ### BEGIN CONFIGURATION SECTION ###
+	
+		config["columns"] = [
+			{
+				id: "id", 
+				name: "T{Index}", 
+				field: "id", 
+				sortable: true, 
+				filter: true, 
+				visible: false, 
+				resizable: false
+			},
+			{
+				id: "datapoints", 
+				name: "T{AVAILABLE DATAPOINTS}", 
+				field: "datapoints", 
+				width: 400, 
+				sortable: true, 
+				filter: true, 
+				visible: true, 
+				resizable: true
+			}	
+		];
+	
+		config["mode"] = "once"; // live mode for making array data updates possible
+		//config["bufferInterval"] = 50;
+		config["onClickCallback"] = function(e, info){
+			var row = info.rowIndex;						
+			var controllerX = webMI.table.request("atvise_table_1", "controller");
+			var selrows = controllerX.grid.getSelectedRows();
+			if(selrows.length>0){
+				webMI.trigger.fire("com.atvise.setActive", true, "button_add");
+			}
+			else{
+				webMI.trigger.fire("com.atvise.setActive", false, "button_add");
+			}
+		};
+		config["onHeaderClickCallback"] = function(e, info){
+			if (info.column.id != "atvise_marker") {
+				return;
+			}
+			var row = info.rowIndex;						
+			var controllerX = webMI.table.request("atvise_table_1", "controller");
+			var selrows = controllerX.grid.getSelectedRows();
+			if(selrows.length>0){
+				webMI.trigger.fire("com.atvise.setActive", true, "button_add");
+			}
+			else{
+				webMI.trigger.fire("com.atvise.setActive", false, "button_add");
+			}
+		};
+		// Configuration of the data query for the table
+		config["dataRequestFunction"] = function customDataRequest(continuation) {
+			that = this;
+			tableController = this;
+			var data = {
+				result: []
+			};
+			var elem = {};
+			
+			if(savedBrowseNodes && savedBrowseNodes.length>1) {
+				webMI.trigger.fire("setValue", savedBrowseNodes, "picker_address");
+			}
+			
+			// trigger connect on value changes of address picker
+			webMI.trigger.connect("valuechanged", function (e) {
+				let input = document.getElementById('dealCsv');
+				input.value = null;			
+			
+				if(e.value == "") {
+					e.value = defaultFolder;
+				} else if (e.value == "T{CSV Import}"){
+					return;				
+				}
+					
+				sessionStorage.setItem('signaltable_browseTableBase',e.value);
+				
+				that.clearData();
+				handleDataUpdate(e.value);
+				
+			}, "picker_address");
+			
+			that.clearData();
+			
+			let input = document.getElementById('dealCsv');
+			input.value = null;
+			
+			// initial data
+			handleDataUpdate(sessionStorage.getItem('signaltable_browseTableBase') === null ? defaultFolder : sessionStorage.getItem('signaltable_browseTableBase'));
+		};
+	
+		// ### END CONFIGURATION SECTION ###
+		webMI.table.register("atvise_table_1", "config", config);
+		webMI.table.setReady("atvise_table_1", "config");
+	});
+};
+
+
+
+webMI.trigger.connect("clicked", function(e) {
+	var id = "button_add";
+	var value = true;
+	return function(value) {
+		var controllerX = webMI.table.request("atvise_table_1", "controller");
+		var selrows = controllerX.grid.getSelectedRows();
+		var row = controllerX.grid.getDataItem(selrows[0]);
+
+		// get Selected Row Datas from Browse Table
+		var selectedData = getSelectedTableItems("atvise_table_1");
+		var selectedNodes = new Array();
+		for(var i=0; i<selectedData.length; i++){
+			var dat = {};
+			
+			dat["address"] = PREFIX + "." + selectedData[i].replace("ns=1;s=","");
+			dat["info"] = "";
+			selectedNodes.push(dat);
+		}
+		function getSelectedTableItems(tableName) {
+			var controller = webMI.table.request("atvise_table_1", "controller");
+			var selectedIds = controller.grid.getSelectedRows();
+		
+			var selectedData = [];
+			for(var i=0; i<selectedIds.length; i++) {
+				var sd = controller.grid.getDataItem(selectedIds[i]);
+				selectedData[i]=sd.datapoints;
+			};
+			return selectedData;
+		}
+		
+		webMI.data.read(savedWatcherNodes,function(e) {	
+			var obj = [];
+			if(e.value!=''){
+				obj = JSON.parse(e.value);
+			}
+				
+			for(var i=0; i<obj.length; i++){
+				index = selectedNodes.map(function(e) { return e.address; }).indexOf(obj[i].address);
+				if (index > -1) {
+					selectedNodes.splice(index, 1);
+				}	
+			}
+			var tempArr = obj.concat(selectedNodes);
+			webMI.data.write(savedWatcherNodes,JSON.stringify(tempArr));
+		});
+	} (value);
+}, "button_add");
+
+
+webMI.addEvent("btn_removeall", "click", function(e) {
+	webMI.data.write(savedWatcherNodes,"[]");
+});
+
+var selectedData = [];
+webMI.trigger.connect("onSelectedTableItems", function(e){
+	selectedData = e.value;
+});
+
+webMI.trigger.connect("setremove", function(e){
+	if(e.value){
+		webMI.trigger.fire("com.atvise.setActive", true, "button_remove");
+	}
+	else{
+		webMI.trigger.fire("com.atvise.setActive", false, "button_remove");
+	}
+});
+
+webMI.trigger.connect("clicked", function(e) {
+	var id = "button_remove";
+	var value = true;
+	return function(value) {
+		var selectedNodes = new Array();
+		for(var i=0; i < selectedData.length; i++){
+			selectedNodes.push(selectedData[i].replace("ns=1;s=",""));
+		}	
+		webMI.data.read(savedWatcherNodes,function(e) {
+			var watcherNodesAdressesArray = JSON.parse(e.value);
+			watcherNodesAdressesArray = watcherNodesAdressesArray.filter(function( obj ) {
+				return selectedNodes.indexOf(obj.address) >= 0 ? false : true;
+			});	
+			
+			webMI.data.write(savedWatcherNodes,JSON.stringify(watcherNodesAdressesArray));
+			webMI.trigger.fire("refreshWatchlist");
+		});
+		
+		webMI.trigger.fire("setremove", false);
+	} (value);
+}, "button_remove");	
+]]></code>
+</script>

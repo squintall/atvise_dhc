@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.ElementoLinea.Demanda_contratada
+NodeClass: Variable
+BrowseName: 1:Demanda_contratada
+DisplayName: en|Demanda_contratada
+Description: en|Demanda_contratada
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

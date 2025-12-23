@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Value xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+	<uax:ListOfString>
+		<uax:String>&quot;default&quot;:{&quot;start order at&quot;:&quot;1000&quot;,&quot;step size between elements&quot;:&quot;100&quot;}</uax:String>
+		<uax:String>&quot;alarming&quot;:{&quot;start order at&quot;:&quot;3000&quot;,&quot;step size between elements&quot;:&quot;100&quot;}</uax:String>
+		<uax:String>&quot;accesscontrol&quot;:{&quot;start order at&quot;:&quot;6000&quot;,&quot;step size between elements&quot;:&quot;100&quot;}</uax:String>
+		<uax:String>&quot;about&quot;:{&quot;start order at&quot;:&quot;9000&quot;,&quot;step size between elements&quot;:&quot;100&quot;}</uax:String>
+	</uax:ListOfString>
+</Value>

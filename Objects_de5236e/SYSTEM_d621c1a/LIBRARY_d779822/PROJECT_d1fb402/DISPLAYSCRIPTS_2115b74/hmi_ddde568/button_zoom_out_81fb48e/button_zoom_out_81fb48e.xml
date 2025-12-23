@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the button_zoom_out object display
+ * -------------------------------------------
+ * This button decreases the zoom level of the visualisation.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+
+var strokeNormal = "none";
+var strokePressed = webMI.query["strokePressed"];
+var display = webMI.query["display"];
+var active = true;
+var frameName = webMI.query["frameName"];
+var isOldStyle = typeof webMI.query["borderColor"] == "undefined";
+
+/**
+ * FUNCTION SECTION
+ */
+
+function release() {
+	if (active) {
+		webMI.gfx.setFill("button_stroke", "url(#linear_1)");
+		if (isOldStyle) {
+			webMI.gfx.setStroke("button_stroke", strokeNormal);
+			webMI.gfx.setStrokeWidth("button_stroke", "1");
+		}
+		webMI.gfx.setVisible("button_symbol", true);
+		webMI.gfx.setVisible("button_symbol_pressed", false);
+	}
+}
+
+/**
+ * EVENT SECTION
+ */
+
+webMI.addEvent("button_clickarea", "mousedown", function(e) {
+	var id = "button_clickarea";
+	var value = true;
+	return function(value) {
+		if (active) {
+			webMI.gfx.setFill("button_stroke", "url(#linear_2)");
+			if (isOldStyle) {
+				webMI.gfx.setStroke("button_stroke", strokePressed);
+				webMI.gfx.setStrokeWidth("button_stroke", "1");
+			}
+			webMI.gfx.setVisible("button_symbol", false);
+			webMI.gfx.setVisible("button_symbol_pressed", true);
+		}
+	} (value);
+});
+
+webMI.addEvent("button_clickarea", "mouseup", function(e) {
+	var id = "button_clickarea";
+	var value = true;
+	return function(value) {
+		release();
+	} (value);
+});
+
+webMI.addEvent("button_clickarea", "mouseout", function(e) {
+	var id = "button_clickarea";
+	var value = true;
+	return function(value) {
+		release();
+	} (value);
+});
+
+webMI.addEvent("button_clickarea", "click", function(e) {
+	var id = "button_clickarea";
+	var value = true;
+	return function(value) {
+		webMI.trigger.fire("com.atvise.zoomOut_" + frameName, true);
+	} (value);
+});
+
+webMI.addEvent("button_clickarea", "dragstart", function(e) {
+	if (e.preventDefault) {
+		e.preventDefault();
+	}
+});
+]]></code>
+</script>

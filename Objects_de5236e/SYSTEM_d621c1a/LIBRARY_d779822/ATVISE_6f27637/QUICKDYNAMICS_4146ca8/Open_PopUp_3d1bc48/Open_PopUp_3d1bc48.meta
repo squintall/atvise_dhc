@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Open PopUp
+NodeClass: Variable
+BrowseName: 1:Open PopUp
+DisplayName: en|Open PopUp
+Description: en|Open PopUp
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.QuickDynamic

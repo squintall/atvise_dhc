@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="trigger" type="timer" trigger="true" relative="false" value="" starttime="00:00:00" repeat="00:05:00"/>
+  <code><![CDATA[var current_flow = Ua.findNode(base + ".current_flow");
+var historic_flow = Ua.findNode(base + ".historic_flow");
+
+var current_pressure = Ua.findNode(base + ".current_pressure");
+var historic_pressure = Ua.findNode(base + ".historic_pressure");
+
+//historic.result.value = current.result.status;
+
+
+historic_flow.result.value = current_flow.result.value;
+historic_pressure.result.value = current_pressure.result.value;]]></code>
+</script>

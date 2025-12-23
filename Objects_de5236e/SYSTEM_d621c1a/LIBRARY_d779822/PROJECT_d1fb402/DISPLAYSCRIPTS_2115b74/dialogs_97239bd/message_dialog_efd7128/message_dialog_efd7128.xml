@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the message dialog and message dialog small object display
+ * ----------------------------------------
+ * This Script supports the the display for showing messages, information or warnings.
+ * With the function openWindow the dialog can be called.
+ * The parameters can be used to adapt the text for the headline, the message line and the button.
+ * The action of the button is defined via the name of the corresponding trigger function.
+ * If no trigger name is defined the button will close the window without any additional effect.
+ */
+
+
+/**
+ * DECLARATION SECTION
+ */
+var button_font_size = webMI.query["buttonFontSize"];
+var button1 = document.getElementById("button1");
+var button1_action = webMI.query["action_btn1"];
+var button1_txt = webMI.query["btn1"];
+var button2 = document.getElementById("button2");
+var button2_action = webMI.query["action_btn2"];
+var button2_txt = webMI.query["btn2"];
+var fontColor = webMI.query["fontColor"];
+var headline = webMI.query["headline"];
+var isOldStyle = typeof webMI.gfx.getX("focus_frame") == "undefined";
+var text_line = webMI.query["msg1"] + " " + webMI.query["msg2"] + " " + webMI.query["msg3"];
+var symbolColor = webMI.query["symbolColor"];
+var button1_label = document.getElementById("button1_button_label");
+var button2_label = document.getElementById("button2_button_label");
+
+
+/**
+ * PORTAL SETUP
+ */
+if (!isOldStyle) {
+	button1_label.style.fontSize = button_font_size;
+	button2_label.style.fontSize = button_font_size;
+
+	webMI.gfx.setText(button1_label, button1_txt);
+	webMI.gfx.setText(button2_label, button2_txt);
+
+} else {
+
+	webMI.gfx.setText(document.getElementById("headline"), headline);
+	webMI.gfx.setText(document.getElementById("message_line1"), text_line);
+
+	webMI.trigger.fire("com.atvise.labelMessageChanged", text_line, "message_line1");
+	
+	webMI.gfx.setText(document.getElementById("button1_button_label"), button1_txt);
+	webMI.gfx.setText(document.getElementById("button2_button_label"), button2_txt);
+
+	webMI.gfx.setFill(document.getElementById("symbol"), symbolColor);
+	webMI.gfx.setFill(document.getElementById("headline"), fontColor);
+	webMI.gfx.setFill(document.getElementById("message_line1"), fontColor);
+	webMI.gfx.setFill(document.getElementById("message_line2"), fontColor);
+	webMI.gfx.setFill(document.getElementById("message_line3"), fontColor);
+	webMI.gfx.setFill(document.getElementById("button1_label"), fontColor);
+	webMI.gfx.setFill(document.getElementById("button2_label"), fontColor);
+
+}
+
+
+/**
+ * RUNTIME SECTION
+ */
+if (button2_txt == "undefined" && button2_action == "undefined") {
+	webMI.gfx.setVisible("button2", false);
+	button1.setAttribute("y", button2.getAttribute("y"));
+}
+
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect("clicked", function (e) {
+	if (typeof button1_action == "undefined" || button1_action == "")
+		webMI.display.closeWindow();
+	else
+		webMI.trigger.fire(button1_action, this);
+}, "button1");
+
+webMI.trigger.connect("clicked", function (e) {
+	if (typeof button2_action == "undefined" || button2_action == "")
+		webMI.display.closeWindow();
+	else
+		webMI.trigger.fire(button2_action, this);
+}, "button2");
+
+
+/**
+ * TRIGGER FOR REDU STATUS CHANGES
+ */
+if (!isOldStyle || true) { // activate for all cases due redu trigger
+	webMI.trigger.connect("com.atvise.dialogMessageChanged", function (e) {
+		e.msg = JSON.parse(e.value);
+
+		if (!e.msg.msg1)
+			e.msg.msg1 = "";
+		if (!e.msg.msg2)
+			e.msg.msg2 = "";
+		if (!e.msg.msg3)
+			e.msg.msg3 = "";
+		if (!e.msg.btn1)
+			e.msg.btn1 = false;
+		if (!e.msg.btn2)
+			e.msg.btn2 = false;
+			
+		var msg123 = e.msg.msg1 + " " + e.msg.msg2 + " " + e.msg.msg3;
+
+		var ele = document.getElementById("message_line1");
+		if (ele.tagName == "text") {
+			/* old styles using text */
+			webMI.gfx.setText(document.getElementById("message_line1"), e.msg.msg1);
+			webMI.gfx.setText(document.getElementById("message_line2"), e.msg.msg2);
+			webMI.gfx.setText(document.getElementById("message_line3"), e.msg.msg3);
+		} else {
+			/* advanced style using svg label */
+			webMI.trigger.fire("com.atvise.labelMessageChanged", msg123, "message_line1");
+		}
+
+		if (e.msg.btn1) {
+			webMI.gfx.setText(button1_label, e.msg.btn1);
+			webMI.gfx.setVisible("button1", true);
+		} else {
+			webMI.gfx.setVisible("button1", false);
+		}
+
+		if (e.msg.btn2) {
+			webMI.gfx.setText(button2_label, e.msg.btn2);
+			webMI.gfx.setVisible("button2", true);
+		} else {
+			webMI.gfx.setVisible("button2", false);
+		}
+	});
+}]]></code>
+</script>

@@ -1,0 +1,108 @@
+.tree-wrapper {
+	font-family: Arial;
+	width: inherit;
+	height: inherit;
+	position: relative;
+}
+.tree-container {
+   position: relative;
+	display: inline-block;
+}
+
+.tree-leaf {
+	position: relative
+}
+
+.tree-leaf .tree-child-leaves {
+	display: block
+}
+
+.tree-leaf .hidden {
+	display: none;
+}
+
+.tree-leaf .tree-expando {
+	position: absolute;
+	height: inherit;
+	top: 0;
+	left: 0;
+}
+
+.tree-leaf .hidden {
+	visibility: hidden
+}
+
+.tree-leaf .tree-leaf-text {
+	cursor: pointer;
+	float: left;
+	padding-left: 3px;
+	padding-right: 3px;
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /
+}
+
+.tree-leaf .tree-leaf-text:hover {
+	color: #1567a2
+}
+
+.tree-leaf .tree-leaf-text.selected {
+	background-color: lightgrey;
+	border-radius: 5px
+}
+
+.tree-leaf .tree-leaf-content {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center
+}
+
+.tree-leaf .tree-icon {
+	float: left;
+	height: inherit
+}
+
+.tree-busy-indicator {
+	border: 5px solid #f3f3f3;
+	border-radius: 50%;
+	border-top: 5px solid #888888;
+	width: 25px;
+	height: 25px;
+	-webkit-animation: spin 2s linear infinite;
+	animation: spin 2s linear infinite;
+}
+.tree-busy-indicator-wrapper{
+	height: inherit;
+	width: inherit;
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: rgba(211, 211, 211, 0.5)
+}
+.tree-busy-indicator-wrapper.hidden{
+	display: none;
+}
+
+@-webkit-keyframes spin {
+	0% {
+		-webkit-transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>root</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="t" type="interval" trigger="false" relative="false" value="" offset="00:00:00" interval="00:00:05"/>
+  <code><![CDATA[var nombre = Ua.findNode(base + ".name");
+var falla = Ua.findNode(base + ".fault");
+var Alarma_ManAuto = Ua.findNode(base + ".Alarma_ManAuto");
+var Alarma_Local = Ua.findNode(base + ".Alarma_Local");
+var host_dir = falla.result.nodeId.address;
+var cadena = host_dir.split(".");
+var ind = "Carcamo_"
+
+var descripcion = cadena[cadena.length-5] + " | Equipo " + cadena[cadena.length-2];
+
+if (descripcion.includes(ind) && !cadena[cadena.length-6].includes("Cuenca")){
+	descripcion = descripcion.replace(ind,"Tanque ");
+}
+
+Alarma_ManAuto.result.description = descripcion;
+Alarma_Local.result.description = descripcion;
+falla.result.description = descripcion;]]></code>
+</script>

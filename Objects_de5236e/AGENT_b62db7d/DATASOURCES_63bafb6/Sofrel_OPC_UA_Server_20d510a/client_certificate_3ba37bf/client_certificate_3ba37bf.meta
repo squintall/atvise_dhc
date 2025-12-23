@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DATASOURCES.Sofrel OPC UA Server.client_certificate
+NodeClass: Variable
+BrowseName: 1:client_certificate
+DisplayName: en|client_certificate
+Description: en|client_certificate
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

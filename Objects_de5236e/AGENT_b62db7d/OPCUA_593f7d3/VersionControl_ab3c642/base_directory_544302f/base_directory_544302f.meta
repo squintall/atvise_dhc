@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OPCUA.VersionControl.base_directory
+NodeClass: Variable
+BrowseName: 1:base_directory
+DisplayName: en|base_directory
+Description: en|base_directory
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

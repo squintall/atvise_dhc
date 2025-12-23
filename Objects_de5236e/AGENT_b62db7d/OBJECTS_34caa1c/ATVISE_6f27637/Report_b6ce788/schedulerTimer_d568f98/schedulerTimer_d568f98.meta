@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.ATVISE.Report.schedulerTimer
+NodeClass: Variable
+BrowseName: 1:schedulerTimer
+DisplayName: en|schedulerTimer
+Description: en|schedulerTimer
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

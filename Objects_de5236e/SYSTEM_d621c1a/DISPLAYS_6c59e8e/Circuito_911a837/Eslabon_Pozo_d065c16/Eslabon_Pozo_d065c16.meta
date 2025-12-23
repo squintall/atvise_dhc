@@ -1,0 +1,10 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Circuito.Eslabon_Pozo
+NodeClass: Variable
+BrowseName: 1:Eslabon_Pozo
+DisplayName: en|Eslabon_Pozo
+Description: en|Eslabon_Pozo
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

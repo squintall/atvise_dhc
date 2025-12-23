@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg version="1.2" height="397" width="920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig gridstyle="lines" height="20" width="20" enabled="false"/>
+  <atv:snapconfig height="10" width="10" enabled="false"/>
+ </metadata>
+ <foreignObject y="50.453" height="508.681" width="749.787" id="map_canvas" x="32.94"/>
+ <text y="31.179" atv:refpy="26.679" font-size="18" atv:refpx="194.44" id="id_info" x="37.44" fill="#000000" font-family="Arial">Put your mouse over the bulb symbols..</text>
+ <svg y="50.453" height="600" atv:refpy="350.453" width="800" atv:refpx="988.555" id="id_0" x="1577.109" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" transform="matrix(0.5,0,0,1,0,0)">
+  <atv:argument value="building-details" name="frameName"/>
+ </svg>
+ <text y="623.587" atv:refpy="619.087" font-size="12" atv:refpx="280.007" id="id_1" x="33.007" fill="#000088" font-family="Arial">Put the following line as a script source to the index.htm (->LIBRARY.PROJECT.Resources)</text>
+ <text y="652.377" atv:refpy="647.877" font-size="12" atv:refpx="294.046" id="id_2" x="33.046" fill="#000088" font-family="Arial">&lt;script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false">&lt;/script></text>
+ <text y="595.447" atv:refpy="590.947" font-size="12" atv:refpx="307.714" id="id_3" x="32.836" fill="#000088" font-family="Arial">Copy index.htm (-> LIBRARY.ATVISE.Resources) to the Project folder (-> LIBRARY.ATVISE.Resources) </text>
+ <script atv:desc="" atv:name="" atv:defaultdynamics="true" type="text/ecmascript"><![CDATA[var google = webMI.rootWindow.google;
+
+var map;
+
+var marker1, marker2;
+
+const symbolLightOn = "/lamp_on.png";
+const symbolLightOff = "/lamp_off.png";
+
+webMI.addOnload(function() {
+	var position1 = new google.maps.LatLng(47.85193,16.54015);
+	var position2 = new google.maps.LatLng(47.85206,16.54041);	
+	
+	var myOptions = {
+		zoom: 19,
+		center: position1,
+		mapTypeId: google.maps.MapTypeId.SATELLITE
+	};
+	
+	map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+	marker1 = new google.maps.Marker({
+		position: position1,
+		map: map,
+		title: "Building 1",
+		icon: symbolLightOff,
+	});
+	
+	marker2 = new google.maps.Marker({
+		position: position2,
+		map: map,
+		title: "Building 1",
+		icon: symbolLightOff
+	});
+
+	var infowindow1 = new google.maps.InfoWindow();
+	var infowindow2 = new google.maps.InfoWindow();
+
+	google.maps.event.addListenerOnce(map, 'idle', function() {
+		google.maps.event.trigger(map, 'resize');
+		map.setCenter(position1);
+	});
+
+	/*-----functionality for marker 1-------------*/
+
+	//subscribe to a datapoint to change the marker1 symbol:
+	webMI.data.subscribe("AGENT.OBJECTS.GoogleMapsDemo.Building_1.LightOn", function(e) {
+		if(e.value) {
+			marker1.setIcon(symbolLightOn);
+		} else {
+			marker1.setIcon(symbolLightOff);
+		}
+	});	
+	
+	//add a click listener do marke1 to open a detail display:
+	marker1.addListener("click", function(e){
+		webMI.display.openDisplay("ObjectTypes.PROJECT.Building.BuldingDetails", {base: "AGENT.OBJECTS.GoogleMapsDemo.Building_1"}, "building-details");
+	});
+	
+	//add a mousover event to marker1 to show an info text and open an infowindow:
+	marker1.addListener("mouseover", function(e){
+		webMI.gfx.setText("id_info", "This is Building 1 - Click bulb for control.")
+		infowindow1.open(map, marker1);
+	});
+	
+	//add mousout to hide info text and infowindow:
+	marker1.addListener("mouseout", function(e){
+		webMI.gfx.setText("id_info", "")
+		infowindow1.close();
+	});
+	
+	//add a subscribe to a datapoint to display the current value in the infowindow:
+	webMI.data.subscribe("AGENT.OBJECTS.GoogleMapsDemo.Building_1.TempMeasured", function(e){
+		infowindow1.setContent("Building 1 - Temperature: " + e.value.toFixed(2) + "°C");
+	});
+        
+	/*-----same functionality for marker 2-------------*/
+	
+	webMI.data.subscribe("AGENT.OBJECTS.GoogleMapsDemo.Building_2.LightOn", function(e) {
+		if(e.value) {
+			marker2.setIcon(symbolLightOn);
+		} else {
+			marker2.setIcon(symbolLightOff);
+	}
+	});
+	
+	marker2.addListener("click", function(e){
+		webMI.display.openDisplay("ObjectTypes.PROJECT.Building.BuldingDetails", {base: "AGENT.OBJECTS.GoogleMapsDemo.Building_2"}, "building-details");
+	});
+	
+	marker2.addListener("mouseover", function(e){
+		webMI.gfx.setText("id_info", "This is Building 2 - Click bulb for control.")
+		infowindow2.open(map, marker2);
+	});
+	
+	marker2.addListener("mouseout", function(e){
+		webMI.gfx.setText("id_info", "")
+		infowindow2.close();
+	});
+	
+	webMI.data.subscribe("AGENT.OBJECTS.GoogleMapsDemo.Building_2.TempMeasured", function(e){
+		infowindow2.setContent("Building 2 - Temperature: " + e.value.toFixed(2) + "°C");
+	});
+	
+	/*----------------------------------*/
+
+});]]></script>
+</svg>

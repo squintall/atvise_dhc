@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.1014.HValue
+NodeClass: Variable
+BrowseName: 1:HValue
+DisplayName: en|HValue
+Description: en|HValue
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseDataVariableType

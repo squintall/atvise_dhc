@@ -1,0 +1,11 @@
+NodeId: ns=1;s=AGENT.OBJECTS.Test.Playero_Test.AR_SOL_CAR_PLAYERO_ENERGIAByte
+NodeClass: Variable
+BrowseName: 1:AR_SOL_CAR_PLAYERO_ENERGIAByte
+DisplayName: en|AR_SOL_CAR_PLAYERO_ENERGIAByte
+Description: en|AR_SOL_CAR_PLAYERO_ENERGIAByte
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType
+Reference: forward HasHistoricalConfiguration ns=1;s=AGENT.HISTORY.Carcamos_AR

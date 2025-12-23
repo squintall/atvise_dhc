@@ -1,0 +1,10 @@
+NodeId: ns=1;s=VariableTypes.PROJECT.2365.Definition
+NodeClass: Variable
+BrowseName: 1:Definition
+DisplayName: en|Definition
+Description: en|Definition
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition PropertyType

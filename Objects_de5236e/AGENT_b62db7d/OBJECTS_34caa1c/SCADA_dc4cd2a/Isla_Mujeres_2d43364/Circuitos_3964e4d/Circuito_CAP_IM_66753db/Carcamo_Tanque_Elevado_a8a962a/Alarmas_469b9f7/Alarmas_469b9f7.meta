@@ -1,0 +1,7 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Isla_Mujeres.Circuitos.Circuito_CAP_IM.Carcamo_Tanque_Elevado.Alarmas
+NodeClass: Object
+BrowseName: 1:Alarmas
+DisplayName: en|Alarmas
+Description: en|Alarmas
+EventNotifier: 0
+Reference: forward HasTypeDefinition FolderType

@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Carcamos.Layout_Carcamo
+NodeClass: Variable
+BrowseName: 1:Layout_Carcamo
+DisplayName: en|Layout_Carcamo
+Description: en|Layout_Carcamo
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

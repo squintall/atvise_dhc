@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_008.Carcamo_2000P.confGrafico.Equipos
+NodeClass: Variable
+BrowseName: 1:Equipos
+DisplayName: en|Equipos
+Description: en|Equipos
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

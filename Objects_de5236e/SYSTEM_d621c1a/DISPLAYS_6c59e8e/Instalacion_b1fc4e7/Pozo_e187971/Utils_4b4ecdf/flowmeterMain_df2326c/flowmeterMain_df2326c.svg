@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="550" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <script atv:desc="" atv:name="" type="text/ecmascript"/>
+ <svg atv:refpx="960.051" atv:refpy="190.58" height="400" id="id_1" transform="matrix(4.8002,0,0,0.9516,0,0)" width="400" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.highcharts" y="0.264">
+  <atv:argument name="trendName" value="caudalimetro_pozo"/>
+  <atv:argument name="series1series_address" prefix="base" value=".flow"/>
+  <atv:argument name="xAxisxAxis_timeSpanUnit" value="hour(s)"/>
+  <atv:argument name="xAxisxAxis_timeSpan" value="24"/>
+  <atv:argument name="xAxisxAxis_tickInterval" value="7200000"/>
+  <atv:argument name="yAxis1yAxis_id" value="caudal"/>
+  <atv:argument name="yAxis1yAxis_title_text" value="Caudal"/>
+  <atv:argument name="yAxis1yAxis_min" value="0"/>
+  <atv:argument name="series1series_marker_enabled" value="false"/>
+  <atv:argument name="series1series_tooltip_valueSuffix" value=" l/s"/>
+  <atv:argument name="series1series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series1series_color" value="#0000ff"/>
+  <atv:argument name="series1series_name" value="T{Caudal}"/>
+  <atv:argument name="series1series_lineWidth" value="4"/>
+  <atv:argument name="gatviseOptions_configNode" prefix="base" value=".trendCfg"/>
+  <atv:argument name="gatviseOptions_configName" value="pozo"/>
+  <atv:argument name="yAxis1yAxis_crosshair" value="true"/>
+  <atv:argument name="yAxis1yAxis_crosshair_width" value="3"/>
+  <atv:argument name="yAxis1yAxis_crosshair_color" value="#000000"/>
+  <atv:argument name="xAxisxAxis_crosshair_width" value="1"/>
+  <atv:argument name="xAxisxAxis_crosshair_color" value="#000000"/>
+  <atv:argument name="xAxisxAxis_crosshair" value="true"/>
+  <atv:argument name="xAxisxAxis_opposite" value="top"/>
+  <atv:argument name="xAxisxAxis_labels_align" value="center"/>
+  <atv:argument name="yAxis1yAxis_crosshair_snap" value="false"/>
+  <atv:argument name="series2series_address" prefix="base" value=".pressure"/>
+  <atv:argument name="yAxis2yAxis_id" value="presion"/>
+  <atv:argument name="yAxis2yAxis_title_text" value="Presión"/>
+  <atv:argument name="yAxis2yAxis_min" value="0"/>
+  <atv:argument name="yAxis2yAxis_crosshair" value="true"/>
+  <atv:argument name="yAxis2yAxis_labels_align" value="center"/>
+  <atv:argument name="series1series_yAxis" value="caudal"/>
+  <atv:argument name="series2series_name" value="T{Presión}"/>
+  <atv:argument name="series2series_lineWidth" value="4"/>
+  <atv:argument name="series2series_marker_enabled" value="false"/>
+  <atv:argument name="series2series_yAxis" value="presion"/>
+  <atv:argument name="yAxis3yAxis_min" value="0"/>
+  <atv:argument name="yAxis4yAxis_min" value="-2"/>
+  <atv:argument name="series2series_color" value="#00aa00"/>
+  <atv:argument name="yAxis3yAxis_opposite" value="right"/>
+  <atv:argument name="yAxis4yAxis_opposite" value="right"/>
+  <atv:argument name="series3series_name" value="T{Producción por hora}"/>
+  <atv:argument name="series3series_lineWidth" value="4"/>
+  <atv:argument name="series3series_color" value="#aa007f"/>
+  <atv:argument name="series3series_marker_enabled" value="false"/>
+  <atv:argument name="zoomType" value="xy axis"/>
+  <atv:argument name="alignTicks" value="true"/>
+  <atv:argument name="performance_update_interval" value="10000"/>
+  <atv:argument name="performance_points_threshold" value="50000"/>
+  <atv:argument name="yAxis1yAxis_title_style_color" value="#0000ff"/>
+  <atv:argument name="yAxis1yAxis_labels_style_color" value="#0000ff"/>
+  <atv:argument name="yAxis1yAxis_lineColor" value="#0000ff"/>
+  <atv:argument name="yAxis2yAxis_title_style_color" value="#00aa00"/>
+  <atv:argument name="yAxis2yAxis_lineColor" value="#00aa00"/>
+  <atv:argument name="yAxis2yAxis_labels_style_color" value="#00aa00"/>
+  <atv:argument name="series2series_tooltip_valueDecimals" value="2"/>
+  <atv:argument name="series2series_tooltip_valueSuffix" value=" kg/cm2"/>
+  <atv:argument name="yAxis3yAxis_id" value="produccion"/>
+  <atv:argument name="yAxis3yAxis_title_text" value="Producción Horaria"/>
+  <atv:argument name="yAxis3yAxis_title_style_color" value="#aa007f"/>
+  <atv:argument name="yAxis3yAxis_labels_style_color" value="#aa007f"/>
+  <atv:argument name="yAxis3yAxis_lineColor" value="#aa007f"/>
+  <atv:argument name="series3series_address" prefix="base" value=".cummulative"/>
+  <atv:argument name="series3series_dataArchive" value="Caudalimetros"/>
+  <atv:argument name="series3series_tooltip_valueSuffix" value=" m3"/>
+  <atv:argument name="series3series_tooltip_valueDecimals" value="0"/>
+  <atv:argument name="series3series_aggregate_aggregate" value="Delta"/>
+  <atv:argument name="series3series_yAxis" value="produccion"/>
+  <atv:argument name="series3series_aggregate_interval" value="1"/>
+  <atv:argument name="series3series_aggregate_unit" value="h"/>
+  <atv:argument name="gatviseOptions_enableCursor1" value="true"/>
+  <atv:argument name="gatviseOptions_enableCursor2" value="true"/>
+  <atv:argument name="series4series_address" prefix="base" value=".connect"/>
+  <atv:argument name="yAxis4yAxis_id" value="Con"/>
+  <atv:argument name="yAxis4yAxis_title_text" value="Conectividad"/>
+  <atv:argument name="yAxis4yAxis_max" value="2"/>
+  <atv:argument name="series4series_yAxis" value="Con"/>
+  <atv:argument name="series4series_name" value="T{Conectividad}"/>
+  <atv:argument name="series4series_marker_enabled" value="false"/>
+  <atv:argument name="yAxis4yAxis_lineWidth" value="5"/>
+  <atv:argument name="series4series_color" value="#6c4a31"/>
+  <atv:argument name="yAxis4yAxis_lineColor" value="#6c4a31"/>
+  <atv:argument name="yAxis4yAxis_title_style_color" value="#6c4a31"/>
+  <atv:argument name="yAxis4yAxis_labels_style_color" value="#6c4a31"/>
+  <atv:argument name="yAxis4yAxis_crosshair_color" value="#6c4a31"/>
+  <atv:argument name="series4series_interpolation" value="step"/>
+  <atv:overwrite id="highchart_label" transform="matrix(0.2083,0,0,1.0508,0,0)" x="789.544" y="201.329"/>
+  <atv:overwrite height="378.657" id="border" transform="matrix(0.2083,0,0,1.0508,0,0)" width="1918.089"/>
+  <atv:overwrite height="380.657" id="id_3" transform="matrix(0.2083,0,0,1.0508,0,0)" width="1920.089"/>
+ </svg>
+ <svg atv:refpx="959.3" atv:refpy="486.34" height="160" id="id_15" transform="matrix(1.4975,0,0,0.7992,0,0)" width="1280" x="0.851" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.legend" y="524.759">
+  <atv:argument name="_trendName" value="caudalimetro_pozo"/>
+  <atv:argument name="columnOptions_nodeAddress_visibility" value="false"/>
+  <atv:argument name="columnOptions_aggregate_visibility" value="false"/>
+  <atv:argument name="startAddress" value="AGENT.OBJECTS.SCADA"/>
+  <atv:argument name="columnOptions_seriesSettings_name" value="Ajustes"/>
+  <atv:argument name="columnOptions_seriesLabel_width" value="120"/>
+  <atv:argument name="columnOptions_type_visibility" value="false"/>
+  <atv:argument name="columnOptions_seriesSettings_visibility" value="false"/>
+  <atv:argument name="columnOptions_cursorYValue1_width" value="50"/>
+  <atv:argument name="columnOptions_cursorYValue2_width" value="50"/>
+  <atv:overwrite id="preview" transform="matrix(0.6678,0,0,1.2512,0,0)" x="897.929" y="71.438"/>
+ </svg>
+ <svg atv:refpx="41.274" atv:refpy="400.743" height="30" id="id_7" width="80" x="1.274" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_back" y="388.743">
+  <atv:argument name="chartname" value="caudalimetro_pozo"/>
+ </svg>
+ <svg atv:refpx="618.212" atv:refpy="400.743" height="30" id="id_9" width="80" x="578.212" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_forward" y="388.743">
+  <atv:argument name="chartname" value="caudalimetro_pozo"/>
+ </svg>
+ <svg atv:refpx="317.212" atv:refpy="400.743" height="30" id="id_10" width="460" x="87.212" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.buttons_start_end_time" y="388.743">
+  <atv:argument name="chartname" value="caudalimetro_pozo"/>
+ </svg>
+ <svg atv:refpx="805.064" atv:refpy="400.743" height="30" id="id_4" width="260" x="675.064" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.button_config" y="388.743">
+  <atv:argument name="chartname" value="caudalimetro_pozo"/>
+ </svg>
+ <svg atv:refpx="1017.084" atv:refpy="406.743" height="30" id="id_0" width="141" x="946.584" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.highcharts.toolbar" y="388.743">
+  <atv:argument name="chartname" value="caudalimetro_pozo"/>
+  <atv:argument name="startAddress" value="AGENT.OBJECTS.SCADA"/>
+ </svg>
+</svg>

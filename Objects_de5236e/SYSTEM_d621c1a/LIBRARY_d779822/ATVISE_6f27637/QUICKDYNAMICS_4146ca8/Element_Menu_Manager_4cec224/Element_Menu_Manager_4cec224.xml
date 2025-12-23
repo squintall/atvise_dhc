@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <icon type="image/png"></icon>
+    <visible>0</visible>
+    <title>Element Menu Manager</title>
+    <description>Provides the basic configuration for the Element Menu Quick Dynamic.</description>
+  </metadata>
+  <parameter behavior="hidden" name="id" valuetype="string"/>
+  <parameter behavior="optional" config="top-left;top-right;bottom-left;bottom-right" defaultvalue="top-right" description="menu positioning" name="elementPosition" valuetype="enum"/>
+  <parameter behavior="optional" config="yes;no" defaultvalue="yes" description="menu mouseover active" name="fadeInAtHover" valuetype="enum"/>
+  <parameter behavior="optional" defaultvalue="1000" description="menu mouseover delay (ms)" name="fadeInAtHoverTime" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="5000" description="menu mouseout delay (ms)" name="fadeInAtHoverHide" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="&lt;i class='fas fa-bars'&gt;&lt;/i&gt;" description="menu symbol" name="elementSymbol" valuetype="string"/>
+  <parameter behavior="optional" defaultvalue="60" description="menu symbol scaling (0..100)" name="elementSymbolScale" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFontColor" description="menu symbol color" name="elementColor" valuetype="global"/>
+  <parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvFillColor" description="menu symbol background" name="elementBackground" valuetype="global"/>
+  <parameter behavior="optional" defaultvalue="20" description="menu symbol size x" name="elementSizeX" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="20" description="menu symbol size y" name="elementSizeY" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="5" description="menu symbol offset x" name="elementOffsetX" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="10" description="menu symbol offset y" name="elementOffsetY" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="SYSTEM.GLOBALS.atvBorderColor" description="menu symbol border color" name="elementBorderColor" valuetype="global"/>
+  <parameter behavior="optional" defaultvalue="11" description="menu symbol border radius" name="elementBorderRadius" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="1" description="menu symbol border width" name="elementBorderSize" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="5" description="context menu offset x" name="contextOffsetX" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="5" description="context menu offset y" name="contextOffsetY" valuetype="number"/>
+  <parameter behavior="optional" defaultvalue="5" description="context menu click frame" name="clickareaEnlargement" valuetype="number"/>
+  <code><![CDATA[/**
+ * This quick dynamic provides the basic configuration for the Element Menu quick dynamic
+ */
+var ElementMenuConfigQD = new function () {
+	var self = this;
+
+	var elementMenuDefaultItems = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Element Menu Default Items");
+
+	/**
+	 * Processing of the transfer parameters
+	 * @returns {{ * }}
+	 */
+	self.baseConfiguration = function () {
+		return {
+			id: base.elementId ? base.elementId : base.id,
+			elementSymbol: base.elementSymbol,
+			elementSymbolScale: base.elementSymbolScale / 100,
+			elementPosition: base.elementPosition,
+			elementSizeX: base.elementSizeX,
+			elementSizeY: base.elementSizeY,
+			elementOffsetX: base.elementOffsetX,
+			elementOffsetY: base.elementOffsetY,
+			elementBorderSize: base.elementBorderSize,
+			elementBorderRadius: base.elementBorderRadius,
+			elementBorderColor: base.elementBorderColor,
+			elementColor: base.elementColor,
+			elementBackground: base.elementBackground,
+			// context menu
+			contextOffsetX: base.contextOffsetX,
+			contextOffsetY: base.contextOffsetY,
+			// handler
+			fadeInAtHover: base.fadeInAtHover,
+			fadeInAtHoverTime: base.fadeInAtHoverTime,
+			fadeInAtHoverHide: base.fadeInAtHoverHide,
+			// mobile device
+			clickareaEnlargement: base.clickareaEnlargement
+		}
+	};
+
+
+	/**
+	 * Determination of the configuration parameters
+	 * @type {{ * }}
+	 */
+	self.configuration = {
+		elementNotification: (base.elementNotification == "true" || base.elementNotification == true) ? true : false,
+		elementSymbol: base.elementSymbol,
+		elementSymbolScale: base.elementSymbolScale / 100,
+		elementPosition: base.elementPosition,
+		elementSizeX: parseInt(base.elementSizeX),
+		elementSizeY: parseInt(base.elementSizeY),
+		elementOffsetX: parseInt(base.elementOffsetX),
+		elementOffsetY: parseInt(base.elementOffsetY),
+		elementBorderSize: parseInt(base.elementBorderSize),
+		elementBorderRadius: parseInt(base.elementBorderRadius),
+		elementBorderColor: base.elementBorderColor,
+		elementColor: base.elementColor,
+		elementBackground: base.elementBackground,
+		// conntext menu
+		contextOffsetX: parseInt(base.contextOffsetX),
+		contextOffsetY: parseInt(base.contextOffsetY),
+		// handler
+		fadeInAtHover: base.fadeInAtHover,
+		fadeInAtHoverTime: base.fadeInAtHoverTime,
+		fadeInAtHoverHide: base.fadeInAtHoverHide,
+		// mobile device
+		clickareaEnlargement: parseInt(base.clickareaEnlargement)
+	};
+
+
+	/**
+	 * Determination of the context menu layout
+	 * @returns {{ * }}
+	 */
+	self.defaultContextMenuStyle = function () {
+		return {
+			itemHeight: 25,
+			maxRows: 5,
+			fontFill: "#575757",
+			hoverFontFill: "#333333",
+			fill: "#f1f1f1",
+			stroke: "#e5e5e5",
+			strokeWidth: 0,
+			hoverFill: "#e5e5e5",
+			closeTime: 0,
+		}
+	};
+
+
+	/**
+	 * Returning default configuration
+	 * @param option
+	 * @returns {*}
+	 */
+	self.getConfiguration = function (option) {
+		if (option)
+			return this.configuration[option];
+		else
+			return this.configuration;
+	};
+
+
+	/**
+	 * Return standard menu items
+	 * @param order
+	 * @returns {Array}
+	 */
+	self.getDefaultMenuItems = function (order) {
+		var ElementMenuDefaultItems = elementMenuDefaultItems.getDefault(order);
+		return ElementMenuDefaultItems;
+	}
+
+
+	/**
+	 * Get predefines start order of menue types
+	 * @param type
+	 * @returns {*}
+	 */
+	self.getStartOrder = function (group) {
+		var tList = elementMenuDefaultItems.getStartOrder(group);
+		return tList;
+	}
+
+
+	/**
+	 * Get unique symbol id for foreign object container
+	 * @param id
+	 * @returns {*}
+	 */
+	self.getUniqueSymbolID = function (id) {
+		return elementMenuDefaultItems.getUniqueSymbolID(id);
+	}
+
+}
+
+return ElementMenuConfigQD;
+
+]]></code>
+</script>

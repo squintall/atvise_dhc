@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Carcamo_004.Eficiencia_Energetica_2
+NodeClass: Variable
+BrowseName: 1:Eficiencia_Energetica_2
+DisplayName: en|Eficiencia_Energetica_2
+Description: en|Eficiencia_Energetica_2
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

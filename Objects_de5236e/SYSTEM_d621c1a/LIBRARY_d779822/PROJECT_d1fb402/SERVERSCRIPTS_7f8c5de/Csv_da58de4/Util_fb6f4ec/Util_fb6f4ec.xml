@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+  </metadata>
+  <code><![CDATA[// Logging
+function logger(verbosity) {
+	// Verbosity (0 - 2)
+	this.verbosity = verbosity;
+
+	// Logging
+	this.log = function (level, message) {
+		if (level <= this.verbosity)
+			console.log(message);
+	}
+
+	this.error = function (message) {
+		throw("[ERROR]: " + message);
+	}
+	
+	this.info = function (message) {
+		this.log(1, "[INFO]: " + message);
+	}
+	
+	this.trace = function (message) {
+		this.log(2, "[TRACE]: " + message);
+	}
+}
+
+// Node Id functions
+function trimNodeId(nodeid) {
+	nodeid = nodeid.toString();
+
+	if (nodeid.indexOf("i=") == 0) return nodeid.substr(2);
+	else if (nodeid.indexOf("ns=1;s=") == 0) return nodeid.substr(7);
+	return nodeid;
+}
+
+// Data types
+var dataTypes = ["boolean", "byte", "sbyte", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float", "double", "string", "datetime", "xmlelement", "folder", "object"];
+var dataTypeIds = [
+	Ua.DataType.BOOLEAN,
+	Ua.DataType.BYTE,
+	Ua.DataType.SBYTE,
+	Ua.DataType.INT16,
+	Ua.DataType.UINT16,
+	Ua.DataType.INT32,
+	Ua.DataType.UINT32,
+	Ua.DataType.INT64,
+	Ua.DataType.UINT64,
+	Ua.DataType.FLOAT,
+	Ua.DataType.DOUBLE,
+	Ua.DataType.STRING,
+	Ua.DataType.DATETIME,
+	Ua.DataType.XMLELEMENT,
+	"folder",
+	"object"];
+var dataTypeDefaults = [false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "", new Date(0), "", ""];
+
+// Constructor for a header field
+function field(name, mandatory) {
+	this.name = name;
+	this.mandatory = mandatory;
+	this.index = -1;
+	this.suffix = suffix;
+
+	function suffix() {
+		if (this.name.length > 2)
+			return this.name.substr(1, this.name.length - 2);
+		else
+			return "";
+	}
+}
+
+// Mirroring header fields
+var mirrorFields = new Array();
+mirrorFields[0] = new field("<MirrorInput>");
+mirrorFields[0].typeDefinition = "VariableTypes.ATVISE.Mirror.Input";
+mirrorFields[0].demandable = true;
+mirrorFields[1] = new field("<MirrorOutput>");
+mirrorFields[1].typeDefinition = "VariableTypes.ATVISE.Mirror.Output";
+mirrorFields[1].demandable = false;
+mirrorFields[2] = new field("<MirrorInputOutput>");
+mirrorFields[2].typeDefinition = "VariableTypes.ATVISE.Mirror.InputOutput";
+mirrorFields[2].demandable = true;
+mirrorFields[3] = new field("<RelMirrorBase>");
+mirrorFields[3].typeDefinition = "VariableTypes.ATVISE.Mirror.Relative.Base";
+mirrorFields[3].demandable = false;
+mirrorFields[4] = new field("<RelMirrorInput>");
+mirrorFields[4].typeDefinition = "VariableTypes.ATVISE.Mirror.Relative.Input";
+mirrorFields[4].demandable = true;
+mirrorFields[5] = new field("<RelMirrorOutput>");
+mirrorFields[5].typeDefinition = "VariableTypes.ATVISE.Mirror.Relative.Output";
+mirrorFields[5].demandable = false;
+mirrorFields[6] = new field("<RelMirrorInputOutput>");
+mirrorFields[6].typeDefinition = "VariableTypes.ATVISE.Mirror.Relative.InputOutput";
+mirrorFields[6].demandable = true;
+
+return {
+	logger: logger,
+	trimNodeId: trimNodeId,
+	dataTypes: dataTypes,
+	dataTypeIds: dataTypeIds,
+	dataTypeDefaults: dataTypeDefaults,
+	field: field,
+	mirrorFields: mirrorFields
+}]]></code>
+</script>

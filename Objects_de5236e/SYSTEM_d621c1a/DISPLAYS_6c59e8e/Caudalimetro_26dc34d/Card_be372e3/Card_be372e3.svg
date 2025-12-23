@@ -1,0 +1,454 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg height="320" width="780" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs/>
+ <metadata>
+  <!-- Estilo -->
+  <atv:parameter defaultvalue="#33a3ff" name="accentColor" valuetype="string"/>
+  <atv:parameter defaultvalue="#2c99d8" name="okColor" valuetype="string"/>
+  <atv:parameter defaultvalue="#d5d5d5" name="offColor" valuetype="string"/>
+  <!-- Escaneo de horarios -->
+  <atv:parameter defaultvalue="8" desc="Máximo índices a escanear" name="maxSchedules" valuetype="number"/>
+  <!-- Nodos de umbral (relativos a base) - Caudal -->
+  <atv:parameter defaultvalue=".thr_flow_warn_low" name="flowWarnLow" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_flow_alarm_low" name="flowAlarmLow" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_flow_warn_high" name="flowWarnHigh" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_flow_alarm_high" name="flowAlarmHigh" valuetype="string"/>
+  <!-- Nodos de umbral (relativos a base) - Presión -->
+  <atv:parameter defaultvalue=".thr_press_warn_low" name="pressWarnLow" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_press_alarm_low" name="pressAlarmLow" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_press_warn_high" name="pressWarnHigh" valuetype="string"/>
+  <atv:parameter defaultvalue=".thr_press_alarm_high" name="pressAlarmHigh" valuetype="string"/>
+  <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
+  <atv:snapconfig enabled="false" height="10" width="10"/>
+ </metadata>
+ <!-- Card -->
+ <rect atv:refpx="390" atv:refpy="160" fill="#fff" height="318" id="card" rx="14" ry="14" stroke="#cfd4dc" width="778" x="1" y="1"/>
+ <!-- Encabezado -->
+ <text atv:refpx="86.5" atv:refpy="27" fill="#111" font-family="Arial" font-size="20" font-weight="bold" id="cd_title" x="24" y="34">Caudalímetro</text>
+ <text atv:refpx="37" atv:refpy="49" fill="#666" font-family="Arial" font-size="13" id="cd_sub" x="24" y="54">Ø --"</text>
+ <rect atv:refpx="733" atv:refpy="25" fill="#e7f3ff" height="22" id="badge" rx="11" ry="11" stroke="#b5d8ff" width="66" x="700" y="14"/>
+ <text atv:refpx="733" atv:refpy="24.5" fill="#1976d2" font-family="Arial" font-size="12" id="badge_t" text-anchor="middle" x="733" y="29">AP</text>
+ <!-- Métricas (alineadas, tamaños originales y sin solapar umbrales) -->
+ <!-- Caudal -->
+ <g atv:refpx="101" atv:refpy="110.25" id="metric_flow">
+  <text atv:refpx="43.5" atv:refpy="91" fill="#666" font-family="Arial" font-size="13" id="id_0" x="24" y="96">Caudal</text>
+  <!-- número grande a la derecha + unidad pegada -->
+  <text atv:refpx="128.5" atv:refpy="114" fill="#111" font-family="Arial" font-size="40" font-weight="bold" id="q_val" text-anchor="end" x="155" y="128">0.0</text>
+  <text atv:refpx="169.5" atv:refpy="121.5" fill="#444" font-family="Arial" font-size="18" id="id_1" x="161" y="128">l/s</text>
+ </g>
+ <!-- Presión -->
+ <g atv:refpx="294" atv:refpy="109.75" id="grp_p">
+  <text atv:refpx="231.5" atv:refpy="91" fill="#666" font-family="Arial" font-size="13" id="id_2" x="210" y="96">Presión</text>
+  <!-- número grande a la derecha + unidad pegada -->
+  <text atv:refpx="288" atv:refpy="116" fill="#111" font-family="Arial" font-size="34" font-weight="bold" id="p_val" text-anchor="end" x="320" y="128">0.00</text>
+  <text atv:refpx="352" atv:refpy="121.5" fill="#444" font-family="Arial" font-size="18" id="id_3" x="326" y="128">kg/cm²</text>
+ </g>
+ <!-- Vd (día) -->
+ <g atv:refpx="97" atv:refpy="155.5" id="metric_vd">
+  <text atv:refpx="84" atv:refpy="145.5" fill="#666" font-family="Arial" font-size="12" id="id_4" text-anchor="middle" x="84" y="150">Vd (día)</text>
+  <!-- número pequeño a la derecha + unidad pegada -->
+  <text atv:refpx="108.5" atv:refpy="165" fill="#111" font-family="Arial" font-size="14" font-weight="bold" id="vd_val" text-anchor="end" x="112" y="170">0</text>
+  <text atv:refpx="123.5" atv:refpy="165.5" fill="#444" font-family="Arial" font-size="12" id="id_5" x="116" y="170">m³</text>
+ </g>
+ <!-- Vd (total) -->
+ <g atv:refpx="271.5" atv:refpy="155.5" id="metric_vt">
+  <text atv:refpx="260" atv:refpy="145.5" fill="#666" font-family="Arial" font-size="12" id="id_6" text-anchor="middle" x="260" y="150">Vd (total)</text>
+  <!-- número pequeño a la derecha + unidad pegada -->
+  <text atv:refpx="284.5" atv:refpy="165" fill="#111" font-family="Arial" font-size="14" font-weight="bold" id="vt_val" text-anchor="end" x="288" y="170">0</text>
+  <text atv:refpx="299.5" atv:refpy="165.5" fill="#444" font-family="Arial" font-size="12" id="id_7" x="292" y="170">m³</text>
+ </g>
+ <!-- Umbrales combinados con margen extra -->
+ <g atv:refpx="571" atv:refpy="100" id="thr_box" transform="matrix(1,0,0,1,0,-26)">
+  <rect atv:refpx="571" atv:refpy="126" fill="#f8fafc" height="120" id="thr_rect" rx="10" ry="10" stroke="#e3e8ef" width="382" x="380" y="66"/>
+  <text atv:refpx="475.5" atv:refpy="81.5" fill="#667" font-family="Arial" font-size="12" id="thr_title" x="396" y="86">
+    Umbrales — click para editar
+  </text>
+  <!-- Columna Caudal -->
+  <g atv:refpx="471.5" atv:refpy="130.5" id="thr_col_q">
+   <text atv:refpx="427.5" atv:refpy="107.5" fill="#555" font-family="Arial" font-size="12" id="id_8" x="396" y="112">Caudal (l/s)</text>
+   <text atv:refpx="457.5" atv:refpy="120.5" fill="#999" font-family="Arial" font-size="10" id="id_9" x="446" y="124">Warn</text>
+   <text atv:refpx="533.5" atv:refpy="120.5" fill="#999" font-family="Arial" font-size="10" id="id_10" x="520" y="124">Alarm</text>
+   <text atv:refpx="407.5" atv:refpy="135.5" fill="#555" font-family="Arial" font-size="12" id="id_11" x="396" y="140">Low</text>
+   <text atv:refpx="453" atv:refpy="135" cursor="pointer" fill="#111" font-family="Arial" font-size="14" font-weight="bold" id="q_wl" x="446" y="140">—</text>
+   <text atv:refpx="527" atv:refpy="135" cursor="pointer" fill="#111" font-family="Arial" font-size="14" font-weight="bold" id="q_al" x="520" y="140">—</text>
+   <text atv:refpx="408.5" atv:refpy="153.5" fill="#555" font-family="Arial" font-size="12" id="id_12" x="396" y="158">High</text>
+   <text atv:refpx="453" atv:refpy="153" cursor="pointer" fill="#111" font-family="Arial" font-size="14" font-weight="bold" id="q_wh" x="446" y="158">—</text>
+   <text atv:refpx="527" atv:refpy="153" cursor="pointer" fill="#111" font-family="Arial" font-size="14" font-weight="bold" id="q_ah" x="520" y="158">—</text>
+  </g>
+  <!-- Columna Presión (ocultar en AR con setVis('thr_col_p', false)) -->
+  <g atv:refpx="671.5" atv:refpy="130.5" id="thr_col_p">
+   <text atv:refpx="641" atv:refpy="107.5" fill="#555" font-family="Arial" font-size="12" id="id_13" x="596" y="112">Presión (kg/cm²)</text>
+   <text atv:refpx="657.5" atv:refpy="120.5" fill="#999" font-family="Arial" font-size="10" id="id_14" x="646" y="124">Warn</text>
+   <text atv:refpx="733.5" atv:refpy="120.5" fill="#999" font-family="Arial" font-size="10" id="id_15" x="720" y="124">Alarm</text>
+   <text atv:refpx="607.5" atv:refpy="135.5" fill="#555" font-family="Arial" font-size="12" id="id_16" x="596" y="140">Low</text>
+   <text atv:refpx="653" atv:refpy="135" cursor="pointer" fill="#111" font-family="Arial" font-size="14" font-weight="bold" id="p_wl" x="646" y="140">—</text>
+   <text atv:refpx="727" atv:refpy="135" cursor="pointer" fill="#111" font-family="Arial" font-size="14" font-weight="bold" id="p_al" x="720" y="140">—</text>
+   <text atv:refpx="608.5" atv:refpy="153.5" fill="#555" font-family="Arial" font-size="12" id="id_17" x="596" y="158">High</text>
+   <text atv:refpx="653" atv:refpy="153" cursor="pointer" fill="#111" font-family="Arial" font-size="14" font-weight="bold" id="p_wh" x="646" y="158">—</text>
+   <text atv:refpx="727" atv:refpy="153" cursor="pointer" fill="#111" font-family="Arial" font-size="14" font-weight="bold" id="p_ah" x="720" y="158">—</text>
+  </g>
+ </g>
+ <!-- Configurador de Horarios de Presión (solo AP) -->
+ <g atv:refpx="197" atv:refpy="245.25" id="sched_box">
+  <rect atv:refpx="197" atv:refpy="245" fill="#f8fafc" height="110" id="id_20" rx="10" ry="10" stroke="#e3e8ef" width="346" x="24" y="190"/>
+  <text atv:refpx="196.5" atv:refpy="203.5" fill="#667" font-family="Arial" font-size="12" id="id_21" x="36" y="208">Horarios de presión</text>
+  <!-- Cabecera -->
+  <text atv:refpx="38.5" atv:refpy="224" fill="#555" font-family="Arial" font-size="11" id="id_22" x="36" y="228">#</text>
+  <text atv:refpx="62" atv:refpy="224" fill="#555" font-family="Arial" font-size="11" id="id_23" x="56" y="228">PD</text>
+  <text atv:refpx="127.5" atv:refpy="224" fill="#555" font-family="Arial" font-size="11" id="id_24" x="116" y="228">Inicio</text>
+  <text atv:refpx="196.5" atv:refpy="224" fill="#555" font-family="Arial" font-size="11" id="id_25" x="190" y="228">Fin</text>
+  <text atv:refpx="277" atv:refpy="224" fill="#555" font-family="Arial" font-size="11" id="id_26" x="264" y="228">Editar</text>
+  <!-- Filas -->
+  <g atv:refpx="165.25" atv:refpy="241.5" id="row1">
+   <text atv:refpx="38" atv:refpy="241.5" font-family="Arial" font-size="12" id="r1_idx" x="36" y="246">1</text>
+   <text atv:refpx="62" atv:refpy="241.5" cursor="pointer" font-family="Arial" font-size="12" id="r1_pd" x="56" y="246">—</text>
+   <text atv:refpx="125" atv:refpy="241.5" font-family="Arial" font-size="12" id="r1_i" x="116" y="246">--:--</text>
+   <text atv:refpx="199" atv:refpy="241.5" font-family="Arial" font-size="12" id="r1_f" x="190" y="246">--:--</text>
+   <text atv:refpx="280" atv:refpy="241.5" cursor="pointer" fill="#1976d2" font-family="Arial" font-size="12" id="r1_ed" x="264" y="246">Editar</text>
+  </g>
+  <g atv:refpx="165.75" atv:refpy="257.5" id="row2" transform="translate(0,16)">
+   <text atv:refpx="39" atv:refpy="241.5" font-size="12" id="r2_idx" x="36" y="246">2</text>
+   <text atv:refpx="62" atv:refpy="241.5" cursor="pointer" font-size="12" id="r2_pd" x="56" y="246">—</text>
+   <text atv:refpx="125" atv:refpy="241.5" font-size="12" id="r2_i" x="116" y="246">--:--</text>
+   <text atv:refpx="199" atv:refpy="241.5" font-size="12" id="r2_f" x="190" y="246">--:--</text>
+   <text atv:refpx="280" atv:refpy="241.5" cursor="pointer" fill="#1976d2" font-size="12" id="r2_ed" x="264" y="246">Editar</text>
+  </g>
+  <g atv:refpx="165.75" atv:refpy="273.5" id="row3" transform="translate(0,32)">
+   <text atv:refpx="39" atv:refpy="241.5" font-size="12" id="r3_idx" x="36" y="246">3</text>
+   <text atv:refpx="62" atv:refpy="241.5" cursor="pointer" font-size="12" id="r3_pd" x="56" y="246">—</text>
+   <text atv:refpx="125" atv:refpy="241.5" font-size="12" id="r3_i" x="116" y="246">--:--</text>
+   <text atv:refpx="199" atv:refpy="241.5" font-size="12" id="r3_f" x="190" y="246">--:--</text>
+   <text atv:refpx="280" atv:refpy="241.5" cursor="pointer" fill="#1976d2" font-size="12" id="r3_ed" x="264" y="246">Editar</text>
+  </g>
+  <g atv:refpx="165.75" atv:refpy="289.5" id="row4" transform="translate(0,48)">
+   <text atv:refpx="39" atv:refpy="241.5" font-size="12" id="r4_idx" x="36" y="246">4</text>
+   <text atv:refpx="62" atv:refpy="241.5" cursor="pointer" font-size="12" id="r4_pd" x="56" y="246">—</text>
+   <text atv:refpx="125" atv:refpy="241.5" font-size="12" id="r4_i" x="116" y="246">--:--</text>
+   <text atv:refpx="199" atv:refpy="241.5" font-size="12" id="r4_f" x="190" y="246">--:--</text>
+   <text atv:refpx="280" atv:refpy="241.5" cursor="pointer" fill="#1976d2" font-size="12" id="r4_ed" x="264" y="246">Editar</text>
+  </g>
+ </g>
+ <!-- ======== JS (igual que el tuyo; sin debug) ======== -->
+ <!-- Áreas de influencia (editor con foreignObject) -->
+ <rect atv:refpx="571" atv:refpy="260.929" fill="#f8fafc" height="140" id="id_27" rx="10" ry="10" stroke="#e3e8ef" stroke-width="0.929" width="382" x="380" y="160.929"/>
+ <text atv:refpx="522.5" atv:refpy="174.776" fill="#667" font-family="Arial" font-size="12" id="id_28" transform="matrix(1,0,0,0.8571,0,23.5669)" x="392" y="180.919">
+  Áreas de influencia — click para editar / guardar
+</text>
+ <!-- Un SOLO foreignObject, sin anidar -->
+ <foreignObject height="120" id="ai_fo" width="358" x="392" y="183.5">
+  <div style="font-family:Arial; font-size:12px; color:#111; width:100%; height:100%; overflow:hidden;" xmlns="http://www.w3.org/1999/xhtml">
+   <div id="ai_row" style="white-space:nowrap; overflow:hidden;">
+    <input id="ai_input" placeholder="Ej.: Zona Norte, Col. Centro, Hospitales" style="width:58%; box-sizing:border-box; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px;" type="text"/>
+    <button id="ai_add_btn" style="margin-left:6px; padding:6px 10px; border:1px solid #94a3b8; background:#e5e7eb; border-radius:6px; cursor:pointer;" type="button">
+        Añadir
+      </button>
+    <button id="ai_save_btn" style="margin-left:6px; padding:6px 10px; border:1px solid #3b82f6; background:#3b82f6; color:#fff; border-radius:6px; cursor:pointer;" type="button">
+        Guardar
+      </button>
+   </div>
+   <div id="ai_list" style="margin-top:6px; max-height:64px; overflow:auto; border:1px dashed #e5e7eb; padding:4px; border-radius:6px;"/>
+   <div id="ai_hint" style="color:#6b7280; margin-top:4px;">Sin áreas definidas.</div>
+  </div>
+ </foreignObject>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[/* ================== CONTEXTO ================== */
+var base = webMI.query.base || webMI.query["base"] || "";
+var esAP = base.indexOf("Circuito") >= 0;   // AP
+var esAR = base.indexOf("Cuenca")   >= 0;   // AR
+
+var maxN = 8; // si lo parametrizas en el SVG, léelo igual que antes
+
+/* ================== NODOS CANÓNICOS ================== */
+// Umbrales Caudal / Presión y Áreas
+var N = {
+  q_wl: base + ".Umbrales.Caudal.WarnLow",
+  q_al: base + ".Umbrales.Caudal.AlarmLow",
+  q_wh: base + ".Umbrales.Caudal.WarnHigh",
+  q_ah: base + ".Umbrales.Caudal.AlarmHigh",
+
+  p_wl: base + ".Umbrales.Presion.WarnLow",
+  p_al: base + ".Umbrales.Presion.AlarmLow",
+  p_wh: base + ".Umbrales.Presion.WarnHigh",
+  p_ah: base + ".Umbrales.Presion.AlarmHigh",
+
+  areas: base + ".areasInfluencia"
+};
+
+/* ================== UTILS ================== */
+function fmt(v,d){ try{ return new Intl.NumberFormat('es-MX',{maximumFractionDigits:d}).format(+v||0); }catch(_){ return String(v);} }
+function pad2(n){ n = parseInt(n,10)||0; return (n<10?"0":"")+n; }
+function setText(id,t){ try{ webMI.gfx.setText(id,t); }catch(_){ } }
+function setVis(id,on){ try{ webMI.gfx.setVisible(id,!!on); }catch(_){ } }
+function subText(id,node,f){
+  webMI.data.subscribe(node,function(e){
+    var val = (typeof f==="function")?f(e.value,e):e.value;
+    setText(id,val);
+  });
+}
+function read(node,cb){ webMI.data.read(node,function(r){ cb(r && r.value); }); }
+function write(node,val){ webMI.data.write(node,val); }
+function editNumber(node,decimals,title){
+  read(node,function(cur){
+    var nv = prompt(title || "Nuevo valor:", String(cur==null?"":cur));
+    if (nv===null) return;
+    var num = parseFloat(nv);
+    if (isNaN(num)) return;
+    if (typeof decimals==="number"){
+      var f = Math.pow(10, Math.max(0,decimals)); num = Math.round(num*f)/f;
+    }
+    write(node,num);
+  });
+}
+
+/* ================== HEADER & MÉTRICAS ================== */
+subText("cd_title", base + ".name");
+subText("cd_sub",   base + ".diameter", function(v){ return "Ø " + (v||'') + '"'; });
+setText("badge_t", esAP ? "AP" : "AR");
+
+if (esAR){
+  setVis("grp_p", false);
+  // setVis("p_box", false);  // <- ya no existe
+  setVis("thr_col_p", false); // <- oculta la columna derecha
+  setVis("sched_box", false);
+}
+
+subText("q_val", base + ".current_flow",            function(v){ return webMI.sprintf("%.1f", v||0); });
+subText("vd_val",base + ".current_daily_volume",    function(v){ return fmt(v||0,0); });
+subText("vt_val",base + ".current_total_volume",    function(v){ return fmt(v||0,0); });
+if (esAP) subText("p_val", base + ".current_pressure", function(v){ return webMI.sprintf("%.2f", v||0); });
+
+/* ================== UMBRALES (click para editar) ================== */
+function bindThreshold(labelId, node, decimals){
+  subText(labelId, node, function(v){ return fmt(v||0,2); });
+  try{
+    webMI.addEvent(labelId,"click", function(){ editNumber(node, decimals, "Nuevo valor para " + labelId); });
+  }catch(_){}
+}
+bindThreshold("q_wl", N.q_wl, 2);  bindThreshold("q_al", N.q_al, 2);
+bindThreshold("q_wh", N.q_wh, 2);  bindThreshold("q_ah", N.q_ah, 2);
+if (esAP){
+  bindThreshold("p_wl", N.p_wl, 2); bindThreshold("p_al", N.p_al, 2);
+  bindThreshold("p_wh", N.p_wh, 2); bindThreshold("p_ah", N.p_ah, 2);
+}
+
+/* ================== ÁREAS DE INFLUENCIA ================== */
+
+/* ================== HORARIOS (AP) – sin botón Editar) ================== */
+setText("id_21", "Horarios de presión - click en una fila para editar");
+setVis("id_26", false);
+for (var h=1; h<=4; h++) setVis("r"+h+"_ed", false);
+
+function S(i){
+  return {
+    PD: base + ".PD"+i,
+    HF: base + ".HF"+i, MF: base + ".MF"+i,
+    HH: base + ".HH"+i, MH: base + ".MH"+i
+  };
+}
+var lastRow = {};
+
+function paintRow(i, data){
+  setText("r"+i+"_pd", webMI.sprintf("%.2f", data.PD||0));
+  setText("r"+i+"_i",  pad2(data.HF)+":"+pad2(data.MF));
+  setText("r"+i+"_f",  pad2(data.HH)+":"+pad2(data.MH));
+}
+
+function fetchRow(i, cb){
+  var n = S(i), out = {PD:0,HF:0,MF:0,HH:0,MH:0}, k=0;
+  function done(){ if (++k===5){ cb(out); } }
+  read(n.PD, function(v){ out.PD=+v||0; done(); });
+  read(n.HF, function(v){ out.HF=+v||0; done(); });
+  read(n.MF, function(v){ out.MF=+v||0; done(); });
+  read(n.HH, function(v){ out.HH=+v||0; done(); });
+  read(n.MH, function(v){ out.MH=+v||0; done(); });
+}
+
+function parseHM(t){
+  var a = String(t||"").trim().split(":");
+  var h = parseInt(a[0],10), m = parseInt(a[1],10);
+  if (isNaN(h)||h<0||h>23) return null;
+  if (isNaN(m)||m<0||m>59) return null;
+  return {h:h,m:m};
+}
+
+function editRow(i){
+  var n = S(i);
+  fetchRow(i, function(cur){
+    lastRow[i] = cur;
+
+    var iStr = prompt("Inicio (HH:MM):", pad2(cur.HF)+":"+pad2(cur.MF));
+    if (iStr===null) return;
+    var I = parseHM(iStr); if (!I) { alert("Formato inválido (HH:MM)"); return; }
+
+    var fStr = prompt("Fin (HH:MM):", pad2(cur.HH)+":"+pad2(cur.MH));
+    if (fStr===null) return;
+    var F = parseHM(fStr); if (!F) { alert("Formato inválido (HH:MM)"); return; }
+
+    var pdStr = prompt("PD (kg/cm²):", webMI.sprintf("%.2f", cur.PD||0));
+    if (pdStr===null) return;
+    var PDn = parseFloat(pdStr); if (isNaN(PDn)) { alert("PD inválida"); return; }
+
+    write(n.HF, I.h);  write(n.MF, I.m);
+    write(n.HH, F.h);  write(n.MH, F.m);
+    write(n.PD, PDn);
+  });
+}
+
+function bindRowClicks(i){
+  ["pd","i","f"].forEach(function(suf){
+    var id = "r"+i+"_"+suf;
+    try { webMI.addEvent(id,"click", function(){ editRow(i); }); } catch(_){}
+  });
+}
+
+function scanAndPaint(){
+  if (!esAP) return;
+  for (var i=1; i<=4; i++){
+    (function(k){
+      fetchRow(k, function(cur){
+        paintRow(k, cur);
+        bindRowClicks(k);
+      });
+    })(i);
+  }
+}
+scanAndPaint();
+
+/* Editar diámetro desde el texto "Ø xx\"" */
+(function enableDiameterInlineEdit(){
+  var node = base + ".diameter";
+  try {
+    webMI.addEvent("cd_sub","click", function(){
+      webMI.data.read(node, function(r){
+        var cur = (r && r.value != null) ? r.value : "";
+        var nv  = prompt("Diámetro (pulgadas):", String(cur));
+        if (nv === null) return;
+        var num = parseFloat(nv);
+        if (isNaN(num) || num <= 0){ alert("Valor inválido"); return; }
+        webMI.data.write(node, num);
+      });
+    });
+  } catch(e){}
+})();
+
+/* ===== Áreas de influencia (foreignObject) ===== */
+(function(){
+  var AI_NODE = base + ".areasInfluencia";
+
+  function splitAreas(s){
+    if (!s) return [];
+    return String(s).split(/[,;|\n]/).map(function(t){ return t.trim(); }).filter(Boolean);
+  }
+  function joinAreas(arr){ return (arr || []).join(", "); }
+
+  var state = [];
+  var $in=null, $list=null, $hint=null, $add=null, $save=null;
+
+  // Scoped query dentro del foreignObject (XHTML)
+  function getRoot(){
+    try {
+      var fo = document.getElementById("ai_fo");
+      if (!fo) return null;
+      // primer div XHTML dentro del FO
+      var root = fo.getElementsByTagNameNS("http://www.w3.org/1999/xhtml","div")[0];
+      return root || null;
+    } catch(e){ return null; }
+  }
+  function $(id){
+    var root = getRoot();
+    if (!root) return null;
+    return root.querySelector("#"+id);
+  }
+
+function esc(s){
+  return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+}
+  function render(){
+  if (!$list) return;
+  // chips con innerHTML para evitar "Illegal invocation" en XHTML
+  var html = state.map((txt,i) =>
+    '<span style="display:inline-block; margin:2px 6px 2px 0; padding:2px 8px;'+
+    'background:#eef2f7; border:1px solid #cfd4dc; border-radius:999px; color:#111; line-height:1.6;">'
+    + esc(txt) + ' ' +
+    '<button type="button" data-i="'+i+'" '+
+      'style="margin-left:4px; border:none; background:#e11d48; color:#fff; border-radius:10px; padding:0 6px; cursor:pointer;">×</button>'+
+    '</span>'
+  ).join('');
+  $list.innerHTML = html;
+  if ($hint) $hint.style.display = state.length ? "none" : "";
+}
+
+  function load(){
+    webMI.data.read(AI_NODE, function(r){
+      var v = r && (typeof r.value !== "undefined" ? r.value : r); // tolerante
+      state = splitAreas(v);
+      render();
+    });
+  }
+
+  function addOne(){
+    var v = ($in && $in.value || "").trim();
+    if (!v) return;
+    var parts = splitAreas(v);
+    if (parts.length) state = state.concat(parts);
+    $in.value = "";
+    render();
+  }
+
+  function saveAll(){
+    var s = joinAreas(state);
+    if ($save) $save.disabled = true;
+    webMI.data.write(AI_NODE, s, function(){
+      if ($save) $save.disabled = false;
+      // fuerza refresco inmediato por si el subscribe no dispara
+      load();
+      try {
+        webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.MessageBox",
+          {title:"T{Guardado}", text:"T{Áreas de influencia actualizadas.}"});
+      } catch(_){}
+    });
+  }
+
+  function bind(){
+  $in   = $("ai_input");
+  $list = $("ai_list");
+  $hint = $("ai_hint");
+  $add  = $("ai_add_btn");
+  $save = $("ai_save_btn");
+  if (!($in && $list && $add && $save)) return false;
+  $in.addEventListener("keydown", function(e){
+  if (e.key === "Backspace") e.stopPropagation();  // <- permite borrar sin que atvise secuestre la tecla
+}, true); // captura
+
+  $add.addEventListener("click", addOne);
+  $save.addEventListener("click", saveAll);
+  $in.addEventListener("keydown", function(e){
+    if (e.key === "Enter"){ e.preventDefault(); addOne(); }
+  });
+
+  // Delegación para borrar chips (evita crear listeners por chip)
+  $list.addEventListener("click", function(e){
+    var t = e.target;
+    if (t && t.tagName && t.tagName.toLowerCase() === "button" && t.hasAttribute("data-i")){
+      var idx = parseInt(t.getAttribute("data-i"),10);
+      if (!isNaN(idx)){ state.splice(idx,1); render(); }
+    }
+  });
+
+  return true;
+}
+  // Suscripción para cambios externos
+  webMI.data.subscribe(AI_NODE, function(e){
+    var v = e && (typeof e.value !== "undefined" ? e.value : e);
+    state = splitAreas(v);
+    render();
+  });
+
+  // Reintentos hasta que el FO exista e IDs estén listos
+  var tries = 0;
+  (function tryInit(){
+    if (bind()){ load(); }
+    else if (tries++ < 50){ setTimeout(tryInit, 120); }
+  })();
+})();
+]]></script>
+</svg>

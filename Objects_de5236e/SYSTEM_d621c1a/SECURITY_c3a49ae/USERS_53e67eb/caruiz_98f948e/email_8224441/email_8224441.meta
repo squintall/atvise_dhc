@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.SECURITY.USERS.caruiz.email
+NodeClass: Variable
+BrowseName: 1:email
+DisplayName: en|email
+Description: en|email
+DataType: String
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.AccessControl.UserEmail

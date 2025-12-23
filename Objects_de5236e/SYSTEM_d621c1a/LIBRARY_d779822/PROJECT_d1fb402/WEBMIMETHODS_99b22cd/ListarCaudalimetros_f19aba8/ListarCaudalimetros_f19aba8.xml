@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <code><![CDATA[// SYSTEM.LIBRARY.PROJECT.WEBMIMETHODS.ListarCaudalimetros
+function main(args) {
+  var base = String(args.base || "");
+  var folder = base + ".Equipos.Caudalimetro";
+  var nodeObj = Ua.findNode(folder);
+  if (!nodeObj || !nodeObj.result) return { error: "Folder not found: " + folder, items: [] };
+
+  // Si tienes un ObjectType específico para caudalímetros, filtra por typeDefinition.
+  // Si no, traemos OBJECTs y Variables y filtramos por nombre.
+  var ret = nodeObj.result.browse({
+    direction: Ua.Node.BROWSEDIRECTION_FORWARD,
+    reference: Ua.Reference.HIERARCHICALREFERENCES,
+    subType: true,
+    nodeClass: Ua.NodeClass.OBJECT,
+    recursive: true,
+    maxResult: 0
+  });
+
+  var items = [];
+  if (ret && ret.result){
+    for (var i=0;i<ret.result.length;i++){
+      var n = ret.result[i].node;
+      var bn = n.browseName.toString();
+      // heurística simple: incluye hijos que se vean como L*, Linea_*, L_*, etc.
+      if (/^(L\d+|L_\d+|Linea_\d+|Linea\d+)$/i.test(bn) || /Caudal(i|í)metro/i.test(bn)) {
+        items.push({
+          address: n.nodeId.address,
+          name: (n.displayName && n.displayName.text) ? n.displayName.text : bn
+        });
+      }
+    }
+  }
+  items.sort(function(a,b){ return a.name.localeCompare(b.name, "es", {numeric:true}); });
+  return { items: items };
+}
+]]></code>
+</script>

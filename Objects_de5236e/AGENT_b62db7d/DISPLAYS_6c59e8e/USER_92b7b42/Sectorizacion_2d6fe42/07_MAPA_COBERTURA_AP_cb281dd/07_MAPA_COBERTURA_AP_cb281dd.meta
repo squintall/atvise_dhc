@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.Sectorizacion.07_MAPA_COBERTURA_AP
+NodeClass: Variable
+BrowseName: 1:07_MAPA_COBERTURA_AP
+DisplayName: en|07_MAPA_COBERTURA_AP
+Description: en|07_MAPA_COBERTURA_AP
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

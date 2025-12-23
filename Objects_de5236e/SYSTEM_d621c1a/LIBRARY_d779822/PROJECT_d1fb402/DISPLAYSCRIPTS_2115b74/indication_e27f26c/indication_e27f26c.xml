@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[
+webMI.trigger.connect("clicked", function(e) {
+var id = "button_auto";
+var value = e.value;
+webMI.data.write([webMI.query["base"] + ".operating_mode"], ["2"]);
+}, "button_auto");
+
+webMI.trigger.connect("clicked", function(e) {
+var id = "button_manual";
+var value = e.value;
+webMI.data.write([webMI.query["base"] + ".operating_mode"], ["1"]);
+}, "button_manual");
+
+webMI.trigger.connect("clicked", function(e) {
+var id = "button_off";
+var value = e.value;
+webMI.data.write([webMI.query["base"] + ".operating_mode"], ["0"]);
+}, "button_off");
+
+webMI.data.subscribe(webMI.query["base"] + ".operating_mode", function(e) {
+var id = "indicator_1";
+var value = e.value;
+if (value == 2)
+	webMI.gfx.setFill(id, webMI.query["autocolor"]);
+if (value == 1)
+	webMI.gfx.setFill(id, "#68676c");
+if (value == 0)
+	webMI.gfx.setFill(id, "#68676c");
+
+});
+
+webMI.data.subscribe(webMI.query["base"] + ".operating_mode", function(e) {
+var id = "indicator_2";
+var value = e.value;
+if (value == 2)
+	webMI.gfx.setFill(id, "#68676c");
+if (value == 1)
+	webMI.gfx.setFill(id, "#ffaa00");
+if (value == 0)
+	webMI.gfx.setFill(id, "#68676c");
+
+});
+
+webMI.data.subscribe(webMI.query["base"] + ".operating_mode", function(e) {
+var id = "indicator_3";
+var value = e.value;
+if (value == 2)
+	webMI.gfx.setFill(id, "#68676c");
+if (value == 1)
+	webMI.gfx.setFill(id, "#68676c");
+if (value == 0)
+	webMI.gfx.setFill(id, "#ff0000");
+
+});]]></code>
+</script>

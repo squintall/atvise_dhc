@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <runcontext>owner</runcontext>
+  </metadata>
+  <code><![CDATA[/* begin */
+
+/**
+ * Define some vars from parameter
+ * and set default nodes for runtime
+ * @type {string}
+ */
+var archiveAddress = "AGENT.HISTORY.atvLogger";
+var typeDefinition = "ObjectTypes.ATVISE.ArchiveGroup.Data";
+var archive = _browse(archiveAddress);
+
+
+/**
+ * Create archive if not exists
+ * and return archive informations
+ */
+if (Object.keys(archive).length != 1) {
+	Ua.createNode(archiveAddress, {
+		nodeClass: Ua.NodeClass.OBJECT,
+		parent: archiveAddress.substring(0, archiveAddress.lastIndexOf('.')),
+		typeDefinition: typeDefinition
+	});
+
+	var partition = Ua.findNode(archiveAddress + ".partition_interval");
+	partition.result.value = "w";
+
+	archive = _browse(archiveAddress);
+}
+
+return archive;
+
+
+/**
+ * browse nodes
+ * @param address
+ * @returns {*}
+ * @private
+ */
+function _browse(address) {
+	archive = call("Utilities.BrowseNodes", {
+		"startAddress": address,
+		"endLevel": 0,
+		"includeStartAddress": true
+	});
+	return archive;
+}
+
+/* end */
+]]></code>
+</script>

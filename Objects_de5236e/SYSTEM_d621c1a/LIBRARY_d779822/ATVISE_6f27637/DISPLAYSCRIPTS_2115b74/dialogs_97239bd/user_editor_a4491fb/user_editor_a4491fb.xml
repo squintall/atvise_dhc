@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Code for the user editor object display
+ * ----------------------------------------
+ * This Script supports the display for user edit
+ */
+
+/**
+ * QUICK DYNAMICS
+ */
+const accessControlManager = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Access Control Manager");
+const loginHandler = webMI.callExtension("SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.Login Handler");
+
+/**
+ * DECLARATION SECTION
+ */
+var username, fullname, email, email_local, email_domain, language, defaultdisplay, contentdisplay;
+var keyboard = webMI.query["keyboard"];
+var passworddisplay = webMI.query["passworddisplay"];
+var trigger_fullname = "com.atvise.user.fullname";
+var trigger_language = "com.atvise.user.language";
+var trigger_email = "com.atvise.user.email";
+var mailPolicy = webMI.getMailPolicy();
+var textBlocks = loginHandler.getTextBlocks();
+var clientvariables;
+var root = webMI.rootWindow;
+
+function showInfoDialog(headline, message) {
+	webMI.display.openWindow({
+		display: "SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.dialogs.message_dialog_small",
+		height: 160,
+		width: 400,
+		modal: true,
+		resizable: false,
+		movable: true,
+		scrollbars: false,
+		menubar: false,
+		status: false,
+		toolbar: false,
+		query: {
+			headline: headline,
+			message: message,
+			button: "T{OK}"
+		}
+	});
+}
+
+function getData(username, callback) {
+	webMI.data.read(
+		[
+			"SYSTEM.SECURITY.USERS." + username + ".name",
+			"SYSTEM.SECURITY.USERS." + username + ".language",
+			"SYSTEM.SECURITY.USERS." + username + ".display_default",
+			"SYSTEM.SECURITY.USERS." + username + ".display_content",
+			"SYSTEM.SECURITY.USERS." + username + ".email"
+		],
+		function (e) {
+			if (typeof e[0].value != "undefined") fullname = e[0].value;
+			else fullname = clientvariables.fullname ? clientvariables.fullname : "";
+
+			if (typeof e[1].value != "undefined") language = e[1].value;
+			else language = clientvariables.preferredlanguage ? clientvariables.preferredlanguage : "";
+
+			if (typeof e[2].value != "undefined") defaultdisplay = e[2].value == "" || e[2].value == 0 ? "-" : e[2].value;
+			else defaultdisplay = clientvariables.defaultdisplay ? clientvariables.defaultdisplay : "-";
+
+			if (typeof e[3].value != "undefined") contentdisplay = e[3].value == "" || e[3].value == 0 ? "-" : e[3].value;
+			else contentdisplay = clientvariables.contentdisplay ? clientvariables.contentdisplay : "-";
+
+			if (typeof e[4].value != "undefined") email = e[4].value == "" || e[4].value == 0 ? "-" : e[4].value;
+			else email = clientvariables.email ? clientvariables.email : "-";
+
+			if (email != "" && email != "-") {
+				email_local = email.substr(0, email.indexOf("@"));
+				email_domain = email.substr(email.indexOf("@"), email.length);
+			} else {
+				email_local = "";
+				email_domain = "";
+			}
+
+			writeData();
+			getQR();
+
+			if (callback) callback();
+		}
+	);
+}
+
+function writeData() {
+	webMI.gfx.setText("username", username);
+	webMI.trigger.fire("setValue", fullname, "fullname_input");
+
+	if (root.project && root.project.languages) {
+		for (var i in root.project.languages)
+			webMI.trigger.fire("addItem", { text: root.project.languages[i], value: i }, "language_input");
+		webMI.trigger.fire("setSelectedItem", root.project.languages[language], "language_input");
+	} else if (language) {
+		webMI.trigger.fire("addItem", { text: language, value: language }, "language_input");
+		webMI.trigger.fire("setSelectedItem", language, "language_input");
+	}
+
+	if (defaultdisplay && defaultdisplay.length > 25) {
+		webMI.gfx.setText("default_display", "..." + defaultdisplay.substr(defaultdisplay.length - 23, 23));
+	} else {
+		webMI.gfx.setText("default_display", defaultdisplay);
+	}
+
+	if (contentdisplay && contentdisplay.length > 25) {
+		webMI.gfx.setText("content_display", "..." + contentdisplay.substr(contentdisplay.length - 23, 23));
+	} else {
+		webMI.gfx.setText("content_display", contentdisplay);
+	}
+
+	if (email && email != "-") {
+		if (mailPolicy && mailPolicy.whitelist && mailPolicy.whitelist.length > 0 && !clientvariables.ignoreemailpolicy) {
+			webMI.trigger.fire("setValue", email_local, "email_input");
+			if (mailPolicy.whitelist.indexOf(email_domain.replace("@", "")) > -1) {
+				webMI.trigger.fire("setSelectedItem", email_domain, "email_domain_input");
+			}
+		} else {
+			webMI.trigger.fire("setValue", email, "email_input");
+		}
+	}
+
+	if (mailPolicy && !mailPolicy.allowCustomEmail && !clientvariables.ignoreemailpolicy) {
+		webMI.trigger.fire("com.atvise.setActive", false, "email_input");
+		webMI.trigger.fire("com.atvise.setActive", false, "mail_keyboard");
+	}
+}
+
+function getQR() {
+	webMI.gfx.setVisible("app_info_label", false);
+	webMI.gfx.setVisible("qr_image", false);
+	webMI.gfx.setVisible("app_disabled_label", true);
+
+	webMI.data.twofactorGetOTPAuth("0", function (e) {
+		if (e[""] && e[""].result && e[""].result[0] && e[""].result[0].data) {
+			webMI.trigger.fire("com.atvise.setActive", true, "2FA_reset_button");
+			var ele = document.getElementById("qr_image");
+			var image = "data:image/svg+xml;base64," + e[""].result[0].data;
+
+			ele.setAttribute("href", image);
+			ele.setAttribute("width", 140);
+			ele.setAttribute("height", 140);
+			webMI.gfx.setVisible("qr_image", true);
+			webMI.gfx.setVisible("app_disabled_label", false);
+			webMI.gfx.setVisible("app_info_label", true);
+		}
+	});
+}
+
+function resetData() {
+	webMI.gfx.setVisible("qr_image", false);
+	webMI.gfx.setVisible("app_disabled_label", true);
+	webMI.trigger.fire("setActive", "password_change", false);
+	webMI.gfx.setText("username", "T{Please login!}");
+	webMI.trigger.fire("setValue", "", "fullname_input");
+	webMI.trigger.fire("setSelectedItem", "-", "language_input");
+	webMI.gfx.setText("default_display", "-");
+	webMI.gfx.setText("content_display", "-");
+	webMI.trigger.fire("setValue", "-", "email_input");
+	webMI.gfx.setText("error_message", "");
+}
+
+function validateMail() {
+	if (mailPolicy && !mailPolicy.allowCustomEmail) return;
+
+	if (clientvariables.ignoreemailpolicy) return;
+
+	loginHandler.validateUserMail(email, function (e) {
+		webMI.trigger.fire("com.atvise.setActive", true, "save_button");
+		webMI.gfx.setText("error_message", "");
+		if (email == "" || email == "-") return;
+
+		saveOrClose(true);
+
+		var result = e;
+		for (var i in result) {
+			if (result[i].fulfilled != true) {
+				webMI.gfx.setFill("error_message", "#FF0000");
+				if (email && i == "domainWhitelist") {
+					webMI.gfx.setText(
+						"error_message",
+						"T{Error}: " + result[i].text + ": " + email.substr(email.indexOf("@"), email.length)
+					);
+					webMI.trigger.fire("com.atvise.setActive", false, "save_button");
+				} else {
+					webMI.gfx.setText("error_message", "T{Error}: " + result[i].text);
+				}
+				break;
+			}
+		}
+	});
+}
+
+function handleDomainWhitelist() {
+	if (
+		mailPolicy &&
+		mailPolicy.allowCustomEmail &&
+		!clientvariables.ignoreemailpolicy &&
+		mailPolicy.whitelist &&
+		mailPolicy.whitelist.length > 0
+	) {
+		for (var i in mailPolicy.whitelist) {
+			var domain = "@" + mailPolicy.whitelist[i];
+			webMI.trigger.fire("addItem", { text: domain, value: domain }, "email_domain_input");
+		}
+	} else {
+		webMI.trigger.fire("com.atvise.setActive", false, "email_domain_input");
+	}
+}
+
+function saveOrClose(save) {
+	webMI.gfx.setText("error_message", "");
+	webMI.gfx.setVisible("save_button", save);
+	webMI.gfx.setVisible("cancel_button", save);
+	webMI.gfx.setVisible("close_button", !save);
+}
+
+/**
+ * RUNTIME SECTION
+ * Runtime code has to be executed after onload to take care all other resources are ready
+ */
+
+webMI.trigger.fire("com.atvise.setActive", false, "2FA_reset_button");
+email_domain = "";
+
+webMI.addOnload(function () {
+	resetData();
+
+	webMI.addEvent(webMI.data, "clientvariableschange", function (e) {
+		if (e.username && e.username != "") {
+			clientvariables = e;
+			username = e.username;
+
+			webMI.gfx.setText("password_info", username == "root" ? "T{Password change unsupported.}" : "");
+			webMI.gfx.setVisible("password_change", username == "root" ? false : null);
+			getData(username);
+		}
+	});
+
+	webMI.trigger.fire("addItem", { text: "-", value: "" }, "language_input");
+	webMI.trigger.fire("setSelectedItem", "-", "language_input");
+	handleDomainWhitelist();
+});
+
+if (webMI.getMethodSupport().indexOf("SetUserData") == -1) saveOrClose(false);
+
+/**
+ * TRIGGER SECTION
+ */
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.gfx.setText("error_message", "");
+
+		function callUserDataMethod(data) {
+			webMI.data.call("SetUserData", data, function (e) {
+				if (e.error) {
+					getData(username, function () {
+						webMI.gfx.setFill("error_message", "#FF0000");
+						webMI.gfx.setText("error_message", "T{Error}: T{Can't write user information}.");
+					});
+				} else {
+					saveOrClose(false);
+					webMI.gfx.setFill("error_message", "#00c800");
+					webMI.gfx.setText("error_message", "T{Changes saved successfully.}");
+				}
+			});
+		}
+
+		function prepareUserDataMethod(data) {
+			if (webMI.getAccessControlSupport() && accessControlManager) {
+				accessControlManager.getRights(["SYSTEM.LIBRARY.ATVISE.WEBMIMETHODS.SetUserData"], ["execute"], (response) => {
+					if (response.result[0].value === true) {
+						callUserDataMethod(data);
+					} else {
+						showInfoDialog("T{Access denied}", "");
+						return;
+					}
+				});
+			} else {
+				callUserDataMethod();
+			}
+		}
+
+		//put webMI login to the end of the callstack to receive correct data from triggers before
+		setTimeout(function () {
+			if (typeof username != "undefined" && username != "") {
+				var data = { fullname: fullname, language: language };
+
+				if (
+					webMI.data.changeemail &&
+					(!mailPolicy || mailPolicy.allowCustomEmail || clientvariables.ignoreemailpolicy)
+				) {
+					webMI.data.changeemail(email == "-" ? "" : email, function (e) {
+						if ((e[""] && e[""].error) || e.error) {
+							webMI.gfx.setFill("error_message", "#FF0000");
+							webMI.gfx.setText("error_message", "T{Error}: " + textBlocks.policy_mail_failed + ". T{Aborted}.");
+						} else {
+							prepareUserDataMethod(data);
+						}
+					});
+				} else {
+					prepareUserDataMethod(data);
+				}
+			} else {
+				webMI.gfx.setFill("error_message", "#FF0000");
+				webMI.gfx.setText("error_message", "T{Error}: T{User not logged in!}");
+			}
+		}, 0);
+	},
+	"save_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.display.closeWindow();
+	},
+	"cancel_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.display.closeWindow();
+	},
+	"close_button"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.trigger.fire("com.atvise.setActive", false, "2FA_reset_button");
+		webMI.data.twofactorReset(function (e) {
+			if ((e[""] && e[""].error) || e.error) {
+				webMI.gfx.setFill("error_message", "#FF0000");
+				webMI.gfx.setText("error_message", "T{Error}: T{Seed reset failed!}");
+				webMI.trigger.fire("com.atvise.setActive", true, "2FA_reset_button");
+			} else {
+				getQR();
+			}
+		});
+	},
+	"2FA_reset_button"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		if (e.value != "") {
+			if (e.value == "-") {
+				email = e.value;
+				return;
+			}
+
+			if (!mailPolicy || !mailPolicy.whitelist || (clientvariables && clientvariables.ignoreemailpolicy)) {
+				if (e.value.indexOf("@") > -1) {
+					email_local = e.value.substr(0, e.value.indexOf("@"));
+					email_domain = e.value.substr(e.value.indexOf("@"), e.value.length);
+				} else {
+					email_local = e.value;
+					email_domain = "";
+				}
+			} else {
+				email_local = e.value;
+			}
+		} else {
+			email_local = "";
+			email_domain = "";
+		}
+		email = email_local + email_domain;
+		validateMail();
+	},
+	"email_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		email_domain = e.value;
+		email = email_local + email_domain;
+		validateMail();
+	},
+	"email_domain_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		fullname = e.value;
+		if (webMI.getMethodSupport().indexOf("SetUserData") > -1) saveOrClose(true);
+	},
+	"fullname_input"
+);
+
+webMI.trigger.connect(
+	"valuechanged",
+	function (e) {
+		language = e.value;
+		if (webMI.getMethodSupport().indexOf("SetUserData") > -1) saveOrClose(true);
+	},
+	"language_input"
+);
+
+webMI.trigger.connect(trigger_fullname, function (e) {
+	fullname = e.value;
+	webMI.trigger.fire("setValue", e.value, "fullname_input");
+});
+
+webMI.trigger.connect(trigger_language, function (e) {
+	language = e.value;
+	webMI.trigger.fire("setValue", e.value, "language_input");
+});
+
+webMI.trigger.connect(trigger_email, function (e) {
+	email_local = e.value;
+	email = email_local + email_domain;
+	validateMail();
+	webMI.trigger.fire("setValue", e.value, "email_input");
+});
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.query.trigger = trigger_fullname;
+		webMI.query.password = "No";
+		webMI.query.value = "";
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: 300,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Full name}",
+			toolbar: false,
+			width: 700,
+			query: webMI.query
+		});
+	},
+	"fullname_keyboard"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.query.trigger = trigger_language;
+		webMI.query.password = "No";
+		webMI.query.value = "";
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: 300,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{Language}",
+			toolbar: false,
+			width: 700,
+			query: webMI.query
+		});
+	},
+	"language_keyboard"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		if (typeof username != "undefined" && username != "") {
+			webMI.display.openWindow({
+				display: passworddisplay,
+				extern: false,
+				height: 520,
+				menubar: false,
+				modal: false,
+				movable: true,
+				resizable: false,
+				scrollbars: false,
+				status: false,
+				title: "T{Password Editor}",
+				toolbar: false,
+				width: 430,
+				query: { username: username, fullname: fullname }
+			});
+		} else {
+			webMI.gfx.setFill("error_message", "#FF0000");
+			webMI.gfx.setText("error_message", "T{Error}: T{User not logged in!}");
+		}
+	},
+	"password_change"
+);
+
+webMI.trigger.connect(
+	"clicked",
+	function () {
+		webMI.query.trigger = trigger_email;
+		webMI.query.password = "No";
+		webMI.query.value =
+			mailPolicy && mailPolicy.whitelist && mailPolicy.whitelist.length > 0 && !clientvariables.ignoreemailpolicy
+				? email_local
+				: email;
+		webMI.display.openWindow({
+			display: keyboard,
+			extern: false,
+			height: 300,
+			menubar: false,
+			modal: true,
+			movable: true,
+			resizable: false,
+			scrollbars: false,
+			status: false,
+			title: "T{E-mail}",
+			toolbar: false,
+			width: 700,
+			query: webMI.query
+		});
+	},
+	"mail_keyboard"
+);
+]]></code>
+</script>

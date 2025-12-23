@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_0+000.Equipos.L24.Caudalimetro.AP_BJ_CAR_0+000_CAUD_L24_Caudal
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_0+000_CAUD_L24_Caudal
+DisplayName: en|AP_BJ_CAR_0+000_CAUD_L24_Caudal
+Description: en|AP_BJ_CAR_0+000_CAUD_L24_Caudal
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

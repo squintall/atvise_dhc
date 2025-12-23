@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.HISTORY.AGGREGATETEMPLATES.Produccion_M3.Produccion_Horaria.interval_value
+NodeClass: Variable
+BrowseName: 1:interval_value
+DisplayName: en|interval_value
+Description: en|interval_value
+DataType: UInt32
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition BaseVariableType

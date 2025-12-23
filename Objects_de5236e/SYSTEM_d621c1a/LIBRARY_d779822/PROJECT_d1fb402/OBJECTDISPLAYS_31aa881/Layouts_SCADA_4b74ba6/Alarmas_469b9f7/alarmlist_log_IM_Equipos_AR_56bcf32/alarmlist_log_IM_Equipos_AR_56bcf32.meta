@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Alarmas.alarmlist_log_IM_Equipos_AR
+NodeClass: Variable
+BrowseName: 1:alarmlist_log_IM_Equipos_AR
+DisplayName: en|alarmlist_log_IM_Equipos_AR
+Description: en|alarmlist_log_IM_Equipos_AR
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

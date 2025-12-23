@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/timer/imgs/databg_now.png
+NodeClass: Variable
+BrowseName: 1:databg_now.png
+DisplayName: en|databg_now.png
+Description: en|databg_now.png
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.Png

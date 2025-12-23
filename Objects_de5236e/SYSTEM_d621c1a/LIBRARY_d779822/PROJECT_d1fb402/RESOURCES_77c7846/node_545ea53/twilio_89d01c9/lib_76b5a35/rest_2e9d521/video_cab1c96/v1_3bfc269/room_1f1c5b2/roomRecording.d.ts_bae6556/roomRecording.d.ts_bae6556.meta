@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.RESOURCES/node/twilio/lib/rest/video/v1/room/roomRecording.d.ts
+NodeClass: Variable
+BrowseName: 1:roomRecording.d.ts
+DisplayName: en|roomRecording.d.ts
+Description: en|roomRecording.d.ts
+DataType: ByteString
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Resource.OctetStream

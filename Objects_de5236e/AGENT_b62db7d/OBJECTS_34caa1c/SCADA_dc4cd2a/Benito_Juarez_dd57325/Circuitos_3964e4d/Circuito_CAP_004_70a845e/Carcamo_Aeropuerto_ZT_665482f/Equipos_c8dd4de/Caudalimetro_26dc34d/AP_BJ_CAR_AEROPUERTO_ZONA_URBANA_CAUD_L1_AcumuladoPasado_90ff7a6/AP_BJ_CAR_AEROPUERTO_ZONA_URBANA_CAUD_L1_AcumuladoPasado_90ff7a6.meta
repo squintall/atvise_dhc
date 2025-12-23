@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_004.Carcamo_Aeropuerto_ZT.Equipos.Caudalimetro.AP_BJ_CAR_AEROPUERTO_ZONA_URBANA_CAUD_L1_AcumuladoPasado
+NodeClass: Variable
+BrowseName: 1:AP_BJ_CAR_AEROPUERTO_ZONA_URBANA_CAUD_L1_AcumuladoPasado
+DisplayName: en|AP_BJ_CAR_AEROPUERTO_ZONA_URBANA_CAUD_L1_AcumuladoPasado
+Description: en|AP_BJ_CAR_AEROPUERTO_ZONA_URBANA_CAUD_L1_AcumuladoPasado
+DataType: Double
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

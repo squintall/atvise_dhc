@@ -1,0 +1,9 @@
+NodeId: ns=1;s=AGENT.DISPLAYS.USER.LAYOUTS.Layout_Sofrel_Benito_Juarez
+NodeClass: Variable
+BrowseName: 1:Layout_Sofrel_Benito_Juarez
+DisplayName: en|Layout_Sofrel_Benito_Juarez
+Description: en|Layout_Sofrel_Benito_Juarez
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display
