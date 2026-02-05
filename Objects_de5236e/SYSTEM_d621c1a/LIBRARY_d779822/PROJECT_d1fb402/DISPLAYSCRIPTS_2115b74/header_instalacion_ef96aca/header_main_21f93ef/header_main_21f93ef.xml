@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Header Main Orchestrator
+ * Rescue Phase: Context-Bound DOM methods.
+ */
+
+if (typeof HeaderGlobals === 'undefined') {
+    var HeaderGlobals = {};
+}
+
+HeaderGlobals.CONFIG = { QUERY: {}, BASE: "" };
+
+HeaderGlobals.updateConfig = function () {
+    try {
+        var Q = (typeof webMI !== 'undefined' && webMI.query) || {};
+        var B = Q.base || Q["base"] || "";
+        this.CONFIG.QUERY = Q;
+        this.CONFIG.BASE = B;
+    } catch (e) { }
+};
+
+HeaderGlobals.UTILS = {
+    XHTML_NS: "http://www.w3.org/1999/xhtml",
+
+    // Safer creation using provided doc context
+    x: function (a, b) {
+        var d = (typeof a === "object" && a !== null && a.createElement) ? a : document;
+        var t = (typeof a === "string") ? a : b;
+        if (!t) return null;
+        var tag = t.toLowerCase();
+        try {
+            if (["svg", "path", "circle", "g", "rect", "text", "line", "image", "linearGradient", "stop", "defs", "tspan"].indexOf(tag) >= 0) {
+                return d.createElementNS.call(d, "http://www.w3.org/2000/svg", tag);
+            }
+            return d.createElement.call(d, tag);
+        } catch (e) {
+            // Emergency fallback using global document directly
+            try { return document.createElement(tag); } catch (e2) { return null; }
+        }
+    },
+
+    log: function (msg, obj) {
+    },
+
+    // Helper for combined Read + Subscribe
+    addSub: function (path, cb, list) {
+        if (!path) return;
+        webMI.data.read(path, function (res) { cb(res); });
+        var id = webMI.data.subscribe(path, function (res) { cb(res); });
+        if (list && Array.isArray(list)) list.push({ id: id, type: 'data' });
+        return id;
+    },
+
+    // Real-time Alarm Subscription
+    addAlarmSub: function (path, cb, list) {
+        if (!path) return;
+        var id = webMI.alarm.subscribe(path, function (e) {
+            if (!e) return;
+            cb(e);
+        });
+        if (list && Array.isArray(list)) list.push({ id: id, type: 'alarm' });
+        return id;
+    },
+
+    // Utility to clean all subscriptions
+    clearSubs: function (list) {
+        if (!list || !Array.isArray(list)) return;
+        list.forEach(function (s) {
+            try {
+                if (s && s.type === 'alarm') {
+                    webMI.alarm.unsubscribe(s.id);
+                } else if (s && s.type === 'data') {
+                    webMI.data.unsubscribe(s.id);
+                } else {
+                    webMI.data.unsubscribe(s); // Fallback for old simple IDs
+                }
+            } catch (_) { }
+        });
+        list.length = 0;
+    },
+
+    // Standard Equipment Discovery (Used by Topography and Cards)
+    discoverEquipment: function (base, callback) {
+        if (!base) return callback({ items: [], pumps: [], meters: [] });
+        webMI.data.call('ListarEquipos', {
+            startAddress: base + ".Equipos", recursive: "true", maxLevel: "2"
+        }, function (res) {
+            var items = (res && res.items) || [];
+
+            var meters = items.filter(function (it) {
+                var a = String(it.address || ""), t = String(it.type || ""), name = String(it.name || "");
+                return (a.indexOf("Caudalimetros.") >= 0 || t.indexOf("Caudalimetro") >= 0) &&
+                    a.toUpperCase().indexOf("AGGREGATECONFIGURATION") === -1 &&
+                    name.toUpperCase().indexOf("AGGREGATECONFIGURATION") === -1;
+            });
+            var pumps = items.filter(function (it) {
+                var t = String(it.type || ""), name = String(it.name || "");
+                return (t.indexOf("Bomba") >= 0 || t.indexOf("Variador") >= 0) && name.indexOf(".") === -1;
+            });
+            callback({ items: items, meters: meters, pumps: pumps });
+        });
+    },
+
+    // --- NEW REUSABLE UTILS (V21 Refactored) ---
+
+    getTheme: function (base) {
+        var isAP = (base || "").indexOf("Circuito") >= 0;
+        return isAP
+            ? { col: "#3b82f6", bg: "linear-gradient(to top, rgba(59,130,246,0.3), rgba(59,130,246,0.5))", fill: "rgba(59,130,246,0.1)" }
+            : { col: "#16a34a", bg: "linear-gradient(to top, rgba(22,163,74,0.3), rgba(22,163,74,0.5))", fill: "rgba(22,163,74,0.1)" };
+    },
+
+    normalizeSeries: function (rawData) {
+        var clean = [];
+        var data = (rawData && rawData.result) ? rawData.result : (Array.isArray(rawData) ? rawData : []);
+        for (var i = 0; i < data.length; i++) {
+            var p = data[i];
+            if (!p) continue;
+            var ts = p.timestamp !== undefined ? p.timestamp : (p.t !== undefined ? p.t : (p["v:timestamp"] !== undefined ? p["v:timestamp"] : (Array.isArray(p) ? p[0] : null)));
+            var val = p.value !== undefined ? p.value : (p.v !== undefined ? p.v : (p["v:value"] !== undefined ? p["v:value"] : (Array.isArray(p) ? p[1] : null)));
+            if (ts != null && val != null) {
+                var n = Number(ts);
+                var tMs = (n && n < 1e12) ? n * 1000 : n;
+
+                var vNum = 0;
+                if (typeof val === "boolean") vNum = val ? 1 : 0;
+                else vNum = parseFloat(val);
+
+                if (!isNaN(vNum)) {
+                    clean.push({ t: tMs, v: vNum });
+                }
+            }
+        }
+        return clean;
+    },
+
+    groupData: function (series, intervalMs) {
+        if (!Array.isArray(series) || series.length === 0) return [];
+        var buckets = {};
+        for (var i = 0; i < series.length; i++) {
+            var p = series[i];
+            var ts = +p.t;
+            if (!isFinite(ts)) continue;
+            var bucketKey = Math.floor(ts / intervalMs) * intervalMs;
+            if (!buckets[bucketKey] || ts > buckets[bucketKey].lastT) {
+                buckets[bucketKey] = { t: bucketKey, v: p.v, lastT: ts };
+            }
+        }
+        var result = [];
+        var keys = Object.keys(buckets).sort(function (a, b) { return +a - +b; });
+        for (var j = 0; j < keys.length; j++) {
+            var b = buckets[keys[j]];
+            result.push({ t: b.t, v: b.v });
+        }
+        return result;
+    },
+
+    group5Minutes: function (series) {
+        return this.groupData(series, 5 * 60 * 1000);
+    },
+
+    readHist: function (path, fromMs, toMs, cb) {
+        var self = this;
+        var fMs = Math.floor(fromMs);
+        var tMs = Math.floor(toMs);
+        if (isNaN(fMs) || isNaN(tMs)) { cb([]); return; }
+
+        var sPath = path;
+        if (sPath.indexOf("s=") >= 0) sPath = sPath.slice(sPath.indexOf("s=") + 2);
+
+        var allResults = [];
+        function fetch(currentFrom) {
+            var f = {
+                type: ["v:1"],
+                address: ["g:" + sPath],
+                select: ["v:timestamp", "v:value"],
+                numrows: ["v:10000"],
+                timestamp: ["n:>=" + Math.floor(currentFrom) + "<" + tMs],
+                order: ["v:asc"]
+            };
+
+            webMI.data.queryFilter(f, function (res) {
+                var pts = self.normalizeSeries(res);
+                if (pts.length > 0) {
+                    allResults = allResults.concat(pts);
+                    // If we reached the 10000 limit, there might be more
+                    if (res && res.result && res.result.length >= 10000) {
+                        var lastT = pts[pts.length - 1].t;
+                        // Avoid infinite loop by ensuring progress
+                        if (lastT > currentFrom) {
+                            fetch(lastT);
+                        } else {
+                            // If same MS, try +1 to avoid stuck
+                            fetch(lastT + 1);
+                        }
+                    } else {
+                        cb(allResults);
+                    }
+                } else {
+                    cb(allResults);
+                }
+            });
+        }
+        fetch(fMs);
+    },
+
+    readAlarms: function (path, fromMs, toMs, cb) {
+        var self = this;
+        var fMs = Math.floor(fromMs);
+        var tMs = Math.floor(toMs);
+        var sPath = path;
+        if (sPath.indexOf("s=") >= 0) sPath = sPath.slice(sPath.indexOf("s=") + 2);
+
+        // Auto-append correct configuration suffixes for Alarm Queries
+        if (sPath.indexOf(".Alarma_Estatus") >= 0 && sPath.indexOf(".ON_OFF.Estatus") === -1) {
+            sPath += ".ON_OFF.Estatus";
+        } else if (sPath.indexOf(".Alarma_Local") >= 0 && sPath.indexOf(".LR.Estado") === -1) {
+            sPath += ".LR.Estado";
+        } else if (sPath.indexOf(".Alarma_ManAuto") >= 0 && sPath.indexOf(".Manual_Automatico.Manual_Automatico") === -1) {
+            sPath += ".Manual_Automatico.Manual_Automatico";
+        }
+
+        // PASS 1: Get the state just BEFORE fromMs to avoid "limbo" tracks
+        var fBefore = {
+            type: ["v:2"], address: ["g:" + sPath],
+            select: ["v:timestamp", "v:value", "v:ActiveStateId"],
+            numrows: ["v:1"], timestamp: ["n:<" + fMs], order: ["v:desc"]
+        };
+
+        webMI.data.queryFilter(fBefore, function (resBefore) {
+            var allSeries = [];
+            var rowsBefore = resBefore && resBefore.result ? resBefore.result : [];
+            if (rowsBefore.length > 0) {
+                var r = rowsBefore[0];
+                var ts = r.timestamp || (Array.isArray(r) ? r[0] : null);
+                var rawV = r.value, rawA = r.ActiveStateId;
+                var val = (rawA != null) ? Number(rawA) : (rawV != null ? (rawV == 1 || rawV == true ? 1 : 0) : 0);
+                if (ts != null) allSeries.push({ t: fMs, v: val, initial: true });
+            }
+
+            // PASS 2: Get the range recursively
+            function fetchRange(currentFrom) {
+                var fRange = {
+                    type: ["v:2"], address: ["g:" + sPath],
+                    select: ["v:timestamp", "v:value", "v:eventtext", "v:priority", "v:ActiveStateId", "v:Color"],
+                    numrows: ["v:5000"], timestamp: ["n:>=" + Math.floor(currentFrom) + "<" + tMs], order: ["v:asc"]
+                };
+
+                webMI.data.queryFilter(fRange, function (res) {
+                    var rows = res && res.result ? res.result : [];
+                    if (rows.length > 0) {
+                        for (var i = 0; i < rows.length; i++) {
+                            var r = rows[i];
+                            var ts = r.timestamp || (Array.isArray(r) ? r[0] : null);
+                            var rawV = r.value, rawA = r.ActiveStateId;
+                            var val = (rawA != null) ? Number(rawA) : (rawV != null ? (rawV == 1 || rawV == true ? 1 : 0) : 0);
+                            if (ts != null) {
+                                var n = Number(ts);
+                                allSeries.push({
+                                    t: n && n < 1e12 ? n * 1000 : n,
+                                    v: val,
+                                    txt: r.eventtext || "",
+                                    prio: r.priority || 0,
+                                    c: r.Color || null
+                                });
+                            }
+                        }
+
+                        // Recursion check
+                        if (rows.length >= 5000) {
+                            var lastT = allSeries[allSeries.length - 1].t;
+                            fetchRange(lastT > currentFrom ? lastT : currentFrom + 0.1);
+                        } else {
+                            cb(allSeries);
+                        }
+                    } else {
+                        cb(allSeries);
+                    }
+                });
+            }
+            fetchRange(fMs);
+        });
+    }
+};
+
+HeaderGlobals.initLayout = function () {
+    var U = HeaderGlobals.UTILS;
+    U.log("initLayout starting...");
+
+    var host = document.getElementById("header_host_root");
+
+    if (!host) {
+        U.log("initLayout - host 'header_host_root' not found, retrying...");
+        setTimeout(HeaderGlobals.initLayout, 500);
+        return;
+    }
+
+    U.log("initLayout - HOST OK. Building...");
+    HeaderGlobals.updateConfig();
+
+    // Clear safely and apply pixel-fix
+    try {
+        host.innerHTML = "";
+        host.style.setProperty("webkit-font-smoothing", "antialiased", "important");
+        host.style.setProperty("text-rendering", "optimizeLegibility", "important");
+        // Force integer pixel rendering
+        host.style.setProperty("transform", "translateZ(0)", "important");
+    } catch (e) { }
+
+    // Build Aportantes Only
+    try {
+        if (typeof HeaderNav !== 'undefined' && HeaderNav.buildUI) {
+            HeaderNav.buildUI(host);
+        }
+    } catch (e) {
+    }
+
+    // Build Tank Status (NEW V18 - Consolidated)
+    try {
+        if (typeof HeaderCards !== 'undefined' && HeaderCards.init) {
+            HeaderCards.init(host);
+        }
+    } catch (e) {
+    }
+
+    // Build Topography Only
+    try {
+        if (typeof HeaderTopo !== 'undefined' && HeaderTopo.init) {
+            HeaderTopo.init(host);
+        }
+    } catch (e) {
+    }
+
+    // Wiring
+    setTimeout(function () {
+        try {
+            if (typeof HeaderNav !== 'undefined' && HeaderNav.init) {
+                HeaderNav.init();
+            }
+        } catch (e) {
+        }
+    }, 200);
+};
+
+// No auto-trigger here, handled by XML script block
+]]></code>
+</script>

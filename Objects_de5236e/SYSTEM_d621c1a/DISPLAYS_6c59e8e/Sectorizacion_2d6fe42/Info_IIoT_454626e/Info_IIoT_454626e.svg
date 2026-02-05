@@ -13,111 +13,61 @@
  <rect atv:refpx="68.5" atv:refpy="15.743" fill="none" height="30.515" id="id_7" stroke="#000000" stroke-width="1" width="132" x="0.5" y="0.485"/>
  <rect atv:refpx="68.5" atv:refpy="78.264" fill="none" height="31.399" id="id_3" stroke="#000000" stroke-width="1" width="132" x="0.5" y="62.564"/>
  <text atv:refpx="69.966" atv:refpy="77.568" fill="#000000" font-family="Arial" font-size="9" font-weight="bold" id="id_6" text-anchor="middle" transform="matrix(1.4528,0,0,1.3885,-14.9812,-25.011)" x="56.086" y="78.378">Sync</text>
- <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[webMI.data.read(webMI.query["base"] + ".punto", function(e) {
-	var id = "id_1";
-	var value = e.value;
-	webMI.gfx.setText(id, value);
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[console.log(">> IIoT CELL LOADED:", webMI.query["base"]);
+var base = webMI.query["base"];
 
-});
-	
-webMI.data.read(webMI.query["base"] + ".ID_corto", function(e) {
-	var id = "id_13";
-	var value = e.value;
-	webMI.gfx.setText(id, value);
-
-});
-	
-webMI.data.read(webMI.query["base"] + ".connectivity", function(e) {
-	var id = "id_10";
-	var value = e.value;
-	
-	if (value == true)
-		webMI.gfx.setFill(id, "#fafafa");
-	if (value == false)
-		webMI.gfx.setFill(id, "#a3a3a3");
-
-});
-	
-webMI.data.read(webMI.query["base"] + ".connectivity", function(e) {
-	var id = "id_10";
-	var value = e.value;
-	
-	if (value == false)
-		webMI.gfx.setVisible(id, {0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false});
-	if (value == true)
-		webMI.gfx.setVisible(id, true);
-
-});
-	
-webMI.data.read(webMI.query["base"] + ".connectivity", function(e) {
-	var id = "id_17";
-	var value = e.status;
-	var valor = e.value;
-	
-	if (value == 0 && valor == true){
-		webMI.gfx.setFill(id, "#000000");}
-	else {
-		webMI.gfx.setFill(id, "#ffffff");}
-
-});
-	
-webMI.data.read(webMI.query["base"] + ".connectivity", function(e) {
-	var id = "id_5";
-	var value = e.status;
-	var valor = e.value;
-	
-	switch (value) {
-	case 0:
-		webMI.gfx.setFill(id, "#1a8b22");
-		break;
-	case undefined:
-		webMI.gfx.setFill(id, "#6b6b6b");
-		break;
-	case 2156593152:
-		webMI.gfx.setFill(id, "#b98f2d");
-		break;
-	case 2150694912:
-		webMI.gfx.setFill(id, "#ff0000");
-		break;
-	case 2150760448:
-		webMI.gfx.setFill(id, "#7c1536");
-		break;
-	case 1083179008:
-		webMI.gfx.setFill(id, "#3a3a3a");
-		break;	
-	case 10878976:
-		webMI.gfx.setFill(id, "blue");
-		break;
-	case 2158821376:
-		webMI.gfx.setFill(id, "orange");
-		break;
-	case 2148335616:
-		webMI.gfx.setFill(id, "#555555");
-		break;
-	default:
-		console.log(value);
-		webMI.gfx.setFill(id, "#000000");
-	break;
-		}
+// Simple reads
+webMI.data.read(base + ".punto", function (e) {
+    webMI.gfx.setText("id_1", e.value);
 });
 
-
-webMI.data.read(webMI.query["base"] + ".connectivity", function(e) {
-	var id = "id_13";
-	webMI.gfx.setFill(id, "#ffffff");
-
+webMI.data.read(base + ".ID_corto", function (e) {
+    webMI.gfx.setText("id_13", e.value);
 });
 
-	
-	
-	
-webMI.data.read(webMI.query["base"] + ".connectivity", function(e) {
-var id = "id_6";
-var value = e.timestamp;
-const date = new Date(value);
-const options = {year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'};
-const formattedDate = new Intl.DateTimeFormat('es-MX',options).format(date);
-webMI.gfx.setText(id, formattedDate.toString());
+// Consolidated reads for connectivity and display data
+webMI.data.read(base + ".connectivity", function (e) {
+    var status = e.status;
+    var value = e.value;
+    var timestamp = e.timestamp;
+    var now = new Date();
 
+    // 1. Connectivity Indicator (id_10)
+    webMI.gfx.setFill("id_10", value ? "#fafafa" : "#a3a3a3");
+
+    // 2. OPC UA Status LED (id_5)
+    var statusColors = {
+        0: "#1a8b22",          // Good (Normal)
+        10878976: "blue",      // GoodMoreData (Sincronización)
+        2150694912: "#ff0000", // BadNoCommunication (No Com.)
+        2150760448: "#7c1536", // BadWaitingForInitialData (Iniciando)
+        2156593152: "#b98f2d", // BadDeviceFailure (Falla Equipo)
+        2156658688: "#e64980", // BadSensorFailure (Falla Sensor)
+        2158821376: "orange",  // BadDisconnect (Desconectado)
+        2147483648: "#ff8f05", // Bad (Falla Gral.)
+        2156724224: "#495057", // BadOutOfService (Fuera Serv.)
+        1083179008: "#883fb2", // UncertainLastUsableValue (Incierto)
+        2148335616: "#555555"  // BadServerNotConnected
+    };
+    webMI.gfx.setFill("id_5", statusColors[status] || "#000000");
+
+    // 3. Timestamp & Recency Indicator (id_4 background, id_6 text)
+    const date = new Date(timestamp);
+    const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+    const formattedDate = new Intl.DateTimeFormat('es-MX', options).format(date);
+    webMI.gfx.setText("id_6", formattedDate.toString());
+
+    var diffDays = (now - date) / (1000 * 60 * 60 * 24);
+    var isToday = date.toDateString() === now.toDateString();
+    var isThisMonth = date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+
+    var recencyColor = "#ff0000";
+    if (isToday) recencyColor = "#1a8b22";
+    else if (diffDays <= 7) recencyColor = "#1c7ed6";
+    else if (isThisMonth) recencyColor = "#f59f00";
+
+    webMI.gfx.setFill("id_4", recencyColor);
+    webMI.gfx.setFill("id_13", "#ffffff");
+    webMI.gfx.setFill("id_6", "#ffffff");
 });]]></script>
 </svg>

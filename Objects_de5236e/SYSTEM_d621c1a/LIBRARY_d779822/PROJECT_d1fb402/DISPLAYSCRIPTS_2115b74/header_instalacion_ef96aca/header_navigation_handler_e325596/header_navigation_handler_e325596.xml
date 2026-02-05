@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Header Navigation Handler
+ * Aportantes Card - Hierarchical Selection (V17 - Dynamic Hierarchy)
+ */
+
+if (typeof HeaderNav === 'undefined') {
+    var HeaderNav = {};
+}
+
+HeaderNav.buildUI = function (host) {
+    var U = HeaderGlobals.UTILS;
+    var doc = host.ownerDocument || document;
+
+    try {
+        while (host.firstChild) host.removeChild(host.firstChild);
+
+        var card = U.x(doc, 'div');
+        if (!card) return;
+
+        // V17: Final height 280px as requested
+        card.style.position = "absolute";
+        card.style.left = "16px"; card.style.top = "16px";
+        card.style.width = "380px";
+        card.style.height = "280px";
+        card.style.background = "#ffffff";
+        card.style.border = "1px solid #e2e8f0";
+        card.style.borderRadius = "12px";
+        card.style.padding = "10px";
+        card.style.fontFamily = "Arial, sans-serif";
+        card.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)";
+        card.style.display = "flex";
+        card.style.flexDirection = "column";
+
+        HeaderNav._host = host;
+
+        var status = U.x(doc, 'div');
+        status.id = "status_at";
+        status.style.display = "none";
+        card.appendChild(status);
+
+        var head = U.x(doc, 'div');
+        head.style.display = "flex"; head.style.justifyContent = "space-between"; head.style.alignItems = "center";
+        head.style.marginBottom = "8px";
+        head.style.flexShrink = "0";
+
+        var isResidual = (HeaderGlobals.CONFIG.BASE || "").toLowerCase().indexOf("residual") >= 0 || (HeaderGlobals.CONFIG.BASE || "").toLowerCase().indexOf("cuencas") >= 0;
+        var tankLabelText = isResidual ? "Aportantes al Cárcamo" : "Aportantes al Tanque";
+
+        var lbl = U.x(doc, 'div');
+        lbl.style.fontWeight = "bold"; lbl.style.color = "#1e40af"; lbl.style.fontSize = "16px";
+        lbl.textContent = tankLabelText;
+        head.appendChild(lbl);
+
+        var startBtn = U.x(doc, 'button');
+        startBtn.id = "btn_start_at";
+        startBtn.textContent = "+ AGREGAR APORTANTE";
+        startBtn.style.padding = "6px 14px"; startBtn.style.background = "#3b82f6";
+        startBtn.style.color = "white";
+        startBtn.style.border = "none"; startBtn.style.borderRadius = "6px"; startBtn.style.cursor = "pointer";
+        startBtn.style.fontSize = "11px"; startBtn.style.fontWeight = "bold";
+        head.appendChild(startBtn);
+
+        card.appendChild(head);
+
+        var selPanel = U.x(doc, 'div');
+        selPanel.id = "panel_at";
+        selPanel.style.display = "none";
+        selPanel.style.background = "#f8fafc"; selPanel.style.padding = "10px"; selPanel.style.borderRadius = "8px";
+        selPanel.style.marginBottom = "8px"; selPanel.style.border = "1px solid #cbd5e1";
+        selPanel.style.flexShrink = "0";
+
+        var row = U.x(doc, 'div');
+        row.style.display = "flex"; row.style.gap = "4px";
+
+        var backBtn = U.x(doc, 'button');
+        backBtn.id = "btn_back_at"; backBtn.textContent = "←";
+        backBtn.style.width = "30px"; backBtn.style.background = "#64748b"; backBtn.style.color = "white";
+        backBtn.style.border = "none"; backBtn.style.borderRadius = "4px"; backBtn.style.cursor = "pointer";
+
+        var dd = U.x(doc, 'select');
+        dd.id = "sel_at";
+        dd.style.flex = "1"; dd.style.padding = "4px"; dd.style.fontSize = "12px";
+
+        var exploreBtn = U.x(doc, 'button');
+        exploreBtn.id = "btn_explore_at"; exploreBtn.textContent = "🔍";
+        exploreBtn.style.width = "34px"; exploreBtn.style.background = "#3b82f6"; exploreBtn.style.color = "white";
+        exploreBtn.style.border = "none"; exploreBtn.style.borderRadius = "4px"; exploreBtn.style.cursor = "pointer";
+
+        var okBtn = U.x(doc, 'button');
+        okBtn.id = "btn_ok_at"; okBtn.textContent = "✓";
+        okBtn.style.width = "38px"; okBtn.style.background = "#22c55e"; okBtn.style.color = "white";
+        okBtn.style.border = "none"; okBtn.style.borderRadius = "4px"; okBtn.style.cursor = "pointer";
+
+        var cancelBtn = U.x(doc, 'button');
+        cancelBtn.id = "btn_cancel_at"; cancelBtn.textContent = "×";
+        cancelBtn.style.width = "38px"; cancelBtn.style.background = "#ef4444"; cancelBtn.style.color = "white";
+        cancelBtn.style.border = "none"; cancelBtn.style.borderRadius = "4px"; cancelBtn.style.cursor = "pointer";
+
+        row.appendChild(backBtn); row.appendChild(dd); row.appendChild(exploreBtn); row.appendChild(okBtn); row.appendChild(cancelBtn);
+        selPanel.appendChild(row);
+
+        card.appendChild(selPanel);
+
+        var list = U.x(doc, 'div');
+        list.id = "chips_list_at";
+        list.style.flex = "1";
+        list.style.minHeight = "0";
+        list.style.overflowY = "auto";
+        list.style.padding = "4px";
+        list.style.background = "#f1f5f9"; list.style.border = "1px solid #e2e8f0"; list.style.borderRadius = "8px";
+        list.style.display = "flex"; list.style.flexDirection = "column"; list.style.gap = "6px";
+
+        var hint = U.x(doc, 'div');
+        hint.id = "hint_at";
+        hint.style.height = "100%"; hint.style.display = "flex"; hint.style.alignItems = "center"; hint.style.justifyContent = "center";
+        hint.style.color = "#94a3b8"; hint.style.fontSize = "13px"; hint.innerHTML = "Pulsa '+ AGREGAR' para buscar equipos.";
+        list.appendChild(hint);
+
+        card.appendChild(list);
+        host.appendChild(card);
+    } catch (e) {
+    }
+};
+
+HeaderNav.init = function () {
+    var U = HeaderGlobals.UTILS;
+    var root = HeaderNav._host;
+    if (!root) { setTimeout(HeaderNav.init, 500); return; }
+
+    var doc = root.ownerDocument || document;
+    function $(id) { return root.querySelector("#" + id); }
+    var startBtn = $("btn_start_at");
+    var panel = $("panel_at");
+    var dd = $("sel_at");
+    var okBtn = $("btn_ok_at");
+    var exploreBtn = $("btn_explore_at");
+    var backBtn = $("btn_back_at");
+    var cancelBtn = $("btn_cancel_at");
+    var list = $("chips_list_at");
+    var hint = $("hint_at");
+
+    if (!startBtn || !panel || !dd) return;
+
+    var NAV = {
+        path: [],
+        base: HeaderGlobals.CONFIG.BASE || "",
+        chips: []
+    };
+
+    var PERSIST_NODE = NAV.base + ".aportantes";
+    var partsBase = NAV.base.split(".");
+    // AGENT.OBJECTS.SCADA.Zona = 4 parts
+    var zonaBase = partsBase.slice(0, 4).join(".");
+
+    // V18: Enforced Physical Type Naming (Tanque vs Carcamo)
+    function getHierarchicalName(fullAddr) {
+        if (!fullAddr) return "";
+        var p = fullAddr.split(".");
+
+        // Structure: AGENT(0).OBJECTS(1).SCADA(2).Zona(3).Contexto(4).Circuito(5).Instalacion(6)...Equipo(last)
+        var context = (p[4] || "").toLowerCase();
+        var isPotable = context.indexOf("circuitos") >= 0;
+
+        // 1. Enforced Prefix
+        var type = isPotable ? "Tanque" : "Carcamo";
+
+        // 2. Clear Redundant Prefixes from parts
+        var cleanNode = function (s) {
+            if (!s) return "";
+            var res = s.replace(/_/g, " ").replace(/^\d+:\s*/, "");
+            // Remove "Carcamo" or "Tanque" if they exist as redundant words
+            return res.replace(/carcamo|tanque/gi, "").trim();
+        };
+
+        var inst = cleanNode(p[6] || "");
+        var last = cleanNode(p[p.length - 1] || "");
+
+        // 3. Compact and Return
+        if (last === inst) last = ""; // Avoid "Tanque Donceles Donceles"
+        if (last.toLowerCase().indexOf("caudalimetro") >= 0) last = "";
+
+        var final = (type + " " + inst + " " + last).trim();
+        return final.replace(/\s+/g, " "); // compact spaces
+    }
+
+    function fetchNodes(addr, cb) {
+        webMI.data.call('ListarEquipos', {
+            startAddress: addr, endLevel: '1', levelMode: 'exact',
+            recursive: 'false', max: '0', includeStartAddress: 'false', debug: 'false'
+        }, function (ret) {
+            if (!ret || !ret.items) { cb([]); return; }
+            var items = ret.items.map(function (n) {
+                var a = String((n && n.address) || '');
+                var sid = a.indexOf('s='); if (sid >= 0) a = a.slice(sid + 2);
+                return { address: a, name: (n && n.name) || a.split(".").pop() };
+            }).filter(function (it) {
+                var ln = it.name.toLowerCase();
+                var la = it.address.toLowerCase();
+                return la.indexOf(".meta") === -1 && la.indexOf(".db") === -1 &&
+                    ln.indexOf("configurations") === -1 && ln.indexOf("alarmas") === -1;
+            });
+            cb(items);
+        });
+    }
+
+    function browseTo(addr, name) {
+        dd.innerHTML = '<option value="">Cargando...</option>';
+        exploreBtn.disabled = okBtn.disabled = true;
+
+        fetchNodes(addr, function (items) {
+            dd.innerHTML = '';
+            var opt = U.x(doc, 'option'); opt.value = ""; opt.textContent = "-- Seleccionar en " + name.replace(/_/g, " ") + " --";
+            dd.appendChild(opt);
+            items.forEach(function (it) {
+                var o = U.x(doc, 'option'); o.value = it.address; o.textContent = it.name.replace(/_/g, " ");
+                dd.appendChild(o);
+            });
+            backBtn.disabled = (NAV.path.length <= 1);
+            backBtn.style.opacity = (NAV.path.length <= 1) ? "0.3" : "1";
+        });
+    }
+
+    function saveChips() {
+        var data = JSON.stringify(NAV.chips);
+        webMI.data.write(PERSIST_NODE, data);
+    }
+
+    function loadChips() {
+        webMI.data.read(PERSIST_NODE, function (res) {
+            var val = res && (typeof res.value !== "undefined" ? res.value : res);
+            if (!val || val === "null") return;
+            try {
+                var arr = JSON.parse(val);
+                if (Array.isArray(arr)) {
+                    NAV.chips = [];
+                    while (list.firstChild && list.firstChild !== hint) list.removeChild(list.firstChild);
+                    if (hint) hint.style.display = arr.length ? "none" : "flex";
+                    arr.forEach(function (c) {
+                        // Fix for old data: re-generate name if address provided
+                        var finalName = c.name;
+                        if (c.addr && c.addr.split(".").length > 4) finalName = getHierarchicalName(c.addr);
+                        addChipUI(finalName, c.addr, false);
+                    });
+                }
+            } catch (_) { }
+        });
+    }
+
+    startBtn.onclick = function () {
+        startBtn.style.display = "none"; panel.style.display = "block";
+        NAV.path = [];
+        var first = (NAV.base.toLowerCase().indexOf("residual") >= 0 || NAV.base.toLowerCase().indexOf("cuencas") >= 0) ? "Cuencas" : "Circuitos";
+        var addr = zonaBase + "." + first;
+        NAV.path = [{ addr: addr, name: first }];
+        browseTo(addr, first);
+    };
+
+    backBtn.onclick = function () {
+        if (NAV.path.length <= 1) return;
+        NAV.path.pop();
+        var last = NAV.path[NAV.path.length - 1];
+        browseTo(last.addr, last.name);
+    };
+
+    dd.onchange = function () {
+        var val = dd.value;
+        if (!val) { exploreBtn.disabled = okBtn.disabled = true; return; }
+        exploreBtn.disabled = okBtn.disabled = false;
+    };
+
+    exploreBtn.onclick = function () {
+        var v = dd.value; if (!v) return;
+        var t = dd.options[dd.selectedIndex].text;
+        NAV.path.push({ addr: v, name: t });
+        browseTo(v, t);
+    };
+
+    okBtn.onclick = function () {
+        var v = dd.value; if (!v) return;
+        // Generate final name from full address hierarchy
+        var fullName = getHierarchicalName(v);
+        addChipUI(fullName, v, true);
+        panel.style.display = "none"; startBtn.style.display = "block";
+    };
+
+    cancelBtn.onclick = function () { panel.style.display = "none"; startBtn.style.display = "block"; };
+
+    function addChipUI(name, addr, shouldSave) {
+        if (hint) hint.style.display = "none";
+
+        var exists = NAV.chips.some(function (c) { return c.addr === addr; });
+        if (exists && shouldSave) return;
+
+        NAV.chips.push({ name: name, addr: addr });
+        if (shouldSave) saveChips();
+
+        var c = U.x(doc, 'div');
+        c.className = "h-chip-item";
+        c.style.display = "flex";
+        c.style.alignItems = "center";
+        c.style.padding = "8px 12px";
+        c.style.setProperty("background", "#ffffff", "important");
+        c.style.border = "1px solid #e2e8f0";
+        c.style.borderLeft = "5px solid #3b82f6";
+        c.style.borderRadius = "8px";
+        c.style.boxShadow = "0 1px 2px rgba(0,0,0,0.05)";
+        c.style.marginBottom = "4px";
+        c.style.flexShrink = "0";
+        c.style.width = "100%";
+        c.style.boxSizing = "border-box";
+
+        var info = U.x(doc, 'div');
+        info.style.setProperty("flex", "1", "important");
+        info.style.setProperty("background", "#ffffff", "important"); // Force double white layer
+        info.style.setProperty("backgroundColor", "#ffffff", "important");
+        info.style.setProperty("border", "none", "important");
+        info.style.setProperty("boxShadow", "none", "important");
+        info.style.setProperty("margin", "0", "important");
+        info.style.setProperty("width", "0", "important");
+        info.style.setProperty("minWidth", "0", "important");
+        info.style.setProperty("boxSizing", "border-box", "important");
+
+        var n = U.x(doc, 'div');
+        n.style.setProperty("background", "transparent", "important");
+        n.style.fontSize = "13px"; n.style.fontWeight = "bold"; n.style.color = "#1e40af";
+        n.style.overflow = "hidden"; n.style.textOverflow = "ellipsis"; n.style.whiteSpace = "nowrap";
+        n.style.width = "100%";
+        n.textContent = name;
+
+        var d = U.x(doc, 'div');
+        d.style.setProperty("background", "transparent", "important");
+        d.style.fontSize = "18px";
+        d.style.color = "#3b82f6";
+        d.style.fontWeight = "bold";
+        d.style.marginTop = "2px";
+        d.style.width = "100%";
+        d.textContent = "Caudal: -- l/s";
+
+        info.appendChild(n); info.appendChild(d); c.appendChild(info);
+
+        var r = U.x(doc, 'div'); r.textContent = "×"; r.style.cursor = "pointer"; r.style.color = "#ef4444"; r.style.fontSize = "20px"; r.style.padding = "0 4px";
+        r.onclick = function () {
+            list.removeChild(c);
+            NAV.chips = NAV.chips.filter(function (x) { return x.addr !== addr; });
+            saveChips();
+            if (list.querySelectorAll('.h-chip-item').length === 0) if (hint) hint.style.display = "flex";
+        };
+        c.appendChild(r);
+        list.appendChild(c);
+
+        try {
+            webMI.data.subscribe(addr + ".current_flow", function (res) {
+                var v = (res && res.value != null) ? parseFloat(res.value).toFixed(2) : "0.00";
+                d.textContent = "Caudal: " + v + " l/s";
+            });
+        } catch (_) { }
+    }
+
+    loadChips();
+};
+]]></code>
+</script>

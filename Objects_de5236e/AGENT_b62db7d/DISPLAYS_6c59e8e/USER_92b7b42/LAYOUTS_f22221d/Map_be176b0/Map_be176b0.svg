@@ -392,4 +392,26 @@ webMI.data.queryFilter(filter, function(e){
  <svg atv:refpx="960" atv:refpy="445" height="890" id="id_0" width="1920" x="0" xlink:href="SYSTEM.DISPLAYS.Instalacion.Vista_Principal_V2" y="0">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_001.Carcamo_001"/>
  </svg>
+ <svg atv:refpx="813.81" atv:refpy="-755.538" height="30" id="id_3" transform="matrix(2.8153,0,0,1,0,0)" width="160" x="209.067" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="-770.538">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.New Tag"/>
+  <atv:argument name="postDecimal" value="2"/>
+  <atv:argument name="validation" value="Number"/>
+  <atv:overwrite id="input_label" transform="matrix(0.3552,0,0,1,0,0)" x="442.503"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.3552,0,0,1,0,0)" width="442.448"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.3552,0,0,1,0,0)" width="446.448"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.3552,0,0,1,0,0)" width="442.448"/>
+  <atv:overwrite id="id_1" transform="matrix(0.3552,0,0,1,0,0)" width="448.448"/>
+  <atv:overwrite id="input_border" transform="matrix(0.3552,0,0,1,0,0)" width="450.448"/>
+ </svg>
+ <svg atv:refpx="813.81" atv:refpy="-705.968" height="30" id="id_4" transform="matrix(2.8153,0,0,1,0,0)" width="160" x="209.067" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.in_out_value" y="-720.968">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.New Tag (2)"/>
+  <atv:argument name="postDecimal" value="2"/>
+  <atv:argument name="validation" value="Number"/>
+  <atv:overwrite id="input_label" transform="matrix(0.3552,0,0,1,0,0)" x="442.503"/>
+  <atv:overwrite id="blinking_frame" transform="matrix(0.3552,0,0,1,0,0)" width="442.448"/>
+  <atv:overwrite id="focus_frame" transform="matrix(0.3552,0,0,1,0,0)" width="446.448"/>
+  <atv:overwrite id="input_bg" transform="matrix(0.3552,0,0,1,0,0)" width="442.448"/>
+  <atv:overwrite id="id_1" transform="matrix(0.3552,0,0,1,0,0)" width="448.448"/>
+  <atv:overwrite id="input_border" transform="matrix(0.3552,0,0,1,0,0)" width="450.448"/>
+ </svg>
 </svg>

@@ -15,7 +15,10 @@
  <!-- LED de estado Con_Control -->
  <circle atv:refpx="122" atv:refpy="15" cx="122" cy="15" fill="#6b6b6b" id="id_led_glow" opacity="0.2" r="7"/>
  <circle atv:refpx="122" atv:refpy="15" cx="122" cy="15" fill="#6b6b6b" id="id_led" r="4.5" stroke="#222222" stroke-width="0.8"/>
- <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[// Suscribe el valor de la variable "short_name" a un evento de datos
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[// =================== NUEVO: flag para saber si la IP es GPRS ===================
+var isGPRS = false;
+
+// Suscribe el valor de la variable "short_name" a un evento de datos
 webMI.data.read(webMI.query["base"] + ".short_name", function(e) {
     var id = "id_13"; // ID del elemento gráfico que se va a actualizar
     var value = e.value; // Asigna el valor recibido del evento a la variable
@@ -24,99 +27,107 @@ webMI.data.read(webMI.query["base"] + ".short_name", function(e) {
 });
 
 // Suscribe el valor de la IP para mostrarlo en el gráfico
-        webMI.data.read(webMI.query["base"] + ".ip", function(e) {
-            var value = e.value;
-            var text = value;
-            if (typeof value === "string") {
-                var m = value.match(/^192\.168\.(\d+)\.(\d+)$/);
-                if (m) {
-                    text = m[1] + "." + m[2]; // Mostrar solo X.X
-                }
-            }
-            webMI.gfx.setText("id_1", text); // Muestra el valor procesado en el elemento con id "id_1"
-        });
-        
-        
+webMI.data.read(webMI.query["base"] + ".ip", function(e) {
+    var value = e.value;
+    var text = value;
+
+    // =================== NUEVO: actualizar flag isGPRS ===================
+    if (typeof value === "string" && value === "GPRS") {
+        isGPRS = true;
+    } else {
+        isGPRS = false;
+    }
+    // ================================================================
+
+    if (typeof value === "string") {
+        var m = value.match(/^192\.168\.(\d+)\.(\d+)$/);
+        if (m) {
+            text = m[1] + "." + m[2]; // Mostrar solo X.X
+        }
+    }
+    webMI.gfx.setText("id_1", text); // Muestra el valor procesado en el elemento con id "id_1"
+});
+
+
 // Suscribe el estado de la alarma "Comunicacion.Fallo" a un evento de alarma
 webMI.alarm.subscribe(webMI.query["base"] + ".com.Comunicacion.Fallo", function(e) {
     var value = e.state; // Almacena el estado de la alarma en la variable "value"
-    
+
     // Si el estado de la alarma es 0, indica que no hay fallo de comunicación
     if (value == 0) {
         webMI.gfx.setFill("id_5", "#1a8b22"); // Cambia el color del elemento gráfico a verde
         webMI.gfx.setVisible("id_5", true);
     }
-    
+
     // Si el estado de la alarma es 1, indica que hay un fallo de comunicación
     if (value == 1) {
-        
-        
+
         // Suscribe la conectividad y ajusta el color del elemento según el estado
         webMI.data.read(webMI.query["base"] + ".connectivity", function(e) {
             var status = e.status; // Estado de conectividad
             var value = e.value; // Valor de conectividad (true o false)
-            
+
             // Cambia el color del gráfico según el estado de conectividad y códigos OPC UA
             switch (status) {
                 case 0:
                     if (value == true)
-                       { webMI.gfx.setFill("id_5", "#1a8b22"); // Verde si está conectado
+                    { webMI.gfx.setFill("id_5", "#1a8b22"); // Verde si está conectado
                         webMI.gfx.setVisible("id_5", true);}
                     else
                     {
-						webMI.gfx.setFill("id_5", "#ff0000"); // Rojo si no está conectado
-						webMI.gfx.setVisible("id_5",
-						{0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false});
+                        webMI.gfx.setFill("id_5", "#ff0000"); // Rojo si no está conectado
+                        webMI.gfx.setVisible("id_5",
+                            {0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false});
                     }
-                        
+
                     break;
-                
+
                 case undefined:
                     webMI.gfx.setFill("id_5", "#6b6b6b"); // Gris si el estado es indefinido
                     break;
-                
+
                 case 2156593152: // Código OPC UA: BadDeviceFailure
                     // Ha ocurrido una falla en el dispositivo/fuente de datos que afecta el valor
                     webMI.gfx.setFill("id_5", "#b98f2d"); // Color marrón claro para indicar la falla en el dispositivo
                     break;
-                
+
                 case 2150694912: // Código OPC UA: BadNoCommunication
                     // La comunicación con la fuente de datos está definida, pero no se ha establecido
                     webMI.gfx.setFill("id_5", "#ff0000"); // Rojo para indicar falta de comunicación
-					webMI.gfx.setVisible("id_5",
-						{0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false});
+                    webMI.gfx.setVisible("id_5",
+                        {0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false});
                     break;
-                
+
                 case 2150760448: // Código OPC UA: BadWaitingForInitialData
                     // Esperando a que el servidor obtenga valores de la fuente de datos
                     webMI.gfx.setFill("id_5", "#7c1536"); // Rojo oscuro para indicar espera de datos iniciales
                     break;
-                
+
                 case 1083179008: // Código OPC UA: UncertainLastUsableValue
                     // El proceso de actualización del valor se ha detenido; último valor usable
                     webMI.gfx.setFill("id_5", "#883fb2"); // Gris oscuro para estado incierto
                     break;
-                
+
                 case 2147483648: // Código OPC UA: Bad
                     // El valor es malo, pero no se conoce una razón específica
                     webMI.gfx.setFill("id_5", "#ff8f05"); // Naranja para indicar un error no especificado
                     break;
-                
-                default:		
+
+                default:
                     webMI.gfx.setFill("id_5", "#000000"); // Negro para estados desconocidos
                     break;
             }
         });
     }
-    
+
     // Si el estado de la alarma es 2, cambia el color a marrón oscuro
     if (value == 2)
         webMI.gfx.setFill("id_5", "#954120");
-    
+
     // Si el estado de la alarma es 3, cambia el color a verde para indicar que el fallo se ha resuelto
     if (value == 3)
         webMI.gfx.setFill("id_5", "#1a8b22");
-    
+
     // Si el estado de la alarma es 5, registra un mensaje en la consola para advertir de un cambio en el estado de alarma
     if (value == 5)
         console.log("State of alarm changed to On Off, Unacknowledged!");
@@ -130,55 +141,99 @@ webMI.data.read(webMI.query["base"] + ".Con_Control", function(e) {
     var ledColor = "#6b6b6b"; // Gris por defecto
     var glowOpacity = 0.20;
     var vismap = {0:true,1:false,2:true,3:false,4:true,5:false,6:true,7:false,8:true,9:false,10:true,11:false};
-        
 
     switch (status) {
         case 0: // Good
-			// En línea y controlable -> Azul
-			ledColor = "#1c7ed6"; // Azul
-			glowOpacity = 0.28;
-			webMI.gfx.setVisible("id_led", true);
-			webMI.gfx.setVisible("id_led_glow", true);
+            // En línea y controlable -> Azul
+            ledColor = "#1c7ed6"; // Azul
+            glowOpacity = 0.28;
+            // ======= MODIFICADO: solo mostrar si NO es GPRS =======
+            if (!isGPRS) {
+                webMI.gfx.setVisible("id_led", true);
+                webMI.gfx.setVisible("id_led_glow", true);
+            } else {
+                webMI.gfx.setVisible("id_led", false);
+                webMI.gfx.setVisible("id_led_glow", false);
+            }
+            // =====================================================
             break;
         case 2150694912: // BadNoCommunication -> Rojo parpadeante
             ledColor = "#ff0000";
             glowOpacity = 0.26;
-            webMI.gfx.setVisible("id_led", vismap);
-            webMI.gfx.setVisible("id_led_glow", vismap);
+            if (!isGPRS) {
+                webMI.gfx.setVisible("id_led", vismap);
+                webMI.gfx.setVisible("id_led_glow", vismap);
+            } else {
+                webMI.gfx.setVisible("id_led", false);
+                webMI.gfx.setVisible("id_led_glow", false);
+            }
             break;
         case 2150760448: // BadWaitingForInitialData
             ledColor = "#7c1536";
             glowOpacity = 0.22;
-            webMI.gfx.setVisible("id_led", vismap);
-            webMI.gfx.setVisible("id_led_glow", vismap);
+            if (!isGPRS) {
+                webMI.gfx.setVisible("id_led", vismap);
+                webMI.gfx.setVisible("id_led_glow", vismap);
+            } else {
+                webMI.gfx.setVisible("id_led", false);
+                webMI.gfx.setVisible("id_led_glow", false);
+            }
             break;
         case 2156593152: // BadDeviceFailure
             ledColor = "#b98f2d";
             glowOpacity = 0.22;
-            webMI.gfx.setVisible("id_led", vismap);
-            webMI.gfx.setVisible("id_led_glow", vismap);
+            if (!isGPRS) {
+                webMI.gfx.setVisible("id_led", vismap);
+                webMI.gfx.setVisible("id_led_glow", vismap);
+            } else {
+                webMI.gfx.setVisible("id_led", false);
+                webMI.gfx.setVisible("id_led_glow", false);
+            }
             break;
         case 1083179008: // UncertainLastUsableValue
             ledColor = "#883fb2";
             glowOpacity = 0.22;
-            webMI.gfx.setVisible("id_led", vismap);
-            webMI.gfx.setVisible("id_led_glow", vismap);
+            if (!isGPRS) {
+                webMI.gfx.setVisible("id_led", vismap);
+                webMI.gfx.setVisible("id_led_glow", vismap);
+            } else {
+                webMI.gfx.setVisible("id_led", false);
+                webMI.gfx.setVisible("id_led_glow", false);
+            }
             break;
         case 2147483648: // Bad genérico
             ledColor = "#ff8f05";
             glowOpacity = 0.22;
-            webMI.gfx.setVisible("id_led", vismap);
-            webMI.gfx.setVisible("id_led_glow", vismap);
+            if (!isGPRS) {
+                webMI.gfx.setVisible("id_led", vismap);
+                webMI.gfx.setVisible("id_led_glow", vismap);
+            } else {
+                webMI.gfx.setVisible("id_led", false);
+                webMI.gfx.setVisible("id_led_glow", false);
+            }
             break;
         case undefined:
             ledColor = "#6b6b6b"; // Indefinido
             glowOpacity = 0.18;
+            // En indefinido lo dejamos oculto si es GPRS también
+            if (!isGPRS) {
+                webMI.gfx.setVisible("id_led", true);
+                webMI.gfx.setVisible("id_led_glow", true);
+            } else {
+                webMI.gfx.setVisible("id_led", false);
+                webMI.gfx.setVisible("id_led_glow", false);
+            }
             break;
         default:
             ledColor = "#000000"; // Estado desconocido
             glowOpacity = 0.18;
-            webMI.gfx.setVisible("id_led", vismap);
-            webMI.gfx.setVisible("id_led_glow", vismap);
+            if (!isGPRS) {
+                webMI.gfx.setVisible("id_led", vismap);
+                webMI.gfx.setVisible("id_led_glow", vismap);
+            } else {
+                webMI.gfx.setVisible("id_led", false);
+                webMI.gfx.setVisible("id_led_glow", false);
+            }
             break;
     }
     // Parpadeo cuando NO se puede controlar (status != 0)
@@ -191,10 +246,9 @@ webMI.data.read(webMI.query["base"] + ".Con_Control", function(e) {
 
     // Manejar parpadeo usando mapa de visibilidad (igual que el fondo)
     if (status == 0) {
-        webMI.gfx.setVisible("id_led", true);
-        webMI.gfx.setVisible("id_led_glow", true);
+        // Ya controlado arriba con isGPRS
     } else {
-        
+        // Ya controlado arriba con isGPRS + vismap
     }
 
     // Mantener sincronizado el color del marco si se desea conservarlo

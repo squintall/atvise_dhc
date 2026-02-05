@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_016.Equipos.Bombas.Bomba_3.AP_SOL_CAR_16_B3_ManAuto
+NodeClass: Variable
+BrowseName: 1:AP_SOL_CAR_16_B3_ManAuto
+DisplayName: en|AP_SOL_CAR_16_B3_ManAuto
+Description: en|AP_SOL_CAR_16_B3_ManAuto
+DataType: Boolean
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

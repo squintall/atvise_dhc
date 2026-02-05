@@ -1,0 +1,10 @@
+NodeId: ns=1;s=ObjectTypes.PROJECT.Bomba.Asignar_STS
+NodeClass: Variable
+BrowseName: 1:Asignar_STS
+DisplayName: en|Asignar_STS
+Description: en|Asignar_STS
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule Shared
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.ScriptCode

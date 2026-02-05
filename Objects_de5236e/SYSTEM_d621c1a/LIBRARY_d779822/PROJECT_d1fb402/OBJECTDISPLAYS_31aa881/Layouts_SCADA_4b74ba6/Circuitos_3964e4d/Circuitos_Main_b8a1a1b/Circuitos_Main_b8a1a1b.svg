@@ -98,7 +98,7 @@
  <svg atv:refpx="1512.748" atv:refpy="682.995" height="63.11" id="id_47" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="1945.41" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Principal" y="905.474">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Cumbres"/>
  </svg>
- <svg atv:refpx="1830.368" atv:refpy="669.997" height="63.11" id="id_49" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2371.828" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Principal" y="880.778">
+ <svg atv:refpx="1828.989" atv:refpy="669.997" height="63.11" id="id_49" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2369.994" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Principal" y="880.778">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_El_table"/>
  </svg>
  <svg atv:refpx="1657.376" atv:refpy="654.995" height="63.11" id="id_50" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2144.406" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Principal" y="856.085">
@@ -477,7 +477,7 @@
  <svg atv:refpx="1508.878" atv:refpy="589.75" height="23" id="id_95" width="100" x="1462.878" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="562.25">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_0+000.Equipos.Caudalimetros.L6"/>
  </svg>
- <svg atv:refpx="1833.379" atv:refpy="700.5" height="23" id="id_96" width="100" x="1783.379" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="689">
+ <svg atv:refpx="1832" atv:refpy="759.5" height="23" id="id_96" width="100" x="1782" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="735">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_El_table.Equipos.Caudalimetro.L1"/>
  </svg>
  <svg atv:refpx="1740.002" atv:refpy="471.5" height="23" id="id_97" width="100" x="1693.002" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="466">
@@ -693,5 +693,8 @@
  <line atv:refpx="468" atv:refpy="457.5" fill="#dda500" id="id_244" stroke="#dda500" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="458" x2="478" y1="461" y2="461"/>
  <svg atv:refpx="645" atv:refpy="661.5" height="23" id="id_300" width="100" x="595" xlink:href="ObjectTypes.PROJECT.ElementoLinea.CRppm" y="649">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_Santa_Fe"/>
+ </svg>
+ <svg atv:refpx="1832" atv:refpy="712" height="63.11" id="id_301" transform="matrix(0.7519,0,0,0.7289,0,0)" width="133" x="2370.06" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Principal" y="945.278">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.Circuito_CAP_011.Carcamo_El_table_TE"/>
  </svg>
 </svg>

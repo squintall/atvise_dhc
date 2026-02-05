@@ -199,4 +199,7 @@ webMI.display.openWindow({display:"AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Cir
  </svg>
  <polygon atv:refpx="380.001" atv:refpy="36.595" fill="#000018" id="id_59" points="369.001,16 389.001,16 379.001,29.188 379.001,29.188" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
  <line atv:refpx="370.501" atv:refpy="10" id="id_63" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="379.001" x2="379.001" y1="17" y2="3"/>
+ <svg atv:refpx="212" atv:refpy="545.5" height="23" id="id_60" width="100" x="162" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="534">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Solidaridad.Circuitos.Circuito_PDC.Carcamo_016.Equipos.Caudalimetro.L1"/>
+ </svg>
 </svg>

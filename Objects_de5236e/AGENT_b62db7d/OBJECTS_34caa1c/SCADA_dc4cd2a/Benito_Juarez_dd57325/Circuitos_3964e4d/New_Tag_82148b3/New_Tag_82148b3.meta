@@ -1,0 +1,10 @@
+NodeId: ns=1;s=AGENT.OBJECTS.SCADA.Benito_Juarez.Circuitos.New Tag
+NodeClass: Variable
+BrowseName: 1:New Tag
+DisplayName: en|New Tag
+Description: en|New Tag
+DataType: Float
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasModellingRule New
+Reference: forward HasTypeDefinition BaseVariableType

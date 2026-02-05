@@ -61,78 +61,66 @@
   <atv:overwrite height="40.999" id="button_bg" transform="matrix(0.5882,0,0,0.6977,0,0)" width="134"/>
   <atv:overwrite height="42.999" id="outer_frame" transform="matrix(0.5882,0,0,0.6977,0,0)" width="136"/>
  </svg>
- <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[/* ======================= Auto-rotación en iframe 'content' ======================= */
-var FRAME = "content";
-// Duraciones solicitadas:
-// - Cuando es turno de Pantalla_TI: 2 minutos
-// - Para el resto: 30 segundos
+ <g atv:refpx="797.604" atv:refpy="43" id="id_19" transform="matrix(1,0,0,1,-80.0618,-0.0004)">
+  <image atv:refpx="794.046" atv:refpy="46" height="131" id="id_17" transform="matrix(0.5344,0,0,0.5344,0,0)" width="352" x="1309.997" xlink:href="../../Icons/Logo DHC.png" y="20.586"/>
+  <image atv:refpx="981.168" atv:refpy="40" height="613" id="id_18" transform="matrix(0.1142,0,0,0.1142,0,0)" width="1299" x="7942.731" xlink:href="../../Icons/Logo Aguakan.png" y="43.786"/>
+ </g>
+ <script atv:desc="" atv:name="" type="text/ecmascript"><![CDATA[var FRAME = "content";
+
 var TARGET_DISPLAY = "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI";
-var DELAY_TI_MS = 2 * 60 * 1000;      // 2 minutos
-var DELAY_OTHER_MS = 30 * 1000;       // 30 segundos
+var REFRESH_MS = 60 * 1000; // 1 minuto
 
-var ROTATION = ["AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI","SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_ISLA.Main_IM"
-  /*"SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Circuitos.Circuitos_Main",
-  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
-  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA.Cuencas.Cuencas_Main",
-  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
-  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_ISLA.Main_IM",
-  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
-  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Main_PUERTO_AVENTURAS",
-  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
-  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Main_Cuenca_PTAR_Saastun_Ha",
-  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
-  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PLAYA.Main_Circuito_CAP_INTERMEDIO",
-  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI",
-  "SYSTEM.LIBRARY.PROJECT.OBJECTDISPLAYS.Layouts_SCADA_PUERTO.Main_PUERTO_MORELOS",
-  "AGENT.DISPLAYS.USER.Layouts_DHC.Pantalla_TI"*/
-];
-
-var _rotIdx = 0;
-var _rotTimer = null;  // setTimeout handler
+var _refreshTimer = null;
 var _started = false;
 
 function openInFrame(displayPath){
   if (typeof displayPath !== "string" || !displayPath) {
-    console.warn("[rotate] path inválido:", displayPath);
+    console.warn("[refresh] path inválido:", displayPath);
     return;
   }
   try {
-    // Firma correcta: openDisplay(url, parameters, iframeName)
-    console.log("[rotate] openDisplay ->", displayPath, "frame:", FRAME);
+    console.log("[refresh] openDisplay ->", displayPath, "frame:", FRAME);
     webMI.display.openDisplay(displayPath, webMI.query, FRAME);
   } catch (e) {
-    console.warn("[rotate] openDisplay falló, fallback openWindow:", e);
+    console.warn("[refresh] openDisplay falló, fallback openWindow:", e);
     try {
       webMI.display.openWindow({
-        display: displayPath, extern: false, resizable: true, modal: false, query: webMI.query,
-        width: 1280, height: 720, menubar: false, toolbar: false, status: false, scrollbars: true
+        display: displayPath,
+        extern: false,
+        resizable: true,
+        modal: false,
+        query: webMI.query,
+        width: 1280,
+        height: 720,
+        menubar: false,
+        toolbar: false,
+        status: false,
+        scrollbars: true
       });
     } catch (e2) {
-      console.warn("[rotate] openWindow también falló:", e2);
+      console.warn("[refresh] openWindow también falló:", e2);
     }
   }
 }
 
-function goNext(){
-  if (!ROTATION.length) return;
-  var path = ROTATION[_rotIdx % ROTATION.length];
-  _rotIdx++;
-  openInFrame(path);
-  // Programar la siguiente rotación según el display mostrado
-  try { if (_rotTimer) clearTimeout(_rotTimer); } catch (_) {}
-  var delay = (path === TARGET_DISPLAY) ? DELAY_TI_MS : DELAY_OTHER_MS;
-  _rotTimer = setTimeout(goNext, delay);
+function refreshTarget(){
+  openInFrame(TARGET_DISPLAY);
+  try { if (_refreshTimer) clearTimeout(_refreshTimer); } catch (_) {}
+  _refreshTimer = setTimeout(refreshTarget, REFRESH_MS);
 }
 
-function startAutoRotate(){
-  goNext(); // primera carga y el propio goNext programa el siguiente salto
+function startAutoRefresh(){
+  refreshTarget();
 }
-function stopAutoRotate(){
-  if (_rotTimer){ clearTimeout(_rotTimer); _rotTimer = null; }
+
+function stopAutoRefresh(){
+  if (_refreshTimer){ clearTimeout(_refreshTimer); _refreshTimer = null; }
 }
-var FACTOR = 1.5
-var ALTO = 430*FACTOR;
-var ANCHO = 980*FACTOR;
+
+var FACTOR = 1.5;
+var ALTO = 430 * FACTOR;
+var ANCHO = 980 * FACTOR;
+
 /* --- Botón "Semáforo" intacto --- */
 webMI.addEvent("id_1", "click", function(){
   webMI.display.openWindow({
@@ -143,18 +131,12 @@ webMI.addEvent("id_1", "click", function(){
   });
 });
 
-/* --- Arranque (pequeño delay para que el frame 'content' quede listo) --- */
+/* --- Arranque --- */
 webMI.addOnload(function(){
   if (_started) return;
   _started = true;
-  // Pequeño delay inicial para respetar la pantalla actual antes de iniciar la rotación.
-  // Si la pantalla inicial es distinta a Pantalla_TI, serán 30s; si es Pantalla_TI, 2min.
-  // Ajusta esta línea si deseas otro comportamiento (por ejemplo, inicio inmediato).
-  setTimeout(startAutoRotate, DELAY_OTHER_MS);
+  // puedes poner 0 si quieres que refresque de inmediato
+  setTimeout(startAutoRefresh, REFRESH_MS);
 });
 ]]></script>
- <g atv:refpx="797.604" atv:refpy="43" id="id_19" transform="matrix(1,0,0,1,-80.0618,-0.0004)">
-  <image atv:refpx="794.046" atv:refpy="46" height="131" id="id_17" transform="matrix(0.5344,0,0,0.5344,0,0)" width="352" x="1309.997" xlink:href="../../Icons/Logo DHC.png" y="20.586"/>
-  <image atv:refpx="981.168" atv:refpy="40" height="613" id="id_18" transform="matrix(0.1142,0,0,0.1142,0,0)" width="1299" x="7942.731" xlink:href="../../Icons/Logo Aguakan.png" y="43.786"/>
- </g>
 </svg>

@@ -5,904 +5,663 @@
     <help/>
   </metadata>
   <code><![CDATA[/* ===================================================================
-UTILS / GLOBAL - MÓDULO EQUIPOS (AtvISE) - ACTUALIZADO v2
-VERSIÓN: 3 CORRIENTES EN UN SOLO RIEL (eje Y compartido)
-CAMBIO: Sin labels de nombres en rieles (solo unidades)
-=================================================================== */
+   UTILS.JS - RECONSTRUIDO DESDE CERO (PATRÓN HEADER)
+   - Utilidades limpias para manipulación del DOM y datos
+   - Compatible con proxies de atvise
+   =================================================================== */
 
 if (typeof EquiposGlobals === 'undefined') { var EquiposGlobals = {}; }
-if (!EquiposGlobals.UTILS) { EquiposGlobals.UTILS = {}; }
+EquiposGlobals.UTILS = {};
 
-var XHTML_NS = 'http://www.w3.org/1999/xhtml';
+// Helper para creación de elementos (Patrón Header)
+// Helper para creación de elementos (Patrón Header Robust)
+EquiposGlobals.UTILS.x = function (a, b) {
+    var tag = (typeof a === "string") ? a : b;
+    if (!tag) return null;
+    var tagL = tag.toLowerCase();
 
-EquiposGlobals.UTILS.x = function x(doc, tag) {
-  var d = doc || document;
-  try { return d.createElementNS(XHTML_NS, tag); }
-  catch (_) { return d.createElement(tag); }
-};
+    // Prefer passed doc, fallback to global document
+    var d = (typeof a === "object" && a !== null && a.createElement) ? a : document;
 
-EquiposGlobals.UTILS.setStyles = function setStyles(el, styles) {
-  if (!el || !styles) return;
-  for (var k in styles) {
-    if (Object.prototype.hasOwnProperty.call(styles, k)) { el.style[k] = styles[k]; }
-  }
-};
-
-EquiposGlobals.UTILS.clear = function clear(el) {
-  if (!el) return;
-  while (el.firstChild) { el.removeChild(el.firstChild); }
-};
-
-/* ===================================================================
-HELPERS COMPARTIDOS
-=================================================================== */
-
-EquiposGlobals.UTILS._trimZeros = function(s) {
-  return s.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
-};
-
-EquiposGlobals.UTILS._abbreviateNumber = function(n) {
-  var a = Math.abs(n);
-  if (a >= 1e6) return EquiposGlobals.UTILS._trimZeros((n / 1e6).toFixed(1)) + 'M';
-  if (a >= 1e3) return EquiposGlobals.UTILS._trimZeros((n / 1e3).toFixed(1)) + 'K';
-  return EquiposGlobals.UTILS._trimZeros(String(n));
-};
-
-EquiposGlobals.UTILS._abbreviateInteger = function(n) {
-  var s = n < 0 ? -1 : 1;
-  var a = Math.abs(n);
-  if (a >= 1e6) return String(Math.round(s * a / 1e6)) + 'M';
-  if (a >= 1e3) return String(Math.round(s * a / 1e3)) + 'K';
-  return String(Math.round(n));
-};
-
-EquiposGlobals.UTILS._calculateRange = function(arr, key) {
-  if (!arr || !arr.length) return null;
-
-  var mn = Infinity, mx = -Infinity;
-  for (var i = 0; i < arr.length; i++) {
-    var v = arr[i].v;
-    if (v < mn) mn = v;
-    if (v > mx) mx = v;
-  }
-
-  if (key === 'sts') {
-    mn = 0; mx = 2;
-  } else if (key === 'freq') {
-    mn = 0; mx = 60;
-  } else if (key === 'fp') {
-    mn = 0; mx = 1;
-  } else {
-    if (mn === mx) {
-      mn = (mn === 0 ? 0 : mn - 1);
-      mx = (mx === 0 ? 1 : mx + 1);
+    // 1. Try SVG creation (Namespaced)
+    if (["svg", "path", "circle", "g", "rect", "text", "line", "image", "linearGradient", "stop", "defs", "tspan"].indexOf(tagL) >= 0) {
+        try {
+            return d.createElementNS("http://www.w3.org/2000/svg", tagL);
+        } catch (e) {
+            // If proxy fails, try global document
+            try { return document.createElementNS("http://www.w3.org/2000/svg", tagL); } catch (ex) { }
+        }
     }
-    var range = mx - mn;
-    var head = range > 0 ? range * 0.10 : (Math.abs(mx) * 0.10 || 1);
-    mx = mx + head;
-    mn = Math.min(0, mn);
-  }
 
-  return {mn: mn, mx: mx};
+    // 2. Try HTML creation
+    try {
+        return d.createElement(tagL);
+    } catch (e) {
+        // "Illegal invocation" or proxy error -> Try NS
+        try {
+            return d.createElementNS("http://www.w3.org/1999/xhtml", tagL);
+        } catch (e2) {
+            // Final fallback: Global document
+            try {
+                return document.createElement(tagL);
+            } catch (e3) {
+                return null;
+            }
+        }
+    }
 };
 
-EquiposGlobals.UTILS._createYMapper = function(range, plotY0, plotH) {
-  var den = (range.mx - range.mn) || 1;
-  return function(v) {
-    return plotY0 + (1 - ((v - range.mn) / den)) * plotH;
-  };
+// Helper para estilos
+EquiposGlobals.UTILS.setStyles = function (el, styles) {
+    if (!el || !styles) return;
+    for (var k in styles) {
+        if (Object.prototype.hasOwnProperty.call(styles, k)) {
+            el.style[k] = styles[k];
+        }
+    }
 };
 
-EquiposGlobals.UTILS._createXMapper = function(tmin, tmax, plotX0, plotW) {
-  return function(ts) {
-    return plotX0 + ((ts - tmin) / (tmax - tmin)) * plotW;
-  };
-};
+// Históricos (Caudalimetros logic adapted)
+EquiposGlobals.UTILS.readHist = function (node, t1, t2, cb) {
+    var sPath = (node.indexOf("s=") >= 0) ? node.split("s=")[1] : node;
 
-EquiposGlobals.UTILS._formatTime = function(ts) {
-  try {
-    var d = new Date(ts);
-    var hh = String(d.getHours()).padStart(2, '0');
-    var mm = String(d.getMinutes()).padStart(2, '0');
-    return hh + ':' + mm;
-  } catch (_) {
-    return String(ts);
-  }
-};
+    function fixTs(ts) {
+        var n = Number(ts);
+        return (n && n < 1e12) ? (n * 1000) : n;
+    }
 
-/* ===================================================================
-CONFIGURACIÓN DE SERIES - CAMBIO: cur1, cur2, cur3 en UN SOLO RIEL
-=================================================================== */
-
-EquiposGlobals.UTILS.SERIES_CONFIG = {
-  sts: {
-    name: 'Estatus',
-    unit: '',
-    color: '#616161',
-    side: 'right',
-    display: true,
-    labels: { 0: 'OFF', 1: 'ON', 2: '' }
-  },
-  freq: {
-    name: 'Frecuencia',
-    unit: 'Hz',
-    color: '#1e88e5',
-    side: 'left',
-    display: true,
-    labels: null,
-    rielGroup: null
-  },
-  cur1: {
-    name: 'Corriente L1',
-    unit: 'A',
-    color: '#6a1b9a',
-    side: 'left',
-    display: true,
-    labels: null,
-    rielGroup: 'corrientes'
-  },
-  cur2: {
-    name: 'Corriente L2',
-    unit: 'A',
-    color: '#7b1fa2',
-    side: 'left',
-    display: true,
-    labels: null,
-    rielGroup: 'corrientes'
-  },
-  cur3: {
-    name: 'Corriente L3',
-    unit: 'A',
-    color: '#8e24aa',
-    side: 'left',
-    display: true,
-    labels: null,
-    rielGroup: 'corrientes'
-  },
-  fp: {
-    name: 'Factor de Potencia',
-    unit: 'FP',
-    color: '#2e7d32',
-    side: 'left',
-    display: true,
-    labels: null,
-    rielGroup: null
-  },
-  volt: {
-    name: 'Voltaje',
-    unit: 'V',
-    color: '#0ea5e9',
-    side: 'left',
-    display: false,
-    labels: null,
-    rielGroup: null
-  }
-};
-
-/* ===================================================================
-CHART INIT
-=================================================================== */
-
-EquiposGlobals.UTILS.chartInit = function(self) {
-  self._chart = {
-    series: { sts: [], freq: [], cur1: [], cur2: [], cur3: [], fp: [], volt: [] },
-    mode: 'cur',
-    visible: { sts: true, freq: true, cur1: true, cur2: true, cur3: true, fp: true, volt: false },
-    max: 100,
-    tmin: 0,
-    tmax: 0,
-    windowMs: 20 * 60 * 1000,
-    _geom: null,
-    _ymap: null
-  };
-
-  self._debugPlotBox = (typeof self._debugPlotBox === 'boolean') ? self._debugPlotBox : false;
-
-  if (typeof self._loadAllHistoric === 'function') {
-    self._loadAllHistoric(1 / 3);
-  }
-};
-
-/* ===================================================================
-CHART DRAW - SUBFUNCIONES
-=================================================================== */
-
-EquiposGlobals.UTILS._chartShowLegend = function(self) {
-  try {
-    var missNames = [];
-    var mapLabel = {
-      cur1: 'corriente L1',
-      cur2: 'corriente L2',
-      cur3: 'corriente L3',
-      volt: 'voltaje',
-      fp: 'factor de potencia',
-      freq: 'frecuencia',
-      sts: 'estatus'
+    // PASS 1: Get the state precisely before t1 to have a starting point
+    var fBefore = {
+        type: ["v:1"],
+        address: ["g:" + sPath],
+        select: ["v:timestamp", "v:value"],
+        timestamp: ["n:<" + t1],
+        order: ["v:desc"],
+        numrows: ["v:1"]
     };
 
-    ['cur1', 'cur2', 'cur3', 'volt', 'fp', 'freq', 'sts'].forEach(function(k) {
-      var a = self._chart.series[k];
-      if (!a || a.length < 2) missNames.push(mapLabel[k]);
-    });
-
-    if (self.elements && self.elements.chartLegend) {
-      if (missNames.length) {
-        self.elements.chartLegend.textContent = 'sin datos de: ' + missNames.join(', ');
-        self.elements.chartLegend.style.display = '';
-      } else {
-        self.elements.chartLegend.textContent = '';
-        self.elements.chartLegend.style.display = 'none';
-      }
-    }
-  } catch (_) {}
-};
-
-EquiposGlobals.UTILS._getSeriesConfig = function(side) {
-  var config = EquiposGlobals.UTILS.SERIES_CONFIG;
-  var result = [];
-  for (var key in config) {
-    if (Object.prototype.hasOwnProperty.call(config, key)) {
-      var cfg = config[key];
-      if (cfg.side === side && cfg.display) {
-        result.push(key);
-      }
-    }
-  }
-  return result;
-};
-
-EquiposGlobals.UTILS._getSeriesByRielGroup = function(side) {
-  var config = EquiposGlobals.UTILS.SERIES_CONFIG;
-  var groups = {};
-  
-  for (var key in config) {
-    if (Object.prototype.hasOwnProperty.call(config, key)) {
-      var cfg = config[key];
-      if (cfg.side === side && cfg.display) {
-        var groupKey = cfg.rielGroup || key;
-        if (!groups[groupKey]) groups[groupKey] = [];
-        groups[groupKey].push(key);
-      }
-    }
-  }
-  return groups;
-};
-
-EquiposGlobals.UTILS._chartCalculateDimensions = function(self, w, h, ctx) {
-  var pad = { t: 8, r: 46, b: 18, l: 8 };
-
-  var leftKeys = EquiposGlobals.UTILS._getSeriesConfig('left').filter(function(k) {
-    var a = self._chart.series[k];
-    return a && a.length >= 1;
-  });
-
-  var rightKeys = EquiposGlobals.UTILS._getSeriesConfig('right').filter(function(k) {
-    var a = self._chart.series[k];
-    return a && a.length >= 1;
-  });
-
-  var leftGroups = EquiposGlobals.UTILS._getSeriesByRielGroup('left');
-  var maxGapNeed = 10;
-  var maxRailGapNeed = 16;
-  var numLeftRiels = 0;
-
-  for (var g in leftGroups) {
-    if (Object.prototype.hasOwnProperty.call(leftGroups, g)) {
-      numLeftRiels++;
-      var keys = leftGroups[g];
-      
-      keys.forEach(function(key) {
-        var rr = EquiposGlobals.UTILS._calculateRange(self._chart.series[key], key);
-        if (!rr) return;
-
-        var cfg = EquiposGlobals.UTILS.SERIES_CONFIG[key];
-        var unit = cfg.unit;
-        var tTop = EquiposGlobals.UTILS._abbreviateInteger(rr.mx);
-        var tBot = EquiposGlobals.UTILS._abbreviateInteger(rr.mn);
-
-        var wTop = ctx.measureText(tTop).width;
-        var wMid = ctx.measureText(unit).width;
-        var wBot = ctx.measureText(tBot).width;
-        var wMax = Math.max(wTop, wMid, wBot);
-
-        var gap = Math.max(4, Math.min(18, Math.ceil(wMax * 0.03) + 4));
-        if (gap > maxGapNeed) maxGapNeed = gap;
-
-        var railGap = Math.max(16, Math.min(80, Math.ceil(wMax * 0.9) + 10));
-        if (railGap > maxRailGapNeed) maxRailGapNeed = railGap;
-      });
-    }
-  }
-
-  rightKeys.forEach(function(key) {
-    var rr = EquiposGlobals.UTILS._calculateRange(self._chart.series[key], key);
-    if (!rr) return;
-
-    var cfg = EquiposGlobals.UTILS.SERIES_CONFIG[key];
-    var maxLabel = '';
-    if (cfg.labels) {
-      for (var val in cfg.labels) {
-        if (cfg.labels[val].length > maxLabel.length) {
-          maxLabel = cfg.labels[val];
+    webMI.data.queryFilter(fBefore, function (resB) {
+        var allPts = [];
+        if (resB && resB.result && resB.result.length > 0) {
+            allPts.push({ t: t1, v: resB.result[0].value, initial: true });
         }
-      }
+
+        // PASS 2: Get all transitions within the range recursively
+        function fetchRange(currentFrom) {
+            var fRange = {
+                type: ["v:1"],
+                address: ["g:" + sPath],
+                select: ["v:timestamp", "v:value"],
+                timestamp: ["n:>=" + Math.floor(currentFrom) + "<=" + t2],
+                order: ["v:asc"],
+                numrows: ["v:10000"]
+            };
+
+            webMI.data.queryFilter(fRange, function (resR) {
+                var rows = (resR && resR.result) || [];
+                if (rows.length > 0) {
+                    for (var i = 0; i < rows.length; i++) {
+                        var r = rows[i];
+                        allPts.push({ t: fixTs(r.timestamp), v: r.value });
+                    }
+
+                    if (rows.length >= 10000) {
+                        var lastT = allPts[allPts.length - 1].t;
+                        fetchRange(lastT > currentFrom ? lastT : currentFrom + 1);
+                    } else {
+                        allPts.sort(function (a, b) { return a.t - b.t; });
+                        if (cb) cb(allPts);
+                    }
+                } else {
+                    allPts.sort(function (a, b) { return a.t - b.t; });
+                    if (cb) cb(allPts);
+                }
+            });
+        }
+        fetchRange(t1);
+    });
+};
+
+// Adición segura al DOM
+EquiposGlobals.UTILS.safeAppend = function (p, c) {
+    if (!p || !c) return;
+    try {
+        p.appendChild(c);
+    } catch (e) {
+        try {
+            var d = p.ownerDocument || document;
+            if (p === d.body) d.body.appendChild(c);
+        } catch (e2) { }
     }
-
-    var wLabel = ctx.measureText(maxLabel).width;
-    var railGap = Math.max(16, Math.min(80, Math.ceil(wLabel * 0.9) + 10));
-    if (railGap > maxRailGapNeed) maxRailGapNeed = railGap;
-  });
-
-  var laneW = Math.max(0, numLeftRiels * maxRailGapNeed + maxGapNeed + 4);
-  var plotX0 = pad.l + laneW;
-  var plotY0 = pad.t;
-  var plotW = Math.max(2, w - plotX0 - pad.r);
-  var plotH = Math.max(2, h - pad.t - pad.b);
-
-  return {
-    pad: pad,
-    leftKeys: leftKeys,
-    rightKeys: rightKeys,
-    leftGroups: leftGroups,
-    numLeftRiels: numLeftRiels,
-    maxGapNeed: maxGapNeed,
-    maxRailGapNeed: maxRailGapNeed,
-    laneW: laneW,
-    plotX0: plotX0,
-    plotY0: plotY0,
-    plotW: plotW,
-    plotH: plotH,
-    w: w,
-    h: h
-  };
 };
 
-EquiposGlobals.UTILS._chartCalculateRanges = function(self, leftKeys, rightKeys) {
-  var rEarly = {};
-
-  leftKeys.forEach(function(key) {
-    rEarly[key] = EquiposGlobals.UTILS._calculateRange(self._chart.series[key], key);
-  });
-
-  rightKeys.forEach(function(key) {
-    rEarly[key] = EquiposGlobals.UTILS._calculateRange(self._chart.series[key], key);
-  });
-
-  return rEarly;
-};
-
-EquiposGlobals.UTILS._chartDrawFrame = function(ctx, geom) {
-  ctx.strokeStyle = '#e5e7eb';
-  ctx.lineWidth = 1;
-  ctx.lineCap = 'round';
-  ctx.strokeRect(geom.plotX0 + 0.5, geom.plotY0 + 0.5, geom.plotW - 1, geom.plotH - 1);
-};
-
-EquiposGlobals.UTILS._chartDrawGrid = function(ctx, geom, tmin, tmax) {
-  var fr = [0.25, 0.50, 0.75];
-
-  ctx.save();
-  ctx.setLineDash([3, 3]);
-  ctx.strokeStyle = '#eceff4';
-
-  fr.forEach(function(f) {
-    var xg = geom.plotX0 + Math.round(f * geom.plotW) + 0.5;
-    ctx.beginPath();
-    ctx.moveTo(xg, geom.plotY0 + 1);
-    ctx.lineTo(xg, geom.plotY0 + geom.plotH - 1);
-    ctx.stroke();
-  });
-
-  ctx.restore();
-
-  ctx.font = '10px Arial';
-  ctx.fillStyle = '#64748b';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'bottom';
-
-  fr.forEach(function(f) {
-    var xx = geom.plotX0 + f * geom.plotW;
-    var tt = tmin + f * (tmax - tmin);
-
-    ctx.beginPath();
-    ctx.moveTo(xx + 0.5, geom.plotY0 + geom.plotH);
-    ctx.lineTo(xx + 0.5, geom.plotY0 + geom.plotH + 6);
-    ctx.strokeStyle = '#94a3b8';
-    ctx.stroke();
-
-    ctx.fillText(EquiposGlobals.UTILS._formatTime(tt), xx, geom.h - 2);
-  });
-};
-
-EquiposGlobals.UTILS._chartDrawSeries = function(ctx, self, geom, tmin, tmax, rEarly, yMappers) {
-  var config = EquiposGlobals.UTILS.SERIES_CONFIG;
-  var xMapper = EquiposGlobals.UTILS._createXMapper(tmin, tmax, geom.plotX0, geom.plotW);
-
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(geom.plotX0 + 1, geom.plotY0 + 1, Math.max(0, geom.plotW - 2), Math.max(0, geom.plotH - 2));
-  ctx.clip();
-
-  var keys = ['sts', 'freq', 'cur1', 'cur2', 'cur3', 'fp', 'volt'];
-
-  keys.forEach(function(key) {
-    var arr = self._chart.series[key];
-    var yF = yMappers[key];
-    var cfg = config[key];
-
-    if (!arr || !yF || arr.length < 1) return;
-    if (self._chart.visible && self._chart.visible[key] === false) return;
-    if (!cfg.display) return;
-
-    var pts = [];
-
-    if (key === 'sts') {
-      var first = arr[0], last = arr[arr.length - 1];
-      if (first.t > tmin) pts.push({t: tmin, v: first.v});
-
-      for (var i = 0; i < arr.length; i++) {
-        pts.push(arr[i]);
-        if (i < arr.length - 1) pts.push({t: arr[i + 1].t, v: arr[i].v});
-      }
-
-      if (last.t < tmax) pts.push({t: tmax, v: last.v});
-    } else {
-      pts = arr.slice();
-      if (pts.length && pts[0].t > tmin) pts.unshift({t: tmin, v: pts[0].v});
-      if (pts.length && pts[pts.length - 1].t < tmax) pts.push({t: tmax, v: pts[pts.length - 1].v});
+// Limpieza de contenedor
+EquiposGlobals.UTILS.clear = function (el) {
+    if (!el) return;
+    while (el.firstChild) {
+        try {
+            el.removeChild(el.firstChild);
+        } catch (e) {
+            el.innerHTML = "";
+            break;
+        }
     }
-
-    if (pts.length < 2) return;
-
-    ctx.beginPath();
-    for (var j = 0; j < pts.length; j++) {
-      var x = xMapper(pts[j].t);
-      var y = yF(pts[j].v);
-      j === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-
-    ctx.strokeStyle = cfg.color;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  });
-
-  ctx.restore();
 };
 
-/**
-* CAMBIO ACTUALIZADO: Dibujar rieles IZQUIERDA por grupo
-* SIN mostrar nombres de las mediciones (solo unidades)
-* Mantiene la leyenda SOLO para el grupo de corrientes
-*/
-EquiposGlobals.UTILS._chartDrawRails = function(ctx, self, geom, rEarly) {
-  var config = EquiposGlobals.UTILS.SERIES_CONFIG;
-  var xPos = geom.plotX0;
-  var laneGap = geom.maxRailGapNeed;
-
-  ctx.font = '10px Arial';
-
-  var rielIdx = 0;
-  for (var groupKey in geom.leftGroups) {
-    if (!Object.prototype.hasOwnProperty.call(geom.leftGroups, groupKey)) continue;
-    
-    var keys = geom.leftGroups[groupKey];
-    var rr = rEarly[keys[0]];
-    if (!rr) continue;
-
-    var xRail = xPos - (geom.numLeftRiels - rielIdx - 1) * laneGap - geom.maxGapNeed - 4;
-
-    // Dibujar riel principal
-    ctx.lineWidth = 3;
-    
-    if (keys.length > 1) {
-      ctx.strokeStyle = config[keys[0]].color;
-    } else {
-      ctx.strokeStyle = config[keys[0]].color;
-    }
-    
-    ctx.beginPath();
-    ctx.moveTo(xRail + 0.5, geom.plotY0);
-    ctx.lineTo(xRail + 0.5, geom.plotY0 + geom.plotH);
-    ctx.stroke();
-
-    var unit = config[keys[0]].unit;
-    var tTop = EquiposGlobals.UTILS._abbreviateInteger(rr.mx);
-    var tBot = EquiposGlobals.UTILS._abbreviateInteger(rr.mn);
-
-    var wTop = ctx.measureText(tTop).width;
-    var wMid = ctx.measureText(unit).width;
-    var wBot = ctx.measureText(tBot).width;
-    var wMax = Math.max(wTop, wMid, wBot);
-
-    var gap = Math.max(4, Math.min(18, Math.ceil(wMax * 0.18) + 4));
-
-    ctx.fillStyle = ctx.strokeStyle;
-
-    // CAMBIO: Solo mostrar valores numericos (tTop, unit, tBot)
-    // NO mostrar nombres como "Corriente L1", "Corriente L2", etc.
-
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'top';
-    ctx.fillText(tTop, xRail - gap, geom.plotY0 + 1);
-
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(unit, xRail - gap, geom.plotY0 + geom.plotH / 2);
-
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(tBot, xRail - gap, geom.plotY0 + geom.plotH - 1);
-
-    // Si es grupo de corrientes, mostrar leyenda COMPACTA (solo colores, sin nombres)
-    // CAMBIO: Leyenda deshabilitada - solo se ve en hover
-    // if (keys.length > 1) {
-    //   ... leyenda deshabilitada ...
-    // }
-
-    rielIdx++;
-  }
+// Subscripciones simplificadas
+EquiposGlobals.UTILS.addSub = function (addr, cb, subs) {
+    try {
+        var id = webMI.data.subscribe(addr, cb);
+        if (subs && subs.push) subs.push(id);
+        return id;
+    } catch (e) { return null; }
 };
 
-EquiposGlobals.UTILS._chartDrawRightRails = function(ctx, geom, rEarly, yMappers) {
-  var config = EquiposGlobals.UTILS.SERIES_CONFIG;
-
-  geom.rightKeys.forEach(function(key, idx) {
-    var rr = rEarly[key];
-    if (!rr) return;
-
-    var yF = yMappers[key];
-    if (!yF) return;
-
-    var cfg = config[key];
-
-    var xRight = geom.plotX0 + geom.plotW + 4 + (idx * 50);
-
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#94a3b8';
-    ctx.beginPath();
-    ctx.moveTo(xRight, geom.plotY0);
-    ctx.lineTo(xRight, geom.plotY0 + geom.plotH);
-    ctx.stroke();
-
-    ctx.strokeStyle = cfg.color;
-    ctx.fillStyle = cfg.color;
-    ctx.lineWidth = 1.5;
-    ctx.font = '10px Arial';
-
-    if (cfg.labels) {
-      var values = Object.keys(cfg.labels);
-      values.forEach(function(vStr) {
-        var v = Number(vStr);
-        var label = cfg.labels[vStr];
-        if (!label) return;
-
-        var py = yF(v);
-        ctx.beginPath();
-        ctx.moveTo(xRight, py + 0.5);
-        ctx.lineTo(xRight + 8, py + 0.5);
-        ctx.stroke();
-
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(label, xRight + 10, py);
-      });
-    }
-
-    ctx.fillText(cfg.name, xRight + 10, geom.plotY0 + 10);
-  });
+EquiposGlobals.UTILS.log = function () {
+    // console.log.apply(console, arguments); // Disabled for production
 };
 
-EquiposGlobals.UTILS._chartPositionOverlay = function(self, geom) {
-  try {
-    var ov = self.elements && self.elements.chartOverlay;
-    var base = self.elements && self.elements.chartCanvas;
+// ===================================================================
+// DATA MANIPULATION (Pattern Header)
+// ===================================================================
 
-    if (!ov || !base) return;
-
-    var left = (base.offsetLeft || 0) + geom.plotX0;
-    var top = (base.offsetTop || 0) + geom.plotY0;
-
-    ov.style.left = left + 'px';
-    ov.style.top = top + 'px';
-    ov.style.right = '';
-    ov.style.width = Math.max(0, geom.plotW) + 'px';
-    ov.style.height = Math.max(0, geom.plotH) + 'px';
-    ov.width = Math.max(0, geom.plotW);
-    ov.height = Math.max(0, geom.plotH);
-
-    if (self._debugPlotBox) {
-      ov.style.outline = '1px dashed rgba(239,68,68,0.8)';
-      ov.style.outlineOffset = '0px';
-    } else {
-      ov.style.outline = '';
-    }
-  } catch (_) {}
-};
-
-/**
-* FUNCIÓN PRINCIPAL: Dibujar gráfica
-*/
-EquiposGlobals.UTILS.chartDraw = function(self) {
-  var c = self.elements.chartCanvas;
-  if (!c) return;
-
-  var ctx = c.getContext('2d');
-  if (!ctx) return;
-
-  if (!self._chart || self._chart.ready !== true) return;
-
-  var w = c.clientWidth || c.width;
-  var h = c.clientHeight || c.height;
-
-  var tmin = self._chart.tmin;
-  var tmax = self._chart.tmax;
-
-  if (!tmax || tmax <= tmin) return;
-
-  EquiposGlobals.UTILS._chartShowLegend(self);
-
-  var geom = EquiposGlobals.UTILS._chartCalculateDimensions(self, w, h, ctx);
-
-  var rEarly = EquiposGlobals.UTILS._chartCalculateRanges(self, geom.leftKeys, geom.rightKeys);
-
-  var yF = {};
-  ['sts', 'freq', 'cur1', 'cur2', 'cur3', 'fp', 'volt'].forEach(function(key) {
-    yF[key] = rEarly[key] ? EquiposGlobals.UTILS._createYMapper(rEarly[key], geom.plotY0, geom.plotH) : null;
-  });
-
-  ctx.clearRect(0, 0, w, h);
-
-  EquiposGlobals.UTILS._chartDrawFrame(ctx, geom);
-  EquiposGlobals.UTILS._chartDrawGrid(ctx, geom, tmin, tmax);
-  EquiposGlobals.UTILS._chartDrawSeries(ctx, self, geom, tmin, tmax, rEarly, yF);
-  EquiposGlobals.UTILS._chartDrawRails(ctx, self, geom, rEarly);
-  EquiposGlobals.UTILS._chartDrawRightRails(ctx, geom, rEarly, yF);
-
-  self._chart._geom = geom;
-  self._chart._ymap = yF;
-
-  EquiposGlobals.UTILS._chartPositionOverlay(self, geom);
-};
-
-/* ===================================================================
-CHART HOVER
-=================================================================== */
-
-EquiposGlobals.UTILS.attachChartHover = function(self) {
-  var c = self.elements.chartCanvas;
-  var ov = self.elements.chartOverlay;
-  var tip = self.elements.chartTip;
-  if (!c || !ov) return;
-  var ctx = ov.getContext('2d');
-
-  function clear() { ctx.clearRect(0, 0, ov.width, ov.height); if (tip) tip.style.display = 'none'; }
-  ov.addEventListener('mouseleave', clear);
-
-  ov.addEventListener('mousemove', function(ev) {
-    if (!self._chart || !self._chart.tmax || self._chart.tmax <= self._chart.tmin) { clear(); return; }
-    var g = self._chart._geom, ymap = self._chart._ymap;
-    if (!g || !ymap) { clear(); return; }
-
-    var cw = ov.clientWidth || ov.width;
-    var ch = ov.clientHeight || ov.height;
-    if (ov.width !== cw) ov.width = cw;
-    if (ov.height !== ch) ov.height = ch;
-
-    var rect = ov.getBoundingClientRect();
-    var rw = rect.width, rh = rect.height;
-    var x = ev.clientX - rect.left, y = ev.clientY - rect.top;
-
-    var plotL = g.plotX0;
-    var plotT = g.plotY0;
-
-    if (x < 0 || x > rw || y < 0 || y > rh) { clear(); return; }
-    var xVis = Math.min(Math.max(x, 0), Math.max(1, rw));
-    var yVis = Math.min(Math.max(y, 0), Math.max(1, rh));
-    var xLocal = (xVis / Math.max(1, rw)) * cw;
-    var yLocal = (yVis / Math.max(1, rh)) * ch;
-    var xC = plotL + (xLocal / Math.max(1, cw)) * g.plotW;
-
-    var t = self._chart.tmin + ((xC - plotL) / (g.plotW || 1)) * (self._chart.tmax - self._chart.tmin);
-
-    ctx.clearRect(0, 0, ov.width, ov.height);
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(1, 1, Math.max(0, g.plotW - 2), Math.max(0, g.plotH - 2));
-    ctx.clip();
-
-    ctx.beginPath();
-    ctx.moveTo(xLocal + 0.5, 1);
-    ctx.lineTo(xLocal + 0.5, g.plotH - 1);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#64748b';
-    ctx.stroke();
-
-    var keys = ['sts', 'freq', 'cur1', 'cur2', 'cur3', 'fp', 'volt'];
-    var lines = [];
-
-    keys.forEach(function(key) {
-      var arr = self._chart.series[key], yF = ymap[key];
-      if (self._chart && self._chart.visible && self._chart.visible[key] === false) return;
-      if (!arr || arr.length < 2 || !yF) return;
-
-      var lo = 0, hi = arr.length - 1, idx = 0;
-      if (t <= arr[0].t) idx = 0;
-      else if (t >= arr[hi].t) idx = hi;
-      else {
-        while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (arr[mid].t < t) lo = mid; else hi = mid; }
-        if (key === 'sts') idx = lo; else idx = (t - arr[lo].t <= arr[hi].t - t) ? lo : hi;
-      }
-
-      var val = arr[idx].v;
-      var ny = yF(val) - plotT;
-
-      ctx.beginPath();
-      ctx.arc(xLocal, ny, 3.2, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff';
-      var cfg = EquiposGlobals.UTILS.SERIES_CONFIG[key];
-      ctx.strokeStyle = cfg.color;
-      ctx.lineWidth = 1;
-      ctx.fill();
-      ctx.stroke();
-
-      var label = cfg.name + ': ' + (
-        key === 'sts' ? (val ? 'ON' : 'OFF') :
-        key === 'freq' ? (val.toFixed(1) + ' ' + cfg.unit) :
-        key === 'cur1' ? (val.toFixed(1) + ' ' + cfg.unit) :
-        key === 'cur2' ? (val.toFixed(1) + ' ' + cfg.unit) :
-        key === 'cur3' ? (val.toFixed(1) + ' ' + cfg.unit) :
-        key === 'volt' ? (Math.round(val) + ' ' + cfg.unit) :
-        key === 'fp' ? (val.toFixed(2)) : val
-      );
-      lines.push('<span style="color:' + cfg.color + '">●</span> ' + label);
+EquiposGlobals.UTILS.groupData = function (series, intervalMs) {
+    if (!series || !Array.isArray(series)) return [];
+    var buckets = {};
+    series.forEach(function (p) {
+        var bucketKey = Math.floor(p.t / intervalMs) * intervalMs;
+        if (!buckets[bucketKey] || p.t > buckets[bucketKey].lastT) {
+            buckets[bucketKey] = { t: bucketKey, v: p.v, lastT: p.t };
+        }
     });
 
-    ctx.restore();
+    return Object.keys(buckets)
+        .sort(function (a, b) { return +a - +b; })
+        .map(function (k) { return { t: buckets[k].t, v: buckets[k].v }; });
+};
 
-    if (tip) {
-      function fmt(ts) { try { var d = new Date(ts); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); } catch (_) { return String(ts); } }
-      var valsHtml = lines.length ? ('<div style="margin-top:4px;opacity:.95">' + lines.join('<br>') + '</div>') : '';
-      tip.innerHTML = '<div style="opacity:.95;font-weight:600">' + fmt(t) + '</div>' + valsHtml;
-      tip.style.background = 'rgba(15,23,42,0.55)';
-      tip.style.display = 'block';
+// ===================================================================
+// LEGACY CHART HELPERS (Required by Render.js)
+// ===================================================================
 
-      var tw = tip.offsetWidth, th = tip.offsetHeight;
-      var tx = xLocal - tw / 2;
-      var ty = yLocal - th - 10;
-      if (ty < 2) ty = Math.min(yLocal + 10, g.plotH - th - 2);
-      if (tx < 2) tx = 2;
-      if (tx + tw > g.plotW - 2) tx = g.plotW - tw - 2;
+// Inicializa el objeto _chart en la instancia de EquiposCard
+EquiposGlobals.UTILS.chartInit = function (cardInstance) {
+    if (!cardInstance) return;
 
-      var baseL = (ov && ov.offsetLeft) || 0;
-      var baseT = (ov && ov.offsetTop) || 0;
-      tip.style.left = (baseL + tx) + 'px';
-      tip.style.top = (baseT + ty) + 'px';
+    // Crear estructura de chart si no existe
+    if (!cardInstance._chart) {
+        cardInstance._chart = {
+            ready: false,
+            series: {
+                sts: [],    // Estado ON/OFF
+                freq: [],   // Frecuencia
+                volt: [],   // Voltaje
+                cur1: [],   // Corriente L1
+                cur2: [],   // Corriente L2
+                cur3: [],   // Corriente L3
+                fp: []      // Factor de Potencia
+            }
+        };
     }
-  });
-};
 
-/* ===================================================================
-SPARKLINES
-=================================================================== */
+    // Cargar histórico inicial (8 horas por defecto)
+    var now = Date.now();
+    var from = now - (8 * 60 * 60 * 1000);
+    cardInstance._loadAllHistoric = cardInstance._loadAllHistoric || function (hours) {
+        var t2 = Date.now();
+        var t1 = t2 - (hours * 60 * 60 * 1000);
+        cardInstance._loadHistManual(t1, t2);
+    };
 
-EquiposGlobals.UTILS.mkSparkRow = function(self, sig) {
-  var doc = self.doc;
-  var xh = EquiposGlobals.UTILS.x;
-  var setS = EquiposGlobals.UTILS.setStyles;
-
-  var row = xh(doc, 'div');
-  setS(row, {display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 2px'});
-
-  var cb = xh(doc, 'input');
-  cb.type = 'checkbox';
-  cb.checked = true;
-
-  var lbl = xh(doc, 'span');
-  lbl.textContent = sig.label;
-  setS(lbl, {fontSize: '12px'});
-
-  row.appendChild(cb);
-  row.appendChild(lbl);
-
-  self.elements.sparkWrap.appendChild(row);
-
-  self.spark.byKey[sig.key] = {
-    enabled: true,
-    buf: [],
-    canvas: null,
-    type: sig.type,
-    row: row,
-    checkbox: cb
-  };
-
-  function mapSeries(k) {
-    return k === '.status' ? 'sts' :
-           k === '.current' ? 'cur1' :
-           k === '.current2' ? 'cur2' :
-           k === '.current3' ? 'cur3' :
-           k === '.freq' ? 'freq' :
-           k === '.FP' ? 'fp' :
-           k === '.voltage' ? 'volt' : null;
-  }
-
-  cb.addEventListener('change', function() {
-    var sk = mapSeries(sig.key);
-    if (!self._chart.visible) {
-      self._chart.visible = {sts: true, freq: true, cur1: true, cur2: true, cur3: true, fp: true, volt: false};
+    // Stub para carga manual
+    if (!cardInstance._loadHistManual) {
+        cardInstance._loadHistManual = function (t1, t2) {
+            // Implementación básica: marcar como listo y redibujar
+            cardInstance._chart.ready = true;
+            if (cardInstance.elements && cardInstance.elements.chartLoading) {
+                cardInstance.elements.chartLoading.style.display = 'none';
+            }
+            cardInstance._scheduleChartDraw();
+        };
     }
-    if (sk) self._chart.visible[sk] = !!cb.checked;
-
-    if (typeof self._drawAll === 'function') self._drawAll();
-    if (typeof self._chartDraw === 'function') self._chartDraw();
-  });
 };
 
-EquiposGlobals.UTILS.drawSparkOne = function(self, info) {
-  var canv = info.canvas;
-  if (!canv) return;
-  var ctx = canv.getContext('2d');
-  if (!ctx) return;
-  ctx.clearRect(0, 0, canv.width, canv.height);
-  if (!self.spark.enabled || !info.enabled) return;
-  var data = info.buf;
-  if (!data || data.length < 2) return;
-  var w = canv.width, h = canv.height, n = data.length, min = +Infinity, max = -Infinity;
-  for (var i = 0; i < n; i++) {
-    var val = data[i];
-    if (typeof val === 'number' && !isNaN(val)) { if (val < min) min = val; if (val > max) max = val; }
-  }
-  if (!isFinite(min) || !isFinite(max)) return;
-  if (min === max) { if (info.type === 'bool') { min = 0; max = 1; } else { min -= 1; max += 1; } }
-  var dx = w / (n - 1);
-  ctx.beginPath();
-  for (var j = 0; j < n; j++) {
-    var v = data[j];
-    if (typeof v !== 'number' || isNaN(v)) continue;
-    var y = h - ((v - min) / (max - min)) * (h - 2) - 1;
-    var xpx = j * dx;
-    if (j === 0) ctx.moveTo(xpx, y); else ctx.lineTo(xpx, y);
-  }
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = '#111';
-  ctx.stroke();
-};
+// Renderiza el chart en canvas (modo legacy para tarjetas pequeñas)
+EquiposGlobals.UTILS.chartDraw = function (cardInstance) {
+    if (!cardInstance || !cardInstance.elements) return;
 
-EquiposGlobals.UTILS.drawSparkAll = function(self) {
-  for (var k in self.spark.byKey)
-    if (Object.prototype.hasOwnProperty.call(self.spark.byKey, k))
-      self._drawOne(self.spark.byKey[k]);
-};
+    var canvas = cardInstance.elements.chartCanvas;
+    if (!canvas || !canvas.getContext) return; // Solo para canvas, no DIV
 
-EquiposGlobals.UTILS.enableSparks = function(self, on) {
-  self.spark.enabled = !!on;
-  if (self.spark.enabled) {
-    self.elements.sparkWrap.style.display = '';
-    self.elements.root.style.height = '280px';
-    self.host.style.height = '280px';
-    if (!self.spark._inited) {
-      self.spark._inited = true;
-      var SIGS = [
-        { key: '.status', label: 'sts', type: 'bool' },
-        { key: '.current', label: 'L1', type: 'num' },
-        { key: '.current2', label: 'L2', type: 'num' },
-        { key: '.current3', label: 'L3', type: 'num' },
-        { key: '.freq', label: 'freq', type: 'num' },
-        { key: '.FP', label: 'FP', type: 'num' },
-        { key: '.voltage', label: 'voltage', type: 'num' }
-      ];
-      for (var si = 0; si < SIGS.length; si++) self._mkSparkRow(SIGS[si]);
-      for (var sk = 0; sk < SIGS.length; sk++) self._subSig(SIGS[sk].key);
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    var w = canvas.width || 200;
+    var h = canvas.height || 60;
+
+    // Limpiar canvas
+    ctx.clearRect(0, 0, w, h);
+
+    // Verificar si hay datos
+    if (!cardInstance._chart || !cardInstance._chart.ready || !cardInstance._chart.series) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Sin datos', w / 2, h / 2);
+        return;
     }
-  } else {
-    self.elements.sparkWrap.style.display = 'none';
-    self.elements.root.style.height = '240px';
-    self.host.style.height = '240px';
-  }
-  self._drawAll();
+
+    // Dibujo básico de línea (frecuencia como ejemplo)
+    var series = cardInstance._chart.series.freq || [];
+    if (series.length < 2) return;
+
+    var vals = series.map(function (p) { return p.v; });
+    var min = Math.min.apply(null, vals);
+    var max = Math.max.apply(null, vals);
+    var range = max - min || 1;
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#1e88e5';
+    ctx.lineWidth = 1.5;
+
+    for (var i = 0; i < series.length; i++) {
+        var x = (i / (series.length - 1)) * w;
+        var y = h - ((series[i].v - min) / range) * h;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
 };
 
-/* ===================================================================
-FIN UTILS.js - SIN LABELS EN RIELES, SOLO UNIDADES Y HOVER
-=================================================================== */
+// Adjunta eventos de hover al chart
+EquiposGlobals.UTILS.attachChartHover = function (cardInstance) {
+    if (!cardInstance || !cardInstance.elements) return;
+
+    var canvas = cardInstance.elements.chartCanvas;
+    var overlay = cardInstance.elements.chartOverlay;
+    var tip = cardInstance.elements.chartTip;
+
+    if (!canvas || !overlay || !tip) return;
+
+    // Stub básico: no hacer nada en tarjetas pequeñas
+    // El hover completo solo funciona en dashboard fullscreen (buildEquipmentChart)
+    canvas.onmousemove = null;
+    canvas.onmouseleave = null;
+};
+
+// ===================================================================
+// CHART RENDERING ENGINE (Patrón Header Dashboard)
+// ===================================================================
+
+
+// Configuración de series para gráficos
+EquiposGlobals.UTILS.SERIES_CONFIG = {
+    sts: { color: '#22c55e', label: 'Estado', unit: '', type: 'area', yMin: 0, yMax: 1 },
+    freq: { color: '#1e88e5', label: 'Frecuencia', unit: 'Hz', type: 'line' },
+    cur1: { color: '#6a1b9a', label: 'Corriente L1', unit: 'A', type: 'line' },
+    cur2: { color: '#7b1fa2', label: 'Corriente L2', unit: 'A', type: 'line' },
+    cur3: { color: '#8e24aa', label: 'Corriente L3', unit: 'A', type: 'line' },
+    fp: { color: '#7c3aed', label: 'Factor de Potencia', unit: '', type: 'line' },
+    volt: { color: '#0ea5e9', label: 'Voltaje', unit: 'V', type: 'line' }
+};
+
+/**
+ * Construye y renderiza un gráfico multi-series SVG para el dashboard de equipos
+ * @param {Document} doc - Documento (puede ser proxy de atvise)
+ * @param {HTMLElement} container - Contenedor donde se dibujará el SVG
+ * @param {Object} seriesMap - Mapa de series {sts: [{t, v}], freq: [{t, v}], ...}
+ * @param {Object} colors - Mapa de colores por serie (opcional, usa SERIES_CONFIG por defecto)
+ */
+EquiposGlobals.UTILS.buildEquipmentChart = function (doc, container, seriesMap, colors) {
+    var U = EquiposGlobals.UTILS;
+    if (!container) return;
+
+    // Limpiar contenedor
+    U.clear(container);
+
+    var w = container.clientWidth || container.getBoundingClientRect().width || 800;
+    var h = container.clientHeight || container.getBoundingClientRect().height || 400;
+    var pad = 40;
+
+    var SVG_NS = "http://www.w3.org/2000/svg";
+
+    // Crear SVG principal
+    var svg = doc.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("width", w);
+    svg.setAttribute("height", h);
+    svg.style.display = "block";
+    svg.style.cursor = "crosshair";
+    container.appendChild(svg);
+
+    // Validar que hay datos
+    var hasData = false;
+    var allPoints = [];
+    for (var key in seriesMap) {
+        if (seriesMap[key] && seriesMap[key].length > 0) {
+            hasData = true;
+            allPoints = allPoints.concat(seriesMap[key]);
+        }
+    }
+
+    if (!hasData || allPoints.length === 0) {
+        var noDataText = doc.createElementNS(SVG_NS, "text");
+        noDataText.textContent = "Sin datos disponibles";
+        noDataText.setAttribute("x", w / 2);
+        noDataText.setAttribute("y", h / 2);
+        noDataText.setAttribute("text-anchor", "middle");
+        noDataText.setAttribute("fill", "#64748b");
+        noDataText.setAttribute("font-size", "16");
+        noDataText.setAttribute("font-weight", "600");
+        svg.appendChild(noDataText);
+        return;
+    }
+
+    // Calcular dominio temporal (X-axis)
+    var tMin = Infinity, tMax = -Infinity;
+    for (var i = 0; i < allPoints.length; i++) {
+        var t = allPoints[i].t;
+        if (t < tMin) tMin = t;
+        if (t > tMax) tMax = t;
+    }
+    var tRange = tMax - tMin || 1;
+
+    // Calcular dominio de valores (Y-axis) con 10% headroom
+    var vMin = Infinity, vMax = -Infinity;
+    for (var key in seriesMap) {
+        if (key === 'sts') continue; // Excluir estado del cálculo general
+        var series = seriesMap[key];
+        if (!series || !series.length) continue;
+        for (var i = 0; i < series.length; i++) {
+            var v = series[i].v;
+            if (v < vMin) vMin = v;
+            if (v > vMax) vMax = v;
+        }
+    }
+    if (!isFinite(vMin)) vMin = 0;
+    if (!isFinite(vMax)) vMax = 100;
+    if (vMin === vMax) { vMin = 0; vMax = Math.max(1, vMax); }
+
+    var vRange = vMax - vMin;
+    var yMaxScaled = vMax + (vRange * 0.1); // 10% headroom
+    var yMinScaled = Math.max(0, vMin - (vRange * 0.05));
+
+    // Funciones de escalado
+    function sx(t) {
+        return pad + ((t - tMin) / tRange) * (w - 2 * pad);
+    }
+    function sy(v) {
+        return h - pad - ((v - yMinScaled) / (yMaxScaled - yMinScaled)) * (h - 2 * pad);
+    }
+    function sySts(v) {
+        // Estado: escala fija 0-1
+        return h - pad - (v * (h - 2 * pad));
+    }
+
+    // --- DIBUJAR ÁREA DE ESTADO (fondo) ---
+    if (seriesMap.sts && seriesMap.sts.length > 1) {
+        var stsSeries = seriesMap.sts.slice().sort(function (a, b) { return a.t - b.t; });
+        var pathData = "M" + sx(stsSeries[0].t) + "," + sySts(stsSeries[0].v);
+        for (var i = 1; i < stsSeries.length; i++) {
+            pathData += " L" + sx(stsSeries[i].t) + "," + sySts(stsSeries[i].v);
+        }
+        // Cerrar el área
+        pathData += " L" + sx(stsSeries[stsSeries.length - 1].t) + "," + (h - pad);
+        pathData += " L" + sx(stsSeries[0].t) + "," + (h - pad);
+        pathData += " Z";
+
+        var areaPath = doc.createElementNS(SVG_NS, "path");
+        areaPath.setAttribute("d", pathData);
+        areaPath.setAttribute("fill", "rgba(34, 197, 94, 0.15)");
+        areaPath.setAttribute("stroke", "none");
+        svg.appendChild(areaPath);
+    }
+
+    // --- DIBUJAR LÍNEAS DE SERIES ---
+    var seriesKeys = ['freq', 'volt', 'cur1', 'cur2', 'cur3', 'fp'];
+    for (var k = 0; k < seriesKeys.length; k++) {
+        var key = seriesKeys[k];
+        if (!seriesMap[key] || seriesMap[key].length < 2) continue;
+
+        var series = seriesMap[key].slice().sort(function (a, b) { return a.t - b.t; });
+        var config = U.SERIES_CONFIG[key] || {};
+        var color = (colors && colors[key]) || config.color || '#666';
+
+        var pathData = "M" + sx(series[0].t) + "," + sy(series[0].v);
+        for (var i = 1; i < series.length; i++) {
+            pathData += " L" + sx(series[i].t) + "," + sy(series[i].v);
+        }
+
+        var linePath = doc.createElementNS(SVG_NS, "path");
+        linePath.setAttribute("d", pathData);
+        linePath.setAttribute("stroke", color);
+        linePath.setAttribute("stroke-width", "2.5");
+        linePath.setAttribute("fill", "none");
+        linePath.setAttribute("stroke-linejoin", "round");
+        linePath.setAttribute("stroke-linecap", "round");
+        svg.appendChild(linePath);
+    }
+
+    // --- ELEMENTOS INTERACTIVOS (Tooltip) ---
+    var vLine = doc.createElementNS(SVG_NS, "line");
+    vLine.setAttribute("y1", pad);
+    vLine.setAttribute("y2", h - pad);
+    vLine.setAttribute("stroke", "#94a3b8");
+    vLine.setAttribute("stroke-width", "2");
+    vLine.setAttribute("opacity", "0");
+    svg.appendChild(vLine);
+
+    // Dots para cada serie
+    var dots = {};
+    for (var key in U.SERIES_CONFIG) {
+        if (key === 'sts') continue;
+        var config = U.SERIES_CONFIG[key];
+        var color = (colors && colors[key]) || config.color;
+        var dot = doc.createElementNS(SVG_NS, "circle");
+        dot.setAttribute("r", "5");
+        dot.setAttribute("fill", "#fff");
+        dot.setAttribute("stroke", color);
+        dot.setAttribute("stroke-width", "2.5");
+        dot.setAttribute("opacity", "0");
+        svg.appendChild(dot);
+        dots[key] = dot;
+    }
+
+    // Tooltip background
+    var tipBg = doc.createElementNS(SVG_NS, "rect");
+    tipBg.setAttribute("rx", "8");
+    tipBg.setAttribute("ry", "8");
+    tipBg.setAttribute("fill", "rgba(15, 23, 42, 0.95)");
+    tipBg.setAttribute("stroke", "rgba(255,255,255,0.15)");
+    tipBg.setAttribute("stroke-width", "1");
+    tipBg.style.display = "none";
+    svg.appendChild(tipBg);
+
+    // Tooltip text
+    var tipText = doc.createElementNS(SVG_NS, "text");
+    tipText.setAttribute("fill", "#ffffff");
+    tipText.setAttribute("font-size", "13");
+    tipText.setAttribute("font-weight", "500");
+    tipText.style.display = "none";
+    svg.appendChild(tipText);
+
+    // Función para formatear timestamp
+    function formatTime(ts) {
+        var d = new Date(ts);
+        var day = ('0' + d.getDate()).slice(-2);
+        var mon = ('0' + (d.getMonth() + 1)).slice(-2);
+        var hrs = ('0' + d.getHours()).slice(-2);
+        var min = ('0' + d.getMinutes()).slice(-2);
+        return day + "/" + mon + " " + hrs + ":" + min;
+    }
+
+    // Interacción: mousemove
+    svg.onmousemove = function (e) {
+        var rect = svg.getBoundingClientRect();
+        var mx = e.clientX - rect.left;
+
+        // Calcular timestamp aproximado
+        var ratio = Math.max(0, Math.min(1, (mx - pad) / (w - 2 * pad)));
+        var tHover = tMin + (ratio * tRange);
+
+        // Encontrar punto más cercano en cada serie
+        var closestPoints = {};
+        var hasAnyPoint = false;
+
+        for (var key in seriesMap) {
+            var series = seriesMap[key];
+            if (!series || series.length === 0) continue;
+
+            var minDist = Infinity;
+            var closestPoint = null;
+            for (var i = 0; i < series.length; i++) {
+                var dist = Math.abs(series[i].t - tHover);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closestPoint = series[i];
+                }
+            }
+            if (closestPoint) {
+                closestPoints[key] = closestPoint;
+                hasAnyPoint = true;
+            }
+        }
+
+        if (!hasAnyPoint) return;
+
+        // Obtener el timestamp del punto más cercano (usar primera serie no vacía)
+        var refPoint = closestPoints.freq || closestPoints.volt || closestPoints.cur1;
+        if (!refPoint) return;
+
+        // Posicionar línea vertical
+        var x = sx(refPoint.t);
+        vLine.setAttribute("x1", x);
+        vLine.setAttribute("x2", x);
+        vLine.setAttribute("opacity", "1");
+
+        // Posicionar dots
+        for (var key in dots) {
+            if (closestPoints[key]) {
+                var dot = dots[key];
+                var yVal = key === 'sts' ? sySts(closestPoints[key].v) : sy(closestPoints[key].v);
+                dot.setAttribute("cx", x);
+                dot.setAttribute("cy", yVal);
+                dot.setAttribute("opacity", "1");
+            } else {
+                dots[key].setAttribute("opacity", "0");
+            }
+        }
+
+        // Construir tooltip multi-línea
+        tipText.innerHTML = "";
+        var lineSpacing = 1.3;
+        var lineNum = 0;
+
+        // Fecha/hora
+        var timeTspan = doc.createElementNS(SVG_NS, "tspan");
+        timeTspan.setAttribute("x", "0");
+        timeTspan.setAttribute("dy", "0");
+        timeTspan.style.fill = "#fbbf24";
+        timeTspan.style.fontWeight = "bold";
+        timeTspan.textContent = formatTime(refPoint.t);
+        tipText.appendChild(timeTspan);
+        lineNum++;
+
+        // Series
+        var orderedKeys = ['sts', 'freq', 'volt', 'cur1', 'cur2', 'cur3', 'fp'];
+        for (var k = 0; k < orderedKeys.length; k++) {
+            var key = orderedKeys[k];
+            if (!closestPoints[key]) continue;
+
+            var config = U.SERIES_CONFIG[key] || {};
+            var val = closestPoints[key].v;
+            var formatted = val.toFixed(key === 'sts' ? 0 : (key === 'fp' ? 3 : 2));
+
+            var tspan = doc.createElementNS(SVG_NS, "tspan");
+            tspan.setAttribute("x", "0");
+            tspan.setAttribute("dy", lineNum === 0 ? "0" : (lineSpacing + "em"));
+            tspan.style.fill = config.color || "#fff";
+            tspan.textContent = config.label + ": " + formatted + (config.unit ? " " + config.unit : "");
+            tipText.appendChild(tspan);
+            lineNum++;
+        }
+
+        tipText.style.display = "block";
+
+        // Posicionar tooltip
+        try {
+            var bbox = tipText.getBBox();
+            var bgPad = 12;
+            var tooltipW = bbox.width + bgPad * 2;
+            var tooltipH = bbox.height + bgPad * 2;
+
+            // Posición X: centrado en cursor, ajustado a Bounds
+            var tooltipX = Math.min(
+                Math.max(mx - tooltipW / 2, pad),
+                w - tooltipW - pad
+            );
+
+            // Posición Y: arriba del cursor, fija
+            var tooltipY = pad + 10;
+
+            tipBg.setAttribute("x", tooltipX);
+            tipBg.setAttribute("y", tooltipY);
+            tipBg.setAttribute("width", tooltipW);
+            tipBg.setAttribute("height", tooltipH);
+            tipBg.style.display = "block";
+
+            tipText.setAttribute("x", tooltipX + bgPad);
+            tipText.setAttribute("y", tooltipY + bgPad + 12);
+        } catch (e) {
+            // getBBox puede fallar en algunos contextos
+        }
+    };
+
+    svg.onmouseleave = function () {
+        vLine.setAttribute("opacity", "0");
+        for (var key in dots) {
+            dots[key].setAttribute("opacity", "0");
+        }
+        tipBg.style.display = "none";
+        tipText.style.display = "none";
+    };
+
+    // --- EJES Y ETIQUETAS ---
+    // Y-axis labels (max y min)
+    var yTopLabel = doc.createElementNS(SVG_NS, "text");
+    yTopLabel.setAttribute("x", w - pad + 5);
+    yTopLabel.setAttribute("y", pad);
+    yTopLabel.setAttribute("fill", "#64748b");
+    yTopLabel.setAttribute("font-size", "11");
+    yTopLabel.setAttribute("font-weight", "600");
+    yTopLabel.textContent = yMaxScaled.toFixed(1);
+    svg.appendChild(yTopLabel);
+
+    var yBotLabel = doc.createElementNS(SVG_NS, "text");
+    yBotLabel.setAttribute("x", w - pad + 5);
+    yBotLabel.setAttribute("y", h - pad + 4);
+    yBotLabel.setAttribute("fill", "#64748b");
+    yBotLabel.setAttribute("font-size", "11");
+    yBotLabel.setAttribute("font-weight", "600");
+    yBotLabel.textContent = yMinScaled.toFixed(1);
+    svg.appendChild(yBotLabel);
+
+    // X-axis labels (inicio y fin)
+    var xStartLabel = doc.createElementNS(SVG_NS, "text");
+    xStartLabel.setAttribute("x", pad);
+    xStartLabel.setAttribute("y", h - pad + 16);
+    xStartLabel.setAttribute("fill", "#64748b");
+    xStartLabel.setAttribute("font-size", "10");
+    xStartLabel.textContent = formatTime(tMin);
+    svg.appendChild(xStartLabel);
+
+    var xEndLabel = doc.createElementNS(SVG_NS, "text");
+    xEndLabel.setAttribute("x", w - pad);
+    xEndLabel.setAttribute("y", h - pad + 16);
+    xEndLabel.setAttribute("fill", "#64748b");
+    xEndLabel.setAttribute("font-size", "10");
+    xEndLabel.setAttribute("text-anchor", "end");
+    xEndLabel.textContent = formatTime(tMax);
+    svg.appendChild(xEndLabel);
+};
 ]]></code>
 </script>

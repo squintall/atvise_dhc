@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.header_instalacion.header_navigation_handler
+NodeClass: Variable
+BrowseName: 1:header_navigation_handler
+DisplayName: en|header_navigation_handler
+Description: en|header_navigation_handler
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

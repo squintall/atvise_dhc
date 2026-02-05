@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.header_instalacion.header_topography_logic
+NodeClass: Variable
+BrowseName: 1:header_topography_logic
+DisplayName: en|header_topography_logic
+Description: en|header_topography_logic
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

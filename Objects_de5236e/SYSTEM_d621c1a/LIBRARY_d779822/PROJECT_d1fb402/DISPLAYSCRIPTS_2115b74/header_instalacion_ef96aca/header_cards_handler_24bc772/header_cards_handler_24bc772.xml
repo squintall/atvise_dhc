@@ -1,0 +1,2843 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Header Cards Handler
+ * V21 - Slim Tank Monitoring + Connectivity Trend
+ */
+
+if (typeof HeaderCards === 'undefined') {
+    var HeaderCards = {};
+}
+
+HeaderCards.init = function (host) {
+    var U = HeaderGlobals.UTILS;
+    var doc = host.ownerDocument || document;
+    var base = HeaderGlobals.CONFIG.BASE || "";
+    HeaderCards.equipmentLiveStates = {};
+    HeaderCards.chartBadges = {};
+    U.log("--- HeaderCards.init (V21) START ---");
+
+    try {
+        // --- Theme (V21 Refined) ---
+        var theme = U.getTheme(base);
+
+        // --- Card 1: Slim Tank Monitoring (Rectangular V21) ---
+        var tankCard = U.x(doc, 'div');
+        tankCard.style.position = "absolute";
+        tankCard.style.left = "425px"; tankCard.style.top = "16px";
+        tankCard.style.width = "220px"; tankCard.style.height = "305px";
+        tankCard.style.background = "#ffffff";
+        tankCard.style.border = "1px solid #e2e8f0";
+        tankCard.style.borderRadius = "12px";
+        tankCard.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)";
+        tankCard.style.padding = "10px";
+        tankCard.style.boxSizing = "border-box";
+        tankCard.style.fontFamily = "Arial, sans-serif";
+        tankCard.style.display = "flex";
+        tankCard.style.flexDirection = "column";
+        tankCard.style.gap = "8px";
+        tankCard.style.cursor = "pointer";
+        tankCard.style.transition = "all 0.2s ease-in-out";
+
+        tankCard.onmouseenter = function () {
+            this.style.boxShadow = "0 12px 20px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)";
+            this.style.borderColor = theme.col;
+            this.style.background = "#f8fafc";
+        };
+        tankCard.onmouseleave = function () {
+            this.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)";
+            this.style.borderColor = "#e2e8f0";
+            this.style.background = "#ffffff";
+        };
+        tankCard.onclick = function () {
+            HeaderCards.showTankFullscreen(base, doc);
+        };
+
+        var headerRow = U.x(doc, 'div');
+        headerRow.style.display = "flex";
+        headerRow.style.justifyContent = "space-between";
+        headerRow.style.alignItems = "center";
+
+        var isResidual = base.toLowerCase().indexOf("residual") >= 0 || base.toLowerCase().indexOf("cuencas") >= 0;
+        var tankLabelText = isResidual ? "Nivel del Cárcamo" : "Nivel del Tanque";
+
+        var lblT = U.x(doc, 'div'); lblT.style.fontWeight = "bold"; lblT.style.color = theme.col; lblT.style.fontSize = "13px";
+        lblT.textContent = tankLabelText;
+        headerRow.appendChild(lblT);
+
+        var pct = U.x(doc, 'div');
+        pct.id = "tk_pct"; pct.style.fontSize = "16px"; pct.style.fontWeight = "bold";
+        pct.style.color = theme.col; pct.textContent = "--%";
+        headerRow.appendChild(pct);
+
+        tankCard.appendChild(headerRow);
+
+        // Vertical Bar Indicator (Legacy Style: Integrated Box)
+        var vBarBox = U.x(doc, 'div');
+        vBarBox.style.height = "165px"; vBarBox.style.background = "#f1f5f9"; vBarBox.style.borderRadius = "8px";
+        vBarBox.style.border = "1px solid #e2e8f0"; vBarBox.style.position = "relative"; vBarBox.style.overflow = "hidden";
+
+        var fill = U.x(doc, 'div');
+        fill.id = "tk_fill"; fill.style.position = "absolute"; fill.style.bottom = "0"; fill.style.left = "0"; fill.style.width = "100%";
+        fill.style.background = theme.bg; fill.style.height = "0%";
+        fill.style.transition = "height 0.5s ease";
+        fill.style.zIndex = "1"; // Water level at bottom
+        vBarBox.appendChild(fill);
+
+        // Sparkline Container (Now inside vBarBox)
+        var sparkBox = U.x(doc, 'div');
+        sparkBox.id = "tk_spark_box";
+        sparkBox.style.position = "absolute";
+        sparkBox.style.top = "0"; sparkBox.style.left = "0";
+        sparkBox.style.width = "100%"; sparkBox.style.height = "100%";
+        sparkBox.style.zIndex = "5"; // Graph above water
+        vBarBox.appendChild(sparkBox);
+
+        tankCard.appendChild(vBarBox);
+
+        // Statistics Panel (NEW)
+        var statsBox = U.x(doc, 'div');
+        statsBox.style.display = "grid";
+        statsBox.style.gridTemplateColumns = "1fr 1fr";
+        statsBox.style.gap = "6px";
+        statsBox.style.fontSize = "11px";
+
+        function createStat(label, id, span, vSize) {
+            var s = U.x(doc, 'div');
+            s.style.background = "#f8fafc";
+            s.style.padding = "4px 6px";
+            s.style.borderRadius = "6px";
+            s.style.border = "1px solid #e2e8f0";
+            if (span) s.style.gridColumn = "span " + span;
+            s.innerHTML = "<div style='color:#64748b;font-size:9px;font-weight:bold;text-transform:uppercase;margin-bottom:2px'>" + label + "</div>" +
+                "<div id='" + id + "' style='font-size:" + (vSize || "11px") + ";font-weight:bold;color:" + theme.col + ";white-space:nowrap'>--</div>";
+            return s;
+        }
+
+        statsBox.appendChild(createStat("Promedio", "tk_stat_avg", 1));
+        statsBox.appendChild(createStat("Cloro (ppm)", "tk_stat_ppm", 1));
+        statsBox.appendChild(createStat("Máximo", "tk_stat_max", 1, "9.5px"));
+        statsBox.appendChild(createStat("Mínimo", "tk_stat_min", 1, "9.5px"));
+
+        tankCard.appendChild(statsBox);
+
+        host.appendChild(tankCard);
+
+        // --- Card 2: Installation Info (3-Section Layout) ---
+        var trendCard = U.x(doc, 'div');
+        trendCard.style.position = "absolute";
+        trendCard.style.left = "648px"; trendCard.style.top = "16px";
+        trendCard.style.width = "615px"; trendCard.style.height = "305px";
+        trendCard.style.background = "#ffffff";
+        trendCard.style.border = "1px solid #e2e8f0";
+        trendCard.style.borderRadius = "12px";
+        trendCard.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)";
+        trendCard.style.padding = "10px";
+        trendCard.style.boxSizing = "border-box";
+        trendCard.style.fontFamily = "Arial, sans-serif";
+        trendCard.style.display = "flex";
+        trendCard.style.flexDirection = "column";
+
+        var iHead = U.x(doc, 'div'); iHead.style.cssText = "display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;";
+        var iTitle = U.x(doc, 'div'); iTitle.style.cssText = "font-weight:900; color:#1e3a8a; font-size:18px; letter-spacing:-0.02em;"; iTitle.textContent = "Información de la Instalación";
+        var iName = U.x(doc, 'div'); iName.id = "info_name_top"; iName.style.cssText = "font-weight:bold; color:#3b82f6; font-size:16px; text-transform:uppercase; background:#eff6ff; padding:4px 12px; border-radius:8px; border:1px solid #dbeafe;"; iName.textContent = "--";
+        iHead.appendChild(iTitle); iHead.appendChild(iName); trendCard.appendChild(iHead);
+
+        var grid = U.x(doc, 'div');
+        grid.style.display = "grid";
+        grid.style.gridTemplateColumns = "1.2fr 1fr";
+        grid.style.gap = "10px";
+        grid.style.flex = "1";
+        trendCard.appendChild(grid);
+
+        // Section 1: General Info
+        var secInfo = U.x(doc, 'div');
+        secInfo.style.display = "flex"; secInfo.style.flexDirection = "column"; secInfo.style.gap = "6px";
+        secInfo.style.fontSize = "13px"; secInfo.style.color = "#475569";
+
+        function addInfoLine(label, id) {
+            var row = U.x(doc, 'div');
+            row.style.whiteSpace = "nowrap"; row.style.overflow = "hidden"; row.style.textOverflow = "ellipsis";
+            row.innerHTML = "<span style='font-weight:bold;color:#1e40af'>" + label + ":</span> <span id='" + id + "'>--</span>";
+            secInfo.appendChild(row);
+        }
+        // Removed: addInfoLine("Nombre", "info_name");
+        addInfoLine("Código SAP", "info_sap");
+        addInfoLine("IP Address", "info_ip");
+        addInfoLine("Gateway", "info_gtw");
+        addInfoLine("Responsable", "info_resp");
+        addInfoLine("Teléfono", "info_tel");
+        grid.appendChild(secInfo);
+
+        // Section 2: Connectivity (1H)
+        var secConn = U.x(doc, 'div');
+        secConn.style.display = "flex"; secConn.style.flexDirection = "column";
+        var subT = U.x(doc, 'div');
+        subT.textContent = "CONECTIVIDAD (12H)"; subT.style.fontSize = "9px"; subT.style.fontWeight = "bold"; subT.style.marginBottom = "2px";
+        secConn.appendChild(subT);
+
+        var graphWrap = U.x(doc, 'div');
+        graphWrap.style.height = "100px"; graphWrap.style.background = "#f8fafc"; graphWrap.style.borderRadius = "6px";
+        graphWrap.style.border = "1px solid #e2e8f0"; graphWrap.style.position = "relative";
+        graphWrap.style.marginTop = "4px";
+
+        var svg = U.x(doc, "svg");
+        svg.style.width = "100%"; svg.style.height = "100%";
+        graphWrap.appendChild(svg);
+
+        var tooltip = U.x(doc, 'div');
+        tooltip.id = "conn_tooltip";
+        tooltip.style.position = "absolute"; tooltip.style.display = "none";
+        tooltip.style.background = "rgba(0, 0, 0, 0.9)"; tooltip.style.color = "#ffffff";
+        tooltip.style.padding = "6px 10px"; tooltip.style.borderRadius = "6px";
+        tooltip.style.fontSize = "12px"; tooltip.style.fontWeight = "500"; tooltip.style.pointerEvents = "none";
+        tooltip.style.zIndex = "100"; tooltip.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5)";
+        tooltip.style.border = "1px solid rgba(255,255,255,0.1)";
+        graphWrap.appendChild(tooltip);
+        secConn.appendChild(graphWrap);
+        grid.appendChild(secConn);
+
+        // Section 3: Energy Table (Span 2)
+        var secEnergy = U.x(doc, 'div');
+        secEnergy.id = "secEnergy";
+        secEnergy.style.gridColumn = "span 2";
+        secEnergy.style.marginTop = "-5px";
+        secEnergy.style.background = "#f8fafc";
+        secEnergy.style.borderRadius = "8px";
+        secEnergy.style.padding = "8px";
+        secEnergy.style.border = "1px solid #e2e8f0";
+        secEnergy.style.display = "flex";
+        secEnergy.style.flexDirection = "column";
+
+        // Container for Tabs + Fullscreen Button
+        var energyHeader = U.x(doc, "div");
+        energyHeader.style.display = "flex";
+        energyHeader.style.justifyContent = "space-between";
+        energyHeader.style.alignItems = "center";
+        energyHeader.style.marginBottom = "4px";
+
+        var pacTabsDiv = U.x(doc, "div");
+        pacTabsDiv.id = "energy_pac_tabs";
+        pacTabsDiv.style.display = "flex";
+        pacTabsDiv.style.gap = "8px";
+        energyHeader.appendChild(pacTabsDiv);
+
+        var btnFs = U.x(doc, "button");
+        btnFs.id = "energy_fs_btn";
+        btnFs.textContent = "Pantalla completa";
+        btnFs.style.display = "none"; // Hidden by default, shown if PACs found
+        btnFs.style.padding = "4px 10px";
+        btnFs.style.border = "1px solid #cbd5e1";
+        btnFs.style.borderRadius = "6px";
+        btnFs.style.background = "#fff";
+        btnFs.style.fontSize = "11px";
+        btnFs.style.fontWeight = "600";
+        btnFs.style.cursor = "pointer";
+        btnFs.style.transition = "all 0.2s ease";
+        btnFs.onmouseenter = function () { this.style.background = "#eff6ff"; this.style.borderColor = "#3b82f6"; };
+        btnFs.onmouseleave = function () { this.style.background = "#fff"; this.style.borderColor = "#cbd5e1"; };
+        energyHeader.appendChild(btnFs);
+
+        secEnergy.appendChild(energyHeader);
+
+        // Energy Table
+        var energyTableDiv = U.x(doc, 'div');
+        energyTableDiv.innerHTML = "<table style='width:100%; border-collapse:collapse; font-size:12px; color:#334155; table-layout: fixed;'>" +
+            "<tr style='background:#f1f5f9; color:#64748b;'><th style='padding:6px; text-align:left; border-radius:6px 0 0 6px; width:120px;'>Parámetro</th><th>L1-L2</th><th>L2-L3</th><th>L3-L1</th><th style='border-radius:0 6px 6px 0;'>Prom.</th></tr>" +
+            "<tr style='border-bottom:1px solid #f1f5f9'><td style='padding:8px 6px; font-weight:bold;'>Voltaje (V)</td><td id='e_v12' style='text-align:center'>--</td><td id='e_v23' style='text-align:center'>--</td><td id='e_v31' style='text-align:center'>--</td><td id='e_vavg' style='text-align:center'>--</td></tr>" +
+            "<tr><td style='padding:8px 6px; font-weight:bold;'>Corriente (A)</td><td id='e_i1' style='text-align:center'>--</td><td id='e_i2' style='text-align:center'>--</td><td id='e_i3' style='text-align:center'>--</td><td id='e_iavg' style='text-align:center'>--</td></tr>" +
+            "</table>";
+        secEnergy.appendChild(energyTableDiv);
+        grid.appendChild(secEnergy);
+
+        host.appendChild(trendCard);
+
+        // --- Data Wiring ---
+        HeaderCards.wireTank(base, sparkBox, doc);
+        HeaderCards.wireInfoCard(base, svg, tooltip, doc);
+
+    } catch (e) {
+        U.log("Error in V21 Init:", e);
+    }
+};
+
+HeaderCards.wireTank = function (base, sparkContainer, doc) {
+    var U = HeaderGlobals.UTILS;
+    var d = doc || document;
+    if (!base) return;
+    U.log("HeaderCards.wireTank (V3) - START: " + base);
+    var theme = U.getTheme(base);
+
+    // Track presence of Chlorine
+    var hasChlorine = true;
+
+    function wireNode(node, cb) {
+        webMI.data.read(node, function (e) { cb(e); });
+        webMI.data.subscribe(node, function (e) { cb(e); });
+    }
+
+    // 1. Real-Time Status
+    wireNode(base + ".level_percent", function (res) {
+        var v = (res && res.value != null) ? parseFloat(res.value) : 0;
+        var elFill = d.getElementById("tk_fill");
+        var elPct = d.getElementById("tk_pct");
+        if (elFill) elFill.style.height = Math.min(100, Math.max(0, v)) + "%";
+        if (elPct) elPct.textContent = v.toFixed(1) + "%";
+    });
+
+    wireNode(base + ".ppm", function (res) {
+        var el = d.getElementById("tk_stat_ppm");
+        if (!el) return;
+        if (!hasChlorine) {
+            el.textContent = "N/A";
+            return;
+        }
+        el.textContent = (res && res.value != null ? parseFloat(res.value).toFixed(2) : "0.00") + " ppm";
+    });
+
+    // 2. History for Dual Sparkline (12h)
+    if (sparkContainer) {
+        function fmtT(ts) {
+            var dt = new Date(ts);
+            var h = dt.getHours(), m = dt.getMinutes();
+            var ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12; h = h || 12;
+            return h + ":" + (m < 10 ? "0" + m : m) + " " + ampm;
+        }
+
+        function loadHistory() {
+            var now = Date.now();
+            var from = now - 12 * 60 * 60 * 1000;
+            var lAddr = "g:" + base + ".historic_level_percent";
+            var cAddr = "g:" + base + ".historic_ppm";
+
+            var seriesL = [], seriesC = [];
+            var pending = 2;
+
+            function onQueryDone() {
+                pending--;
+                if (pending > 0) return;
+
+                // Level Stats
+                if (seriesL.length > 0) {
+                    var sum = 0, max = -Infinity, min = Infinity, maxT = 0, minT = 0;
+                    seriesL.forEach(function (p) {
+                        sum += p.v;
+                        if (p.v >= max) { max = p.v; maxT = p.t; }
+                        if (p.v <= min) { min = p.v; minT = p.t; }
+                    });
+                    var avg = sum / seriesL.length;
+                    var elAvg = d.getElementById("tk_stat_avg");
+                    var elMax = d.getElementById("tk_stat_max");
+                    var elMin = d.getElementById("tk_stat_min");
+                    if (elAvg) elAvg.textContent = avg.toFixed(1) + "%";
+                    if (elMax) elMax.textContent = max.toFixed(1) + "% (" + fmtT(maxT) + ")";
+                    if (elMin) elMin.textContent = min.toFixed(1) + "% (" + fmtT(minT) + ")";
+                }
+
+                // Chlorine Logic: Use historical average to decide if present
+                var cSum = 0;
+                seriesC.forEach(function (p) { cSum += p.v; });
+                var cAvg = seriesC.length > 0 ? cSum / seriesC.length : 0;
+
+                // If avg is 0 or no points, it's N/A
+                hasChlorine = (seriesC.length > 0 && cAvg > 0);
+
+                var elPpm = d.getElementById("tk_stat_ppm");
+                if (elPpm && !hasChlorine) {
+                    elPpm.textContent = "N/A";
+                }
+
+                sparkContainer.innerHTML = "";
+                // If no chlorine, pass empty seriesC to suppress orange line
+                var drawC = hasChlorine ? seriesC : [];
+                HeaderCards.buildDualSpark(d, sparkContainer, seriesL, theme.col, drawC, "#f97316");
+                U.log("HeaderCards.loadHistory - Dual Sparklines updated. Chlorine Presence: " + hasChlorine);
+            }
+
+            try {
+                U.readHist(base + ".historic_level_percent", from, now, function (raw) {
+                    seriesL = U.group5Minutes(raw);
+                    onQueryDone();
+                });
+
+                U.readHist(base + ".historic_ppm", from, now, function (raw) {
+                    seriesC = U.group5Minutes(raw);
+                    onQueryDone();
+                });
+            } catch (e) {
+                U.log("HeaderCards.loadHistory ERROR: " + e.message);
+                pending = 0;
+            }
+        }
+
+        loadHistory();
+        if (sparkContainer._refreshTimer) clearInterval(sparkContainer._refreshTimer);
+        sparkContainer._refreshTimer = setInterval(loadHistory, 5 * 60 * 1000);
+    }
+};
+
+// Utility functions moved to HeaderGlobals.UTILS
+
+HeaderCards.buildSpark = function (doc, container, series, color, unit, minVal, maxVal) {
+    var U = HeaderGlobals.UTILS;
+    if (!container) return;
+    var w = container.clientWidth || 200;
+    var h = container.clientHeight || 80;
+    var pad = 5;
+
+    var svg = U.x(doc, "svg");
+    svg.setAttribute("width", w); svg.setAttribute("height", h);
+    svg.style.display = "block";
+    container.appendChild(svg);
+
+    if (!series || series.length < 2) {
+        var txt = U.x(doc, "text");
+        txt.textContent = "Sin datos";
+        txt.setAttribute("x", w / 2); txt.setAttribute("y", h / 2);
+        txt.setAttribute("text-anchor", "middle"); txt.setAttribute("fill", "#94a3b8");
+        txt.setAttribute("font-size", "10");
+        svg.appendChild(txt);
+        return;
+    }
+
+    var ys = series.map(function (d) { return d.v; });
+    var min = (minVal !== undefined) ? minVal : Math.min.apply(null, ys);
+    var max = (maxVal !== undefined) ? maxVal : Math.max.apply(null, ys);
+    if (min === max) { min -= 1; max += 1; }
+    var range = max - min;
+
+    // Scale functions
+    function sx(i) { return pad + (i / (series.length - 1)) * (w - 2 * pad); }
+    function sy(v) { return h - pad - ((v - min) / range) * (h - 2 * pad); }
+
+    var dLine = "M" + sx(0) + "," + sy(series[0].v);
+    var dArea = dLine;
+    for (var i = 1; i < series.length; i++) {
+        var p = sx(i) + "," + sy(series[i].v);
+        dLine += " L" + p;
+        dArea += " L" + p;
+    }
+    dArea += " L" + sx(series.length - 1) + "," + (h - pad) + " L" + sx(0) + "," + (h - pad) + " Z";
+
+    var pathArea = U.x(doc, "path");
+    pathArea.setAttribute("d", dArea);
+    pathArea.setAttribute("fill", color);
+    pathArea.setAttribute("opacity", "0.15");
+    pathArea.setAttribute("stroke", "none");
+    svg.appendChild(pathArea);
+
+    var pathLine = U.x(doc, "path");
+    pathLine.setAttribute("d", dLine);
+    pathLine.setAttribute("fill", "none");
+    pathLine.setAttribute("stroke", color);
+    pathLine.setAttribute("stroke-width", "2");
+    pathLine.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(pathLine);
+
+    // Tooltip elements (with background)
+    var tipBg = U.x(doc, "rect");
+    tipBg.setAttribute("rx", "6"); tipBg.setAttribute("ry", "6");
+    tipBg.setAttribute("fill", "rgba(15, 23, 42, 0.95)");
+    tipBg.setAttribute("stroke", "rgba(255,255,255,0.1)");
+    tipBg.setAttribute("stroke-width", "1");
+    tipBg.style.display = "none";
+    tipBg.style.filter = "drop-shadow(0 4px 12px rgba(0,0,0,0.5))";
+    svg.appendChild(tipBg);
+
+    var dot = U.x(doc, "circle");
+    dot.setAttribute("r", "3"); dot.setAttribute("fill", "#fff"); dot.setAttribute("stroke", color); dot.setAttribute("stroke-width", "2");
+    dot.style.display = "none";
+    svg.appendChild(dot);
+
+    var tip = U.x(doc, "text");
+    tip.setAttribute("font-size", "18"); tip.setAttribute("fill", "#ffffff"); tip.setAttribute("font-weight", "500");
+    tip.style.display = "none";
+    svg.appendChild(tip);
+
+    // Interaction
+    svg.onmousemove = function (e) {
+        var rect = svg.getBoundingClientRect();
+        var mx = e.clientX - rect.left;
+        var ratio = Math.max(0, Math.min(1, (mx - pad) / (rect.width - 2 * pad)));
+        var idx = Math.round(ratio * (series.length - 1));
+        var p = series[idx];
+
+        var d = new Date(p.t);
+        var dateStr = d.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+        var timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+
+        dot.style.display = "block";
+        dot.setAttribute("r", "5");
+        dot.setAttribute("cx", sx(idx)); dot.setAttribute("cy", sy(p.v));
+
+        tip.textContent = p.v.toFixed(1) + (unit || "") + " | " + dateStr + " " + timeStr;
+        var tx = sx(idx) < rect.width / 2 ? sx(idx) + 12 : sx(idx) - 12;
+        tip.setAttribute("x", tx); tip.setAttribute("y", sy(p.v) - 15);
+        tip.setAttribute("text-anchor", sx(idx) < rect.width / 2 ? "start" : "end");
+        tip.style.display = "block";
+
+        try {
+            var bbox = tip.getBBox();
+            var bgPad = 8;
+            tipBg.setAttribute("x", bbox.x - bgPad); tipBg.setAttribute("y", bbox.y - bgPad);
+            tipBg.setAttribute("width", bbox.width + 2 * bgPad); tipBg.setAttribute("height", bbox.height + 2 * bgPad);
+            tipBg.style.display = "block";
+        } catch (e) { }
+    };
+    svg.onmouseleave = function () {
+        dot.style.display = "none"; tip.style.display = "none"; tipBg.style.display = "none";
+    };
+};
+
+HeaderCards.buildDualSpark = function (doc, container, seriesL, colorL, seriesC, colorC) {
+    var U = HeaderGlobals.UTILS;
+    if (!container) return;
+    var w = container.clientWidth || 200;
+    var h = container.clientHeight || 150;
+    var pad = 5;
+
+    var svg = U.x(doc, "svg");
+    svg.setAttribute("width", w); svg.setAttribute("height", h);
+    svg.style.display = "block";
+    container.appendChild(svg);
+
+    if (seriesL.length < 2 && seriesC.length < 2) {
+        var txt = U.x(doc, "text");
+        txt.textContent = "Sin datos históricos";
+        txt.setAttribute("x", w / 2); txt.setAttribute("y", h / 2);
+        txt.setAttribute("text-anchor", "middle"); txt.setAttribute("fill", "#94a3b8");
+        txt.setAttribute("font-size", "10");
+        svg.appendChild(txt);
+        return;
+    }
+
+    // Scaling Level (0-100)
+    function sx(i, len) { return pad + (i / (len - 1)) * (w - 2 * pad); }
+    function syL(v) { return h - pad - (Math.min(100, Math.max(0, v)) / 100) * (h - 2 * pad); }
+
+    // Scaling Chlorine (Auto or fixed? Let's use auto for Chlorine to see detail)
+    var valsC = seriesC.map(function (d) { return d.v; });
+    var minC = seriesC.length > 0 ? Math.min.apply(null, valsC) : 0;
+    var maxC = seriesC.length > 0 ? Math.max.apply(null, valsC) : 2;
+    if (minC === maxC) { minC -= 0.1; maxC += 0.1; }
+    var rangeC = maxC - minC;
+    function syC(v) { return h - pad - ((v - minC) / rangeC) * (h - 2 * pad); }
+
+    function drawPath(series, scaleY, color, opacity) {
+        if (series.length < 2) return;
+        var dLine = "M" + sx(0, series.length) + "," + scaleY(series[0].v);
+        var dArea = dLine;
+        for (var i = 1; i < series.length; i++) {
+            var p = sx(i, series.length) + "," + scaleY(series[i].v);
+            dLine += " L " + p;
+            dArea += " L " + p;
+        }
+        dArea += " L " + sx(series.length - 1, series.length) + "," + (h - pad) + " L " + sx(0, series.length) + "," + (h - pad) + " Z";
+
+        var pathArea = U.x(doc, "path");
+        pathArea.setAttribute("d", dArea); pathArea.setAttribute("fill", color);
+        pathArea.setAttribute("opacity", opacity || "0.1"); pathArea.setAttribute("stroke", "none");
+        svg.appendChild(pathArea);
+
+        var pathLine = U.x(doc, "path");
+        pathLine.setAttribute("d", dLine); pathLine.setAttribute("fill", "none");
+        pathLine.setAttribute("stroke", color); pathLine.setAttribute("stroke-width", "1.5");
+        pathLine.setAttribute("stroke-linejoin", "round");
+        svg.appendChild(pathLine);
+    }
+
+    // Draw Level
+    drawPath(seriesL, syL, colorL, 0.15);
+    // Draw Chlorine
+    drawPath(seriesC, syC, colorC, 0.1);
+
+    // Shared Interaction (Dual Tooltip)
+    var tipBg = U.x(doc, "rect");
+    tipBg.setAttribute("rx", "6"); tipBg.setAttribute("ry", "6");
+    tipBg.setAttribute("fill", "rgba(15, 23, 42, 0.95)"); tipBg.setAttribute("stroke", "rgba(255,255,255,0.1)");
+    tipBg.setAttribute("stroke-width", "1"); tipBg.style.display = "none";
+    tipBg.style.filter = "drop-shadow(0 4px 12px rgba(0,0,0,0.5))";
+    svg.appendChild(tipBg);
+
+    var tip = U.x(doc, "text");
+    tip.setAttribute("font-size", "18"); tip.setAttribute("fill", "#ffffff"); tip.style.display = "none";
+    svg.appendChild(tip);
+
+    var dotL = U.x(doc, "circle"); dotL.setAttribute("r", "4"); dotL.setAttribute("fill", "#fff");
+    dotL.setAttribute("stroke", colorL); dotL.setAttribute("stroke-width", "2"); dotL.style.display = "none";
+    svg.appendChild(dotL);
+
+    var dotC = U.x(doc, "circle"); dotC.setAttribute("r", "4"); dotC.setAttribute("fill", "#fff");
+    dotC.setAttribute("stroke", colorC); dotC.setAttribute("stroke-width", "2"); dotC.style.display = "none";
+    svg.appendChild(dotC);
+
+    svg.onmousemove = function (e) {
+        var rect = svg.getBoundingClientRect();
+        var mx = e.clientX - rect.left;
+        var ratio = Math.max(0, Math.min(1, (mx - pad) / (rect.width - 2 * pad)));
+
+        var idxL = Math.round(ratio * (seriesL.length - 1));
+        var idxC = Math.round(ratio * (seriesC.length - 1));
+
+        var pL = seriesL[idxL]; var pC = seriesC[idxC];
+        if (!pL && !pC) return;
+
+        var activeP = pL || pC;
+        var timeStr = new Date(activeP.t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        // Update dot positions
+        if (pL) {
+            dotL.style.display = "block";
+            dotL.setAttribute("cx", sx(idxL, seriesL.length));
+            dotL.setAttribute("cy", syL(pL.v));
+        } else {
+            dotL.style.display = "none";
+        }
+
+        if (pC) {
+            dotC.style.display = "block";
+            dotC.setAttribute("cx", sx(idxC, seriesC.length));
+            dotC.setAttribute("cy", syC(pC.v));
+        } else {
+            dotC.style.display = "none";
+        }
+
+        // Build tooltip text with multiple lines (tspans)
+        tip.innerHTML = "";
+        var linesData = [];
+        if (pL) linesData.push({ t: "Nivel: " + pL.v.toFixed(1) + "%", c: colorL, b: true });
+        if (pC) linesData.push({ t: "Cloro: " + pC.v.toFixed(2) + " ppm", c: colorC, b: true });
+        linesData.push({ t: timeStr, c: "#94a3b8", b: false, s: "14px" });
+
+        for (var i = 0; i < linesData.length; i++) {
+            var tspan = doc.createElementNS("http://www.w3.org/2000/svg", "tspan");
+            tspan.setAttribute("x", "0");
+            tspan.setAttribute("dy", i === 0 ? "0" : "1.25em");
+            tspan.style.fill = linesData[i].c;
+            tspan.style.fontWeight = linesData[i].b ? "bold" : "normal";
+            if (linesData[i].s) tspan.style.fontSize = linesData[i].s;
+            tspan.textContent = linesData[i].t;
+            tip.appendChild(tspan);
+        }
+
+        tip.style.display = "block";
+
+        // Get text dimensions
+        var bb = tip.getBBox();
+        var paddingX = 16;
+        var paddingY = 14;
+
+        // Calculate tooltip position (centered at cursor)
+        var tooltipWidth = bb.width + paddingX * 2;
+        var tooltipHeight = bb.height + paddingY * 2;
+
+        var lx = Math.min(
+            Math.max(mx - tooltipWidth / 2, pad),
+            rect.width - tooltipWidth - pad
+        );
+
+        // Fixed Y near top
+        var ly = 32 + paddingY;
+
+        // Position background
+        tipBg.setAttribute("x", lx);
+        tipBg.setAttribute("y", ly - 20); // Adjust for multi-line height
+        tipBg.setAttribute("width", tooltipWidth);
+        tipBg.setAttribute("height", tooltipHeight);
+        tipBg.style.display = "block";
+
+        // Position text
+        tip.setAttribute("x", lx + paddingX);
+        tip.setAttribute("y", ly);
+
+        // Ensure all tspans use the same X offset
+        var tspans = tip.getElementsByTagName("tspan");
+        for (var j = 0; j < tspans.length; j++) {
+            tspans[j].setAttribute("x", lx + paddingX);
+        }
+    };
+    svg.onmouseleave = function () {
+        dotL.style.display = "none"; dotC.style.display = "none";
+        tip.style.display = "none"; tipBg.style.display = "none";
+    };
+};
+
+HeaderCards.wireInfoCard = function (base, svg, tooltip, doc) {
+    var U = HeaderGlobals.UTILS;
+    var d = doc || document;
+    var trendData = [];
+    var W = svg.clientWidth || 250;
+    var H = svg.clientHeight || 120;
+    var pad = 6;
+
+    function wireNode(node, cb) {
+        webMI.data.read(node, function (e) { cb(e); });
+        return webMI.data.subscribe(node, function (e) { cb(e); });
+    }
+
+    wireNode(base + ".short_name", function (r) {
+        if (r && r.value != null) {
+            var el = d.getElementById("info_name_top");
+            if (el) {
+                el.innerHTML = ""; // Clear
+                var nameSpan = d.createElement("span");
+                nameSpan.textContent = r.value;
+                el.appendChild(nameSpan);
+
+                // Add Status Badge Container
+                var badge = d.createElement("span");
+                badge.id = "conn_status_badge";
+                badge.style.marginLeft = "12px";
+                badge.style.fontSize = "12px";
+                badge.style.padding = "2px 8px";
+                badge.style.borderRadius = "20px";
+                badge.style.display = "inline-flex";
+                badge.style.alignItems = "center";
+                badge.style.verticalAlign = "middle";
+                badge.style.fontWeight = "900";
+                el.appendChild(badge);
+            }
+        }
+    });
+
+    // Connectivity Badge Real-time Logic
+    wireNode(base + ".connect", function (r) {
+        var badge = d.getElementById("conn_status_badge");
+        if (!badge) return;
+        var isOnline = (r && (r.value === true || r.value === 1));
+        if (isOnline) {
+            badge.style.background = "#dcfce7";
+            badge.style.color = "#166534";
+            badge.style.border = "1px solid #86efac";
+            badge.innerHTML = "<span style='margin-right:4px'>🟢</span> ONLINE";
+        } else {
+            badge.style.background = "#fee2e2";
+            badge.style.color = "#991b1b";
+            badge.style.border = "1px solid #f87171";
+            badge.innerHTML = "<span style='margin-right:4px'>🔴</span> OFFLINE";
+        }
+    });
+    wireNode(base + ".sap_name", function (r) { if (r && r.value != null) d.getElementById("info_sap").textContent = r.value; });
+    wireNode(base + ".ip", function (r) { if (r && r.value != null) d.getElementById("info_ip").textContent = r.value; });
+    wireNode(base + ".ip_gtw", function (r) { if (r && r.value != null) d.getElementById("info_gtw").textContent = r.value; });
+    wireNode(base + ".Responsable", function (r) { if (r && r.value != null) d.getElementById("info_resp").textContent = r.value; });
+    wireNode(base + ".Telefono_Responsable", function (r) { if (r && r.value != null) d.getElementById("info_tel").textContent = r.value; });
+
+    // --- Dynamic PAC Energy Detection (reuses existing table IDs) ---
+    var currentPACSubscriptions = []; // Track active subscriptions
+    var currentPAC = null;
+
+    function switchToPAC(pacAddr, pacName) {
+        currentPACSubscriptions.forEach(function (sub) {
+            if (sub && sub.unsubscribe) sub.unsubscribe();
+            else if (typeof sub === "number") webMI.data.unsubscribe(sub);
+        });
+        currentPACSubscriptions = [];
+        currentPAC = pacAddr;
+
+        // Track individual values for client-side average calculation
+        var pacVals = { v1: 0, v2: 0, v3: 0, i1: 0, i2: 0, i3: 0 };
+
+        function updateTableAvgs() {
+            var vAvg = (pacVals.v1 + pacVals.v2 + pacVals.v3) / 3;
+            var iAvg = (pacVals.i1 + pacVals.i2 + pacVals.i3) / 3;
+            var elV = d.getElementById("e_vavg");
+            var elI = d.getElementById("e_iavg");
+            if (elV) elV.textContent = vAvg.toFixed(1);
+            if (elI) elI.textContent = iAvg.toFixed(1);
+        }
+
+        var nodes = [
+            { n: ".Voltaje_L1-L2_Historico", id: "e_v12", vKey: "v1" },
+            { n: ".Voltaje_L2-L3_Historico", id: "e_v23", vKey: "v2" },
+            { n: ".Voltaje_L3-L1_Historico", id: "e_v31", vKey: "v3" },
+            { n: ".Corriente_L1_Historico", id: "e_i1", vKey: "i1" },
+            { n: ".Corriente_L2_Historico", id: "e_i2", vKey: "i2" },
+            { n: ".Corriente_L3_Historico", id: "e_i3", vKey: "i3" }
+        ];
+
+        nodes.forEach(function (node) {
+            var sub = wireNode(pacAddr + node.n, function (r) {
+                if (r && r.value != null) {
+                    var val = parseFloat(r.value);
+                    var el = d.getElementById(node.id);
+                    if (el) el.textContent = val.toFixed(1);
+
+                    // Update tracking object and recalculate averages
+                    if (node.vKey) {
+                        pacVals[node.vKey] = val;
+                        updateTableAvgs();
+                    }
+                }
+            });
+            currentPACSubscriptions.push(sub);
+        });
+    }
+
+    var pacTabsDiv = d.getElementById("energy_pac_tabs");
+    if (pacTabsDiv) {
+        try {
+            var pacPath = base + ".Equipos.Energia";
+            webMI.data.call('ListarEquipos', {
+                startAddress: pacPath, endLevel: '1', levelMode: 'exact',
+                recursive: 'false', max: '0', includeStartAddress: 'false', debug: 'false'
+            }, function (ret) {
+                var pacs = [];
+                if (ret && ret.items) {
+                    pacs = ret.items.map(function (n) {
+                        var a = String((n && n.address) || '');
+                        var sid = a.indexOf('s='); if (sid >= 0) a = a.slice(sid + 2);
+                        return { address: a, name: (n && n.name) || a.split(".").pop() };
+                    }).filter(function (it) {
+                        return it.address.indexOf(".meta") === -1 && it.address.indexOf(".db") === -1;
+                    });
+                }
+
+                if (pacs.length === 0) {
+                    wireNode(base + ".V12", function (r) { if (r && r.value != null) d.getElementById("e_v12").textContent = parseFloat(r.value).toFixed(1); });
+                    wireNode(base + ".V23", function (r) { if (r && r.value != null) d.getElementById("e_v23").textContent = parseFloat(r.value).toFixed(1); });
+                    wireNode(base + ".V31", function (r) { if (r && r.value != null) d.getElementById("e_v31").textContent = parseFloat(r.value).toFixed(1); });
+                    wireNode(base + ".V_avg", function (r) { if (r && r.value != null) d.getElementById("e_vavg").textContent = parseFloat(r.value).toFixed(1); });
+                    wireNode(base + ".I1", function (r) { if (r && r.value != null) d.getElementById("e_i1").textContent = parseFloat(r.value).toFixed(1); });
+                    wireNode(base + ".I2", function (r) { if (r && r.value != null) d.getElementById("e_i2").textContent = parseFloat(r.value).toFixed(1); });
+                    wireNode(base + ".I3", function (r) { if (r && r.value != null) d.getElementById("e_i3").textContent = parseFloat(r.value).toFixed(1); });
+                    wireNode(base + ".I_avg", function (r) { if (r && r.value != null) d.getElementById("e_iavg").textContent = parseFloat(r.value).toFixed(1); });
+                    return;
+                }
+                if (pacs.length > 0) { // Changed from `items.length` to `pacs.length`
+                    pacTabsDiv.innerHTML = "";
+                    var btnFs = d.getElementById("energy_fs_btn");
+                    if (btnFs) {
+                        btnFs.style.display = "block";
+                        btnFs.onclick = function () { HeaderCards.showPACFullscreen(base, currentPAC, d, pacs); };
+                    }
+                    pacs.forEach(function (pac, idx) {
+                        var tab = U.x(d, 'div');
+                        tab.textContent = pac.name.replace(/_/g, " ") || ("PAC " + (idx + 1));
+                        tab.style.fontSize = "11px";
+                        tab.style.padding = "4px 12px";
+                        tab.style.cursor = "pointer";
+                        tab.style.borderRadius = "6px";
+                        tab.style.fontWeight = "bold";
+                        tab.style.transition = "all 0.2s";
+                        tab.style.background = (idx === 0) ? "#3b82f6" : "#f1f5f9";
+                        tab.style.color = (idx === 0) ? "#ffffff" : "#64748b";
+                        tab.style.border = "1px solid " + ((idx === 0) ? "#2563eb" : "#e2e8f0");
+
+                        tab.onclick = function () {
+                            var allTabs = pacTabsDiv.children;
+                            for (var i = 0; i < allTabs.length; i++) {
+                                allTabs[i].style.background = "#f1f5f9";
+                                allTabs[i].style.color = "#64748b";
+                                allTabs[i].style.border = "1px solid #e2e8f0";
+                            }
+                            tab.style.background = "#3b82f6";
+                            tab.style.color = "#ffffff";
+                            tab.style.border = "1px solid #2563eb";
+                            switchToPAC(pac.address, pac.name);
+                        };
+
+                        pacTabsDiv.appendChild(tab);
+                        if (idx === 0) switchToPAC(pac.address, pac.name);
+                    });
+
+                    if (pacs.length <= 1) pacTabsDiv.style.display = "none";
+                }
+            });
+        } catch (e) {
+            wireNode(base + ".V12", function (r) { if (r && r.value != null) d.getElementById("e_v12").textContent = parseFloat(r.value).toFixed(1); });
+            wireNode(base + ".V23", function (r) { if (r && r.value != null) d.getElementById("e_v23").textContent = parseFloat(r.value).toFixed(1); });
+            wireNode(base + ".V31", function (r) { if (r && r.value != null) d.getElementById("e_v31").textContent = parseFloat(r.value).toFixed(1); });
+            wireNode(base + ".V_avg", function (r) { if (r && r.value != null) d.getElementById("e_vavg").textContent = parseFloat(r.value).toFixed(1); });
+            wireNode(base + ".I1", function (r) { if (r && r.value != null) d.getElementById("e_i1").textContent = parseFloat(r.value).toFixed(1); });
+            wireNode(base + ".I2", function (r) { if (r && r.value != null) d.getElementById("e_i2").textContent = parseFloat(r.value).toFixed(1); });
+            wireNode(base + ".I3", function (r) { if (r && r.value != null) d.getElementById("e_i3").textContent = parseFloat(r.value).toFixed(1); });
+            wireNode(base + ".I_avg", function (r) { if (r && r.value != null) d.getElementById("e_iavg").textContent = parseFloat(r.value).toFixed(1); });
+        }
+    }
+
+    function buildTrend(from, now) {
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+        var rect = svg.getBoundingClientRect();
+        var CW = 300; // Fixed internal coordinate system
+        var CH = 100;
+        svg.setAttribute("viewBox", "0 0 " + CW + " " + CH);
+        svg.style.width = "100%";
+        svg.style.height = "100%";
+
+        U.log("buildTrend: Drawing " + trendData.length + " points");
+
+        if (trendData.length < 1) {
+            var txt = U.x(d, "text");
+            txt.textContent = "Sin datos";
+            txt.setAttribute("x", CW / 2); txt.setAttribute("y", CH / 2);
+            txt.setAttribute("dominant-baseline", "middle"); txt.setAttribute("text-anchor", "middle");
+            txt.setAttribute("fill", "#94a3b8"); txt.setAttribute("font-size", "10");
+            svg.appendChild(txt);
+            return;
+        }
+
+        var timeSpan = now - from;
+        function sx(t) { return pad + ((t - from) / timeSpan) * (CW - 2 * pad); }
+        function sy(val) { return val ? 10 : (CH - 10); }
+
+        var dPath = "";
+        var dArea = "";
+        if (trendData.length > 0) {
+            dPath = "M " + sx(trendData[0].t) + " " + sy(trendData[0].v);
+            for (var i = 1; i < trendData.length; i++) {
+                var prev = trendData[i - 1];
+                var curr = trendData[i];
+                dPath += " L " + sx(curr.t) + " " + sy(prev.v);
+                dPath += " L " + sx(curr.t) + " " + sy(curr.v);
+            }
+            dPath += " L " + sx(now) + " " + sy(trendData[trendData.length - 1].v);
+
+            // Build Area Path
+            dArea = dPath + " L " + sx(now) + " " + CH + " L " + sx(from) + " " + CH + " Z";
+        }
+
+        var area = U.x(d, 'path');
+        area.setAttribute("d", dArea);
+        area.setAttribute("fill", "#3b82f6");
+        area.setAttribute("opacity", "0.1");
+        svg.appendChild(area);
+
+        var path = U.x(d, 'path');
+        path.setAttribute("d", dPath);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", "#3b82f6");
+        path.setAttribute("stroke-width", "2.5");
+        path.setAttribute("stroke-linejoin", "round");
+        svg.appendChild(path);
+
+        var cursorLine = U.x(d, "line");
+        cursorLine.setAttribute("y1", 0); cursorLine.setAttribute("y2", CH);
+        cursorLine.setAttribute("stroke", "#64748b"); cursorLine.setAttribute("stroke-dasharray", "4,4");
+        cursorLine.style.display = "none";
+        svg.appendChild(cursorLine);
+
+        svg.onmousemove = function (e) {
+            var mRect = svg.getBoundingClientRect();
+            var mx_screen = e.clientX - mRect.left;
+
+            // Calculate ratio in screen space [0, 1]
+            var ratio = Math.max(0, Math.min(1, (mx_screen - pad) / (mRect.width - 2 * pad)));
+            var tHover = from + ratio * timeSpan;
+            var px_svg = pad + ratio * (CW - 2 * pad);
+
+            var state = null;
+            var actualPointTime = null;
+            for (var i = 0; i < trendData.length; i++) {
+                if (trendData[i].t <= tHover) {
+                    state = trendData[i].v;
+                    actualPointTime = trendData[i].t;
+                } else break;
+            }
+
+            // Fallback for hover before first point
+            if (actualPointTime == null && trendData.length > 0) {
+                actualPointTime = trendData[0].t;
+                state = trendData[0].v;
+            }
+
+            cursorLine.style.display = "block";
+            cursorLine.setAttribute("x1", px_svg); cursorLine.setAttribute("x2", px_svg);
+
+            tooltip.style.display = "block";
+            var stTxt = (state === true || state === 1) ? "<span style='color:#4ade80;font-weight:600'>● ONLINE</span>" : "<span style='color:#f87171;font-weight:600'>● OFFLINE</span>";
+            var displayTime = actualPointTime ? new Date(actualPointTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--";
+
+            tooltip.innerHTML = "<div style='line-height:1.2'>" + stTxt + "<br/><span style='font-size:10px;opacity:0.7'>" + displayTime + "</span></div>";
+
+            var tw = tooltip.offsetWidth;
+            var tx = (mx_screen + 10);
+            if (mx_screen > mRect.width / 2) tx = (mx_screen - tw - 10);
+
+            tooltip.style.left = tx + "px";
+            tooltip.style.top = (sy(state) * (mRect.height / CH) - 20) + "px";
+        };
+        svg.onmouseleave = function () { cursorLine.style.display = "none"; tooltip.style.display = "none"; };
+    }
+
+    function loadHistory() {
+        var now_ts = Date.now();
+        var from_ts = now_ts - 12 * 60 * 60 * 1000;
+        try {
+            U.readHist(base + ".connect", from_ts, now_ts, function (raw) {
+                // Apply 5-minute grouping
+                trendData = U.group5Minutes(raw);
+                U.log("Drawing " + trendData.length + " grouped points (1h goal is ~12)");
+                buildTrend(from_ts, now_ts);
+            });
+        } catch (e) { U.log("Error loading 1h history", e); }
+    }
+
+    loadHistory();
+    if (svg._refreshT) clearInterval(svg._refreshT);
+    svg._refreshT = setInterval(loadHistory, 60 * 1000);
+};
+
+// --- PAC Fullscreen Dashboard Implementation ---
+HeaderCards.showPACFullscreen = function (base, initialPacAddr, doc, pacList) {
+    if (!initialPacAddr) return;
+    var U = HeaderGlobals.UTILS;
+    var d = doc || document;
+    var fsSubs = [];
+    var activePAC = initialPacAddr;
+    var currentTimeRange = 3600000; // Default 1H
+    var trendBuffer = { v: [null, null, null], i: [null, null, null] };
+    var inDe, inA; // Support clearing from preset buttons
+
+    function x(tag) {
+        try {
+            return d.createElement(tag);
+        } catch (_) {
+            try {
+                return d.createElementNS("http://www.w3.org/2000/xhtml", tag);
+            } catch (__) {
+                return null;
+            }
+        }
+    }
+    function setS(el, styles) {
+        if (!el || !styles) return;
+        for (var k in styles) if (Object.prototype.hasOwnProperty.call(styles, k)) el.style[k] = styles[k];
+    }
+
+    // Create Overlay
+    var overlay = x("div");
+    overlay.id = "pac_fs_overlay";
+    setS(overlay, {
+        position: "fixed",
+        top: "0",
+        left: "0",
+        width: "100vw",
+        height: "100vh",
+        background: "#0f172a",
+        zIndex: "100000",
+        display: "flex",
+        flexDirection: "column",
+        fontFamily: "'Inter', Arial, sans-serif",
+        color: "#f8fafc",
+    });
+
+    // Header Container
+    var header = x("div");
+    setS(header, {
+        padding: "15px 40px",
+        background: "#1e293b",
+        borderBottom: "1px solid #334155",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+    });
+
+    var leftSide = x("div");
+    setS(leftSide, { display: "flex", alignItems: "center" });
+
+    var title = x("div");
+    setS(title, { fontSize: "18px", fontWeight: "800", color: "#60a5fa", letterSpacing: "-0.025em", marginRight: "30px" });
+    title.textContent = "ENERGÍA (PAC)";
+    leftSide.appendChild(title);
+
+    // PAC Selection Tabs
+    var tabContainer = x("div");
+    setS(tabContainer, { display: "flex", gap: "8px" });
+    if (pacList && pacList.length > 0) {
+        pacList.forEach(function (pac) {
+            var btn = x("button");
+            btn.textContent = pac.name.replace(/_/g, " ");
+            setS(btn, {
+                padding: "6px 14px", borderRadius: "6px", border: "1px solid #334155",
+                background: pac.address === activePAC ? "#3b82f6" : "#0f172a",
+                color: "#fff", fontSize: "12px", fontWeight: "600", cursor: "pointer", transition: "all 0.2s"
+            });
+            btn.onclick = function () {
+                var btns = tabContainer.querySelectorAll("button");
+                btns.forEach(function (b) { setS(b, { background: "#0f172a", borderColor: "#334155" }); });
+                setS(btn, { background: "#3b82f6", borderColor: "#3b82f6" });
+                switchToPAC(pac.address, pac.name);
+            };
+            tabContainer.appendChild(btn);
+        });
+    }
+    leftSide.appendChild(tabContainer);
+
+    // Time Range Selector
+    var timeContainer = x("div");
+    setS(timeContainer, { display: "flex", gap: "5px", marginLeft: "20px", paddingLeft: "20px", borderLeft: "1px solid #334155" });
+    var ranges = [
+        { label: "1H", value: 3600000 },
+        { label: "6H", value: 21600000 },
+        { label: "12H", value: 43200000 },
+        { label: "24H", value: 86400000 }
+    ];
+    ranges.forEach(function (r) {
+        var rBtn = x("button");
+        rBtn.textContent = r.label;
+        setS(rBtn, {
+            padding: "4px 12px", borderRadius: "4px", border: "1px solid #334155",
+            background: r.value === currentTimeRange ? "#334155" : "transparent",
+            color: r.value === currentTimeRange ? "#fff" : "#94a3b8",
+            fontSize: "11px", fontWeight: "700", cursor: "pointer", transition: "all 0.1s"
+        });
+        rBtn.onclick = function () {
+            currentTimeRange = r.value;
+            var btns = timeContainer.querySelectorAll("button");
+            btns.forEach(function (b, idx) {
+                var isSel = ranges[idx].value === currentTimeRange;
+                setS(b, { background: isSel ? "#334155" : "transparent", color: isSel ? "#fff" : "#94a3b8" });
+            });
+            if (inDe) inDe.value = "";
+            if (inA) inA.value = "";
+            switchToPAC(activePAC);
+        };
+        timeContainer.appendChild(rBtn);
+    });
+    leftSide.appendChild(timeContainer);
+
+    // Date Picker Selector (new)
+    var dateContainer = x("div");
+    setS(dateContainer, { display: "flex", alignItems: "center", gap: "10px", marginLeft: "20px", paddingLeft: "20px", borderLeft: "1px solid #334155" });
+
+    var lblDe = x("span");
+    lblDe.textContent = "DE:";
+    setS(lblDe, {
+        color: "#e2e8f0", fontSize: "11px", fontWeight: "700",
+        textTransform: "uppercase", letterSpacing: "0.5px"
+    });
+
+    inDe = x("input");
+    inDe.type = "date";
+    setS(inDe, {
+        background: "#334155", color: "#fff",
+        border: "1px solid #475569", borderRadius: "6px",
+        padding: "6px 10px", fontSize: "12px", fontWeight: "500",
+        cursor: "pointer", transition: "all 0.2s",
+        minWidth: "140px"
+    });
+    inDe.onfocus = function () { setS(this, { borderColor: "#3b82f6", background: "#1e293b" }); };
+    inDe.onblur = function () { setS(this, { borderColor: "#475569", background: "#334155" }); };
+
+    var lblA = x("span");
+    lblA.textContent = "A:";
+    setS(lblA, {
+        color: "#e2e8f0", fontSize: "11px", fontWeight: "700",
+        textTransform: "uppercase", letterSpacing: "0.5px"
+    });
+
+    inA = x("input");
+    inA.type = "date";
+    setS(inA, {
+        background: "#334155", color: "#fff",
+        border: "1px solid #475569", borderRadius: "6px",
+        padding: "6px 10px", fontSize: "12px", fontWeight: "500",
+        cursor: "pointer", transition: "all 0.2s",
+        minWidth: "140px"
+    });
+    inA.onfocus = function () { setS(this, { borderColor: "#3b82f6", background: "#1e293b" }); };
+    inA.onblur = function () { setS(this, { borderColor: "#475569", background: "#334155" }); };
+
+    var btnGo = x("button"); btnGo.textContent = "APLICAR";
+    setS(btnGo, {
+        background: "#10b981", color: "#fff", border: "none", borderRadius: "4px", padding: "4px 10px",
+        cursor: "pointer", fontSize: "10px", fontWeight: "800", transition: "all 0.2s"
+    });
+    btnGo.onclick = function () {
+        if (!inDe.value || !inA.value) return;
+        var d1 = new Date(inDe.value + "T00:00:00").getTime();
+        var d2 = new Date(inA.value + "T23:59:59").getTime();
+        if (d1 > d2) return;
+
+        // Reset preset buttons UI
+        var btns = timeContainer.querySelectorAll("button");
+        btns.forEach(function (b) { setS(b, { background: "transparent", color: "#94a3b8" }); });
+
+        switchToPAC(activePAC, null, d1, d2);
+    };
+
+    dateContainer.appendChild(lblDe); dateContainer.appendChild(inDe);
+    dateContainer.appendChild(lblA); dateContainer.appendChild(inA);
+    dateContainer.appendChild(btnGo);
+    leftSide.appendChild(dateContainer);
+
+    header.appendChild(leftSide);
+
+    // Right Side: Info + Control
+    var rightSide = x("div");
+    setS(rightSide, { display: "flex", alignItems: "center", gap: "20px" });
+
+    var pacNameLabel = x("div");
+    pacNameLabel.id = "fs_pac_name_label";
+    setS(pacNameLabel, { fontSize: "15px", fontWeight: "700", color: "#94a3b8" });
+    pacNameLabel.textContent = "Detectando...";
+    rightSide.appendChild(pacNameLabel);
+
+    var btnClose = x("button");
+    btnClose.textContent = "✕ CERRAR";
+    setS(btnClose, {
+        padding: "8px 20px", border: "1px solid #ef4444", borderRadius: "8px",
+        background: "transparent", color: "#ef4444", fontSize: "11px", fontWeight: "800", cursor: "pointer"
+    });
+    btnClose.onmouseenter = function () { setS(this, { background: "#ef4444", color: "#fff" }); };
+    btnClose.onmouseleave = function () { setS(this, { background: "transparent", color: "#ef4444" }); };
+    btnClose.onclick = function () { exitFS(); };
+    rightSide.appendChild(btnClose);
+    header.appendChild(rightSide);
+    overlay.appendChild(header);
+
+    // Dashboard Content
+    var content = x("div");
+    setS(content, { flex: "1", padding: "30px 40px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "30px" });
+
+    function createRow(titleText) {
+        var row = x("div");
+        setS(row, { display: "flex", flexDirection: "column", gap: "10px" });
+        var lbl = x("div");
+        lbl.textContent = titleText;
+        setS(lbl, { fontSize: "14px", fontWeight: "800", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.1em" });
+        row.appendChild(lbl);
+        var grid = x("div");
+        setS(grid, { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" });
+        row.appendChild(grid);
+        return { row: row, grid: grid };
+    }
+
+    var vRow = createRow("Voltajes de Fase (V)");
+    var iRow = createRow("Corrientes de Fase (A)");
+    var pRow = createRow("Factor de Potencia y Potencia Activa");
+    var eRow = createRow("Energía Acumulada");
+
+    content.appendChild(vRow.row);
+    content.appendChild(iRow.row);
+    content.appendChild(pRow.row);
+    content.appendChild(eRow.row);
+    overlay.appendChild(content);
+
+    function createMetricCard(title, id, unitSymbol) {
+        var card = x("div");
+        setS(card, { background: "#1e293b", padding: "20px", borderRadius: "12px", border: "1px solid #334155", position: "relative", overflow: "hidden" });
+
+        var header = x("div");
+        setS(header, { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "15px", position: "relative", zIndex: "2" });
+
+        var info = x("div");
+        var l = x("div"); l.textContent = title; setS(l, { fontSize: "12px", fontWeight: "700", color: "#94a3b8" });
+        var v = x("div"); v.id = id; v.textContent = "--"; setS(v, { fontSize: "32px", fontWeight: "900", color: "#fff", marginTop: "4px" });
+        info.appendChild(l); info.appendChild(v);
+        header.appendChild(info);
+
+        var unit = x("div");
+        unit.textContent = unitSymbol;
+        setS(unit, { fontSize: "14px", fontWeight: "800", color: "#475569", background: "#0f172a", padding: "4px 10px", borderRadius: "6px" });
+        header.appendChild(unit);
+        card.appendChild(header);
+
+        var spark = U.x(d, "svg");
+        spark.id = id + "_spark";
+        setS(spark, { width: "100%", height: "60px", display: "block", background: "rgba(15, 23, 42, 0.3)", borderRadius: "6px" });
+        card.appendChild(spark);
+
+        var tip = x("div");
+        tip.id = id + "_tip";
+        setS(tip, {
+            position: "absolute", display: "none", background: "rgba(15, 23, 42, 0.95)",
+            color: "#fff", padding: "8px 12px", borderRadius: "8px", fontSize: "12px",
+            pointerEvents: "none", zIndex: "100", border: "1px solid #475569",
+            boxShadow: "0 10px 15px -3px rgba(0,0,0,0.5)", whiteSpace: "nowrap"
+        });
+        card.appendChild(tip);
+
+        return card;
+    }
+
+    // Grid Builders
+    vRow.grid.appendChild(createMetricCard("L1 - L2", "fsv_v12", "V"));
+    vRow.grid.appendChild(createMetricCard("L2 - L3", "fsv_v23", "V"));
+    vRow.grid.appendChild(createMetricCard("L3 - L1", "fsv_v31", "V"));
+    vRow.grid.appendChild(createMetricCard("PROMEDIO", "fsv_vavg", "V"));
+
+    iRow.grid.appendChild(createMetricCard("L1", "fsv_i1", "A"));
+    iRow.grid.appendChild(createMetricCard("L2", "fsv_i2", "A"));
+    iRow.grid.appendChild(createMetricCard("L3", "fsv_i3", "A"));
+    iRow.grid.appendChild(createMetricCard("PROMEDIO", "fsv_iavg", "A"));
+
+    pRow.grid.appendChild(createMetricCard("FACTOR DE POTENCIA", "fsv_fp", "FP"));
+    pRow.grid.appendChild(createMetricCard("POTENCIA ACTIVA", "fsv_pact", "KW"));
+
+    eRow.grid.appendChild(createMetricCard("ENERGÍA IMPORTADA", "fsv_eimp", "KWH"));
+
+    var host = d.body || d.documentElement;
+    if (host) host.appendChild(overlay);
+
+    function drawSpark(id, points) {
+        var svg = d.getElementById(id + "_spark");
+        if (!svg) return;
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+        // Ensure sorted by time (asc)
+        points = (Array.isArray(points) ? points : []).slice().sort(function (a, b) {
+            return +a.t - +b.t;
+        });
+
+        if (!points || points.length < 2) {
+            var txt = d.createElementNS("http://www.w3.org/2000/svg", "text");
+            txt.textContent = "SIN DATOS";
+            txt.setAttribute("x", "50%"); txt.setAttribute("y", "50%");
+            txt.setAttribute("text-anchor", "middle"); txt.setAttribute("dominant-baseline", "middle");
+            txt.setAttribute("fill", "#475569"); txt.setAttribute("font-size", "10px");
+            txt.setAttribute("style", "font-weight: 800; opacity: 0.5");
+            svg.appendChild(txt);
+            return;
+        }
+        var min = Infinity, max = -Infinity;
+        points.forEach(function (p) { if (p.v < min) min = p.v; if (p.v > max) max = p.v; });
+        if (max === min) { min -= 1; max += 1; }
+        var range = max - min;
+        var W = 300, H = 60;
+        svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+        svg.setAttribute("preserveAspectRatio", "none");
+
+        var pathData = "M 0 " + (H - ((points[0].v - min) / range) * H);
+        for (var i = 1; i < points.length; i++) {
+            var xPos = (i / (points.length - 1)) * W;
+            var yPos = H - ((points[i].v - min) / range) * H;
+            pathData += " L " + xPos + " " + yPos;
+        }
+
+        var path = d.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", pathData);
+        path.setAttribute("stroke", "#3b82f6");
+        path.setAttribute("stroke-width", "2");
+        path.setAttribute("fill", "none");
+        svg.appendChild(path);
+
+        var areaData = pathData + " L " + W + " " + H + " L 0 " + H + " Z";
+        var area = d.createElementNS("http://www.w3.org/2000/svg", "path");
+        area.setAttribute("d", areaData);
+        area.setAttribute("fill", "url(#grad_blue)");
+        area.setAttribute("opacity", "0.2");
+        svg.appendChild(area);
+
+        var cursorLine = d.createElementNS("http://www.w3.org/2000/svg", "line");
+        cursorLine.setAttribute("x1", 0); cursorLine.setAttribute("x2", 0);
+        cursorLine.setAttribute("y1", 0); cursorLine.setAttribute("y2", H);
+        cursorLine.setAttribute("stroke", "#fff"); cursorLine.setAttribute("stroke-width", "1");
+        cursorLine.setAttribute("stroke-dasharray", "2,2"); cursorLine.style.display = "none";
+        svg.appendChild(cursorLine);
+
+        var cardTip = d.getElementById(id + "_tip");
+
+        svg.onmousemove = function (e) {
+            var ev = e || window.event;
+            var rect = svg.getBoundingClientRect();
+            var mx = ev.clientX - rect.left;
+            var ratio = Math.max(0, Math.min(1, mx / rect.width));
+            var idx = Math.round(ratio * (points.length - 1));
+            var p = points[idx];
+            if (!p) return;
+
+            cursorLine.style.display = "block";
+            var px = (idx / (points.length - 1)) * W;
+            cursorLine.setAttribute("x1", px); cursorLine.setAttribute("x2", px);
+
+            if (cardTip) {
+                cardTip.style.display = "block";
+                var dt = new Date(p.t);
+                var dateStr = dt.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+                var timeStr = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+                var valStr = p.v.toFixed(id.indexOf("eimp") > -1 ? 0 : 1);
+                cardTip.innerHTML = "<div style='font-weight:800;font-size:14px;'>" + valStr + "</div><div style='font-size:10px;opacity:0.8;text-transform:uppercase;'>" + dateStr + " " + timeStr + "</div>";
+
+                var tw = cardTip.offsetWidth;
+                var tx = mx + 15;
+                if (tx + tw > rect.width) tx = mx - tw - 15;
+                cardTip.style.left = tx + "px";
+                cardTip.style.top = "10px";
+            }
+        };
+
+        svg.onmouseleave = function () {
+            cursorLine.style.display = "none";
+            if (cardTip) cardTip.style.display = "none";
+        };
+
+        if (!d.getElementById("grad_blue")) {
+            var defs = d.createElementNS("http://www.w3.org/2000/svg", "defs");
+            var lg = d.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+            lg.id = "grad_blue"; lg.setAttribute("x1", "0%"); lg.setAttribute("y1", "0%"); lg.setAttribute("x2", "0%"); lg.setAttribute("y2", "100%");
+            var s1 = d.createElementNS("http://www.w3.org/2000/svg", "stop"); s1.setAttribute("offset", "0%"); s1.setAttribute("stop-color", "#3b82f6");
+            var s2 = d.createElementNS("http://www.w3.org/2000/svg", "stop"); s2.setAttribute("offset", "100%"); s2.setAttribute("stop-color", "#3b82f6"); s2.setAttribute("stop-opacity", "0");
+            lg.appendChild(s1); lg.appendChild(s2); defs.appendChild(lg); svg.appendChild(defs);
+        }
+    }
+
+    function switchToPAC(pacAddr, fallbackName, customFrom, customTo) {
+        fsSubs.forEach(function (s) { webMI.data.unsubscribe(s); });
+        fsSubs = [];
+        activePAC = pacAddr;
+        trendBuffer = { v: [null, null, null], i: [null, null, null] };
+
+        var pacLabel = d.getElementById("fs_pac_name_label");
+        if (pacLabel) pacLabel.textContent = (fallbackName || "Cargando...").replace(/_/g, " ");
+
+        var nodeMap = [
+            { n: "Voltaje_L1-L2_Historico", id: "fsv_v12", type: "v", idx: 0 },
+            { n: "Voltaje_L2-L3_Historico", id: "fsv_v23", type: "v", idx: 1 },
+            { n: "Voltaje_L3-L1_Historico", id: "fsv_v31", type: "v", idx: 2 },
+            { n: "Corriente_L1_Historico", id: "fsv_i1", type: "i", idx: 0 },
+            { n: "Corriente_L2_Historico", id: "fsv_i2", type: "i", idx: 1 },
+            { n: "Corriente_L3_Historico", id: "fsv_i3", type: "i", idx: 2 },
+            { n: "FP_Historico", id: "fsv_fp" },
+            { n: "Potencia_Activa_Historico", id: "fsv_pact" },
+            { n: "Energia_Importada_Historico", id: "fsv_eimp" }
+        ];
+
+        var vals = { v1: 0, v2: 0, v3: 0, i1: 0, i2: 0, i3: 0 };
+
+        function updateAvgs() {
+            var vAvg = (vals.v1 + vals.v2 + vals.v3) / 3;
+            var iAvg = (vals.i1 + vals.i2 + vals.i3) / 3;
+            var elV = d.getElementById("fsv_vavg"); if (elV) elV.textContent = vAvg.toFixed(1);
+            var elI = d.getElementById("fsv_iavg"); if (elI) elI.textContent = iAvg.toFixed(1);
+        }
+
+        nodeMap.forEach(function (item) {
+            var path = pacAddr + "." + item.n;
+
+            function updateUI(val) {
+                if (val == null) return;
+                var v = parseFloat(val);
+                var el = d.getElementById(item.id);
+                if (el) el.textContent = v.toFixed(item.id === "fsv_eimp" ? 0 : 1);
+                if (item.id === "fsv_v12") vals.v1 = v;
+                if (item.id === "fsv_v23") vals.v2 = v;
+                if (item.id === "fsv_v31") vals.v3 = v;
+                if (item.id === "fsv_i1") vals.i1 = v;
+                if (item.id === "fsv_i2") vals.i2 = v;
+                if (item.id === "fsv_i3") vals.i3 = v;
+                updateAvgs();
+            }
+
+            // Real-time Update via Historical subscription (if it triggers)
+            fsSubs.push(webMI.data.subscribe(path, function (r) { if (r && r.value != null) updateUI(r.value); }));
+
+            // NEW: Use Standard Helper
+            var now_ts = Date.now();
+            var from_ts = customFrom || (now_ts - currentTimeRange);
+            var to_ts = customTo || now_ts;
+
+            // Ensure integers (keep in milliseconds)
+            from_ts = Math.floor(from_ts);
+            to_ts = Math.floor(to_ts);
+
+            // console.log("[PAC Query]", item.id, ...);
+
+            U.readHist(path, from_ts, to_ts, function (raw) {
+                // console.log("[PAC Result]", item.id, ...);
+                if (raw && raw.length > 0) {
+                    drawSpark(item.id, raw);
+                    updateUI(raw[raw.length - 1].v);
+                    if (item.type != null) {
+                        trendBuffer[item.type][item.idx] = raw;
+                        checkAndDrawAverage(item.type);
+                    }
+                } else {
+                    drawSpark(item.id, []);
+                }
+            });
+        });
+
+        function checkAndDrawAverage(type) {
+            var b = trendBuffer[type];
+            if (b[0] && b[1] && b[2]) {
+                var len = Math.min(b[0].length, b[1].length, b[2].length);
+                var avgPts = [];
+                for (var k = 0; k < len; k++) {
+                    avgPts.push({ t: b[0][k].t, v: (b[0][k].v + b[1][k].v + b[2][k].v) / 3 });
+                }
+                drawSpark(type === "v" ? "fsv_vavg" : "fsv_iavg", avgPts);
+                updateUIForAvg(type, avgPts[avgPts.length - 1].v);
+            }
+        }
+
+        function updateUIForAvg(type, val) {
+            var el = d.getElementById(type === "v" ? "fsv_vavg" : "fsv_iavg");
+            if (el) el.textContent = val.toFixed(1);
+        }
+
+        webMI.data.read(pacAddr + ".nombre", function (r) { if (r && r.value != null && pacLabel) pacLabel.textContent = r.value.replace(/_/g, " "); });
+        fsSubs.push(webMI.data.subscribe(pacAddr + ".nombre", function (r) { if (r && r.value != null && pacLabel) pacLabel.textContent = r.value.replace(/_/g, " "); }));
+    }
+
+    // Fullscreen API
+    function enterFS(el) { try { if (el.requestFullscreen) el.requestFullscreen(); else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); } catch (_) { } }
+    function exitFS() { try { if (d.exitFullscreen) d.exitFullscreen(); else if (d.webkitExitFullscreen) d.webkitExitFullscreen(); } catch (_) { } }
+    function onFsChange() {
+        var fsEl = d.fullscreenElement || d.webkitFullscreenElement || d.mozFullScreenElement;
+        if (!fsEl) {
+            d.removeEventListener("fullscreenchange", onFsChange);
+            if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            fsSubs.forEach(function (s) { webMI.data.unsubscribe(s); });
+        }
+    }
+    d.addEventListener("fullscreenchange", onFsChange);
+    enterFS(overlay);
+    switchToPAC(activePAC, (pacList.filter(function (p) { return p.address === activePAC; })[0] || {}).name);
+};
+
+// Historical data fetching moved to global HeaderGlobals.UTILS.readHist
+
+HeaderCards.showTankFullscreen = function (base, doc) {
+    var U = HeaderGlobals.UTILS;
+    var d = doc || document;
+    var tfVal = null; // Calculated Total Flow display
+    var volVal = null; // Calculated Total Volume display
+    U.log("Starting showTankFullscreen setup for:", base);
+    var baseName = base.toLowerCase();
+    var isAR = (baseName.indexOf("cuenca") >= 0 || baseName.indexOf("carcamo") >= 0 || baseName.indexOf("residual") >= 0);
+    if (baseName.indexOf("circuito") >= 0 || baseName.indexOf("tanque") >= 0 || baseName.indexOf("potable") >= 0) isAR = false;
+
+    function getCleanSiteName(raw) {
+        if (!raw) return "";
+        var name = raw.replace(/_/g, " ").replace(/^[0-9]+:\s*/, "");
+        // Strip away Redundant categories to show ONLY the object name
+        name = name.replace(/Tanque\s?/gi, "").replace(/Cárcamo\s?|Carcamo\s?/gi, "").trim();
+        return name;
+    }
+
+    function getCleanGroupName(raw) {
+        if (!raw) return "";
+        var parts = raw.split(".");
+        // If the path ends in a specific site, the group name is usually the parent
+        var name = parts.pop();
+        if ((name.indexOf("Tanque") >= 0 || name.indexOf("Carcamo") >= 0 || name.indexOf("Potable") >= 0 || name.indexOf("Residual") >= 0) && parts.length > 0) {
+            name = parts.pop();
+        }
+
+        if (name.indexOf("_CAP_") >= 0) {
+            // "Circuito_CAP_001" -> "Circuito 001"
+            name = name.replace(/_CAP_/g, " ").replace(/_/g, " ");
+        } else {
+            name = name.replace(/_/g, " ");
+        }
+        return name;
+    }
+
+    function x(tag) {
+        var t = (tag || "").toLowerCase();
+        try {
+            if (["svg", "path", "circle", "g", "rect", "text", "line", "image", "linearGradient", "stop", "defs", "tspan"].indexOf(t) >= 0) {
+                return d.createElementNS("http://www.w3.org/2000/svg", t);
+            }
+            return d.createElement(t);
+        } catch (_) {
+            try { return d.createElementNS("http://www.w3.org/1999/xhtml", t); } catch (__) { return null; }
+        }
+    }
+
+    function setS(el, styles) {
+        if (!el || !styles) return;
+        for (var k in styles) if (Object.prototype.hasOwnProperty.call(styles, k)) el.style[k] = styles[k];
+    }
+
+    // --- CSS ENHANCEMENTS (Phase 75) ---
+    var style = x("style");
+    style.textContent = [
+        ".custom-scroll::-webkit-scrollbar { width: 6px; }",
+        ".custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }",
+        ".custom-scroll::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 3px; }",
+        ".progress-bar-container { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: rgba(255,255,255,0.05); z-index: 10001; }",
+        ".progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.3s ease; }",
+        "@media print {",
+        "  @page { size: auto; margin: 10mm; }",
+        "  body * { visibility: hidden; }",
+        "  #tank_fs_overlay, #tank_fs_overlay * { visibility: visible; }",
+        "  #tank_fs_overlay { position: static !important; width: 100% !important; height: auto !important; background: white !important; color: black !important; display: block !important; overflow: visible !important; }",
+        "  #tank_fs_overlay > div:nth-child(2) { flex-direction: column !important; height: auto !important; display: block !important; }", // Main body
+        "  #tank_fs_overlay > div:first-child { background: #f1f5f9 !important; border-bottom: 2px solid #334155 !important; color: #0f172a !important; }", // Header
+        "  #tank_fs_overlay tspan, #tank_fs_overlay text, #tank_fs_overlay b, #tank_fs_overlay span { color: black !important; fill: black !important; }",
+        "  .no-print { display: none !important; }",
+        "  .custom-scroll { overflow: visible !important; height: auto !important; max-height: none !important; }",
+        "  .site-wrap { break-inside: avoid !important; page-break-inside: avoid !important; margin-bottom: 30px !important; display: block !important; }",
+        "  #tank_fs_overlay > div:nth-child(2) > div:nth-child(1) { display: none !important; }", // Left Panel (Mode & Layers)
+        "  #tank_fs_overlay > div:nth-child(2) > div:nth-child(2) { width: 100% !important; padding: 0 !important; margin: 0 !important; }", // Center Panel (Charts)
+        "  #tank_fs_overlay > div:nth-child(2) > div:nth-child(3) { width: 100% !important; border-left: none !important; border-top: 2px solid #e2e8f0 !important; margin-top: 20px !important; display: block !important; position: static !important; page-break-before: always; }", // Right Panel (Pumps & Stats)
+        "  svg { width: 100% !important; height: auto !important; max-height: 100% !important; }",
+        "  rect[fill='#1e293b'] { fill: #f8fafc !important; stroke: #e2e8f0 !important; }", // Pump boxes background
+        "  rect[fill='#020617'] { fill: white !important; }", // Chart areas
+        "  line[stroke='rgba(255,255,255,0.05)'] { stroke: #e2e8f0 !important; }", // Grid lines
+        "}"
+    ].join("\n");
+    d.head.appendChild(style);
+
+    var overlay = x("div");
+    overlay.id = "tank_fs_overlay";
+    setS(overlay, {
+        position: "fixed", inset: "0", zIndex: "100000",
+        background: "#0f172a", display: "flex", flexDirection: "column",
+        color: "#f8fafc", fontFamily: "Inter, system-ui, sans-serif"
+    });
+
+    // Progress Bar (Phase 75)
+    var progressCont = x("div"); progressCont.className = "progress-bar-container no-print";
+    var progressFill = x("div"); progressFill.className = "progress-bar-fill";
+    progressCont.appendChild(progressFill);
+    overlay.appendChild(progressCont);
+
+    overlay._setProgress = function (p) {
+        progressFill.style.width = p + "%";
+        if (p >= 100) {
+            setTimeout(function () { progressFill.style.opacity = "0"; }, 800);
+            if (overlay._btnExport) {
+                overlay._btnExport.disabled = false;
+                overlay._btnExport.style.opacity = "1";
+            }
+        } else {
+            progressFill.style.opacity = "1";
+        }
+    };
+
+    // --- Header ---
+    var head = x("div");
+    setS(head, { padding: "16px 24px", background: "rgba(30, 41, 59, 0.7)", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.1)" });
+
+    var title = x("div");
+    setS(title, { display: "flex", alignItems: "baseline", gap: "12px" });
+    var tMain = x("b"); setS(tMain, { fontSize: "20px" }); tMain.textContent = isAR ? "Dashboard de Cuenca" : "Dashboard de Circuito";
+    var tSub = x("span"); setS(tSub, { color: "#94a3b8" }); tSub.textContent = getCleanGroupName(base);
+    overlay._tMain = tMain; overlay._tSub = tSub;
+    title.appendChild(tMain); title.appendChild(tSub);
+    head.appendChild(title);
+
+    var close = x("button"); close.textContent = "Cerrar Dashboard";
+    setS(close, { background: "#ef4444", color: "white", border: "none", padding: "8px 16px", borderRadius: "6px", fontWeight: "bold", cursor: "pointer", marginLeft: "20px" });
+    close.onclick = function () {
+        if (overlay._onClose) overlay._onClose();
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    };
+
+    var inDe, inA;
+
+    // Time Selectors
+    var timeWrap = x("div"); setS(timeWrap, { display: "flex", background: "rgba(15, 23, 42, 0.6)", borderRadius: "8px", padding: "3px", gap: "2px", marginLeft: "20px" });
+    [1, 6, 12, 24].forEach(function (h) {
+        var b = x("button"); b.textContent = h + "h";
+        setS(b, { border: "none", padding: "6px 12px", borderRadius: "6px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" });
+        b._h = h;
+        b.update = function () {
+            if (timeRange === b._h) { setS(b, { background: "#3b82f6", color: "white" }); }
+            else { setS(b, { background: "transparent", color: "#64748b" }); }
+        };
+        b.onclick = function () {
+            timeRange = h;
+            if (inDe) inDe.value = "";
+            if (inA) inA.value = "";
+            timeWrap.childNodes.forEach(function (btn) { if (btn.update) btn.update(); });
+            if (overlay._setProgress) overlay._setProgress(5);
+            refreshData();
+            saveConfig();
+        };
+        b.update();
+        timeWrap.appendChild(b);
+    });
+
+    // Date Picker Selector
+    var dateWrap = x("div");
+    setS(dateWrap, { display: "flex", alignItems: "center", gap: "8px", marginLeft: "20px", paddingLeft: "20px", borderLeft: "1px solid rgba(255,255,255,0.1)" });
+
+    var fLbl = x("small"); fLbl.textContent = "DESDE:"; setS(fLbl, { color: "#64748b", fontWeight: "bold", fontSize: "10px" });
+    inDe = x("input"); inDe.type = "date";
+    setS(inDe, { background: "#1e293b", color: "#fff", border: "1px solid #334155", borderRadius: "4px", padding: "4px 8px", fontSize: "11px" });
+
+    var tLbl = x("small"); tLbl.textContent = "HASTA:"; setS(tLbl, { color: "#64748b", fontWeight: "bold", fontSize: "10px" });
+    inA = x("input"); inA.type = "date";
+    setS(inA, { background: "#1e293b", color: "#fff", border: "1px solid #334155", borderRadius: "4px", padding: "4px 8px", fontSize: "11px" });
+
+    var btnGo = x("button"); btnGo.textContent = "APLICAR";
+    setS(btnGo, { background: "#10b981", color: "white", border: "none", padding: "6px 12px", borderRadius: "4px", fontWeight: "bold", cursor: "pointer", fontSize: "11px" });
+    btnGo.onclick = function () {
+        if (!inDe.value || !inA.value) return;
+        var t1 = new Date(inDe.value + "T00:00:00").getTime();
+        var t2 = new Date(inA.value + "T23:59:59").getTime();
+        if (t1 >= t2) return;
+        timeRange = 0; // custom
+        timeWrap.childNodes.forEach(function (btn) { if (btn.update) btn.update(); });
+        if (overlay._setProgress) overlay._setProgress(5);
+        refreshData(t1, t2);
+    };
+
+    dateWrap.appendChild(fLbl); dateWrap.appendChild(inDe);
+    dateWrap.appendChild(tLbl); dateWrap.appendChild(inA);
+    dateWrap.appendChild(btnGo);
+
+    // PDF Export Button (Phase 75)
+    var btnExport = x("button"); btnExport.innerHTML = "📄 Reporte PDF"; btnExport.className = "no-print";
+    setS(btnExport, { border: "1px solid #3b82f6", background: "transparent", color: "#3b82f6", padding: "6px 14px", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", opacity: "0.4", transition: "all 0.3s", fontSize: "11px" });
+    btnExport.disabled = true;
+    btnExport.onclick = function () {
+        var win = window;
+        function tryPrint(w) {
+            try {
+                if (w && w.print) {
+                    w.print.call(w);
+                    return true;
+                }
+            } catch (e) { }
+            try {
+                if (w && w.print) {
+                    w.print();
+                    return true;
+                }
+            } catch (e) { }
+            return false;
+        }
+
+        // Strategy: Decouple with setTimeout and try various contexts
+        setTimeout(function () {
+            if (tryPrint(window)) return;
+            if (tryPrint(self)) return;
+            if (tryPrint(top)) return;
+            if (tryPrint(parent)) return;
+
+            // Final desperate attempt: execCommand
+            try {
+                document.execCommand('print', false, null);
+            } catch (e) {
+                // error handled
+                alert("No se pudo abrir el diálogo de impresión. El sistema SCADA puede estar restringiendo esta función.");
+            }
+        }, 50);
+    };
+    overlay._btnExport = btnExport;
+    dateWrap.appendChild(btnExport);
+
+    // Manual Refresh Button
+    var btnRefresh = x("button"); btnRefresh.innerHTML = "🔄 Actualizar"; btnRefresh.className = "no-print";
+    setS(btnRefresh, { background: "#1e293b", color: "#60a5fa", border: "1px solid #334155", padding: "6px 12px", borderRadius: "6px", fontWeight: "bold", cursor: "pointer", fontSize: "11px", marginLeft: "20px" });
+    btnRefresh.onclick = function () {
+        if (overlay._setProgress) overlay._setProgress(5);
+        refreshData();
+    };
+
+    var controlsWrap = x("div");
+    setS(controlsWrap, { display: "flex", alignItems: "center", gap: "10px" });
+    controlsWrap.appendChild(timeWrap);
+    controlsWrap.appendChild(dateWrap);
+    controlsWrap.appendChild(btnRefresh);
+    controlsWrap.appendChild(close);
+
+    head.appendChild(title);
+    head.appendChild(controlsWrap);
+    overlay.appendChild(head);
+    close.className = "no-print";
+
+    // --- Main Layout ---
+    var body = x("div");
+    setS(body, { flex: "1", display: "flex", minHeight: "0" });
+    overlay.appendChild(body);
+
+    // Left Panel: Controls & Multi-Series List
+    var left = x("div");
+    setS(left, { width: "300px", padding: "20px", background: "rgba(15, 23, 42, 0.5)", borderRight: "1px solid rgba(255,255,255,0.05)", display: "flex", flexDirection: "column", gap: "20px" });
+
+    // Mode Toggle
+    var modeWrap = x("div");
+    var modeLbl = x("small"); modeLbl.textContent = "MODO DE VISUALIZACIÓN"; setS(modeLbl, { color: "#64748b", fontWeight: "bold" });
+    modeWrap.appendChild(modeLbl);
+    var modeBtns = x("div"); setS(modeBtns, { display: "flex", marginTop: "8px", background: "#1e293b", borderRadius: "8px", padding: "4px" });
+    var btnLocal = x("button"); btnLocal.textContent = "Sitio"; setS(btnLocal, { flex: "1", border: "none", padding: "8px", borderRadius: "6px", background: "#3b82f6", color: "white", cursor: "pointer" });
+    var btnCirc = x("button"); btnCirc.textContent = isAR ? "Cuenca" : "Circuito"; setS(btnCirc, { flex: "1", border: "none", padding: "8px", borderRadius: "6px", background: "transparent", color: "#94a3b8", cursor: "pointer" });
+    modeBtns.appendChild(btnLocal); modeBtns.appendChild(btnCirc);
+    modeWrap.appendChild(modeBtns);
+    left.appendChild(modeWrap);
+
+    // Series List
+    var seriesWrap = x("div"); setS(seriesWrap, { flex: "1", display: "flex", flexDirection: "column", minHeight: "0" });
+    var seriesLbl = x("small"); seriesLbl.textContent = "CAPAS DE DATOS"; setS(seriesLbl, { color: "#64748b", fontWeight: "bold" });
+    seriesWrap.appendChild(seriesLbl);
+    var seriesList = x("div"); seriesList.className = "custom-scroll"; setS(seriesList, { marginTop: "8px", flex: "1", overflowY: "auto" });
+    seriesWrap.appendChild(seriesList);
+    left.appendChild(seriesWrap);
+    body.appendChild(left);
+
+    // Center Panel: Large Chart
+    var center = x("div");
+    setS(center, { flex: "1", display: "flex", flexDirection: "column", padding: "20px" });
+    var chartCanvas = x("div"); chartCanvas.className = "custom-scroll"; setS(chartCanvas, { flex: "1", background: "#020617", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)", position: "relative", overflowY: "auto", overflowX: "hidden" });
+    center.appendChild(chartCanvas);
+    body.appendChild(center);
+
+    // Right Panel: Pumps & Real-time status
+    var right = x("div"); right.className = "custom-scroll";
+    setS(right, { width: "280px", padding: "20px", background: "rgba(15, 23, 42, 0.5)", borderLeft: "1px solid rgba(255,255,255,0.05)", overflowY: "auto", display: "flex", flexDirection: "column", minHeight: "0" });
+    var pumpLbl = x("small"); pumpLbl.textContent = isAR ? "BOMBAS DEL CÁRCAMO" : "BOMBAS DEL TANQUE"; setS(pumpLbl, { color: "#64748b", fontWeight: "bold" });
+    right.appendChild(pumpLbl);
+    overlay._pumpLbl = pumpLbl;
+    var pumpList = x("div"); setS(pumpList, { marginTop: "12px" }); right.appendChild(pumpList);
+    overlay._pumpList = pumpList;
+
+    var legDiv = x("div"); setS(legDiv, { marginTop: "20px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "12px" });
+    overlay._legDiv = legDiv;
+    var legLbl = x("small"); legLbl.textContent = "REFERENCIA DE ESTADOS"; setS(legLbl, { color: "#64748b", fontWeight: "bold", display: "block", marginBottom: "8px" });
+    legDiv.appendChild(legLbl);
+    var legendItems = [
+        { l: "MARCHA (ON)", c: "#22c55e" }, { l: "APAGADO (OFF)", c: "#334155" },
+        { l: "FUERA (LOCAL+OFF)", c: "#ef4444" }, { l: "MANUAL", c: "#eab308" },
+        { l: "AUTO", c: "#3b82f6" }, { l: "LOCAL", c: "#f97316" }, { l: "REMOTO", c: "#06b6d4" }
+    ];
+    legendItems.forEach(function (li) {
+        var row = x("div"); setS(row, { display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" });
+        var circ = x("div"); setS(circ, { width: "8px", height: "8px", borderRadius: "50%", background: li.c });
+        var txt = x("span"); txt.textContent = li.l; setS(txt, { color: "#94a3b8", fontSize: "10px" });
+        row.appendChild(circ); row.appendChild(txt); legDiv.appendChild(row);
+    });
+    right.appendChild(legDiv);
+
+    // Section 1: PROMEDIO DE CAUDAL (PERÍODO)
+    var avgQDiv = x("div"); setS(avgQDiv, { marginTop: "20px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "12px" });
+    var avgQLbl = x("small"); avgQLbl.textContent = isAR ? "PROMEDIO DE CAUDAL DEL CÁRCAMO" : "PROMEDIO DE CAUDAL DEL TANQUE"; setS(avgQLbl, { color: "#64748b", fontWeight: "bold", display: "block", marginBottom: "4px" });
+    overlay._avgQLbl = avgQLbl;
+    var avgQList = x("div"); setS(avgQList, { marginTop: "8px", marginBottom: "8px", display: "flex", flexDirection: "column", gap: "4px" });
+    var avgQValNode = x("div"); setS(avgQValNode, { fontSize: "24px", fontWeight: "900", color: "#60a5fa" });
+    avgQValNode.textContent = "0.00";
+    var avgQUn = x("span"); avgQUn.textContent = " l/s"; setS(avgQUn, { fontSize: "14px", color: "#64748b" });
+    avgQValNode.appendChild(avgQUn);
+    avgQDiv.appendChild(avgQLbl); avgQDiv.appendChild(avgQList); avgQDiv.appendChild(avgQValNode);
+    right.appendChild(avgQDiv);
+    overlay._avgQList = avgQList;
+    overlay._avgQVal = avgQValNode;
+
+    // Section 2: CAUDAL EN TIEMPO REAL
+    var tfDiv = x("div"); setS(tfDiv, { marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "12px" });
+    var tfLbl = x("small"); tfLbl.textContent = "CAUDAL EN TIEMPO REAL"; setS(tfLbl, { color: "#64748b", fontWeight: "bold", display: "block", marginBottom: "4px" });
+    overlay._tfLbl = tfLbl;
+    var realQList = x("div"); setS(realQList, { marginTop: "8px", marginBottom: "8px", display: "flex", flexDirection: "column", gap: "4px" });
+    tfVal = x("div"); setS(tfVal, { fontSize: "24px", fontWeight: "900", color: "#3b82f6" });
+    tfVal.textContent = "0.00";
+    var tfUn = x("span"); tfUn.textContent = " l/s"; setS(tfUn, { fontSize: "14px", color: "#64748b" });
+    tfVal.appendChild(tfUn);
+    tfDiv.appendChild(tfLbl); tfDiv.appendChild(realQList); tfDiv.appendChild(tfVal);
+    right.appendChild(tfDiv);
+    overlay._realQList = realQList;
+
+    // Section 3: PROMEDIO DE PRESIÓN (PERÍODO)
+    var avgPDiv = x("div"); setS(avgPDiv, { marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "12px" });
+    var avgPLbl = x("small"); avgPLbl.textContent = isAR ? "PROMEDIO DE PRESIÓN DEL CÁRCAMO" : "PROMEDIO DE PRESIÓN DEL TANQUE"; setS(avgPLbl, { color: "#64748b", fontWeight: "bold", display: "block", marginBottom: "4px" });
+    overlay._avgPLbl = avgPLbl;
+    var avgPList = x("div"); setS(avgPList, { marginTop: "8px", marginBottom: "8px", display: "flex", flexDirection: "column", gap: "4px" });
+    var avgPValNode = x("div"); setS(avgPValNode, { fontSize: "24px", fontWeight: "900", color: "#22d3ee" }); // Cyan
+    avgPValNode.textContent = "0.00";
+    var avgPUn = x("span"); avgPUn.textContent = " kg/cm²"; setS(avgPUn, { fontSize: "14px", color: "#64748b" });
+    avgPValNode.appendChild(avgPUn);
+    avgPDiv.appendChild(avgPLbl); avgPDiv.appendChild(avgPList); avgPDiv.appendChild(avgPValNode);
+    right.appendChild(avgPDiv);
+    overlay._avgPList = avgPList;
+    overlay._avgPVal = avgPValNode;
+    if (isAR) avgPDiv.style.display = "none";
+
+    // Section 4: PRESIÓN EN TIEMPO REAL
+    var tpDiv = x("div"); setS(tpDiv, { marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "12px" });
+    var tpLbl = x("small"); tpLbl.textContent = "PRESIÓN EN TIEMPO REAL"; setS(tpLbl, { color: "#64748b", fontWeight: "bold", display: "block", marginBottom: "4px" });
+    var realPList = x("div"); setS(realPList, { marginTop: "8px", marginBottom: "8px", display: "flex", flexDirection: "column", gap: "4px" });
+    var tpValNode = x("div"); setS(tpValNode, { fontSize: "24px", fontWeight: "900", color: "#06b6d4" }); // Bright Cyan
+    tpValNode.textContent = "0.00";
+    var tpUn = x("span"); tpUn.textContent = " kg/cm²"; setS(tpUn, { fontSize: "14px", color: "#64748b" });
+    tpValNode.appendChild(tpUn);
+    tpDiv.appendChild(tpLbl); tpDiv.appendChild(realPList); tpDiv.appendChild(tpValNode);
+    right.appendChild(tpDiv);
+    overlay._realPList = realPList;
+    overlay._tpVal = tpValNode;
+    if (isAR) tpDiv.style.display = "none";
+
+    // Section 5: VOLUMEN TOTAL BOMBEADO
+    var volDiv = x("div"); setS(volDiv, { marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "12px" });
+    var volLbl = x("small"); volLbl.textContent = isAR ? "VOLUMEN DEL CÁRCAMO" : "VOLUMEN DEL TANQUE"; setS(volLbl, { color: "#64748b", fontWeight: "bold", display: "block", marginBottom: "4px" });
+    overlay._volLbl = volLbl;
+    var volList = x("div"); setS(volList, { marginTop: "8px", marginBottom: "8px", display: "flex", flexDirection: "column", gap: "4px" });
+    volVal = x("div"); setS(volVal, { fontSize: "24px", fontWeight: "900", color: "#10b981" });
+    volVal.textContent = "0.00";
+    var volUn = x("span"); volUn.textContent = " m³"; setS(volUn, { fontSize: "14px", color: "#64748b" });
+    volVal.appendChild(volUn);
+    volDiv.appendChild(volLbl); volDiv.appendChild(volList); volDiv.appendChild(volVal);
+    right.appendChild(volDiv);
+    overlay._volList = volList;
+
+    body.appendChild(right);
+
+    d.body.appendChild(overlay);
+
+    // --- State & Logic ---
+    var currentMode = null; // local | circuit
+    var activeSeries = [];
+    var timeRange = 12; // hours
+    var configNode = base + ".dashboard_config";
+
+    function saveConfig() {
+        var data = JSON.stringify({ mode: currentMode, range: timeRange });
+        webMI.data.write(configNode, data);
+    }
+
+    function loadConfig(cb) {
+        webMI.data.read(configNode, function (res) {
+            var val = res && (typeof res.value !== "undefined" ? res.value : res);
+            if (!val || val === "null") { if (cb) cb(); return; }
+            try {
+                var cfg = JSON.parse(val);
+                if (cfg.mode) currentMode = cfg.mode;
+                if (cfg.range) timeRange = cfg.range;
+            } catch (e) { }
+            if (cb) cb();
+        });
+    }
+
+    function updatePumps(externalData) {
+        var processPumps = function (data) {
+            pumpList.innerHTML = "";
+            var pumps = data.pumps || [];
+            if (pumps.length === 0) {
+                pumpList.innerHTML = '<div style="color:#64748b; font-size:12px; font-style:italic;">No se detectaron bombas</div>';
+                return;
+            }
+            pumps.forEach(function (p) {
+                var pItem = x("div");
+                setS(pItem, { background: "#1e293b", padding: "10px", borderRadius: "8px", marginBottom: "8px", display: "flex", alignItems: "center", gap: "10px" });
+
+                var stave = x("div"); setS(stave, { width: "10px", height: "24px", display: "flex", flexDirection: "column", gap: "1px", borderRadius: "2px", overflow: "hidden" });
+                var bE = x("div"); setS(bE, { flex: "1", background: "#475569" });
+                var bM = x("div"); setS(bM, { flex: "1", background: "#475569" });
+                var bL = x("div"); setS(bL, { flex: "1", background: "#475569" });
+                stave.appendChild(bE); stave.appendChild(bM); stave.appendChild(bL);
+
+                var pName = x("span");
+                var cleanName = getCleanSiteName(p.name);
+                var siteCleanName = getCleanSiteName(p.siteName);
+                pName.innerHTML = (siteCleanName ? '<small style="color:#64748b; display:block; font-size:9px; font-weight:900;">' + siteCleanName.toUpperCase() + '</small>' : '') + cleanName;
+                setS(pName, { fontSize: "12px", fontWeight: "bold", lineHeight: "1.1" });
+
+                var badges = x("div"); setS(badges, { marginLeft: "auto", display: "flex", gap: "4px" });
+                var bLocalOff = x("div"); setS(bLocalOff, { background: "#ef4444", color: "white", fontSize: "9px", fontWeight: "900", padding: "3px 8px", borderRadius: "4px", textTransform: "uppercase", display: "none" });
+                bLocalOff.textContent = "EQUIPO FUERA";
+                var bFault = x("div"); setS(bFault, { background: "#ef4444", color: "white", fontSize: "9px", fontWeight: "900", padding: "3px 8px", borderRadius: "4px", textTransform: "uppercase", display: "none" });
+                bFault.textContent = "FALLA";
+                badges.appendChild(bLocalOff); badges.appendChild(bFault);
+
+                pItem.appendChild(stave); pItem.appendChild(pName); pItem.appendChild(badges);
+                pumpList.appendChild(pItem);
+
+                var sPath = p.address;
+                if (sPath.indexOf("s=") >= 0) sPath = sPath.slice(sPath.indexOf("s=") + 2);
+                var pNameKey = cleanName;
+                if (!HeaderCards.equipmentLiveStates[pNameKey]) HeaderCards.equipmentLiveStates[pNameKey] = { maint: false, fault: false, e: 0, l: 0 };
+
+                U.addSub(sPath + ".maintenance", function (e) {
+                    HeaderCards.equipmentLiveStates[pNameKey].maint = !!(e && e.value);
+                }, overlay._subs);
+                U.addSub(sPath + ".fault", function (e) {
+                    var isFault = !!(e && e.value);
+                    HeaderCards.equipmentLiveStates[pNameKey].fault = isFault;
+                    bFault.style.display = isFault ? "block" : "none";
+                    if (HeaderCards.chartBadges[pNameKey] && HeaderCards.chartBadges[pNameKey].fault) {
+                        HeaderCards.chartBadges[pNameKey].fault.style.display = isFault ? "block" : "none";
+                    }
+                }, overlay._subs);
+
+                var pState = { e: 0, l: 0 };
+                function updStave() {
+                    var isOn = (pState.e == 1 || pState.e == 2 || pState.e == 5);
+                    var isLoc = (pState.l == 1 || pState.l == 2 || pState.l == 5);
+                    var isLocalOff = isLoc && !isOn;
+                    if (isLocalOff) { bE.style.background = "#ef4444"; }
+                    else { bE.style.background = isOn ? "#22c55e" : "#475569"; }
+                    bL.style.background = isLoc ? "#f97316" : "#06b6d4";
+                    bLocalOff.style.display = isLocalOff ? "block" : "none";
+
+                    if (HeaderCards.chartBadges[pNameKey] && HeaderCards.chartBadges[pNameKey].localOff) {
+                        HeaderCards.chartBadges[pNameKey].localOff.style.display = isLocalOff ? "block" : "none";
+                    }
+                }
+
+                U.addAlarmSub(sPath + ".Alarma_Estatus.ON_OFF.Estatus", function (e) {
+                    var s = (e && e.state != null ? e.state : 0);
+                    pState.e = s;
+                    HeaderCards.equipmentLiveStates[pNameKey].e = s;
+                    updStave();
+                }, overlay._subs);
+                U.addAlarmSub(sPath + ".Alarma_ManAuto.Manual_Automatico.Manual_Automatico", function (e) {
+                    var s = (e && e.state != null ? e.state : 0);
+                    bM.style.background = (s == 1 || s == 2 || s == 5) ? "#eab308" : "#3b82f6";
+                }, overlay._subs);
+                U.addAlarmSub(sPath + ".Alarma_Local.LR.Estado", function (e) {
+                    var s = (e && e.state != null ? e.state : 0);
+                    pState.l = s;
+                    HeaderCards.equipmentLiveStates[pNameKey].l = s;
+                    updStave();
+                }, overlay._subs);
+            });
+        };
+
+        if (externalData) processPumps(externalData);
+        else U.discoverEquipment(base, processPumps);
+    }
+
+    // --- Chart Core ---
+    // chartSVG original will be removed in favor of dynamic containers in drawMultiChart
+
+    function drawMultiChart(datasets, forcedFrom, forcedNow) {
+        if (!overlay.parentNode) return;
+        var scrollPos = chartCanvas.scrollTop;
+        chartCanvas.innerHTML = ""; // Clear for new rendering
+        HeaderCards.chartBadges = {}; // Reset badges
+        if (!datasets || datasets.length === 0) return;
+
+        // Group datasets by site
+        var siteGroups = {};
+        datasets.forEach(function (ds) {
+            var s = ds.site || "Local";
+            if (!siteGroups[s]) siteGroups[s] = [];
+            siteGroups[s].push(ds);
+        });
+
+        var sites = Object.keys(siteGroups).sort();
+        sites.forEach(function (siteName) {
+            var siteDatasets = siteGroups[siteName];
+
+            // Site Wrapper (for print paging)
+            var siteWrap = x("div");
+            siteWrap.className = "site-wrap";
+            setS(siteWrap, { marginBottom: "20px", position: "relative" });
+            chartCanvas.appendChild(siteWrap);
+
+            // Site Header
+            var sHead = x("div");
+            setS(sHead, { padding: "10px 15px", background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "#94a3b8", fontWeight: "900", fontSize: "11px", letterSpacing: "1px", display: "flex", justifyContent: "space-between", alignItems: "center" });
+            sHead.innerHTML = '<span>' + siteName.toUpperCase() + '</span><small style="color:#475569; font-weight:400">' + (currentMode === "circuit" ? "VISTA REPORTE" : "VISTA SITIO") + '</small>';
+            siteWrap.appendChild(sHead);
+
+            var sBody = x("div"); setS(sBody, { position: "relative", marginBottom: "10px", background: "#020617" });
+            siteWrap.appendChild(sBody);
+
+            var siteSVG = x("svg"); setS(siteSVG, { width: "100%", height: "auto", display: "block" });
+            sBody.appendChild(siteSVG);
+
+            renderOneChart(siteSVG, siteDatasets, sBody, forcedFrom, forcedNow);
+        });
+
+        // RESTORE SCROLL
+        setTimeout(function () {
+            chartCanvas.scrollTop = scrollPos;
+        }, 0);
+    }
+
+    function renderOneChart(chartSVG, datasets, container, forcedFrom, forcedNow) {
+        var meta = { tank: { label: "Nivel", unit: "%" }, chlorine: { label: "Cloro", unit: "ppm" }, flow: { label: "Caudal", unit: "l/s" }, pressure: { label: "Presión", unit: "bar" }, status: { label: "Motores", unit: "I/O" }, other: { label: "Otros", unit: "" } };
+        var groups = {}; var pumpGroups = {};
+        datasets.forEach(function (ds) {
+            if (ds.disabled) return;
+            var isStatus = ds.type && ds.type.toLowerCase().indexOf("status") >= 0;
+            var g = isStatus ? "status" : (ds.type || "other");
+            if (!groups[g]) groups[g] = { min: Infinity, max: -Infinity, items: [], unit: "" };
+            groups[g].items.push(ds);
+            if (!isStatus) {
+                ds.data.forEach(function (p) { if (p.v < groups[g].min) groups[g].min = p.v; if (p.v > groups[g].max) groups[g].max = p.v; });
+                if (g === "tank") { groups[g].min = 0; groups[g].max = 100; }
+                else if (groups[g].max !== -Infinity) { if (groups[g].min > 0) groups[g].min = 0; groups[g].max *= 1.2; }
+            } else {
+                groups[g].min = 0; groups[g].max = 1;
+                var eqName = ds.equip || ds.name.split(" (")[0];
+                var eqKey = ds.type.indexOf("_") > 0 ? ds.type.split("_")[1] : (ds.name.indexOf("(Marcha)") >= 0 ? "e" : (ds.name.indexOf("(Modo)") >= 0 ? "m" : "l"));
+                if (!pumpGroups[eqName]) pumpGroups[eqName] = { e: null, m: null, l: null };
+                pumpGroups[eqName][eqKey] = ds;
+            }
+        });
+
+        var CW = 900; var equipKeys = Object.keys(pumpGroups).sort(); var pumpAreaH = equipKeys.length * 160; var mainBaseline = 350; var padT = 30, padB = 40, padL = 150, padR = 80; var CH = mainBaseline + pumpAreaH + (equipKeys.length > 0 ? 100 : 50);
+        chartSVG.setAttribute("viewBox", "0 0 " + CW + " " + CH); var canvasW = container.clientWidth || 900; chartSVG.style.height = (CH * (canvasW / CW)) + "px";
+        var nowMs = forcedNow || Date.now(); var fromMs = forcedFrom || (nowMs - timeRange * 3600000);
+        var sx = function (t) { return padL + (CW - padL - padR) * (t - fromMs) / (nowMs - fromMs); };
+
+        var xLine = x("line"); xLine.setAttribute("x1", padL); xLine.setAttribute("y1", mainBaseline); xLine.setAttribute("x2", CW - padR); xLine.setAttribute("y2", mainBaseline); xLine.setAttribute("stroke", "#475569"); chartSVG.appendChild(xLine);
+        for (var i = 0; i <= 6; i++) {
+            var t = fromMs + (i * (nowMs - fromMs) / 6); var gx = padL + (i * (CW - padL - padR) / 6);
+            var gLine = x("line"); gLine.setAttribute("x1", gx); gLine.setAttribute("y1", padT); gLine.setAttribute("x2", gx); gLine.setAttribute("y2", mainBaseline + 20); gLine.setAttribute("stroke", "rgba(255,255,255,0.05)"); chartSVG.appendChild(gLine);
+            var tim = new Date(t); var lbl = x("text"); lbl.textContent = (tim.getHours() < 10 ? "0" : "") + tim.getHours() + ":" + (tim.getMinutes() < 10 ? "0" : "") + tim.getMinutes();
+            lbl.setAttribute("x", gx); lbl.setAttribute("y", mainBaseline + 15); lbl.setAttribute("fill", "#64748b"); lbl.setAttribute("font-size", "10px"); lbl.setAttribute("text-anchor", "middle"); chartSVG.appendChild(lbl);
+        }
+
+        Object.keys(groups).forEach(function (t, idx) {
+            var g = groups[t]; if (t === "status") return;
+            var isLeft = idx % 2 === 0; var xPos = isLeft ? (padL - 10 - (Math.floor(idx / 2) * 40)) : (CW - padR + 10 + (Math.floor(idx / 2) * 40));
+            var axisColor = g.items[0].color;
+            var aLine = x("line"); aLine.setAttribute("x1", xPos); aLine.setAttribute("y1", padT); aLine.setAttribute("x2", xPos); aLine.setAttribute("y2", mainBaseline); aLine.setAttribute("stroke", axisColor); aLine.setAttribute("opacity", "0.5"); chartSVG.appendChild(aLine);
+            var label = x("text"); label.textContent = (meta[t] ? meta[t].unit : ""); label.setAttribute("x", xPos); label.setAttribute("y", padT - 5); label.setAttribute("fill", axisColor); label.setAttribute("font-size", "10px"); label.setAttribute("text-anchor", "middle"); chartSVG.appendChild(label);
+        });
+
+        var getSY = function (v, type) {
+            var g = type && type.toLowerCase().indexOf("status") >= 0 ? "status" : (type || "other"); var rg = groups[g]; if (!rg) return mainBaseline;
+            var min = rg.min, max = rg.max; if (max === min) return mainBaseline - (mainBaseline - padT) / 2;
+            return mainBaseline - (v - min) / (max - min) * (mainBaseline - padT);
+        };
+
+        datasets.forEach(function (ds) {
+            if (ds.disabled || (ds.type && ds.type.indexOf("status_") === 0)) return;
+            if (!ds.data || ds.data.length < 1) return;
+            var pathStr = "M " + sx(ds.data[0].t) + " " + getSY(ds.data[0].v, ds.type);
+            for (var i = 1; i < ds.data.length; i++) pathStr += " L " + sx(ds.data[i].t) + " " + getSY(ds.data[i].v, ds.type);
+            var p = x("path"); p.setAttribute("d", pathStr); p.setAttribute("stroke", ds.color); p.setAttribute("fill", "none"); p.setAttribute("stroke-width", "2"); p.setAttribute("stroke-linejoin", "round"); p.setAttribute("stroke-linecap", "round"); chartSVG.appendChild(p);
+            var areaStr = pathStr + " L " + sx(ds.data[ds.data.length - 1].t) + " " + mainBaseline + " L " + sx(ds.data[0].t) + " " + mainBaseline + " Z";
+            var area = x("path"); area.setAttribute("d", areaStr); area.setAttribute("fill", ds.color); area.setAttribute("opacity", "0.03"); chartSVG.appendChild(area);
+        });
+
+        equipKeys.forEach(function (eqName, equipIdx) {
+            var group = pumpGroups[eqName]; var groupY = (mainBaseline + 60) + (equipIdx * 160);
+            var bg = x("rect"); bg.setAttribute("x", 15); bg.setAttribute("y", groupY - 25); bg.setAttribute("width", CW - 30); bg.setAttribute("height", 140); bg.setAttribute("fill", "#1e293b"); bg.setAttribute("stroke", "#334155"); bg.setAttribute("rx", "10"); chartSVG.appendChild(bg);
+            var dispName = eqName.replace(/Tanque\s?/gi, "").toUpperCase();
+            var title = x("text"); title.textContent = dispName; title.setAttribute("x", 35); title.setAttribute("y", groupY - 5); title.setAttribute("fill", "#94a3b8"); title.setAttribute("font-size", "11px"); title.setAttribute("font-weight", "900"); chartSVG.appendChild(title);
+
+            // --- Live Status Badges in Chart area ---
+            var pNameKey = getCleanSiteName(eqName);
+            var live = HeaderCards.equipmentLiveStates[pNameKey] || { e: 0, l: 0, fault: false };
+            HeaderCards.chartBadges[pNameKey] = { localOff: null, fault: null };
+
+            function createSVGBadge(text, color, xPos, w) {
+                var width = w || 55;
+                var g = x("g");
+                var r = x("rect"); r.setAttribute("x", xPos); r.setAttribute("y", groupY - 18); r.setAttribute("width", width); r.setAttribute("height", 16); r.setAttribute("fill", color); r.setAttribute("rx", 4);
+                var t = x("text"); t.textContent = text; t.setAttribute("x", xPos + (width / 2)); t.setAttribute("y", groupY - 6); t.setAttribute("fill", "white"); t.setAttribute("font-size", "9px"); t.setAttribute("font-weight", "bold"); t.setAttribute("text-anchor", "middle");
+                g.appendChild(r); g.appendChild(t);
+                chartSVG.appendChild(g);
+                return g;
+            }
+            var bX = 35 + 120;
+            var gLO = createSVGBadge("EQUIPO FUERA", "#ef4444", bX, 75);
+            var gF = createSVGBadge("FALLA", "#ef4444", bX + 85, 55);
+
+            var isOn_L = (live.e == 1 || live.e == 2 || live.e == 5);
+            var isLoc_L = (live.l == 1 || live.l == 2 || live.l == 5);
+            var isLO_L = isLoc_L && !isOn_L;
+            gLO.style.display = isLO_L ? "block" : "none";
+            gF.style.display = live.fault ? "block" : "none";
+            HeaderCards.chartBadges[pNameKey].localOff = gLO;
+            HeaderCards.chartBadges[pNameKey].fault = gF;
+            // --- End Badges ---
+
+            var trackTopY = groupY + 5, stepH = 16;
+            ["e", "m", "l"].forEach(function (key) {
+                var ds = group[key]; if (!ds) return;
+
+                // --- ROBUST DATA CLEANUP (Deduplicate & Group by Pixels) ---
+                var rawPts = ds.data || [];
+                if (rawPts.length > 0) {
+                    rawPts.sort(function (a, b) { return a.t - b.t; });
+                    // Ensure coverage of the requested range
+                    if (rawPts[0].t > fromMs) rawPts.unshift({ t: fromMs, v: rawPts[0].v });
+                    if (rawPts[rawPts.length - 1].t < nowMs) rawPts.push({ t: nowMs, v: rawPts[rawPts.length - 1].v });
+                } else {
+                    rawPts = [{ t: fromMs, v: 0 }, { t: nowMs, v: 0 }];
+                }
+
+                // Bucket data by horizontal pixels (matches Connectivity logic)
+                var interval = (nowMs - fromMs) / (CW - padL - padR);
+                if (interval < 1) interval = 1;
+                var trackData = U.groupData(rawPts, interval);
+
+                // Ensure tail end is covered
+                if (trackData.length > 0 && trackData[trackData.length - 1].t < nowMs) {
+                    trackData.push({ t: nowMs, v: trackData[trackData.length - 1].v });
+                }
+                // --- END CLEANUP ---
+
+                var rowLbl = x("text"); rowLbl.textContent = (key === "e" ? "ENCENDIDO" : (key === "m" ? "MAN/AUTO" : "LOC/REM")); rowLbl.setAttribute("x", padL - 15); rowLbl.setAttribute("y", trackTopY + (key === "e" ? 32 : (key === "m" ? 60 : 88))); rowLbl.setAttribute("fill", (key === "e" ? "#22c55e" : (key === "m" ? "#3b82f6" : "#06b6d4"))); rowLbl.setAttribute("font-size", "11px"); rowLbl.setAttribute("text-anchor", "end"); rowLbl.setAttribute("font-weight", "900"); chartSVG.appendChild(rowLbl);
+
+                for (var i = 0; i < trackData.length - 1; i++) {
+                    var p1 = trackData[i], p2 = trackData[i + 1];
+                    var x1 = sx(p1.t), x2 = sx(p2.t);
+
+                    var isOper = (p1.v == 1);
+                    var segColor = (key === "e" ? (isOper ? "#22c55e" : "#475569") :
+                        (key === "m" ? (isOper ? "#3b82f6" : "#eab308") :
+                            (isOper ? "#06b6d4" : "#f97316")));
+
+                    var y1 = trackTopY + (key === "e" ? 20 : (key === "m" ? 48 : 76)) + (isOper ? 0 : stepH);
+
+                    // Horizontal segment (current state until next timestamp)
+                    var line = x("line"); line.setAttribute("x1", x1); line.setAttribute("y1", y1); line.setAttribute("x2", x2); line.setAttribute("y2", y1);
+                    line.setAttribute("stroke", segColor); line.setAttribute("stroke-width", "2.5"); chartSVG.appendChild(line);
+
+                    // Vertical transition at x2 (from p1.v to p2.v)
+                    if (p1.v !== p2.v) {
+                        var nextIsOper = (p2.v == 1);
+                        var y2 = trackTopY + (key === "e" ? 20 : (key === "m" ? 48 : 76)) + (nextIsOper ? 0 : stepH);
+                        // Transition line color matches the NEW state
+                        var vCol = (key === "e" ? (nextIsOper ? "#22c55e" : "#475569") :
+                            (key === "m" ? (nextIsOper ? "#3b82f6" : "#eab308") :
+                                (nextIsOper ? "#06b6d4" : "#f97316")));
+                        var vLine = x("line"); vLine.setAttribute("x1", x2); vLine.setAttribute("y1", y1); vLine.setAttribute("x2", x2); vLine.setAttribute("y2", y2);
+                        vLine.setAttribute("stroke", vCol); vLine.setAttribute("stroke-width", "2.5"); chartSVG.appendChild(vLine);
+                    }
+                }
+            });
+        });
+
+        var cursorLine = x("line"); cursorLine.setAttribute("y1", padT); cursorLine.setAttribute("y2", CH - 20); cursorLine.setAttribute("stroke", "rgba(255,255,255,0.7)"); cursorLine.setAttribute("stroke-width", "1"); cursorLine.setAttribute("stroke-dasharray", "3,3"); cursorLine.style.display = "none"; chartSVG.appendChild(cursorLine);
+        var tooltip = container.querySelector(".chart-tooltip"); if (!tooltip) { tooltip = x("div"); tooltip.className = "chart-tooltip"; container.appendChild(tooltip); }
+        setS(tooltip, { position: "absolute", display: "none", background: "rgba(15, 23, 42, 0.95)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", padding: "12px", color: "#fff", fontSize: "11px", pointerEvents: "none", zIndex: "5000", boxShadow: "0 10px 25px rgba(0,0,0,0.6)", minWidth: "180px", backdropFilter: "blur(4px)" });
+        chartSVG.onmousemove = function (e) {
+            var rect = chartSVG.getBoundingClientRect(); var mx = e.clientX - rect.left, my = e.clientY - rect.top; var plotMx = mx * (CW / rect.width);
+            if (plotMx < padL || plotMx > CW - padR) { cursorLine.style.display = "none"; tooltip.style.display = "none"; return; }
+            cursorLine.style.display = "block"; cursorLine.setAttribute("x1", plotMx); cursorLine.setAttribute("x2", plotMx);
+            var hoverT = fromMs + (plotMx - padL) / (CW - padL - padR) * (nowMs - fromMs);
+            var d = new Date(hoverT); var html = "<div style='font-weight:bold; margin-bottom:8px; color:#94a3b8'>" + d.toLocaleString() + "</div>";
+            var localY = my * (CH / rect.height); var hoveredPump = null; if (localY >= (mainBaseline + 35)) { var pIdx = Math.floor((localY - (mainBaseline + 35)) / 160); if (pIdx >= 0 && pIdx < equipKeys.length) hoveredPump = equipKeys[pIdx]; }
+            if (hoveredPump) {
+                html += "<div style='font-weight:bold; color:#fff; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px; margin-bottom:8px;'>" + hoveredPump + "</div>";
+                ["e", "m", "l"].forEach(function (k) {
+                    var ds = pumpGroups[hoveredPump][k]; if (!ds) return; var val = 0; ds.data.forEach(function (p) { if (p.t <= hoverT + 1000) val = p.v; });
+                    var label = (k === "e" ? "Estado" : (k === "m" ? "Modo" : "Local")); var vText = (k === "e" ? (val == 1 ? "ON" : "OFF") : (k === "m" ? (val == 1 ? "AUTO" : "MAN") : (val == 1 ? "REM" : "LOC")));
+                    var vCol = (k === "e" ? (val == 1 ? "#22c55e" : "#94a3b8") : (k === "m" ? (val == 1 ? "#3b82f6" : "#eab308") : (val == 1 ? "#06b6d4" : "#f97316")));
+                    html += "<div style='display:flex; justify-content:space-between; gap:10px; margin-bottom:2px;'><span style='color:#64748b'>" + label + ":</span><b style='color:" + vCol + "'>" + vText + "</b></div>";
+                });
+            } else {
+                datasets.forEach(function (ds) {
+                    if (ds.disabled || (ds.type && ds.type.indexOf("status") >= 0)) return;
+                    var closest = ds.data[0]; var minDist = Infinity;
+                    ds.data.forEach(function (p) { var diff = Math.abs(p.t - hoverT); if (diff < minDist) { minDist = diff; closest = p; } });
+                    if (closest && minDist < 3600000) html += "<div style='display:flex; justify-content:space-between; gap:20px; margin-bottom:4px;'><span style='color:" + ds.color + "'>● " + ds.name + "</span><b style='color:#fff'>" + closest.v.toFixed(1) + "</b></div>";
+                });
+            }
+            tooltip.style.display = "block"; tooltip.innerHTML = html; var tx = mx + 20; if (tx + 220 > rect.width) tx = mx - 220 - 20; tooltip.style.left = tx + "px"; var ty = my + 20; if (ty + 150 > rect.height) ty = my - 150; tooltip.style.top = ty + "px";
+        };
+        chartSVG.onmouseleave = function () { cursorLine.style.display = "none"; tooltip.style.display = "none"; };
+    }
+
+    function refreshData(t1, t2, cb) {
+        if (!overlay.parentNode) return;
+        var now = t2 || Date.now();
+        var from = t1 || (now - timeRange * 3600000);
+        var pending = activeSeries.length;
+        var results = [];
+
+        if (timeWrap && timeWrap.childNodes) {
+            timeWrap.childNodes.forEach(function (btn) { if (btn.update) btn.update(); });
+        }
+
+        if (pending === 0) {
+            drawMultiChart([], from, now);
+            if (cb) cb();
+            return;
+        }
+
+        activeSeries.forEach(function (s, idx) {
+            var sPath = s.addr;
+            if (sPath.indexOf("s=") >= 0) sPath = sPath.slice(sPath.indexOf("s=") + 2);
+
+            var cbHandler = function (series) {
+                results[idx] = { name: s.name, color: s.color, data: series, type: s.type, disabled: s.disabled, equip: s.equip, site: s.site };
+                pending--;
+                if (pending === 0) {
+                    drawMultiChart(results, from, now);
+                    if (overlay._updateVolume) overlay._updateVolume(from, now);
+                    if (overlay._updateAverages) overlay._updateAverages(from, now);
+                    if (cb) cb();
+                }
+            };
+            U.readHist(sPath, from, now, cbHandler);
+        });
+    }
+
+    function updateSeriesUI() {
+        seriesList.innerHTML = "";
+
+        // Collect unique sites
+        var siteNames = [];
+        activeSeries.forEach(function (s) {
+            var sn = s.site || "SITIO";
+            if (siteNames.indexOf(sn) === -1) siteNames.push(sn);
+        });
+        siteNames.sort();
+
+        var categories = [
+            { label: "NIVEL 1: NIVELES Y QUÍMICA", types: ["tank", "chlorine"] },
+            { label: "NIVEL 2: CAUDALÍMETROS", types: ["flow", "pressure"] },
+            { label: "NIVEL 3: EQUIPOS DE BOMBEO", types: ["status_e", "status_m", "status_l"] }
+        ];
+
+        siteNames.forEach(function (site) {
+            // Site Section Header
+            var siteHeader = x("div");
+            setS(siteHeader, {
+                padding: "12px 10px 4px",
+                background: "rgba(59, 130, 246, 0.08)",
+                color: "#3b82f6",
+                fontWeight: "900",
+                fontSize: "11px",
+                letterSpacing: "1px",
+                borderLeft: "3px solid #3b82f6",
+                marginTop: "16px",
+                borderRadius: "0 4px 4px 0",
+                textTransform: "uppercase"
+            });
+            siteHeader.textContent = site;
+            seriesList.appendChild(siteHeader);
+
+            categories.forEach(function (cat) {
+                var filtered = activeSeries.filter(function (s) {
+                    return (s.site || "SITIO") === site && cat.types.indexOf(s.type) >= 0;
+                });
+                if (filtered.length === 0) return;
+
+                var catHead = x("div");
+                setS(catHead, { fontSize: "9px", fontWeight: "900", color: "#475569", padding: "8px 0 4px 10px", letterSpacing: "0.05em" });
+                catHead.textContent = cat.label.split(":")[1].trim();
+                seriesList.appendChild(catHead);
+
+                // --- GROUPING LOGIC (Specifically for Level 3 / Pumps) ---
+                var groups = {};
+                var order = [];
+                filtered.forEach(function (s) {
+                    // Clean name: Remove "Tanque ", "Carcamo ", "Cárcamo ", and leading digits
+                    var cleaned = s.name.replace(/Tanque\s?|Carcamo\s?|Cárcamo\s?/gi, "").replace(/^[0-9]+:\s*/, "").trim();
+                    s._dispName = cleaned;
+
+                    // Grouping key for Pumps (e.g., "Bomba 1")
+                    var gKey = cleaned;
+                    if (cat.types.indexOf("status_e") >= 0) {
+                        gKey = cleaned.split(" (")[0].replace(" - ENCENDIDO", "").replace(" - MAN/AUTO", "").replace(" - LOC/REM", "").trim();
+                    }
+
+                    if (!groups[gKey]) { groups[gKey] = []; order.push(gKey); }
+                    groups[gKey].push(s);
+                });
+
+                order.forEach(function (gKey) {
+                    var members = groups[gKey];
+                    var isLevel3 = cat.types.indexOf("status_e") >= 0;
+
+                    if (isLevel3 && members.length > 1) {
+                        // Group Header (Toggles all members)
+                        var gHeader = x("div");
+                        var allOn = members.every(function (m) { return !m.disabled; });
+                        setS(gHeader, {
+                            background: "rgba(30, 41, 59, 0.5)", padding: "6px 12px", borderRadius: "6px 6px 0 0",
+                            marginTop: "4px", marginLeft: "8px", display: "flex", justifyContent: "space-between", alignItems: "center",
+                            cursor: "pointer", borderBottom: "1px solid rgba(255,255,255,0.05)"
+                        });
+                        var gTitle = x("div"); setS(gTitle, { fontSize: "10px", fontWeight: "900", color: "#94a3b8" }); gTitle.textContent = gKey.toUpperCase();
+                        var gToggle = x("span"); gToggle.textContent = allOn ? "▼" : "▷"; setS(gToggle, { fontSize: "10px", color: "#64748b" });
+                        gHeader.appendChild(gTitle); gHeader.appendChild(gToggle);
+
+                        gHeader.onclick = function () {
+                            var targetState = !allOn;
+                            members.forEach(function (m) { m.disabled = !targetState; });
+                            updateSeriesUI();
+                            refreshData(inDe && inDe.value ? new Date(inDe.value + "T00:00:00").getTime() : null, inA && inA.value ? new Date(inA.value + "T23:59:59").getTime() : null);
+                        };
+                        seriesList.appendChild(gHeader);
+                    }
+
+                    members.forEach(function (s) {
+                        var item = x("div");
+                        var isOff = s.disabled;
+                        var isMember = isLevel3 && members.length > 1;
+
+                        setS(item, {
+                            background: "#1e293b", padding: "8px 12px", borderRadius: isMember ? "0" : "6px",
+                            marginBottom: isMember ? "0" : "4px", marginLeft: "8px",
+                            borderBottom: isMember ? "1px solid rgba(255,255,255,0.03)" : "none",
+                            display: "flex", justifyContent: "space-between", alignItems: "center",
+                            cursor: "pointer", transition: "all 0.2s", opacity: isOff ? "0.4" : "1"
+                        });
+                        if (isMember && s === members[members.length - 1]) setS(item, { borderRadius: "0 0 6px 6px", marginBottom: "4px" });
+
+                        var leftPart = x("div"); setS(leftPart, { display: "flex", alignItems: "center", gap: "8px" });
+                        var icon = x("div");
+                        var iconChar = (cat.label.indexOf("NIVEL 1") >= 0 ? "💧" : (cat.label.indexOf("NIVEL 2") >= 0 ? "📊" : "⚙️"));
+                        setS(icon, { width: "16px", height: "16px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", borderRadius: "3px", background: isOff ? "#475569" : s.color, color: "white" });
+                        icon.textContent = iconChar;
+
+                        var nameSpan = x("span");
+                        var disp = s._dispName;
+                        if (isMember) {
+                            disp = disp.replace(gKey, "").replace(/[\-\(\)\s]+/g, " ").trim() || "GENERAL";
+                        }
+                        nameSpan.textContent = disp;
+                        setS(nameSpan, { fontSize: "11px", fontWeight: "bold" });
+                        leftPart.appendChild(icon); leftPart.appendChild(nameSpan);
+                        item.appendChild(leftPart);
+
+                        var toggleIcon = x("span"); toggleIcon.textContent = isOff ? "○" : "●";
+                        setS(toggleIcon, { color: isOff ? "#64748b" : s.color, fontSize: "14px" });
+                        item.appendChild(toggleIcon);
+
+                        item.onclick = function (ev) {
+                            ev.stopPropagation();
+                            s.disabled = !s.disabled;
+                            updateSeriesUI();
+                            refreshData(inDe && inDe.value ? new Date(inDe.value + "T00:00:00").getTime() : null, inA && inA.value ? new Date(inA.value + "T23:59:59").getTime() : null);
+                        };
+                        seriesList.appendChild(item);
+                    });
+                });
+            });
+        });
+    }
+
+    btnLocal.onclick = function () {
+        if (currentMode === "local") return;
+        currentMode = "local";
+        if (overlay._subs) { overlay._subs.forEach(function (id) { webMI.data.unsubscribe(id); }); overlay._subs = []; }
+
+        if (overlay._tMain) overlay._tMain.textContent = "Dashboard de Sitio";
+        if (overlay._tSub) overlay._tSub.textContent = getCleanSiteName(base.split(".").pop());
+
+        if (overlay._pumpLbl) {
+            overlay._pumpLbl.style.display = "block";
+            overlay._pumpLbl.textContent = isAR ? "BOMBAS DEL CÁRCAMO" : "BOMBAS DEL TANQUE";
+        }
+        if (overlay._pumpList) overlay._pumpList.style.display = "block";
+        if (overlay._legDiv) overlay._legDiv.style.display = "block";
+
+        btnLocal.style.background = "#3b82f6"; btnLocal.style.color = "white";
+        btnCirc.style.background = "transparent"; btnCirc.style.color = "#94a3b8";
+
+        if (overlay._avgQLbl) overlay._avgQLbl.textContent = isAR ? "PROMEDIO DE CAUDAL DEL CÁRCAMO" : "PROMEDIO DE CAUDAL DEL TANQUE";
+        if (overlay._tfLbl) overlay._tfLbl.textContent = "CAUDAL EN TIEMPO REAL";
+        if (overlay._volLbl) overlay._volLbl.textContent = isAR ? "VOLUMEN DEL CÁRCAMO" : "VOLUMEN DEL TANQUE";
+        if (overlay._avgPLbl) overlay._avgPLbl.textContent = isAR ? "PROMEDIO DE PRESIÓN DEL CÁRCAMO" : "PROMEDIO DE PRESIÓN DEL TANQUE";
+
+        if (overlay._setProgress) overlay._setProgress(5);
+        if (overlay._btnExport) {
+            overlay._btnExport.disabled = true;
+            overlay._btnExport.style.opacity = "0.4";
+        }
+
+        var siteName = getCleanSiteName(base.split(".").pop());
+        activeSeries = [
+            { name: siteName + " (Nivel)", addr: base + ".historic_level_percent", color: "#3b82f6", type: "tank", site: siteName },
+            { name: "Cloro", addr: base + ".historic_ppm", color: "#f59e0b", type: "chlorine", site: siteName }
+        ];
+
+        // STEP 1: Discover Equipment
+        updatePumps();
+        U.discoverEquipment(base, function (data) {
+            if (overlay._setProgress) overlay._setProgress(30);
+            var colors = ["#10b981", "#06b6d4", "#8b5cf6", "#ec4899", "#f43f5e", "#fb923c", "#a855f7", "#22d3ee"];
+            var cIdx = 0;
+            var meterValues = {};
+            var pressureValues = {};
+
+            function updateTF() {
+                var sumQ = 0, sumP = 0, countP = 0;
+                var listQ = [], listP = [];
+                for (var k in meterValues) {
+                    var dsQ = activeSeries.filter(function (s) { return s.addr.indexOf(k) >= 0 && s.type === "flow"; })[0];
+                    if (dsQ && dsQ.disabled) continue;
+                    sumQ += meterValues[k];
+                    listQ.push({ name: k.replace(/^[0-9]+:\s*/, "").replace(/_/g, " "), val: meterValues[k] });
+                }
+                for (var k in pressureValues) {
+                    var dsP = activeSeries.filter(function (s) { return s.addr.indexOf(k) >= 0 && s.type === "pressure"; })[0];
+                    if (dsP && dsP.disabled) continue;
+                    sumP += pressureValues[k];
+                    countP++;
+                    listP.push({ name: k.replace(/^[0-9]+:\s*/, "").replace(/_/g, " "), val: pressureValues[k] });
+                }
+                if (tfVal) tfVal.firstChild.textContent = sumQ.toFixed(2);
+                if (overlay._tpVal) overlay._tpVal.firstChild.textContent = (countP > 0 ? (sumP / countP) : 0).toFixed(2);
+
+                if (overlay._realQList) {
+                    overlay._realQList.innerHTML = "";
+                    if (data.meters.length > 1) {
+                        listQ.forEach(function (item) {
+                            var row = x("div"); setS(row, { display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#94a3b8", paddingBottom: "2px", borderBottom: "1px solid rgba(255,255,255,0.03)" });
+                            var nSpan = x("span"); nSpan.textContent = item.name;
+                            var vSpan = x("b"); vSpan.textContent = item.val.toFixed(2) + " l/s"; setS(vSpan, { color: "#f8fafc" });
+                            row.appendChild(nSpan); row.appendChild(vSpan); overlay._realQList.appendChild(row);
+                        });
+                    }
+                }
+                if (overlay._realPList) {
+                    overlay._realPList.innerHTML = "";
+                    if (data.meters.length > 1) {
+                        listP.forEach(function (item) {
+                            var row = x("div"); setS(row, { display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#64748b", paddingBottom: "2px", borderBottom: "1px solid rgba(255,255,255,0.03)" });
+                            var nSpan = x("span"); nSpan.textContent = item.name;
+                            var vSpan = x("b"); vSpan.textContent = item.val.toFixed(2) + " kg"; setS(vSpan, { color: "#f8fafc" });
+                            row.appendChild(nSpan); row.appendChild(vSpan); overlay._realPList.appendChild(row);
+                        });
+                    }
+                }
+            }
+
+            data.meters.forEach(function (m) {
+                var mName = m.name.replace(/^[0-9]+:\s*/, "").replace(/_/g, " ");
+                U.addSub(m.address + ".historic_flow", function (res) {
+                    meterValues[m.name] = (res && res.value != null ? parseFloat(res.value) : 0);
+                    updateTF();
+                }, overlay._subs);
+                activeSeries.push({ name: mName + " (Q)", addr: m.address + ".historic_flow", color: colors[cIdx % colors.length], type: "flow", site: siteName });
+                cIdx++;
+
+                if (!isAR) {
+                    U.addSub(m.address + ".historic_pressure", function (res) {
+                        pressureValues[m.name] = (res && res.value != null ? parseFloat(res.value) : 0);
+                        updateTF();
+                    }, overlay._subs);
+                    activeSeries.push({ name: mName + " (P)", addr: m.address + ".historic_pressure", color: colors[cIdx % colors.length], type: "pressure", site: siteName });
+                    cIdx++;
+                }
+            });
+
+            data.pumps.forEach(function (p) {
+                var sPath = p.address;
+                if (sPath.indexOf("s=") >= 0) sPath = sPath.slice(sPath.indexOf("s=") + 2);
+                var pCleanName = getCleanSiteName(p.name);
+                activeSeries.push({ name: pCleanName + " (Marcha)", addr: sPath + ".Alarma_Estatus", color: "#22c55e", type: "status_e", equip: pCleanName, site: siteName });
+                activeSeries.push({ name: pCleanName + " (Modo)", addr: sPath + ".Alarma_ManAuto", color: "#3b82f6", type: "status_m", equip: pCleanName, site: siteName });
+                activeSeries.push({ name: pCleanName + " (Control)", addr: sPath + ".Alarma_Local", color: "#f97316", type: "status_l", equip: pCleanName, site: siteName });
+            });
+
+            // STEP 2: Render UI and Chart
+            updateSeriesUI();
+            refreshData(null, null, function () {
+                if (overlay._setProgress) overlay._setProgress(70);
+
+                // STEP 3: Right Panel Calculations
+                var cachedMeters = data.meters.slice();
+
+                function updateVolume(customFrom, customTo) {
+                    if (!volVal) return;
+                    var now = customTo || Date.now(), from = customFrom || (now - timeRange * 3600000);
+                    var totalDelta = 0, meterDeltas = [], pending = cachedMeters.length;
+                    if (pending === 0) return;
+                    cachedMeters.forEach(function (m, idx) {
+                        U.readHist(m.address + ".current_total_volume", from, now, function (series) {
+                            pending--;
+                            var ds = activeSeries.filter(function (s) { return s.addr.indexOf(m.address) >= 0 && s.type === "flow"; })[0];
+                            var delta = 0;
+                            if (ds && !ds.disabled && series && series.length >= 2) {
+                                var first = series[0], last = series[series.length - 1];
+                                var isFirstOlder = first.t < last.t;
+                                var oldVal = isFirstOlder ? first.v : last.v, newVal = isFirstOlder ? last.v : first.v;
+                                delta = newVal - oldVal; if (delta > 0) totalDelta += delta;
+                            }
+                            meterDeltas[idx] = { name: m.name.replace(/^[0-9]+:\s*/, "").replace(/_/g, " "), val: delta > 0 ? delta : 0 };
+                            if (pending === 0) {
+                                if (overlay._volList) {
+                                    overlay._volList.innerHTML = "";
+                                    if (data.meters.length > 1) {
+                                        meterDeltas.forEach(function (md) {
+                                            var row = x("div"); setS(row, { display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#94a3b8", paddingBottom: "2px", borderBottom: "1px solid rgba(255,255,255,0.03)" });
+                                            var nSpan = x("span"); nSpan.textContent = md.name;
+                                            var vSpan = x("b"); vSpan.textContent = md.val.toFixed(2) + " m³"; setS(vSpan, { color: "#f8fafc" });
+                                            row.appendChild(nSpan); row.appendChild(vSpan); overlay._volList.appendChild(row);
+                                        });
+                                    }
+                                }
+                                volVal.firstChild.textContent = totalDelta.toFixed(2);
+                                checkAllDone();
+                            }
+                        });
+                    });
+                }
+                overlay._updateVolume = updateVolume;
+
+                function updateAverages(customFrom, customTo) {
+                    if (!overlay._avgQVal || !overlay._avgQList || !overlay._avgPVal || !overlay._avgPList) return;
+                    var now = customTo || Date.now(), from = customFrom || (now - timeRange * 3600000);
+                    var meterAvgsQ = [], meterAvgsP = [], totalAvgQ = 0, sumAvgP = 0, countP = 0, pending = cachedMeters.length * 2;
+                    if (pending === 0) return;
+                    cachedMeters.forEach(function (m, idx) {
+                        U.readHist(m.address + ".historic_flow", from, now, function (series) {
+                            pending--;
+                            var ds = activeSeries.filter(function (s) { return s.addr.indexOf(m.address) >= 0 && s.type === "flow"; })[0];
+                            var avg = 0; if (ds && !ds.disabled && series && series.length > 0) { var sum = 0; series.forEach(function (p) { sum += p.v; }); avg = sum / series.length; }
+                            meterAvgsQ[idx] = { name: m.name.replace(/^[0-9]+:\s*/, "").replace(/_/g, " "), val: avg }; totalAvgQ += avg;
+                            if (pending === 0) render();
+                        });
+                        U.readHist(m.address + ".historic_pressure", from, now, function (series) {
+                            pending--;
+                            var avg = 0; if (series && series.length > 0) { var sum = 0; series.forEach(function (p) { sum += p.v; }); avg = sum / series.length; }
+                            meterAvgsP[idx] = { name: m.name.replace(/^[0-9]+:\s*/, "").replace(/_/g, " "), val: avg }; sumAvgP += avg; countP++;
+                            if (pending === 0) render();
+                        });
+                    });
+                    function render() {
+                        overlay._avgQList.innerHTML = ""; overlay._avgPList.innerHTML = "";
+                        if (data.meters.length > 1) {
+                            meterAvgsQ.forEach(function (ma) {
+                                var row = x("div"); setS(row, { display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#64748b", paddingBottom: "2px", borderBottom: "1px solid rgba(255,255,255,0.03)" });
+                                var nSpan = x("span"); nSpan.textContent = ma.name;
+                                var vSpan = x("span"); vSpan.textContent = "Prom: " + ma.val.toFixed(2) + " l/s"; setS(vSpan, { color: "#94a3b8" });
+                                row.appendChild(nSpan); row.appendChild(vSpan); overlay._avgQList.appendChild(row);
+                            });
+                            meterAvgsP.forEach(function (ma) {
+                                var row = x("div"); setS(row, { display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#64748b", paddingBottom: "2px", borderBottom: "1px solid rgba(255,255,255,0.03)" });
+                                var nSpan = x("span"); nSpan.textContent = ma.name;
+                                var vSpan = x("span"); vSpan.textContent = "Prom: " + ma.val.toFixed(2) + " kg"; setS(vSpan, { color: "#94a3b8" });
+                                row.appendChild(nSpan); row.appendChild(vSpan); overlay._avgPList.appendChild(row);
+                            });
+                        }
+                        overlay._avgQVal.firstChild.textContent = totalAvgQ.toFixed(2);
+                        overlay._avgPVal.firstChild.textContent = (countP > 0 ? (sumAvgP / countP) : 0).toFixed(2);
+                        checkAllDone();
+                    }
+                }
+                overlay._updateAverages = updateAverages;
+
+                var doneCount = 0;
+                function checkAllDone() {
+                    doneCount++;
+                    if (doneCount >= 2) {
+                        if (overlay._setProgress) overlay._setProgress(100);
+                        saveConfig();
+                    }
+                }
+
+                updateVolume();
+                updateAverages();
+            });
+        });
+    };
+
+    btnCirc.onclick = function () {
+        if (currentMode === "circuit") return;
+        currentMode = "circuit";
+        if (overlay._subs) { overlay._subs.forEach(function (id) { webMI.data.unsubscribe(id); }); overlay._subs = []; }
+
+        if (overlay._tMain) overlay._tMain.textContent = isAR ? "Dashboard de Cuenca" : "Dashboard de Circuito";
+        if (overlay._tSub) overlay._tSub.textContent = getCleanGroupName(base);
+
+        if (overlay._pumpLbl) overlay._pumpLbl.style.display = "none";
+        if (overlay._pumpList) overlay._pumpList.style.display = "none";
+        if (overlay._legDiv) overlay._legDiv.style.display = "none";
+        tpDiv.style.display = "none";
+        avgPDiv.style.display = "none";
+
+        btnCirc.style.background = "#3b82f6"; btnCirc.style.color = "white";
+        btnLocal.style.background = "transparent"; btnLocal.style.color = "#94a3b8";
+
+        if (overlay._avgQLbl) overlay._avgQLbl.textContent = isAR ? "PROMEDIO DE CAUDAL DE LA CUENCA" : "PROMEDIO DE CAUDAL DEL CIRCUITO";
+        if (overlay._tfLbl) overlay._tfLbl.textContent = isAR ? "CAUDAL EN TIEMPO REAL DE LA CUENCA" : "CAUDAL EN TIEMPO REAL DEL CIRCUITO";
+        if (overlay._volLbl) overlay._volLbl.textContent = isAR ? "VOLUMEN BOMBEADO TOTAL DE LA CUENCA" : "VOLUMEN BOMBEADO TOTAL DEL CIRCUITO";
+
+        if (overlay._setProgress) overlay._setProgress(5);
+        if (overlay._btnExport) {
+            overlay._btnExport.disabled = true;
+            overlay._btnExport.style.opacity = "0.4";
+        }
+
+        var groupName = getCleanGroupName(base);
+        var siteName = getCleanSiteName(base.split(".").pop());
+        activeSeries = [{ name: groupName + " (Nivel)", addr: base + ".historic_level_percent", color: "#3b82f6", type: "tank", site: siteName }];
+
+        // STEP 1: Discovery Global
+        HeaderTopo.fetchConfig(base + ".topoNode", function (topo) {
+            if (overlay._setProgress) overlay._setProgress(30);
+
+            var colors = ["#f59e0b", "#10b981", "#8b5cf6", "#ec4899", "#06b6d4", "#22d3ee", "#fb923c", "#a855f7"];
+            var cIdx = 0;
+            var allMeters = [];
+            var nodes = (topo && topo.nodes) ? topo.nodes : [];
+
+            nodes.forEach(function (n) {
+                if (n.base && n.base !== base && (n.base.indexOf("Tanque") >= 0 || n.base.indexOf("Carcamo") >= 0)) {
+                    var cleanName = getCleanSiteName(n.id);
+                    activeSeries.push({ name: cleanName + " (Nivel)", addr: n.base + ".historic_level_percent", color: colors[cIdx % colors.length], type: "tank", site: cleanName });
+                    cIdx++;
+                }
+            });
+
+            var pendingDiscovery = nodes.length;
+            if (pendingDiscovery === 0) { finalizeDiscovery(); return; }
+
+            nodes.forEach(function (n) {
+                if (!n.base) { pendingDiscovery--; if (pendingDiscovery === 0) finalizeDiscovery(); return; }
+                U.discoverEquipment(n.base, function (data) {
+                    pendingDiscovery--;
+                    data.meters.forEach(function (m) {
+                        m.siteName = getCleanSiteName(n.id);
+                        allMeters.push(m);
+                    });
+                    if (pendingDiscovery === 0) finalizeDiscovery();
+                });
+            });
+
+            function finalizeDiscovery() {
+                var meterValues = {};
+                // Note: pressureValues removal requested to minimize requests in Circuit Mode
+
+                function updateTFGlobal() {
+                    var sumQ = 0;
+                    var listQ = [];
+                    for (var k in meterValues) {
+                        var ds = activeSeries.filter(function (s) { return s.addr === k + ".historic_flow"; })[0];
+                        if (ds && ds.disabled) continue;
+                        sumQ += meterValues[k].val;
+                        listQ.push({ site: meterValues[k].site, name: meterValues[k].name, val: meterValues[k].val });
+                    }
+                    if (tfVal) tfVal.firstChild.textContent = sumQ.toFixed(2);
+
+                    if (overlay._realQList) {
+                        overlay._realQList.innerHTML = "";
+                        listQ.sort(function (a, b) { return (a.site || "").localeCompare(b.site || ""); }).forEach(function (item) {
+                            var row = x("div"); setS(row, { display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#94a3b8", paddingBottom: "2px", borderBottom: "1px solid rgba(255,255,255,0.03)" });
+                            var nSpan = x("span"); nSpan.innerHTML = '<small style="color:#64748b">[' + (item.site || "---") + ']</small> ' + item.name;
+                            var vSpan = x("b"); vSpan.textContent = item.val.toFixed(2) + " l/s"; setS(vSpan, { color: "#f8fafc" });
+                            row.appendChild(nSpan); row.appendChild(vSpan); overlay._realQList.appendChild(row);
+                        });
+                    }
+                }
+
+                allMeters.forEach(function (m) {
+                    var mCleanName = m.name.replace(/^[0-9]+:\s*/, "").replace(/_/g, " ");
+
+                    U.addSub(m.address + ".historic_flow", function (res) {
+                        meterValues[m.address] = { site: m.siteName, name: mCleanName, val: (res && res.value != null ? parseFloat(res.value) : 0) };
+                        updateTFGlobal();
+                    }, overlay._subs);
+
+                    activeSeries.push({ name: mCleanName + " (Q)", addr: m.address + ".historic_flow", color: colors[cIdx % colors.length], type: "flow", site: m.siteName });
+                    cIdx++;
+
+                    if (!isAR) {
+                        activeSeries.push({ name: mCleanName + " (P)", addr: m.address + ".historic_pressure", color: colors[cIdx % colors.length], type: "pressure", site: m.siteName });
+                        cIdx++;
+                    }
+                });
+
+                // STEP 2: Render UI and Chart
+                updateSeriesUI();
+                refreshData(null, null, function () {
+                    if (overlay._setProgress) overlay._setProgress(70);
+
+                    // STEP 3: Right Panel Calculations
+                    var cachedMeters = allMeters.slice();
+
+                    function updateVolumeGlobal(customFrom, customTo) {
+                        if (!volVal) return;
+                        var now = customTo || Date.now(), from = customFrom || (now - timeRange * 3600000);
+                        var totalDelta = 0, meterDeltas = [], pending = cachedMeters.length;
+                        if (pending === 0) return;
+                        cachedMeters.forEach(function (m, idx) {
+                            U.readHist(m.address + ".current_total_volume", from, now, function (series) {
+                                pending--;
+                                var delta = 0;
+                                if (series && series.length >= 2) {
+                                    var first = series[0], last = series[series.length - 1];
+                                    var isFirstOlder = first.t < last.t;
+                                    var oldVal = isFirstOlder ? first.v : last.v, newVal = isFirstOlder ? last.v : first.v;
+                                    delta = newVal - oldVal; if (delta > 0) totalDelta += delta;
+                                }
+                                meterDeltas[idx] = { site: m.siteName, name: m.name.replace(/^[0-9]+:\s*/, "").replace(/_/g, " "), val: delta > 0 ? delta : 0 };
+                                if (pending === 0) {
+                                    if (overlay._volList) {
+                                        overlay._volList.innerHTML = "";
+                                        meterDeltas.forEach(function (md) {
+                                            var row = x("div"); setS(row, { display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#94a3b8", paddingBottom: "2px", borderBottom: "1px solid rgba(255,255,255,0.03)" });
+                                            var nSpan = x("span"); nSpan.innerHTML = '<small style="color:#64748b">[' + md.site + ']</small> ' + md.name;
+                                            var vSpan = x("b"); vSpan.textContent = md.val.toFixed(2) + " m³"; setS(vSpan, { color: "#f8fafc" });
+                                            row.appendChild(nSpan); row.appendChild(vSpan); overlay._volList.appendChild(row);
+                                        });
+                                    }
+                                    volVal.firstChild.textContent = totalDelta.toFixed(2);
+                                    checkGlobalDone();
+                                }
+                            });
+                        });
+                    }
+                    overlay._updateVolume = updateVolumeGlobal;
+
+                    function updateAveragesGlobal(customFrom, customTo) {
+                        if (!overlay._avgQVal || !overlay._avgPVal) return;
+                        var now = customTo || Date.now(), from = customFrom || (now - timeRange * 3600000);
+                        var meterAvgsQ = [], meterAvgsP = [], totalAvgQ = 0, sumAvgP = 0, countP = 0, pending = cachedMeters.length * 2;
+                        if (pending === 0) return;
+                        cachedMeters.forEach(function (m, idx) {
+                            U.readHist(m.address + ".historic_flow", from, now, function (series) {
+                                pending--;
+                                var avg = 0; if (series && series.length > 0) { var sum = 0; series.forEach(function (p) { sum += p.v; }); avg = sum / series.length; }
+                                meterAvgsQ[idx] = { site: m.siteName, name: m.name.replace(/^[0-9]+:\s*/, "").replace(/_/g, " "), val: avg }; totalAvgQ += avg;
+                                if (pending === 0) render();
+                            });
+                            U.readHist(m.address + ".historic_pressure", from, now, function (series) {
+                                pending--;
+                                var avg = 0; if (series && series.length > 0) { var sum = 0; series.forEach(function (p) { sum += p.v; }); avg = sum / series.length; }
+                                meterAvgsP[idx] = { site: m.siteName, name: m.name.replace(/^[0-9]+:\s*/, "").replace(/_/g, " "), val: avg }; sumAvgP += avg; countP++;
+                                if (pending === 0) render();
+                            });
+                        });
+
+                        function render() {
+                            if (overlay._avgQList) {
+                                overlay._avgQList.innerHTML = "";
+                                meterAvgsQ.forEach(function (ma) {
+                                    var row = x("div"); setS(row, { display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#64748b", paddingBottom: "2px", borderBottom: "1px solid rgba(255,255,255,0.03)" });
+                                    var nSpan = x("span"); nSpan.innerHTML = '<small style="color:#64748b">[' + ma.site + ']</small> ' + ma.name;
+                                    var vSpan = x("span"); vSpan.textContent = "Prom: " + ma.val.toFixed(2) + " l/s"; setS(vSpan, { color: "#94a3b8" });
+                                    row.appendChild(nSpan); row.appendChild(vSpan); overlay._avgQList.appendChild(row);
+                                });
+                            }
+                            if (overlay._avgPList) {
+                                overlay._avgPList.innerHTML = "";
+                                meterAvgsP.forEach(function (ma) {
+                                    var row = x("div"); setS(row, { display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#64748b", paddingBottom: "2px", borderBottom: "1px solid rgba(255,255,255,0.03)" });
+                                    var nSpan = x("span"); nSpan.innerHTML = '<small style="color:#64748b">[' + ma.site + ']</small> ' + ma.name;
+                                    var vSpan = x("span"); vSpan.textContent = "Prom: " + ma.val.toFixed(2) + " kg"; setS(vSpan, { color: "#94a3b8" });
+                                    row.appendChild(nSpan); row.appendChild(vSpan); overlay._avgPList.appendChild(row);
+                                });
+                            }
+                            overlay._avgQVal.firstChild.textContent = totalAvgQ.toFixed(2);
+                            overlay._avgPVal.firstChild.textContent = (countP > 0 ? (sumAvgP / countP) : 0).toFixed(2);
+                            checkGlobalDone();
+                        }
+                    }
+                    overlay._updateAverages = updateAveragesGlobal;
+
+                    var gDoneCount = 0;
+                    function checkGlobalDone() {
+                        gDoneCount++;
+                        if (gDoneCount >= 2) {
+                            if (overlay._setProgress) overlay._setProgress(100);
+                            saveConfig();
+                        }
+                    }
+
+                    updateVolumeGlobal();
+                    updateAveragesGlobal();
+                });
+            }
+        });
+    };
+
+    overlay._subs = [];
+    overlay._onClose = function () {
+        overlay._subs.forEach(function (id) { webMI.data.unsubscribe(id); });
+    };
+
+    loadConfig(function () {
+        if (currentMode === "circuit") {
+            btnCirc.click();
+        } else {
+            // Default to local/site if null or local
+            if (currentMode !== "local") currentMode = null; // Reset to allow first click
+            btnLocal.click();
+        }
+    });
+
+    /* 
+    var refreshInt = setInterval(function () {
+        if (currentMode !== "circuit") refreshData();
+    }, 30000);
+    */
+};
+]]></code>
+</script>

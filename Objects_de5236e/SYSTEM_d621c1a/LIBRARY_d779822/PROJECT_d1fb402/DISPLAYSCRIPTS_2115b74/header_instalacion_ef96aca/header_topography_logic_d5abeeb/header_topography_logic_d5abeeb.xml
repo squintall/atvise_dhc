@@ -1,0 +1,785 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <help/>
+  </metadata>
+  <code><![CDATA[/**
+ * Header Topography Logic
+ * V24 - Fullscreen Pro & Premium Manhattan Engine
+ */
+
+if (typeof HeaderTopo === 'undefined') {
+    var HeaderTopo = {};
+}
+
+HeaderTopo.init = function (host) {
+    var U = HeaderGlobals.UTILS;
+    var doc = host.ownerDocument || document;
+    HeaderTopo.lastDoc = doc;
+
+    HeaderTopo.parse = function (str) {
+        var obj = { nodes: [], connections: [] };
+        try {
+            var p = JSON.parse(str);
+            if (p && typeof p === 'object') {
+                if (p.nodes && Array.isArray(p.nodes)) obj.nodes = p.nodes;
+            }
+        } catch (_) { }
+
+        var conns = [], seen = {}, idset = {};
+        obj.nodes.forEach(function (n) { if (n.id) idset[n.id] = true; });
+
+        var list = function (v) {
+            return !v ? [] : String(v).split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        };
+
+        obj.nodes.forEach(function (n) {
+            var src = n.id; if (!src) return;
+            list(n.from).forEach(function (a) {
+                if (!idset[a]) return;
+                var k = a + ">" + src;
+                if (!seen[k]) { seen[k] = 1; conns.push({ from: a, to: src }); }
+            });
+            list(n.to).forEach(function (b) {
+                if (!idset[b]) return;
+                var k = src + ">" + b;
+                if (!seen[k]) { seen[k] = 1; conns.push({ from: src, to: b }); }
+            });
+        });
+        obj.connections = conns;
+        return obj;
+    };
+
+    try {
+        var card = U.x(doc, 'div');
+        if (!card) return;
+
+        card.style.position = "absolute";
+        card.style.left = "1264px"; card.style.top = "16px";
+        card.style.width = "640px"; card.style.height = "305px";
+        card.style.background = "#ffffff";
+        card.style.border = "1px solid #e2e8f0";
+        card.style.borderRadius = "12px";
+        card.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)";
+        card.style.padding = "10px";
+        card.style.boxSizing = "border-box";
+        card.style.fontFamily = "Arial, sans-serif";
+        card.style.overflow = "hidden";
+        card.style.display = "flex";
+        card.style.flexDirection = "column";
+
+        var head = U.x(doc, 'div');
+        head.style.display = "flex"; head.style.justifyContent = "space-between"; head.style.alignItems = "center";
+        head.style.marginBottom = "8px";
+        head.style.flexShrink = "0";
+
+        var lbl = U.x(doc, 'div');
+        lbl.style.fontWeight = "bold"; lbl.style.color = "#1e40af"; lbl.style.fontSize = "16px";
+        lbl.textContent = "Topografía de la Instalación";
+        head.appendChild(lbl);
+
+        var actions = U.x(doc, "div");
+        actions.style.display = "flex"; actions.style.gap = "8px";
+
+        var btnFs = U.x(doc, "button");
+        btnFs.innerHTML = "⛶"; btnFs.title = "Pantalla Completa";
+        btnFs.style.border = "1px solid #cbd5e1"; btnFs.style.background = "#fff"; btnFs.style.borderRadius = "4px";
+        btnFs.style.padding = "2px 6px"; btnFs.style.cursor = "pointer"; btnFs.style.fontSize = "14px";
+        btnFs.onclick = function () { HeaderTopo.showFullscreen(); };
+        actions.appendChild(btnFs);
+
+        head.appendChild(actions);
+        card.appendChild(head);
+
+        var viewport = U.x(doc, 'div');
+        viewport.style.flex = "1";
+        viewport.style.position = "relative";
+        viewport.style.background = "#f8fafc";
+        viewport.style.borderRadius = "8px";
+        viewport.style.border = "1px solid #e2e8f0";
+        viewport.style.overflow = "auto";
+        viewport.style.cursor = "crosshair";
+
+        var style = doc.createElement('style');
+        style.textContent = [
+            "@keyframes flow-anim { to { stroke-dashoffset: -20; } }",
+            "@keyframes topo-pulse {",
+            "  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); transform: scale(1); }",
+            "  70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); transform: scale(1.05); }",
+            "  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); transform: scale(1); }",
+            "}",
+            /* Class removed */
+        ].join("\n");
+        doc.head.appendChild(style);
+
+        card.appendChild(viewport);
+        host.appendChild(card);
+        this.render(viewport);
+
+    } catch (e) {
+        U.log("FATAL in HeaderTopo.init:", e);
+    }
+};
+
+HeaderTopo.fetchConfig = function (path, callback) {
+    webMI.data.read(path, function (res) {
+        var raw = res && (typeof res.value !== 'undefined' ? res.value : res);
+        var cfg = HeaderTopo.parse(String(raw || ""));
+        if (callback) callback(cfg);
+    });
+};
+
+HeaderTopo.render = function (viewport, options) {
+    var isFs = options && options.fullscreen;
+    var U = HeaderGlobals.UTILS;
+    var doc = viewport.ownerDocument || document;
+    var base = HeaderGlobals.CONFIG.BASE || "";
+    var topoNode = base + ".topoNode";
+
+    if (viewport._subs) {
+        U.clearSubs(viewport._subs);
+    }
+    viewport._subs = [];
+
+    HeaderTopo.fetchConfig(topoNode, function (cfg) {
+        if (!cfg.nodes || cfg.nodes.length === 0) {
+            viewport.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;">Sin configuración de topografía</div>';
+            return;
+        }
+
+        var nodes = cfg.nodes.map(function (n) {
+            return { id: n.id, base: n.base || '', esForaneo: !!n.esForaneo };
+        });
+
+        var pend = nodes.length * 2;
+        var drawScheduled = false; // Phase 94.6: De-bounce flag
+        var hasAutoScrolled = false; // Phase 94.6: Focus once flag
+
+        // Timeout protection for discovery
+        var discoveryTimeout = setTimeout(function () {
+            if (pend > 0) {
+                pend = 0; scheduleDraw();
+            }
+        }, 5000);
+
+        var levels = new Array(nodes.length).fill(1);
+        var discoveredItems = new Array(nodes.length).fill(null);
+        var liveFlows = new Array(nodes.length).fill(0);
+        var id2idx = {};
+        nodes.forEach(function (n, i) { id2idx[n.id] = i; });
+
+        var theme = (function (b) {
+            var isAP = /Potables|Circuito/i.test(b);
+            return { kind: isAP ? 'AP' : 'AR', accent: isAP ? '#3b82f6' : '#22c55e' };
+        })(base);
+        var levelKey = theme.kind === 'AP' ? 'nivelEnCircuito' : 'nivelEnCuenca';
+
+        function scheduleDraw() {
+            if (drawScheduled) return;
+            drawScheduled = true;
+            if (typeof requestAnimationFrame !== "undefined") {
+                requestAnimationFrame(function () { draw(); drawScheduled = false; });
+            } else {
+                setTimeout(function () { draw(); drawScheduled = false; }, 50);
+            }
+        }
+
+        function checkPend() {
+            if (pend <= 0) scheduleDraw();
+        }
+
+        (function autoAssignLevels() {
+            var parents = new Array(nodes.length).fill(null).map(function () { return []; });
+            var children = new Array(nodes.length).fill(null).map(function () { return []; });
+            cfg.connections.forEach(function (e) {
+                var ia = id2idx[e.from], ib = id2idx[e.to];
+                if (ia != null && ib != null) {
+                    parents[ib].push(ia);
+                    children[ia].push(ib);
+                }
+            });
+
+            for (var pass = 0; pass < 20; pass++) {
+                var changed = false;
+                for (var i = 0; i < nodes.length; i++) {
+                    var maxP = 1;
+                    parents[i].forEach(function (pIdx) {
+                        if (levels[pIdx] >= maxP) maxP = levels[pIdx] + 1;
+                    });
+                    if (levels[i] !== maxP) { levels[i] = maxP; changed = true; }
+                }
+                if (!changed) break;
+            }
+
+            for (var i = 0; i < nodes.length; i++) {
+                var isRoot = parents[i].length === 0;
+                var isLeaf = children[i].length === 0;
+                if (isRoot && children[i].length > 0) {
+                    var minC = Math.min.apply(null, children[i].map(function (cIdx) { return levels[cIdx]; }));
+                    levels[i] = Math.max(1, minC - 1);
+                } else if (isLeaf && parents[i].length > 0) {
+                    var maxP = Math.max.apply(null, parents[i].map(function (pIdx) { return levels[pIdx]; }));
+                    levels[i] = maxP + 1;
+                }
+            }
+
+            nodes.forEach(function (n, i) {
+                if (n.id.indexOf("_TE") > -1 || n.id.indexOf(" TE") > -1) {
+                    var masterId = n.id.replace(/_TE| TE/g, "");
+                    var mIdx = id2idx[masterId];
+                    if (mIdx != null) levels[i] = levels[mIdx];
+                }
+            });
+        })();
+
+        nodes.forEach(function (n, idx) {
+            if (!n.base) { pend -= 2; checkPend(); return; }
+
+            U.addSub(n.base + "." + levelKey, function (r) {
+                pend--; checkPend();
+            }, viewport._subs);
+
+
+            U.discoverEquipment(n.base, function (data) {
+                discoveredItems[idx] = data.items;
+                pend--; checkPend();
+            });
+        });
+
+        function draw() {
+            var TW = isFs ? 200 : 175, GX = isFs ? 100 : 70, GY = isFs ? 40 : 30;
+            var byC = {}, maxC = 0;
+            nodes.forEach(function (n, idx) {
+                var c = levels[idx];
+                if (c > maxC) maxC = c;
+                if (!byC[c]) byC[c] = [];
+                byC[c].push(idx);
+            });
+
+            viewport.innerHTML = "";
+            var canvas = U.x(doc, 'div');
+            canvas.style.position = "relative";
+            canvas.style.minWidth = "100%"; canvas.style.minHeight = "100%";
+            if (isFs) { canvas.style.transformOrigin = "0 0"; canvas.style.transition = "transform 0.3s ease"; }
+
+            var rects = {};
+            var maxX = 0, maxY = 0;
+
+            Object.keys(byC).sort(function (a, b) { return a - b; }).forEach(function (C, cIdx) {
+                var idxs = byC[C];
+                idxs.sort(function (a, b) {
+                    var na = nodes[a].id, nb = nodes[b].id;
+                    var baseA = na.replace(/_TE| TE/g, ""), baseB = nb.replace(/_TE| TE/g, "");
+                    if (baseA === baseB) return na.indexOf("TE") > -1 ? -1 : 1;
+                    return baseA.localeCompare(baseB);
+                });
+
+                var cursorY = isFs ? 40 : 20;
+                var x = cIdx * (TW + GX) + (isFs ? 100 : 30);
+
+                idxs.forEach(function (idx) {
+                    var n = nodes[idx];
+                    var meters = (discoveredItems[idx] || []).filter(function (it) {
+                        var a = String(it.address || ""), t = String(it.type || ""), name = String(it.name || "");
+                        return (a.indexOf("Caudalimetros.") >= 0 || t.indexOf("Caudalimetro") >= 0) &&
+                            (a.toUpperCase().indexOf("AGGREGATECONFIGURATION") === -1 && name.toUpperCase().indexOf("AGGREGATECONFIGURATION") === -1);
+                    });
+                    var pumps = (discoveredItems[idx] || []).filter(function (it) {
+                        var t = String(it.type || ""), name = String(it.name || "");
+                        return (t.indexOf("Bomba") >= 0 || t.indexOf("Variador") >= 0) && name.indexOf(".") === -1;
+                    });
+
+                    var isAP = n.base.indexOf("Potables") >= 0 || n.base.indexOf("Circuito") >= 0;
+                    var typeLabel = isAP ? "Tanque" : "Cárcamo";
+                    var cleanName = n.id.replace(/Carcamo_|Tanque_/g, "").replace(/_/g, " ");
+                    var displayName = (n.id.toLowerCase().indexOf("tanque") >= 0 || n.id.toLowerCase().indexOf("carcamo") >= 0) ? cleanName : typeLabel + " " + cleanName;
+
+                    var hasTotal = meters.length > 1;
+                    var rowH = isFs ? 50 : 45;
+                    var nodeTH = 100 + (meters.length * rowH) + (hasTotal ? 55 : 0) + (pumps.length > 0 ? 35 : 0);
+                    if (meters.length === 0) nodeTH = 110 + (pumps.length > 0 ? 35 : 0);
+
+                    var el = U.x(doc, 'div');
+                    el.style.position = "absolute"; el.style.left = x + "px"; el.style.top = cursorY + "px";
+                    el.style.width = TW + "px"; el.style.height = nodeTH + "px";
+                    el.style.background = "#ffffff"; el.style.border = "1px solid #e2e8f0";
+                    el.style.borderRadius = "12px"; el.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1)";
+                    el.style.cursor = "pointer"; el.style.zIndex = "10";
+                    el.style.display = "flex"; el.style.flexDirection = "column"; el.style.overflow = "hidden";
+                    el.style.transition = "transform 0.2s ease, box-shadow 0.2s ease";
+
+                    var isCurrent = (n.base === base);
+                    if (isCurrent) {
+                        el.style.border = "3px solid #3b82f6";
+                        el.style.boxShadow = "0 20px 25px -5px rgba(59, 130, 246, 0.2), 0 10px 10px -5px rgba(59, 130, 246, 0.1)";
+
+                        // Safer Focus: Use internal scrollTo instead of global scrollIntoView to prevent dashboard jumping
+                        if (!hasAutoScrolled) {
+                            hasAutoScrolled = true;
+                            setTimeout(function () {
+                                try {
+                                    var scale = parseFloat(canvas.style.transform.replace(/[^0-9.]/g, '')) || 1;
+                                    var cX = canvas.offsetLeft || 0;
+                                    var cY = canvas.offsetTop || 0;
+
+                                    var targetY = cY + (el.offsetTop * scale) - 30;
+                                    var targetX = cX + (el.offsetLeft * scale) - (viewport.clientWidth / 2) + (el.offsetWidth * scale / 2);
+
+                                    viewport.scrollTo({
+                                        top: Math.max(0, targetY),
+                                        left: Math.max(0, targetX),
+                                        behavior: 'smooth'
+                                    });
+                                } catch (e) { }
+                            }, 800);
+                        }
+                    }
+
+                    var connBar = U.x(doc, 'div'); connBar.style.height = "5px"; connBar.style.background = "#94a3b8";
+                    el.appendChild(connBar);
+
+                    var cardHead = U.x(doc, 'div'); cardHead.style.padding = "8px"; cardHead.style.fontSize = (isFs ? "13px" : "11px"); cardHead.style.fontWeight = "bold"; cardHead.style.color = "#1e40af"; cardHead.style.textAlign = "center"; cardHead.textContent = displayName;
+                    cardHead.style.transition = "background-color 0.3s ease, color 0.3s ease";
+                    el.appendChild(cardHead);
+
+                    var body = U.x(doc, 'div'); body.style.padding = "8px"; body.style.display = "flex"; body.style.flexDirection = "column"; body.style.gap = "8px"; body.style.flex = "1";
+                    el.appendChild(body);
+
+                    // Connectivity Semantic Semaphore (User Symbology v2)
+                    (function (nodeBase, cardEl, headEl) {
+                        var semaphore = U.x(doc, 'div');
+                        semaphore.style.position = "absolute"; semaphore.style.top = "8px"; semaphore.style.left = "8px";
+                        semaphore.style.width = "10px"; semaphore.style.height = "10px";
+                        semaphore.style.borderRadius = "50%"; semaphore.style.border = "1.5px solid #fff";
+                        semaphore.style.boxShadow = "0 0 6px rgba(0,0,0,0.2)";
+                        semaphore.style.zIndex = "30";
+                        semaphore.style.background = "#94a3b8"; // Default Gray
+                        cardEl.appendChild(semaphore);
+
+                        function applyStatus(color, label) {
+                            semaphore.style.background = color;
+                            semaphore.style.boxShadow = "0 0 8px " + color;
+                            var isDark = ["#22c55e", "#ef4444", "#7c1536", "#7c2d12", "#000000", "#8b5cf6"].indexOf(color.toLowerCase()) >= 0;
+                            var isCommOk = color === "#22c55e";
+
+                            headEl.style.background = color;
+                            headEl.style.color = isDark ? "#ffffff" : "#1e40af";
+                            cardEl.style.border = isCurrent ? "3px solid #3b82f6" : (isCommOk ? "1px solid #e2e8f0" : "2px solid " + color);
+
+                            // Optional small prefix in text for "from far away" distinction
+                            if (label && !headEl._hasLabel) {
+                                headEl.textContent = label + " " + displayName;
+                                headEl._hasLabel = true;
+                            }
+                        }
+
+                        // Priority 1: Comm Alarm
+                        U.addAlarmSub(nodeBase + ".com.Comunicacion.Fallo", function (e) {
+                            var isFailing = (e && e.state == 1);
+                            if (!isFailing) {
+                                applyStatus("#22c55e", ""); // Green OK
+                            } else {
+                                // Priority 2: Detailed Connectivity Status (OPC UA Mapping)
+                                webMI.data.read(nodeBase + ".connectivity", function (res) {
+                                    var status = res.status;
+                                    var ledColor = "#ef4444"; // Default Red
+
+                                    switch (status) {
+                                        case 2150694912: ledColor = "#ef4444"; break; // BadNoComm -> Red
+                                        case 2150760448: ledColor = "#7c1536"; break; // BadWaiting -> Dark Red/Granate
+                                        case 2156593152: ledColor = "#b98f2d"; break; // BadDevice -> Gold/Amarillo
+                                        case 1083179008: ledColor = "#8b5cf6"; break; // Uncertain -> Purple
+                                        case 2147483648: ledColor = "#f97316"; break; // Bad Generic -> Orange
+                                        default: ledColor = "#ef4444"; break;
+                                    }
+                                    applyStatus(ledColor, "");
+                                });
+                            }
+                        }, viewport._subs);
+                    })(n.base, el, cardHead);
+
+                    if (options && options.onNodeClick) { el.onclick = function (ev) { ev.stopPropagation(); options.onNodeClick(n, el); }; }
+                    else { el.onclick = function () { if (n.base) webMI.display.openDisplay("SYSTEM.DISPLAYS.Instalacion.Vista_Principal_V2", { base: n.base }, "content"); }; }
+
+                    el.onmouseenter = function () { this.style.transform = (isFs ? "scale(1.02)" : "scale(1.05)"); this.style.zIndex = "20"; };
+                    el.onmouseleave = function () { this.style.transform = "scale(1)"; this.style.zIndex = "10"; };
+
+                    var levelVal = U.x(doc, 'div'); levelVal.style.fontSize = (isFs ? "15px" : "13px"); levelVal.style.fontWeight = "800";
+                    levelVal.innerHTML = '<span id="lvl_m_' + idx + '">--</span><span style="font-size:9px;color:#94a3b8">m</span> / <span id="lvl_p_' + idx + '">--</span>%';
+                    body.appendChild(levelVal);
+
+                    var barTrack = U.x(doc, 'div'); barTrack.style.width = "100%"; barTrack.style.height = "5px"; barTrack.style.background = "#f1f5f9"; barTrack.style.borderRadius = "3px"; var barFill = U.x(doc, 'div'); barFill.style.width = "0%"; barFill.style.height = "100%"; barFill.style.background = theme.accent; barTrack.appendChild(barFill);
+                    body.appendChild(barTrack);
+
+                    var flowValues = {};
+                    function updateSum() {
+                        if (!hasTotal) return;
+                        var sum = 0; for (var k in flowValues) sum += (flowValues[k] || 0);
+                        var elT = body.querySelector(".total-flow-val"); if (elT) elT.textContent = sum.toFixed(1);
+                    }
+
+                    meters.forEach(function (cm, mIdx) {
+                        var cAddr = String(cm.address || ""); if (cAddr.indexOf("s=") >= 0) cAddr = cAddr.slice(cAddr.indexOf("s=") + 2);
+                        var row = U.x(doc, "div"); row.style.display = "flex"; row.style.flexDirection = "column"; row.style.borderTop = "1px solid #f8fafc"; row.style.paddingTop = "4px";
+                        var label = U.x(doc, "div"); label.style.fontSize = "8px"; label.style.color = "#94a3b8"; label.style.fontWeight = "bold"; label.style.textTransform = "uppercase"; label.textContent = (cm.name || "Caudalímetro").replace(/Caudalimetro_/g, ""); row.appendChild(label);
+                        var valRow = U.x(doc, "div"); valRow.style.display = "flex"; valRow.style.justifyContent = "space-between"; valRow.style.alignItems = "baseline";
+                        var qSpan = U.x(doc, "div"); qSpan.style.fontSize = (isFs ? "17px" : "15px"); qSpan.style.fontWeight = "800"; qSpan.style.color = "#0ea5e9"; qSpan.innerHTML = '--<small>l/s</small>';
+                        var pSpan = U.x(doc, "div"); pSpan.style.fontSize = (isFs ? "17px" : "15px"); pSpan.style.fontWeight = "800"; pSpan.style.color = "#1e3a8a"; pSpan.innerHTML = '--<small>kg</small>';
+                        valRow.appendChild(qSpan); valRow.appendChild(pSpan); row.appendChild(valRow); body.appendChild(row);
+
+                        (function (q, p, addr, key) {
+                            U.addSub(addr + ".current_flow", function (res) {
+                                var val = (res && res.value != null ? parseFloat(res.value) : 0);
+                                if (q.firstChild) q.firstChild.textContent = val.toFixed(1);
+                                flowValues[key] = val; updateSum();
+                            }, viewport._subs);
+                            U.addSub(addr + ".current_pressure", function (res) {
+                                if (p.firstChild) p.firstChild.textContent = (res && res.value != null ? parseFloat(res.value).toFixed(2) : "--");
+                            }, viewport._subs);
+                        })(qSpan, pSpan, cAddr, "m_" + mIdx);
+                    });
+
+                    if (hasTotal) {
+                        var totRow = U.x(doc, "div"); totRow.style.display = "flex"; totRow.style.flexDirection = "column"; totRow.style.borderTop = "2px solid #e2e8f0"; totRow.style.paddingTop = "6px"; totRow.style.marginTop = "2px";
+                        var tLabel = U.x(doc, "div"); tLabel.style.fontSize = "8px"; tLabel.style.color = "#94a3b8"; tLabel.style.fontWeight = "900"; tLabel.style.textTransform = "uppercase"; tLabel.textContent = "Caudal total de la instalación"; totRow.appendChild(tLabel);
+                        var tValRow = U.x(doc, "div"); tValRow.style.display = "flex"; tValRow.style.alignItems = "baseline";
+                        var tQSpan = U.x(doc, "div"); tQSpan.className = "total-flow-val"; tQSpan.style.fontSize = (isFs ? "17px" : "15px"); tQSpan.style.fontWeight = "900"; tQSpan.style.color = "#1e40af"; tQSpan.textContent = '--'; tValRow.appendChild(tQSpan);
+                        var tUnit = U.x(doc, "span"); tUnit.style.fontSize = "9px"; tUnit.style.color = "#94a3b8"; tUnit.style.marginLeft = "4px"; tUnit.textContent = "l/s"; tValRow.appendChild(tUnit); totRow.appendChild(tValRow); body.appendChild(totRow);
+                    }
+
+                    if (pumps.length > 0) {
+                        var pGrid = U.x(doc, 'div'); pGrid.style.display = "flex"; pGrid.style.gap = "4px"; pGrid.style.marginTop = "6px";
+                        pGrid.appendChild((function () { var l = U.x(doc, "span"); l.style.fontSize = "7px"; l.style.color = "#94a3b8"; l.style.fontWeight = "bold"; l.textContent = "EQ:"; return l; })());
+                        pumps.forEach(function (p) {
+                            var stave = U.x(doc, "div"); stave.style.width = "10px"; stave.style.height = "24px"; stave.style.display = "flex"; stave.style.flexDirection = "column"; stave.style.gap = "1px"; stave.style.borderRadius = "2px"; stave.style.overflow = "hidden";
+                            var vE = U.x(doc, "div"); vE.style.flex = "1"; vE.style.background = "#475569"; // Estatus
+                            var vM = U.x(doc, "div"); vM.style.flex = "1"; vM.style.background = "#475569"; // ManAuto
+                            var vL = U.x(doc, "div"); vL.style.flex = "1"; vL.style.background = "#475569"; // Local
+                            stave.appendChild(vE); stave.appendChild(vM); stave.appendChild(vL); pGrid.appendChild(stave);
+
+                            if (p.address) {
+                                var sPath = p.address;
+                                if (sPath.indexOf("s=") >= 0) sPath = sPath.slice(sPath.indexOf("s=") + 2);
+
+                                U.addAlarmSub(sPath + ".Alarma_Estatus.ON_OFF.Estatus", function (e) {
+                                    var s = (e && e.state != null ? e.state : 0);
+                                    vE.style.background = (s == 1 || s == 2 || s == 5) ? "#22c55e" : "#475569";
+                                }, viewport._subs);
+                                U.addAlarmSub(sPath + ".Alarma_ManAuto.Manual_Automatico.Manual_Automatico", function (e) {
+                                    var s = (e && e.state != null ? e.state : 0);
+                                    vM.style.background = (s == 1 || s == 2 || s == 5) ? "#eab308" : "#3b82f6";
+                                }, viewport._subs);
+                                U.addAlarmSub(sPath + ".Alarma_Local.LR.Estado", function (e) {
+                                    var s = (e && e.state != null ? e.state : 0);
+                                    vL.style.background = (s == 1 || s == 2 || s == 5) ? "#f97316" : "#06b6d4";
+                                }, viewport._subs);
+                            }
+                        });
+                        body.appendChild(pGrid);
+                    }
+
+                    if (n.base) {
+                        (function (base, ui) {
+                            U.addSub(base + ".connect", function (res) {
+                                var v = res && res.value != null ? parseInt(res.value) : 0;
+                                var col = "#94a3b8"; if (v === 1) col = "#22c55e"; else if (v === 2) col = "#ef4444"; else if (v === 3) col = "#f59e0b";
+                                if (ui.connBar) ui.connBar.style.background = col;
+                            }, viewport._subs);
+                            U.addSub(base + ".level", function (res) { if (ui.lvlM) ui.lvlM.textContent = (res && res.value != null ? parseFloat(res.value).toFixed(1) : "--"); }, viewport._subs);
+                            U.addSub(base + ".level_percent", function (res) {
+                                var v = (res && res.value != null ? parseFloat(res.value) : 0);
+                                if (ui.lvlP) ui.lvlP.textContent = Math.round(v);
+                                if (ui.lvlBar) ui.lvlBar.style.width = Math.min(100, Math.max(0, v)) + "%";
+                            }, viewport._subs);
+                        })(n.base, { connBar: connBar, lvlM: levelVal.querySelector("#lvl_m_" + idx), lvlP: levelVal.querySelector("#lvl_p_" + idx), lvlBar: barFill });
+                    }
+
+                    canvas.appendChild(el);
+                    rects[n.id] = { x: x, y: cursorY, w: TW, h: nodeTH };
+                    if (x + TW > maxX) maxX = x + TW; if (cursorY + nodeTH > maxY) maxY = cursorY + nodeTH;
+                    cursorY += (nodeTH + GY);
+                });
+            });
+
+            canvas.style.width = (maxX + 150) + "px"; canvas.style.height = (maxY + 150) + "px";
+
+            // Alignment Logic: Centered (Normal) vs Top-Left (Fullscreen)
+            if (isFs) {
+                var vW = viewport.clientWidth - 100;
+                var vH = viewport.clientHeight - 100;
+                var sX = vW / (maxX + 50);
+                var sY = vH / (maxY + 50);
+                var autoScale = Math.min(sX, sY, 1);
+
+                // Persistent Zoom during session
+                var scale = viewport._zoomScale || autoScale;
+                viewport._zoomScale = scale;
+
+                canvas.className = "topo-canvas-fs";
+                canvas.style.transform = "scale(" + scale + ")";
+                canvas.style.transformOrigin = "top left";
+                canvas.style.position = "absolute";
+                canvas.style.left = "40px";
+                canvas.style.top = "40px";
+                canvas.style.margin = "0";
+
+
+                // Scroll Boundaries Logic: Ensure absolute canvas triggers parent scroll
+                viewport._topoSize = { x: maxX, y: maxY };
+                viewport._updateScrollBounds = function () {
+                    var s = viewport._topoSize;
+                    var z = viewport._zoomScale || 1;
+                    var sp = viewport.querySelector(".topo-spacer");
+                    if (!sp) {
+                        sp = U.x(doc, "div"); sp.className = "topo-spacer";
+                        sp.style.position = "absolute"; sp.style.top = "0"; sp.style.left = "0";
+                        sp.style.pointerEvents = "none"; viewport.appendChild(sp);
+                    }
+                    sp.style.width = (s.x * z + 200) + "px";
+                    sp.style.height = (s.y * z + 200) + "px";
+                };
+                viewport._updateScrollBounds();
+
+                // Interactive Zoom: Ctrl + Wheel
+                if (!viewport._zoomHandler) {
+                    viewport._zoomHandler = function (e) {
+                        if (e.ctrlKey) {
+                            e.preventDefault();
+                            var zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                            var newScale = Math.min(5, Math.max(0.1, viewport._zoomScale * zoomFactor));
+                            viewport._zoomScale = newScale;
+                            var cv = viewport.querySelector(".topo-canvas-fs");
+                            if (cv) {
+                                cv.style.transform = "scale(" + newScale + ")";
+                                viewport._updateScrollBounds();
+                            }
+                        }
+                    };
+                    viewport.addEventListener("wheel", viewport._zoomHandler, { passive: false });
+                }
+            } else {
+                canvas.style.transform = "none";
+                canvas.style.position = "relative";
+                canvas.style.display = "block";
+                canvas.style.margin = "0 auto";
+                canvas.style.left = "0";
+                canvas.style.top = "0";
+            }
+
+            var svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.style.position = "absolute"; svg.style.left = "0"; svg.style.top = "0";
+            svg.style.width = (maxX + 1000) + "px"; svg.style.height = (maxY + 1000) + "px";
+            svg.setAttribute("width", (maxX + 1000)); svg.setAttribute("height", (maxY + 1000));
+            svg.style.pointerEvents = "none"; svg.style.zIndex = "5"; svg.style.overflow = "visible";
+
+            var defs = doc.createElementNS("http://www.w3.org/2000/svg", "defs");
+            var palette = ["#2563eb", "#059669", "#4f46e5", "#0d9488", "#dc2626", "#7c3aed"];
+            palette.forEach(function (color, cIdx) {
+                var m = doc.createElementNS("http://www.w3.org/2000/svg", "marker");
+                m.setAttribute("id", "arrow-" + cIdx); m.setAttribute("viewBox", "0 0 10 10"); m.setAttribute("refX", "9"); m.setAttribute("refY", "5");
+                m.setAttribute("markerWidth", "6"); m.setAttribute("markerHeight", "6"); m.setAttribute("orient", "auto-start-reverse");
+                var pm = doc.createElementNS("http://www.w3.org/2000/svg", "path"); pm.setAttribute("d", "M 0 0 L 10 5 L 0 10 z"); pm.setAttribute("fill", color); m.appendChild(pm); defs.appendChild(m);
+            });
+            svg.appendChild(defs);
+
+            var edgeList = cfg.connections || [];
+            var portsOut = {}, portsIn = {}, corridorLanes = {};
+            edgeList.forEach(function (e) {
+                portsOut[e.from] = (portsOut[e.from] || 0) + 1; portsIn[e.to] = (portsIn[e.to] || 0) + 1;
+                var r1 = rects[e.from], r2 = rects[e.to];
+                if (r1 && r2 && Math.abs(r1.x - r2.x) > 5) {
+                    var corridorKey = Math.min(r1.x, r2.x) + "_" + Math.max(r1.x, r2.x);
+                    corridorLanes[corridorKey] = (corridorLanes[corridorKey] || 0) + 1;
+                }
+            });
+
+            var countOut = {}, countIn = {}, corridorUsage = {};
+            edgeList.forEach(function (e) {
+                var r1 = rects[e.from], r2 = rects[e.to]; if (!r1 || !r2) return;
+                var iO = (countOut[e.from] || 0); countOut[e.from] = iO + 1;
+                var iI = (countIn[e.to] || 0); countIn[e.to] = iI + 1;
+                var x1, y1, x2, y2, d;
+                if (Math.abs(r1.x - r2.x) < 5) {
+                    x1 = r1.x + (r1.w / 2); x2 = r2.x + (r2.w / 2);
+                    if (r1.y < r2.y) { y1 = r1.y + r1.h; y2 = r2.y; } else { y1 = r1.y; y2 = r2.y + r2.h; }
+                    d = "M " + x1 + " " + y1 + " L " + x2 + " " + y2;
+                } else {
+                    y1 = r1.y + (r1.h * (iO + 1) / (portsOut[e.from] + 1));
+                    y2 = r2.y + (r2.h * (iI + 1) / (portsIn[e.to] + 1));
+                    x1 = r1.x + r1.w; x2 = r2.x;
+                    var corridorKey = Math.min(r1.x, r2.x) + "_" + Math.max(r1.x, r2.x);
+                    var laneIdx = (corridorUsage[corridorKey] || 0); corridorUsage[corridorKey] = laneIdx + 1;
+                    var totalLanes = corridorLanes[corridorKey] || 1;
+                    var corridorCenter = x1 + (GX / 2); if (x2 < x1) corridorCenter = x1 + 20;
+                    var offset = (laneIdx - (totalLanes - 1) / 2) * 10;
+                    var midX = corridorCenter + offset;
+                    d = "M " + x1 + " " + y1 + " L " + midX + " " + y1 + " L " + midX + " " + y2 + " L " + x2 + " " + y2;
+                }
+                var colorIdx = iO % palette.length; var color = palette[colorIdx];
+                var line = doc.createElementNS("http://www.w3.org/2000/svg", "path");
+                line.setAttribute("d", d); line.setAttribute("stroke", color); line.setAttribute("stroke-width", isFs ? "3" : "2");
+                line.setAttribute("fill", "none"); line.setAttribute("stroke-linejoin", "round"); line.setAttribute("stroke-linecap", "round");
+                line.setAttribute("marker-end", "url(#arrow-" + colorIdx + ")"); line.setAttribute("data-from", e.from);
+                if ((liveFlows[id2idx[e.from]] || 0) > 1.0) { line.style.animation = "flow-anim 1s linear infinite"; line.setAttribute("stroke-dasharray", "8, 4"); }
+                svg.appendChild(line);
+            });
+            canvas.appendChild(svg); viewport.appendChild(canvas);
+        }
+    });
+};
+
+HeaderTopo.showFullscreen = function () {
+    var U = HeaderGlobals.UTILS;
+    var doc = HeaderTopo.lastDoc || document;
+    var base = HeaderGlobals.CONFIG.BASE || "";
+    var overlay = U.x(doc, "div");
+    overlay.style.position = "fixed"; overlay.style.top = "0"; overlay.style.left = "0";
+    overlay.style.width = "100vw"; overlay.style.height = "100vh";
+    overlay.style.background = "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)";
+    overlay.style.zIndex = "10000"; overlay.style.display = "flex"; overlay.style.flexDirection = "column"; overlay.style.fontFamily = "Inter, sans-serif";
+
+    var gisSubs = [];
+    function cleanupGIS() { gisSubs.forEach(function (id) { try { webMI.data.unsubscribe(id); } catch (e) { } }); gisSubs = []; }
+
+    var head = U.x(doc, "div"); head.style.padding = "15px 30px"; head.style.display = "flex"; head.style.justifyContent = "space-between"; head.style.alignItems = "center"; head.style.background = "rgba(15, 23, 42, 0.9)"; head.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+    var leftSide = U.x(doc, "div"); leftSide.style.display = "flex"; leftSide.style.alignItems = "center"; leftSide.style.gap = "20px";
+    var title = U.x(doc, "h2"); title.style.margin = "0"; title.style.color = "#fff"; title.style.fontSize = "20px"; title.textContent = "Centro de Control Topográfico"; leftSide.appendChild(title);
+    var tabs = U.x(doc, "div"); tabs.style.display = "flex"; tabs.style.background = "#0f172a"; tabs.style.padding = "4px"; tabs.style.borderRadius = "8px"; tabs.style.border = "1px solid #334155";
+    function createTab(label, active, click) {
+        var t = U.x(doc, "div"); t.textContent = label; t.style.padding = "6px 16px"; t.style.borderRadius = "6px"; t.style.cursor = "pointer"; t.style.fontSize = "13px"; t.style.fontWeight = "600";
+        if (active) { t.style.background = "#3b82f6"; t.style.color = "#fff"; } else { t.style.color = "#94a3b8"; }
+        t.onclick = function () { click(t); }; return t;
+    }
+    var contentArea = U.x(doc, "div"); contentArea.style.flex = "1"; contentArea.style.position = "relative";
+    var tabL = createTab("Esquema Lógico", true, function (me) { cleanupGIS(); me.style.background = "#3b82f6"; me.style.color = "#fff"; tabM.style.background = "transparent"; tabM.style.color = "#94a3b8"; renderLogic(); });
+    var tabM = createTab("Mapa Geográfico", false, function (me) { me.style.background = "#3b82f6"; me.style.color = "#fff"; tabL.style.background = "transparent"; tabL.style.color = "#94a3b8"; renderMap(); });
+    tabs.appendChild(tabL); tabs.appendChild(tabM); leftSide.appendChild(tabs); head.appendChild(leftSide);
+    var closeBtn = U.x(doc, "button"); closeBtn.innerHTML = "&times;"; closeBtn.style.background = "rgba(255,255,255,0.1)"; closeBtn.style.border = "none"; closeBtn.style.color = "#fff"; closeBtn.style.fontSize = "24px"; closeBtn.style.width = "36px"; closeBtn.style.height = "36px"; closeBtn.style.borderRadius = "50%"; closeBtn.style.cursor = "pointer"; closeBtn.onclick = function () { cleanupGIS(); doc.body.removeChild(overlay); }; head.appendChild(closeBtn);
+    overlay.appendChild(head); overlay.appendChild(contentArea); doc.body.appendChild(overlay);
+
+    function renderLogic() {
+        contentArea.innerHTML = ""; var vp = U.x(doc, "div");
+        vp.style.width = "100%"; vp.style.height = "100%";
+        vp.style.overflow = "auto"; vp.style.padding = "40px";
+        vp.style.position = "relative"; // Fix: Required for absolute child scroll capture
+        contentArea.appendChild(vp);
+        HeaderTopo.render(vp, { fullscreen: true, onNodeClick: function (node, el) { HeaderTopo.selection = { node: node, el: el }; el.style.boxShadow = "0 0 0 4px #3b82f6"; } });
+    }
+
+    function renderMap() {
+        contentArea.innerHTML = ""; if (!doc.getElementById("leaflet-css")) { var l = doc.createElement("link"); l.rel = "stylesheet"; l.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"; doc.head.appendChild(l); }
+        var win = doc.defaultView || window; if (!win.L) { var s = doc.createElement("script"); s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"; s.onload = function () { initMap(win.L); }; doc.head.appendChild(s); } else { initMap(win.L); }
+        function initMap(L) {
+            var mDiv = U.x(doc, "div"); mDiv.style.width = "100%"; mDiv.style.height = "100%"; contentArea.appendChild(mDiv);
+            var map = L.map(mDiv).setView([21.1619, -86.8515], 13);
+            var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' }).addTo(map);
+            var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; Esri' });
+            var voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' });
+            L.control.layers({ "Oscuro": dark, "Satelital": satellite, "Voyager": voyager }, null, { collapsed: false }).addTo(map);
+
+            var markers = {}, pipes = [];
+            var iconT = L.divIcon({ html: "<div style='background:#2563eb; width:12px; height:12px; border:2px solid #fff; border-radius:50%; box-shadow:0 0 10px rgba(37,99,235,0.8);'></div>", iconSize: [16, 16], iconAnchor: [8, 8] });
+            var iconC = L.divIcon({ html: "<div style='background:#059669; width:12px; height:12px; border:2px solid #fff; border-radius:3px; box-shadow:0 0 10px rgba(5,150,105,0.8);'></div>", iconSize: [16, 16], iconAnchor: [8, 8] });
+
+            function refresh() {
+                cleanupGIS();
+                HeaderTopo.fetchConfig(base + ".topoNode", function (cfg) {
+                    var addrs = cfg.nodes.map(function (n) { return n.base + ".topoCoords"; });
+                    webMI.data.read(addrs, function (results) {
+                        var coords = {}, bounds = [];
+                        cfg.nodes.forEach(function (node, idx) {
+                            var val = (results[idx] && (typeof results[idx].value !== 'undefined' ? results[idx].value : results[idx]));
+                            if (val && typeof val === "string" && val.indexOf(",") > 0) {
+                                var pts = val.split(","), lat = parseFloat(pts[0]), lon = parseFloat(pts[1]);
+                                coords[node.id] = { lat: lat, lon: lon }; bounds.push([lat, lon]);
+                                (function (n, lat, lon) {
+                                    U.discoverEquipment(n.base, function (data) {
+                                        var isAP = n.base.indexOf("Potables") >= 0 || n.base.indexOf("Circuito") >= 0;
+                                        var isCurrent = (n.base === base);
+                                        var mIconHTML = isAP ?
+                                            "<div style='background:#2563eb; width:12px; height:12px; border:2px solid #fff; border-radius:50%; box-shadow:0 0 10px rgba(0,0,0,0.3);'></div>" :
+                                            "<div style='background:#059669; width:12px; height:12px; border:2px solid #fff; border-radius:3px; box-shadow:0 0 10px rgba(0,0,0,0.3);'></div>";
+
+                                        if (isCurrent) {
+                                            mIconHTML = "<div class='topo-pulse' style='background:#facc15; width:16px; height:16px; border:3px solid #fff; border-radius:50%;'></div>";
+                                        }
+
+                                        var mIcon = L.divIcon({ className: isCurrent ? 'pulse-marker' : '', html: mIconHTML, iconSize: [isCurrent ? 24 : 16, isCurrent ? 24 : 16], iconAnchor: [isCurrent ? 12 : 8, isCurrent ? 12 : 8] });
+                                        if (markers[n.id]) map.removeLayer(markers[n.id]);
+                                        var m = L.marker([lat, lon], { icon: mIcon }).addTo(map); markers[n.id] = m;
+
+                                        if (isCurrent) {
+                                            map.flyTo([lat, lon], 17, { animate: true, duration: 1.5 });
+                                        }
+                                        var live = { level: "--", percent: "0", meters: [] };
+
+                                        // Refined Naming
+                                        var typeLabel = isAP ? "Tanque" : "Cárcamo";
+                                        var cleanID = n.id.replace(/_/g, " ").replace(/Carcamo|Tanque/gi, "").trim();
+                                        var displayName = typeLabel + " " + cleanID;
+
+                                        function buildH() {
+                                            var h = "<div style='min-width:180px; font-family:Inter, sans-serif;'><b style='color:#1e40af;'>" + displayName + "</b><br/>";
+                                            h += "<div style='margin-top:5px; padding:5px; background:#f8fafc; border-radius:4px;'>";
+                                            h += "<div style='font-size:10px; color:#64748b; font-weight:bold;'>NIVEL</div>";
+                                            h += "<div style='display:flex; justify-content:space-between; align-items:baseline;'><b>" + live.level + " m</b> <span style='color:#3b82f6; font-size:11px;'>" + live.percent + "%</span></div>";
+                                            h += "</div>";
+                                            if (data.meters.length > 0) {
+                                                h += "<div style='margin-top:5px; border-top:1px solid #e2e8f0; padding-top:5px;'>";
+                                                data.meters.forEach(function (met, mi) {
+                                                    var d = live.meters[mi] || { f: "--", p: "--" };
+                                                    var mName = (met.name || "M").replace(/Caudalimetro_/g, "");
+                                                    h += "<div style='display:flex; justify-content:space-between; font-size:11px; margin-bottom:2px;'>";
+                                                    h += "<span style='color:#64748b'>" + mName + ":</span>";
+                                                    h += "<span><b>" + d.f + "</b> <small>l/s</small> | <b>" + d.p + "</b> <small>kg</small></span>";
+                                                    h += "</div>";
+                                                });
+                                                h += "</div>";
+                                            }
+                                            h += "</div>"; return h;
+                                        }
+                                        function up() { m.bindPopup(buildH()); }
+                                        U.addSub(n.base + ".level", function (r) { live.level = parseFloat(r.value || 0).toFixed(2); up(); }, gisSubs);
+                                        U.addSub(n.base + ".level_percent", function (r) { live.percent = Math.round(r.value || 0); up(); }, gisSubs);
+                                        data.meters.forEach(function (met, mi) {
+                                            var p = String(met.address || ""); if (p.indexOf("s=") >= 0) p = p.slice(p.indexOf("s=") + 2);
+                                            live.meters[mi] = { f: "--", p: "--" };
+                                            U.addSub(p + ".current_flow", function (r) { live.meters[mi].f = parseFloat(r.value || 0).toFixed(1); up(); }, gisSubs);
+                                            U.addSub(p + ".current_pressure", function (r) { live.meters[mi].p = parseFloat(r.value || 0).toFixed(2); up(); }, gisSubs);
+                                        });
+                                    });
+                                })(node, lat, lon);
+                            }
+                        });
+                        if (bounds.length > 0) map.fitBounds(bounds, { padding: [50, 50] });
+                        pipes.forEach(function (p) { map.removeLayer(p); }); pipes = [];
+                        (cfg.connections || []).forEach(function (e) {
+                            var c1 = coords[e.from], c2 = coords[e.to];
+                            if (c1 && c2) pipes.push(L.polyline([[c1.lat, c1.lon], [c2.lat, c2.lon]], { color: '#3b82f6', weight: 3, opacity: 0.5, dashArray: '5, 10' }).addTo(map));
+                        });
+                    });
+                });
+            }
+            refresh();
+            var sBar = U.x(doc, "div"); sBar.style.position = "absolute"; sBar.style.top = "10px"; sBar.style.left = "55px"; sBar.style.zIndex = "1100"; sBar.style.display = "flex";
+            var sIn = U.x(doc, "input"); sIn.placeholder = "Buscar..."; sIn.style.padding = "8px"; sIn.style.borderRadius = "4px 0 0 4px"; sIn.style.border = "1px solid #334155"; sIn.style.background = "#1e293b"; sIn.style.color = "#fff";
+            var sBtn = U.x(doc, "button"); sBtn.innerHTML = "🔍"; sBtn.style.padding = "8px"; sBtn.style.background = "#3b82f6"; sBtn.style.color = "#fff"; sBtn.style.border = "none"; sBtn.style.borderRadius = "0 4px 4px 0"; sBar.appendChild(sIn); sBar.appendChild(sBtn); contentArea.appendChild(sBar);
+            sBtn.onclick = function () {
+                var q = sIn.value; if (!q) return;
+                var coordMatch = q.match(/^([-+]?\d+\.\d+),\s*([-+]?\d+\.\d+)$/);
+                if (coordMatch) { map.setView([parseFloat(coordMatch[1]), parseFloat(coordMatch[2])], 17); }
+                else { fetch("https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(q)).then(function (r) { return r.json(); }).then(function (d) { if (d && d[0]) map.setView([d[0].lat, d[0].lon], 16); }); }
+            };
+            map.on('click', function (e) {
+                if (HeaderTopo.selection) {
+                    webMI.data.write(HeaderTopo.selection.node.base + ".topoCoords", e.latlng.lat + ", " + e.latlng.lng);
+                    setTimeout(function () { refresh(); }, 500); HeaderTopo.selection = null;
+                }
+            });
+        }
+    }
+    renderLogic();
+};
+]]></code>
+</script>

@@ -11,7 +11,7 @@
  <text atv:refpx="650.488" atv:refpy="157.572" fill="#000000" font-family="Arial" font-size="14" font-weight="bold" id="id_6" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-215.644,-41.7122)" x="576" y="163">Información de referencia</text>
  <text atv:refpx="574.058" atv:refpy="217.788" fill="#000000" font-family="Arial" font-size="14" id="id_8" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-215.644,-57.6297)" x="577" y="218.714">Responsable: </text>
  <text atv:refpx="575.825" atv:refpy="239.788" fill="#000000" font-family="Arial" font-size="14" id="id_5" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-215.644,-63.9151)" x="576.5" y="240.714">Responsable</text>
- <text atv:refpx="574.872" atv:refpy="265.788" fill="#000000" font-family="Arial" font-size="14" id="id_11" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-214.8651,-71.3433)" x="575.434" y="266.714">Tel: 998 185 5431</text>
+ <text atv:refpx="574.938" atv:refpy="266.074" fill="#000000" font-family="Arial" font-size="14" id="id_11" text-anchor="start" transform="matrix(1.377,0,0,1.2857,-214.89,-71.425)" x="575.5" y="267">Tel: 998 185 5431</text>
  <svg atv:refpx="1669.759" atv:refpy="167.479" height="600" id="id_12" transform="matrix(0.6125,0,0,0.5417,0,0)" width="800" x="2326.531" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="9.23">
   <atv:argument name="frameName" value="topo"/>
  </svg>
@@ -145,6 +145,7 @@ function openWindowWithDynamicTitle(id, variablePath, displayPath, titlePrefix =
 // === LECTURAS INICIALES ===
 readAndSetText("id_1", webMI.query["base"] + ".sap_name");
 readAndSetText("id_5", webMI.query["base"] + ".Responsable");
+readAndSetText("id_11", webMI.query["base"] + ".Telefono_Responsable");
 
 // === VISIBILIDAD CONDICIONAL ===
 subscribeVisibility("id_2", webMI.query["base"] + ".level_percent");

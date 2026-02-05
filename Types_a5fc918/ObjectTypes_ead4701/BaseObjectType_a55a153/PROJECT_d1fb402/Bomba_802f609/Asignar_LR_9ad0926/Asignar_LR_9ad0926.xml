@@ -21,5 +21,17 @@
 var Alarma_Local = Ua.findNode(base + ".Alarma_Local");
 
 
-Alarma_Local.result.value = loc_rem.result.value;]]></code>
+Alarma_Local.result.value = loc_rem.result.value;
+
+var status = Ua.findNode(base + ".status");
+var Alarma_Estatus = Ua.findNode(base + ".Alarma_Estatus");
+
+
+Alarma_Estatus.result.value = status.result.value;
+
+var MA = Ua.findNode(base + ".MA");
+var Alarma_ManAuto = Ua.findNode(base + ".Alarma_ManAuto");
+
+
+Alarma_ManAuto.result.value = MA.result.value;]]></code>
 </script>

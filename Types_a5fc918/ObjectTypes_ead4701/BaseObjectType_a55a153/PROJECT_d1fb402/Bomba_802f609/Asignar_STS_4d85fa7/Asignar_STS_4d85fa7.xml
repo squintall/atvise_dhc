@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<script>
+  <metadata>
+    <priority>0</priority>
+    <owner>squintal</owner>
+    <runcontext>caller</runcontext>
+  </metadata>
+  <parameter name="node" type="node.value" trigger="true" relative="false" value=".status"/>
+  <code><![CDATA[var status = Ua.findNode(base + ".status");
+var Alarma_Estatus = Ua.findNode(base + ".Alarma_Estatus");
+
+
+Alarma_Estatus.result.value = status.result.value;]]></code>
+</script>

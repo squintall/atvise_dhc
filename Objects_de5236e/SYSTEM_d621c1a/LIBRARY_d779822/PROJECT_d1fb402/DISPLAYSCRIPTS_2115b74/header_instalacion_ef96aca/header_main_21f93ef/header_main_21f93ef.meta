@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.LIBRARY.PROJECT.DISPLAYSCRIPTS.header_instalacion.header_main
+NodeClass: Variable
+BrowseName: 1:header_main
+DisplayName: en|header_main
+Description: en|header_main
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.DisplayScript

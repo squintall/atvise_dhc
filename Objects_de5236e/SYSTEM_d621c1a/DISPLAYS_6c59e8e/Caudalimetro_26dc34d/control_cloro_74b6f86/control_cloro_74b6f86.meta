@@ -1,0 +1,9 @@
+NodeId: ns=1;s=SYSTEM.DISPLAYS.Caudalimetro.control_cloro
+NodeClass: Variable
+BrowseName: 1:control_cloro
+DisplayName: en|control_cloro
+Description: en|control_cloro
+DataType: XmlElement
+ValueRank: -1
+AccessLevel: 103
+Reference: forward HasTypeDefinition ns=1;s=VariableTypes.ATVISE.Display

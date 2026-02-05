@@ -20,21 +20,21 @@
  </svg>
  <text atv:refpx="183.421" atv:refpy="334.221" fill="#000000" font-family="Arial" font-size="20" id="id_13" transform="matrix(1.3193,0,0,1.3913,-39.1685,-120.4368)" x="127.17" y="331.286">Central Vallarta</text>
  <text atv:refpx="188.409" atv:refpy="48.797" fill="#000000" font-family="Arial" font-size="20" id="id_10" transform="matrix(1.3193,0,0,1.3913,-42.4669,-8.7498)" x="137.5" y="45.861">Leona Vicario</text>
- <line atv:refpx="368" atv:refpy="722.5" id="id_47" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="368" x2="368" y1="686" y2="759"/>
- <svg atv:refpx="352.48" atv:refpy="773.318" height="63.11" id="id_5" transform="matrix(1,0,0,0.9983,0,0)" width="133" x="297" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Principal" y="763.788">
+ <line atv:refpx="362.545" atv:refpy="722.5" id="id_47" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="362.545" x2="362.545" y1="686" y2="759"/>
+ <svg atv:refpx="351.525" atv:refpy="740.318" height="63.11" id="id_5" transform="matrix(1,0,0,0.9983,0,0)" width="133" x="296.045" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Principal" y="730.732">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Carcamo_Villas_Morelos_Tanque_01"/>
  </svg>
- <svg atv:refpx="362.482" atv:refpy="621.444" height="63.11" id="id_6" transform="matrix(1,0,0,0.9983,0,0)" width="133" x="296" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Principal" y="587.605">
+ <svg atv:refpx="362.527" atv:refpy="621.444" height="63.11" id="id_6" transform="matrix(1,0,0,0.9983,0,0)" width="133" x="296.045" xlink:href="ObjectTypes.PROJECT.ElementoLinea.Principal" y="587.605">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Carcamo_Villas_Morelos_Tanque_02"/>
  </svg>
  <text atv:refpx="176.224" atv:refpy="560.718" fill="#000000" font-family="Arial" font-size="20" id="id_14" transform="matrix(1.3193,0,0,1.3913,-36.8705,-209.0647)" x="119.973" y="557.782">Puerto Morelos</text>
- <svg atv:refpx="352.5" atv:refpy="836.533" height="23" id="id_4" transform="matrix(1.33,0,0,1.3478,0,0)" width="100" x="223.308" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="613.025">
+ <svg atv:refpx="351.545" atv:refpy="803.533" height="23" id="id_4" transform="matrix(1.33,0,0,1.3478,0,0)" width="100" x="222.59" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="588.541">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Carcamo_Villas_Morelos_Tanque_01.Equipos.Caudalimetro.L_14"/>
  </svg>
- <svg atv:refpx="352.5" atv:refpy="868.381" height="23" id="id_15" transform="matrix(1.33,0,0,1.3478,0,0)" width="100" x="223.308" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="635.654">
+ <svg atv:refpx="351.545" atv:refpy="835.381" height="23" id="id_15" transform="matrix(1.33,0,0,1.3478,0,0)" width="100" x="222.59" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="611.17">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Carcamo_Villas_Morelos_Tanque_01.Equipos.Caudalimetro.L_10"/>
  </svg>
- <svg atv:refpx="352.5" atv:refpy="669.098" height="23" id="id_16" transform="matrix(1.33,0,0,1.3478,0,0)" width="100" x="222.556" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="482.444">
+ <svg atv:refpx="352.545" atv:refpy="669.098" height="23" id="id_16" transform="matrix(1.33,0,0,1.3478,0,0)" width="100" x="222.59" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="482.444">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Carcamo_Villas_Morelos_Tanque_02.Equipos.Caudalimetro.L1"/>
  </svg>
  <svg atv:refpx="217" atv:refpy="418.755" height="23" id="id_22" transform="matrix(1.33,0,0,1.3478,0,0)" width="100" x="113.158" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini" y="326.061">
@@ -88,8 +88,8 @@
  <line atv:refpx="247.5" atv:refpy="184" id="id_43" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="247" x2="247" y1="132" y2="236"/>
  <polygon atv:refpx="289.593" atv:refpy="792.001" fill="#000018" id="id_46" points="283,782 283,802 296.188,792 296.188,792" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
  <line atv:refpx="237.14" atv:refpy="706.5" id="id_48" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="225" x2="225" y1="620" y2="793"/>
- <polygon atv:refpx="368.593" atv:refpy="689.001" fill="#000018" id="id_52" points="358.592,695.589 378.592,695.589 368.592,682.402 368.592,682.402" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
- <polygon atv:refpx="359.593" atv:refpy="750.001" fill="#000018" id="id_53" points="378.589,750.408 358.589,750.408 368.589,763.595 368.589,763.595" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
+ <polygon atv:refpx="362.546" atv:refpy="689.001" fill="#000018" id="id_52" points="352.544,695.589 372.544,695.589 362.544,682.402 362.544,682.402" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
+ <polygon atv:refpx="353.549" atv:refpy="717.001" fill="#000018" id="id_53" points="372.544,717.408 352.544,717.408 362.544,730.595 362.544,730.595" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
  <line atv:refpx="258.495" atv:refpy="792" id="id_54" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.015" x1="292" x2="225" y1="792" y2="792"/>
  <polygon atv:refpx="72.001" atv:refpy="656.598" fill="#000018" id="id_55" points="62,663.187 82,663.187 72,650 72,650" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
  <polygon atv:refpx="72.001" atv:refpy="732.598" fill="#000018" id="id_56" points="62,739.187 82,739.187 72,726 72,726" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0" stroke-width="2.015"/>
@@ -105,5 +105,8 @@
  </svg>
  <svg atv:refpx="691.5" atv:refpy="485.966" height="23" id="id_25" transform="matrix(1.3177,0,0,1.3177,0,0)" width="100" x="474.78" xlink:href="ObjectTypes.PROJECT.Caudalimetro.line_mini_AR" y="356.542">
   <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Cuencas.Cuenca_PTAR_VM1.Carcamo_Final_PTAR_VM1.Equipos.Caudalimetros.L2"/>
+ </svg>
+ <svg atv:refpx="362.545" atv:refpy="869.305" height="23" id="id_236" transform="matrix(1.3309,0,0,1.3309,0,0)" width="100" x="222.407" xlink:href="ObjectTypes.PROJECT.ElementoLinea.CRppm" y="641.673">
+  <atv:argument name="base" value="AGENT.OBJECTS.SCADA.Puerto_Morelos.Circuitos.Circuito_PM.Carcamo_Villas_Morelos_Tanque_01"/>
  </svg>
 </svg>

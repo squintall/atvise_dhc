@@ -1,6 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <svg atv:contentheight="889" atv:contentwidth="1920" height="1080" version="1.2" width="1920" xmlns="http://www.w3.org/2000/svg" xmlns:atv="http://webmi.atvise.com/2007/svgext" xmlns:xlink="http://www.w3.org/1999/xlink">
- <defs/>
+ <defs>
+  <linearGradient gradientUnits="objectBoundingBox" id="linear_0" x1="0" x2="1" y1="0" y2="1">
+   <stop offset="0" stop-color="#000088"/>
+   <stop offset="1" stop-color="#000088" stop-opacity="0"/>
+  </linearGradient>
+ </defs>
  <desc>1920 x 1080 (16:9) - Overlay navigation</desc>
  <title>Advanced</title>
  <metadata>

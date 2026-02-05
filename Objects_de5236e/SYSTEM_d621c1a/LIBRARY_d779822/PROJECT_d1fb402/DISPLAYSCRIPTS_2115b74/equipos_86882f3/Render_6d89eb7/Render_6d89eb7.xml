@@ -15,900 +15,1064 @@
 /* =================================================================== LIST (render de tarjetas) =================================================================== */
 if (typeof EquiposList === 'undefined') { var EquiposList = {}; }
 (function () {
-  var x = EquiposGlobals.UTILS.x;
-  var setStyles = EquiposGlobals.UTILS.setStyles;
+    var x = EquiposGlobals.UTILS.x;
+    var setStyles = EquiposGlobals.UTILS.setStyles;
 
-  var items = [];       // [{ address, name }]
-  var activeCards = {}; // address -> instance
-  var LAST_SIG = "";
-  var HOST = null;      // <div id="fo_root_host">
+    var items = [];       // [{ address, name }]
+    var activeCards = {}; // address -> instance
+    var LAST_SIG = "";
+    var HOST = null;      // <div id="fo_root_host">
 
-  EquiposList.mount = function (host) {
-    HOST = host;
-    setStyles(host, {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '12px',
-      alignContent: 'flex-start',
-      boxSizing: 'border-box'
-    });
-    render();
-  };
+    EquiposList.mount = function (host) {
+        HOST = host;
+        setStyles(host, {
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '12px',
+            alignContent: 'flex-start',
+            boxSizing: 'border-box'
+        });
+        render();
+    };
 
-  EquiposList.updateItems = function (newItems) {
-    var sig = (newItems || []).map(function (it) { return it.address; }).join("|");
-    if (sig !== LAST_SIG) {
-      items = newItems || [];
-      LAST_SIG = sig;
-      render();
+    EquiposList.updateItems = function (newItems) {
+        var sig = (newItems || []).map(function (it) { return it.address; }).join("|");
+        if (sig !== LAST_SIG) {
+            items = newItems || [];
+            LAST_SIG = sig;
+            render();
+        }
+    };
+
+    function render() {
+        if (!HOST) return;
+        var doc = HOST.ownerDocument || document;
+
+        // addresses actuales (para diff)
+        var current = {};
+        for (var i = 0; i < items.length; i++) current[items[i].address] = true;
+
+        // Retirar cards que ya no están
+        for (var addr in activeCards) {
+            if (!current[addr]) {
+                try { activeCards[addr].destroy(); } catch (e) { }
+                delete activeCards[addr];
+            }
+        }
+
+        // Crear nuevas
+        for (var j = 0; j < items.length; j++) {
+            var it = items[j];
+            if (!it.address || activeCards[it.address]) continue;
+
+            var cardHost = x(doc, 'div');
+            cardHost.id = 'card-' + it.address.replace(/[\\.\\s]/g, '-');
+            setStyles(cardHost, {
+                flex: "0 0 auto",
+                width: "calc((100% - 24px) / 3)",
+                height: "260px"
+            });
+            HOST.appendChild(cardHost);
+
+            activeCards[it.address] = new EquiposCard(cardHost, it.address);
+        }
     }
-  };
-
-  function render() {
-    if (!HOST) return;
-    var doc = HOST.ownerDocument || document;
-
-    // addresses actuales (para diff)
-    var current = {};
-    for (var i = 0; i < items.length; i++) current[items[i].address] = true;
-
-    // Retirar cards que ya no están
-    for (var addr in activeCards) {
-      if (!current[addr]) {
-        try { activeCards[addr].destroy(); } catch (e) { }
-        delete activeCards[addr];
-      }
-    }
-
-    // Crear nuevas
-    for (var j = 0; j < items.length; j++) {
-      var it = items[j];
-      if (!it.address || activeCards[it.address]) continue;
-
-      var cardHost = x(doc, 'div');
-      cardHost.id = 'card-' + it.address.replace(/[\\.\\s]/g, '-');
-      setStyles(cardHost, {
-        flex: "0 0 auto",
-        width: "calc((100% - 24px) / 3)",
-        height: "260px"
-      });
-      HOST.appendChild(cardHost);
-
-      activeCards[it.address] = new EquiposCard(cardHost, it.address);
-    }
-  }
 })();
 
 /* =================================================================== CARD (componente) =================================================================== */
 if (typeof EquiposCard === 'undefined') {
-  var EquiposCard = function (hostEl, baseAddress) {
-    var self = this;
-    var x = EquiposGlobals.UTILS.x;
-    var setStyles = EquiposGlobals.UTILS.setStyles;
+    var EquiposCard = function (hostEl, baseAddress) {
+        var self = this;
+        var x = EquiposGlobals.UTILS.x;
+        var setStyles = EquiposGlobals.UTILS.setStyles;
 
-    this.host = hostEl;
-    this.doc = (hostEl && hostEl.ownerDocument) || document;
-    this.base = baseAddress;
-    this.subs = [];
+        this.host = hostEl;
+        this.doc = (hostEl && hostEl.ownerDocument) || document;
+        this.base = baseAddress;
+        this.subs = [];
 
-    this.elements = {}; // refs
-    this.CMD_NODE = null;
-    this.fp = null;
-    this.vavg = null;
-    this.power_present = false;
-    this.power_last = null;
-    
-    // ===== CAMBIO: 3 corrientes separadas en lugar de promedio =====
-    this.corrientes = { L1: null, L2: null, L3: null };
+        this.elements = {}; // refs
+        this.CMD_NODE = null;
+        this.fp = null;
+        this.vavg = null;
+        this.power_present = false;
+        this.power_last = null;
 
-    this.st = {
-      maint: false, lr: null, ma: null, statusOn: null,
-      lockClicks: false, canClickOn: true, canClickOff: true, canConfig: false
-    };
+        // ===== CAMBIO: 3 corrientes separadas en lugar de promedio =====
+        this.corrientes = { L1: null, L2: null, L3: null };
 
-    // ===== REFACTOR 1: RequestAnimationFrame para chartDraw =====
-    var chartDrawScheduled = false;
-    function scheduleChartDraw() {
-      if (chartDrawScheduled) return;
-      chartDrawScheduled = true;
-      requestAnimationFrame(function() {
-        if (self._chart && self._chart.tmax > self._chart.tmin) {
-          self._chartDraw();
+        this.st = {
+            maint: false, lr: null, ma: null, statusOn: null,
+            lockClicks: false, canClickOn: true, canClickOff: true, canConfig: false
+        };
+
+        // ===== REFACTOR 1: RequestAnimationFrame para chartDraw =====
+        var chartDrawScheduled = false;
+        function scheduleChartDraw() {
+            if (chartDrawScheduled) return;
+            chartDrawScheduled = true;
+            requestAnimationFrame(function () {
+                if (self._chart && self._chart.tmax > self._chart.tmin) {
+                    self._chartDraw();
+                }
+                chartDrawScheduled = false;
+            });
         }
-        chartDrawScheduled = false;
-      });
-    }
-    this._scheduleChartDraw = scheduleChartDraw;
+        this._scheduleChartDraw = scheduleChartDraw;
 
-    this.init = function () {
-      self.render();
-      self.attach();
-      self.resolveCommandNode();
-      self.applyInterlocks();
+        this.init = function () {
+            self.render();
+            self.attach();
+            self.resolveCommandNode();
+            self.applyInterlocks();
 
-      // === Chart boot (usa UTILS) ===
-      self._chartDraw = function () { EquiposGlobals.UTILS.chartDraw(self); };
-      self._attachChartHover = function () { EquiposGlobals.UTILS.attachChartHover(self); };
-      self._initChart = function () { EquiposGlobals.UTILS.chartInit(self); };
-      self._attachChartHover();
-      // initialize chart immediately (load history at start)
-      self._initChart();
+            // === Chart boot (usa UTILS) ===
+            self._chartDraw = function () {
+                var container = self.elements.chartCanvas;
+                if (!container || !self._chart || !self._chart.ready) return;
+
+                // Series Colors from Global Config
+                var colors = {};
+                for (var key in EquiposGlobals.UTILS.SERIES_CONFIG) {
+                    colors[key] = EquiposGlobals.UTILS.SERIES_CONFIG[key].color;
+                }
+
+                // Redirect to SVG if container is a DIV (Dashboard mode)
+                if (container.tagName && container.tagName.toLowerCase() !== 'canvas') {
+                    EquiposGlobals.UTILS.buildEquipmentChart(self.doc || document, container, self._chart.series, colors);
+                } else {
+                    // Legacy canvas drawing for small cards
+                    EquiposGlobals.UTILS.chartDraw(self);
+                }
+            };
+            self._attachChartHover = function () { EquiposGlobals.UTILS.attachChartHover(self); };
+            self._initChart = function () { EquiposGlobals.UTILS.chartInit(self); };
+            self._attachChartHover();
+            // initialize chart immediately (load history at start)
+            self._initChart();
+        };
+
+        this.render = function () {
+            var host = self.host, doc = self.doc || document;
+
+            // root
+            var root = x(doc, 'div');
+            root.className = 'card-root';
+            setStyles(root, {
+                position: 'relative', width: '100%', height: '240px',
+                background: '#fff', borderRadius: '12px', border: '1px solid #cbd5e1',
+                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)',
+                fontFamily: 'Arial', boxSizing: 'border-box', overflow: 'hidden'
+            });
+            host.appendChild(root);
+
+            var ribbon = x(doc, 'div');
+            ribbon.className = 'card-ribbon';
+            setStyles(ribbon, {
+                position: 'absolute', top: '0', left: '0', width: '100%', height: '36px',
+                background: '#94a3b8', transition: 'background 0.3s ease'
+            });
+            root.appendChild(ribbon);
+
+            var title = x(doc, 'div');
+            title.className = 'card-title'; title.textContent = '-';
+            setStyles(title, {
+                position: 'absolute', top: '9px', left: '14px', fontSize: '15px',
+                fontWeight: 'bold', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                color: '#fff', zIndex: '4'
+            });
+            root.appendChild(title);
+
+            var maint = x(doc, 'div');
+            maint.className = 'maint-tag'; maint.textContent = 'MANTENIMIENTO';
+            setStyles(maint, {
+                position: 'absolute', top: '42px', right: '14px', height: '18px', padding: '0 8px',
+                background: '#ffb300', borderRadius: '4px', color: '#212121', fontSize: '10px', fontWeight: 'bold',
+                textAlign: 'center', lineHeight: '18px', display: 'none'
+            });
+            root.appendChild(maint);
+
+            function badge(cls, left, text, bg) {
+                var b = x(doc, 'div'); b.className = cls; b.textContent = text;
+                setStyles(b, {
+                    position: 'absolute', top: '42px', height: '22px', borderRadius: '5px', color: '#fff',
+                    fontSize: '11px', textAlign: 'center', lineHeight: '22px', left: left, width: '66px', background: bg, fontWeight: 'bold'
+                });
+                root.appendChild(b); return b;
+            }
+            var ma = badge('ma-badge', '14px', '-', '#9e9e9e');
+            var lr = badge('lr-badge', '84px', '-', '#9e9e9e');
+
+            var fault = x(doc, 'div'); fault.className = 'fault-badge'; fault.textContent = 'FALLA';
+            setStyles(fault, {
+                position: 'absolute', top: '42px', left: '154px', width: '66px', height: '22px',
+                borderRadius: '5px', color: '#fff', fontSize: '11px', textAlign: 'center', lineHeight: '22px',
+                background: '#ef4444', display: 'none', fontWeight: 'bold', zIndex: '5'
+            });
+            root.appendChild(fault);
+
+            var fuera = x(doc, 'div'); fuera.className = 'fuera-badge'; fuera.textContent = 'EQUIPO FUERA';
+            setStyles(fuera, {
+                position: 'absolute', top: '42px', left: '224px', width: '90px', height: '22px',
+                borderRadius: '5px', color: '#fff', fontSize: '11px', textAlign: 'center', lineHeight: '22px',
+                background: '#ef4444', display: 'none', fontWeight: 'bold', zIndex: '5'
+            });
+            root.appendChild(fuera);
+
+            // --- Métricas (Ahora expandidas y reposicionadas) ---
+            var measBox = x(doc, 'div');
+            setStyles(measBox, {
+                position: 'absolute',
+                top: '72px',
+                left: '14px',
+                right: '14px',
+                height: '105px',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: '8px',
+                padding: '8px',
+                background: '#fff',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
+            });
+
+            var tbl = x(doc, 'table');
+            setStyles(tbl, {
+                width: '100%',
+                borderCollapse: 'collapse',
+                fontSize: '12px',
+                color: '#111'
+            });
+
+            function addMeasRow(label, cls, unit) {
+                var cell = x(doc, 'div');
+                setStyles(cell, {
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    padding: '6px', borderRadius: '8px', background: '#f8fafc', border: '1px solid #f1f5f9'
+                });
+
+                var lbl = x(doc, 'div');
+                lbl.textContent = label;
+                setStyles(lbl, { fontSize: '10px', color: '#64748b', textTransform: 'uppercase', marginBottom: '2px' });
+
+                var vWrap = x(doc, 'div');
+                setStyles(vWrap, { display: 'flex', alignItems: 'baseline', gap: '2px' });
+
+                var val = x(doc, 'span');
+                val.className = cls;
+                val.textContent = (unit ? '- ' + unit : '-');
+                setStyles(val, { fontSize: '15px', fontWeight: '800', color: '#1e293b' });
+
+                vWrap.appendChild(val);
+                cell.appendChild(lbl);
+                cell.appendChild(vWrap);
+                measBox.appendChild(cell);
+
+                return val;
+            }
+
+            var tFreq = addMeasRow('Frecuencia', 't_freq', 'Hz');
+            var tKw = addMeasRow('Potencia', 't_kw', 'kW');
+            var tVavg = addMeasRow('Voltaje', 't_vavg', 'V');
+            var tFp = addMeasRow('FP', 't_fp', '');
+            var tCorriente1 = addMeasRow('Corr. L1', 't_corriente1', 'A');
+            var tCorriente2 = addMeasRow('Corr. L2', 't_corriente2', 'A');
+            var tCorriente3 = addMeasRow('Corr. L3', 't_corriente3', 'A');
+
+            // Dummy for 8th cell
+            var dummy = x(doc, 'div'); setStyles(dummy, { opacity: '0.1', background: 'repeating-linear-gradient(45deg, #cbd5e1, #cbd5e1 5px, #fff 5px, #fff 10px)' });
+            measBox.appendChild(dummy);
+
+            root.appendChild(measBox);
+
+            // --- Botones inferiores ---
+            var btns = x(doc, 'div'); btns.className = 'card-buttons';
+            setStyles(btns, { position: 'absolute', bottom: '14px', left: '14px', display: 'flex', gap: '6px' });
+            root.appendChild(btns);
+
+            function btn(cls, text, grow, bg, w) {
+                var b = x(doc, 'button'); b.className = cls; b.textContent = text;
+                setStyles(b, {
+                    border: 'none', borderRadius: '9px', height: '28px', color: '#fff', fontSize: '13.5px',
+                    cursor: 'pointer', flexGrow: String(grow), background: bg
+                });
+                if (w) b.style.width = w;
+                return b;
+            }
+            var btnOn = btn('btn-on', 'ENCENDER', 1, '#2e7d32', 'auto');
+            var btnOff = btn('btn-off', 'APAGAR', 1, '#d32f2f', 'auto');
+            btns.appendChild(btnOn); btns.appendChild(btnOff);
+            setStyles(btns, { position: 'absolute', bottom: '12px', left: '14px', right: '14px', display: 'flex', gap: '8px', zIndex: '5' });
+
+            // Top bar: config, sparkline toggle, fullscreen, and status pill
+            var topBar = x(doc, 'div');
+            setStyles(topBar, { position: 'absolute', top: '8px', right: '10px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: '3' });
+            root.appendChild(topBar);
+
+            var gear = x(doc, 'div'); gear.className = 'btn-settings';
+            gear.innerHTML = '<span style="font-size:16px; margin-right:4px; display:inline-block; vertical-align:middle;">\u2699</span> <span style="vertical-align:middle;">Configuración</span>';
+            setStyles(gear, { height: '22px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.15)', padding: '0 8px', borderRadius: '4px', color: '#fff', opacity: '1', fontWeight: 'bold' });
+            topBar.appendChild(gear);
+
+            var fullBtn = x(doc, 'div'); fullBtn.className = 'btn-full';
+            fullBtn.innerHTML = '<span style="font-size:14px; margin-right:4px; display:inline-block; vertical-align:middle;">\uD83D\uDCC8</span> <span style="vertical-align:middle;">Ver Tendencias</span>';
+            setStyles(fullBtn, { height: '22px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.15)', padding: '0 8px', borderRadius: '4px', color: '#fff', opacity: '1', fontWeight: 'bold' });
+            topBar.appendChild(fullBtn);
+
+            // Status pill inside the topBar
+            var pill = x(doc, 'div'); pill.className = 'status-text'; pill.textContent = 'OFF';
+            setStyles(pill, { height: '22px', padding: '0 10px', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', color: '#fff', fontSize: '12px', lineHeight: '22px', fontWeight: '900', textAlign: 'center' });
+            topBar.appendChild(pill);
+
+            var sparkWrap = x(doc, 'div'); sparkWrap.className = 'spark-wrap';
+            setStyles(sparkWrap, {
+                position: 'absolute', right: '10px', left: 'auto',
+                display: 'none', padding: '6px', background: '#fafafa', border: '1px solid #e5e7eb', borderRadius: '8px',
+                overflowY: 'auto'
+            });
+            root.appendChild(sparkWrap);
+
+            /* MINI-CHART REMOVED - ONLY IN FULLSCREEN NOW
+            var chart = x(doc, 'canvas');
+            var W = 320, H = 150;
+            chart.width = W; chart.height = H;
+            setStyles(chart, {
+                position: 'absolute', top: '48px', right: '10px',
+                width: W + 'px', height: H + 'px',
+                background: '#fff', border: '1px solid #e5e7eb', borderRadius: '6px',
+                zIndex: '1'
+            });
+            root.appendChild(chart);
+            */
+            var chart = null, W = 320, H = 150;
+
+            /* CHART OVERLAY REMOVED
+            var ov = x(doc, 'canvas');
+            ov.width = W; ov.height = H;
+            setStyles(ov, {
+                position: 'absolute', top: '48px', right: '10px',
+                width: W + 'px', height: H + 'px',
+                pointerEvents: 'auto',
+                zIndex: '2'
+            });
+            root.appendChild(ov);
+            */
+            var ov = null;
+
+            /* LEGEND AND LOADING REMOVED FROM MINI-CARD
+            var legend = x(doc, 'div');
+            ...
+            root.appendChild(legend);
+            */
+            var legend = null;
+
+            // Ajustar sparks debajo de la leyenda
+            setStyles(sparkWrap, { top: (48 + H + 6) + 'px', width: W + 'px' });
+
+            /* LOADING OVERLAY REMOVED
+            var loading = x(doc, 'div');
+            ...
+            root.appendChild(loading);
+            */
+            var loading = null;
+
+            // Tooltip HTML
+            var tip = x(doc, 'div');
+            setStyles(tip, {
+                position: 'absolute', padding: '6px 8px', borderRadius: '6px',
+                background: '#0f172a', color: '#fff', fontSize: '12px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.25)', display: 'none', zIndex: '5', pointerEvents: 'none'
+            });
+            root.appendChild(tip);
+
+            // guardar refs
+            self.elements = {
+                root: root, title: title, maintTag: maint,
+                maBadge: ma, lrBadge: lr, faultBadge: fault,
+                statusPillBg: pill, tKw: tKw,
+                ribbon: ribbon,
+                fueraBadge: fuera,
+                tFreq: tFreq, tFp: tFp,
+                // ===== CAMBIO: Nuevas referencias para 3 corrientes =====
+                tCorriente1: tCorriente1, tCorriente2: tCorriente2, tCorriente3: tCorriente3,
+                tVavg: tVavg,
+                measBox: measBox,
+                btnOn: btnOn, btnOff: btnOff,
+                btnSettings: gear, sparkWrap: sparkWrap, btnFull: fullBtn,
+                fueraBadge: fuera,
+                chartCanvas: chart, chartOverlay: ov, chartTip: tip, topBar: topBar, chartLoading: loading,
+                chartLegend: legend
+            };
+
+            // === Sparks state ===
+            self.spark = { enabled: false, byKey: {}, subs: [], MAX_POINTS: 120 };
+        };
+
+        // ---------- Sparks helpers (delegan en UTILS) ----------
+        this._mkSparkRow = function (sig) { EquiposGlobals.UTILS.mkSparkRow(self, sig); };
+        this._drawOne = function (info) { EquiposGlobals.UTILS.drawSparkOne(self, info); };
+        this._drawAll = function () { EquiposGlobals.UTILS.drawSparkAll(self); };
+        this._subSig = function (key) {
+            try {
+                var id = webMI.data.subscribe(self.base + key, function (e) {
+                    if (!e) return;
+                    self._pushVal(key, e.value);
+                    self._drawOne(self.spark.byKey[key]);
+                });
+                self.spark.subs.push(id);
+            } catch (_) { }
+            webMI.data.read(self.base + key, function (r) {
+                if (r) {
+                    self._pushVal(key, r.value);
+                    self._drawOne(self.spark.byKey[key]);
+                }
+            });
+        };
+
+        this._pushVal = function (key, v) {
+            var info = self.spark.byKey[key]; if (!info) return;
+            if (v == null || (typeof v !== 'number' && typeof v !== 'boolean')) return;
+            var num = (typeof v === 'boolean') ? (v ? 1 : 0) : +v;
+            if (isNaN(num)) return;
+            var buf = info.buf; buf.push(num); if (buf.length > self.spark.MAX_POINTS) buf.shift();
+        };
+
+        this._enableSparks = function (on) {
+            self.spark.enabled = !!on;
+            if (self.spark.enabled) {
+                self.elements.sparkWrap.style.display = '';
+                self.elements.root.style.height = '320px';
+                self.host.style.height = '320px';
+                var maxH = 320 - (48 + 150 + 16);
+                if (maxH < 80) maxH = 80; self.elements.sparkWrap.style.maxHeight = maxH + 'px';
+                if (!self.spark._inited) {
+                    self.spark._inited = true;
+                    var SIGS = [
+                        { key: '.status', label: 'sts', type: 'bool' },
+                        { key: '.current', label: 'L1', type: 'num' },
+                        { key: '.current2', label: 'L2', type: 'num' },
+                        { key: '.current3', label: 'L3', type: 'num' },
+                        { key: '.freq', label: 'freq', type: 'num' },
+                        { key: '.FP', label: 'FP', type: 'num' },
+                    ];
+                    for (var si = 0; si < SIGS.length; si++) self._mkSparkRow(SIGS[si]);
+                    for (var sk = 0; sk < SIGS.length; sk++) self._subSig(SIGS[sk].key);
+                }
+            } else {
+                self.elements.sparkWrap.style.display = 'none';
+                self.elements.root.style.height = '240px';
+                self.host.style.height = '240px';
+            }
+            self._drawAll();
+        };
+
+        // ---------- Config Inline ----------
+        this.openInlineConfig = function () {
+            var doc = self.doc;
+            var rootHost = doc.getElementById('fo_root_host') || self.host;
+            var XHTML_NS = 'http://www.w3.org/1999/xhtml';
+            function x(tag) { return doc.createElementNS(XHTML_NS, tag); }
+            function setS(el, styles) { for (var k in styles) if (Object.prototype.hasOwnProperty.call(styles, k)) el.style[k] = styles[k]; }
+
+            var overlay = x('div');
+            setS(overlay, { position: 'absolute', left: '0', top: '0', width: '100%', height: '100%', background: 'rgba(0,0,0,0.25)', zIndex: '9999' });
+
+            var panel = x('div');
+            setS(panel, {
+                width: '420px', height: '180px', background: '#fff', border: '1px solid #3b82f6',
+                borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', position: 'absolute',
+                padding: '16px 16px 12px 16px', fontFamily: 'Arial'
+            });
+            overlay.appendChild(panel);
+
+            // posicionar al mismo Y que la card
+            var panelW = 420, panelH = 280;
+            var hostRect = rootHost.getBoundingClientRect();
+            var cardRect = self.elements.root.getBoundingClientRect();
+            var y = (cardRect.top - hostRect.top) + rootHost.scrollTop;
+            var minY = 8, maxY = Math.max(minY, rootHost.scrollTop + rootHost.clientHeight - panelH - 8);
+            y = Math.max(minY, Math.min(maxY, Math.round(y)));
+            panel.style.top = y + 'px';
+            panel.style.left = Math.max(8, Math.round((rootHost.clientWidth - panelW) / 2)) + 'px';
+
+            var btnClose = x('button'); btnClose.textContent = '✕';
+            setS(btnClose, { position: 'absolute', top: '8px', right: '10px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '16px' });
+            panel.appendChild(btnClose);
+
+            var title = x('div'); title.textContent = 'Configuración de equipo';
+            setS(title, { fontWeight: 'bold', fontSize: '18px', marginBottom: '6px' });
+            panel.appendChild(title);
+
+            var nameEl = x('div'); nameEl.textContent = '-';
+            setS(nameEl, { color: '#444', fontSize: '13px', marginBottom: '6px' });
+            panel.appendChild(nameEl);
+
+            function row(label) {
+                var r = x('div'); setS(r, { display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '10px 6px' });
+                var l = x('span'); l.textContent = label; setS(l, { fontSize: '13px' });
+                r.appendChild(l); return { row: r, left: l };
+            }
+
+            var rLR = row('Local/Remoto (solo lectura):');
+            var lrBadge = x('div'); lrBadge.textContent = '-';
+            setS(lrBadge, {
+                width: '76px', height: '22px', borderRadius: '6px', background: '#9e9e9e', color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px'
+            });
+            rLR.row.appendChild(lrBadge); panel.appendChild(rLR.row);
+
+            function toggle(label, onColor) {
+                var rt = row(label);
+                var track = x('div'); setS(track, { width: '76px', height: '22px', borderRadius: '11px', background: '#bdbdbd', position: 'relative', cursor: 'pointer' });
+                var knob = x('div'); setS(knob, { width: '18px', height: '18px', borderRadius: '50%', background: '#fff', position: 'absolute', top: '2px', left: '2px', border: '1px solid #757575', transition: 'left .12s ease-out' });
+                track.appendChild(knob); rt.row.appendChild(track); panel.appendChild(rt.row);
+                function setUI(on) { track.style.background = on ? onColor : '#bdbdbd'; knob.style.borderColor = on ? '#0d47a1' : '#757575'; knob.style.left = on ? '56px' : '2px'; }
+                return { track: track, knob: knob, setUI: setUI };
+            }
+            var tMA = toggle('Modo (MA):', '#1976d2');
+            var tMN = toggle('Mantenimiento:', '#22c55e');
+
+            var rSP = row('Setpoint de frecuencia (.R):');
+            var spBox = x('div'); setS(spBox, { width: '90px', height: '26px', border: '1px solid #bdbdbd', borderRadius: '6px', background: '#f3f3f3', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '13px' });
+            var spVal = x('span'); spVal.textContent = '-'; spBox.appendChild(spVal);
+            rSP.row.appendChild(spBox); panel.appendChild(rSP.row);
+
+            if (rootHost.style.position === '') rootHost.style.position = 'relative';
+            rootHost.appendChild(overlay);
+
+            // Estado / subs
+            var stLR = null, stMaint = false, stMA = null; var canEditMA = false, canEditSP = false, canEditMaint = false; var subs = [];
+
+            function fmt1(v) { if (typeof v !== 'number' || isNaN(v)) return '-'; try { if (typeof webMI.sprintf === 'function') return webMI.sprintf('%.1f Hz', v); } catch (_) { return v.toFixed(1) + ' Hz'; } }
+            function refreshGuards() {
+                var isREM = (stLR === 'REM');
+                canEditMaint = isREM;
+                canEditMA = isREM && !stMaint;
+                canEditSP = isREM && !stMaint;
+                tMA.track.style.cursor = canEditMA ? 'pointer' : 'not-allowed';
+                tMA.knob.style.cursor = canEditMA ? 'pointer' : 'not-allowed';
+                tMN.track.style.cursor = canEditMaint ? 'pointer' : 'not-allowed';
+                tMN.knob.style.cursor = canEditMaint ? 'pointer' : 'not-allowed';
+                spBox.style.cursor = canEditSP ? 'pointer' : 'not-allowed';
+            }
+            function paintLR(isLocal) { lrBadge.style.background = isLocal ? '#ffab4a' : '#00897b'; lrBadge.textContent = isLocal ? 'LOC' : 'REM'; }
+
+            webMI.data.read(self.base + '.name', function (r) { nameEl.textContent = (r && r.value) ? String(r.value) : (self.base.split('.').pop() || ''); });
+
+            var lrRes = false;
+            webMI.data.read(self.base + '.Alarma_Local', function (r) {
+                if (r && typeof r.value !== 'undefined') { stLR = (r.value === true) ? 'REM' : 'LOC'; paintLR(stLR === 'LOC'); refreshGuards(); }
+            });
+            var lrId = webMI.data.subscribe(self.base + '.Alarma_Local', function (e) {
+                if (e && typeof e.value !== 'undefined') { stLR = (e.value === true) ? 'REM' : 'LOC'; paintLR(stLR === 'LOC'); refreshGuards(); }
+            }); subs.push({ t: 'data', id: lrId });
+
+            webMI.data.read(self.base + '.MA', function (r) { stMA = !!(r && r.value); tMA.setUI(stMA); refreshGuards(); });
+            var maId = webMI.data.subscribe(self.base + '.MA', function (e) { stMA = !!(e && e.value); tMA.setUI(stMA); refreshGuards(); }); subs.push({ t: 'data', id: maId });
+
+            webMI.data.read(self.base + '.maintenance', function (r) { stMaint = !!(r && r.value); tMN.setUI(stMaint); refreshGuards(); });
+            var mnId = webMI.data.subscribe(self.base + '.maintenance', function (e) { stMaint = !!(e && e.value); tMN.setUI(stMaint); refreshGuards(); }); subs.push({ t: 'data', id: mnId });
+
+            function paintR(v) { spVal.textContent = fmt1(v); }
+            function readR() { webMI.data.read(self.base + '.R', function (r) { paintR(r ? r.value : null); }); }
+            readR();
+            var rId = webMI.data.subscribe(self.base + '.R', function (e) { paintR(e.value); }); subs.push({ t: 'data', id: rId });
+
+            function toggleMA() { if (!canEditMA) return; webMI.data.read(self.base + '.MA', function (r) { var next = !(r && r.value === true); webMI.data.write(self.base + '.MA', next); }); }
+            function toggleMnt() { if (!canEditMaint) return; webMI.data.read(self.base + '.maintenance', function (r) { var next = !(r && r.value === true); webMI.data.write(self.base + '.maintenance', next); }); }
+            function promptR() {
+                if (!canEditSP) {
+                    try { webMI.callExtension('SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.MessageBox', { title: 'Edición bloqueada', text: (stLR !== 'REM' ? 'Requiere REM.' : 'Bloqueado por mantenimiento.') }); } catch (_) { }
+                    return;
+                }
+                webMI.data.read(self.base + '.R', function (r) {
+                    var cur = (r && typeof r.value === 'number') ? r.value : 0;
+                    var def = (function () { try { return (typeof webMI.sprintf === 'function') ? webMI.sprintf('%.1f', cur) : cur.toFixed(1); } catch (_) { return cur.toFixed(1); } })();
+                    var nv = prompt('Setpoint de frecuencia (Hz, 0 a 60):', def);
+                    if (nv === null) return;
+                    var num = parseFloat(String(nv).replace(',', '.')); if (isNaN(num)) { try { alert('Valor no numérico.'); } catch (_) { } return; }
+                    num = Math.max(0, Math.min(60, +(num.toFixed(1)))); webMI.data.write(self.base + '.R', num);
+                });
+            }
+            tMA.track.addEventListener('click', toggleMA); tMA.knob.addEventListener('click', toggleMA);
+            tMN.track.addEventListener('click', toggleMnt); tMN.knob.addEventListener('click', toggleMnt);
+            spBox.addEventListener('click', promptR);
+
+            function cleanup() {
+                for (var i = 0; i < subs.length; i++) {
+                    try {
+                        if (subs[i].t === 'data') webMI.data.unsubscribe(subs[i].id);
+                        else if (subs[i].t === 'alarm' && webMI.alarm && webMI.alarm.unsubscribe) webMI.alarm.unsubscribe(subs[i].id);
+                    } catch (_) { }
+                } subs = [];
+            }
+            function close() { cleanup(); if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); doc.removeEventListener('keydown', escHandler); }
+            function escHandler(ev) { ev = ev || window.event; if (ev.key === 'Escape' || ev.keyCode === 27) close(); }
+            overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+            btnClose.addEventListener('click', close);
+            doc.addEventListener('keydown', escHandler);
+        };
+
+        // ---------- Suscripciones / eventos ----------
+        this.attach = function () {
+            var sub = function (node, cb) { self.subs.push(webMI.data.subscribe(self.base + node, cb)); };
+            var read = function (node, cb) { webMI.data.read(self.base + node, cb); };
+
+            // ===== REFACTOR 2: SERIES_CONFIG centralizado =====
+            var SERIES_CONFIG = {
+                '.status': { key: 'sts', type: 'bool', enabled: true },
+                '.freq': { key: 'freq', type: 'number', enabled: true },
+                '.current': { key: 'cur1', type: 'number', enabled: true },
+                '.current2': { key: 'cur2', type: 'number', enabled: true },
+                '.current3': { key: 'cur3', type: 'number', enabled: true },
+                '.FP': { key: 'fp', type: 'number', enabled: true },
+                '.voltage': { key: 'volt', type: 'number', enabled: false },
+                '.power': { key: 'power', type: 'number', enabled: true },
+                '.MA': { key: 'ma', type: 'bool', enabled: true },
+                '.loc_rem': { key: 'lr', type: 'bool', enabled: true },
+                '.fault': { key: 'fault', type: 'bool', enabled: true }
+            };
+
+            function cleanName(raw) {
+                if (!raw) return '-';
+                return String(raw).replace(/Tanque\s?|Carcamo\s?|Cárcamo\s?/gi, "").replace(/^[0-9]+:\s*/, "").trim();
+            }
+            read('.name', function (r) { if (r && r.value) self.elements.title.textContent = cleanName(r.value); });
+            sub('.name', function (e) { if (e && e.value) self.elements.title.textContent = cleanName(e.value); });
+
+            read('.freq', function (r) { if (r && typeof r.value === 'number') self.elements.tFreq.textContent = r.value.toFixed(1) + ' Hz'; else self.elements.tFreq.textContent = '- Hz'; });
+            sub('.freq', function (e) {
+                self.elements.tFreq.textContent = (e && typeof e.value === 'number') ? (e.value.toFixed(1) + ' Hz') : '- Hz';
+                if (e && typeof e.value === 'number') { self._chartAdd('freq', Date.now(), e.value); self._scheduleChartDraw(); }
+            });
+
+            read('.power', function (r) { self.power_present = !!(r && typeof r.value !== 'undefined'); if (self.power_present) self.power_last = (typeof r.value === 'number') ? r.value : null; self.recalcKW(); });
+            sub('.power', function (e) { self.power_present = true; self.power_last = (typeof e.value === 'number') ? e.value : null; self.recalcKW(); });
+
+            read('.FP', function (r) { self.fp = (r && typeof r.value === 'number') ? r.value : null; self.elements.tFp.textContent = (self.fp == null) ? '-' : self.fp.toFixed(2); self.recalcKW(); });
+            sub('.FP', function (e) {
+                self.fp = (typeof e.value === 'number') ? e.value : null;
+                self.elements.tFp.textContent = (self.fp == null) ? '-' : self.fp.toFixed(2);
+                self.recalcKW();
+                if (typeof self.fp === 'number') { self._chartAdd('fp', Date.now(), self.fp); self._scheduleChartDraw(); }
+            });
+
+            // ===== CAMBIO: 3 corrientes separadas (NO promedio) =====
+            read('.current', function (r) {
+                self.corrientes.L1 = (r && typeof r.value === 'number') ? r.value : null;
+                self.elements.tCorriente1.textContent = (self.corrientes.L1 != null) ? self.corrientes.L1.toFixed(1) + ' A' : '- A';
+                if (self.corrientes.L1 != null) { self._chartAdd('cur1', Date.now(), self.corrientes.L1); }
+            });
+            sub('.current', function (e) {
+                self.corrientes.L1 = (typeof e.value === 'number') ? e.value : null;
+                self.elements.tCorriente1.textContent = (self.corrientes.L1 != null) ? self.corrientes.L1.toFixed(1) + ' A' : '- A';
+                if (self.corrientes.L1 != null) { self._chartAdd('cur1', Date.now(), self.corrientes.L1); self._scheduleChartDraw(); }
+            });
+
+            read('.current2', function (r) {
+                self.corrientes.L2 = (r && typeof r.value === 'number') ? r.value : null;
+                self.elements.tCorriente2.textContent = (self.corrientes.L2 != null) ? self.corrientes.L2.toFixed(1) + ' A' : '- A';
+                if (self.corrientes.L2 != null) { self._chartAdd('cur2', Date.now(), self.corrientes.L2); }
+            });
+            sub('.current2', function (e) {
+                self.corrientes.L2 = (typeof e.value === 'number') ? e.value : null;
+                self.elements.tCorriente2.textContent = (self.corrientes.L2 != null) ? self.corrientes.L2.toFixed(1) + ' A' : '- A';
+                if (self.corrientes.L2 != null) { self._chartAdd('cur2', Date.now(), self.corrientes.L2); self._scheduleChartDraw(); }
+            });
+
+            read('.current3', function (r) {
+                self.corrientes.L3 = (r && typeof r.value === 'number') ? r.value : null;
+                self.elements.tCorriente3.textContent = (self.corrientes.L3 != null) ? self.corrientes.L3.toFixed(1) + ' A' : '- A';
+                if (self.corrientes.L3 != null) { self._chartAdd('cur3', Date.now(), self.corrientes.L3); }
+            });
+            sub('.current3', function (e) {
+                self.corrientes.L3 = (typeof e.value === 'number') ? e.value : null;
+                self.elements.tCorriente3.textContent = (self.corrientes.L3 != null) ? self.corrientes.L3.toFixed(1) + ' A' : '- A';
+                if (self.corrientes.L3 != null) { self._chartAdd('cur3', Date.now(), self.corrientes.L3); self._scheduleChartDraw(); }
+            });
+
+            read('.voltage', function (r) { self.vavg = (r && typeof r.value === 'number') ? r.value : null; self.elements.tVavg.textContent = (self.vavg == null) ? '-' : self.vavg.toFixed(1) + ' V'; self.recalcKW(); });
+            sub('.voltage', function (e) {
+                self.vavg = (typeof e.value === 'number') ? e.value : null;
+                self.elements.tVavg.textContent = (self.vavg == null) ? '-' : self.vavg.toFixed(1) + ' V';
+                self.recalcKW();
+                if (typeof self.vavg === 'number') { self._chartAdd('volt', Date.now(), self.vavg); self._scheduleChartDraw(); }
+            });
+
+            read('.Alarma_ManAuto', function (r) { if (r) { self.st.ma = (r.value === true || r.value === "true" || r.value === 1 || r.value === "1"); self.elements.maBadge.textContent = self.st.ma ? 'AUTO' : 'MAN'; self.elements.maBadge.style.background = self.st.ma ? '#1976d2' : '#ef6c00'; self.applyInterlocks(); } });
+            sub('.Alarma_ManAuto', function (e) { self.st.ma = (e.value === true || e.value === "true" || e.value === 1 || e.value === "1"); self.elements.maBadge.textContent = self.st.ma ? 'AUTO' : 'MAN'; self.elements.maBadge.style.background = self.st.ma ? '#1976d2' : '#ef6c00'; self.applyInterlocks(); });
+
+            read('.Alarma_Local', function (r) { if (r) { var isRem = (r.value === true || r.value === "true" || r.value === 1 || r.value === "1"); self.st.lr = isRem ? 'REM' : 'LOC'; self.elements.lrBadge.textContent = self.st.lr; self.elements.lrBadge.style.background = (self.st.lr === 'LOC') ? '#ffab4a' : '#00897b'; self.elements.root.style.borderColor = (self.st.lr === 'LOC') ? '#ffab4a' : '#1e9eff'; self.applyInterlocks(); } });
+            sub('.Alarma_Local', function (e) { var isRem = (e.value === true || e.value === "true" || e.value === 1 || e.value === "1"); self.st.lr = isRem ? 'REM' : 'LOC'; self.elements.lrBadge.textContent = self.st.lr; self.elements.lrBadge.style.background = (self.st.lr === 'LOC') ? '#ffab4a' : '#00897b'; self.elements.root.style.borderColor = (self.st.lr === 'LOC') ? '#ffab4a' : '#1e9eff'; self.applyInterlocks(); });
+
+            read('.Alarma_Estatus', function (r) { if (r) { self.st.statusOn = (r.value === true || r.value === "true" || r.value === 1 || r.value === "1"); self.elements.statusPillBg.textContent = self.st.statusOn ? 'ON' : 'OFF'; self.elements.ribbon.style.background = self.st.statusOn ? '#22c55e' : '#94a3b8'; self.applyInterlocks(); } });
+            sub('.Alarma_Estatus', function (e) {
+                self.st.statusOn = (e.value === true || e.value === "true" || e.value === 1 || e.value === "1");
+                self.elements.statusPillBg.textContent = self.st.statusOn ? 'ON' : 'OFF';
+                self.elements.ribbon.style.background = self.st.statusOn ? '#22c55e' : '#94a3b8';
+                self.applyInterlocks();
+            });
+
+            read('.fault', function (r) { if (r) self.elements.faultBadge.style.display = (r.value === true) ? 'block' : 'none'; });
+            sub('.fault', function (e) { self.elements.faultBadge.style.display = (e.value === true) ? 'block' : 'none'; });
+
+            self.elements.btnOn.addEventListener('click', function () { self.commandWithRetry(true); });
+            self.elements.btnOff.addEventListener('click', function () { self.commandWithRetry(false); });
+            self.elements.btnSettings.addEventListener('click', function () { self.openInlineConfig(); });
+
+            // Pantalla completa de la mini-gráfica
+            self.elements.btnFull.addEventListener('click', function () {
+                if (typeof self.openFullscreenDashboard === 'function') {
+                    self.openFullscreenDashboard();
+                }
+            });
+
+            try {
+                /* removed TI button */
+                /* removed TV button */
+            } catch (e) { }
+        };
+
+        // ======= FULLSCREEN DASHBOARD (CLEAN START RE-IMPLEMENTATION) =======
+        this.openFullscreenDashboard = function () {
+            var doc = self.doc || document;
+            var xh = EquiposGlobals.UTILS.x, setS = EquiposGlobals.UTILS.setStyles;
+            var U = EquiposGlobals.UTILS;
+
+            // --- 1. Overlay & Panel ---
+            var overlay = xh(doc, 'div');
+            setS(overlay, {
+                position: 'fixed', left: '0', top: '0', width: '100%', height: '100%',
+                background: 'rgba(15, 23, 42, 0.98)', zIndex: '10000', display: 'flex',
+                alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial, sans-serif'
+            });
+
+            var panel = xh(doc, 'div');
+            setS(panel, {
+                width: '95vw', maxWidth: '1000px', height: '90vh', maxHeight: '850px',
+                background: '#f8fafc', borderRadius: '20px', overflow: 'hidden',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.7)', display: 'flex', flexDirection: 'column'
+            });
+            overlay.appendChild(panel);
+            (doc.body || document.body).appendChild(overlay);
+
+            // --- 2. Header ---
+            var header = xh(doc, 'div');
+            setS(header, { padding: '20px 30px', background: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' });
+            panel.appendChild(header);
+
+            var titleFs = xh(doc, 'div');
+            titleFs.textContent = (self.elements.title.textContent || 'EQUIPO').toUpperCase();
+            setS(titleFs, { fontWeight: '900', fontSize: '20px', color: '#0f172a', letterSpacing: '0.5px' });
+            header.appendChild(titleFs);
+
+            var controls = xh(doc, 'div');
+            setS(controls, { display: 'flex', gap: '8px' });
+            header.appendChild(controls);
+
+            var currentRange = 1;
+            var ranges = [1, 2, 8, 12, 24, 48, 72];
+            ranges.forEach(function (r) {
+                var b = xh(doc, 'button');
+                b.textContent = r + 'h';
+                setS(b, { border: '1px solid #cbd5e1', background: (r === currentRange ? '#f1f5f9' : '#fff'), padding: '6px 12px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', color: '#475569' });
+                b.onclick = function () {
+                    currentRange = r;
+                    var sibs = controls.querySelectorAll('button');
+                    for (var i = 0; i < sibs.length; i++) if (sibs[i].textContent !== 'CERRAR') setS(sibs[i], { background: '#fff' });
+                    setS(b, { background: '#f1f5f9' });
+                    loadTimeline();
+                };
+                controls.appendChild(b);
+            });
+
+            var closeBtn = xh(doc, 'button');
+            closeBtn.textContent = 'CERRAR';
+            setS(closeBtn, { background: '#ef4444', color: '#fff', border: 'none', padding: '8px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginLeft: '12px' });
+            closeBtn.onclick = function () { overlay.parentNode.removeChild(overlay); };
+            controls.appendChild(closeBtn);
+
+            // --- 3. Content Area ---
+            var content = xh(doc, 'div');
+            setS(content, { flex: '1', overflowY: 'auto', padding: '30px', display: 'flex', flexDirection: 'column', gap: '30px' });
+            panel.appendChild(content);
+
+            // --- 4. Status Cards ---
+            var cardsGrid = xh(doc, 'div');
+            setS(cardsGrid, { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' });
+            content.appendChild(cardsGrid);
+
+            function mkCard(label, val, bg) {
+                var c = xh(doc, 'div');
+                setS(c, { background: '#fff', padding: '20px', borderRadius: '15px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' });
+                var l = xh(doc, 'div'); l.textContent = label; setS(l, { fontSize: '11px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', marginBottom: '10px' });
+                var v = xh(doc, 'div'); v.textContent = val; setS(v, { background: bg, color: '#fff', padding: '6px 16px', borderRadius: '25px', fontSize: '15px', fontWeight: '900' });
+                c.appendChild(l); c.appendChild(v); return c;
+            }
+
+            var isLO = (self.st.lr === 'LOC' && !self.st.statusOn);
+            cardsGrid.appendChild(mkCard('Estado Operativo', isLO ? 'FUERA DE SERVICIO' : (self.st.statusOn ? 'ENCENDIDO' : 'APAGADO'), isLO ? '#ef4444' : (self.st.statusOn ? '#22c55e' : '#94a3b8')));
+            cardsGrid.appendChild(mkCard('Modo de Operación', self.st.ma ? 'AUTOMÁTICO' : 'MANUAL', self.st.ma ? '#3b82f6' : '#eab308'));
+            cardsGrid.appendChild(mkCard('Control', (self.st.lr === 'REM' ? 'REMOTO' : 'LOCAL'), (self.st.lr === 'REM' ? '#06b6d4' : '#f97316')));
+
+            // --- 5. Swimlane Container ---
+            var swimBox = xh(doc, 'div');
+            setS(swimBox, { background: '#1e293b', borderRadius: '15px', padding: '25px', border: '1px solid #334155', minHeight: '350px', display: 'flex', flexDirection: 'column' });
+            content.appendChild(swimBox);
+
+            var swimTitle = xh(doc, 'div');
+            swimTitle.textContent = 'HISTORIAL DE ESTADOS (PRECISIÓN TEMPORAL)';
+            setS(swimTitle, { color: '#94a3b8', fontSize: '12px', fontWeight: 'bold', marginBottom: '20px', letterSpacing: '1px' });
+            swimBox.appendChild(swimTitle);
+
+            var svgHost = xh(doc, 'div');
+            setS(svgHost, { flex: '1', position: 'relative' });
+            swimBox.appendChild(svgHost);
+
+            // --- 6. Logic: Load & Draw ---
+            function loadTimeline() {
+                U.clear(svgHost);
+                var loadLbl = xh(doc, 'div'); loadLbl.textContent = 'Consultando telemetría...';
+                setS(loadLbl, { color: '#64748b', textAlign: 'center', marginTop: '50px' });
+                svgHost.appendChild(loadLbl);
+
+                var now = Date.now(), from = now - (currentRange * 3600000);
+                var nodes = [self.base + '.Alarma_Estatus', self.base + '.Alarma_ManAuto', self.base + '.Alarma_Local'];
+                var data = { sts: [], ma: [], lr: [] }, keys = ['sts', 'ma', 'lr'], done = 0;
+
+                keys.forEach(function (k, i) {
+                    U.readHist(nodes[i], from, now, function (pts) {
+                        data[k] = pts || [];
+                        if (++done === 3) {
+                            U.clear(svgHost);
+                            drawTimeline(data, from, now);
+                        }
+                    });
+                });
+            }
+
+            function drawTimeline(data, from, now) {
+                var CW = 1000, CH = 340;
+                var padL = 130, padR = 40, padT = 30, padB = 60;
+                var chartW = CW - padL - padR;
+
+                var svg = xh(doc, 'svg');
+                svg.setAttribute('width', '100%'); svg.setAttribute('height', CH);
+                svg.setAttribute('viewBox', '0 0 ' + CW + ' ' + CH);
+                svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                svgHost.appendChild(svg);
+
+                // ClipPath
+                var defs = xh(doc, 'defs');
+                var cp = xh(doc, 'clipPath'); cp.setAttribute('id', 'chartClip');
+                var cr = xh(doc, 'rect'); cr.setAttribute('x', padL); cr.setAttribute('y', 0); cr.setAttribute('width', chartW); cr.setAttribute('height', CH);
+                cp.appendChild(cr); defs.appendChild(cp); svg.appendChild(defs);
+
+                function sx(t) {
+                    var x = padL + ((t - from) / (now - from)) * chartW;
+                    return Math.max(padL, Math.min(padL + chartW, x));
+                }
+
+                // Axis & Ticks (Exactly 7)
+                var hours_range = (now - from) / 3600000;
+                for (var i = 0; i <= 6; i++) {
+                    var xPos = padL + (i * chartW / 6);
+                    var tTick = from + (i * (now - from) / 6);
+
+                    var grid = xh(doc, 'line');
+                    grid.setAttribute('x1', xPos); grid.setAttribute('y1', padT);
+                    grid.setAttribute('x2', xPos); grid.setAttribute('y2', CH - padB);
+                    grid.setAttribute('stroke', 'rgba(255,255,255,0.1)'); grid.setAttribute('stroke-dasharray', '2,2');
+                    svg.appendChild(grid);
+
+                    var d = new Date(tTick);
+                    var h = (d.getHours() < 10 ? '0' : '') + d.getHours();
+                    var m = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+                    var lblStr = h + ':' + m;
+                    if (hours_range > 48) {
+                        lblStr += " " + d.getDate() + "/" + (d.getMonth() + 1);
+                    }
+
+                    var lbl = xh(doc, 'text');
+                    lbl.textContent = lblStr;
+                    lbl.setAttribute('x', xPos); lbl.setAttribute('y', CH - 25);
+                    lbl.setAttribute('text-anchor', 'middle'); lbl.setAttribute('fill', '#94a3b8'); lbl.setAttribute('font-size', '11px');
+                    svg.appendChild(lbl);
+                }
+
+                var lanes = [
+                    { key: 'sts', label: 'ESTADO', y: padT + 40, cOn: '#22c55e', cOff: '#475569' },
+                    { key: 'ma', label: 'MODO', y: padT + 120, cOn: '#3b82f6', cOff: '#eab308' },
+                    { key: 'lr', label: 'CONTROL', y: padT + 200, cOn: '#06b6d4', cOff: '#f97316' }
+                ];
+
+                var g = xh(doc, 'g'); g.setAttribute('clip-path', 'url(#chartClip)'); svg.appendChild(g);
+
+                lanes.forEach(function (lane) {
+                    var label = xh(doc, 'text');
+                    label.textContent = lane.label;
+                    label.setAttribute('x', padL - 25); label.setAttribute('y', lane.y + 12);
+                    label.setAttribute('text-anchor', 'end'); label.setAttribute('fill', '#94a3b8'); label.setAttribute('font-size', '12px'); label.setAttribute('font-weight', 'bold');
+                    svg.appendChild(label);
+
+                    // Robust Data Setup
+                    var pts = data[lane.key] || [];
+                    if (pts.length > 0) {
+                        // Extension to boundaries
+                        if (pts[0].t > from) pts.unshift({ t: from, v: pts[0].v });
+                        if (pts[pts.length - 1].t < now) pts.push({ t: now, v: pts[pts.length - 1].v });
+                    } else {
+                        pts = [{ t: from, v: 0 }, { t: now, v: 0 }];
+                    }
+
+                    var stepH = 24;
+                    for (var j = 0; j < pts.length - 1; j++) {
+                        var p1 = pts[j], p2 = pts[j + 1];
+                        var x1 = sx(p1.t), x2 = sx(p2.t);
+                        if (x2 <= x1 && j > 0) continue;
+
+                        var val = p1.v;
+                        var isOn = (val === true || val === 1 || val === "true" || val === "1");
+                        var color = isOn ? lane.cOn : lane.cOff;
+                        var yOffset = isOn ? 0 : stepH;
+
+                        var hLine = xh(doc, 'line');
+                        hLine.setAttribute('x1', x1); hLine.setAttribute('y1', lane.y + yOffset);
+                        hLine.setAttribute('x2', x2); hLine.setAttribute('y2', lane.y + yOffset);
+                        hLine.setAttribute('stroke', color); hLine.setAttribute('stroke-width', '3');
+                        g.appendChild(hLine);
+
+                        if (p1.v != p2.v) {
+                            var nVal = p2.v;
+                            var nextOn = (nVal === true || nVal === 1 || nVal === "true" || nVal === "1");
+                            var vLine = xh(doc, 'line');
+                            vLine.setAttribute('x1', x2); vLine.setAttribute('y1', lane.y + yOffset);
+                            vLine.setAttribute('x2', x2); vLine.setAttribute('y2', lane.y + (nextOn ? 0 : stepH));
+                            vLine.setAttribute('stroke', color); vLine.setAttribute('stroke-width', '3');
+                            g.appendChild(vLine);
+                        }
+                    }
+                });
+
+                // Interaction
+                var vLine = xh(doc, 'line');
+                setS(vLine, { stroke: 'rgba(255,255,255,0.5)', strokeDasharray: '4,4', display: 'none' });
+                vLine.setAttribute('y1', padT); vLine.setAttribute('y2', CH - padB);
+                svg.appendChild(vLine);
+
+                var tip = xh(doc, 'div');
+                setS(tip, { position: 'absolute', display: 'none', background: 'rgba(15,23,42,0.95)', color: '#fff', padding: '12px', borderRadius: '10px', fontSize: '12px', border: '1px solid #334155', pointerEvents: 'none', zIndex: '5000', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', minWidth: '180px' });
+                svgHost.appendChild(tip);
+
+                svg.onmousemove = function (e) {
+                    var r = svg.getBoundingClientRect();
+                    var mx = (e.clientX - r.left) * (CW / r.width);
+                    if (mx < padL || mx > CW - padR) { vLine.style.display = 'none'; tip.style.display = 'none'; return; }
+                    vLine.style.display = 'block'; vLine.setAttribute('x1', mx); vLine.setAttribute('x2', mx);
+
+                    var t = from + ((mx - padL) / chartW) * (now - from);
+                    var html = "<div style='font-weight:bold;color:#94a3b8;margin-bottom:8px;'>" + new Date(t).toLocaleString() + "</div>";
+
+                    lanes.forEach(function (lane) {
+                        var ptsArr = data[lane.key] || [];
+                        var val = 0;
+                        for (var k = 0; k < ptsArr.length; k++) if (ptsArr[k].t <= t + 500) val = ptsArr[k].v;
+
+                        var isOn = (val === true || val === 1 || val === "true" || val === "1");
+                        var txt = (lane.key === 'sts' ? (isOn ? 'ON' : 'OFF') : (lane.key === 'ma' ? (isOn ? 'AUTO' : 'MAN') : (isOn ? 'REM' : 'LOC')));
+                        var col = isOn ? lane.cOn : (lane.key === 'sts' ? '#94a3b8' : lane.cOff);
+
+                        if (lane.key === 'sts' && !isOn) {
+                            var lVal = 0, lrPts = data['lr'] || [];
+                            for (var ki = 0; ki < lrPts.length; ki++) if (lrPts[ki].t <= t + 500) lVal = lrPts[ki].v;
+                            var isLoc = (lVal === false || lVal === 0 || lVal === "false" || lVal === "0");
+                            if (isLoc) { txt = 'FUERA DE SERVICIO'; col = '#ef4444'; }
+                        }
+                        html += "<div style='display:flex;justify-content:space-between;margin-bottom:3px;'><span style='color:#64748b'>" + lane.label + ":</span><b style='color:" + col + "'>" + txt + "</b></div>";
+                    });
+                    tip.innerHTML = html; tip.style.display = 'block';
+                    var tx = (e.clientX - r.left + 20); if (tx + 200 > r.width) tx = (e.clientX - r.left - 200);
+                    tip.style.left = tx + 'px'; tip.style.top = '20px';
+                };
+                svg.onmouseleave = function () { vLine.style.display = 'none'; tip.style.display = 'none'; };
+            }
+            loadTimeline();
+        };
+
+        this.recalcKW = function () {
+            var kw = null;
+            if (self.power_present && typeof self.power_last === 'number' && self.power_last > 0) kw = self.power_last;
+            else if (self.vavg != null && self.corrientes.L1 != null) { var pf = (typeof self.fp === 'number' && !isNaN(self.fp)) ? self.fp : 0.90; kw = (self.vavg * self.corrientes.L1 * pf) / 1000.0; }
+
+            if (kw == null) { self.elements.tKw.textContent = '- kW'; return; }
+            if (kw < 1) { self.elements.tKw.textContent = Math.round(kw * 1000) + ' W'; }
+            else { self.elements.tKw.textContent = kw.toFixed(2) + ' kW'; }
+        };
+
+        this.resolveCommandNode = function (cb) {
+            var cands = ['.ON', '.run_stop', '.switch']; var i = 0;
+            (function next() {
+                if (i >= cands.length) { if (cb) cb(null); return; }
+                var n = self.base + cands[i++];
+                webMI.data.read(n, function (r) {
+                    if (r && (typeof r.value !== 'undefined')) { self.CMD_NODE = n; if (cb) cb(n); }
+                    else next();
+                });
+            })();
+        };
+
+        this.commandWithRetry = function (desiredOn) {
+            if (self.st.lockClicks || self.st.maint || self.st.lr !== 'REM' || self.st.ma === true) return;
+            if ((desiredOn && !self.st.canClickOn) || (!desiredOn && !self.st.canClickOff)) return;
+
+            self.st.lockClicks = true; self.applyInterlocks();
+            self.elements.statusPillBg.textContent = desiredOn ? 'ENC...' : 'APG...';
+
+            var finish = function (ok) {
+                self.st.lockClicks = false; self.applyInterlocks();
+                if (!ok) { self.elements.statusPillBg.textContent = 'FALLO'; self.elements.statusPillBg.style.background = '#c62828'; setTimeout(function () { webMI.data.read(self.base + '.Alarma_Estatus'); }, 1200); }
+            };
+            var tryOnce = function (cmdNode) {
+                webMI.data.write(cmdNode, desiredOn, function () {
+                    setTimeout(function () { webMI.data.read(self.base + '.Alarma_Estatus', function (r) { finish(r && r.value === desiredOn); }); }, 1000);
+                });
+            };
+            if (self.CMD_NODE) tryOnce(self.CMD_NODE); else self.resolveCommandNode(function (n) { if (n) tryOnce(n); else finish(false); });
+        };
+
+        this.applyInterlocks = function () {
+            var isLO = (self.st.lr === 'LOC' && !self.st.statusOn);
+            if (self.elements.fueraBadge) self.elements.fueraBadge.style.display = isLO ? 'block' : 'none';
+            if (self.elements.root) self.elements.root.style.opacity = (isLO || self.st.maint) ? '0.6' : '1';
+
+            var baseEnable = !self.st.maint && self.st.lr === 'REM' && self.st.ma === false && !self.st.lockClicks;
+            self.st.canConfig = !self.st.maint;
+            self.elements.btnSettings.style.opacity = self.st.canConfig ? '1' : '0.5';
+
+            self.st.canClickOn = baseEnable && !self.st.statusOn;
+            self.st.canClickOff = baseEnable && self.st.statusOn;
+
+            self.elements.btnOn.style.background = self.st.canClickOn ? '#2e7d32' : (isLO ? '#bdbdbd' : '#a5d6a7');
+            self.elements.btnOff.style.background = self.st.canClickOff ? '#c62828' : '#bdbdbd';
+        };
+
+        this.destroy = function () {
+            for (var j = 0; j < self.spark.subs.length; j++) { try { webMI.data.unsubscribe(self.spark.subs[j]); } catch (e) { } }
+            self.spark.subs = [];
+            for (var i = 0; i < self.subs.length; i++) { try { webMI.data.unsubscribe(self.subs[i]); } catch (e) { } }
+            if (self.host && self.host.parentNode) self.host.parentNode.removeChild(self.host);
+        };
+
+        // ======= STUBS para compatibilidad (Gráfica removida) =======
+        this._chart = { series: {}, max: 0, tmin: 0, tmax: 0, ready: true };
+        this._chartAdd = function (key, ts, val) { /* No-op */ };
+        this._chartDraw = function () { /* No-op */ };
+        this._initChart = function () { self._chart.ready = true; };
+
+        // ¡único init!
+        this.init();
     };
-
-    this.render = function () {
-      var host = self.host, doc = self.doc;
-
-      // root
-      var root = x(doc, 'div');
-      root.className = 'card-root';
-      setStyles(root, {
-        position: 'relative', width: '100%', height: '240px',
-        background: '#f7f7f7', borderRadius: '12px', border: '1.2px solid #000',
-        fontFamily: 'Arial', boxSizing: 'border-box', overflow: 'hidden'
-      });
-      host.appendChild(root);
-
-      var title = x(doc, 'div');
-      title.className = 'card-title'; title.textContent = '-';
-      setStyles(title, {
-        position: 'absolute', top: '16px', left: '14px', fontSize: '16px',
-        fontWeight: 'bold', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-      });
-      root.appendChild(title);
-
-      var maint = x(doc, 'div');
-      maint.className = 'maint-tag'; maint.textContent = 'MANTENIMIENTO';
-      setStyles(maint, {
-        position: 'absolute', top: '28px', left: '14px', width: '124px', height: '18px',
-        background: '#ffb300', borderRadius: '4px', color: '#212121', fontSize: '11px', fontWeight: 'bold',
-        textAlign: 'center', lineHeight: '18px', display: 'none'
-      });
-      root.appendChild(maint);
-
-      function badge(cls, left, text, bg) {
-        var b = x(doc, 'div'); b.className = cls; b.textContent = text;
-        setStyles(b, {
-          position: 'absolute', top: '52px', height: '20px', borderRadius: '5px', color: '#fff',
-          fontSize: '12.5px', textAlign: 'center', lineHeight: '20px', left: left, width: '76px', background: bg
-        });
-        root.appendChild(b); return b;
-      }
-      var ma = badge('ma-badge', '14px', '-', '#9e9e9e');
-      var lr = badge('lr-badge', '98px', '-', '#9e9e9e');
-
-      var fault = x(doc, 'div'); fault.className = 'fault-badge'; fault.textContent = 'FALLA';
-      setStyles(fault, {
-        position: 'absolute', top: '52px', left: '182px', width: '66px', height: '20px',
-        borderRadius: '5px', color: '#fff', fontSize: '12.5px', textAlign: 'center', lineHeight: '20px',
-        background: '#c62828', display: 'none'
-      });
-      root.appendChild(fault);
-
-      // --- Métricas (mini tabla a la izquierda) ---
-      var measBox = x(doc, 'div');
-     setStyles(measBox, {
-       position: 'absolute',
-       top: '76px',
-       left: '14px',
-       width: '206px',
-       height: '100px',
-       overflowY: 'auto', 
-       border: '1px solid #e5e7eb',
-       borderRadius: '6px',
-       background: '#f9fafb',
-       padding: '6px'
-     });
-
-      var tbl = x(doc, 'table');
-      setStyles(tbl, {
-        width: '100%',
-        borderCollapse: 'collapse',
-        fontSize: '12px',
-        color: '#111'
-      });
-      
-         function addMeasRow(label, cls) {
-     var row = x(doc, 'div');
-     setStyles(row, {
-       display: 'flex',
-       justifyContent: 'space-between',
-       padding: '3px 0',
-       fontSize: '11px',
-       borderBottom: '1px solid #e0e0e0'
-     });
-
-     var lbl = x(doc, 'span');
-     lbl.textContent = label;
-     setStyles(lbl, { color: '#334155', fontWeight: '500' });
-
-     var val = x(doc, 'span');
-     val.className = cls;
-     val.textContent = '-';
-     setStyles(val, { fontWeight: 'bold', color: '#111' });
-
-     row.appendChild(lbl);
-     row.appendChild(val);
-     measBox.appendChild(row);
-
-     return val;
-   }
-
-   var tFreq = addMeasRow('Freq', 't_freq');
-   var tFp = addMeasRow('FP', 't_fp');
-   var tCorriente1 = addMeasRow('I L1', 't_corriente1');
-   var tCorriente2 = addMeasRow('I L2', 't_corriente2');
-   var tCorriente3 = addMeasRow('I L3', 't_corriente3');
-   var tVavg = addMeasRow('Volt', 't_vavg');
-   var tKw = addMeasRow('Pot', 't_kw');
-
-
-
-      // Fila de potencia con etiqueta dinámica (W/kW)
-      var trKW = x(doc, 'tr');
-
-      var tdKL = x(doc, 'td');
-      var kwLabel = x(doc, 'span');
-      kwLabel.className = 'kw-label';
-      kwLabel.textContent = 'kW';
-      tdKL.appendChild(kwLabel);
-      setStyles(tdKL, { padding: '2px 6px', color: '#334155' });
-
-      var tdKR = x(doc, 'td');
-      setStyles(tdKR, { padding: '2px 6px', textAlign: 'right' });
-
-      var tKw = x(doc, 'strong');
-      tKw.className = 't_kw';
-      tKw.textContent = '-';
-      tdKR.appendChild(tKw);
-
-      trKW.appendChild(tdKL);
-      trKW.appendChild(tdKR);
-      tbl.appendChild(trKW);
-
-      measBox.appendChild(tbl);
-      root.appendChild(measBox);
-
-      // --- Botones inferiores ---
-      var btns = x(doc, 'div'); btns.className = 'card-buttons';
-      setStyles(btns, { position: 'absolute', bottom: '14px', left: '14px', display: 'flex', gap: '6px' });
-      root.appendChild(btns);
-
-      function btn(cls, text, grow, bg, w) {
-        var b = x(doc, 'button'); b.className = cls; b.textContent = text;
-        setStyles(b, {
-          border: 'none', borderRadius: '9px', height: '28px', color: '#fff', fontSize: '13.5px',
-          cursor: 'pointer', flexGrow: String(grow), background: bg
-        });
-        if (w) b.style.width = w;
-        return b;
-      }
-      var btnOn = btn('btn-on', 'ENCENDER', 0, '#a5d6a7', '120px');
-      var btnOff = btn('btn-off', 'APAGAR', 0, '#bdbdbd', '110px');
-      btns.appendChild(btnOn); btns.appendChild(btnOff);
-
-      // Top bar: config, sparkline toggle, fullscreen, and status pill
-      var topBar = x(doc, 'div');
-      setStyles(topBar, { position: 'absolute', top: '8px', right: '10px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: '3' });
-      root.appendChild(topBar);
-
-      var gear = x(doc, 'div'); gear.className = 'btn-settings'; gear.textContent = '\u2699';
-      setStyles(gear, { width: '28px', height: '28px', cursor: 'pointer', fontSize: '18px', textAlign: 'center', lineHeight: '28px', color: '#1976d2' });
-      topBar.appendChild(gear);
-
-      var fullBtn = x(doc, 'div'); fullBtn.className = 'btn-full'; fullBtn.textContent = '\u26F6';
-      setStyles(fullBtn, { width: '28px', height: '28px', cursor: 'pointer', fontSize: '16px', textAlign: 'center', lineHeight: '28px', color: '#111', border: '1px solid #94a3b8', borderRadius: '6px' });
-      topBar.appendChild(fullBtn);
-
-      // Status pill inside the topBar, matching height
-      var pill = x(doc, 'div'); pill.className = 'status-pill-bg'; pill.textContent = 'OFF';
-      setStyles(pill, { height: '28px', background: '#9e9e9e', borderRadius: '14px', padding: '0 12px', color: '#fff', fontSize: '12.5px', lineHeight: '28px', fontWeight: 'bold' });
-      topBar.appendChild(pill);
-
-      var sparkWrap = x(doc, 'div'); sparkWrap.className = 'spark-wrap';
-      setStyles(sparkWrap, {
-        position: 'absolute', right: '10px', left: 'auto',
-        display: 'none', padding: '6px', background: '#fafafa', border: '1px solid #e5e7eb', borderRadius: '8px',
-        overflowY: 'auto'
-      });
-      root.appendChild(sparkWrap);
-
-      // Gráfica combinada (derecha)
-      var chart = x(doc, 'canvas');
-      var W = 320, H = 150;
-      chart.width = W; chart.height = H;
-      setStyles(chart, {
-        position: 'absolute', top: '48px', right: '10px',
-        width: W + 'px', height: H + 'px',
-        background: '#fff', border: '1px solid #e5e7eb', borderRadius: '6px',
-        zIndex: '1'
-      });
-      root.appendChild(chart);
-
-      // Overlay para hover (mismo tamaño/posición, transparente)
-      var ov = x(doc, 'canvas');
-      ov.width = W; ov.height = H;
-      setStyles(ov, {
-        position: 'absolute', top: '48px', right: '10px',
-        width: W + 'px', height: H + 'px',
-        pointerEvents: 'auto',
-        zIndex: '2'
-      });
-      root.appendChild(ov);
-      
-      // Leyenda debajo de la gráfica (series sin datos)
-      var legend = x(doc, 'div');
-      setStyles(legend, {
-        position: 'absolute', right: '10px', top: (48 + H + 6) + 'px',
-        width: W + 'px', fontSize: '11px', color: '#64748b', textAlign: 'right',
-        whiteSpace: 'normal'
-      });
-      root.appendChild(legend);
-      
-      // Ajustar sparks debajo de la leyenda
-      setStyles(sparkWrap, { top: (48 + H + 6) + 'px', width: W + 'px' });
-
-      // Loading overlay sobre la mini‑gráfica
-      var loading = x(doc, 'div');
-      setStyles(loading, {
-        position: 'absolute', top: '48px', right: '10px', width: W + 'px', height: H + 'px',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(255,255,255,0.85)', border: '1px solid #e5e7eb', borderRadius: '6px',
-        color: '#334155', fontSize: '12px', zIndex: '3'
-      });
-      loading.textContent = 'Cargando…';
-      root.appendChild(loading);
-
-      // Tooltip HTML
-      var tip = x(doc, 'div');
-      setStyles(tip, {
-        position: 'absolute', padding: '6px 8px', borderRadius: '6px',
-        background: '#0f172a', color: '#fff', fontSize: '12px',
-        boxShadow: '0 4px 12px rgba(0,0,0,.25)', display: 'none', zIndex: '5', pointerEvents: 'none'
-      });
-      root.appendChild(tip);
-
-      // guardar refs
-      self.elements = {
-        root: root, title: title, maintTag: maint,
-        maBadge: ma, lrBadge: lr, faultBadge: fault,
-        statusPillBg: pill, kwLabel: kwLabel, tKw: tKw,
-        tFreq: tFreq, tFp: tFp,
-        // ===== CAMBIO: Nuevas referencias para 3 corrientes =====
-        tCorriente1: tCorriente1, tCorriente2: tCorriente2, tCorriente3: tCorriente3,
-        tVavg: tVavg,
-        measBox: measBox,
-        btnOn: btnOn, btnOff: btnOff,
-        btnSettings: gear, sparkWrap: sparkWrap, btnFull: fullBtn,
-        chartCanvas: chart, chartOverlay: ov, chartTip: tip, topBar: topBar, chartLoading: loading,
-        chartLegend: legend
-      };
-
-      // === Sparks state ===
-      self.spark = { enabled: false, byKey: {}, subs: [], MAX_POINTS: 120 };
-      // Reserve width for chart so buttons do not overlap
-      btns.style.right = (W + 24) + 'px';
-    };
-
-    // ---------- Sparks helpers (delegan en UTILS) ----------
-    this._mkSparkRow = function (sig) { EquiposGlobals.UTILS.mkSparkRow(self, sig); };
-    this._drawOne = function (info) { EquiposGlobals.UTILS.drawSparkOne(self, info); };
-    this._drawAll = function () { EquiposGlobals.UTILS.drawSparkAll(self); };
-    this._subSig = function (key) {
-      try {
-        var id = webMI.data.subscribe(self.base + key, function (e) {
-          if (!e) return;
-          self._pushVal(key, e.value);
-          self._drawOne(self.spark.byKey[key]);
-        });
-        self.spark.subs.push(id);
-      } catch (_) { }
-      webMI.data.read(self.base + key, function (r) {
-        if (r) {
-          self._pushVal(key, r.value);
-          self._drawOne(self.spark.byKey[key]);
-        }
-      });
-    };
-
-    this._pushVal = function (key, v) {
-      var info = self.spark.byKey[key]; if (!info) return;
-      if (v == null || (typeof v !== 'number' && typeof v !== 'boolean')) return;
-      var num = (typeof v === 'boolean') ? (v ? 1 : 0) : +v;
-      if (isNaN(num)) return;
-      var buf = info.buf; buf.push(num); if (buf.length > self.spark.MAX_POINTS) buf.shift();
-    };
-
-    this._enableSparks = function (on) {
-      self.spark.enabled = !!on;
-      if (self.spark.enabled) {
-        self.elements.sparkWrap.style.display = '';
-        self.elements.root.style.height = '320px';
-        self.host.style.height = '320px';
-        var maxH = 320 - (48 + 150 + 16);
-        if (maxH < 80) maxH = 80; self.elements.sparkWrap.style.maxHeight = maxH + 'px';
-        if (!self.spark._inited) {
-          self.spark._inited = true;
-          var SIGS = [
-            { key: '.status', label: 'sts', type: 'bool' },
-            { key: '.current', label: 'L1', type: 'num' },
-            { key: '.current2', label: 'L2', type: 'num' },
-            { key: '.current3', label: 'L3', type: 'num' },
-            { key: '.freq', label: 'freq', type: 'num' },
-            { key: '.FP', label: 'FP', type: 'num' },
-          ];
-          for (var si = 0; si < SIGS.length; si++) self._mkSparkRow(SIGS[si]);
-          for (var sk = 0; sk < SIGS.length; sk++) self._subSig(SIGS[sk].key);
-        }
-      } else {
-        self.elements.sparkWrap.style.display = 'none';
-        self.elements.root.style.height = '240px';
-        self.host.style.height = '240px';
-      }
-      self._drawAll();
-    };
-
-    // ---------- Config Inline ----------
-    this.openInlineConfig = function () {
-      var doc = self.doc;
-      var rootHost = doc.getElementById('fo_root_host') || self.host;
-      var XHTML_NS = 'http://www.w3.org/1999/xhtml';
-      function x(tag) { return doc.createElementNS(XHTML_NS, tag); }
-      function setS(el, styles) { for (var k in styles) if (Object.prototype.hasOwnProperty.call(styles, k)) el.style[k] = styles[k]; }
-
-      var overlay = x('div');
-      setS(overlay, { position: 'absolute', left: '0', top: '0', width: '100%', height: '100%', background: 'rgba(0,0,0,0.25)', zIndex: '9999' });
-
-      var panel = x('div');
-      setS(panel, {
-        width: '420px', height: '180px', background: '#fff', border: '1px solid #3b82f6',
-        borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', position: 'absolute',
-        padding: '16px 16px 12px 16px', fontFamily: 'Arial'
-      });
-      overlay.appendChild(panel);
-
-      // posicionar al mismo Y que la card
-      var panelW = 420, panelH = 280;
-      var hostRect = rootHost.getBoundingClientRect();
-      var cardRect = self.elements.root.getBoundingClientRect();
-      var y = (cardRect.top - hostRect.top) + rootHost.scrollTop;
-      var minY = 8, maxY = Math.max(minY, rootHost.scrollTop + rootHost.clientHeight - panelH - 8);
-      y = Math.max(minY, Math.min(maxY, Math.round(y)));
-      panel.style.top = y + 'px';
-      panel.style.left = Math.max(8, Math.round((rootHost.clientWidth - panelW) / 2)) + 'px';
-
-      var btnClose = x('button'); btnClose.textContent = '✕';
-      setS(btnClose, { position: 'absolute', top: '8px', right: '10px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '16px' });
-      panel.appendChild(btnClose);
-
-      var title = x('div'); title.textContent = 'Configuración de equipo';
-      setS(title, { fontWeight: 'bold', fontSize: '18px', marginBottom: '6px' });
-      panel.appendChild(title);
-
-      var nameEl = x('div'); nameEl.textContent = '-';
-      setS(nameEl, { color: '#444', fontSize: '13px', marginBottom: '6px' });
-      panel.appendChild(nameEl);
-
-      function row(label) {
-        var r = x('div'); setS(r, { display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '10px 6px' });
-        var l = x('span'); l.textContent = label; setS(l, { fontSize: '13px' });
-        r.appendChild(l); return { row: r, left: l };
-      }
-
-      var rLR = row('Local/Remoto (solo lectura):');
-      var lrBadge = x('div'); lrBadge.textContent = '-';
-      setS(lrBadge, {
-        width: '76px', height: '22px', borderRadius: '6px', background: '#9e9e9e', color: '#fff',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px'
-      });
-      rLR.row.appendChild(lrBadge); panel.appendChild(rLR.row);
-
-      function toggle(label, onColor) {
-        var rt = row(label);
-        var track = x('div'); setS(track, { width: '76px', height: '22px', borderRadius: '11px', background: '#bdbdbd', position: 'relative', cursor: 'pointer' });
-        var knob = x('div'); setS(knob, { width: '18px', height: '18px', borderRadius: '50%', background: '#fff', position: 'absolute', top: '2px', left: '2px', border: '1px solid #757575', transition: 'left .12s ease-out' });
-        track.appendChild(knob); rt.row.appendChild(track); panel.appendChild(rt.row);
-        function setUI(on) { track.style.background = on ? onColor : '#bdbdbd'; knob.style.borderColor = on ? '#0d47a1' : '#757575'; knob.style.left = on ? '56px' : '2px'; }
-        return { track: track, knob: knob, setUI: setUI };
-      }
-      var tMA = toggle('Modo (MA):', '#1976d2');
-      var tMN = toggle('Mantenimiento:', '#22c55e');
-
-      var rSP = row('Setpoint de frecuencia (.R):');
-      var spBox = x('div'); setS(spBox, { width: '90px', height: '26px', border: '1px solid #bdbdbd', borderRadius: '6px', background: '#f3f3f3', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '13px' });
-      var spVal = x('span'); spVal.textContent = '-'; spBox.appendChild(spVal);
-      rSP.row.appendChild(spBox); panel.appendChild(rSP.row);
-
-      if (rootHost.style.position === '') rootHost.style.position = 'relative';
-      rootHost.appendChild(overlay);
-
-      // Estado / subs
-      var stLR = null, stMaint = false, stMA = null; var canEditMA = false, canEditSP = false, canEditMaint = false; var subs = [];
-
-      function fmt1(v) { if (typeof v !== 'number' || isNaN(v)) return '-'; try { if (typeof webMI.sprintf === 'function') return webMI.sprintf('%.1f Hz', v); } catch (_) { return v.toFixed(1) + ' Hz'; } }
-      function refreshGuards() {
-        var isREM = (stLR === 'REM');
-        canEditMaint = isREM;
-        canEditMA = isREM && !stMaint;
-        canEditSP = isREM && !stMaint;
-        tMA.track.style.cursor = canEditMA ? 'pointer' : 'not-allowed';
-        tMA.knob.style.cursor = canEditMA ? 'pointer' : 'not-allowed';
-        tMN.track.style.cursor = canEditMaint ? 'pointer' : 'not-allowed';
-        tMN.knob.style.cursor = canEditMaint ? 'pointer' : 'not-allowed';
-        spBox.style.cursor = canEditSP ? 'pointer' : 'not-allowed';
-      }
-      function paintLR(isLocal) { lrBadge.style.background = isLocal ? '#ffab4a' : '#00897b'; lrBadge.textContent = isLocal ? 'LOC' : 'REM'; }
-
-      webMI.data.read(self.base + '.name', function (r) { nameEl.textContent = (r && r.value) ? String(r.value) : (self.base.split('.').pop() || ''); });
-
-      var lrResolved = false;
-      try {
-        var aId = webMI.alarm.subscribe(self.base + '.Alarma_Local.LR.Estado', function (e) {
-          lrResolved = true; var isLocal = (e.state === 1 || e.state === 2); stLR = isLocal ? 'LOC' : 'REM'; paintLR(isLocal); refreshGuards();
-        }); subs.push({ t: 'alarm', id: aId });
-      } catch (_) { }
-      webMI.data.read(self.base + '.loc_rem', function (r) {
-        if (lrResolved) return;
-        if (r && typeof r.value !== 'undefined') { var isRem = (r.value === true); stLR = isRem ? 'REM' : 'LOC'; paintLR(!isRem); } else stLR = null;
-        refreshGuards();
-      });
-
-      webMI.data.read(self.base + '.MA', function (r) { stMA = !!(r && r.value); tMA.setUI(stMA); refreshGuards(); });
-      var maId = webMI.data.subscribe(self.base + '.MA', function (e) { stMA = !!(e && e.value); tMA.setUI(stMA); refreshGuards(); }); subs.push({ t: 'data', id: maId });
-
-      webMI.data.read(self.base + '.maintenance', function (r) { stMaint = !!(r && r.value); tMN.setUI(stMaint); refreshGuards(); });
-      var mnId = webMI.data.subscribe(self.base + '.maintenance', function (e) { stMaint = !!(e && e.value); tMN.setUI(stMaint); refreshGuards(); }); subs.push({ t: 'data', id: mnId });
-
-      function paintR(v) { spVal.textContent = fmt1(v); }
-      function readR() { webMI.data.read(self.base + '.R', function (r) { paintR(r ? r.value : null); }); }
-      readR();
-      var rId = webMI.data.subscribe(self.base + '.R', function (e) { paintR(e.value); }); subs.push({ t: 'data', id: rId });
-
-      function toggleMA() { if (!canEditMA) return; webMI.data.read(self.base + '.MA', function (r) { var next = !(r && r.value === true); webMI.data.write(self.base + '.MA', next); }); }
-      function toggleMnt() { if (!canEditMaint) return; webMI.data.read(self.base + '.maintenance', function (r) { var next = !(r && r.value === true); webMI.data.write(self.base + '.maintenance', next); }); }
-      function promptR() {
-        if (!canEditSP) {
-          try { webMI.callExtension('SYSTEM.LIBRARY.ATVISE.QUICKDYNAMICS.MessageBox', { title: 'Edición bloqueada', text: (stLR !== 'REM' ? 'Requiere REM.' : 'Bloqueado por mantenimiento.') }); } catch (_) { }
-          return;
-        }
-        webMI.data.read(self.base + '.R', function (r) {
-          var cur = (r && typeof r.value === 'number') ? r.value : 0;
-          var def = (function () { try { return (typeof webMI.sprintf === 'function') ? webMI.sprintf('%.1f', cur) : cur.toFixed(1); } catch (_) { return cur.toFixed(1); } })();
-          var nv = prompt('Setpoint de frecuencia (Hz, 0 a 60):', def);
-          if (nv === null) return;
-          var num = parseFloat(String(nv).replace(',', '.')); if (isNaN(num)) { try { alert('Valor no numérico.'); } catch (_) { } return; }
-          num = Math.max(0, Math.min(60, +(num.toFixed(1)))); webMI.data.write(self.base + '.R', num);
-        });
-      }
-      tMA.track.addEventListener('click', toggleMA); tMA.knob.addEventListener('click', toggleMA);
-      tMN.track.addEventListener('click', toggleMnt); tMN.knob.addEventListener('click', toggleMnt);
-      spBox.addEventListener('click', promptR);
-
-      function cleanup() {
-        for (var i = 0; i < subs.length; i++) {
-          try {
-            if (subs[i].t === 'data') webMI.data.unsubscribe(subs[i].id);
-            else if (subs[i].t === 'alarm' && webMI.alarm && webMI.alarm.unsubscribe) webMI.alarm.unsubscribe(subs[i].id);
-          } catch (_) { }
-        } subs = [];
-      }
-      function close() { cleanup(); if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); doc.removeEventListener('keydown', escHandler); }
-      function escHandler(ev) { ev = ev || window.event; if (ev.key === 'Escape' || ev.keyCode === 27) close(); }
-      overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
-      btnClose.addEventListener('click', close);
-      doc.addEventListener('keydown', escHandler);
-    };
-
-    // ---------- Suscripciones / eventos ----------
-    this.attach = function () {
-      var sub = function (node, cb) { self.subs.push(webMI.data.subscribe(self.base + node, cb)); };
-      var read = function (node, cb) { webMI.data.read(self.base + node, cb); };
-
-      // ===== REFACTOR 2: SERIES_CONFIG centralizado =====
-      var SERIES_CONFIG = {
-        '.status': { key: 'sts', type: 'bool', enabled: true },
-        '.freq': { key: 'freq', type: 'number', enabled: true },
-        '.current': { key: 'cur1', type: 'number', enabled: true },
-        '.current2': { key: 'cur2', type: 'number', enabled: true },
-        '.current3': { key: 'cur3', type: 'number', enabled: true },
-        '.FP': { key: 'fp', type: 'number', enabled: true },
-        '.voltage': { key: 'volt', type: 'number', enabled: false },
-        '.power': { key: 'power', type: 'number', enabled: true },
-        '.MA': { key: 'ma', type: 'bool', enabled: true },
-        '.loc_rem': { key: 'lr', type: 'bool', enabled: true },
-        '.fault': { key: 'fault', type: 'bool', enabled: true }
-      };
-
-      read('.name', function (r) { if (r && r.value) self.elements.title.textContent = String(r.value); });
-      sub('.name', function (e) { if (e && e.value) self.elements.title.textContent = String(e.value); });
-
-      read('.freq', function (r) { if (r && typeof r.value === 'number') self.elements.tFreq.textContent = r.value.toFixed(1) + ' Hz'; });
-      sub('.freq', function (e) {
-        self.elements.tFreq.textContent = (e && typeof e.value === 'number') ? (e.value.toFixed(1) + ' Hz') : '-';
-        if (e && typeof e.value === 'number') { self._chartAdd('freq', Date.now(), e.value); self._scheduleChartDraw(); }
-      });
-
-      read('.power', function (r) { self.power_present = !!(r && typeof r.value !== 'undefined'); if (self.power_present) self.power_last = (typeof r.value === 'number') ? r.value : null; self.recalcKW(); });
-      sub('.power', function (e) { self.power_present = true; self.power_last = (typeof e.value === 'number') ? e.value : null; self.recalcKW(); });
-
-      read('.FP', function (r) { self.fp = (r && typeof r.value === 'number') ? r.value : null; self.elements.tFp.textContent = (self.fp == null) ? '-' : self.fp.toFixed(2); self.recalcKW(); });
-      sub('.FP', function (e) {
-        self.fp = (typeof e.value === 'number') ? e.value : null;
-        self.elements.tFp.textContent = (self.fp == null) ? '-' : self.fp.toFixed(2);
-        self.recalcKW();
-        if (typeof self.fp === 'number') { self._chartAdd('fp', Date.now(), self.fp); self._scheduleChartDraw(); }
-      });
-
-      // ===== CAMBIO: 3 corrientes separadas (NO promedio) =====
-      read('.current', function (r) {
-        self.corrientes.L1 = (r && typeof r.value === 'number') ? r.value : null;
-        self.elements.tCorriente1.textContent = (self.corrientes.L1 != null) ? self.corrientes.L1.toFixed(1) + ' A' : '-';
-        if (self.corrientes.L1 != null) { self._chartAdd('cur1', Date.now(), self.corrientes.L1); }
-      });
-      sub('.current', function (e) {
-        self.corrientes.L1 = (typeof e.value === 'number') ? e.value : null;
-        self.elements.tCorriente1.textContent = (self.corrientes.L1 != null) ? self.corrientes.L1.toFixed(1) + ' A' : '-';
-        if (self.corrientes.L1 != null) { self._chartAdd('cur1', Date.now(), self.corrientes.L1); self._scheduleChartDraw(); }
-      });
-
-      read('.current2', function (r) {
-        self.corrientes.L2 = (r && typeof r.value === 'number') ? r.value : null;
-        self.elements.tCorriente2.textContent = (self.corrientes.L2 != null) ? self.corrientes.L2.toFixed(1) + ' A' : '-';
-        if (self.corrientes.L2 != null) { self._chartAdd('cur2', Date.now(), self.corrientes.L2); }
-      });
-      sub('.current2', function (e) {
-        self.corrientes.L2 = (typeof e.value === 'number') ? e.value : null;
-        self.elements.tCorriente2.textContent = (self.corrientes.L2 != null) ? self.corrientes.L2.toFixed(1) + ' A' : '-';
-        if (self.corrientes.L2 != null) { self._chartAdd('cur2', Date.now(), self.corrientes.L2); self._scheduleChartDraw(); }
-      });
-
-      read('.current3', function (r) {
-        self.corrientes.L3 = (r && typeof r.value === 'number') ? r.value : null;
-        self.elements.tCorriente3.textContent = (self.corrientes.L3 != null) ? self.corrientes.L3.toFixed(1) + ' A' : '-';
-        if (self.corrientes.L3 != null) { self._chartAdd('cur3', Date.now(), self.corrientes.L3); }
-      });
-      sub('.current3', function (e) {
-        self.corrientes.L3 = (typeof e.value === 'number') ? e.value : null;
-        self.elements.tCorriente3.textContent = (self.corrientes.L3 != null) ? self.corrientes.L3.toFixed(1) + ' A' : '-';
-        if (self.corrientes.L3 != null) { self._chartAdd('cur3', Date.now(), self.corrientes.L3); self._scheduleChartDraw(); }
-      });
-
-      // ===== VOLTAGE (Comentado - disponible para habilitar) =====
-      /*
-      read('.voltage', function (r) { self.vavg = (r && typeof r.value === 'number') ? r.value : null; self.elements.tVavg.textContent = (self.vavg == null) ? '-' : self.vavg.toFixed(1) + ' V'; self.recalcKW(); });
-      sub('.voltage', function (e) {
-        self.vavg = (typeof e.value === 'number') ? e.value : null;
-        self.elements.tVavg.textContent = (self.vavg == null) ? '-' : self.vavg.toFixed(1) + ' V';
-        self.recalcKW();
-        if (typeof self.vavg === 'number') { self._chartAdd('volt', Date.now(), self.vavg); self._scheduleChartDraw(); }
-      });
-      */
-
-      read('.MA', function (r) { if (r) { self.st.ma = (r.value === true); self.elements.maBadge.textContent = self.st.ma ? 'AUTO' : 'MAN'; self.elements.maBadge.style.background = self.st.ma ? '#1976d2' : '#ef6c00'; self.applyInterlocks(); } });
-      sub('.MA', function (e) { self.st.ma = (e.value === true); self.elements.maBadge.textContent = self.st.ma ? 'AUTO' : 'MAN'; self.elements.maBadge.style.background = self.st.ma ? '#1976d2' : '#ef6c00'; self.applyInterlocks(); });
-
-      read('.loc_rem', function (r) { if (r) { var isRem = (r.value === true); self.st.lr = isRem ? 'REM' : 'LOC'; self.elements.lrBadge.textContent = self.st.lr; self.elements.lrBadge.style.background = isRem ? '#00897b' : '#ffab4a'; self.elements.root.style.borderColor = isRem ? '#1e9eff' : '#ffab4a'; self.applyInterlocks(); } });
-      sub('.loc_rem', function (e) { var isRem = (e.value === true); self.st.lr = isRem ? 'REM' : 'LOC'; self.elements.lrBadge.textContent = self.st.lr; self.elements.lrBadge.style.background = isRem ? '#00897b' : '#ffab4a'; self.elements.root.style.borderColor = isRem ? '#1e9eff' : '#ffab4a'; self.applyInterlocks(); });
-
-      read('.status', function (r) { if (r) { self.st.statusOn = (r.value === true); self.elements.statusPillBg.textContent = self.st.statusOn ? 'ON' : 'OFF'; self.elements.statusPillBg.style.background = self.st.statusOn ? '#43a047' : '#9e9e9e'; self.applyInterlocks(); } });
-      sub('.status', function (e) {
-        self.st.statusOn = (e.value === true);
-        self.elements.statusPillBg.textContent = self.st.statusOn ? 'ON' : 'OFF';
-        self.elements.statusPillBg.style.background = self.st.statusOn ? '#43a047' : '#9e9e9e';
-        self.applyInterlocks();
-        self._chartAdd('sts', Date.now(), self.st.statusOn ? 1 : 0); self._scheduleChartDraw();
-      });
-
-      read('.fault', function (r) { if (r) self.elements.faultBadge.style.display = (r.value === true) ? 'block' : 'none'; });
-      sub('.fault', function (e) { self.elements.faultBadge.style.display = (e.value === true) ? 'block' : 'none'; });
-
-      self.elements.btnOn.addEventListener('click', function () { self.commandWithRetry(true); });
-      self.elements.btnOff.addEventListener('click', function () { self.commandWithRetry(false); });
-      self.elements.btnSettings.addEventListener('click', function () { self.openInlineConfig(); });
-
-      // Pantalla completa de la mini-gráfica
-      self.elements.btnFull.addEventListener('click', function(){
-        var doc = self.doc, xh = EquiposGlobals.UTILS.x, setS = EquiposGlobals.UTILS.setStyles;
-        var overlay = xh(doc,'div'); setS(overlay,{ position:'fixed', left:'0', top:'0', width:'100%', height:'100%', background:'rgba(0,0,0,.5)', zIndex:'10000' });
-        var panel = xh(doc,'div'); setS(panel,{ position:'absolute', left:'5%', top:'8%', width:'90%', height:'84%', background:'#fff', borderRadius:'10px', boxShadow:'0 10px 28px rgba(0,0,0,.35)', fontFamily:'Arial' }); overlay.appendChild(panel);
-        doc.body.appendChild(overlay);
-        var pad=16, headerH=42;
-        var header = xh(doc,'div');
-        setS(header,{ position:'absolute', left:pad+'px', top:pad+'px', right:pad+'px', height:headerH+'px', display:'flex', alignItems:'center', gap:'12px', fontFamily:'Arial' });
-        panel.appendChild(header);
-
-        var ctrl = xh(doc,'div'); setS(ctrl,{ display:'flex', alignItems:'center', gap:'10px', background:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px', padding:'6px 10px', fontSize:'12px', color:'#111' }); header.appendChild(ctrl);
-        ctrl.appendChild(doc.createTextNode('Series:'));
-        var FS_KEYS = ['sts','freq','cur1','cur2','cur3','fp','volt'];
-        var LABELS = { sts:'Estatus', freq:'Frecuencia', cur1:'L1', cur2:'L2', cur3:'L3', fp:'FP', volt:'Voltaje' };
-        function mkCb(k){ var lab = xh(doc,'label'); var cb = xh(doc,'input'); cb.type='checkbox'; cb.checked = !(self._chart.visible && self._chart.visible[k]===false); lab.style.display='inline-flex'; lab.style.alignItems='center'; lab.style.gap='4px'; var span= xh(doc,'span'); span.textContent = LABELS[k] || k; lab.appendChild(cb); lab.appendChild(span); lab.style.marginRight='6px'; cb.addEventListener('change', function(){ if(!self._chart.visible) self._chart.visible={sts:true,freq:true,cur1:true,cur2:true,cur3:true,fp:true,volt:true}; self._chart.visible[k]=!!cb.checked; self._chartDraw(); }); ctrl.appendChild(lab);} FS_KEYS.forEach(mkCb);
-
-        var btnSalir = xh(doc,'button'); btnSalir.textContent='Salir'; setS(btnSalir,{ marginLeft:'auto', border:'1px solid #64748b', background:'#fff', color:'#111', borderRadius:'6px', height:'28px', padding:'0 10px', cursor:'pointer', fontFamily:'Arial' }); header.appendChild(btnSalir);
-
-        var cc = xh(doc,'canvas'); var cw = Math.max(300, panel.clientWidth - pad*2), ch = Math.max(220, panel.clientHeight - pad*2 - headerH); cc.width=cw; cc.height=ch;
-        setS(cc,{ position:'absolute', left:pad+'px', top:(pad+headerH)+'px', width:cw+'px', height:ch+'px', background:'#fff', border:'1px solid #e5e7eb', borderRadius:'6px' }); panel.appendChild(cc);
-        var ov = xh(doc,'canvas'); ov.width=cw; ov.height=ch; setS(ov,{ position:'absolute', left:pad+'px', top:(pad+headerH)+'px', width:cw+'px', height:ch+'px', pointerEvents:'auto' }); panel.appendChild(ov);
-        var tip = xh(doc,'div'); setS(tip,{ position:'absolute', padding:'6px 8px', borderRadius:'6px', background:'#0f172a', color:'#fff', fontSize:'12px', boxShadow:'0 4px 12px rgba(0,0,0,.25)', display:'none', fontFamily:'Arial' }); panel.appendChild(tip);
-        var fsLoad = xh(doc,'div'); setS(fsLoad,{ position:'absolute', left:pad+'px', top:(pad+headerH)+'px', width:cw+'px', height:ch+'px', display:(self._chart && self._chart.ready? 'none':'flex'), alignItems:'center', justifyContent:'center', background:'rgba(255,255,255,0.85)', border:'1px solid #e5e7eb', borderRadius:'6px', color:'#334155', fontSize:'12px', fontFamily:'Arial' }); fsLoad.textContent='Cargando…'; panel.appendChild(fsLoad);
-        var old = { c:self.elements.chartCanvas, o:self.elements.chartOverlay, t:self.elements.chartTip };
-        var _savedVisible = JSON.parse(JSON.stringify(self._chart.visible || {sts:true,freq:true,cur1:true,cur2:true,cur3:true,fp:true,volt:true}));
-        self.elements.chartCanvas = cc; self.elements.chartOverlay = ov; self.elements.chartTip = tip;
-        self._chartDraw(); EquiposGlobals.UTILS.attachChartHover(self);; requestAnimationFrame(function(){ cc.width=cw; cc.height=ch; ov.width=cw; ov.height=ch; setTimeout(function(){ try{ self._chartDraw(); }catch(_){} },0); });
-        function closeFs(){ if (self.elements.chartTip) self.elements.chartTip.style.display='none'; self._chart.visible = _savedVisible; self.elements.chartCanvas=old.c; self.elements.chartOverlay=old.o; self.elements.chartTip=old.t; if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }
-        btnSalir.addEventListener('click', closeFs);
-        window.addEventListener('resize', function(){ try{ var cw = Math.max(300, panel.clientWidth - pad*2), ch = Math.max(220, panel.clientHeight - pad*2 - headerH); cc.width=cw; cc.height=ch; ov.width=cw; ov.height=ch; self._chartDraw(); }catch(_){} });
-      });
-
-      try {
-        /* removed TI button */
-        /* removed TV button */
-      } catch (_) { }
-
-      // no external window on double-click for now
-      self.elements.root.addEventListener('dblclick', function () {});
-    };
-
-    this.recalcKW = function () {
-      var kw = null;
-      if (self.power_present && typeof self.power_last === 'number' && self.power_last > 0) kw = self.power_last;
-      else if (self.vavg != null && self.corrientes.L1 != null) { var pf = (typeof self.fp === 'number' && !isNaN(self.fp)) ? self.fp : 0.90; kw = (self.vavg * self.corrientes.L1 * pf) / 1000.0; }
-      if (kw == null) { self.elements.kwLabel.textContent = 'kW'; self.elements.tKw.textContent = '-'; return; }
-      if (kw < 1) { self.elements.kwLabel.textContent = 'W'; self.elements.tKw.textContent = Math.round(kw * 1000); }
-      else { self.elements.kwLabel.textContent = 'kW'; self.elements.tKw.textContent = kw.toFixed(2); }
-    };
-
-    this.resolveCommandNode = function (cb) {
-      var cands = ['.ON', '.run_stop', '.switch']; var i = 0;
-      (function next() {
-        if (i >= cands.length) { if (cb) cb(null); return; }
-        var n = self.base + cands[i++];
-        webMI.data.read(n, function (r) {
-          if (r && (typeof r.value !== 'undefined' || typeof r.status !== 'undefined')) { self.CMD_NODE = n; if (cb) cb(n); }
-          else next();
-        });
-      })();
-    };
-
-    this.commandWithRetry = function (desiredOn) {
-      if (self.st.lockClicks || self.st.maint || self.st.lr !== 'REM' || self.st.ma === true) return;
-      if ((desiredOn && !self.st.canClickOn) || (!desiredOn && !self.st.canClickOff)) return;
-
-      self.st.lockClicks = true; self.applyInterlocks();
-      self.elements.statusPillBg.textContent = desiredOn ? 'ENC...' : 'APG...';
-      self.elements.statusPillBg.style.background = '#546e7a';
-
-      var finish = function (ok) {
-        self.st.lockClicks = false; self.applyInterlocks();
-        if (!ok) { self.elements.statusPillBg.textContent = 'FALLO'; self.elements.statusPillBg.style.background = '#c62828'; setTimeout(function () { webMI.data.read(self.base + '.status'); }, 1200); }
-      };
-      var tryOnce = function (cmdNode) {
-        webMI.data.write(cmdNode, desiredOn, function () {
-          setTimeout(function () { webMI.data.read(self.base + '.status', function (r) { finish(r && r.value === desiredOn); }); }, 1000);
-        });
-      };
-      if (self.CMD_NODE) tryOnce(self.CMD_NODE); else self.resolveCommandNode(function (n) { if (n) tryOnce(n); else finish(false); });
-    };
-
-    this.applyInterlocks = function () {
-      var baseEnable = !self.st.maint && self.st.lr === 'REM' && self.st.ma === false && !self.st.lockClicks;
-      self.st.canConfig = !self.st.maint;
-      self.elements.btnSettings.style.opacity = self.st.canConfig ? '1' : '0.5';
-
-      self.st.canClickOn = baseEnable && !self.st.statusOn;
-      self.st.canClickOff = baseEnable && self.st.statusOn;
-
-      self.elements.btnOn.style.background = self.st.canClickOn ? '#2e7d32' : '#a5d6a7';
-      self.elements.btnOff.style.background = self.st.canClickOff ? '#c62828' : '#bdbdbd';
-    };
-
-    this.destroy = function () {
-      for (var j = 0; j < self.spark.subs.length; j++) { try { webMI.data.unsubscribe(self.spark.subs[j]); } catch (_) { } }
-      self.spark.subs = [];
-      for (var i = 0; i < self.subs.length; i++) { try { webMI.data.unsubscribe(self.subs[i]); } catch (_) { } }
-      if (self.host && self.host.parentNode) self.host.parentNode.removeChild(self.host);
-    };
-
-    // ======= Gráfica combinada (buffers) =======
-    this._chart = { series: { sts: [], freq: [], cur1: [], cur2: [], cur3: [], fp: [] }, max: 240, tmin: 0, tmax: 0 };
-
-    this._chartAdd = function (key, ts, val) {
-      if (val == null || isNaN(Number(val))) return;
-      var s = self._chart.series[key]; if (!s) return;
-      s.push({ t: Number(ts), v: Number(val) });
-      if (s.length > self._chart.max) s.shift();
-
-      // recomputa dominio de tiempo
-      var tmin = Infinity, tmax = 0, k, arr;
-      for (k in self._chart.series) {
-        if (!Object.prototype.hasOwnProperty.call(self._chart.series, k)) continue;
-        arr = self._chart.series[k];
-        if (!arr.length) continue;
-        if (arr[0].t < tmin) tmin = arr[0].t;
-        if (arr[arr.length - 1].t > tmax) tmax = arr[arr.length - 1].t;
-      }
-      self._chart.tmin = isFinite(tmin) ? tmin : 0;
-      self._chart.tmax = tmax || 0;
-    };
-
-    // Historico (20 min)
-    this._loadHist = function (nodeKey, hours) {
-      var now = Date.now();
-      var from = now - hours * 60 * 60 * 1000;
-      var MAX = self._chart.max;
-
-      var f = {
-        type: ["v:1"],
-        address: ["g:" + self.base + nodeKey],
-        select: ["v:timestamp", "v:value"],
-        numrows: ["v:" + MAX],
-        timestamp: ["n:>=" + from, "n:<" + now],
-        order: ["v:desc"]
-      };
-
-      function fixTs(ts) { var n = Number(ts); return (n && n < 1e12) ? (n * 1000) : n; }
-
-      webMI.data.queryFilter(f, function (res) {
-        if (!res || !res.result) return;
-        var rows = res.result;
-        var tt = [], vv = [];
-        for (var i = 0; i < rows.length; i++) {
-          var r = rows[i];
-          var ts = (r && (r.timestamp != null ? r.timestamp : (Array.isArray(r) ? r[0] : null)));
-          var val = (r && (r.value != null ? r.value : (Array.isArray(r) ? r[1] : null)));
-          if (ts == null || val == null) continue;
-          ts = fixTs(ts); if (isNaN(ts)) continue;
-
-          if (nodeKey === '.status') {
-            val = (val === true || val === 1 || val === '1') ? 1 : 0;
-          } else {
-            val = Number(val); if (isNaN(val)) continue;
-          }
-          tt.push(ts); vv.push(val);
-        }
-        if (tt.length >= 2 && tt[0] > tt[tt.length - 1]) { tt.reverse(); vv.reverse(); }
-
-        var map = { '.status': 'sts', '.freq': 'freq', '.current': 'cur1', '.current2': 'cur2', '.current3': 'cur3', '.FP': 'fp', '.voltage': 'volt' };
-        var key = map[nodeKey];
-        for (var j = 0; j < tt.length; j++) { self._chartAdd(key, tt[j], vv[j]); }
-        self._chartDraw();
-      });
-    };
-
-    this._loadAllHistoric = function (hours) {
-      // loading state
-      self._chart.ready = false;
-      if (self.elements.chartLoading) self.elements.chartLoading.style.display = 'flex';
-      var pending = 6;  // ===== CAMBIO: 6 series (cur1, cur2, cur3 por separado) =====
-      function one() { pending--; if (pending <= 0) { self._chart.ready = true; if (self.elements.chartLoading) self.elements.chartLoading.style.display = 'none'; self._chartDraw(); } }
-
-      // wrap _loadHist to notify completion
-      function loadOne(key) {
-        var orig = self._loadHist;
-        if (orig.length === 2) {
-          var before = Date.now();
-          orig.call(self, key, hours);
-          setTimeout(one, 50);
-        } else {
-          orig.call(self, key, hours, one);
-        }
-      }
-      loadOne('.status');
-      loadOne('.freq');
-      loadOne('.current');
-      loadOne('.current2');
-      loadOne('.current3');
-      loadOne('.FP');
-      // loadOne('.voltage');  // COMENTADO - descomentar si habilitas voltage
-    };
-
-    this._initChart = function () {
-      self._chart = { series: { sts: [], freq: [], cur1: [], cur2: [], cur3: [], fp: [] }, max: 100, tmin: 0, tmax: 0, ready:false };
-      // 20 minutos
-      self._loadAllHistoric(1/3);
-    };
-
-    // ¡único init!
-    this.init();
-  };
 }
 ]]></code>
 </script>

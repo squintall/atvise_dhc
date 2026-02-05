@@ -6,6 +6,8 @@ Description: en|Bomba_3
 EventNotifier: 0
 Reference: forward HasTypeDefinition ns=1;s=ObjectTypes.PROJECT.Bomba
 Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Asignar_LR
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Asignar_MA
+Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Asignar_STS
 Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Descripcion
 Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Indicador_Bomba
 Reference: forward HasComponent ns=1;s=ObjectTypes.PROJECT.Bomba.Indicador_Bomba_v2

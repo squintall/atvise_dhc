@@ -6,8 +6,100 @@
   <atv:snapconfig enabled="false" height="10" width="10"/>
  </metadata>
  <script atv:desc="" atv:name="" type="text/ecmascript"/>
- <svg atv:refpx="959.955" atv:refpy="241.194" height="483.11" id="id_0" transform="matrix(1,0,0,0.9986,0,0)" width="1920" x="0" xlink:href="AGENT.DISPLAYS.USER.Sectorizacion.01_Lista_Monitoreo_BJ" y="0">
+ <svg atv:refpx="959.955" atv:refpy="241.194" height="490" id="id_0" transform="matrix(1,0,0,0.9986,0,0)" width="1920" x="0" xlink:href="AGENT.DISPLAYS.USER.Sectorizacion.01_Lista_Monitoreo_BJ" y="0">
   <atv:argument name="base" prefix="base"/>
  </svg>
  <svg atv:refpx="960.013" atv:refpy="752.11" height="490" id="id_1" transform="matrix(1,0,0,0.9996,0,0)" width="1920" x="0" xlink:href="AGENT.DISPLAYS.USER.Sectorizacion.01_Lista_Monitoreo_SOL" y="507.399"/>
+ <foreignObject height="994" id="id_legend" width="125" x="1793" y="0">
+  <div style="width: 100%; height: 100%; background: linear-gradient(180deg, #001a33 0%, #000d1a 100%); color: white; font-family: sans-serif; padding: 10px 0; box-sizing: border-box; border-left: 2px solid #0000ff; display: flex; flex-direction: column; align-items: center;" xmlns="http://www.w3.org/1999/xhtml">
+   <style>
+      .marker-v { width: 8px; height: 14px; border: 1px solid #fff; margin-right: 8px; flex-shrink: 0; }
+      .marker-s { width: 14px; height: 14px; border: 1px solid #fff; margin-right: 8px; border-radius: 2px; flex-shrink: 0; }
+      .legend-row { display: flex; align-items: center; margin-bottom: 5px; width: 100%; padding-left: 10px; cursor: help; }
+      .legend-row:hover { background: #ffffff11; }
+      .section-header { color: #4dadff; font-size: 14px; font-weight: bold; margin-bottom: 4px; display: block; border-bottom: 1px solid #4dadff44; width: 90%; text-align: center; }
+      .section-sub { color: #aaa; font-size: 10px; font-style: italic; margin-bottom: 8px; display: block; text-align: center; line-height: 1.1; }
+    </style>
+   <h3 style="text-align: center; margin: 0 0 15px 0; font-size: 18px; text-decoration: underline; color: #4dadff; letter-spacing: 1px;">LEYENDA IIoT</h3>
+   <!-- Visual Guide -->
+   <div style="width: 120px; margin-bottom: 25px; border: 1px solid #4dadff55; padding: 8px 0; background: #ffffff11; border-radius: 4px; display: flex; flex-direction: column; align-items: center;">
+    <b style="color: #4dadff; font-size: 11px; display: block; margin-bottom: 8px; text-align: center;">VISTA CÉLULA:</b>
+    <div style="border: 2px solid #555; background: #fff; color: #000; font-size: 11px; width: 105px; position: relative; border-radius:1px; box-shadow: 0 4px 8px rgba(0,0,0,0.5);">
+     <div style="background: #eee; border-bottom: 1px solid #ccc; padding: 4px; height: 14px; font-weight: bold;">ID_Punto</div>
+     <div style="background: #0000ff; color: white; height: 22px; display: flex; align-items: center; justify-content: center; position: relative; font-weight: bold; font-size: 12px;" title="Estado de Comunicación (Fondo del Nombre)">Nombre Sitio</div>
+     <div style="background: #1a8b22; color: #fff; padding: 4px; height: 14px; font-size: 10px; text-align: center; font-weight: bold;" title="Recencia de Datos (Fondo de la Fecha)">Fecha y hora</div>
+    </div>
+   </div>
+   <!-- Communication Section -->
+   <div style="width: 115px; margin-bottom: 25px;">
+    <span class="section-header">COMUNICACIÓN</span>
+    <span class="section-sub">(Fondo del Nombre)</span>
+    <div class="legend-row" title="Comunicación Normal">
+     <div class="marker-v" style="background: #1a8b22;"/>
+     <span style="font-size: 11px;">Normal</span>
+    </div>
+    <div class="legend-row" title="Sincronización de Datos">
+     <div class="marker-v" style="background: blue;"/>
+     <span style="font-size: 11px;">Sincro.</span>
+    </div>
+    <div class="legend-row" title="Sin Comunicación">
+     <div class="marker-v" style="background: #ff0000;"/>
+     <span style="font-size: 11px;">No Com.</span>
+    </div>
+    <div class="legend-row" title="Esperando Datos Iniciales">
+     <div class="marker-v" style="background: #7c1536;"/>
+     <span style="font-size: 11px;">Iniciando</span>
+    </div>
+    <div class="legend-row" title="Falla de Equipo">
+     <div class="marker-v" style="background: #b98f2d;"/>
+     <span style="font-size: 11px;">Falla Equ.</span>
+    </div>
+    <div class="legend-row" title="Falla de Sensor">
+     <div class="marker-v" style="background: #e64980;"/>
+     <span style="font-size: 11px;">Falla Sen.</span>
+    </div>
+    <div class="legend-row" title="Equipo Desconectado">
+     <div class="marker-v" style="background: orange;"/>
+     <span style="font-size: 11px;">Desconect.</span>
+    </div>
+    <div class="legend-row" title="Falla General de Comunicación">
+     <div class="marker-v" style="background: #ff8f05;"/>
+     <span style="font-size: 11px;">Falla Gral.</span>
+    </div>
+    <div class="legend-row" title="Equipo Fuera de Servicio">
+     <div class="marker-v" style="background: #495057;"/>
+     <span style="font-size: 11px;">Fuera Serv.</span>
+    </div>
+    <div class="legend-row" title="Dato Incierto / Calidad Dudosa">
+     <div class="marker-v" style="background: #883fb2;"/>
+     <span style="font-size: 11px;">Incierto</span>
+    </div>
+    <div class="legend-row" title="Estado Desconocido">
+     <div class="marker-v" style="background: #6b6b6b;"/>
+     <span style="font-size: 11px;">Desconocido</span>
+    </div>
+   </div>
+   <!-- Update Section -->
+   <div style="width: 115px; margin-bottom: 20px;">
+    <span class="section-header">ACTUALIZACIÓN</span>
+    <span class="section-sub">(Fondo de la Fecha)</span>
+    <div class="legend-row" title="Actualizado hoy">
+     <div class="marker-s" style="background: #1a8b22;"/>
+     <span style="font-size: 11px;">Hoy</span>
+    </div>
+    <div class="legend-row" title="Actualizado en los últimos 7 días">
+     <div class="marker-s" style="background: #1c7ed6;"/>
+     <span style="font-size: 11px;">Semana</span>
+    </div>
+    <div class="legend-row" title="Actualizado en el último mes (30 días)">
+     <div class="marker-s" style="background: #f59f00;"/>
+     <span style="font-size: 11px;">Mes</span>
+    </div>
+    <div class="legend-row" title="Más de un mes sin actualización">
+     <div class="marker-s" style="background: #ff0000;"/>
+     <span style="font-size: 11px;">Retraso</span>
+    </div>
+   </div>
+  </div>
+ </foreignObject>
 </svg>

@@ -5,7 +5,7 @@
   <atv:gridconfig enabled="false" gridstyle="lines" height="20" width="20"/>
   <atv:snapconfig enabled="false" height="10" width="10"/>
  </metadata>
- <svg atv:refpx="960" atv:refpy="540" height="600" id="id_1" transform="matrix(2.4,0,0,1.8,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="0">
+ <svg atv:refpx="960" atv:refpy="538.017" height="600" id="id_1" transform="matrix(2.4,0,0,1.8,0,0)" width="800" x="0" xlink:href="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.hmi.iframe" y="-1.102">
   <atv:argument name="frameName" value="content_admin"/>
   <atv:argument name="isNavigationFrame" value="true"/>
   <atv:argument name="display" value="AGENT.DISPLAYS.USER.Logo_AGUAKAN"/>
@@ -290,4 +290,5 @@
   <atv:argument name="isNavigationFrame" value="true"/>
   <atv:argument name="display" value="SYSTEM.LIBRARY.ATVISE.OBJECTDISPLAYS.Advanced.layoutelements.box_user"/>
  </svg>
+ <text atv:refpx="172.176" atv:refpy="75.215" fill="#000000" font-family="Arial" font-size="12" id="id_14" x="39.676" y="79.715">AGUAKAN SA de CV  ® | Desarrollado por DHC TI</text>
 </svg>
